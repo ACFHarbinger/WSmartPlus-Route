@@ -36,7 +36,6 @@ class VectorizedAHVPL(VectorizedHVPL):
         aco_iterations: int = 1,
         alns_iterations: int = 50,
         crossover_rate: float = 0.7,
-        alpha_diversity: float = 0.5,
         elite_size: int = 5,
         device: str = "cuda",
         generator: Optional[torch.Generator] = None,
@@ -57,7 +56,6 @@ class VectorizedAHVPL(VectorizedHVPL):
             **kwargs,
         )
         self.crossover_rate = crossover_rate
-        self.alpha_diversity = alpha_diversity
         self.elite_size = elite_size
 
     def __getstate__(self) -> Dict[str, Any]:
@@ -117,13 +115,13 @@ class VectorizedAHVPL(VectorizedHVPL):
         expanded_capacity = capacity.repeat_interleave(self.n_teams, dim=0)
 
         # Initialize Population Manager (HGS Core)
-        pop_manager = VectorizedPopulation(self.n_teams, device, self.alpha_diversity, self.generator)
+        pop_manager = VectorizedPopulation(self.n_teams, device, self.generator)
 
         # Initial costs (required for population management)
         # Flatten to (batch_size * n_teams, num_nodes-1)
         flat_giant = population_giant.view(batch_size * self.n_teams, -1)
         _, init_costs = vectorized_linear_split(flat_giant, expanded_dist, expanded_waste, expanded_capacity)
-        pop_manager.initialize(population_giant, init_costs.view(batch_size, self.n_teams))
+        pop_manager.initialize(population_giant, init_costs.view(batch_size, self.n_teams), self.elite_size)
 
         best_tours = population_giant[:, 0].clone()
         best_costs = torch.full((batch_size,), float("inf"), device=device)
@@ -161,7 +159,7 @@ class VectorizedAHVPL(VectorizedHVPL):
             coached_giant = self._routes_to_giant_tours(
                 coached_routes_list, batch_size, self.n_teams, num_nodes - 1, offspring_giant
             )
-            pop_manager.add_individuals(coached_giant, instance_costs)
+            pop_manager.add_individuals(coached_giant, instance_costs, self.elite_size)
 
             # 8. Pheromone Update
             if improved.any():
@@ -211,7 +209,7 @@ class VectorizedAHVPL(VectorizedHVPL):
                 pop_manager.costs[b, idx] = sub_costs.view(batch_size, n_sub)[b, s]
 
         # Recompute fitness after substitution
-        pop_manager.compute_biased_fitness()
+        pop_manager.compute_biased_fitness(self.elite_size)
 
     def _routes_to_giant_tours(self, routes_list, batch_size, n_teams, N, backup_giant):
         """Utility to convert coached route lists back to giant tours."""

@@ -12,6 +12,7 @@ from ...configs.policies.lb_vns import LocalBranchingVNSConfig
 from ..base.base_routing_policy import BaseRoutingPolicy
 from ..base.factory import PolicyRegistry
 from .lb_vns import run_lb_vns_gurobi
+from .params import LBVNSParams
 
 
 @PolicyRegistry.register("lb_vns")
@@ -80,7 +81,7 @@ class LocalBranchingVNSPolicy(BaseRoutingPolicy):
         Extract the current problem state and execute the LB-VNS metaheuristic.
 
         This method bridges the simulation state (numpy arrays and dictionaries)
-        with the gurobipy-based mathematical model.
+         with the gurobipy-based mathematical model.
 
         Parameters (passed via kwargs):
             distance_matrix (np.ndarray): NxN symmetric matrix representing travel costs.
@@ -98,18 +99,21 @@ class LocalBranchingVNSPolicy(BaseRoutingPolicy):
                 - float: The total travel cost of the reconstructed tour.
                 - Dict[str, Any]: Metadata containing the final mathematical objective value.
         """
-        cfg = self._parse_config(self.config, LocalBranchingVNSConfig)
+        # 1. Initialize parameters
+        params = LBVNSParams.from_config(self.config)
 
+        # 2. Extract environment parameters
         distance_matrix = kwargs["distance_matrix"]
         wastes = kwargs.get("wastes", {})
         capacity = kwargs.get("capacity", 1.0e9)
         mandatory_nodes = kwargs.get("must_go", [])
         R = kwargs.get("R", 1.0)
         C = kwargs.get("C", 1.0)
-        seed = cfg.seed if cfg.seed is not None else kwargs.get("seed", 42)
 
-        # Delegate the actual optimization loop to the mathematical solver core.
-        # This keeps the policy adapter thin and decoupled from Gurobi specificities.
+        # 3. Enforce deterministic behavior (override seed if provided in kwargs)
+        seed = kwargs.get("seed", params.seed)
+
+        # 4. Call the core matheuristic solver with granular parameter extraction
         tour, obj_val, cost = run_lb_vns_gurobi(
             dist_matrix=distance_matrix,
             wastes=wastes,
@@ -117,13 +121,13 @@ class LocalBranchingVNSPolicy(BaseRoutingPolicy):
             R=R,
             C=C,
             mandatory_nodes=mandatory_nodes,
-            k_min=cfg.k_min,
-            k_max=cfg.k_max,
-            k_step=cfg.k_step,
-            time_limit=cfg.time_limit,
-            time_limit_per_lb=cfg.time_limit_per_lb,
-            max_lb_iterations=cfg.max_lb_iterations,
-            mip_gap=cfg.mip_gap,
+            k_min=params.k_min,
+            k_max=params.k_max,
+            k_step=params.k_step,
+            time_limit=params.time_limit,
+            time_limit_per_lb=params.time_limit_per_lb,
+            max_lb_iterations=params.max_lb_iterations,
+            mip_gap=params.mip_gap,
             seed=seed,
         )
 

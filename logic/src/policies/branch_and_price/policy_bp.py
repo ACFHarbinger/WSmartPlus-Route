@@ -24,6 +24,7 @@ from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
 
 from .bp import BranchAndPriceSolver
+from .params import BPParams
 
 
 @PolicyRegistry.register("bp")
@@ -148,23 +149,10 @@ class BranchAndPricePolicy(BaseRoutingPolicy):
         mandatory_set = set(mandatory_nodes)
 
         # ------------------------------------------------------------------
-        # Resolve branching strategy using central logic
+        # Build and run solver with standardized parameters
         # ------------------------------------------------------------------
-        branching_strategy = BranchAndPriceSolver._resolve_branching_strategy(
-            branching_strategy=values.get("branching_strategy", "edge"),
-            use_ryan_foster=values.get("use_ryan_foster", False),
-            values=values,
-        )
+        params = BPParams.from_config(values)
 
-        # ------------------------------------------------------------------
-        # Resolve ng-route parameters
-        # ------------------------------------------------------------------
-        use_ng_routes: bool = values.get("use_ng_routes", True)
-        ng_neighborhood_size: int = values.get("ng_neighborhood_size", 8)
-
-        # ------------------------------------------------------------------
-        # Build and run solver
-        # ------------------------------------------------------------------
         solver = BranchAndPriceSolver(
             n_nodes=n_nodes,
             cost_matrix=sub_dist_matrix,
@@ -173,14 +161,7 @@ class BranchAndPricePolicy(BaseRoutingPolicy):
             revenue_per_kg=revenue,
             cost_per_km=cost_unit,
             mandatory_nodes=mandatory_set,
-            max_iterations=values.get("max_iterations", 100),
-            max_routes_per_iteration=values.get("max_routes_per_iteration", 10),
-            optimality_gap=values.get("optimality_gap", 1e-4),
-            branching_strategy=branching_strategy,
-            max_branch_nodes=values.get("max_branch_nodes", 1000),
-            use_exact_pricing=values.get("use_exact_pricing", False),
-            use_ng_routes=use_ng_routes,
-            ng_neighborhood_size=ng_neighborhood_size,
+            params=params,
         )
 
         tour, profit, statistics = solver.solve()

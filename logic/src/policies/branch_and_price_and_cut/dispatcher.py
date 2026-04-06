@@ -20,6 +20,7 @@ from logic.src.tracking.viz_mixin import PolicyStateRecorder
 from .bpc_engine import run_custom_bpc
 from .gurobi_engine import run_bpc_gurobi
 from .ortools_engine import run_bpc_ortools
+from .params import BPCParams
 from .vrpy_engine import run_bpc_vrpy
 
 
@@ -29,11 +30,9 @@ def run_bpc(
     capacity,
     R,
     C,
-    values,
+    params: BPCParams,
     must_go_indices=None,
     env=None,
-    expand_pool=False,
-    profit_aware_operators=False,
     node_coords=None,
     recorder: Optional[PolicyStateRecorder] = None,
 ):
@@ -63,24 +62,28 @@ def run_bpc(
             - routes: List of routes, each containing node IDs
             - cost: Total travel cost (distance * C)
     """
-    engine = values.get("bpc_engine", "ortools")
+    engine = params.engine
     # Fix 7: Warn if ignored parameters are passed to non-custom engines
-    if engine in ("vrpy", "gurobi", "ortools") and (expand_pool or profit_aware_operators):
+    if engine in ("vrpy", "gurobi", "ortools") and (params.vrpp or params.profit_aware_operators):
         import warnings
 
         warnings.warn(
-            f"BPC engine '{engine}' does not support expand_pool or "
+            f"BPC engine '{engine}' does not support vrpp expansion or "
             f"profit_aware_operators. These parameters are ignored. "
             "Use engine='custom' to enable them.",
             stacklevel=2,
         )
 
     if engine == "vrpy":
-        return run_bpc_vrpy(dist_matrix, wastes, capacity, R, C, values, recorder=recorder)
+        return run_bpc_vrpy(dist_matrix, wastes, capacity, R, C, params.to_dict(), recorder=recorder)
     elif engine == "gurobi":
-        return run_bpc_gurobi(dist_matrix, wastes, capacity, R, C, values, must_go_indices, env, recorder=recorder)
+        return run_bpc_gurobi(
+            dist_matrix, wastes, capacity, R, C, params.to_dict(), must_go_indices, env, recorder=recorder
+        )
     elif engine == "ortools":
-        return run_bpc_ortools(dist_matrix, wastes, capacity, R, C, values, must_go_indices, recorder=recorder)
+        return run_bpc_ortools(
+            dist_matrix, wastes, capacity, R, C, params.to_dict(), must_go_indices, recorder=recorder
+        )
     elif engine == "custom":
         return run_custom_bpc(
             dist_matrix,
@@ -88,11 +91,9 @@ def run_bpc(
             capacity,
             R,
             C,
-            values,
+            params,
             must_go_indices,
             node_coords,
-            expand_pool,
-            profit_aware_operators,
             recorder,
         )
     else:

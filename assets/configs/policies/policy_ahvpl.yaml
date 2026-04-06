@@ -83,18 +83,6 @@ ahvpl:
       # Probability of applying OX crossover per generation
       # Range: 0.0-1.0 (0.0 = clone parent, 1.0 = always crossover)
 
-    - hgs_alpha_diversity: 0.1
-      # Weight of diversity in fitness calculation
-      # Range: 0.0-1.0 (0.0 = pure profit, 1.0 = pure diversity)
-
-    - hgs_min_diversity: 0.2
-      # Minimum diversity threshold for triggering diversity maintenance
-      # Range: 0.0-1.0 (0.0 = pure profit, 1.0 = pure diversity)
-
-    - hgs_diversity_change_rate: 0.05
-      # Rate at which alpha diversity changes
-      # Range: 0.01-0.1 (0.01 = conservative, 0.1 = aggressive)
-
     - hgs_no_improvement_threshold: 20
       # Number of generations without improvement to trigger diversity maintenance
       # Range: 10-50 (10 = conservative, 50 = aggressive)

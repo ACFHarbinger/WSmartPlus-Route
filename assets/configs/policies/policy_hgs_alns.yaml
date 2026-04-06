@@ -86,18 +86,6 @@ hgs_alns:
       # Probability of applying crossover
       # Vidal 2022 default: 1.0 (always apply)
 
-    - hgs_alpha_diversity: 0.5
-      # Weight of diversity in biased fitness calculation
-      # Range: 0.0-1.0 (Vidal 2022 default: 0.5)
-
-    - hgs_min_diversity: 0.2
-      # Minimum diversity threshold
-      # Range: 0.0-1.0
-
-    - hgs_diversity_change_rate: 0.05
-      # Rate at which alpha diversity changes
-      # Range: 0.01-0.1
-
     - hgs_max_vehicles: 0
       # Maximum vehicles allowed (0 = unlimited)
 

@@ -14,6 +14,7 @@ from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
 
 from .cvrp import find_routes, find_routes_ortools
+from .params import CVRPParams
 
 
 @PolicyRegistry.register("cvrp")
@@ -83,25 +84,19 @@ class CVRPPolicy(BaseRoutingPolicy):
 
         to_collect = list(must_go) if must_go else list(range(1, bins.n + 1))
 
-        # Load capacity
+        # Load capacity and other area-specific constant params
         capacity, _, _, values = self._load_area_params(area, waste_type, config)
         self._log_solver_params(values, kwargs)
 
-        # Get engine and time_limit from typed config or values dict
-        cfg = self._config
-        engine = getattr(cfg, "engine", None) if cfg is not None else values.get("engine", "pyvrp")
-        if engine is None:
-            engine = values.get("engine", "pyvrp")
-        time_limit = getattr(cfg, "time_limit", None) if cfg is not None else values.get("time_limit", 2.0)
-        if time_limit is None:
-            time_limit = values.get("time_limit", 2.0)
+        # Initialize type-safe Params
+        params = CVRPParams.from_config(self._config or values)
 
         # Use cached route if available and no specific must_go
         if cached is not None and len(cached) > 1 and not must_go:
             tour = cached
         else:
-            seed = kwargs.get("seed") if kwargs.get("seed") is not None else 42
-            solver_fn = find_routes_ortools if engine == "ortools" else find_routes
+            seed = kwargs.get("seed") if kwargs.get("seed") is not None else params.seed
+            solver_fn = find_routes_ortools if params.engine == "ortools" else find_routes
             tour = solver_fn(
                 distancesC,
                 bins.c,
@@ -109,7 +104,7 @@ class CVRPPolicy(BaseRoutingPolicy):
                 np.array(to_collect),
                 n_vehicles,
                 coords,
-                time_limit=time_limit,
+                time_limit=params.time_limit,
                 seed=seed,
             )
         # Ensure list format

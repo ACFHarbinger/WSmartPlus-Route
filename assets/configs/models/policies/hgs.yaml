@@ -29,10 +29,6 @@ elite_size: 10
 # Number of elite solutions to preserve each generation
 # Range: 5-25 (typically 20% of population_size)
 
-alpha_diversity: 0.5
-# Alpha diversity parameter for population management
-# Range: 0.0-1.0 (0.0 = no diversity, 1.0 = maximum diversity)
-
 # Genetic Operators
 mutation_rate: 0.2
 # Probability of mutation after crossover

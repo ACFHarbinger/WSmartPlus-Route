@@ -72,7 +72,8 @@ class KSACOParams:
     elitist_weight: float = 1.0
     vrpp: bool = True
     profit_aware_operators: bool = False
-    seed: Optional[int] = None
+    q0: float = 0.9  # Probability of best-edge selection
+    seed: Optional[int] = 42
 
     def __post_init__(self) -> None:
         """Validate parameters after initialization."""
@@ -111,4 +112,6 @@ class KSACOParams:
             elitist_weight=getattr(config, "elitist_weight", 1.0),
             vrpp=getattr(config, "vrpp", True),
             profit_aware_operators=getattr(config, "profit_aware_operators", False),
+            q0=getattr(config, "q0", 0.9),
+            seed=getattr(config, "seed", 42),
         )

@@ -48,7 +48,6 @@ class CMABEvolution:
         self,
         split_manager: LinearSplit,
         bandit_algorithm: str = "linucb",  # 'linucb', 'thompson', 'epsilon_greedy'
-        max_iterations: int = 1000,
         quality_weight: float = 0.5,
         improvement_weight: float = 0.6,
         diversity_weight: float = 0.2,
@@ -64,7 +63,6 @@ class CMABEvolution:
         Args:
             split_manager: LinearSplit for evaluating individuals and splitting routes.
             bandit_algorithm: The RL algorithm to use (linucb, thompson, epsilon_greedy).
-            max_iterations: Maximum search iterations for decay calculations.
             quality_weight: Weight for the absolute quality of the offspring.
             improvement_weight: Weight for the improvement relative to parents.
             diversity_weight: Weight for the offspring's contribution to population diversity.
@@ -122,7 +120,6 @@ class CMABEvolution:
 
         # Tracking
         self.iteration = 0
-        self.max_iterations = max_iterations  # Updated during evolution
 
     def crossover(
         self,
@@ -130,7 +127,7 @@ class CMABEvolution:
         p2: Individual,
         population: List[Individual],
         iteration: int,
-        max_iterations: int,
+        progress: float = 0.0,
     ) -> Individual:
         """
         Execute crossover by selecting the optimal operator via bandit.
@@ -140,16 +137,15 @@ class CMABEvolution:
             p2 (Individual): Second parent.
             population (List[Individual]): Current population for context extraction.
             iteration (int): Current global iteration.
-            max_iterations (int): Maximum convergence iterations.
+            progress (float): Normalized search progress in [0, 1].
 
         Returns:
             Individual: The resulting offspring.
         """
         self.iteration = iteration
-        self.max_iterations = max_iterations
 
         # Step 1: Extract context features (geographical, diversity, progress)
-        context = self.feature_extractor.extract_features(p1, p2, population, iteration, max_iterations)
+        context = self.feature_extractor.extract_features(p1, p2, population, iteration, progress)
 
         # Step 2: Select action (crossover operator) using the bandit's upper confidence bound or sampling
         op_idx = self.bandit.select_action(context, self.np_rng)
@@ -316,18 +312,17 @@ class CMABEvolution:
 def update_biased_fitness(
     population: List[Individual],
     nb_elite: int,
-    alpha_diversity: float = 0.5,
     neighbor_size: int = 15,
 ):
     """
     Update biased fitness based on profit rank and diversity rank.
+    Uses parameterless diversity weighting (Vidal 2022).
 
-    This is the same as the original HGS, maintained for compatibility.
+    BF(I) = Rank_P(I) + (1 - nb_elite / pop_size) * Rank_D(I)
 
     Args:
         population: List of individuals to update.
         nb_elite: Number of elite individuals to protect.
-        alpha_diversity: Weight for diversity in fitness calculation.
         neighbor_size: Number of nearest neighbors to consider.
     """
     if not population:
@@ -361,12 +356,8 @@ def update_biased_fitness(
     for i, ind in enumerate(population):
         ind.rank_diversity = i + 1
 
-    # Biased Fitness = Rank(Profit) + alpha_diversity * Rank(Diversity)
-    # ELITE PROTECTION: Ensure top nb_elite profit solutions always survive.
+    # Biased Fitness = Rank(Profit) + diversity_weight * Rank(Diversity)
+    # Parameterless Biased Fitness (Vidal 2022)
+    diversity_weight = 1.0 - (nb_elite / pop_size)
     for ind in population:
-        if ind.rank_profit <= nb_elite:
-            # Pure profit ranking for top elites ensures their survival in trim
-            ind.fitness = float(ind.rank_profit)
-        else:
-            # Biased fitness for the rest to maintain diversity
-            ind.fitness = ind.rank_profit + alpha_diversity * ind.rank_diversity
+        ind.fitness = ind.rank_profit + diversity_weight * ind.rank_diversity

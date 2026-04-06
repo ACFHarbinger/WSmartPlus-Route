@@ -115,9 +115,6 @@ class RLAHVPLPolicy(BaseRoutingPolicy):
             mutation_rate=values.get("hgs_mutation_rate", 0.2),
             crossover_rate=values.get("hgs_crossover_rate", 0.7),
             n_offspring=values.get("hgs_n_offspring", values.get("hgs_n_generations", 100)),
-            alpha_diversity=values.get("hgs_alpha_diversity", 0.1),
-            min_diversity=values.get("hgs_min_diversity", 0.2),
-            diversity_change_rate=values.get("hgs_diversity_change_rate", 0.05),
             n_iterations_no_improvement=values.get(
                 "hgs_n_iterations_no_improvement", values.get("hgs_no_improvement_threshold", 20)
             ),
@@ -254,7 +251,6 @@ class RLAHVPLPolicy(BaseRoutingPolicy):
 
         params = RLAHVPLParams(
             n_teams=values.get("n_teams", 10),
-            max_iterations=values.get("max_iterations", 1000),
             sub_rate=values.get("sub_rate", 0.2),
             time_limit=values.get("time_limit", 60.0),
             elite_coaching_max_iterations=values.get("alns_elite_iterations", 500),

@@ -45,7 +45,6 @@ class VectorizedHGS(PolicyVizMixin):
         wastes: torch.Tensor,
         vehicle_capacity: Any,
         max_iterations: int = 50,
-        alpha_diversity: float = 0.5,
         time_limit: float = 1.0,
         device: str = "cuda",
         seed: int = 42,
@@ -59,7 +58,6 @@ class VectorizedHGS(PolicyVizMixin):
         self.wastes = wastes
         self.vehicle_capacity = vehicle_capacity
         self.max_iterations = max_iterations
-        self.alpha_diversity = alpha_diversity
         self.time_limit = time_limit
         self.device = torch.device(device)
         self.seed = seed
@@ -130,10 +128,10 @@ class VectorizedHGS(PolicyVizMixin):
             max_vehicles=max_vehicles,
         )
 
-        pop = VectorizedPopulation(population_size, self.device, self.alpha_diversity, self.generator)
+        pop = VectorizedPopulation(population_size, self.device, self.generator)
         # 1. Initialization: Create the initial population from guest solutions (Expert Imitation).
         # In HGS, the population is split into feasible and infeasible sub-populations.
-        pop.initialize(initial_solutions, costs)
+        pop.initialize(initial_solutions, costs, elite_size)
 
         no_improv = 0
         best_cost_tracker = pop.costs.min().item()
@@ -191,7 +189,7 @@ class VectorizedHGS(PolicyVizMixin):
             # Add the improved offspring back into the population.
             # The population manager will then prune individuals to maintain the size limit,
             # using 'Biased Fitness' to balance objective quality and population diversity.
-            pop.add_individuals(giant_candidates, improved_costs)
+            pop.add_individuals(giant_candidates, improved_costs, elite_size)
 
             # 9. Stagnation Check & Restart:
             # If the best solution hasn't improved for many generations, trigger a restart.
@@ -242,7 +240,7 @@ class VectorizedHGS(PolicyVizMixin):
                 # Merge elite and new individuals back into the population.
                 pop.population = torch.cat([elite_pop, new_pop], dim=1)
                 pop.costs = torch.cat([elite_cost, new_costs], dim=1)
-                pop.compute_biased_fitness()
+                pop.compute_biased_fitness(elite_size)
                 no_improv = 0
                 restarted = True
 

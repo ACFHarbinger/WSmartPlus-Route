@@ -43,13 +43,13 @@ def test_knapsack_cover_separation():
     r1 = MagicMock(); r1.node_coverage = {1, 2}
     r2 = MagicMock(); r2.node_coverage = {3, 4}
     master.routes = [r1, r2]
-    master.add_set_packing_capacity_cut.return_value = True
+    master.add_capacity_cut.return_value = True
 
     engine = KnapsackCoverEngine(None, None)
     added = engine.separate_and_add_cuts(master, max_cuts=1)
 
     assert added == 1
-    master.add_set_packing_capacity_cut.assert_called()
+    master.add_capacity_cut.assert_called()
 
 def test_create_engine_factory():
     v_model = MagicMock()
@@ -57,7 +57,7 @@ def test_create_engine_factory():
 
     engine = create_cutting_plane_engine("all", v_model, sep_engine)
     assert engine.get_name() == "composite"
-    assert len(engine.engines) == 2 # RCC + Cover (SRC was removed)
+    assert len(engine.engines) == 4 # RCC + SRI + LCI + Cover
 
 def test_bpc_lagrangian_termination_log(bpc_instance, caplog):
     dist, wastes, cap, R, C = bpc_instance

@@ -21,9 +21,6 @@ class HGSRRConfig:
         mutation_rate: Probability of applying ruin-recreate mutation.
         crossover_rate: Probability of crossover operation.
         n_iterations_no_improvement: Max iterations without improvement.
-        alpha_diversity: Initial alpha diversity parameter for population management.
-        min_diversity: Minimum diversity threshold for triggering diversity maintenance.
-        diversity_change_rate: Rate at which alpha diversity changes.
         no_improvement_threshold: Number of generations without improvement to trigger diversity maintenance.
         survivor_threshold: Threshold for survivor selection.
         neighbor_list_size: Number of nearest neighbors to consider.
@@ -58,9 +55,6 @@ class HGSRRConfig:
     mutation_rate: float = 0.3
     crossover_rate: float = 0.7
     n_iterations_no_improvement: int = 20000
-    alpha_diversity: float = 0.5
-    min_diversity: float = 0.2
-    diversity_change_rate: float = 0.05
     no_improvement_threshold: int = 20
     survivor_threshold: float = 2.0
     neighbor_list_size: int = 10

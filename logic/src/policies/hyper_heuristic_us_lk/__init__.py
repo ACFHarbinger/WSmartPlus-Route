@@ -14,13 +14,15 @@ Reference:
     Algorithms, 15(1), 9. https://doi.org/10.3390/a15010009
 """
 
+from typing import Any, List, Optional, Tuple
+
 from .hulk import HULKSolver
 from .params import HULKParams
 
 __all__ = ["HULKSolver", "HULKParams", "run_hulk"]
 
 
-def run_hulk(context, params: HULKParams = None):
+def run_hulk(context: Any, params: Optional[HULKParams] = None) -> Tuple[List[List[int]], float, float]:
     """
     Run HULK hyper-heuristic on the given problem context.
 
@@ -42,7 +44,6 @@ def run_hulk(context, params: HULKParams = None):
         C=context.C,
         params=params,
         mandatory_nodes=getattr(context, "mandatory_nodes", None),
-        seed=getattr(context, "seed", None),
     )
 
     return solver.solve()

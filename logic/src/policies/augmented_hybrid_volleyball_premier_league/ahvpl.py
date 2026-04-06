@@ -140,8 +140,7 @@ class AHVPLSolver:
 
         # ── Phase 2+3: VPL + HGS + ALNS Main Loop ──
         last_improvement_it = 0
-        current_alpha = self.params.hgs_params.alpha_diversity
-        for _iteration in range(self.params.max_iterations):
+        for _iteration in range(self.params.hgs_params.n_iterations_no_improvement):
             if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
                 break
 
@@ -149,7 +148,6 @@ class AHVPLSolver:
             update_biased_fitness(
                 population,
                 self.params.hgs_params.nb_elite,
-                current_alpha,
                 self.params.hgs_params.nb_granular,
             )
 
@@ -192,7 +190,6 @@ class AHVPLSolver:
             update_biased_fitness(
                 population,
                 self.params.n_teams,
-                current_alpha,
                 self.params.hgs_params.nb_granular,
             )
             population.sort(key=lambda x: x.fitness)
@@ -213,15 +210,9 @@ class AHVPLSolver:
                 best_routes = [r[:] for r in iter_best.routes]
                 best_profit = iter_best.profit_score
                 best_cost = iter_best.cost
-                last_improvement_it = _iteration
-
-            # Adaptive alpha diversity
-            # Calculate current population diversity
-            avg_dist = np.mean([ind.dist_to_parents for ind in population])
-            if avg_dist < self.params.hgs_params.min_diversity:
-                current_alpha = min(1.0, current_alpha + self.params.hgs_params.diversity_change_rate)
-            elif _iteration - last_improvement_it > self.params.hgs_params.n_iterations_no_improvement:
-                current_alpha = max(0.0, current_alpha - self.params.hgs_params.diversity_change_rate)
+                last_improvement_it = 0
+            else:
+                last_improvement_it += 1
 
             # 7. Pheromone Update — ACO global guidance based on best cost
             self._update_pheromones(best_routes, best_profit, best_cost)
@@ -233,7 +224,6 @@ class AHVPLSolver:
                 iter_best_profit=iter_best.profit_score,
                 population_size=len(population),
                 n_children=n_children,
-                alpha_diversity=current_alpha,
             )
 
         return best_routes, best_profit, best_cost
@@ -340,10 +330,10 @@ class AHVPLSolver:
         for route in routes:
             if not route:
                 continue
-            self.pheromone.update_edge(0, route[0], delta, evaporate=False)
+            self.pheromone.deposit_edge(0, route[0], delta)
             for k in range(len(route) - 1):
-                self.pheromone.update_edge(route[k], route[k + 1], delta, evaporate=False)
-            self.pheromone.update_edge(route[-1], 0, delta, evaporate=False)
+                self.pheromone.deposit_edge(route[k], route[k + 1], delta)
+            self.pheromone.deposit_edge(route[-1], 0, delta)
 
     # ── Utility ──────────────────────────────────────────────────────
 

@@ -17,16 +17,18 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import torch
 
-from logic.src.interfaces.adapter import IPolicyAdapter
 from logic.src.models.policies.selection import get_vectorized_selector
+from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
 from logic.src.policies.neural_agent import NeuralAgent
 from logic.src.tracking.core.run import get_active_run
 from logic.src.utils.functions import move_to
 
+from .params import NeuralParams
+
 
 @PolicyRegistry.register("neural")
-class NeuralPolicy(IPolicyAdapter):
+class NeuralPolicy(BaseRoutingPolicy):
     """
     Neural Policy wrapper that executes deep reinforcement learning models.
 
@@ -39,6 +41,7 @@ class NeuralPolicy(IPolicyAdapter):
 
     def __init__(self, config: Optional[Any] = None):
         """Initialize NeuralPolicy."""
+        super().__init__(config)
         self._params_logged = False
 
     def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
@@ -58,14 +61,19 @@ class NeuralPolicy(IPolicyAdapter):
         dm_tensor = kwargs["dm_tensor"]
         hrl_manager = kwargs.get("hrl_manager")
 
-        agent = NeuralAgent(model_env, seed=kwargs.get("seed"))
+        # 1. Initialize type-safe Params
+        # NeuralPolicy typically receives configuration via kwargs["config"] or initialization
+        values = kwargs.get("config", {}).get("neural", {})
+        params = NeuralParams.from_config(self._config or values)
+
+        agent = NeuralAgent(model_env, seed=kwargs.get("seed", params.seed))
         model_data, graph, profit_vars = model_ls
 
         # Construct cost weights
         cost_weights = {
-            "waste": kwargs.get("waste_weight", 1.0),
-            "length": kwargs.get("cost_weight", 1.0),
-            "overflows": kwargs.get("overflow_penalty", 1.0),
+            "waste": params.waste_weight,
+            "length": params.cost_weight,
+            "overflows": params.overflow_penalty,
         }
 
         # Data preparation
@@ -131,8 +139,8 @@ class NeuralPolicy(IPolicyAdapter):
 
         Returns:
             Optional[torch.Tensor]: Boolean mask (1, N+1) where True = must visit.
-                                    Includes depot at index 0 (always False).
-                                    Returns None if no selection is configured.
+                                     Includes depot at index 0 (always False).
+                                     Returns None if no selection is configured.
         """
         # Check for explicit must_go
         must_go = kwargs.get("must_go")

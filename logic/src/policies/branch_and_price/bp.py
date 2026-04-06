@@ -26,6 +26,7 @@ from .branching import (
     BranchNode,
 )
 from .master_problem import Route, VRPPMasterProblem
+from .params import BPParams
 from .pricing_subproblem import PricingSubproblem
 from .rcspp_dp import RCSPPSolver
 
@@ -97,6 +98,7 @@ class BranchAndPriceSolver:
         early_termination_gap: float = 1e-3,
         multiple_waste_types: bool = False,
         allow_heuristic_ryan_foster: bool = False,
+        params: Optional[BPParams] = None,
     ) -> None:
         """
         Initialise the Branch-and-Price solver.
@@ -109,30 +111,32 @@ class BranchAndPriceSolver:
             revenue_per_kg: Revenue per unit of waste collected.
             cost_per_km: Operating cost per unit of distance travelled.
             mandatory_nodes: Node indices that must be visited.
-            max_iterations: Maximum column-generation iterations per B&B node.
-            max_routes_per_iteration: Maximum routes generated per pricing call.
-            optimality_gap: Reduced-cost convergence tolerance.
-            use_ryan_foster: Deprecated — prefer ``branching_strategy``.
-                When True and ``branching_strategy`` is at its default
-                ``"edge"``, the strategy is silently promoted to
-                ``"ryan_foster"``.
-            branching_strategy: ``"edge"`` (default) or ``"ryan_foster"``.
-                Takes precedence over ``use_ryan_foster``.
-            tree_search_strategy: ``"best_first"`` (default) or ``"depth_first"``.
-            max_branch_nodes: Maximum B&B nodes to explore.
-            use_exact_pricing: Use exact DP RCSPP solver (True) or the greedy
-                heuristic pricer (False).
-            vehicle_limit: Maximum number of routes (vehicles), or None.
-            use_ng_routes: Enable ng-route relaxation in the exact DP pricer
-                (Baldacci et al. 2011).  Only relevant when
-                ``use_exact_pricing=True``.  Default True.
-            ng_neighborhood_size: Size of each node's ng-neighborhood N_i.
-                Larger values tighten the relaxation (approach exact ESPPRC)
-                at the cost of more labels.  Default 8.
-            cleanup_frequency: Frequency (iterations) of column pool deletion.
-            cleanup_threshold: Reduced cost threshold for column deletion.
-            early_termination_gap: Duality gap for CG early termination.
+            params: Standardized BP parameters.
         """
+        if params is None:
+            # Create a params object from explicit arguments for backward compatibility
+            params = BPParams(
+                max_iterations=max_iterations,
+                max_routes_per_iteration=max_routes_per_iteration,
+                optimality_gap=optimality_gap,
+                branching_strategy=branching_strategy,
+                max_branch_nodes=max_branch_nodes,
+                use_exact_pricing=use_exact_pricing,
+                vehicle_limit=vehicle_limit,
+                use_ng_routes=use_ng_routes,
+                ng_neighborhood_size=ng_neighborhood_size,
+                cleanup_frequency=cleanup_frequency,
+                cleanup_threshold=cleanup_threshold,
+                early_termination_gap=early_termination_gap,
+                multiple_waste_types=multiple_waste_types,
+                allow_heuristic_ryan_foster=allow_heuristic_ryan_foster,
+                tree_search_strategy=tree_search_strategy,
+            )
+            # Handle legacy Ryan-Foster promotion
+            if use_ryan_foster and params.branching_strategy == "edge":
+                params.branching_strategy = "ryan_foster"
+
+        self.params = params
         self.n_nodes = n_nodes
         self.cost_matrix = cost_matrix
         self.wastes = wastes
@@ -140,27 +144,14 @@ class BranchAndPriceSolver:
         self.R = revenue_per_kg
         self.C = cost_per_km
         self.mandatory_nodes: Set[int] = mandatory_nodes or set()
-        self.max_iterations = max_iterations
-        self.max_routes_per_iteration = max_routes_per_iteration
-        self.optimality_gap = optimality_gap
-        self.max_branch_nodes = max_branch_nodes
-        self.use_exact_pricing = use_exact_pricing
-        self.vehicle_limit = vehicle_limit
         self.depot = 0
-        self.use_ng_routes = use_ng_routes
-        self.ng_neighborhood_size = ng_neighborhood_size
-        self.cleanup_frequency = cleanup_frequency
-        self.cleanup_threshold = cleanup_threshold
-        self.early_termination_gap = early_termination_gap
-        self.multiple_waste_types = multiple_waste_types
-        self.allow_heuristic_ryan_foster = allow_heuristic_ryan_foster
 
         # Tracking exactness
         self.proven_optimal: bool = True
 
         # Precompute ng-neighborhoods once for reuse across all B&B nodes.
         self._ng_neighborhoods: Optional[Dict[int, Set[int]]] = None
-        if self.use_exact_pricing:
+        if self.params.use_exact_pricing:
             from .rcspp_dp import RCSPPSolver as _R
 
             _tmp = _R(
@@ -170,8 +161,8 @@ class BranchAndPriceSolver:
                 capacity=self.capacity,
                 revenue_per_kg=self.R,
                 cost_per_km=self.C,
-                use_ng_routes=self.use_ng_routes,
-                ng_neighborhood_size=self.ng_neighborhood_size,
+                use_ng_routes=self.params.use_ng_routes,
+                ng_neighborhood_size=self.params.ng_neighborhood_size,
             )
             self._ng_neighborhoods = _tmp.ng_neighborhoods
 
@@ -182,17 +173,17 @@ class BranchAndPriceSolver:
             values={},  # Values handled at policy level, but solver respects init args
         )
 
-        if branching_strategy == "divergence" and not self.multiple_waste_types:
+        if branching_strategy == "divergence" and not self.params.multiple_waste_types:
             logging.info(
                 "Single-commodity VRP detected. Promoting 'divergence' branching to 'multi_edge_partition' strategy."
             )
             branching_strategy = "multi_edge_partition"
 
-        self.branching_strategy: str = branching_strategy
-        self.tree_search_strategy = tree_search_strategy
-        self.use_ryan_foster: bool = branching_strategy == "ryan_foster"
+        self.params.branching_strategy = branching_strategy
+        self.params.tree_search_strategy = tree_search_strategy
+        self.params.use_ryan_foster = branching_strategy == "ryan_foster"
 
-        if self.use_ryan_foster and not self.allow_heuristic_ryan_foster:
+        if self.params.use_ryan_foster and not self.params.allow_heuristic_ryan_foster:
             raise ValueError(
                 "Ryan-Foster branching is theoretically inexact when used with a Set Covering "
                 "master problem (the default). It can prune optimal over-covering solutions. "
@@ -200,7 +191,7 @@ class BranchAndPriceSolver:
                 "or use the mathematically exact 'edge' branching strategy."
             )
 
-        if self.use_ryan_foster:
+        if self.params.use_ryan_foster:
             warnings.warn(
                 "Ryan-Foster branching is theoretically a heuristic when used with a Set Covering "
                 "master problem (>= 1). It may lead to unbalanced trees or over-coverage issues. "
@@ -224,7 +215,7 @@ class BranchAndPriceSolver:
         # Use the full B&P tree for all branching strategies.
         # _solve_without_branching is kept as a fast path only when
         # branching_strategy is explicitly set to "none" or similar sentinel.
-        if self.branching_strategy in ("edge", "ryan_foster", "divergence", "multi_edge_partition"):
+        if self.params.branching_strategy in ("edge", "ryan_foster", "divergence", "multi_edge_partition"):
             return self._solve_with_branching()  # type: ignore[return-value]
         return self._solve_without_branching()
 
@@ -258,8 +249,8 @@ class BranchAndPriceSolver:
     def _solve_with_branching(self) -> Tuple[List[int], Optional[float], Dict[str, Any]]:
         """Solve using the configured branching strategy in a B&B tree."""
         self.tree = BranchAndBoundTree(
-            strategy=self.branching_strategy,
-            search_strategy=self.tree_search_strategy,
+            strategy=self.params.branching_strategy,
+            search_strategy=self.params.tree_search_strategy,
             v_model=None,
         )
 
@@ -280,7 +271,7 @@ class BranchAndPriceSolver:
             self.tree.open_nodes.remove(self.tree.root)
 
         routes: List[Route] = root_routes
-        while not self.tree.is_empty() and self.tree.nodes_explored < self.max_branch_nodes:
+        while not self.tree.is_empty() and self.tree.nodes_explored < self.params.max_branch_nodes:
             node = self.tree.get_next_node()
             if node is None:
                 break
@@ -410,7 +401,7 @@ class BranchAndPriceSolver:
         heuristic_pricer, exact_pricer = pricing
         last_basis: Optional[Tuple[List[int], List[int]]] = None
 
-        for i in range(self.max_iterations):
+        for i in range(self.params.max_iterations):
             self.num_iterations += 1
 
             if last_basis is not None:
@@ -425,28 +416,30 @@ class BranchAndPriceSolver:
             new_routes = self._call_pricing(heuristic_pricer, dual_values, constraints=None)  # type: ignore[arg-type]
 
             # 2. Fallback to exact pricer if heuristic fails
-            if (not new_routes or max(rc for _, rc in new_routes) < self.optimality_gap) and exact_pricer is not None:
+            if (
+                not new_routes or max(rc for _, rc in new_routes) < self.params.optimality_gap
+            ) and exact_pricer is not None:
                 new_routes = self._call_pricing(exact_pricer, dual_values, constraints=None)  # type: ignore[arg-type]
 
             if not new_routes:
                 break
 
             max_rc = max(rc for _, rc in new_routes)
-            if max_rc < self.optimality_gap:
+            if max_rc < self.params.optimality_gap:
                 break
 
             # Estimate fleet limit for unconstrained instances to calculate Lagrangian bound
-            limit = self.vehicle_limit if self.vehicle_limit is not None else self.n_nodes
+            limit = self.params.vehicle_limit if self.params.vehicle_limit is not None else self.n_nodes
             lagrangian_bound = lp_obj + max_rc * limit
-            if abs(lp_obj - lagrangian_bound) < self.early_termination_gap:
+            if abs(lp_obj - lagrangian_bound) < self.params.early_termination_gap:
                 break
 
             self._add_routes_to_master(master, heuristic_pricer, new_routes)
             last_basis = None  # basis is stale after column additions; force fresh solve
 
             # Task 3: Column Pool Management
-            if (i + 1) % self.cleanup_frequency == 0:
-                master.remove_unpromising_columns(self.cleanup_threshold)
+            if (i + 1) % self.params.cleanup_frequency == 0:
+                master.remove_unpromising_columns(self.params.cleanup_threshold)
 
         if last_basis is not None:
             master.restore_basis(last_basis)
@@ -464,7 +457,7 @@ class BranchAndPriceSolver:
         best_lagrangian = float("inf")
         last_basis: Optional[Tuple[List[int], List[int]]] = None
 
-        for i in range(self.max_iterations):
+        for i in range(self.params.max_iterations):
             self.num_iterations += 1
             if last_basis is not None:
                 master.restore_basis(last_basis)
@@ -477,7 +470,9 @@ class BranchAndPriceSolver:
             new_routes = self._call_pricing(heuristic_pricer, dual_values, constraints=constraints)  # type: ignore[arg-type]
 
             # 2. Fallback to exact pricer if heuristic fails
-            if (not new_routes or max(rc for _, rc in new_routes) < self.optimality_gap) and exact_pricer is not None:
+            if (
+                not new_routes or max(rc for _, rc in new_routes) < self.params.optimality_gap
+            ) and exact_pricer is not None:
                 new_routes = self._call_pricing(exact_pricer, dual_values, constraints=constraints)  # type: ignore[arg-type]
 
             if not new_routes:
@@ -489,7 +484,7 @@ class BranchAndPriceSolver:
                 route = Route(nodes=route_nodes, cost=cost, revenue=revenue, load=load, node_coverage=cov)
                 # Exact solver already respects constraints via state enforcement.
                 # Heuristic pricer requires post-hoc check for non-edge constraints (like Ryan-Foster).
-                if (self.use_exact_pricing and exact_pricer is not None) or node.is_route_feasible(route):
+                if (self.params.use_exact_pricing and exact_pricer is not None) or node.is_route_feasible(route):
                     feasible.append((route, rc))
 
             if not feasible:
@@ -497,10 +492,10 @@ class BranchAndPriceSolver:
 
             # Task 4 & Part 5 Task 3: LP Termination via Lagrangian Bound
             max_rc = max(rc for _, rc in feasible)
-            if max_rc < self.optimality_gap:
+            if max_rc < self.params.optimality_gap:
                 break
 
-            limit = self.vehicle_limit if self.vehicle_limit is not None else self.n_nodes
+            limit = self.params.vehicle_limit if self.params.vehicle_limit is not None else self.n_nodes
             lagrangian_bound = lp_obj + max_rc * limit
             best_lagrangian = min(best_lagrangian, lagrangian_bound)
 
@@ -508,7 +503,7 @@ class BranchAndPriceSolver:
             # Basis is reset to None if the variable count changes significantly,
             # but Gurobi handles basis extension efficiently after add_route_as_column.
             # We explicitly save AFTER solving and Restore BEFORE solving.
-            if abs(lp_obj - lagrangian_bound) < self.early_termination_gap:
+            if abs(lp_obj - lagrangian_bound) < self.params.early_termination_gap:
                 break
 
             for route, _ in feasible:
@@ -516,8 +511,8 @@ class BranchAndPriceSolver:
             self.num_columns_generated += len(feasible)
 
             # Task 3: Column Pool Management
-            if (i + 1) % self.cleanup_frequency == 0:
-                master.remove_unpromising_columns(self.cleanup_threshold)
+            if (i + 1) % self.params.cleanup_frequency == 0:
+                master.remove_unpromising_columns(self.params.cleanup_threshold)
 
         # Final solve for clean duals/solution
         if last_basis is not None:
@@ -546,7 +541,7 @@ class BranchAndPriceSolver:
         if isinstance(pricing, RCSPPSolver):
             routes = pricing.solve(
                 dual_values=dual_values,
-                max_routes=self.max_routes_per_iteration,
+                max_routes=self.params.max_routes_per_iteration,
                 branching_constraints=constraints,
             )
             # RCSPPSolver now returns Route objects; convert to (path, reduced_cost) for BP backward compatibility
@@ -554,7 +549,7 @@ class BranchAndPriceSolver:
         else:
             return pricing.solve(
                 dual_values=dual_values,  # type: ignore[arg-type]
-                max_routes=self.max_routes_per_iteration,
+                max_routes=self.params.max_routes_per_iteration,
                 active_constraints=constraints,
             )
 
@@ -678,7 +673,7 @@ class BranchAndPriceSolver:
             capacity=self.capacity,
             revenue_per_kg=self.R,
             cost_per_km=self.C,
-            vehicle_limit=self.vehicle_limit,
+            vehicle_limit=self.params.vehicle_limit,
         )
 
     def _make_pricing(self) -> Tuple[PricingSubproblem, Optional[RCSPPSolver]]:
@@ -703,11 +698,11 @@ class BranchAndPriceSolver:
         heuristic_pricer = PricingSubproblem(**kwargs)
         exact_pricer = None
 
-        if self.use_exact_pricing:
+        if self.params.use_exact_pricing:
             exact_pricer = RCSPPSolver(
                 **kwargs,
-                use_ng_routes=self.use_ng_routes,
-                ng_neighborhood_size=self.ng_neighborhood_size,
+                use_ng_routes=self.params.use_ng_routes,
+                ng_neighborhood_size=self.params.ng_neighborhood_size,
                 ng_neighborhoods=self._ng_neighborhoods,
             )
 
@@ -760,9 +755,9 @@ class BranchAndPriceSolver:
             "lp_bound": self.lp_bound,
             "ip_solution": self.ip_solution,
             "gap": gap,
-            "branching_strategy": self.branching_strategy,
-            "use_ng_routes": self.use_ng_routes,
-            "ng_neighborhood_size": self.ng_neighborhood_size,
+            "branching_strategy": self.params.branching_strategy,
+            "use_ng_routes": self.params.use_ng_routes,
+            "ng_neighborhood_size": self.params.ng_neighborhood_size,
             "proven_optimal": self.proven_optimal,
         }
         if self.tree is not None:

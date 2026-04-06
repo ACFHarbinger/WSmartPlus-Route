@@ -32,7 +32,6 @@ class VectorizedHGS(AutoregressivePolicy):
         max_iterations: int = 50,
         seed: int = 42,
         device: str = "cpu",
-        alpha_diversity: float = 0.5,
         **kwargs,
     ):
         """Initialize HGSPolicy with vectorized solver."""
@@ -44,7 +43,6 @@ class VectorizedHGS(AutoregressivePolicy):
         self.max_vehicles = max_vehicles
         self.crossover_rate = crossover_rate
         self.max_iterations = max_iterations
-        self.alpha_diversity = alpha_diversity
 
     def forward(
         self,
@@ -92,7 +90,6 @@ class VectorizedHGS(AutoregressivePolicy):
             time_limit=self.time_limit,
             device=str(device),
             generator=self.generator,
-            alpha_diversity=self.alpha_diversity,
             rng=self.rng,
         )
 

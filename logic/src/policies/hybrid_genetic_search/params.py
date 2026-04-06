@@ -29,8 +29,6 @@ class HGSParams:
         mutation_rate: Probability of applying local search (education) to offspring.
         repair_probability: Probability of repairing infeasible offspring (default 0.5).
         crossover_rate: Probability of applying crossover.
-        min_diversity: Minimum diversity threshold.
-        diversity_change_rate: Rate at which diversity changes.
         local_search_iterations: Number of iterations for local search.
         use_cross_exchange: Whether to use cross exchange moves.
         use_lambda_interchange: Whether to use lambda interchange moves.
@@ -57,10 +55,6 @@ class HGSParams:
     mutation_rate: float = 1.0  # Always educate offspring with local search
     repair_probability: float = 0.5  # 50% chance to repair infeasible offspring
     crossover_rate: float = 1.0  # Always apply crossover
-
-    # Diversity management (Vidal 2022: parameterless diversity weighting)
-    min_diversity: float = 0.2
-    diversity_change_rate: float = 0.05
 
     # Local search
     local_search_iterations: int = 500
@@ -104,8 +98,6 @@ class HGSParams:
             mutation_rate=getattr(config, "mutation_rate", 1.0),
             repair_probability=getattr(config, "repair_probability", 0.5),
             crossover_rate=getattr(config, "crossover_rate", 1.0),
-            min_diversity=getattr(config, "min_diversity", 0.2),
-            diversity_change_rate=getattr(config, "diversity_change_rate", 0.05),
             local_search_iterations=getattr(config, "local_search_iterations", 500),
             max_vehicles=getattr(config, "max_vehicles", 0),
             initial_penalty_capacity=getattr(config, "initial_penalty_capacity", 1.0),
@@ -147,15 +139,6 @@ class HGSParams:
     @elite_size.setter
     def elite_size(self, value: int):
         self.nb_elite = value
-
-    @property
-    def min_diversity_threshold(self) -> float:
-        """Alias for min_diversity."""
-        return self.min_diversity
-
-    @min_diversity_threshold.setter
-    def min_diversity_threshold(self, value: float):
-        self.min_diversity = value
 
     @property
     def no_improvement_threshold(self) -> int:

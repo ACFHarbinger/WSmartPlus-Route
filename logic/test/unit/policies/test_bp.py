@@ -41,11 +41,12 @@ def test_master_problem_dual_signs():
     duals = mp.get_reduced_cost_coefficients()
 
     # Check node duals (should be >= 0 for packing/partitioning in MAX)
+    node_duals = duals["node_duals"]
     for node in [1, 2, 3]:
-        assert duals[node] >= 0, f"Dual for node {node} should be non-negative"
+        assert node_duals[node] >= 0, f"Dual for node {node} should be non-negative"
 
     # Check vehicle dual
-    assert duals["vehicle_limit"] >= 0, "Vehicle limit dual should be non-negative"
+    assert node_duals["vehicle_limit"] >= 0, "Vehicle limit dual should be non-negative"
 
 def test_bp_solver_small_instance():
     """Test Branch-and-Price on a small instance."""

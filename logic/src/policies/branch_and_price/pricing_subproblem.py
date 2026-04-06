@@ -77,6 +77,7 @@ class PricingSubproblem:
             revenue_per_kg: Revenue earned per unit of waste collected.
             cost_per_km: Cost per unit of distance travelled.
             mandatory_nodes: Set of node indices that must be visited.
+            params: Standardized BP parameters.
         """
         self.n_nodes = n_nodes
         self.cost_matrix = cost_matrix
@@ -93,7 +94,7 @@ class PricingSubproblem:
 
     def solve(
         self,
-        dual_values: Dict[int, float],
+        dual_values: Dict[Any, Any],
         max_routes: int = 10,
         active_constraints: Optional[List[Any]] = None,
         capacity_cut_duals: Optional[Dict[Any, float]] = None,
@@ -133,6 +134,15 @@ class PricingSubproblem:
                 "optimality at a B&B node. Use RCSPPSolver instead."
             )
 
+        # Support both flat node duals (legacy) and structured dual dicts (BPC/standardized)
+        node_duals: Dict[Any, float]
+        if "node_duals" in dual_values:
+            node_duals = dual_values["node_duals"]
+            if capacity_cut_duals is None:
+                capacity_cut_duals = dual_values.get("rcc_duals")
+        else:
+            node_duals = dual_values  # type: ignore[assignment]
+
         constraints: List[Any] = active_constraints or []
 
         # Pre-process constraints into O(1) look-up structures.
@@ -149,14 +159,14 @@ class PricingSubproblem:
         # Rank start nodes by their standalone attractiveness.
         candidate_starts = sorted(
             range(1, self.n_nodes + 1),
-            key=lambda n: dual_values.get(n, 0.0) + self.wastes.get(n, 0.0) * self.R,
+            key=lambda n: node_duals.get(n, 0.0) + self.wastes.get(n, 0.0) * self.R,
             reverse=True,
         )
 
         for start_node in candidate_starts[:max_routes]:
             route, rc = self._greedy_route_construction(
                 start_node=start_node,
-                dual_values=dual_values,
+                dual_values=node_duals,
                 forbidden_arcs=forbidden_arcs,
                 req_successors=req_successors,
                 req_predecessors=req_predecessors,
@@ -235,7 +245,7 @@ class PricingSubproblem:
         v: int,
         v_waste: float,
         route: List[int],
-        dual_values: Dict[int, float],
+        dual_values: Dict[Any, float],
         forbidden_arcs: Set[Tuple[int, int]],
         req_successors: Dict[int, int],
         req_predecessors: Dict[int, int],
@@ -283,7 +293,7 @@ class PricingSubproblem:
     def _greedy_route_construction(
         self,
         start_node: int,
-        dual_values: Dict[int, float],
+        dual_values: Dict[Any, float],
         forbidden_arcs: Set[Tuple[int, int]],
         req_successors: Dict[int, int],
         req_predecessors: Dict[int, int],

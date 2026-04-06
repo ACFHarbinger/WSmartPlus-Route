@@ -42,9 +42,6 @@ class AHVPLParams:
             max_vehicles=0,
             mu=50,
             n_offspring=40,  # Default for lambda_param
-            alpha_diversity=0.5,
-            min_diversity=0.1,
-            diversity_change_rate=0.05,
             n_iterations_no_improvement=10,
             nb_granular=10,
             local_search_iterations=100,

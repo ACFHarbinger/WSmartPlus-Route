@@ -1,0 +1,46 @@
+from dataclasses import dataclass
+from typing import Any, Dict
+
+
+@dataclass
+class BCParams:
+    """Standardized parameters for the Branch-and-Cut solver."""
+
+    time_limit: float = 300.0
+    mip_gap: float = 0.01
+    max_cuts_per_round: int = 50
+    use_heuristics: bool = True
+    verbose: bool = False
+    profit_aware_operators: bool = False
+    vrpp: bool = False
+    enable_fractional_capacity_cuts: bool = True
+    use_comb_cuts: bool = False
+
+    @classmethod
+    def from_config(cls, config: Dict[str, Any]) -> "BCParams":
+        """Create BCParams from a configuration dictionary."""
+        return cls(
+            time_limit=config.get("time_limit", 300.0),
+            mip_gap=config.get("mip_gap", 0.01),
+            max_cuts_per_round=config.get("max_cuts_per_round", 50),
+            use_heuristics=config.get("use_heuristics", True),
+            verbose=config.get("verbose", False),
+            profit_aware_operators=config.get("profit_aware_operators", False),
+            vrpp=config.get("vrpp", False),
+            enable_fractional_capacity_cuts=config.get("enable_fractional_capacity_cuts", True),
+            use_comb_cuts=config.get("use_comb_cuts", False),
+        )
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert params to a dictionary."""
+        return {
+            "time_limit": self.time_limit,
+            "mip_gap": self.mip_gap,
+            "max_cuts_per_round": self.max_cuts_per_round,
+            "use_heuristics": self.use_heuristics,
+            "verbose": self.verbose,
+            "profit_aware_operators": self.profit_aware_operators,
+            "vrpp": self.vrpp,
+            "enable_fractional_capacity_cuts": self.enable_fractional_capacity_cuts,
+            "use_comb_cuts": self.use_comb_cuts,
+        }
