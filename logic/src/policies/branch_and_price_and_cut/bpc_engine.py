@@ -31,19 +31,19 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.policies.branch_and_price.branching import (
+from logic.src.tracking.viz_mixin import PolicyStateRecorder
+
+from ..other.operators.repair.greedy import greedy_insertion, greedy_profit_insertion
+from .branching import (
     AnyBranchingConstraint,
     BranchAndBoundTree,
 )
-from logic.src.policies.branch_and_price.master_problem import Route, VRPPMasterProblem
-from logic.src.policies.branch_and_price.rcspp_dp import RCSPPSolver
-from logic.src.tracking.viz_mixin import PolicyStateRecorder
-
-from ..branch_and_cut.separation import SeparationEngine
-from ..branch_and_cut.vrpp_model import VRPPModel
-from ..other.operators.repair.greedy import greedy_insertion, greedy_profit_insertion
 from .cutting_planes import CuttingPlaneEngine, create_cutting_plane_engine
+from .master_problem import Route, VRPPMasterProblem
+from .rcspp_dp import RCSPPSolver
 from .search_strategy import create_search_strategy
+from .separation import SeparationEngine
+from .vrpp_model import VRPPModel
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +56,7 @@ class BPCPruningException(Exception):
 
 def _apply_branching_to_master(
     master: VRPPMasterProblem,
-    branching_constraints: List,
+    branching_constraints: List[AnyBranchingConstraint],
 ) -> None:
     """
     Filter the Master Problem column pool by disabling routes that violate
@@ -535,7 +535,6 @@ def run_custom_bpc(  # noqa: C901
     # 5. Initialize Branch-and-Bound Tree with configured branching strategy
     bb_tree = BranchAndBoundTree(
         v_model=v_model,
-        node_coords=node_coords,
         max_nodes=max_bb_nodes,
         strategy=branching_strategy_name,
         search_strategy=search_strategy_name,
@@ -622,7 +621,7 @@ def run_custom_bpc(  # noqa: C901
                 f"Primary branching strategy '{branching_strategy_name}' returned no "
                 "branching candidate at a fractional node. Falling back to edge branching."
             )
-            from ..branch_and_price.branching import EdgeBranching
+            from .branching import EdgeBranching
 
             arc = EdgeBranching.find_branching_arc(master.routes, route_values)
             if arc is None:

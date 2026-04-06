@@ -19,7 +19,7 @@ References:
 from abc import ABC, abstractmethod
 from typing import List, Optional, Tuple
 
-from ..branch_and_price.branching import BranchNode
+from .branching import BranchNode
 
 
 class NodeSelectionStrategy(ABC):
