@@ -12,7 +12,7 @@ from logic.src.policies.adaptive_large_neighborhood_search.policy_alns import AL
 from logic.src.policies.base import PolicyRegistry
 from logic.src.policies.capacitated_vehicle_routing_problem.cvrp import find_routes
 
-from logic.src.policies.branch_and_price_and_cut.policy_bpc import run_bpc, BCPPolicy
+from logic.src.policies.branch_and_price_and_cut.policy_bpc import run_bpc, BPCPolicy
 from logic.src.policies.hybrid_genetic_search.policy_hgs import HGSPolicy
 from logic.src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.policy_ils_rvnd_sp import (
     ILSRVNDSPPolicy,
@@ -78,7 +78,7 @@ class TestPolicyAdapters:
         with patch("logic.src.policies.branch_and_price_and_cut.policy_bpc.run_bpc") as mock_run:
             mock_run.return_value = ([[1]], 10.0)
             policy = cast(Callable, PolicyRegistry.get("bpc"))()
-            assert isinstance(policy, BCPPolicy)
+            assert isinstance(policy, BPCPolicy)
             tour, cost, extra = policy.execute(policy="bpc_1.0", **mock_policy_data)
             assert tour == [0, 1, 0]
             assert mock_run.called

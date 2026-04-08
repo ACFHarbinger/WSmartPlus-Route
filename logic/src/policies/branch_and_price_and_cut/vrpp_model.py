@@ -1,8 +1,25 @@
-"""
-VRPP Model Formulation for Branch-and-Cut.
+r"""
+VRPP Model Formulation for Branch-and-Price-and-Cut (BPC).
 
-Implements the Integer Linear Programming model for the Vehicle Routing Problem with Profits.
-The model combines node selection decisions (which nodes to visit) with routing constraints.
+Implements the polyhedral structure and physical constraints for the Vehicle
+Routing Problem with Profits.
+
+Conceptual Link to BPC:
+-----------------------
+The Natural Edge Formulation $(x, y)$ provides the theoretical basis for our
+branching and cutting decisions. However, the BPC engine operates on an
+equivalent Set Partitioning formulation $(\lambda)$ for computational efficiency.
+This model bridges the two by:
+1. Providing graph topology for RCSPP pricing.
+2. Formulating base constraints (degree, capacity) that are strengthened by
+   dynamic cut separation.
+3. Defining the node selection and profit logic.
+
+References:
+-----------
+- Fischetti, M., Salazar-González, J. J., & Toth, P. (1997). "A branch-and-cut
+  algorithm for the symmetric generalized traveling salesman problem."
+  Operations Research, 45(3), 378-394.
 """
 
 from typing import Dict, List, Optional, Set, Tuple, Union
