@@ -17,7 +17,7 @@ from .params import BPCParams
 
 
 @PolicyRegistry.register("bpc")
-class BCPPolicy(BaseRoutingPolicy):
+class BPCPolicy(BaseRoutingPolicy):
     """
     Branch-and-Price-and-Cut policy class.
 
@@ -83,15 +83,15 @@ class BCPPolicy(BaseRoutingPolicy):
             recorder=kwargs.get("recorder"),
         )
 
-        # Compute profit: collected revenue - distance cost
-        visited = {n for route in routes for n in route}
-        collected_revenue = sum(sub_wastes.get(n, 0) * revenue for n in visited)
-        dist_cost = 0.0
+        # The run_bpc solver returns (routes, solver_cost).
+        # In our implementation, solver_cost is actually the net profit (revenue - cost).
+        profit = solver_cost
+
+        # Compute raw travel distance (km)
+        raw_distance = 0.0
         for route in routes:
             path = [0] + route + [0]
             for i in range(len(path) - 1):
-                dist_cost += sub_dist_matrix[path[i]][path[i + 1]]
-        profit = collected_revenue - dist_cost * cost_unit
+                raw_distance += sub_dist_matrix[path[i]][path[i + 1]]
 
-        # Note: solver_cost is raw distance (km); profit already accounts for cost_unit
-        return routes, profit, solver_cost
+        return routes, profit, raw_distance

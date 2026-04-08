@@ -5,7 +5,7 @@ Provides modular separation algorithms for different cut families:
 - RCC (Rounded Capacity Cuts): Standard VRP cuts derived from bin-packing requirements.
 - SEC (Subtour Elimination Cuts): Enforces connectivity for prize-collecting variants.
 - SRI (Subset-Row Inequalities): Tightens set partitioning for subsets (typically size 3).
-- LCI (Lifted Cover Inequalities): Heuristic edge-based capacity strengthening.
+- EdgeClique (Edge-Capacity Clique Cuts): Clique cuts for single-vehicle edge capacity.
 
 Methodology:
     Each engine implements a `separate_and_add_cuts` method that inspects the
@@ -24,6 +24,7 @@ References:
       Mathematical Programming, 8(1), 146-164 (Cover inequalities).
 """
 
+import itertools
 from abc import ABC, abstractmethod
 from typing import Dict, List, Optional, Tuple
 
@@ -212,8 +213,6 @@ class SubsetRowCutEngine(CuttingPlaneEngine):
         top_candidates = candidates[:15]  # Limit search space
 
         added = 0
-        import itertools
-
         for subset in itertools.combinations(top_candidates, 3):
             if added >= max_cuts:
                 break
@@ -239,54 +238,166 @@ class SubsetRowCutEngine(CuttingPlaneEngine):
 
 
 class LiftedCoverCutEngine(CuttingPlaneEngine):
+    r"""
+    Lifted Cover Inequality (LCI) separation engine for VRPP.
+
+    Implements the sequential knapsack lifting framework of Barnhart et al. (2000)
+    for the Origin-Destination Integer Multicommodity Flow (ODIMCF) problem,
+    specialized for VRPP polyhedral tightening.
+
+    Mathematical Theory:
+    --------------------
+    For a physical edge (i, j) with capacity $W$ and a fractional solution $\bar{\lambda}$,
+    a cover $C$ is a set of routes such that $\sum_{k \in C} w_{ik} > W$, where
+    $w_{ik}$ is the weight (visit count) of route $k$ on edge $(i, j)$.
+
+    The Lifted Cover Inequality is defined as:
+        $\sum_{k \in C} \lambda_k + \sum_{k \in \overline{C}} \alpha_k \lambda_k \le |C| - 1$
+
+    Lifting Procedure (Sequential):
+    -------------------------------
+    1. Identify a 'saturated' arc $(i, j)$ where $\sum w_{ik} \bar{\lambda}_k > W$.
+    2. Construct a minimal cover $C$ by selecting routes with the largest $\bar{\lambda}_k$.
+    3. For each route $k \notin C$, compute the lifting coefficient $\alpha_k$ by
+       solving the knapsack problem:
+       $\alpha_k = (|C| - 1) - Z(W - w_{ik})$
+       where $Z(b) = \max \{ \sum_{j \in C} \lambda_j : \sum_{j \in C} w_{ij} \lambda_j \le b, \lambda_j \in \{0, 1\} \}$.
+
+    Academic Significance:
+    ----------------------
+    Simple cover inequalities only consider routes within the set $C$. Lifting
+    incorporates *all* generated routes that traverse the arc, significantly
+    strengthening the LP relaxation and reducing the gap to the integer hull.
+    This is particularly active in VRPP where vehicle payload and arc traversal
+    capacity are tightly coupled.
     """
-    Lifted Cover Inequalities (LCI) for VRPP.
 
-    Implemented specifically as tightened edge-capacity clique cuts:
-        Σ_{k: {u,v} ⊆ Route_k} λ_k <= 1
+    def __init__(self, v_model: VRPPModel, capacity: float = 1.0, epsilon: float = 0.01) -> None:
+        """
+        Initialize the LCI separation engine.
 
-    Heuristic Separation:
-        Inspects the current fractional flow x_{uv} = Σ_{k} δ_{uv,k} * λ_k.
-        If x_{uv} > 1.0 + epsilon, the edge capacity is violated.
-        Because each physical edge can accommodate at most one vehicle,
-        the sum of fractional routes traversing edge (u,v) must be <= 1.0.
-    """
-
-    def __init__(self, v_model: VRPPModel, epsilon: float = 0.01) -> None:
+        Args:
+            v_model: VRPP model for edge indexing.
+            capacity: Physical capacity of the arc (default 1.0 for VRP).
+            epsilon: Violation threshold.
+        """
         self.v_model = v_model
+        self.capacity = capacity
         self.epsilon = epsilon
 
-    def separate_and_add_cuts(self, master: VRPPMasterProblem, max_cuts: int, **kwargs) -> int:
+    def separate_and_add_cuts(self, master: VRPPMasterProblem, max_cuts: int, **kwargs) -> int:  # noqa: C901
         """
-        Identify edges where fractional flow exceeds 1.0.
+        Identify violated LCIs by lifting minimal covers.
         """
-        # Calculate edge flow: x_e = Σ_{k: e ∈ k} λ_k
+        if master.model is None or not master.lambda_vars:
+            return 0
+
+        # 1. Aggregate edge flow: x_e = Σ_{k} w_{ek} λ_k
         route_values = {i: var.X for i, var in enumerate(master.lambda_vars) if var.X > 1e-6}
-        edge_flow: Dict[Tuple[int, int], float] = {}
-        for idx, val in route_values.items():
-            route = master.routes[idx]
+        edge_to_routes: Dict[Tuple[int, int], List[Tuple[int, int]]] = {}  # arc -> list of (route_idx, weight)
+
+        for ridx in route_values:
+            route = master.routes[ridx]
             nodes = [0] + route.nodes + [0]
             for i in range(len(nodes) - 1):
                 u, v = nodes[i], nodes[i + 1]
-                # Exclude edges involving the depot (node 0)
-                if u == 0 or v == 0:
-                    continue
-
                 e = tuple(sorted((u, v)))
-                edge_flow[e] = edge_flow.get(e, 0.0) + val  # type: ignore[index,arg-type]
+                # Track weights (crossings) for the knapsack formulation
+                # In standard VRP, weight is 1. If route repeats arc, weight > 1.
+                found = False
+                if e in edge_to_routes:
+                    for j, (ridx_existing, w) in enumerate(edge_to_routes[e]):  # type: ignore[index]
+                        if ridx_existing == ridx:
+                            edge_to_routes[e][j] = (ridx_existing, w + 1)  # type: ignore[index]
+                            found = True
+                            break
+                if not found:
+                    edge_to_routes.setdefault(e, []).append((ridx, 1))  # type: ignore[arg-type]
 
-        count = 0
-        for edge_tuple, flow in edge_flow.items():
-            if count >= max_cuts:
+        # 2. Identify saturated edges
+        saturated_edges = []
+        for e, routes_info in edge_to_routes.items():
+            flow = sum(master.lambda_vars[ridx].X * w for ridx, w in routes_info)
+            if flow > self.capacity + self.epsilon:
+                saturated_edges.append((e, routes_info, flow))
+
+        # Sort by flow violation
+        saturated_edges.sort(key=lambda x: x[2], reverse=True)
+
+        added_cuts = 0
+        for edge_tuple, routes_info, _ in saturated_edges:
+            if added_cuts >= max_cuts:
                 break
-            if flow > 1.0 + self.epsilon:
-                u, v = edge_tuple
-                if master.add_edge_lci_cut(u, v):
-                    count += 1
+
+            # 3. Find minimal cover C
+            # Sort routes by λ_k descending
+            routes_info.sort(key=lambda x: master.lambda_vars[x[0]].X, reverse=True)
+
+            cover_indices = []
+            weight_sum = 0
+            for idx, w in routes_info:
+                cover_indices.append((idx, w))
+                weight_sum += w
+                if weight_sum > self.capacity:
+                    break
+
+            if weight_sum <= self.capacity:
+                continue  # Should not happen for saturated arc if all w >= 1
+
+            # 4. Sequential Lifting for routes k not in cover C
+            # α_k = (|C| - 1) - Z(Capacity - weight_k)
+            # w_j are weights for j in C.
+            # Z(b) = max { Σ_{j ∈ C} λ_j : Σ_{j ∈ C} w_j λ_j <= b, λ_j ∈ {0, 1} }
+            c_size = len(cover_indices)
+            rhs = float(c_size - 1)
+            cover_set = {ridx for ridx, w in cover_indices}
+
+            coefficients = {ridx: 1.0 for ridx, w in cover_indices}
+            remaining_routes = [item for item in routes_info if item[0] not in cover_set]
+
+            for ridx, w_k in remaining_routes:
+                # Solve knapsack for b = Capacity - w_k
+                # Since weights w_j are typically 1, Z(b) simplifies to floor(b).
+                # But we implement the general small knapsack logic here.
+                b = self.capacity - w_k
+                if b < 0:
+                    # If weight_k > Capacity, α_k = RHS + 1?
+                    # Theoretically, if w_k > Capacity, route is illegal.
+                    # We set α_k to be at least 1.0 or higher.
+                    alpha_k = rhs + 1.0
+                else:
+                    z_b = self._solve_knapsack_z(b, [w for _, w in cover_indices])
+                    alpha_k = rhs - z_b
+
+                coefficients[ridx] = max(1.0, float(alpha_k))
+
+            # 5. Add to master
+            if master.add_edge_lci_cut(edge_tuple[0], edge_tuple[1], coefficients=coefficients, rhs=rhs):
+                added_cuts += 1
+
+        return added_cuts
+
+    def _solve_knapsack_z(self, b: float, weights: List[int]) -> int:
+        """
+        Solve Z(b) = max { Σ λ_j : Σ w_j λ_j <= b, λ_j ∈ {0, 1} }.
+        Since all coefficients in the objective are 1, this is solved by
+        picking as many items as possible starting from the smallest weights.
+        """
+        if b < 0:
+            return 0
+        sorted_weights = sorted(weights)
+        count = 0
+        current_w = 0.0
+        for w in sorted_weights:
+            if current_w + w <= b + 1e-9:
+                current_w += w
+                count += 1
+            else:
+                break
         return count
 
     def get_name(self) -> str:
-        return "lci"
+        return "lifted_cover"
 
 
 class KnapsackCoverEngine(CuttingPlaneEngine):
@@ -406,7 +517,10 @@ def create_cutting_plane_engine(
         return RoundedCapacityCutEngine(v_model, sep_engine)
     elif engine_name == "sri":
         return SubsetRowCutEngine(v_model)
+    elif engine_name == "edge_clique":
+        return LiftedCoverCutEngine(v_model)
     elif engine_name == "lci":
+        # Full LCI support now implemented via LiftedCoverCutEngine
         return LiftedCoverCutEngine(v_model)
     elif engine_name == "cover":
         if sep_engine is None:

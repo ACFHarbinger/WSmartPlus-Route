@@ -8,7 +8,7 @@ import pytest
 from logic.src.policies.adaptive_large_neighborhood_search.policy_alns import ALNSPolicy
 from logic.src.policies.augmented_hybrid_volleyball_premier_league.policy_ahvpl import AHVPLPolicy
 from logic.src.policies.base import PolicyFactory
-from logic.src.policies.branch_and_price_and_cut.policy_bpc import BCPPolicy
+from logic.src.policies.branch_and_price_and_cut.policy_bpc import BPCPolicy
 from logic.src.policies.hybrid_genetic_search.policy_hgs import HGSPolicy
 from logic.src.policies.simulated_annealing_neighborhood_search.policy_sans import SANSPolicy
 from logic.src.policies.smart_waste_collection_two_commodity_flow.policy_swc_tcf import SWCTCFPolicy
@@ -83,7 +83,7 @@ def test_bcp_engine_override(mock_engine_data):
         mock_run.return_value = ([[1, 0]], 10.0)
 
         policy = PolicyFactory.get_adapter("bpc")
-        assert isinstance(policy, BCPPolicy)
+        assert isinstance(policy, BPCPolicy)
         policy.execute(**mock_engine_data)
 
         # Verify run_bpc was called

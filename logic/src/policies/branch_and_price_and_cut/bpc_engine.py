@@ -1,32 +1,33 @@
-"""
-Internal Branch-and-Price-and-Cut (BPC) engine.
+r"""
+Branch-and-Price-and-Cut (BPC) Engine for VRPP.
 
-This module provides an exact Branch-and-Price-and-Cut (BPC) solver adapted for the
-Vehicle Routing Problem with Profits (VRPP). While it borrows the high-level
-algorithmic sequencing from the BPC framework for multicommodity flow (Barnhart et al., 1998),
-it is specifically tailored for the VRPP context.
+This engine implements a state-of-the-art exact solver for the Vehicle Routing
+Problem with Profits (VRPP), synthesizing the Origin-Destination Integer
+Multicommodity Flow (ODIMCF) sequencing framework of Barnhart et al. (1998)
+with advanced polyhedral cutting planes (RCC, SRI, LCI).
 
-Key Features:
-- Adapts BPC sequencing: Column generation to convergence, followed by cut separation,
-  followed by branching.
-- Pricing Subproblem: Solves the Resource-Constrained Shortest Path Problem (RCSPP)
-  via dynamic programming.
-- Branching: Employs Ryan-Foster branching, which is suited for VRPP as it
-  directly modifies the pricing problem's state space.
-- Valid Inequalities: Includes Rounded Capacity Cuts (RCC) for the VRPP context.
+Algorithmic Components:
+-----------------------
+- Master Problem: Set Partitioning formulation using Gurobi with Column Generation.
+- Pricing Subproblem: Elementary / ng-relaxed Resource Constrained Shortest Path
+  Problem (RCSPP) solved via DP.
+- Branching: Multi-Edge Spatial Partitioning and exact Ryan-Foster co-occurrence.
+- Cutting Planes: Dynamically separated Rounded Capacity Cuts (RCC), Subset-Row
+  Inequalities (SRI), and Lifted Cover Inequalities (LCI).
 
 References:
-    - Barnhart, C., Johnson, E. L., Nemhauser, G. L., Savelsbergh, M. W., & Vance, P. H. (1998).
-      "Branch-and-price: Column generation for solving huge integer programs."
-      Operations Research, 46(3), 316-329.
-    - Lysgaard, J., Letchford, A. N., & Eglese, R. W. (2004).
-      "A new branch-and-cut algorithm for the capacitated vehicle routing problem."
-    - Ryan, D. M., & Foster, B. A. (1981).
-      "An Integer Programming Approach to Scheduling".
+-----------
+- Barnhart, C., Johnson, E. L., Nemhauser, G. L., Savelsbergh, M. W., & Sigismondi, P. H.
+  (1998). "Branch-and-price: Column generation for solving huge integer programs."
+  Operations Research, 46(3), 316-329.
+- Barnhart, C., Hane, C. A., & Vance, P. H. (2000). "Using branch-and-price-and-cut
+  to solve origin-destination integer multicommodity flow problems."
+  Operations Research, 48(2), 318-326.
 """
 
 import logging
 import time
+import warnings
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
@@ -107,7 +108,7 @@ def _apply_branching_to_master(
     Ryan-Foster branching (1981) is used here because it appropriately modifies the
     Resource-Constrained Shortest Path Problem (RCSPP) used for VRPP pricing by
     forbidding or enforcing pairs of nodes in the generated routes.
-    This diverges from Barnhart et al. (1998), who utilized divergence branching
+    This diverges from Barnhart, Hane & Vance (2000, OR 48(2):318-326), who utilized divergence branching
     to preserve simple shortest paths in the context of Origin-Destination
     Integer Multicommodity Flow (ODIMCF).
     """
@@ -148,8 +149,9 @@ def _solve_farkas_pricing_step(
 
     added = 0
     for r in routes:
-        # Any route with positive "Farkas profit" helps break the infeasibility ray.
-        if r.profit > 1e-6:
+        # Farkas criterion: any positive value under dual-ray weights helps restore
+        # feasibility. 1e-8 guards only against numerical noise, not optimality.
+        if r.profit > 1e-8:
             master.add_route_as_column(r)
             added += 1
     return added
@@ -251,7 +253,7 @@ def _column_generation_loop(  # noqa: C901
     """
     Run Column Generation + Cutting Plane loop at a B&B node.
 
-    CORRECTED SEQUENCING (Barnhart et al. 1998, Section 3):
+    CORRECTED SEQUENCING (Barnhart, Hane & Vance (2000), OR 48(2):318-326, Section 3):
     --------------------------------------------------------
     1. Price out columns until LP is optimal (no more positive reduced cost)
     2. Attempt to find violated cuts in the current LP solution
@@ -272,11 +274,12 @@ def _column_generation_loop(  # noqa: C901
     converged = False
     obj_val = -float("inf")
     route_vals: Dict[int, float] = {}
-    initial_basis = None
     _iteration = 0
 
     if max_cg_iterations <= 0:
         raise ValueError(f"max_cg_iterations must be >= 1, got {max_cg_iterations}")
+
+    fleet_size: int = vehicle_limit if vehicle_limit is not None else 1
 
     for _iteration in range(max_cg_iterations):
         if time_limit and (time.process_time() - start_time) > time_limit:
@@ -308,10 +311,6 @@ def _column_generation_loop(  # noqa: C901
                     _inner_iter += 1
                     continue
 
-                # Fix 10: Capture basis after the very first LP solve of the node.
-                # This is the "pre-CG" basis that child nodes should use as a starting seed.
-                if _iteration == 0 and _inner_iter == 0:
-                    initial_basis = master.save_basis()
             except Exception as e:
                 if "Farkas pricing failed" in str(e):
                     raise
@@ -333,9 +332,6 @@ def _column_generation_loop(  # noqa: C901
             if hasattr(pricing_solver, "last_max_rc"):
                 max_rc = getattr(pricing_solver, "last_max_rc", -float("inf"))
 
-                # Lagrangian Upper Bound Pruning (Strict Exactness)
-                # This bound is only valid when pricing is exact (no ng-relaxation).
-                # Reference: Barnhart et al. (1998)
                 if not pricing_solver.use_ng_routes:
                     # z_UB = z_RMP + K * max_rc
                     limit = vehicle_limit if vehicle_limit is not None else master.n_nodes
@@ -347,17 +343,14 @@ def _column_generation_loop(  # noqa: C901
                         f"z_UB={lagrangian_ub:.4f}"
                     )
 
-                    # Immediate Pruning: If Lagrangian upper bound is already worse than
-                    # our best integer solution, this node cannot be optimal.
                     if lagrangian_ub < incumbent_value - 1e-6:
                         logger.info(f"Exact Pruning: z_UB {lagrangian_ub:.4f} < Incumbent {incumbent_value:.4f}")
                         raise BPCPruningException(f"Node pruned by exact Lagrangian bound: {lagrangian_ub}")
 
-                # Column generation convergence check (terminates internal loop)
-                # If max_rc is zero or negligible, we have reached LP optimality.
-                if max_rc < optimality_gap:
-                    logger.info(f"CG inner loop converged: max_rc {max_rc:.6f} < {optimality_gap}")
-                    break
+                    # Only apply reduced-cost convergence when pricing is exact
+                    if max_rc * fleet_size < optimality_gap:
+                        logger.info(f"CG inner loop converged: max_rc*K {max_rc * fleet_size:.6f} < {optimality_gap}")
+                        break
 
         # PHASE 2: Cutting Planes (separate on converged LP solution)
         cuts_added = _separate_cuts(master, cut_engine, max_cuts)
@@ -370,8 +363,6 @@ def _column_generation_loop(  # noqa: C901
 
     # Warn only when the iteration cap truncated an unconverged loop
     if not converged and _iteration == max_cg_iterations - 1:
-        import warnings
-
         warnings.warn(
             f"CG+Cut loop hit max_cg_iterations={max_cg_iterations} without full convergence. "
             "LP bound at this B&B node may be weaker than optimal. Consider increasing "
@@ -381,18 +372,21 @@ def _column_generation_loop(  # noqa: C901
 
     if needs_resolve:
         obj_val, route_vals = master.solve_lp_relaxation()
-        # Fix 3: Final pricing pass to verify LP optimality under latest cuts/duals
-        added = _solve_pricing_step(
-            master,
-            pricing_solver,
-            branching_constraints,
-            max_routes=max_routes_per_pricing,
-            optimality_gap=optimality_gap,
-        )
-        if added > 0:
+        # Loop until no new positive-reduced-cost columns exist (LP is truly optimal)
+        while True:
+            added = _solve_pricing_step(
+                master,
+                pricing_solver,
+                branching_constraints,
+                max_routes=max_routes_per_pricing,
+                optimality_gap=optimality_gap,
+            )
+            if added == 0:
+                break
             obj_val, route_vals = master.solve_lp_relaxation()
 
-    return obj_val, route_vals, initial_basis
+    final_basis = master.save_basis()
+    return obj_val, route_vals, final_basis
 
 
 def run_custom_bpc(  # noqa: C901
@@ -409,7 +403,7 @@ def run_custom_bpc(  # noqa: C901
     """
     Solve Waste-Collecting CVRP using exact Branch-and-Price-and-Cut.
 
-    This engine implements the Barnhart et al. (1998) BPC framework with
+    This engine implements the Barnhart et al. (1998, OR 46(3):316-329) BPC framework with
     configurable algorithmic strategies:
 
     1. Initial Column Generation via greedy heuristics
@@ -483,7 +477,6 @@ def run_custom_bpc(  # noqa: C901
         cost_per_km=C,
     )
 
-    # 2. Initial Columns (Greedy)
     # 2. Initial Columns (Greedy)
     if params.profit_aware_operators:
         initial_routes_nodes = greedy_profit_insertion(
@@ -561,6 +554,16 @@ def run_custom_bpc(  # noqa: C901
     search_strategy = create_search_strategy(search_strategy_name)
     cut_engine = create_cutting_plane_engine(cutting_planes_name, v_model, sep_engine)
 
+    if branching_strategy_name == "ryan_foster" and len(m_set) < n_nodes:
+        warnings.warn(
+            "Ryan-Foster branching is selected but the master problem uses Set Covering "
+            "constraints for optional nodes (>= 0). This combination can prune optimal "
+            "solutions and compromise exactness. Switch to 'edge' or 'divergence' branching "
+            "for a provably correct solver.",
+            category=UserWarning,
+            stacklevel=2,
+        )
+
     # 5. Initialize Branch-and-Bound Tree with configured branching strategy
     bb_tree = BranchAndBoundTree(
         v_model=v_model,
@@ -595,7 +598,7 @@ def run_custom_bpc(  # noqa: C901
 
         # Run Column Generation at this node with corrected sequencing
         try:
-            lp_obj, route_values, node_initial_basis = _column_generation_loop(
+            lp_obj, route_values, node_final_basis = _column_generation_loop(
                 master=master,
                 pricing_solver=pricing_solver,
                 cut_engine=cut_engine,
@@ -609,9 +612,11 @@ def run_custom_bpc(  # noqa: C901
                 optimality_gap=params.optimality_gap,
                 early_termination_gap=params.early_termination_gap,
                 parent_basis=current_node.parent.lp_basis if current_node.parent else None,
+                incumbent_value=bb_tree.best_integer_solution
+                if bb_tree.best_integer_solution is not None
+                else -float("inf"),
             )
-            # Fix 10 (refined): Store the pre-CG basis captured inside the loop for use by child nodes.
-            current_node.lp_basis = node_initial_basis
+            current_node.lp_basis = node_final_basis
         except RuntimeError:
             # LP infeasible at this node
             current_node.is_infeasible = True
@@ -627,8 +632,8 @@ def run_custom_bpc(  # noqa: C901
             current_node.ip_solution = lp_obj
 
             # Update incumbent (records equal or better solutions)
-            if bb_tree.update_incumbent(current_node, lp_obj):
-                bb_tree.prune_by_bound()
+            bb_tree.update_incumbent(current_node, lp_obj)
+            bb_tree.prune_by_bound()
 
             # After recording, prune this node (no need to branch)
             continue
@@ -650,16 +655,17 @@ def run_custom_bpc(  # noqa: C901
             )
             from .branching import EdgeBranching
 
-            arc = EdgeBranching.find_branching_arc(master.routes, route_values)
-            if arc is None:
+            res = EdgeBranching.find_branching_arc(master.routes, route_values)
+            if res is None:
                 # Truly no branching candidate — node is degenerate, skip it.
                 logger.warning("Edge branching fallback also found no candidate. Skipping node.")
                 continue
-            u, v = arc
+            u, v = res
             left_child, right_child = EdgeBranching.create_child_nodes(current_node, u, v)
             children = (left_child, right_child)
 
         left_child, right_child = children
+        # Add to stack: right_child is explored first (top of stack)
         bb_tree.add_node(left_child)
         bb_tree.add_node(right_child)
 

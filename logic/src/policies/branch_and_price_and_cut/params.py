@@ -42,6 +42,7 @@ class BPCParams:
     ng_neighborhood_size: int = 8
     enable_fractional_capacity_cuts: bool = True
     enable_comb_cuts: bool = False
+    use_spatial_partitioning: bool = False
 
     @classmethod
     def from_config(cls, config: Any) -> BPCParams:
@@ -68,6 +69,7 @@ class BPCParams:
             ng_neighborhood_size=getattr(config, "ng_neighborhood_size", 8),
             enable_fractional_capacity_cuts=getattr(config, "enable_fractional_capacity_cuts", True),
             enable_comb_cuts=getattr(config, "enable_comb_cuts", False),
+            use_spatial_partitioning=getattr(config, "use_spatial_partitioning", False),
         )
 
     def to_dict(self) -> Dict[str, Any]:

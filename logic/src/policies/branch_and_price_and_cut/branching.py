@@ -338,26 +338,33 @@ class EdgeBranching:
 
 
 class MultiEdgePartitionBranching:
-    """
+    r"""
     Advanced Divergence Branching with Spatial (Polar-Angle) Partitioning.
 
-    This strategy extends the standard Divergence Branching (Barnhart et al. 1998)
-    by using node coordinates to create spatially cohesive arc sets.
+    This strategy formalizes the Divergence Branching of Barnhart et al. (1998)
+    by utilizing node coordinates to induce a spatially cohesive arc-set
+    partition.
 
-    Mechanism:
-        1. Identify a 'divergence node' (d) where the fractional flow splits
-           into multiple outgoing arcs.
-        2. Sort ALL outgoing arcs from (d) by the polar angle of their
-           destination nodes relative to (d).
-        3. Partition the sorted arcs into two sets (A1, A2) using a median split.
-        4. Create two child nodes:
-           - Left: Must use an arc in A1 (if leaving d).
-           - Right: Must use an arc in A2 (if leaving d).
+    Mathematical Formulation:
+    -------------------------
+    1. Identify a 'divergence node' $d$ where fractional flow $\bar{x}$ splits
+       into multiple outgoing arcs $(d, v_j)$.
+    2. Define a spatial mapping function $f(v) = \text{atan2}(y_v - y_d, x_v - x_d)$
+       which returns the polar angle of node $v$ relative to $d$.
+    3. Sort the set of active outgoing arcs $A_d = \{(d, v) \in E : \bar{x}_{dv} > 0\}$
+       by their destination nodes' polar angles.
+    4. Partition $A_d$ into two subsets $A_1$ and $A_2$ using a median split
+       on the sorted angles.
+    5. Generate two child nodes by imposing constraints:
+       - Left Child: $\sum_{(d, v) \in A_1} x_{dv} \le 0$ (forbidding set A1)
+       - Right Child: $\sum_{(d, v) \in A_2} x_{dv} \le 0$ (forbidding set A2)
 
-    Theoretical Advantage:
-        Spatial partitioning is highly effective for VRP variants because it
-        tends to separate the problem into geographic sectors, leading to
-        more balanced and deeper search trees compared to arbitrary splitting.
+    Theoretical Rationale:
+    ----------------------
+    Unlike arbitrary arc splitting, spatial partitioning separates the routing
+    topology into geographic sectors. This is polyhedrally significant for
+    VRP variants as it tends to isolate independent sub-problems, leading to
+    more balanced and computationally efficient Branch-and-Bound trees.
     """
 
     @staticmethod
@@ -368,19 +375,7 @@ class MultiEdgePartitionBranching:
         node_coords: Optional[Union[np.ndarray, Dict[int, Tuple[float, float]]]] = None,
     ) -> Optional[Tuple[int, List[Tuple[int, int]], List[Tuple[int, int]]]]:
         """
-        Find a divergence node and partition its outgoing arcs.
-
-        A divergence node is one where multiple fractional routes leave
-        the node via different arcs.
-
-        Args:
-            routes: All routes in the master problem.
-            route_values: Current LP solution {route_index: λ_k}.
-            tol: Integrality tolerance.
-
-        Returns:
-            Tuple of (divergence_node, arc_set_1, arc_set_2) or None.
-            Each arc_set is a list of (from_node, to_node) tuples.
+        Identify a divergence node and compute the spatial partition.
         """
         # 1. Collect fractional routes
         fractional_routes = [(idx, val) for idx, val in route_values.items() if tol < abs(val - round(val))]
@@ -658,25 +653,39 @@ class BranchAndBoundTree:
     def __init__(
         self,
         v_model: VRPPModel,
+        params: Optional[BPCParams] = None,
+        # Legacy positional arguments kept for backward compatibility only.
+        # If params is supplied these are ignored; a DeprecationWarning is emitted
+        # when they differ from their defaults to surface accidental misuse.
         max_nodes: int = 1000,
         strategy: str = "edge",
         search_strategy: str = "best_first",
-        params: Optional[BPCParams] = None,
     ):
         """
         Initialize the Branch-and-Bound tree for BPC.
 
         Args:
             v_model: The underlying VRPP problem model.
+            params: Standardized BPC parameters.
             max_nodes: Maximum number of nodes to explore.
             strategy: Branching strategy ('divergence_spatial', 'edge', 'ryan_foster').
             search_strategy: Search strategy ('best_first', 'depth_first').
-            params: Standardized BPC parameters.
         """
+        import warnings
+
         if params is not None:
-            max_nodes = params.max_bb_nodes if hasattr(params, "max_bb_nodes") else max_nodes
-            strategy = params.branching_strategy if hasattr(params, "branching_strategy") else strategy
-            search_strategy = params.search_strategy if hasattr(params, "search_strategy") else search_strategy
+            if max_nodes != 1000 or strategy != "edge" or search_strategy != "best_first":
+                warnings.warn(
+                    "BranchAndBoundTree: explicit 'max_nodes', 'strategy', and "
+                    "'search_strategy' arguments are ignored when 'params' is supplied. "
+                    "Configure these via BPCParams instead.",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
+            max_nodes = params.max_bb_nodes
+            strategy = params.branching_strategy
+            search_strategy = params.search_strategy
+
         self.v_model = v_model
 
         # Extract coordinates from the injected model
@@ -708,30 +717,12 @@ class BranchAndBoundTree:
         self.open_nodes.append(node)
 
     def get_next_node(self) -> Optional[BranchNode]:
-        """
-        Select and remove the next node to process from the open list.
-
-        Uses the configured search strategy:
-        - "best_first": pop the node with the highest LP bound (best-bound-first).
-        - "depth_first": pop the most recently added node (LIFO).
-
-        Returns:
-            The selected BranchNode, or None if the open list is empty.
-        """
-        if not self.open_nodes:
-            return None
-
-        if self.search_strategy == "depth_first":
-            return self.open_nodes.pop()
-
-        # Default: best-first — select the node with the highest LP bound.
-        # Nodes with lp_bound=None (only the root) are treated as +inf
-        # so they are explored first.
-        best_idx = max(
-            range(len(self.open_nodes)),
-            key=lambda i: self.open_nodes[i].lp_bound if self.open_nodes[i].lp_bound is not None else float("inf"),  # type: ignore[arg-type,return-value]
+        """Delegate to the injected search strategy. Prefer calling
+        search_strategy.select_node(bb_tree.open_nodes) directly."""
+        raise NotImplementedError(
+            "Call search_strategy.select_node(bb_tree.open_nodes) directly. "
+            "get_next_node is retained only for backward compatibility."
         )
-        return self.open_nodes.pop(best_idx)
 
     # ------------------------------------------------------------------
     # Branching
