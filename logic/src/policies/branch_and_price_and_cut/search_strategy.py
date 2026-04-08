@@ -17,7 +17,7 @@ References:
 """
 
 from abc import ABC, abstractmethod
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
 from .branching import BranchNode
 
@@ -59,7 +59,7 @@ class BestFirstSearch(NodeSelectionStrategy):
     LP basis reuse.
 
     Characteristics:
-    - Time complexity: O(n log n) per selection (due to sorting)
+    - Time complexity: O(n) per selection (linear scan for maximum)
     - Space complexity: O(n) where n is number of open nodes
     - Optimality guarantee: Yes (like all complete B&B strategies)
     - Basis reuse: Poor (jumps across different tree branches)
@@ -107,7 +107,7 @@ class DepthFirstSearch(NodeSelectionStrategy):
     - Maximizes LP basis reuse by staying within the same branch.
     - Achieves significant speedups (often 3-5x) by resolving child LPs
       from the parent's basis using dual simplex.
-    - Effectively leverages LP warm-starts as advocated by Barnhart et al. (1998).
+    - Effectively leverages LP warm-starts as advocated by Barnhart et al. (1998, OR 46(3):316-329).
 
     Characteristics:
     - Time complexity: O(n) per selection (linear scan)
@@ -124,7 +124,7 @@ class DepthFirstSearch(NodeSelectionStrategy):
     ----------------------
     When combined with LP warmstarts, DFS can achieve 3-5x speedup on
     large multicommodity flow instances by reusing the basis from the
-    parent node (Barnhart et al., 1998, Section 5).
+    parent node (Barnhart et al., 1998, OR 46(3):316-329, Section 5).
 
     The solver should leverage Gurobi's or CPLEX's basis warmstart
     capabilities by:
@@ -135,30 +135,20 @@ class DepthFirstSearch(NodeSelectionStrategy):
 
     def select_node(self, open_nodes: List[BranchNode]) -> Optional[BranchNode]:
         """
-        Select deepest node in the tree (highest depth value).
-
-        When multiple nodes have the same depth (siblings), we break ties
-        by selecting the node with the highest LP bound to maintain
-        some optimality-driven exploration.
+        Select the next node to explore using DFS (LIFO).
 
         Args:
-            open_nodes: List of unexplored branch nodes
+            open_nodes: List of unexplored branch nodes (treated as a stack).
 
         Returns:
-            Deepest node, or None if list is empty
+            The last node appended, or None if the list is empty.
         """
         if not open_nodes:
             return None
-
-        # Fix 8: Use O(n) scan instead of O(n log n) sort
-        def get_dfs_key(i: int) -> Tuple[int, float]:
-            node = open_nodes[i]
-            bound = node.lp_bound
-            return (node.depth, bound if bound is not None else float("-inf"))
-
-        best_idx = max(range(len(open_nodes)), key=get_dfs_key)
-
-        return open_nodes.pop(best_idx)
+        # open_nodes is used as a LIFO stack: the last element appended is
+        # the next to explore. In run_custom_bpc, add the preferred branch
+        # (shorter path / higher LP bound) LAST so it is popped first.
+        return open_nodes.pop()
 
     def get_name(self) -> str:
         return "depth_first"

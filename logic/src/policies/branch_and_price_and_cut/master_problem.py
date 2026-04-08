@@ -104,12 +104,15 @@ class VRPPMasterProblem:
         self.C = cost_per_km
         self.vehicle_limit = vehicle_limit
 
-        # Task 5 & Part 5 Task 4: Dynamic Big-M for Numerical Stability
-        # Penalty must strictly exceed the max possible profit of ANY single route.
+        # BIG_M must strictly exceed the profit of the best possible single route.
+        # We bound the number of nodes a route can visit by capacity: at most
+        # capacity / min_demand nodes fit in one route. This is tighter than n_nodes
+        # and avoids inflating the LP penalty coefficient unnecessarily.
         max_single_node_revenue = max(self.wastes.values(), default=0.0) * self.R
-        # A route visits at most n_nodes customers.
-        max_route_profit = max_single_node_revenue * self.n_nodes
-        self.BIG_M = max(1000.0, 2.0 * max_route_profit)
+        min_demand = min((w for w in self.wastes.values() if w > 0), default=1.0)
+        max_nodes_per_route = max(1, int(self.capacity / min_demand))
+        max_route_profit = max_single_node_revenue * min(max_nodes_per_route, self.n_nodes)
+        self.BIG_M = max(1000.0, 10.0 * max_route_profit)
 
         self.routes: List[Route] = []
 
@@ -143,7 +146,8 @@ class VRPPMasterProblem:
         self.active_sri_cuts: Dict[FrozenSet[int], gp.Constr] = {}
 
         # LCI
-        self.active_lci_cuts: Dict[Tuple[int, int], gp.Constr] = {}
+        # Value is (constraint, {route_idx: lifting_coeff})
+        self.active_lci_cuts: Dict[Tuple[int, int], Tuple[gp.Constr, Dict[int, float]]] = {}
 
         # Farkas duals stored during infeasibility detection
         self.farkas_duals: Dict[Union[int, str], float] = {}
@@ -224,7 +228,7 @@ class VRPPMasterProblem:
         if self.model is not None:
             self._add_column_to_model(route)
 
-    def _add_column_to_model(self, route: Route) -> None:
+    def _add_column_to_model(self, route: Route) -> None:  # noqa: C901
         """
         Insert a new column (route variable) into the live Gurobi model.
 
@@ -265,6 +269,29 @@ class VRPPMasterProblem:
             crossings = self._count_crossings(route, node_set)
             if crossings > 0:
                 self.model.chgCoeff(constr, var, float(crossings))
+        # Wire into active local SEC cuts if any exist
+        for node_set, constr in self.active_sec_cuts_local.items():
+            crossings = self._count_crossings(route, node_set)
+            if crossings > 0:
+                self.model.chgCoeff(constr, var, float(crossings))
+
+        # Wire into active SRI cuts
+        for subset, constr in self.active_sri_cuts.items():
+            count = sum(1 for n in subset if n in route.node_coverage)
+            coeff = count // 2
+            if coeff > 0:
+                self.model.chgCoeff(constr, var, float(coeff))
+
+        # Wire into active LCI cuts
+        new_route_idx = len(self.lambda_vars) - 1  # var was just appended
+        for edge_tuple, (constr, stored_coeffs) in self.active_lci_cuts.items():
+            nodes = [0] + route.nodes + [0]
+            contains_edge = any(tuple(sorted((nodes[i], nodes[i + 1]))) == edge_tuple for i in range(len(nodes) - 1))
+            if contains_edge:
+                # Routes not present in stored_coeffs (i.e., new routes generated after the cut)
+                # default to 1.0 per Barnhart et al. (2000).
+                coeff = stored_coeffs.get(new_route_idx, 1.0)  # type: ignore[assignment]
+                self.model.chgCoeff(constr, var, coeff)
 
         self.model.update()
 
@@ -324,15 +351,7 @@ class VRPPMasterProblem:
                 name=f"alpha_{node}",
             )
 
-        # ---- Mandatory-node coverage constraints (Set Covering: >= 1) ----
-        # Using >= 1 instead of == 1:
-        #   * Dual values (shadow prices) of >= constraints in a MAX LP are
-        #     non-positive; taking their absolute value gives a non-negative
-        #     contribution to reduced costs, which is the sign convention
-        #     expected by the pricing subproblem.
-        #   * The relaxation allows "over-coverage" (visiting a node on more
-        #     than one route), which is harmless because the objective drives
-        #     the solver towards the most profitable non-redundant solution.
+        # ---- Mandatory-node coverage constraints (Set Partitioning: == 1) ----
         for node in self.mandatory_nodes:
             lhs = gp.LinExpr()
             for idx, route in enumerate(self.routes):
@@ -477,13 +496,13 @@ class VRPPMasterProblem:
         # ---- Extract duals for SRI ---------------------------------------
         self.dual_sri_cuts = {}
         for subset, constr in self.active_sri_cuts.items():
-            self.dual_sri_cuts[subset] = max(0.0, constr.Pi)
+            self.dual_sri_cuts[subset] = max(0.0, -constr.Pi)
 
         # Extract LCI cut duals
         self.dual_lci_cuts = {}
         # LCIs are <= 1 constraints in maximization. duals are normally >= 0.
-        for edge_tuple, constr in self.active_lci_cuts.items():
-            self.dual_lci_cuts[edge_tuple] = max(0.0, constr.Pi)
+        for edge_tuple, (constr, _) in self.active_lci_cuts.items():
+            self.dual_lci_cuts[edge_tuple] = max(0.0, -constr.Pi)
 
         return obj_value, route_values
 
@@ -561,9 +580,9 @@ class VRPPMasterProblem:
         # Note: We return them in a structure that RCSPPSolver.solve expects
         return {
             "node_duals": duals,
-            "capacity_duals": {k: v for k, v in self.dual_capacity_cuts.items()},
+            "rcc_duals": {k: v for k, v in self.dual_capacity_cuts.items()},
             "sri_duals": {k: v for k, v in self.dual_sri_cuts.items()},
-            "edge_duals": {k: v for k, v in self.dual_lci_cuts.items()},
+            "lci_duals": {k: v for k, v in self.dual_lci_cuts.items()},
         }
 
     def get_node_visitation(self) -> Dict[int, float]:
@@ -591,20 +610,23 @@ class VRPPMasterProblem:
         except (gp.GurobiError, AttributeError):
             return {}
 
-    def add_edge_lci_cut(self, u: int, v: int) -> bool:
+    def add_edge_lci_cut(
+        self, u: int, v: int, coefficients: Optional[Dict[int, float]] = None, rhs: float = 1.0
+    ) -> bool:
         """
         Add a Lifted Cover Inequality (LCI) specifically covering edge (u, v).
 
-        LCI Formulation:
-            Σ_{k: {u,v} ⊆ Route_k} λ_k <= 1
+        LCI Formulation (Barnhart et al. 2000):
+            Σ_{k ∈ C} λ_k + Σ_{k ∈ \bar{C}} α_k λ_k <= |C| - 1
 
-        This constraint strengthens the LP relaxation by preventing configurations
-        where multiple fractional routes traverse the same physical edge, exceeding
-        the unary capacity of a single vehicle edge. This is a special case of
-        edge-capacity clique cuts.
+        Where C is a minimal cover of routes using edge (u, v), and α_k are
+        lifting coefficients for routes not in the cover.
 
         Args:
             u, v: Endpoint nodes of the edge.
+            coefficients: Mapping from route index to lifting coefficient α_k.
+                If None, defaults to 1.0 for all routes using the edge.
+            rhs: Right-hand side of the inequality (|C| - 1).
 
         Returns:
             True if the cut was added, False if it was redundant.
@@ -613,13 +635,18 @@ class VRPPMasterProblem:
             return False
 
         edge_tuple = (min(u, v), max(u, v))
+        # TODO: Allow multiple LCIs per edge by keying on (edge_tuple, cover_hash).
+        # Currently only one cut per edge is stored; subsequent fractional solutions
+        # at deeper B&B nodes that violate a stronger LCI on the same edge are missed.
         if edge_tuple in self.active_lci_cuts:
+            # Check if existing cut is identical or weaker
+            # For simplicity, we only allow one LCI per edge currently.
             return False
 
         lhs = gp.LinExpr()
         found_columns = False
         for idx, route in enumerate(self.routes):
-            # Check for edge (u, v) in route: [0, ...nodes..., 0]
+            # Check for edge (u, v) in route path
             nodes = [0] + route.nodes + [0]
             contains_edge = False
             for i in range(len(nodes) - 1):
@@ -628,14 +655,18 @@ class VRPPMasterProblem:
                     break
 
             if contains_edge:
-                lhs.add(self.lambda_vars[idx], 1.0)
+                coeff = 1.0
+                if coefficients is not None:
+                    coeff = coefficients.get(idx, 1.0)
+                lhs.add(self.lambda_vars[idx], coeff)
                 found_columns = True
 
         if not found_columns:
             return False
 
-        constr = self.model.addConstr(lhs <= 1.0, name=f"LCI_{edge_tuple[0]}_{edge_tuple[1]}")
-        self.active_lci_cuts[edge_tuple] = constr
+        constr = self.model.addConstr(lhs <= rhs, name=f"LCI_{edge_tuple[0]}_{edge_tuple[1]}")
+        stored_coeffs = coefficients if coefficients is not None else {}
+        self.active_lci_cuts[edge_tuple] = (constr, stored_coeffs)
         self.model.update()
         return True
 

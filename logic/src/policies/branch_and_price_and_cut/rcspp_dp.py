@@ -1,31 +1,27 @@
-"""
-Resource-Constrained Shortest Path Problem (RCSPP) Solver with ng-Route Relaxation.
+r"""
+RCSPP Pricing Subproblem Solver.
 
-This module provides the core pricing engine for the Branch-and-Price-and-Cut (BPC)
-algorithm. It implements a forward label-correcting dynamic programming
-algorithm to find profitable routes (columns) to add to the Master Problem.
+Solves the Resource-Constrained Shortest Path Problem (RCSPP) to identify
+profitable columns (routes) for the BPC Master Problem.
 
-Theoretical Foundation:
-    - ng-Route Relaxation (Baldacci et al. 2011): Provides a compromise between
-      the high complexity of exact ESPPRC and the weak relaxation of SPPRC.
-      Cycles are permitted as long as they don't involve "recently visited"
-      nodes within a local memory neighborhood.
-    - Subset-Row Inequalities (SRI) (Jepsen et al. 2008): Strengthens the set
-      partitioning relaxation by adding valid inequalities for subsets of size 3.
-    - Rounded Capacity Cuts (RCC) (Lysgaard et al. 2004): Standard VRP capacity
-      constraints based on bin-packing bounds.
-    - exact ESPPRC: High-fidelity pricing achieved when ng-neighborhoods
-      encompass all nodes, or when using strict elementary visit tracking.
+Theoretical Framing:
+--------------------
+To identify the column with the most positive reduced cost, the pricer must
+strictly speaking solve an Elementary RCSPP (ERCSPP), which is NP-hard.
+We implement the **ng-route relaxation**, a controlled relaxation of
+elementarity where a node can be re-visited if it is no longer 'remembered'
+within a localized neighborhood (Baldacci et al. 2011).
 
-Key Algorithmic Features:
-    - Bidirectional Dual Processing: Supports standard maximization duals
-      and Farkas duals for infeasibility proof in B&B nodes.
-    - Parity Tracking: Tracks visit counts per SRI subset (modulo 2) to correctly
-      apply dual penalties for the 3-SRI family.
-    - Edge-Based Duals: Dynamic subtraction of penalties for edge-capacity
-      clique cuts (LCIs) during label extension.
-    - Structural Constraints: Enforces branching decisions (Arc-based or Ryan-Foster)
-      to maintain search tree integrity.
+This allows us to handle the $O(2^n)$ state space complexity of the TSP
+substructure while maintaining a very tight lower bound for the Master Problem.
+
+Pricing with Cuts:
+------------------
+The solver integrates dual contributions from:
+1. Node-coverage (Reduced Revenue)
+2. Rounded Capacity Cuts (Boundary crossings)
+3. Subset-Row Inequalities (3-node group visit parity)
+4. Lifted Cover Inequalities (Edge-capacity violations)
 """
 
 from __future__ import annotations
@@ -95,7 +91,7 @@ class Label:
             return False
         if self.load > other.load + epsilon:
             return False
-        if self.rf_unmatched != other.rf_unmatched:
+        if not self.rf_unmatched.issubset(other.rf_unmatched):
             return False
 
         # Exact ESPPRC requirement for SRI states:
@@ -161,16 +157,18 @@ class RCSPPSolver:
             self.ng_neighborhoods = self._compute_ng_neighborhoods()
 
     def _compute_ng_neighborhoods(self) -> Dict[int, Set[int]]:
-        all_nodes = list(range(self.n_nodes + 1))
-        k = min(self.ng_neighborhood_size, len(all_nodes))
+        customer_nodes = list(range(1, self.n_nodes + 1))
+        k = min(self.ng_neighborhood_size, len(customer_nodes))
         neighborhoods: Dict[int, Set[int]] = {}
 
-        for i in all_nodes:
-            distances = sorted((self.cost_matrix[i, j], j) for j in all_nodes if j != i)
+        for i in customer_nodes:
+            distances = sorted((self.cost_matrix[i, j], j) for j in customer_nodes if j != i)
             closest: Set[int] = {j for _, j in distances[: k - 1]}
             closest.add(i)
             neighborhoods[i] = closest
 
+        # Depot has no ng-neighbourhood (never tracked in ng_memory)
+        neighborhoods[self.depot] = set()
         return neighborhoods
 
     def solve(
@@ -338,13 +336,15 @@ class RCSPPSolver:
             candidate_nodes = [required_successors[u]] if u in required_successors else range(1, self.n_nodes + 1)
 
             for v in candidate_nodes:
-                # Elementarity/ng-feasibility
-                if use_ng:
-                    if v in current.ng_memory:
-                        continue
-                else:
-                    if v in current.visited:
-                        continue
+                is_required = u in required_successors and required_successors[u] == v
+
+                # Physical elementarity check: never revisit a node in VRPP
+                if v in current.visited:
+                    continue
+
+                # ng-feasibility — skip only when the arc is NOT forced
+                if not is_required and use_ng and v in current.ng_memory:
+                    continue
 
                 # Ryan-Foster Separation
                 if any((min(v, n), max(v, n)) in rf_separate for n in current.visited):
@@ -523,8 +523,14 @@ class RCSPPSolver:
             if (label.node in s) != (self.depot in s):
                 crossing_penalty += dual
 
+        # LCI Penalty for return arc
+        lci_penalty = 0.0
+        edge_tuple = tuple(sorted((label.node, self.depot)))
+        if hasattr(self, "lci_cut_duals") and edge_tuple in self.lci_cut_duals:
+            lci_penalty = self.lci_cut_duals[edge_tuple]  # type: ignore[index]
+
         if not self.is_farkas:
-            new_rc = label.reduced_cost - edge_cost - vehicle_dual - crossing_penalty
+            new_rc = label.reduced_cost - edge_cost - vehicle_dual - crossing_penalty - lci_penalty
         else:
             new_rc = label.reduced_cost
 
