@@ -181,7 +181,7 @@ class RCSPPSolver:
         forced_nodes: Optional[Set[int]] = None,
         rf_conflicts: Optional[Dict[int, Set[int]]] = None,
         is_farkas: bool = False,
-        max_active_sris: int = 15,
+        is_farkas: bool = False,
     ) -> List[Route]:
         # 1. Dual handling
         if isinstance(dual_values, dict) and "node_duals" in dual_values:
@@ -190,11 +190,15 @@ class RCSPPSolver:
             node_duals = complex_duals.get("node_duals", {})
             rcc_duals = complex_duals.get("rcc_duals", {})
             sri_duals = complex_duals.get("sri_duals", {})
+            # Edge-clique duals are keyed by canonical (min, max) edge tuples.
+            # They penalise the reduced cost whenever the DP traverses a cut edge.
+            edge_clique_duals: Dict[Tuple[int, int], float] = complex_duals.get("edge_clique_duals", {})
         else:
             # Simple node duals only
             node_duals = dual_values  # type: ignore[assignment]
             rcc_duals = capacity_cut_duals or {}
             sri_duals = sri_cut_duals or {}
+            edge_clique_duals = edge_clique_cut_duals or {}
 
         # 2. Reset state
         self.labels_generated = 0
@@ -211,7 +215,6 @@ class RCSPPSolver:
         # 3. SRI pre-processing
         active_sri_items = [(k, v) for k, v in sri_duals.items() if v > 1e-4]
         active_sri_items.sort(key=lambda x: x[1], reverse=True)
-        active_sri_items = active_sri_items[:max_active_sris]
         active_sri_subsets = sorted([k for k, v in active_sri_items], key=hash)
         sri_dual_values = [sri_duals[s] for s in active_sri_subsets]
         self.sri_dual_values = sri_dual_values
@@ -247,6 +250,7 @@ class RCSPPSolver:
                 sri_dual_values=sri_dual_values,
                 node_to_sri=node_to_sri,
                 forced_nodes=self.forced_nodes,
+                edge_clique_duals=edge_clique_duals,
             )
         finally:
             self.use_ng_routes = original_use_ng
@@ -364,6 +368,7 @@ class RCSPPSolver:
         node_to_sri: Dict[int, List[int]],
         forced_nodes: Set[int],
         sri_memory_nodes: Optional[List[Set[int]]] = None,
+        edge_clique_duals: Optional[Dict[Tuple[int, int], float]] = None,
     ) -> List[Route]:
         """Forward label-correcting algorithm (priority-queue order)."""
         use_ng = self.use_ng_routes
@@ -426,6 +431,7 @@ class RCSPPSolver:
                     sri_duals=sri_dual_values,
                     node_to_sri=node_to_sri,
                     sri_memory_nodes=sri_memory_nodes,
+                    edge_clique_duals=edge_clique_duals,
                 )
                 if new_label is None:
                     continue
@@ -528,6 +534,7 @@ class RCSPPSolver:
         sri_duals: List[float],
         node_to_sri: Dict[int, List[int]],
         sri_memory_nodes: Optional[List[Set[int]]] = None,
+        edge_clique_duals: Optional[Dict[Tuple[int, int], float]] = None,
     ) -> Optional[Label]:
         edge = (label.node, next_node)
         if edge in forbidden:
@@ -546,6 +553,16 @@ class RCSPPSolver:
         for subset, dual in rcc_duals.items():
             if next_node in subset:
                 rc_delta -= dual
+
+        # Edge-Clique dual penalty (Barnhart et al. 2000, §4.2).
+        # For a cut on edge (u, v) with dual γ, every route traversing (u, v)
+        # must have its reduced cost decreased by γ.  The canonical key is
+        # (min(u,v), max(u,v)) to match the master problem's storage convention.
+        if edge_clique_duals:
+            canonical_edge = (min(label.node, next_node), max(label.node, next_node))
+            ec_dual = edge_clique_duals.get(canonical_edge, 0.0)
+            if ec_dual > 0.0:
+                rc_delta -= ec_dual
 
         # Fix 4: SRI Dual Penalty
         new_sri = list(label.sri_state)

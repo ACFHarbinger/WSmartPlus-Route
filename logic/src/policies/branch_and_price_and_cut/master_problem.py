@@ -63,34 +63,65 @@ class GlobalCutPool:
     globally, we ensure that a cut discovered in one branch tightens the LP bound
     in sibling and child branches immediately, avoiding redundant separation and
     reducing the total number of B&B nodes explored.
+
+    RCC storage note:
+        RCC cuts are stored as (node_set, rhs) pairs so that the original RHS
+        (= 2*⌈demand(S)/Q⌉, computed at discovery) is faithfully replayed when
+        the cut is re-injected at descendant nodes. Storing only the node set
+        and hard-coding rhs=1.0 would produce trivially weak cuts.
+
+        Assumption: Customer demands and vehicle capacities are static throughout 
+        the B&B tree. If these were dynamic (e.g., stochastic demands handled at 
+        internal nodes), the RHS of purely node-set-based cuts could change, 
+        invalidating the global mathematical integrity of this archive.
     """
 
     def __init__(self) -> None:
         """Initialise empty global cut registries."""
-        self.rcc_cuts: Set[FrozenSet[int]] = set()
+        # RCC: maps node_set -> original rhs (2*ceil(demand/Q))
+        self.rcc_cuts: Dict[FrozenSet[int], float] = {}
         self.sri_cuts: Set[FrozenSet[int]] = set()
+        self.active_sri_vectors: Dict[FrozenSet[int], np.ndarray] = {}
         self.sec_cuts: Set[FrozenSet[int]] = set()  # Form 2.1 (Global)
         self.edge_clique_cuts: Set[Tuple[int, int]] = set()
-        self.lci_cuts: Set[FrozenSet[int]] = set()
+        # LCI: maps node_set -> rhs (the fleet-size cover bound K)
+        self.lci_cuts: Dict[FrozenSet[int], Tuple[float, Dict[int, float]]] = {}
 
     def add_cut(self, cut_type: str, data: Any) -> None:
         """
         Archive a globally valid cut in the pool.
 
+        Global Validity Contract:
+            Only archive cuts here that are valid at EVERY node in the B&B tree
+            (e.g., RCC, SRI, SEC 2.1). Node-local cuts (branching-dependent SECs,
+            lifted cover cuts dependent on local bounds) MUST NOT be added to
+            this pool or they will lead to incorrect pruning and loss of optimality.
+
         Args:
-            cut_type: The type of cut ("rcc", "sri", "sec_2.1", "lci").
-            data: Cut-specific data (usually a FrozenSet of nodes).
+            cut_type: The type of cut ("rcc", "sri", "sec_2.1", "edge_clique", "lci").
+            data: Cut-specific data.
+                  For "rcc": (FrozenSet[int], rhs: float)
+                  For "lci": (FrozenSet[int], rhs: float, coefficients: Dict[int, float])
+                  For others: FrozenSet[int] or Tuple[int, int].
         """
+
         if cut_type == "rcc":
-            self.rcc_cuts.add(data)
+            node_set, rhs = data
+            # Only archive if better (tighter) than any existing cut on this set.
+            existing = self.rcc_cuts.get(node_set, 0.0)
+            if rhs > existing:
+                self.rcc_cuts[node_set] = rhs
         elif cut_type == "sri":
-            self.sri_cuts.add(data)
+            node_set, coeff_vec = data
+            self.sri_cuts.add(node_set)
+            self.active_sri_vectors[node_set] = coeff_vec
         elif cut_type == "sec_2.1":
             self.sec_cuts.add(data)
         elif cut_type == "edge_clique":
             self.edge_clique_cuts.add(data)
         elif cut_type == "lci":
-            self.lci_cuts.add(data)
+            node_set, rhs, coefficients = data
+            self.lci_cuts[node_set] = (rhs, coefficients)
 
     def apply_to_master(self, master: "VRPPMasterProblem") -> int:
         """
@@ -104,8 +135,9 @@ class GlobalCutPool:
             Number of cuts successfully applied.
         """
         added = 0
-        for nodes in self.rcc_cuts:
-            if master.add_capacity_cut(list(nodes), rhs=1.0):  # Simplified RHS for SPP
+        # RCC: replay with the stored (correct) RHS, not a hard-coded value.
+        for node_set, rhs in self.rcc_cuts.items():
+            if master.add_capacity_cut(list(node_set), rhs=rhs, _skip_pool=True):
                 added += 1
         for nodes in self.sri_cuts:
             if master.add_subset_row_cut(nodes):
@@ -114,7 +146,14 @@ class GlobalCutPool:
             # Form 2.1 is always global
             if master.add_sec_cut(nodes, rhs=1.0, facet_form="2.1"):
                 added += 1
-        # Edge cliques and LCIs are more complex but can be added similarly
+        # Re-inject Edge Clique cuts from the global pool.
+        for edge_tuple in self.edge_clique_cuts:
+            if master.add_edge_clique_cut(edge_tuple[0], edge_tuple[1]):
+                added += 1
+        # Re-inject LCI cuts.
+        for node_set, (rhs, coefficients) in self.lci_cuts.items():
+            if master.add_lci_cut(list(node_set), rhs, coefficients):
+                added += 1
         return added
 
 
@@ -164,10 +203,10 @@ class VRPPMasterProblem:
         """
         Initialise the Master Problem for VRPP.
 
-        Framework (Barnhart et al. 1998, 2000):
-        This class maintains the Restricted Master Problem (RMP), which is the Set
-        Partitioning relaxation of the VRPP. It manages column addition, cutting
-        plane integration, and dual extraction.
+        Framework (Barnhart, Hane, and Vance 2000):
+        This class maintains the Restricted Master Problem (RMP) using the
+        Barnhart-style ODIMCF column management. It manages column addition,
+        cutting plane integration, and dual extraction.
 
         Set Partitioning & Branching:
         To maintain Ryan-Foster (1981) compatibility, we use strict equality (== 1)
@@ -238,12 +277,17 @@ class VRPPMasterProblem:
         self.active_sec_cuts: Dict[FrozenSet[int], gp.Constr] = {}
         self.active_sec_cuts_local: Dict[FrozenSet[int], gp.Constr] = {}
         self.active_capacity_cuts: Dict[FrozenSet[int], gp.Constr] = {}
+        # LCI constraints (>= K) are kept in a dedicated registry so that their
+        # dual extraction (positive for <= in MAX LP) is not confused with RCC
+        # duals (negative for >= in MAX LP).
+        self.active_lci_cuts: Dict[FrozenSet[int], gp.Constr] = {}
 
         # Dual mappings
         self.dual_src_cuts: Dict[FrozenSet[int], float] = {}
         self.dual_sec_cuts: Dict[FrozenSet[int], float] = {}
         self.dual_sec_cuts_local: Dict[FrozenSet[int], float] = {}
         self.dual_capacity_cuts: Dict[FrozenSet[int], float] = {}
+        self.dual_lci_cuts: Dict[FrozenSet[int], float] = {}
         self.dual_sri_cuts: Dict[FrozenSet[int], float] = {}
         self.dual_edge_clique_cuts: Dict[Tuple[int, int], float] = {}
 
@@ -528,8 +572,12 @@ class VRPPMasterProblem:
         """
         Switch between Phase 1 (Feasibility) and Phase 2 (Optimality).
 
-        Phase 1: Minimize Σ α_i. Route profits are ignored.
-        Phase 2: Maximize Σ p_k λ_k - Σ BIG_M α_i.
+        Phase 1: All route objectives are set to 0.0 so the LP has no inherent
+            bias.  Gurobi will find the RMP infeasible (no Big-M artificials),
+            and the Farkas dual ray guides pricing toward columns that restore
+            coverage of mandatory nodes.
+        Phase 2: Route objectives are restored to their profit values so the LP
+            maximises total profit (standard column generation).
 
         Args:
             phase: 1 or 2.
@@ -675,14 +723,15 @@ class VRPPMasterProblem:
         """
         Build the Gurobi model for the set-covering master problem.
 
-        Implements the Big-M / artificial-variable formulation of
-        Barnhart et al. (1998):
+        Implements the Restricted Master Problem (RMP) formulation:
 
         1. Mandatory-node coverage constraints use == 1 (Set Partitioning) to
            ensure that Ryan-Foster branching logic remains mathematically valid.
-        2. An artificial variable α_i is added to every mandatory-node constraint
-           with objective coefficient -BIG_M, guaranteeing LP feasibility even
-           when the column pool cannot cover every mandatory node.
+        2. Artificial variables (Big-M) are intentionally omitted.  When the
+           column pool cannot cover a mandatory node, Gurobi returns INFEASIBLE
+           and we extract the Farkas dual ray to guide Phase I pricing toward
+           feasibility (Barnhart et al. 2000, §3).  Big-M variables would
+           suppress infeasibility and deadlock the Phase I / Farkas loop.
         3. Optional-node constraints are packing inequalities (<= 1).
 
         Args:
@@ -797,42 +846,75 @@ class VRPPMasterProblem:
         status = self.model.Status
 
         if status == GRB.INFEASIBLE:
-            # Structure farkas_duals identically to get_reduced_cost_coefficients()
-            farkas_node_duals: Dict[Union[int, str], float] = {}
-            for node in range(1, self.n_nodes + 1):
-                constr = self.model.getConstrByName(f"coverage_{node}")
-                if constr is not None:
-                    farkas_node_duals[node] = constr.FarkasDual
+            try:
+                # Structure farkas_duals identically to get_reduced_cost_coefficients()
+                farkas_node_duals: Dict[Union[int, str], float] = {}
+                for node in range(1, self.n_nodes + 1):
+                    constr = self.model.getConstrByName(f"coverage_{node}")
+                    if constr is not None:
+                        farkas_node_duals[node] = constr.FarkasDual
 
-            if self.vehicle_limit is not None:
-                constr = self.model.getConstrByName("vehicle_limit")
-                if constr is not None:
-                    farkas_node_duals["vehicle_limit"] = constr.FarkasDual
+                if self.vehicle_limit is not None:
+                    constr = self.model.getConstrByName("vehicle_limit")
+                    if constr is not None:
+                        farkas_node_duals["vehicle_limit"] = constr.FarkasDual
 
-            # Task 3: Extract Minimum Fleet Farkas Duals
-            temp_min_c = self.model.getConstrByName("temp_min_vehicles")
-            if temp_min_c is not None:
-                farkas_node_duals["vehicle_limit"] = farkas_node_duals.get("vehicle_limit", 0.0) + temp_min_c.FarkasDual
+                # Task 3: Extract Minimum Fleet Farkas Duals
+                temp_min_c = self.model.getConstrByName("temp_min_vehicles")
+                if temp_min_c is not None:
+                    farkas_node_duals["vehicle_limit"] = farkas_node_duals.get("vehicle_limit", 0.0) + temp_min_c.FarkasDual
 
-            farkas_rcc_duals: Dict[FrozenSet[int], float] = {}
-            for subset, constr in self.active_capacity_cuts.items():
-                farkas_rcc_duals[subset] = constr.FarkasDual
+                farkas_rcc_duals: Dict[FrozenSet[int], float] = {}
+                for subset, constr in self.active_capacity_cuts.items():
+                    farkas_rcc_duals[subset] = constr.FarkasDual
 
-            farkas_sri_duals: Dict[FrozenSet[int], float] = {}
-            for subset, constr in self.active_sri_cuts.items():
-                farkas_sri_duals[subset] = constr.FarkasDual
+                farkas_sri_duals: Dict[FrozenSet[int], float] = {}
+                for subset, constr in self.active_sri_cuts.items():
+                    farkas_sri_duals[subset] = constr.FarkasDual
 
-            farkas_clique_duals: Dict[Tuple[int, int], float] = {}
-            for edge, (constr, _) in self.active_edge_clique_cuts.items():
-                farkas_clique_duals[edge] = constr.FarkasDual
+                farkas_clique_duals: Dict[Tuple[int, int], float] = {}
+                for edge, (constr, _) in self.active_edge_clique_cuts.items():
+                    farkas_clique_duals[edge] = constr.FarkasDual
 
-            self.farkas_duals = {
-                "node_duals": farkas_node_duals,
-                "rcc_duals": farkas_rcc_duals,
-                "sri_duals": farkas_sri_duals,
-                "edge_clique_duals": farkas_clique_duals,
-            }
-            return -float("inf"), {}
+                self.farkas_duals = {
+                    "node_duals": farkas_node_duals,
+                    "rcc_duals": farkas_rcc_duals,
+                    "sri_duals": farkas_sri_duals,
+                    "edge_clique_duals": farkas_clique_duals,
+                }
+                return -float("inf"), {}
+            except AttributeError:
+                # Big-M Fallback: If Farkas dual extraction fails (e.g. numeric issues 
+                # or DualReductions=1 override), artificially force feasibility with 
+                # highly penalized Big-M slacks to extract exact surrogate Farkas penalties.
+                logger.warning("FarkasDual extraction failed. Falling back to Big-M artificial variables.")
+                
+                artificial_vars = []
+                big_m = -1e6
+                # We need to satisfy mandatory node coverage constraints
+                for node in self.mandatory_nodes:
+                    constr = self.model.getConstrByName(f"coverage_{node}")
+                    if constr is not None:
+                        # Add variable with high penalty to bridge the infeasibility
+                        art = self.model.addVar(obj=big_m, vtype=GRB.CONTINUOUS, name=f"art_cov_{node}")
+                        self.model.chgCoeff(constr, art, 1.0)
+                        artificial_vars.append(art)
+                        
+                self.model.update()
+                self.model.optimize()
+                
+                if self.model.Status == GRB.OPTIMAL:
+                    # Extract standard duals directly since artificials bridged the infeasibility.
+                    # Because the objective penalty is huge negative, the Pi values will be 
+                    # huge negative/positive accordingly, acting exactly as scaled Farkas duals.
+                    self.farkas_duals = self.get_reduced_cost_coefficients()
+                else:
+                    self.farkas_duals = {"node_duals": {}, "rcc_duals": {}, "sri_duals": {}, "edge_clique_duals": {}}
+                    
+                for art in artificial_vars:
+                    self.model.remove(art)
+                self.model.update()
+                return -float("inf"), {}
 
         if status != GRB.OPTIMAL:
             # Handle other non-optimal statuses (e.g. time limit, numeric issues)
@@ -905,19 +987,34 @@ class VRPPMasterProblem:
                 self.dual_capacity_cuts[node_set] = max(0.0, -constr.Pi)
 
         # ---- Extract duals for SRI ---------------------------------------
+        # SRI cuts are <= 1 constraints.  In a MAX LP, Gurobi reports Pi >= 0
+        # for every <= constraint (relaxing the upper bound can only help the
+        # objective).  We therefore use +Pi, not -Pi.
+        # Bug history: using max(0, -Pi) always yielded 0 because -Pi <= 0,
+        # so SRI cuts never influenced the pricing subproblem.
         self.dual_sri_cuts = {}
         for subset, constr in self.active_sri_cuts.items():
             if constr is not None:
                 with contextlib.suppress(gp.GurobiError):
-                    self.dual_sri_cuts[subset] = max(0.0, -constr.Pi)
+                    self.dual_sri_cuts[subset] = max(0.0, constr.Pi)
 
         # Extract Edge Clique cut duals
+        # Edge cliques are <= 1 constraints in MAX LP — same sign convention as SRI.
+        # Pi >= 0; use +Pi directly.
         self.dual_edge_clique_cuts = {}
-        # Edge cliques are <= 1 constraints in maximization. duals are normally >= 0.
         for key, (constr, _) in self.active_edge_clique_cuts.items():
             if constr is not None:
                 with contextlib.suppress(gp.GurobiError):
-                    self.dual_edge_clique_cuts[key] = max(0.0, -constr.Pi)
+                    self.dual_edge_clique_cuts[key] = max(0.0, constr.Pi)
+
+        # ---- Extract duals for LCI cuts ----------------------------------
+        # LCI cuts are <= rhs constraints.  In a MAX LP, Pi >= 0 for <=
+        # constraints, so we take Pi directly (no negation).
+        self.dual_lci_cuts = {}
+        for node_set, constr in self.active_lci_cuts.items():
+            if constr is not None:
+                with contextlib.suppress(gp.GurobiError):
+                    self.dual_lci_cuts[node_set] = max(0.0, constr.Pi)
 
         # ---- Task 5: Apply Exponential Smoothing -----------------------
         if self.enable_dual_smoothing:
@@ -1013,21 +1110,26 @@ class VRPPMasterProblem:
     # Dual / pricing helpers
     # ------------------------------------------------------------------
 
-    def get_reduced_cost_coefficients(self) -> Dict[str, Dict[Union[int, frozenset[int], str, Tuple[int, int]], float]]:
+    def get_reduced_cost_coefficients(self) -> Dict[str, Dict[Union[int, FrozenSet[int], str, Tuple[int, int]], float]]:
         """
         Return the dual-value coefficients used by the pricing subproblem.
 
-        The reduced cost of a candidate route r is:
-            rc(r) = profit(r)  −  Σ_{i ∈ r} dual_i  −  dual_vehicle_limit
-
-        This method collects both node-coverage duals and the vehicle-limit
-        dual into a single dictionary consumed by PricingSubproblem /
-        RCSPPSolver.
+        Sign Convention & Maximization:
+            The VRPP is formulated as a maximization problem. Under Gurobi's
+            standard dual representation, the reduced cost calculation for
+            pricing (searching for columns to boost the objective) is:
+            rc(r) = profit(r) - Σ (a_{ik} * π_i), where π_i are the duals.
+            - For >= constraints (e.g. RCC), Pi is non-positive; we use -Pi.
+            - For <= constraints (e.g. SRI, Vehicle Limit), Pi is non-negative; we use +Pi.
 
         Returns:
             Dictionary mapping node ID (int) → dual value, plus the key
             "vehicle_limit" → vehicle-limit dual if a fleet cap is active.
         """
+        assert (
+            self.model is not None and self.model.ModelSense == GRB.MAXIMIZE
+        ), "Reduced cost extraction assumes a MAXIMIZATION master problem."
+
         duals: Dict[Union[int, str, frozenset[int], Tuple[int, int]], float] = {
             k: v for k, v in self.dual_node_coverage.items()
         }
@@ -1127,6 +1229,8 @@ class VRPPMasterProblem:
         constr = self.model.addConstr(lhs <= rhs, name=f"Edge_Clique_{edge_tuple[0]}_{edge_tuple[1]}")
         stored_coeffs = coefficients if coefficients is not None else {}
         self.active_edge_clique_cuts[key] = (constr, stored_coeffs)
+        # Fix 6: Archive to global cut pool for cross-node reuse.
+        self.global_cut_pool.add_cut("edge_clique", edge_tuple)
         self.model.update()
         return True
 
@@ -1207,11 +1311,14 @@ class VRPPMasterProblem:
 
         lhs = gp.LinExpr()
         found_columns = False
+        coeff_vec = np.zeros(len(self.routes))
         for idx, route in enumerate(self.routes):
-            count = sum(1 for n in nodes if n in route.nodes)
+            # Check node coverage for SRI violation calculation
+            count = sum(1 for n in nodes if n in route.node_coverage)
             coeff = count // 2
             if coeff > 0:
                 lhs.add(self.lambda_vars[idx], float(coeff))
+                coeff_vec[idx] = float(coeff)
                 found_columns = True
 
         if not found_columns:
@@ -1219,8 +1326,8 @@ class VRPPMasterProblem:
 
         new_cut = self.model.addConstr(lhs <= 1.0, name=cut_name)
         self.active_sri_cuts[subset_frozenset] = new_cut
-        # Archiving to Global Pool (SRIs are globally valid)
-        self.global_cut_pool.add_cut("sri", subset_frozenset)
+        # Archiving to Global Pool (SRIs are globally valid); store vector for orthogonality checks
+        self.global_cut_pool.add_cut("sri", (subset_frozenset, coeff_vec))
         self.model.update()
         return True
 
@@ -1230,6 +1337,7 @@ class VRPPMasterProblem:
         rhs: float,
         coefficients: Optional[Dict[int, float]] = None,
         is_global: bool = True,
+        _skip_pool: bool = False,
     ) -> bool:
         """
         Add a Rounded Capacity Cut (RCC) to the master problem.
@@ -1265,9 +1373,10 @@ class VRPPMasterProblem:
         name = f"capacity_{abs(hash(node_set))}"
         constr = self.model.addConstr(lhs >= rhs, name=name)
         self.active_capacity_cuts[node_set] = constr
-        if is_global:
-            # Archiving to Global Pool (RCCs are globally valid)
-            self.global_cut_pool.add_cut("rcc", node_set)
+        if is_global and not _skip_pool:
+            # Archive with the actual RHS so descendant nodes replay the correct
+            # strength (2*ceil(demand(S)/Q)), not a hard-coded placeholder.
+            self.global_cut_pool.add_cut("rcc", (node_set, rhs))
 
         if self.model is not None:
             self.model.update()
@@ -1276,23 +1385,34 @@ class VRPPMasterProblem:
     def add_lci_cut(self, node_list: List[int], rhs: float, coefficients: Dict[int, float]) -> bool:
         """
         Add a Lifted Cover Inequality (LCI) to the master problem.
+
+        LCI formulation (Barnhart et al. 2000, §4):
+            Σ_{k ∈ C} λ_k + Σ_{k ∉ C} α_k λ_k  ≤  |C| - 1
+
+        LCI cuts are stored in `active_lci_cuts` (separate from `active_capacity_cuts`
+        which holds >= RCC constraints) so that dual extraction uses the correct
+        sign: Pi >= 0 for a <= constraint in a MAX LP.
         """
         if self.model is None:
             return False
 
         node_set = frozenset(node_list)
-        # Use capacity cut registry for storage but tag as LCI in pool
-        if node_set in self.active_capacity_cuts:
+        if node_set in self.active_lci_cuts:
             return False
 
         lhs = gp.LinExpr()
         for idx, coeff in coefficients.items():
-            lhs += coeff * self.lambda_vars[idx]
+            if idx < len(self.lambda_vars):
+                lhs += coeff * self.lambda_vars[idx]
+
+        if lhs.size() == 0:
+            return False
 
         name = f"lci_{abs(hash(node_set))}"
         constr = self.model.addConstr(lhs <= rhs, name=name)
-        self.active_capacity_cuts[node_set] = constr
-        self.global_cut_pool.add_cut("lci", node_set)
+        self.active_lci_cuts[node_set] = constr
+        # Archive with rhs and coefficients so descendant nodes can replay correctly.
+        self.global_cut_pool.add_cut("lci", (node_set, rhs, coefficients))
         if self.model is not None:
             self.model.update()
         return True

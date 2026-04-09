@@ -24,16 +24,25 @@ class BPCConfig:
         cutting_planes: Cutting plane family ('rcc', 'sri', 'lci', or 'all').
         branching_strategy: Branching rule ('ryan_foster', 'edge', or 'divergence').
         max_cg_iterations: Maximum iterations for column generation loop.
+        max_cut_iterations: Maximum iterations for cutting plane loop per CG iteration.
         max_cuts_per_iteration: Maximum cuts to add per iteration.
         max_routes_per_pricing: Maximum routes to add per pricing call.
         max_bb_nodes: Maximum nodes to explore in the B&B tree.
         optimality_gap: Relative gap for proven optimality.
-        early_termination_gap: Gap at which to stop search early.
+        early_termination_gap: Gap at which to stop search early (heuristic shortcut).
         use_ng_routes: Whether to use ng-route relaxation in pricing.
         ng_neighborhood_size: Size of ng-neighborhoods for relaxation.
-        enable_fractional_capacity_cuts: Whether to enable fractional capacity cuts.
+        enable_heuristic_rcc_separation: Whether to enable (heuristic) fractional RCC separation.
         enable_comb_cuts: Whether to enable heuristic comb inequalities.
+        cut_orthogonality_threshold: Cosine similarity ceiling for cut filtering.
         use_spatial_partitioning: Whether to use spatial partitioning for branching.
+        enable_strong_branching_heuristic: Whether to enable heuristic strong branching.
+        enable_column_pool_deduplication: Whether to enable column pool deduplication.
+        enable_hybrid_search: Whether to enable hybrid DFS/BFS search.
+        rc_tolerance: Minimum reduced cost to accept a new column.
+        exact_mode: Whether to enable strict exact management.
+        strong_branching_size: Number of candidates for strong branching.
+
     """
 
     time_limit: float = 60.0
@@ -46,6 +55,7 @@ class BPCConfig:
     cutting_planes: str = "rcc"
     branching_strategy: str = "divergence"
     max_cg_iterations: int = 50
+    max_cut_iterations: int = 5
     max_cuts_per_iteration: int = 5
     max_routes_per_pricing: int = 5
     max_bb_nodes: int = 1000
@@ -53,6 +63,14 @@ class BPCConfig:
     early_termination_gap: float = 1e-3
     use_ng_routes: bool = True
     ng_neighborhood_size: int = 8
-    enable_fractional_capacity_cuts: bool = True
+    enable_heuristic_rcc_separation: bool = True
     enable_comb_cuts: bool = False
+    cut_orthogonality_threshold: float = 0.8
     use_spatial_partitioning: bool = False
+    enable_strong_branching_heuristic: bool = True
+    enable_column_pool_deduplication: bool = True
+    enable_hybrid_search: bool = False
+    rc_tolerance: float = 1e-5
+    exact_mode: bool = False
+    strong_branching_size: int = 5
+

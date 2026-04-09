@@ -19,8 +19,9 @@ References:
     - Comb inequalities are disabled in favor of Gurobi's internal polyhedral cuts
 """
 
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, FrozenSet, List, Optional, Set, Tuple
 
+import networkx as nx
 import numpy as np
 from scipy.sparse import csr_matrix
 from scipy.sparse.csgraph import connected_components, maximum_flow
@@ -447,7 +448,6 @@ class SeparationEngine:
         x_vals: np.ndarray,
         y_vals: Optional[np.ndarray],
         root_node: bool = False,
-        max_sinks: int = 10,
         max_cuts: int = 50,
     ):
         """
@@ -498,8 +498,6 @@ class SeparationEngine:
         else:
             visited_customers = self.model.customers[:]
 
-        visited_customers = visited_customers[:max_sinks]
-
         # RCIs separate the depot from customers to ensure enough vehicles leave.
         source_node = self.model.depot
 
@@ -512,12 +510,22 @@ class SeparationEngine:
             try:
                 flow_result = maximum_flow(csr_matrix(adj), source_node, sink)
                 source_side = self._extract_min_cut(adj, flow_result.flow.toarray(), source_node, sink)
-                # Capacity cuts require the customer-side (depot-free side) of the cut.
-                # _extract_min_cut returns the source-side which contains the depot,
-                # so invert to get the customer-side.
                 cut_set = set(range(self.model.n_nodes)) - source_side
+            except Exception:
+                # Padberg-Rinaldi Min-Cut Fallback
+                try:
+                    G = nx.Graph()
+                    for u in range(n):
+                        for v in range(u + 1, n):
+                            if adj[u, v] > 1e-4:
+                                G.add_edge(u, v, capacity=adj[u, v])
+                    cut_value, partition = nx.minimum_cut(G, source_node, sink)
+                    s_side, t_side = partition
+                    cut_set = t_side if source_node in s_side else s_side
+                except Exception:
+                    continue
 
-                # Prune invalid cuts: single-node sets, depot in set, or empty sets
+            # Prune invalid cuts: single-node sets, depot in set, or empty sets
                 # Single-node sets are already handled by degree constraints (∑ x_ij = 2y_i)
                 if not cut_set or len(cut_set) <= 1 or self.model.depot in cut_set:
                     continue
@@ -575,10 +583,7 @@ class SeparationEngine:
             max(visited_customers, key=lambda c: y_vals[c - 1]) if y_vals is not None else visited_customers[0]
         )
 
-        # Root node: check all visited customers. Others: check up to 10.
-        max_sinks = len(visited_customers) if root_node else 10
-
-        for sink_node in visited_customers[:max_sinks]:
+        for sink_node in visited_customers:
             if sink_node == source_node or sink_node == self.model.depot:
                 continue
 
@@ -590,17 +595,30 @@ class SeparationEngine:
 
                 # Extract cut set S reachable from source in residual graph
                 s_set = self._extract_min_cut(adj, flow_matrix, source_node, sink_node)
+            except Exception:
+                # Padberg-Rinaldi Min-Cut Fallback
+                try:
+                    G = nx.Graph()
+                    for u in range(n):
+                        for v in range(u + 1, n):
+                            if adj[u, v] > 1e-4:
+                                G.add_edge(u, v, capacity=adj[u, v])
+                    max_flow_value, partition = nx.minimum_cut(G, source_node, sink_node)
+                    s_side, t_side = partition
+                    s_set = s_side if source_node in s_side else t_side
+                except Exception:
+                    continue
 
-                if (
-                    s_set
-                    and self.model.depot not in s_set
-                    and len(s_set) >= 2
-                    and not any(
-                        set(s_set) == set(existing.node_set)
-                        for existing in self.pool
-                        if isinstance(existing, PCSubtourEliminationCut)
-                    )
-                ):
+            if (
+                s_set
+                and self.model.depot not in s_set
+                and len(s_set) >= 2
+                and not any(
+                    set(s_set) == set(existing.node_set)
+                    for existing in self.pool
+                    if isinstance(existing, PCSubtourEliminationCut)
+                )
+            ):
                     # Re-select j from N\S to satisfy Form 2.3 requirement j ∉ S.
                     not_in_s = set(range(self.model.n_nodes)) - s_set - {self.model.depot}
                     if not not_in_s:

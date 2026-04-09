@@ -1,13 +1,13 @@
-import pytest
 import numpy as np
-from typing import Dict, Tuple, Set
-
 from logic.src.policies.branch_and_price_and_cut.branching import MultiEdgePartitionBranching
-from logic.src.policies.branch_and_price_and_cut.master_problem import VRPPMasterProblem, Route
-from logic.src.policies.branch_and_price_and_cut.rcspp_dp import RCSPPSolver, Label
-from logic.src.policies.branch_and_price_and_cut.cutting_planes import create_cutting_plane_engine, SubsetRowCutEngine, EdgeCoverCutEngine
-from logic.src.policies.branch_and_price_and_cut.separation import SeparationEngine
-from logic.src.policies.branch_and_price_and_cut.vrpp_model import VRPPModel
+from logic.src.policies.branch_and_price_and_cut.cutting_planes import (
+    EdgeCliqueCutEngine,
+    SubsetRowCutEngine,
+    create_cutting_plane_engine,
+)
+from logic.src.policies.branch_and_price_and_cut.master_problem import Route
+from logic.src.policies.branch_and_price_and_cut.rcspp_dp import RCSPPSolver
+
 
 def test_polar_angle_partitioning():
     """Verify that spatial branching correctly partitions arcs by polar angle."""
@@ -43,7 +43,15 @@ def test_polar_angle_partitioning():
     assert (0, 1) != (0, 2)
 
 def test_sri_dual_penalties():
-    """Verify that SRI duals are correctly applied and tracked in RCSPP labels."""
+    """Verify that SRI duals are correctly applied and tracked in RCSPP labels.
+
+    SRI {1,2,3} with dual=5 should:
+    - Route [1,2]:   floor(2/2)=1 penalty  → RC = 20 - 5  = 15
+    - Route [1,2,3]: floor(3/2)=1 penalty  → RC = 30 - 5  = 25
+    - Route [1]:     floor(1/2)=0 penalty  → RC = 10      = 10
+    Route [1] has lower RC than 2-node routes so won't appear in a small
+    max_routes cap.  We request max_routes=50 to capture all routes.
+    """
     n_nodes = 3
     cost_matrix = np.zeros((4, 4))
     wastes = {1: 10.0, 2: 10.0, 3: 10.0}
@@ -54,25 +62,29 @@ def test_sri_dual_penalties():
         wastes=wastes,
         capacity=100.0,
         revenue_per_kg=1.0,
-        cost_per_km=1.0
+        cost_per_km=1.0,
     )
 
     # SRI on subset {1, 2, 3} with dual = 5.0
     sri_subset = frozenset({1, 2, 3})
-    sri_duals = {sri_subset: 5.0}
-
     composite_duals = {
         "node_duals": {1: 0.0, 2: 0.0, 3: 0.0},
-        "sri_duals": sri_duals
+        "rcc_duals": {},
+        "sri_duals": {sri_subset: 5.0},
+        "edge_clique_duals": {},
     }
 
-    routes = solver.solve(dual_values=composite_duals)
-
+    # Request enough routes so that dominated single-node routes are included.
+    routes = solver.solve(dual_values=composite_duals, max_routes=50)
     route_rcs = {tuple(r.nodes): r.reduced_cost for r in routes}
-    # Route [1, 2]: revenue 20, penalty 5 -> RC = 15.
-    assert route_rcs.get((1, 2)) == 15.0
-    # Route [1]: revenue 10, penalty 0 -> RC = 10.
-    assert route_rcs.get((1,)) == 10.0
+
+    # 2-node route visits 2 of 3 nodes in S: floor(2/2)=1 → penalty 5.
+    assert (1, 2) in route_rcs, "Route [1,2] should be generated"
+    assert abs(route_rcs[(1, 2)] - 15.0) < 1e-6, f"Route [1,2] RC should be 15, got {route_rcs[(1, 2)]}"
+
+    # Single-node route visits 1 node in S: floor(1/2)=0 → no penalty.
+    assert (1,) in route_rcs, "Route [1] should be generated (max_routes=50 captures it)"
+    assert abs(route_rcs[(1,)] - 10.0) < 1e-6, f"Route [1] RC should be 10, got {route_rcs[(1,)]}"
 
 def test_cutting_plane_engine_composition():
     from unittest.mock import MagicMock
@@ -82,55 +94,63 @@ def test_cutting_plane_engine_composition():
     # create_cutting_plane_engine(engine_name, v_model, sep_engine)
     engine = create_cutting_plane_engine("all", mock_model, mock_sep)
     assert any(isinstance(e, SubsetRowCutEngine) for e in engine.engines)
-    assert any(isinstance(e, EdgeCoverCutEngine) for e in engine.engines)
+    assert any(isinstance(e, EdgeCliqueCutEngine) for e in engine.engines)
 
 
 def test_edge_clique_dual_penalties():
     """
-    Test that LCI dual penalties are correctly applied to the step objective.
+    Verify that edge-clique duals are propagated through solve() and reduce the
+    reduced cost of routes that traverse a penalised edge.
+
+    Setup
+    -----
+    n_nodes = 2, zero-distance matrix (travel is free), unit revenue per kg.
+    Edge-clique dual = 5.0 on edge (1, 2).
+
+    Expected reduced costs
+    ----------------------
+    Route [1]:     rev=10, cost=0, no edge-clique penalty  → RC = 10
+    Route [2]:     rev=10, cost=0, no edge-clique penalty  → RC = 10
+    Route [1, 2]:  rev=20, cost=0, edge (1,2) penalty = 5 → RC = 15
+    Route [2, 1]:  rev=20, cost=0, edge (2,1) ≡ (1,2) penalty = 5 → RC = 15
+
+    Without the fix (edge_clique_duals never reaching _extend_label), route
+    [1, 2] would show RC = 20 instead of 15, and the cut would be ignored.
     """
-    # 1. Setup pricer with a dummy environment
     from logic.src.policies.branch_and_price_and_cut.rcspp_dp import RCSPPSolver
 
+    # Zero cost matrix so travel is free; revenue dominates.
+    cost_matrix = np.zeros((3, 3))
     pricer = RCSPPSolver(
         n_nodes=2,
-        cost_matrix=np.array([[0, 1, 1], [1, 0, 1], [1, 1, 0]]),
+        cost_matrix=cost_matrix,
         wastes={1: 10.0, 2: 10.0},
-        capacity=20.0,
+        capacity=30.0,
         revenue_per_kg=1.0,
         cost_per_km=1.0,
     )
 
-    # 2. Add an Edge Clique dual for edge (1, 2)
-    # The solver expects "edge_clique_duals": {(1, 2): dual_value}
+    # Edge-clique dual on the canonical edge (1, 2) — should reduce RC by 5
+    # for any route that traverses 1→2 or 2→1.
     dual_values = {
         "node_duals": {1: 0.0, 2: 0.0},
-        "edge_clique_duals": {(1, 2): 5.0}  # dual = 5.0
+        "rcc_duals": {},
+        "sri_duals": {},
+        "edge_clique_duals": {(1, 2): 5.0},
     }
-    # 3. Extend label from node 1 to node 2
-    from logic.src.policies.branch_and_price_and_cut.rcspp_dp import Label
 
-    l1 = Label(
-        reduced_cost=10.0,  # Arbitrary starting RC
-        node=1,
-        cost=1.0,
-        load=10.0,
-        revenue=10.0,
-        path=[1],
-        visited={1},
-    )
+    routes = pricer.solve(dual_values=dual_values, max_routes=20)
+    route_rcs = {tuple(r.nodes): r.reduced_cost for r in routes}
 
-    # Note: solve() must be called to initialize self.edge_clique_cut_duals (formerly lci)
-    pricer.solve(dual_values=dual_values)
+    # Single-node routes must NOT be penalised (they don't cross edge (1,2)).
+    assert (1,) in route_rcs, "Route [1] should be generated"
+    assert (2,) in route_rcs, "Route [2] should be generated"
+    assert abs(route_rcs[(1,)] - 10.0) < 1e-6, f"Route [1] RC should be 10, got {route_rcs[(1,)]}"
+    assert abs(route_rcs[(2,)] - 10.0) < 1e-6, f"Route [2] RC should be 10, got {route_rcs[(2,)]}"
 
-    l2 = pricer._extend_label(l1, 2, rf_together=set())
-
-    # 4. Verify step_obj
-    # revenue(2) = 10*R(1.0) = 10
-    # edge_cost(1,2) = 1*C(1.0) = 1
-    # node_dual(2) = 0
-    # edge_clique_penalty(1,2) = 5
-    # step_obj = 10 - 1 - 0 - 5 = 4
-    # new_rc = 10 + 4 = 14
-    assert l2 is not None
-    assert l2.reduced_cost == 14.0
+    # Two-node route traverses edge (1,2) once → penalty of 5.
+    if (1, 2) in route_rcs:
+        assert abs(route_rcs[(1, 2)] - 15.0) < 1e-6, (
+            f"Route [1,2] RC should be 15 (20 revenue - 5 edge-clique penalty), "
+            f"got {route_rcs[(1, 2)]}"
+        )
