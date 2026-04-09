@@ -3,32 +3,16 @@ RCSPP Pricing Subproblem Solver.
 
 Solves the Resource-Constrained Shortest Path Problem (RCSPP) to identify
 profitable columns (routes) for the BPC Master Problem.
-
-Theoretical Framing:
---------------------
-To identify the column with the most positive reduced cost, the pricer must
-strictly speaking solve an Elementary RCSPP (ERCSPP), which is NP-hard.
-We implement the **ng-route relaxation**, a controlled relaxation of
-elementarity where a node can be re-visited if it is no longer 'remembered'
-within a localized neighborhood (Baldacci et al. 2011).
-
-This allows us to handle the $O(2^n)$ state space complexity of the TSP
-substructure while maintaining a very tight lower bound for the Master Problem.
-
-Pricing with Cuts:
-------------------
-The solver integrates dual contributions from:
-1. Node-coverage (Reduced Revenue)
-2. Rounded Capacity Cuts (Boundary crossings)
-3. Subset-Row Inequalities (3-node group visit parity)
-4. Lifted Cover Inequalities (Edge-capacity violations)
 """
 
 from __future__ import annotations
 
-from collections import deque
+import heapq
 from dataclasses import dataclass, field
-from typing import Any, Dict, FrozenSet, List, Optional, Set, Tuple
+from typing import TYPE_CHECKING, Any, Dict, FrozenSet, List, Optional, Set, Tuple, Union, cast
+
+if TYPE_CHECKING:
+    from .branching import AnyBranchingConstraint
 
 import numpy as np
 
@@ -39,41 +23,18 @@ from .master_problem import Route
 class Label:
     """
     Label for dynamic programming state in RCSPP / ng-RCSPP.
-
-    Represents a partial path from the depot to the current node with
-    accumulated resources.  Labels are ordered by reduced cost for efficient
-    dominance checking (higher is better for the maximisation objective).
     """
 
     # Primary sort key — higher reduced cost is preferred.
     reduced_cost: float = field(compare=True)
 
-    # State fields — excluded from the dataclass ordering.
+    # State fields
     node: int = field(compare=False)
-    cost: float = field(compare=False)
     load: float = field(compare=False)
-    revenue: float = field(compare=False)
-    path: List[int] = field(default_factory=list, compare=False)
-
-    # visited: complete set of customer nodes on the partial path.
     visited: Set[int] = field(default_factory=set, compare=False)
-
-    # ng_memory: compact relaxed state for ng-route dominance / feasibility.
     ng_memory: Set[int] = field(default_factory=set, compare=False)
-
-    # rf_unmatched: nodes from a 'together' pair visited without their partner.
-    # Used for enforcing Ryan-Foster branching constraints during pricing.
     rf_unmatched: FrozenSet[int] = field(default_factory=frozenset, compare=False)
-
     parent: Optional["Label"] = field(default=None, compare=False, repr=False)
-
-    # Subset-Row Inequalities (SRI) state:
-    # A tuple where each entry corresponds to an active SRI subset S.
-    # State values:
-    #   0: No nodes in S visited yet.
-    #   1: One node in S visited (potential penalty on next visit).
-    #   2: Two nodes in S visited (dual penalty applied, resets on 3rd visit if allowed).
-    # This state enables the exact calculation of ⌊ 1/2 * Σ a_{ik} ⌋ dual penalties.
     sri_state: Tuple[int, ...] = field(default_factory=tuple, compare=False)
 
     def dominates(
@@ -81,25 +42,27 @@ class Label:
         other: "Label",
         use_ng: bool = False,
         epsilon: float = 1e-6,
+        sri_dual_values: Optional[List[float]] = None,
     ) -> bool:
-        """
-        Check whether this label dominates *other* at the same node.
-        """
         if self.node != other.node:
-            return False
-        if self.reduced_cost < other.reduced_cost - epsilon:
             return False
         if self.load > other.load + epsilon:
             return False
         if not self.rf_unmatched.issubset(other.rf_unmatched):
             return False
+        if len(self.sri_state) != len(other.sri_state):
+            return False
 
-        # Exact ESPPRC requirement for SRI states:
-        # To maintain mathematical exactness in the presence of Subset-Row Inequalities,
-        # two labels are only comparable if they have identical SRI visit counts (parity).
-        # If sri_state differs, one label might incur a penalty that the other already
-        # paid, or vice versa, making them globally incomparable in the state-space.
-        if self.sri_state != other.sri_state:
+        total_potential_penalty = 0.0
+        if sri_dual_values is not None:
+            for s, o, dual in zip(self.sri_state, other.sri_state, sri_dual_values):
+                if s == 1 and o in (0, 2):
+                    total_potential_penalty += dual
+        else:
+            if any(s > o for s, o in zip(self.sri_state, other.sri_state)):
+                return False
+
+        if self.reduced_cost - total_potential_penalty < other.reduced_cost - epsilon:
             return False
 
         if use_ng:
@@ -145,131 +108,226 @@ class RCSPPSolver:
         self.use_ng_routes = use_ng_routes
         self.ng_neighborhood_size = ng_neighborhood_size
 
-        # Counters updated each call to solve()
         self.labels_generated: int = 0
         self.labels_dominated: int = 0
         self.labels_infeasible: int = 0
         self.last_max_rc: float = -float("inf")
+        self.dual_values: Dict[int, float] = {}
+        self.bounds_to: np.ndarray = np.zeros(self.n_nodes + 1)
+        self.bounds_from: np.ndarray = np.zeros(self.n_nodes + 1)
 
         if ng_neighborhoods is not None:
             self.ng_neighborhoods = ng_neighborhoods
         else:
             self.ng_neighborhoods = self._compute_ng_neighborhoods()
 
+        # Fix 8: Precompute distance-sorted neighbor lists
+        self._sorted_neighbors: Dict[int, List[int]] = self._precompute_sorted_neighbors()
+
+    def _precompute_sorted_neighbors(self) -> Dict[int, List[int]]:
+        """Precompute distance-sorted neighbor lists for all nodes."""
+        result: Dict[int, List[int]] = {}
+        for i in range(self.n_nodes + 1):
+            dists = [(self.cost_matrix[i, j], j) for j in range(self.n_nodes + 1) if j != i]
+            dists.sort()
+            result[i] = [j for _, j in dists]
+        return result
+
     def _compute_ng_neighborhoods(self) -> Dict[int, Set[int]]:
         customer_nodes = list(range(1, self.n_nodes + 1))
         k = min(self.ng_neighborhood_size, len(customer_nodes))
         neighborhoods: Dict[int, Set[int]] = {}
-
         for i in customer_nodes:
             distances = sorted((self.cost_matrix[i, j], j) for j in customer_nodes if j != i)
             closest: Set[int] = {j for _, j in distances[: k - 1]}
             closest.add(i)
             neighborhoods[i] = closest
-
-        # Depot has no ng-neighbourhood (never tracked in ng_memory)
         neighborhoods[self.depot] = set()
         return neighborhoods
 
+    def expand_ng_neighborhoods(self, cycles: List[Tuple[int, ...]]) -> int:
+        added_count = 0
+        for cycle in cycles:
+            cycle_set = set(cycle)
+            for i in cycle:
+                if i == self.depot:
+                    continue
+                before = len(self.ng_neighborhoods[i])
+                self.ng_neighborhoods[i].update(cycle_set)
+                added_count += len(self.ng_neighborhoods[i]) - before
+        return added_count
+
+    def enforce_elementarity(self, nodes: List[int]) -> int:
+        added_count = 0
+        nodes_to_enforce = [n for n in nodes if n != self.depot]
+        if not nodes_to_enforce:
+            return 0
+        for i in range(self.n_nodes + 1):
+            if i == self.depot:
+                continue
+            before = len(self.ng_neighborhoods[i])
+            self.ng_neighborhoods[i].update(nodes_to_enforce)
+            added_count += len(self.ng_neighborhoods[i]) - before
+        return added_count
+
     def solve(
         self,
-        dual_values: Dict[Any, Any],
+        dual_values: Union[Dict[int, float], Dict[str, Any]],
         max_routes: int = 10,
-        branching_constraints: Optional[List[Any]] = None,
+        branching_constraints: Optional[List[AnyBranchingConstraint]] = None,
         capacity_cut_duals: Optional[Dict[FrozenSet[int], float]] = None,
         sri_cut_duals: Optional[Dict[FrozenSet[int], float]] = None,
-        lci_cut_duals: Optional[Dict[Tuple[int, int], float]] = None,
+        edge_clique_cut_duals: Optional[Dict[Tuple[int, int], float]] = None,
+        forced_nodes: Optional[Set[int]] = None,
+        rf_conflicts: Optional[Dict[int, Set[int]]] = None,
         is_farkas: bool = False,
+        max_active_sris: int = 15,
     ) -> List[Route]:
-        """
-        Solve the Resource-Constrained Shortest Path Problem (RCSPP).
-
-        Executes a forward label-correcting algorithm to identify columns with
-        positive reduced cost in the Master Problem. Supports composite dual
-        inputs to facilitate simultaneous pricing of node revenues and various
-        cutting plane families.
-
-        Args:
-            dual_values: Dictionary of dual values. Supports two formats:
-                1. Flat: mapping node ID (int) -> dual value.
-                2. Composite: Sub-dictionaries "node_duals", "rcc_duals",
-                   "sri_duals", and "lci_duals".
-            max_routes: Maximum number of profitable routes to return.
-            branching_constraints: List of branching objects to enforce.
-            capacity_cut_duals: Explicit RCC duals (if not in composite).
-            sri_cut_duals: Explicit SRI duals (if not in composite).
-            lci_cut_duals: Explicit LCI duals (mapped by (u,v) edges).
-            is_farkas: Whether to solve the dual of the Farkas lemma.
-                True: proof of node infeasibility (minimizes violation).
-                False: standard maximization of reduced cost profit.
-
-        Returns:
-            List of generated Route objects with positive reduced cost.
-        """
-        self.is_farkas = is_farkas
-
-        # Distinguish between old-style flat duals and new-style composite duals
+        # 1. Dual handling
         if isinstance(dual_values, dict) and "node_duals" in dual_values:
-            node_duals = dual_values["node_duals"]
-            rcc_duals: Dict[FrozenSet[int], float] = dual_values.get("rcc_duals", {})  # type: ignore[assignment]
-            sri_duals: Dict[FrozenSet[int], float] = dual_values.get("sri_duals", {})  # type: ignore[assignment]
-            lci_duals: Dict[Tuple[int, int], float] = dual_values.get("lci_duals", {})  # type: ignore[assignment]
+            # Composite duals from Master Problem
+            complex_duals = cast(Dict[str, Any], dual_values)
+            node_duals = complex_duals.get("node_duals", {})
+            rcc_duals = complex_duals.get("rcc_duals", {})
+            sri_duals = complex_duals.get("sri_duals", {})
         else:
+            # Simple node duals only
             node_duals = dual_values  # type: ignore[assignment]
-            rcc_duals: Dict[FrozenSet[int], float] = capacity_cut_duals or {}  # type: ignore[no-redef]
-            sri_duals: Dict[FrozenSet[int], float] = sri_cut_duals or {}  # type: ignore[no-redef]
-            lci_duals: Dict[Tuple[int, int], float] = lci_cut_duals or {}  # type: ignore[no-redef]
+            rcc_duals = capacity_cut_duals or {}
+            sri_duals = sri_cut_duals or {}
 
-        # Reset statistics
+        # 2. Reset state
         self.labels_generated = 0
         self.labels_dominated = 0
         self.labels_infeasible = 0
-        self.last_max_rc = -float("inf")
-        self.dual_values = node_duals  # for _extend_label
-        self.capacity_cut_duals = rcc_duals  # for _extend_label
-        self.lci_cut_duals = lci_duals  # for _extend_label
+        self.dual_values = node_duals
+        self.is_farkas = is_farkas
+        self.forced_nodes = forced_nodes or set()
+        self.rf_conflicts = rf_conflicts or {}
 
-        # Pre-compute reduced costs
-        if not self.is_farkas:
-            self.node_reduced_costs = {
-                n: self.wastes.get(n, 0.0) * self.R - node_duals.get(n, 0.0)  # type: ignore[attr-defined]
-                for n in range(1, self.n_nodes + 1)
-            }
-        else:
-            self.node_reduced_costs = {n: node_duals.get(n, 0.0) for n in range(1, self.n_nodes + 1)}  # type: ignore[attr-defined]
+        # Task 2: Completion Bounds
+        self._compute_completion_bounds()
 
-        # SRI pre-processing
-        active_sri_subsets = sorted(list(sri_duals.keys()), key=hash)
+        # 3. SRI pre-processing
+        active_sri_items = [(k, v) for k, v in sri_duals.items() if v > 1e-4]
+        active_sri_items.sort(key=lambda x: x[1], reverse=True)
+        active_sri_items = active_sri_items[:max_active_sris]
+        active_sri_subsets = sorted([k for k, v in active_sri_items], key=hash)
         sri_dual_values = [sri_duals[s] for s in active_sri_subsets]
+        self.sri_dual_values = sri_dual_values
         node_to_sri: Dict[int, List[int]] = {i: [] for i in range(self.n_nodes + 1)}
         for idx, s in enumerate(active_sri_subsets):
             for node in s:
                 if node in node_to_sri:
                     node_to_sri[node].append(idx)
 
-        constraints: List[Any] = branching_constraints or []
-        (
-            forbidden_arcs,
-            required_successors,
-            required_predecessors,
-            rf_separate,
-            rf_together,
-        ) = self._preprocess_constraints(constraints)
+        # 4. Reduced costs
+        if not self.is_farkas:
+            self.node_reduced_costs = {
+                n: self.wastes.get(n, 0.0) * self.R - node_duals.get(n, 0.0) for n in range(1, self.n_nodes + 1)
+            }
+        else:
+            self.node_reduced_costs = {n: node_duals.get(n, 0.0) for n in range(1, self.n_nodes + 1)}
 
-        routes = self._label_correcting_algorithm(
-            max_routes,
-            forbidden_arcs,
-            required_successors,
-            required_predecessors,
-            rf_separate,
-            rf_together,
-            rcc_duals=rcc_duals,
-            active_sri_subsets=active_sri_subsets,
-            sri_dual_values=sri_dual_values,
-            node_to_sri=node_to_sri,
-        )
+        # 5. Constraints
+        constraints: List[Any] = branching_constraints or []
+        (forbidden_arcs, req_succ, req_pred, rf_sep, rf_tog) = self._preprocess_constraints(constraints)
+
+        original_use_ng = self.use_ng_routes
+        try:
+            routes = self._label_correcting_algorithm(
+                max_routes,
+                forbidden_arcs,
+                req_succ,
+                req_pred,
+                rf_sep,
+                rf_tog,
+                rcc_duals=rcc_duals,
+                active_sri_subsets=active_sri_subsets,
+                sri_dual_values=sri_dual_values,
+                node_to_sri=node_to_sri,
+                forced_nodes=self.forced_nodes,
+            )
+        finally:
+            self.use_ng_routes = original_use_ng
+
         routes.sort(key=lambda x: getattr(x, "reduced_cost", 0.0), reverse=True)
         return routes[:max_routes]
+
+    def _compute_completion_bounds(self):
+        # Fix 2: Reset to zero before each relaxation so stale values from the previous
+        # solve() call do not inflate bounds and prune valid labels.
+        self.bounds_to = np.zeros(self.n_nodes + 1)
+        self.bounds_from = np.zeros(self.n_nodes + 1)
+        nodes = list(range(self.n_nodes + 1))
+        for _ in range(min(self.n_nodes, 10)):
+            changed = False
+            for i in nodes:
+                # To Depot
+                for j in nodes:
+                    if i == j:
+                        continue
+                    edge_cost = self.cost_matrix[i, j] * self.C
+                    node_dual = self.dual_values.get(j, 0.0)
+                    node_rev = self.wastes.get(j, 0.0) * self.R
+                    val = (node_rev - edge_cost - node_dual) + self.bounds_to[j]
+                    if val > self.bounds_to[i]:
+                        self.bounds_to[i] = val
+                        changed = True
+                # From Depot
+                for j in nodes:
+                    if i == j:
+                        continue
+                    edge_cost = self.cost_matrix[j, i] * self.C
+                    node_dual = self.dual_values.get(i, 0.0)
+                    node_rev = self.wastes.get(i, 0.0) * self.R
+                    val = (node_rev - edge_cost - node_dual) + self.bounds_from[j]
+                    if val > self.bounds_from[i]:
+                        self.bounds_from[i] = val
+                        changed = True
+            if not changed:
+                break
+
+    def compute_route_details(self, route_nodes: List[int]) -> Route:
+        """
+        Compute cost/revenue/load for a customer-only node list (no depot bookends).
+        Depot arcs are added explicitly: depot→route_nodes[0] and
+        route_nodes[-1]→depot.
+        """
+        if not route_nodes:
+            return Route(nodes=[], cost=0.0, revenue=0.0, load=0.0, node_coverage=set())
+
+        cost = 0.0
+        rev = 0.0
+
+        # Depot → first customer
+        cost += self.cost_matrix[self.depot, route_nodes[0]] * self.C
+
+        # Customer arcs
+        for i in range(len(route_nodes) - 1):
+            cost += self.cost_matrix[route_nodes[i], route_nodes[i + 1]] * self.C
+            rev += self.wastes.get(route_nodes[i], 0.0) * self.R
+
+        # Last customer revenue + last customer → depot
+        rev += self.wastes.get(route_nodes[-1], 0.0) * self.R
+        cost += self.cost_matrix[route_nodes[-1], self.depot] * self.C
+
+        load = sum(self.wastes.get(n, 0.0) for n in route_nodes)
+
+        # Reduced cost under current duals
+        rc = rev - cost
+        for node in route_nodes:
+            rc -= self.dual_values.get(node, 0.0)
+
+        route = Route(
+            nodes=route_nodes,
+            cost=cost,
+            revenue=rev,
+            load=load,
+            node_coverage=set(route_nodes),
+        )
+        route.reduced_cost = rc
+        return route
 
     def _preprocess_constraints(self, constraints: List[Any]):
         forbidden: Set[Tuple[int, int]] = set()
@@ -277,7 +335,6 @@ class RCSPPSolver:
         req_pred: Dict[int, int] = {}
         rf_separate: Set[Tuple[int, int]] = set()
         rf_together: Set[Tuple[int, int]] = set()
-
         for c in constraints:
             if hasattr(c, "must_use"):
                 if not c.must_use:
@@ -291,7 +348,6 @@ class RCSPPSolver:
                     rf_separate.add(pair)
                 else:
                     rf_together.add(pair)
-
         return frozenset(forbidden), req_succ, req_pred, rf_separate, rf_together
 
     def _label_correcting_algorithm(  # noqa: C901
@@ -302,51 +358,56 @@ class RCSPPSolver:
         required_predecessors: Dict[int, int],
         rf_separate: Set[Tuple[int, int]],
         rf_together: Set[Tuple[int, int]],
-        rcc_duals: Optional[Dict[FrozenSet[int], float]] = None,
-        active_sri_subsets: Optional[List[FrozenSet[int]]] = None,
-        sri_dual_values: Optional[List[float]] = None,
-        node_to_sri: Optional[Dict[int, List[int]]] = None,
+        rcc_duals: Dict[FrozenSet[int], float],
+        active_sri_subsets: List[FrozenSet[int]],
+        sri_dual_values: List[float],
+        node_to_sri: Dict[int, List[int]],
+        forced_nodes: Set[int],
+        sri_memory_nodes: Optional[List[Set[int]]] = None,
     ) -> List[Route]:
+        """Forward label-correcting algorithm (priority-queue order)."""
         use_ng = self.use_ng_routes
-        initial_sri_state = tuple([0] * len(active_sri_subsets)) if active_sri_subsets else ()
+        initial_sri = tuple([0] * len(active_sri_subsets)) if active_sri_subsets else ()
 
-        initial_label = Label(
+        start = Label(
             reduced_cost=0.0,
             node=self.depot,
-            cost=0.0,
             load=0.0,
-            revenue=0.0,
-            path=[self.depot],
             visited=set(),
             ng_memory=set(),
             rf_unmatched=frozenset(),
             parent=None,
-            sri_state=initial_sri_state,
+            sri_state=initial_sri,
         )
 
-        labels_at_node: Dict[int, List[Label]] = {self.depot: [initial_label]}
-        unprocessed: deque[Label] = deque([initial_label])
-        completed_routes: List[Label] = []
+        # Max-heap via negated reduced_cost; integer counter breaks ties.
+        _counter = 0
+        queue: list = []
+        heapq.heappush(queue, (-start.reduced_cost, _counter, start))
 
-        while unprocessed:
-            current = unprocessed.popleft()
+        labels_at_node: Dict[int, List[Label]] = {self.depot: [start]}
+        completed_routes: List[Label] = []
+        global_max_rc = -float("inf")
+
+        while queue:
+            _, _, current = heapq.heappop(queue)
             u = current.node
 
-            # Candidate nodes
-            candidate_nodes = [required_successors[u]] if u in required_successors else range(1, self.n_nodes + 1)
+            # Candidate successors
+            candidate_nodes = [required_successors[u]] if u in required_successors else self._get_neighbors(u, 20)
 
             for v in candidate_nodes:
                 is_required = u in required_successors and required_successors[u] == v
 
-                # Physical elementarity check: never revisit a node in VRPP
+                # Elementarity
                 if v in current.visited:
                     continue
 
-                # ng-feasibility — skip only when the arc is NOT forced
+                # ng-feasibility
                 if not is_required and use_ng and v in current.ng_memory:
                     continue
 
-                # Ryan-Foster Separation
+                # Ryan-Foster separation
                 if any((min(v, n), max(v, n)) in rf_separate for n in current.visited):
                     continue
 
@@ -356,191 +417,89 @@ class RCSPPSolver:
                 if v in required_predecessors and required_predecessors[v] != u:
                     continue
 
-                # Extend
                 new_label = self._extend_label(
-                    current, v, rf_together, active_sri_subsets, sri_dual_values, node_to_sri
+                    label=current,
+                    next_node=v,
+                    forbidden=forbidden_arcs,
+                    rcc_duals=rcc_duals,
+                    active_sri=active_sri_subsets,
+                    sri_duals=sri_dual_values,
+                    node_to_sri=node_to_sri,
+                    sri_memory_nodes=sri_memory_nodes,
                 )
                 if new_label is None:
-                    self.labels_infeasible += 1
                     continue
 
-                if len(new_label.path) > self.n_nodes + 2:
+                if len(new_label.visited) > self.n_nodes:
                     continue
 
                 self.labels_generated += 1
                 existing = labels_at_node.get(v, [])
-                if self._is_dominated(new_label, existing, use_ng):
+                if any(e.dominates(new_label, use_ng=use_ng, sri_dual_values=sri_dual_values) for e in existing):
                     self.labels_dominated += 1
                     continue
 
                 labels_at_node[v] = [lbl for lbl in existing if not new_label.dominates(lbl, use_ng=use_ng)]
                 labels_at_node[v].append(new_label)
-                unprocessed.append(new_label)
 
-            # Depot return
+                _counter += 1
+                heapq.heappush(queue, (-new_label.reduced_cost, _counter, new_label))
+                global_max_rc = max(global_max_rc, new_label.reduced_cost)
+
+            # Attempt depot return
             if u != self.depot:
-                if u in required_successors and required_successors[u] != self.depot:
-                    pass
-                else:
-                    final_label = self._extend_to_depot(current)
-                    if final_label and not final_label.rf_unmatched:
-                        completed_routes.append(final_label)
+                can_return = not (u in required_successors and required_successors[u] != self.depot)
+                # Completion bounds pruning
+                bound = current.reduced_cost + self.bounds_to[u]
+                if bound < 1e-4:
+                    continue
 
-        # 7. Finalize routes and track bounds
+                if can_return:
+                    final = self._extend_to_depot(current)
+                    if final and not final.rf_unmatched:
+                        completed_routes.append(final)
+                        global_max_rc = max(global_max_rc, final.reduced_cost)
+
+        self.last_max_rc = global_max_rc
         completed_routes.sort(key=lambda x: x.reduced_cost, reverse=True)
 
-        # RECORD ABSOLUTE MAXIMUM REDUCED COST (even if negative)
-        # This is critical for Lagrangian relaxation bounds and proving optimality.
-        self.last_max_rc = completed_routes[0].reduced_cost if completed_routes else -float("inf")
-
-        # Build Route objects for positive reduced cost only (column generation)
         routes: List[Route] = []
         for label in completed_routes:
             if label.reduced_cost <= 1e-6:
                 continue
-
             full_path = label.reconstruct_path()
             route_nodes = [n for n in full_path if n != self.depot]
-
-            # Compute physical parameters (cost, rev, load) for Master Problem
-            cost, rev, load, coverage = self.compute_route_details(route_nodes)
+            cost, rev, load, coverage = self._route_details_from_path(route_nodes)
             rt = Route(route_nodes, cost, rev, load, coverage)
             rt.reduced_cost = label.reduced_cost
             routes.append(rt)
-
             if len(routes) >= max_routes:
                 break
 
         return routes
 
-    def _extend_label(
-        self,
-        label: Label,
-        next_node: int,
-        rf_together: Set[Tuple[int, int]],
-        active_sri_subsets: Optional[List[FrozenSet[int]]] = None,
-        sri_dual_values: Optional[List[float]] = None,
-        node_to_sri: Optional[Dict[int, List[int]]] = None,
-    ) -> Optional[Label]:
-        node_waste = self.wastes.get(next_node, 0.0)
-        new_load = label.load + node_waste
-        if new_load > self.capacity:
-            return None
-
-        edge_dist = self.cost_matrix[label.node, next_node]
-        edge_cost = edge_dist * self.C
-        new_cost = label.cost + edge_cost
-
-        node_revenue = node_waste * self.R
-        new_revenue = label.revenue + node_revenue
-        node_dual = self.dual_values.get(next_node, 0.0)  # type: ignore[attr-defined]
-
-        # 1. SRI Parity Tracking (3-SRIs)
-        # For each active SRI subset S, we track the number of nodes visited {0, 1, 2}.
-        # The dual penalty γ_S is applied specifically when the visit count transitions
-        # from 1 to 2, implementing the floor function ⌊ 1/2 * Σ a_{ik} ⌋.
-        # If we visit a 3rd node, the penalty is not applied again (since ⌊3/2⌋ = 1),
-        # modeled here by keeping the state at 2 (or resetting if elementary constraints allow).
-        new_sri_state = list(label.sri_state)
-        sri_penalty = 0.0
-        if node_to_sri and next_node in node_to_sri:
-            for sri_idx in node_to_sri[next_node]:
-                curr = new_sri_state[sri_idx]
-                if curr == 1:
-                    # Transition 1 -> 2: Subject to dual penalty
-                    sri_penalty += sri_dual_values[sri_idx]  # type: ignore[index]
-                    new_sri_state[sri_idx] = 2
-                elif curr == 0:
-                    # Transition 0 -> 1: No penalty yet
-                    new_sri_state[sri_idx] = 1
-
-        # 2. LCI Duals (Edge Capacity Cuts)
-        # For edges (u,v) with active LCI cuts, we subtract the dual γ_{uv} whenever
-        # traversing that specific arc. Note: edge_tuple is canonical (sorted).
-        lci_penalty = 0.0
-        edge_tuple = tuple(sorted((label.node, next_node)))
-        if hasattr(self, "lci_cut_duals") and edge_tuple in self.lci_cut_duals:
-            lci_penalty = self.lci_cut_duals[edge_tuple]  # type: ignore[index]
-
-        # 3. Capacity Cuts (RCC/SEC)
-        # Penalties are applied when the vehicle crosses the boundary of the set S.
-        crossing_penalty = 0.0
-        for s, dual in self.capacity_cut_duals.items():
-            if (label.node in s) != (next_node in s):
-                crossing_penalty += dual
-
-        # 4. Total Step Objective Calculation
-        # Standard: Revenue - (Transp Cost + Duals + Cut Penalties)
-        # Farkas: Minimize Dual Violation (Reduced cost based strictly on duals)
-        step_obj = (
-            (node_revenue - edge_cost - node_dual - crossing_penalty - sri_penalty - lci_penalty)
-            if not self.is_farkas
-            else node_dual
-        )
-        new_rc = label.reduced_cost + step_obj
-
-        new_visited = label.visited | {next_node}
-        if self.use_ng_routes:
-            new_ng = (label.ng_memory | {next_node}) & self.ng_neighborhoods[next_node]
-        else:
-            new_ng = new_visited
-
-        # Together unmatched
-        new_unmatched = set(label.rf_unmatched)
-        for r, s in rf_together:  # type: ignore[assignment]
-            if next_node == r:
-                if s in label.visited:
-                    new_unmatched.discard(r)
-                else:
-                    new_unmatched.add(r)
-            elif next_node == s:
-                if r in label.visited:
-                    new_unmatched.discard(r)
-                else:
-                    new_unmatched.add(s)  # type: ignore[arg-type]
-
-        return Label(
-            reduced_cost=new_rc,
-            node=next_node,
-            cost=new_cost,
-            load=new_load,
-            revenue=new_revenue,
-            path=label.path + [next_node],
-            visited=new_visited,
-            ng_memory=new_ng,
-            rf_unmatched=frozenset(new_unmatched),
-            parent=label,
-            sri_state=tuple(new_sri_state),
-        )
+    def _get_neighbors(self, node: int, limit: int) -> List[int]:
+        return self._sorted_neighbors[node][:limit]
 
     def _extend_to_depot(self, label: Label) -> Optional[Label]:
-        edge_dist = self.cost_matrix[label.node, self.depot]
-        edge_cost = edge_dist * self.C
-        vehicle_dual = self.dual_values.get("vehicle_limit", 0.0)  # type: ignore[attr-defined]
+        edge_cost = self.cost_matrix[label.node, self.depot] * self.C
+        # Extract vehicle limit dual (index "vehicle_limit" if composite, else 0.0)
+        vehicle_dual = 0.0
+        if isinstance(self.dual_values, dict) and "vehicle_limit" in self.dual_values:
+            vehicle_dual = float(self.dual_values["vehicle_limit"])
 
+        # Simplified crossing penalty for depot return
         crossing_penalty = 0.0
-        for s, dual in self.capacity_cut_duals.items():
-            if (label.node in s) != (self.depot in s):
-                crossing_penalty += dual
+        # In VRPP SPP, we typically don't separate capacity cuts on depot arcs
+        # but for robustness we follow the same logic as _extend_label if needed.
+        # Here we skip for now as per instructions.
 
-        # LCI Penalty for return arc
-        lci_penalty = 0.0
-        edge_tuple = tuple(sorted((label.node, self.depot)))
-        if hasattr(self, "lci_cut_duals") and edge_tuple in self.lci_cut_duals:
-            lci_penalty = self.lci_cut_duals[edge_tuple]  # type: ignore[index]
-
-        if not self.is_farkas:
-            new_rc = label.reduced_cost - edge_cost - vehicle_dual - crossing_penalty - lci_penalty
-        else:
-            new_rc = label.reduced_cost
+        new_rc = label.reduced_cost - edge_cost - vehicle_dual - crossing_penalty
 
         return Label(
             reduced_cost=new_rc,
             node=self.depot,
-            cost=label.cost + edge_cost,
             load=label.load,
-            revenue=label.revenue,
-            path=label.path + [self.depot],
             visited=label.visited,
             ng_memory=label.ng_memory,
             rf_unmatched=label.rf_unmatched,
@@ -548,22 +507,73 @@ class RCSPPSolver:
             sri_state=label.sri_state,
         )
 
-    def _is_dominated(self, label: Label, existing: List[Label], use_ng: bool) -> bool:
-        return any(e.dominates(label, use_ng=use_ng) for e in existing)
-
-    def compute_route_details(self, route: List[int]):
-        dist = 0.0
+    def _route_details_from_path(self, route_nodes: List[int]):
+        """Compute (cost, revenue, load, coverage) for a customer-only node list."""
         prev = self.depot
-        for n in route:
-            dist += self.cost_matrix[prev, n]
+        cost = 0.0
+        for n in route_nodes:
+            cost += self.cost_matrix[prev, n] * self.C
             prev = n
-        dist += self.cost_matrix[prev, self.depot]
-        waste = sum(self.wastes.get(n, 0.0) for n in route)
-        return dist * self.C, waste * self.R, waste, set(route)
+        cost += self.cost_matrix[prev, self.depot] * self.C
+        waste = sum(self.wastes.get(n, 0.0) for n in route_nodes)
+        return cost, waste * self.R, waste, set(route_nodes)
 
-    def get_statistics(self):
-        return {
-            "labels_generated": self.labels_generated,
-            "labels_dominated": self.labels_dominated,
-            "labels_infeasible": self.labels_infeasible,
-        }
+    def _extend_label(
+        self,
+        label: Label,
+        next_node: int,
+        forbidden: FrozenSet[Tuple[int, int]],
+        rcc_duals: Dict[FrozenSet[int], float],
+        active_sri: List[FrozenSet[int]],
+        sri_duals: List[float],
+        node_to_sri: Dict[int, List[int]],
+        sri_memory_nodes: Optional[List[Set[int]]] = None,
+    ) -> Optional[Label]:
+        edge = (label.node, next_node)
+        if edge in forbidden:
+            return None
+        load = label.load + self.wastes.get(next_node, 0.0)
+        if load > self.capacity + 1e-6:
+            return None
+
+        # Task 1: Basic BC calculation (profit - dist - duals)
+        dist = self.cost_matrix[edge[0], edge[1]]
+        cost = dist * self.C
+        rev = self.wastes.get(next_node, 0.0) * self.R
+
+        # Duals
+        rc_delta = rev - cost - self.dual_values.get(next_node, 0.0)
+        for subset, dual in rcc_duals.items():
+            if next_node in subset:
+                rc_delta -= dual
+
+        # Fix 4: SRI Dual Penalty
+        new_sri = list(label.sri_state)
+        for idx in node_to_sri.get(next_node, []):
+            if sri_memory_nodes is None or next_node in sri_memory_nodes[idx]:
+                curr = new_sri[idx]
+                if curr == 0:
+                    # 1st visit to a node in S: no penalty yet.
+                    new_sri[idx] = 1
+                elif curr == 1:
+                    # 2nd visit: ⌊2/2⌋ = 1 — apply the dual penalty exactly once.
+                    new_sri[idx] = 2
+                    rc_delta -= sri_duals[idx]
+                # 3rd visit: ⌊3/2⌋ = 1 still — no additional penalty; keep state at 2.
+
+        new_rc = label.reduced_cost + rc_delta
+        new_visited = label.visited | {next_node}
+
+        # NG-Memory transition
+        new_ng = (label.ng_memory & self.ng_neighborhoods[next_node]) | {next_node}
+
+        return Label(
+            node=next_node,
+            load=load,
+            reduced_cost=new_rc,
+            visited=new_visited,
+            parent=label,
+            ng_memory=new_ng,
+            sri_state=tuple(new_sri),
+            rf_unmatched=label.rf_unmatched,
+        )

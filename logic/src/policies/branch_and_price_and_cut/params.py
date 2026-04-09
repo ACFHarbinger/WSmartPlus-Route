@@ -20,12 +20,16 @@ class BPCParams:
         early_termination_gap: Gap at which we stop the search.
         use_ng_routes: Whether to use ng-route relaxation in pricing.
         ng_neighborhood_size: Size of ng-neighborhoods for relaxation.
-        enable_fractional_capacity_cuts: Whether to enable expensive fractional capacity cuts.
+        enable_heuristic_rcc_separation: Whether to enable (heuristic) fractional RCC separation.
         enable_comb_cuts: Whether to enable heuristic comb inequalities.
+
+    Note:
+        enable_heuristic_rcc_separation replaces the legacy enable_fractional_capacity_cuts
+        to clarify that the connected-component-based separation is a heuristic,
+        not an exact max-flow separation on the full support graph.
     """
 
     time_limit: float = 60.0
-    engine: str = "custom"
     profit_aware_operators: bool = False
     vrpp: bool = True
     seed: Optional[int] = None
@@ -40,37 +44,28 @@ class BPCParams:
     early_termination_gap: float = 1e-3
     use_ng_routes: bool = True
     ng_neighborhood_size: int = 8
-    enable_fractional_capacity_cuts: bool = True
+    enable_heuristic_rcc_separation: bool = True
     enable_comb_cuts: bool = False
     use_spatial_partitioning: bool = False
+    enable_strong_branching: bool = True  # Task 11: Lookahead branching
+    enable_column_pool_deduplication: bool = True  # Task 12: Column pool thinning
+    enable_hybrid_search: bool = False  # Task 13: DFS -> BFS switch
 
     @classmethod
     def from_config(cls, config: Any) -> BPCParams:
         """Create BPCParams from a configuration object or dictionary."""
-        if isinstance(config, dict):
-            return cls(**{k: v for k, v in config.items() if k in {f.name for f in fields(cls)}})
+        from dataclasses import MISSING, fields
 
-        return cls(
-            time_limit=getattr(config, "time_limit", 60.0),
-            engine=getattr(config, "engine", "custom"),
-            profit_aware_operators=getattr(config, "profit_aware_operators", False),
-            vrpp=getattr(config, "vrpp", True),
-            seed=getattr(config, "seed", None),
-            search_strategy=getattr(config, "search_strategy", "depth_first"),
-            cutting_planes=getattr(config, "cutting_planes", "rcc"),
-            branching_strategy=getattr(config, "branching_strategy", "divergence"),
-            max_cg_iterations=getattr(config, "max_cg_iterations", 50),
-            max_cuts_per_iteration=getattr(config, "max_cuts_per_iteration", 5),
-            max_routes_per_pricing=getattr(config, "max_routes_per_pricing", 5),
-            max_bb_nodes=getattr(config, "max_bb_nodes", 1000),
-            optimality_gap=getattr(config, "optimality_gap", 1e-4),
-            early_termination_gap=getattr(config, "early_termination_gap", 1e-3),
-            use_ng_routes=getattr(config, "use_ng_routes", True),
-            ng_neighborhood_size=getattr(config, "ng_neighborhood_size", 8),
-            enable_fractional_capacity_cuts=getattr(config, "enable_fractional_capacity_cuts", True),
-            enable_comb_cuts=getattr(config, "enable_comb_cuts", False),
-            use_spatial_partitioning=getattr(config, "use_spatial_partitioning", False),
-        )
+        if isinstance(config, dict):
+            valid_keys = {f.name for f in fields(cls)}
+            return cls(**{k: v for k, v in config.items() if k in valid_keys})
+
+        kwargs = {f.name: getattr(config, f.name, f.default) for f in fields(cls) if f.default is not MISSING}
+        # Fields with default_factory
+        for f in fields(cls):
+            if f.name not in kwargs:
+                kwargs[f.name] = f.default_factory()  # type: ignore[misc]
+        return cls(**kwargs)
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert BPCParams to a dictionary for backend compatibility."""
