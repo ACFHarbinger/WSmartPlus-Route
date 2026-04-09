@@ -49,14 +49,6 @@ bpc:
     # ---------------------------------------------------------------------
     # Infrastructure Settings
     # ---------------------------------------------------------------------
-    - engine: "custom"
-      # Execution backend for Branch-and-Price-and-Cut
-      # Options:
-      #   - "custom": Internal BPC engine (bpc_engine.py) - RECOMMENDED
-      #   - "ortools": Google OR-Tools with exact mode
-      #   - "gurobi": Gurobi B&C (requires license)
-      #   - "vrpy": VRPy library (slower but more flexible)
-
     - must_go: ["other/mg_lookahead.yaml"]
       # Node selection strategy for waste collection problems
       # Options: mg_lookahead.yaml, mg_last_minute_*.yaml, mg_regular.yaml
@@ -130,6 +122,34 @@ bpc:
       # Relative gap (1e-4) to stop when optimal solution proven
     - early_termination_gap: 0.001
       # Relative gap (1e-3) to stop early if solution is "good enough"
+
+    # ---------------------------------------------------------------------
+    # RCSPP Pricing Relaxation
+    # ---------------------------------------------------------------------
+    - use_ng_routes: true
+      # Whether to use ng-route relaxation for elementarity (Baldacci et al. 2011)
+      # true = Faster pricing, weaker lower bound
+      # false = Exact elementarity (O(2^n)), exponentially slow
+    - ng_neighborhood_size: 8
+      # Size of memory-set for ng-routes (ignored if use_ng_routes is false)
+      # Range: 4-12 (higher = tighter bound, slower pricing)
+
+    # ---------------------------------------------------------------------
+    # Advanced Cutting Plane Strategy
+    # ---------------------------------------------------------------------
+    - enable_fractional_capacity_cuts: true
+      # Whether to enable exact separation of fractional capacity cuts
+      # true = Tighter bounds, significantly higher iteration time
+    - enable_comb_cuts: false
+      # Whether to enable heuristic separation of comb inequalities
+      # false = Standard (RCC+LCI only)
+
+    # ---------------------------------------------------------------------
+    # B&B Search & Branching
+    # ---------------------------------------------------------------------
+    - use_spatial_partitioning: false
+      # Whether to use spatial partitioning for divergence branching
+      # true = Leverages node coordinates for balanced branches (Barnhart 1998)
 
     # ---------------------------------------------------------------------
     # Solver Parameters (Implicit)

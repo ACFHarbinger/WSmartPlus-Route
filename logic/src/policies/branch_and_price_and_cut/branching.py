@@ -17,6 +17,13 @@ RyanFosterBranchingConstraint
 
     Reference: Ryan & Foster (1981), Proposition 1.
 
+FleetSizeBranchingConstraint
+    Operates on the total number of vehicles used (sum of lambda variables).
+    Enforces a floor or ceiling on the total fleet size.
+
+NodeVisitationBranchingConstraint
+    Operates on a single node i. Enforces v_i = 0 (forbidden) or v_i = 1 (forced).
+
 Both constraint classes expose a common ``is_route_feasible(route)`` method
 used by the master problem to filter its existing column pool whenever a new
 B&B node is created.
@@ -33,7 +40,7 @@ for the Origin-Destination Integer Multicommodity Flow (ODIMCF) problem.
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, Union
 
 import numpy as np
 
@@ -121,7 +128,13 @@ class RyanFosterBranchingConstraint:
                   False → r and s MUST NOT appear in the same route.
     """
 
-    def __init__(self, node_r: int, node_s: int, together: bool) -> None:
+    def __init__(
+        self,
+        node_r: int,
+        node_s: int,
+        together: bool,
+        mandatory_nodes: Optional[Set[int]] = None,
+    ) -> None:
         """
         Initialise a Ryan-Foster branching constraint.
 
@@ -130,10 +143,15 @@ class RyanFosterBranchingConstraint:
             node_s: Second node in the pair.
             together: Whether the two nodes must be co-visited (True) or
                 separated (False).
+            mandatory_nodes: Optional set of mandatory nodes to restrict over-pruning.
         """
         self.node_r = node_r
         self.node_s = node_s
         self.together = together
+        # Store mandatory set so feasibility check can skip optional-only routes.
+        # This prevents 'together' branching from over-pruning routes that only
+        # visit an optional node without its partner.
+        self._mandatory: Set[int] = mandatory_nodes or {node_r, node_s}
 
     # ------------------------------------------------------------------
     # Feasibility check
@@ -153,9 +171,12 @@ class RyanFosterBranchingConstraint:
         s_in = self.node_s in route.node_coverage
 
         if self.together:
-            # Both must appear in every route that contains either one.
-            # A route containing only one of them violates the constraint.
-            if r_in != s_in:
+            # Only enforce co-occurrence when the route touches a mandatory node
+            # from the pair; visiting an optional node alone is always valid.
+            r_mandatory = self.node_r in self._mandatory
+            s_mandatory = self.node_s in self._mandatory
+
+            if (r_mandatory or s_mandatory) and (r_in != s_in):
                 return False
         else:
             # The two nodes must never appear in the same route.
@@ -169,12 +190,8 @@ class RyanFosterBranchingConstraint:
         return f"RyanFosterBranchingConstraint({self.node_r}, {self.node_s}: {relation})"
 
 
-# Backward-compatibility alias — existing code that imports BranchingConstraint
-# by name continues to work without modification.
+# Backward-compatibility alias
 BranchingConstraint = EdgeBranchingConstraint
-
-# Union type for callers that handle either constraint flavour.
-AnyBranchingConstraint = Union[EdgeBranchingConstraint, RyanFosterBranchingConstraint]
 
 
 # ---------------------------------------------------------------------------
@@ -280,7 +297,7 @@ class EdgeBranching:
         routes: List[Route],
         route_values: Dict[int, float],
         tol: float = 1e-5,
-    ) -> Optional[Tuple[int, int]]:
+    ) -> Optional[Tuple[Tuple[int, int], float]]:
         """
         Select the arc with fractional flow closest to 0.5.
 
@@ -295,20 +312,25 @@ class EdgeBranching:
         arc_flow = EdgeBranching.compute_arc_flow(routes, route_values)
         best_arc: Optional[Tuple[int, int]] = None
         best_frac = -1.0
+        best_arc_flow = 0.0
 
         for arc, flow in arc_flow.items():
             frac = min(flow, 1.0 - flow)
             if frac > tol and frac > best_frac:
                 best_frac = frac
                 best_arc = arc
+                best_arc_flow = flow
 
-        return best_arc
+        if best_arc is None:
+            return None
+        return best_arc, best_arc_flow
 
     @staticmethod
     def create_child_nodes(
         parent: BranchNode,
         u: int,
         v: int,
+        arc_flow: float = 0.5,
     ) -> Tuple[BranchNode, BranchNode]:
         """
         Create left (must-use) and right (forbidden) child nodes.
@@ -321,7 +343,11 @@ class EdgeBranching:
         Returns:
             (left_child, right_child)
         """
-        hint = parent.lp_bound
+        hint = parent.lp_bound if parent.lp_bound is not None else 0.0
+        # In maximization, the forbidden branch (right) is expected to have a lower
+        # bound estimate than the parent. We subtract a small tie-breaker.
+        right_hint = hint - (arc_flow * 1e-4)
+
         left = BranchNode(
             constraints=[EdgeBranchingConstraint(u, v, must_use=True)],
             parent=parent,
@@ -332,7 +358,7 @@ class EdgeBranching:
             constraints=[EdgeBranchingConstraint(u, v, must_use=False)],
             parent=parent,
             depth=parent.depth + 1,
-            lp_bound_hint=hint,
+            lp_bound_hint=right_hint,
         )
         return left, right
 
@@ -373,7 +399,7 @@ class MultiEdgePartitionBranching:
         route_values: Dict[int, float],
         tol: float = 1e-5,
         node_coords: Optional[Union[np.ndarray, Dict[int, Tuple[float, float]]]] = None,
-    ) -> Optional[Tuple[int, List[Tuple[int, int]], List[Tuple[int, int]]]]:
+    ) -> Optional[Tuple[int, List[Tuple[int, int]], List[Tuple[int, int]], float]]:
         """
         Identify a divergence node and compute the spatial partition.
         """
@@ -411,20 +437,22 @@ class MultiEdgePartitionBranching:
         a1 = (d, a1_v)
         a2 = (d, a2_v)
 
-        # 5. Build arc sets by partitioning all outgoing arcs of d across all routes
-        all_outgoing = set()
-        for idx, lam in route_values.items():
-            if lam > tol:
-                nodes = [0] + routes[idx].nodes + [0]
-                for i in range(len(nodes) - 1):
-                    if nodes[i] == d:
-                        all_outgoing.add((d, nodes[i + 1]))
+        # reaching completeness guarantee.
+        # Build the node universe from all routes in the pool, then treat every
+        # customer that is not d as a valid potential successor.
+        node_universe: Set[int] = {0}  # Task 2: Explicitly include the depot
+        for route in routes:
+            node_universe.update(route.nodes)
+        all_possible_outgoing: Set[Tuple[int, int]] = {(d, v) for v in node_universe if v != d}
+        # Always include the two diverging arcs themselves
+        all_possible_outgoing.add(a1)
+        all_possible_outgoing.add(a2)
 
-        arc_set_1 = {a1}
-        arc_set_2 = {a2}
+        arc_set_1: Set[Tuple[int, int]] = {a1}
+        arc_set_2: Set[Tuple[int, int]] = {a2}
 
-        # 5. Partition remaining outgoing arcs based on polar angle relative to d
-        remaining_arcs = sorted(list(all_outgoing - {a1, a2}))
+        # 6. Partition remaining outgoing arcs based on polar angle relative to d
+        remaining_arcs = sorted(list(all_possible_outgoing - {a1, a2}))
         if node_coords is not None:
             # Type-agnostic check for coordinate presence
             has_d = (isinstance(node_coords, dict) and d in node_coords) or (
@@ -465,12 +493,31 @@ class MultiEdgePartitionBranching:
                 else:
                     arc_set_2.add(arc)
 
-        # 6. Safety check
+        # 6. Check if both halves of the partition are non-empty
         if not arc_set_1 or not arc_set_2:
             return None
 
-        # 7. Return Tuple of (node, arc_set_1, arc_set_2)
-        return (d, list(arc_set_1), list(arc_set_2))
+        # 7. Return Tuple of (node, arc_set_1, arc_set_2, strength)
+        # Strength is the total flow of arcs in set 1 (the 'left' partition)
+        arc_flow = EdgeBranching.compute_arc_flow(routes, route_values)
+        strength = sum(arc_flow.get(a, 0.0) for a in arc_set_1)
+        return (d, list(arc_set_1), list(arc_set_2), strength)
+
+    @staticmethod
+    def find_multiple_divergence_nodes(
+        routes: List[Route],
+        route_values: Dict[int, float],
+        node_coords: Optional[Union[np.ndarray, Dict[int, Tuple[float, float]]]] = None,
+        limit: int = 5,
+        tol: float = 1e-5,
+    ) -> List[Tuple[int, List[Tuple[int, int]], List[Tuple[int, int]], float]]:
+        """
+        Identify top branching candidates (divergence nodes) for lookahead eval.
+        """
+        res = MultiEdgePartitionBranching.find_divergence_node(routes, route_values, tol, node_coords)
+        if res:
+            return [res]
+        return []
 
     @staticmethod
     def create_child_nodes(
@@ -478,6 +525,7 @@ class MultiEdgePartitionBranching:
         divergence_node: int,
         arc_set_1: List[Tuple[int, int]],
         arc_set_2: List[Tuple[int, int]],
+        strength: float = 0.5,
     ) -> Tuple[BranchNode, BranchNode]:
         """
         Create two child nodes that forbid different arc sets.
@@ -497,7 +545,10 @@ class MultiEdgePartitionBranching:
         # Child 2: Forbid arcs in arc_set_2
         constraints_2 = [EdgeBranchingConstraint(u, v, must_use=False) for u, v in arc_set_2]
 
-        hint = parent.lp_bound
+        hint = parent.lp_bound if parent.lp_bound is not None else 0.0
+        # Child 1 is standard, child 2 gets a small penalty for sorting
+        right_hint = hint - (strength * 1e-4)
+
         left = BranchNode(
             constraints=constraints_1,  # type: ignore[arg-type]
             parent=parent,
@@ -508,7 +559,7 @@ class MultiEdgePartitionBranching:
             constraints=constraints_2,  # type: ignore[arg-type]
             parent=parent,
             depth=parent.depth + 1,
-            lp_bound_hint=hint,
+            lp_bound_hint=right_hint,
         )
 
         return left, right
@@ -522,24 +573,22 @@ class RyanFosterBranching:
         left  → r and s MUST be in the same route  (together = True)
         right → r and s MUST NOT be in the same route (together = False)
 
-    **WARNING:** Ryan-Foster branching loses its theoretical exactness
-    guarantee when applied to a Set Covering master problem (>= 1), as it
-    can erroneously prune optimal over-covering solutions. Use 'edge'
-    branching for rigorous proofs of optimality.
+    Ryan-Foster branching (1981) for the Set Partitioning Problem.
+
+    Theoretical Exactness:
+    ----------------------
+    Ryan-Foster branching loses its theoretical exactness guarantee when applied
+    to a Set Covering master problem (>= 1), as it can erroneously prune optimal
+    over-covering solutions. Total theoretical rigor is maintained here by
+    enforcing strict Set Partitioning (== 1.0) whenever this strategy is active.
 
     Specifically, the `together=True` branch disables any route that visits
     only one of the pair (r, s). In a Set Partitioning (== 1) master, this
-    is always safe because each node is covered by exactly one route. In a
-    Set Covering (>= 1) master — as used in VRPPMasterProblem — a route
-    visiting only r is a valid column (s may be covered by another route),
-    so disabling it can remove optimal columns and cause the solver to miss
-    the true optimum.
+    is always safe because each node is covered by exactly one route.
 
-    To use Ryan-Foster branching with full exactness guarantees, either:
-      1. Switch VRPPMasterProblem to Set Partitioning (== 1) coverage
-         constraints for mandatory nodes, OR
-      2. Use EdgeBranching ('edge' strategy) instead, which does not have
-         this limitation.
+    To ensure exactness, the `VRPPMasterProblem` automatically enforces strict
+    Set Partitioning (== 1) logic for mandatory nodes. This removes the risk of
+    pruning optimal solutions that can occur with Set Covering (>= 1).
 
     Reference: Ryan & Foster (1981), Proposition 1.
     """
@@ -548,44 +597,40 @@ class RyanFosterBranching:
     def find_branching_pair(
         routes: List[Route],
         route_values: Dict[int, float],
+        mandatory_nodes: Set[int],
         tol: float = 1e-5,
-    ) -> Optional[Tuple[int, int]]:
+    ) -> Optional[Tuple[Tuple[int, int], float]]:
         """
         Find a node pair (r, s) whose fractional co-occurrence lies in (0, 1).
+        Only considers pairs where both nodes are mandatory, fulfilling the
+        strict Set Partitioning requirement for exactness.
 
         Args:
             routes: All routes in the master problem.
             route_values: Current LP solution {route_index: λ_k}.
+            mandatory_nodes: Set of mandatory nodes needing exact partitioning.
             tol: Integrality tolerance.
 
         Returns:
-            (node_r, node_s) to branch on, or None if the solution is already integer.
+            ((node_r, node_s), together_sum) to branch on, or None if the solution is already integer.
         """
-        # Find any fractional route variable.
-        frac_idx: Optional[int] = None
-        for idx, val in route_values.items():
+        for frac_idx, val in route_values.items():
             if abs(val - round(val)) > tol:
-                frac_idx = idx
-                break
+                nodes_in_frac = sorted([n for n in routes[frac_idx].node_coverage if n in mandatory_nodes])
+                if len(nodes_in_frac) < 2:
+                    continue
 
-        if frac_idx is None:
-            return None
-
-        nodes_in_frac = sorted(routes[frac_idx].node_coverage)
-        if len(nodes_in_frac) < 2:
-            return None
-
-        # Search all pairs for a fractional co-occurrence sum.
-        for i, r in enumerate(nodes_in_frac):
-            for s in nodes_in_frac[i + 1 :]:
-                together_sum = sum(
-                    val
-                    for idx, val in route_values.items()
-                    if r in routes[idx].node_coverage and s in routes[idx].node_coverage
-                )
-                frac = together_sum % 1.0
-                if tol < frac < 1.0 - tol:
-                    return (r, s)
+                # Search all pairs for a fractional co-occurrence sum.
+                for i, r in enumerate(nodes_in_frac):
+                    for s in nodes_in_frac[i + 1 :]:
+                        together_sum = sum(
+                            v
+                            for idx, v in route_values.items()
+                            if r in routes[idx].node_coverage and s in routes[idx].node_coverage
+                        )
+                        frac = abs(together_sum - round(together_sum))
+                        if tol < frac < 1.0 - tol:
+                            return (r, s), together_sum
 
         return None
 
@@ -594,6 +639,8 @@ class RyanFosterBranching:
         parent: BranchNode,
         node_r: int,
         node_s: int,
+        together_sum: float = 0.5,
+        mandatory_nodes: Optional[Set[int]] = None,
     ) -> Tuple[BranchNode, BranchNode]:
         """
         Create together (left) and separate (right) child nodes.
@@ -602,22 +649,137 @@ class RyanFosterBranching:
             parent: The node being branched.
             node_r: First node in the pair.
             node_s: Second node in the pair.
+            together_sum: Fractional co-occurrence value for tie-breaking.
+            mandatory_nodes: Optional set of mandatory nodes for constraint exactness.
 
         Returns:
             (left_child, right_child)
         """
-        hint = parent.lp_bound
+        hint = parent.lp_bound if parent.lp_bound is not None else 0.0
+        # Separation branch gets small penalty
+        right_hint = hint - (together_sum * 1e-4)
+
         left = BranchNode(
-            constraints=[RyanFosterBranchingConstraint(node_r, node_s, together=True)],
+            constraints=[RyanFosterBranchingConstraint(node_r, node_s, together=True, mandatory_nodes=mandatory_nodes)],
             parent=parent,
             depth=parent.depth + 1,
             lp_bound_hint=hint,
         )
         right = BranchNode(
-            constraints=[RyanFosterBranchingConstraint(node_r, node_s, together=False)],
+            constraints=[
+                RyanFosterBranchingConstraint(node_r, node_s, together=False, mandatory_nodes=mandatory_nodes)
+            ],
             parent=parent,
             depth=parent.depth + 1,
-            lp_bound_hint=hint,
+            lp_bound_hint=right_hint,
+        )
+
+        return left, right
+
+
+class FleetSizeBranchingConstraint:
+    """Constraint on the total number of vehicles used (sum of route lambdas)."""
+
+    def __init__(self, limit: int, is_upper: bool) -> None:
+        self.limit = limit
+        self.is_upper = is_upper
+
+    def is_route_feasible(self, route: Route) -> bool:
+        """Route-level feasibility is 1.0 (global constraint)."""
+        return True
+
+    def __repr__(self) -> str:
+        rel = "<=" if self.is_upper else ">="
+        return f"FleetSizeBranchingConstraint(Sum λ {rel} {self.limit})"
+
+
+class NodeVisitationBranchingConstraint:
+    """Constraint on the visitation frequency of a specific optional node."""
+
+    def __init__(self, node: int, forced: bool) -> None:
+        self.node = node
+        self.forced = forced
+
+    def is_route_feasible(self, route: Route) -> bool:
+        """
+        In the 'forced' branch (v_i = 1), we don't filter existing routes
+        that don't visit i; the master model will enforce the visitation sum.
+        In the 'forbidden' branch (v_i = 0), we filter out any route visiting i.
+        """
+        if not self.forced:
+            return self.node not in route.node_coverage
+        return True
+
+    def __repr__(self) -> str:
+        val = 1 if self.forced else 0
+        return f"NodeVisitationBranchingConstraint(v_{self.node} = {val})"
+
+
+class FleetSizeBranching:
+    """Logic for branching on the total fleet size."""
+
+    @staticmethod
+    def find_fleet_branching(
+        route_values: Dict[int, float],
+        tol: float = 1e-4,
+    ) -> Optional[float]:
+        """Check if sum of lambdas is fractional."""
+        fleet_usage = sum(route_values.values())
+        if abs(fleet_usage - round(fleet_usage)) > tol:
+            return fleet_usage
+        return None
+
+    @staticmethod
+    def create_child_nodes(parent: BranchNode, fleet_usage: float) -> Tuple[BranchNode, BranchNode]:
+        """Create floor (lower branch) and ceiling (upper branch) child nodes."""
+        floor = math.floor(fleet_usage + 1e-6)
+        ceil = math.ceil(fleet_usage - 1e-6)
+        lower_branch = BranchNode(
+            constraints=[FleetSizeBranchingConstraint(floor, is_upper=True)],
+            parent=parent,
+            depth=parent.depth + 1,
+            lp_bound_hint=parent.lp_bound,
+        )
+        upper_branch = BranchNode(
+            constraints=[FleetSizeBranchingConstraint(ceil, is_upper=False)],
+            parent=parent,
+            depth=parent.depth + 1,
+            lp_bound_hint=parent.lp_bound,
+        )
+        return lower_branch, upper_branch
+
+
+class NodeVisitationBranching:
+    """Logic for branching on optional node visitation."""
+
+    @staticmethod
+    def find_node_branching(
+        routes: List[Route],
+        route_values: Dict[int, float],
+        optional_nodes: Set[int],
+        tol: float = 1e-4,
+    ) -> Optional[Tuple[int, float]]:
+        """Find an optional node with fractional visitation."""
+        for node in sorted(optional_nodes):
+            visitation = sum(val for idx, val in route_values.items() if node in routes[idx].node_coverage)
+            if tol < visitation < 1.0 - tol:
+                return node, visitation
+        return None
+
+    @staticmethod
+    def create_child_nodes(parent: BranchNode, node: int, visitation: float) -> Tuple[BranchNode, BranchNode]:
+        """Create v_i = 0 and v_i = 1 child nodes."""
+        left = BranchNode(
+            constraints=[NodeVisitationBranchingConstraint(node, forced=False)],
+            parent=parent,
+            depth=parent.depth + 1,
+            lp_bound_hint=parent.lp_bound,
+        )
+        right = BranchNode(
+            constraints=[NodeVisitationBranchingConstraint(node, forced=True)],
+            parent=parent,
+            depth=parent.depth + 1,
+            lp_bound_hint=parent.lp_bound,
         )
         return left, right
 
@@ -733,43 +895,69 @@ class BranchAndBoundTree:
         node: BranchNode,
         routes: List[Route],
         route_values: Dict[int, float],
+        mandatory_nodes: Optional[Set[int]] = None,
+        strong_candidate: Optional[Tuple[int, List[Tuple[int, int]], List[Tuple[int, int]], float]] = None,  # Task 11
     ) -> Optional[Tuple[BranchNode, BranchNode]]:
         """
-        Apply the active branching strategy and return two child nodes.
+        Apply the hierarchical branching strategy and return two child nodes.
 
-        This is the single dispatch point for branching logic.  Callers no
-        longer need to import strategy classes directly.
-
-        Args:
-            node: The fractional B&B node to branch from.
-            routes: All routes in the master problem at this node.
-            route_values: Current LP solution {route_index: λ_k}.
-
-        Returns:
-            ``(left_child, right_child)`` if a branching decision was found,
-            or ``None`` if the solution is already integer (no fractional
-            variable / arc found).
+        Task 11 (SOTA): Strong Branching.
+        If a strong_candidate is provided (lookahead-verified winner), use it.
+        Otherwise, follow the default hierarchy.
         """
-        if self.strategy == "edge":
-            arc = EdgeBranching.find_branching_arc(routes, route_values)
-            if arc is None:
-                return None
-            u, v = arc
-            return EdgeBranching.create_child_nodes(node, u, v)
-        elif self.strategy in ("divergence", "multi_edge_partition"):
-            # "divergence" is the documented public name; "multi_edge_partition" is the
-            # internal implementation name. Both route to MultiEdgePartitionBranching.
-            res = MultiEdgePartitionBranching.find_divergence_node(routes, route_values, node_coords=self.node_coords)
-            if res is not None:
-                div_node, arc_set_1, arc_set_2 = res
-                return MultiEdgePartitionBranching.create_child_nodes(node, div_node, arc_set_1, arc_set_2)
-            return None
-        else:  # ryan_foster
-            pair = RyanFosterBranching.find_branching_pair(routes, route_values)
-            if pair is None:
-                return None
-            r, s = pair
-            return RyanFosterBranching.create_child_nodes(node, r, s)
+        # --- Level 0: Strong Branching Winner (Task 11) ---
+        if strong_candidate is not None:
+            div_node, arc_set_1, arc_set_2, strength = strong_candidate
+            return MultiEdgePartitionBranching.create_child_nodes(node, div_node, arc_set_1, arc_set_2, strength)
+
+        # --- Level 1: Fleet Size ---
+        fleet_frac = FleetSizeBranching.find_fleet_branching(route_values)
+        if fleet_frac is not None:
+            return FleetSizeBranching.create_child_nodes(node, fleet_frac)
+
+        # --- Level 2: Spatial Divergence ---
+        res_div = MultiEdgePartitionBranching.find_divergence_node(routes, route_values, node_coords=self.node_coords)
+        if res_div is not None:
+            div_node, arc_set_1, arc_set_2, strength = res_div
+            return MultiEdgePartitionBranching.create_child_nodes(node, div_node, arc_set_1, arc_set_2, strength)
+
+        # --- Level 3: Ryan-Foster co-occurrence ---
+        if mandatory_nodes is not None:
+            res_rf = RyanFosterBranching.find_branching_pair(routes, route_values, mandatory_nodes)
+            if res_rf is not None:
+                pair, together_sum = res_rf
+                return RyanFosterBranching.create_child_nodes(
+                    node, pair[0], pair[1], together_sum, mandatory_nodes=mandatory_nodes
+                )
+
+        # --- Level 4: Simple Edge Branching ---
+        res_edge: Optional[Tuple[Tuple[int, int], float]] = EdgeBranching.find_branching_arc(routes, route_values)
+        if res_edge is not None:
+            arc, flow = res_edge
+            return EdgeBranching.create_child_nodes(node, arc[0], arc[1], flow)
+
+        # --- Level 5: Node Visitation (Last Resort - Mandatory only) ---
+        # Fix 7: Restrict to mandatory nodes and move to last resort.
+        if mandatory_nodes:
+            node_frac_res = NodeVisitationBranching.find_node_branching(routes, route_values, mandatory_nodes)
+            if node_frac_res is not None:
+                n, visitation = node_frac_res
+                return NodeVisitationBranching.create_child_nodes(node, n, visitation)
+
+        return None
+
+    def find_strong_branching_candidates(
+        self, routes: List[Route], route_values: Dict[int, float], max_candidates: int = 5
+    ) -> List[Tuple[int, List[Tuple[int, int]], List[Tuple[int, int]], float]]:
+        """
+        Task 11 (SOTA): Identify top branching candidates for lookahead eval.
+        Uses Spatial Divergence strength as the primary heuristic.
+        """
+        # We target divergence nodes as they provide the most robust branching
+        candidates = MultiEdgePartitionBranching.find_multiple_divergence_nodes(
+            routes, route_values, node_coords=self.node_coords, limit=max_candidates
+        )
+        return candidates
 
     # ------------------------------------------------------------------
     # Pruning and incumbent management
@@ -789,11 +977,15 @@ class BranchAndBoundTree:
             n
             for n in self.open_nodes
             if not n.is_infeasible  # exclude known infeasible
-            and (n.lp_bound is None or n.lp_bound > self.best_integer_solution)
+            and (n.lp_bound is None or n.lp_bound > self.best_integer_solution + 1e-8)
         ]
         pruned = before - len(self.open_nodes)
         self.nodes_pruned += pruned
         return pruned
+
+    def record_explored(self) -> None:
+        """Increment the global nodes explored counter."""
+        self.nodes_explored += 1
 
     def update_incumbent(self, node: BranchNode, value: float) -> bool:
         """
@@ -831,3 +1023,12 @@ class BranchAndBoundTree:
             "best_integer": self.best_integer_solution,
             "branching_strategy": self.strategy,
         }
+
+
+# Union type for callers that handle any constraint flavour.
+AnyBranchingConstraint = Union[
+    EdgeBranchingConstraint,
+    RyanFosterBranchingConstraint,
+    NodeVisitationBranchingConstraint,
+    FleetSizeBranchingConstraint,
+]

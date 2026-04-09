@@ -15,7 +15,6 @@ class BPCConfig:
 
     Attributes:
         time_limit: Maximum time in seconds for the solver.
-        engine: Solver engine to use ('ortools', 'gurobi', 'custom').
         profit_aware_operators: Whether to use profit-aware operators.
         vrpp: Whether to use VRPP.
         seed: Random seed for reproducibility.
@@ -30,10 +29,14 @@ class BPCConfig:
         max_bb_nodes: Maximum nodes to explore in the B&B tree.
         optimality_gap: Relative gap for proven optimality.
         early_termination_gap: Gap at which to stop search early.
+        use_ng_routes: Whether to use ng-route relaxation in pricing.
+        ng_neighborhood_size: Size of ng-neighborhoods for relaxation.
+        enable_fractional_capacity_cuts: Whether to enable fractional capacity cuts.
+        enable_comb_cuts: Whether to enable heuristic comb inequalities.
+        use_spatial_partitioning: Whether to use spatial partitioning for branching.
     """
 
     time_limit: float = 60.0
-    engine: str = "ortools"
     profit_aware_operators: bool = False
     vrpp: bool = True
     seed: Optional[int] = None
@@ -48,3 +51,8 @@ class BPCConfig:
     max_bb_nodes: int = 1000
     optimality_gap: float = 1e-4
     early_termination_gap: float = 1e-3
+    use_ng_routes: bool = True
+    ng_neighborhood_size: int = 8
+    enable_fractional_capacity_cuts: bool = True
+    enable_comb_cuts: bool = False
+    use_spatial_partitioning: bool = False

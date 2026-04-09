@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 from unittest.mock import MagicMock
-from logic.src.policies.branch_and_price_and_cut.bpc_engine import run_custom_bpc
+from logic.src.policies.branch_and_price_and_cut.bpc_engine import run_bpc
 from logic.src.policies.branch_and_price_and_cut.cutting_planes import KnapsackCoverEngine, create_cutting_plane_engine
 
 @pytest.fixture
@@ -20,55 +20,60 @@ def bpc_instance():
 
 def test_bpc_default_branching_strategy(bpc_instance):
     dist, wastes, cap, R, C = bpc_instance
-    # We use a mock to capture if the tree uses divergence
-    # But checking the output behavior or internal state is better.
-    # For now, just check if it runs with the new default.
     values = {"max_cg_iterations": 2}
-    # If run_custom_bpc succeeds, it used the default branching
-    routes, cost = run_custom_bpc(dist, wastes, cap, R, C, values)
+    result = run_bpc(dist, wastes, cap, R, C, params=values)
+
+    if isinstance(result, tuple):
+        routes, cost = result
+    elif hasattr(result, "nodes"):
+        routes = [result.nodes]
+        cost = result.profit
+    else:
+        # Final fallback for unexpected types
+        routes = []
+        cost = 0.0
+
     assert len(routes) > 0
+    assert cost > 0
 
 def test_knapsack_cover_separation():
-    # Mock master problem with a violated vehicle limit
     master = MagicMock()
     master.vehicle_limit = 1
     master.model = MagicMock()
-
-    # Mock two variables with fractional values summing to > 1
     v1 = MagicMock(); v1.X = 0.6
     v2 = MagicMock(); v2.X = 0.6
     master.lambda_vars = [v1, v2]
-
-    # Mock routes with node coverage
     r1 = MagicMock(); r1.node_coverage = {1, 2}
     r2 = MagicMock(); r2.node_coverage = {3, 4}
     master.routes = [r1, r2]
     master.add_capacity_cut.return_value = True
-
     engine = KnapsackCoverEngine(None, None)
     added = engine.separate_and_add_cuts(master, max_cuts=1)
-
     assert added == 1
     master.add_capacity_cut.assert_called()
 
 def test_create_engine_factory():
     v_model = MagicMock()
     sep_engine = MagicMock()
-
     engine = create_cutting_plane_engine("all", v_model, sep_engine)
     assert engine.get_name() == "composite"
-    assert len(engine.engines) == 4 # RCC + SRI + LCI + Cover
+    assert len(engine.engines) == 5
 
-def test_bpc_lagrangian_termination_log(bpc_instance, caplog):
+def test_bpc_exact_convergence_log(bpc_instance, caplog):
     dist, wastes, cap, R, C = bpc_instance
-    # Set a very high early termination gap to trigger it
     values = {
         "max_cg_iterations": 20,
-        "early_termination_gap": 100.0,
         "branching_strategy": "divergence"
     }
-    run_custom_bpc(dist, wastes, cap, R, C, values)
-    # We should see something about convergence if we added logs,
-    # but I didn't add explicit INFO logs yet, just the logic.
-    # For now, verify it finishes quickly.
-    pass
+    result = run_bpc(dist, wastes, cap, R, C, params=values)
+
+    if isinstance(result, tuple):
+        routes, cost = result
+    elif hasattr(result, "nodes"):
+        routes = [result.nodes]
+        cost = result.profit
+    else:
+        routes = []
+        cost = 0.0
+
+    assert "z_UB" in caplog.text or "RMP" in caplog.text

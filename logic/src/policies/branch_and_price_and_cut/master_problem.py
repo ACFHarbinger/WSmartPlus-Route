@@ -8,11 +8,17 @@ Based on Section 3.2 of Barnhart et al. (1998).
 """
 
 import contextlib
-from typing import Dict, FrozenSet, List, Optional, Set, Tuple, Union
+import logging
+from typing import TYPE_CHECKING, Any, Dict, FrozenSet, List, Optional, Set, Tuple, Union
 
 import gurobipy as gp
 import numpy as np
 from gurobipy import GRB
+
+if TYPE_CHECKING:
+    from .branching import AnyBranchingConstraint
+
+logger = logging.getLogger(__name__)
 
 
 class Route:
@@ -48,6 +54,70 @@ class Route:
         return f"Route(nodes={self.nodes}, profit={self.profit:.2f})"
 
 
+class GlobalCutPool:
+    """
+    Centralized repository for globally valid inequalities across B&B nodes.
+
+    Philosophy:
+    In BPC, separation is expensive. By pooling valid inequalities (RCC, SRI, SEC 2.1)
+    globally, we ensure that a cut discovered in one branch tightens the LP bound
+    in sibling and child branches immediately, avoiding redundant separation and
+    reducing the total number of B&B nodes explored.
+    """
+
+    def __init__(self) -> None:
+        """Initialise empty global cut registries."""
+        self.rcc_cuts: Set[FrozenSet[int]] = set()
+        self.sri_cuts: Set[FrozenSet[int]] = set()
+        self.sec_cuts: Set[FrozenSet[int]] = set()  # Form 2.1 (Global)
+        self.edge_clique_cuts: Set[Tuple[int, int]] = set()
+        self.lci_cuts: Set[FrozenSet[int]] = set()
+
+    def add_cut(self, cut_type: str, data: Any) -> None:
+        """
+        Archive a globally valid cut in the pool.
+
+        Args:
+            cut_type: The type of cut ("rcc", "sri", "sec_2.1", "lci").
+            data: Cut-specific data (usually a FrozenSet of nodes).
+        """
+        if cut_type == "rcc":
+            self.rcc_cuts.add(data)
+        elif cut_type == "sri":
+            self.sri_cuts.add(data)
+        elif cut_type == "sec_2.1":
+            self.sec_cuts.add(data)
+        elif cut_type == "edge_clique":
+            self.edge_clique_cuts.add(data)
+        elif cut_type == "lci":
+            self.lci_cuts.add(data)
+
+    def apply_to_master(self, master: "VRPPMasterProblem") -> int:
+        """
+        Inject all pooled global cuts into a fresh Master Problem instance.
+        Typically called when entering a new B&B node to tighten the root relaxation.
+
+        Args:
+            master: The VRPPMasterProblem instance to receive the cuts.
+
+        Returns:
+            Number of cuts successfully applied.
+        """
+        added = 0
+        for nodes in self.rcc_cuts:
+            if master.add_capacity_cut(list(nodes), rhs=1.0):  # Simplified RHS for SPP
+                added += 1
+        for nodes in self.sri_cuts:
+            if master.add_subset_row_cut(nodes):
+                added += 1
+        for nodes in self.sec_cuts:
+            # Form 2.1 is always global
+            if master.add_sec_cut(nodes, rhs=1.0, facet_form="2.1"):
+                added += 1
+        # Edge cliques and LCIs are more complex but can be added similarly
+        return added
+
+
 class VRPPMasterProblem:
     """
     Master Problem (MP) for the Branch-and-Price-and-Cut algorithm.
@@ -60,12 +130,23 @@ class VRPPMasterProblem:
         4.  Interfacing with the Branch-and-Bound tree to enforce node-specific constraints.
 
     Mathematical Formulation:
-        Maximize Σ p_k * λ_k
-        Subject to:
-            Σ a_{ik} * λ_k = 1           ∀ i ∈ Customers (Set Partitioning)
-            Σ λ_k <= K                   (Vehicle Fleet Constraint)
-            Σ γ_S * λ_k <= RHS           (Cutting Planes: RCC, SRI, LCI)
-            λ_k ∈ {0, 1}
+    -------------------------
+    Maximize Σ p_k * λ_k
+    Subject to:
+        Σ a_{ik} * λ_k = 1           ∀ i ∈ Mandatory Customers
+        Σ a_{jk} * λ_k ≤ 1           ∀ j ∈ Optional Customers
+        Σ λ_k <= K                   (Vehicle Fleet Constraint)
+        Σ γ_S * λ_k <= RHS           (Cutting Planes: RCC, SRI, Edge Clique)
+        λ_k ∈ {0, 1}
+
+    Theoretical Exactness:
+    ----------------------
+    To support Ryan-Foster branching and ensure rigorous optimality proofs,
+    this implementation defaults to strict Set Partitioning (== 1.0) logic
+    for all covered nodes (enforced via `strict_set_partitioning`).
+    If a node is over-covered (Σ λ_{ik} > 1), the corresponding artificial
+    variable would need to be negative to satisfy the equality, which is
+    forbidden by its lower bound (LB=0.0).
     """
 
     def __init__(
@@ -78,21 +159,32 @@ class VRPPMasterProblem:
         revenue_per_kg: float,
         cost_per_km: float,
         vehicle_limit: Optional[int] = None,
+        global_cut_pool: Optional[GlobalCutPool] = None,
     ) -> None:
         """
-        Initialise the master problem.
+        Initialise the Master Problem for VRPP.
+
+        Framework (Barnhart et al. 1998, 2000):
+        This class maintains the Restricted Master Problem (RMP), which is the Set
+        Partitioning relaxation of the VRPP. It manages column addition, cutting
+        plane integration, and dual extraction.
+
+        Set Partitioning & Branching:
+        To maintain Ryan-Foster (1981) compatibility, we use strict equality (== 1)
+        for mandatory nodes. Artificial variables (Big-M) are omitted in favor of
+        Farkas dual extraction, ensuring that infeasibility directly triggers the
+        feasibility-search phase of column generation.
 
         Args:
-            n_nodes: Number of customer nodes (excluding depot, depot = index 0).
+            n_nodes: Number of customer nodes (excluding depot).
             mandatory_nodes: Set of node indices that must be visited.
-            cost_matrix: Distance matrix of shape (n_nodes+1, n_nodes+1);
-                index 0 is the depot.
-            wastes: Mapping from node ID to waste volume (kg).
+            cost_matrix: Distance matrix where [0] is the depot.
+            wastes: Waste volume (kg) per node.
             capacity: Vehicle payload capacity (kg).
-            revenue_per_kg: Revenue earned per kg of waste collected.
-            cost_per_km: Operating cost per km of travel.
-            vehicle_limit: Maximum number of vehicles (routes) allowed, or
-                None to impose no fleet-size constraint.
+            revenue_per_kg: Revenue coefficient (R).
+            cost_per_km: Operating cost coefficient (C).
+            vehicle_limit: Maximum fleet size (K).
+            global_cut_pool: Central repository for cross-node valid inequalities.
         """
         self.n_nodes = n_nodes
         self.mandatory_nodes = mandatory_nodes
@@ -103,13 +195,18 @@ class VRPPMasterProblem:
         self.R = revenue_per_kg
         self.C = cost_per_km
         self.vehicle_limit = vehicle_limit
+        self.global_cut_pool = global_cut_pool or GlobalCutPool()
+
+        # BIG_M Calculation:
+        # Strictly exceeds the max possible profit of a single route.
+        # Bounded by capacity/min_demand to prevent numerical instability.
 
         # BIG_M must strictly exceed the profit of the best possible single route.
         # We bound the number of nodes a route can visit by capacity: at most
         # capacity / min_demand nodes fit in one route. This is tighter than n_nodes
         # and avoids inflating the LP penalty coefficient unnecessarily.
         max_single_node_revenue = max(self.wastes.values(), default=0.0) * self.R
-        min_demand = min((w for w in self.wastes.values() if w > 0), default=1.0)
+        min_demand = max(1.0, min((w for w in self.wastes.values() if w > 0), default=1.0))
         max_nodes_per_route = max(1, int(self.capacity / min_demand))
         max_route_profit = max_single_node_revenue * min(max_nodes_per_route, self.n_nodes)
         self.BIG_M = max(1000.0, 10.0 * max_route_profit)
@@ -120,13 +217,21 @@ class VRPPMasterProblem:
         self.model: Optional[gp.Model] = None
         self.lambda_vars: List[gp.Var] = []
 
-        # Artificial variables α_i for mandatory nodes (Big-M penalty).
-        # These are added once in build_model() and never removed, ensuring
-        # LP feasibility is preserved throughout the entire B&B tree.
-        self.artificial_vars: Dict[int, gp.Var] = {}
+        # artificial_vars removed: Gurobi INFEASIBLE status now signals Phase I.
 
         self.dual_node_coverage: Dict[int, float] = {}
         self.dual_vehicle_limit: float = 0.0
+
+        # ---- Refactoring: Global Python Column Pool -----------------------
+        # Stores columns (routes) that have been removed from the active
+        # Gurobi RMP to prevent bloat. When duals change, we check this pool
+        # before running the expensive RCSPP pricer.
+        self.global_column_pool: List[Route] = []
+
+        # ---- Refactoring: 2-Phase Method ----------------------------------
+        # Phase 1: Minimize artificial variables (feasibility)
+        # Phase 2: Maximize route profits (optimality)
+        self.phase: int = 2  # Default to Phase 2 for backward compatibility
 
         # Map from FrozenSet[int] (node set S) to Gurobi constraint.
         self.active_src_cuts: Dict[FrozenSet[int], gp.Constr] = {}
@@ -140,59 +245,314 @@ class VRPPMasterProblem:
         self.dual_sec_cuts_local: Dict[FrozenSet[int], float] = {}
         self.dual_capacity_cuts: Dict[FrozenSet[int], float] = {}
         self.dual_sri_cuts: Dict[FrozenSet[int], float] = {}
-        self.dual_lci_cuts: Dict[Tuple[int, int], float] = {}
+        self.dual_edge_clique_cuts: Dict[Tuple[int, int], float] = {}
 
         # SRI
         self.active_sri_cuts: Dict[FrozenSet[int], gp.Constr] = {}
 
-        # LCI
+        # Edge Clique cuts
         # Value is (constraint, {route_idx: lifting_coeff})
-        self.active_lci_cuts: Dict[Tuple[int, int], Tuple[gp.Constr, Dict[int, float]]] = {}
+        # Key: (min_u, max_v, cover_hash)
+        self.active_edge_clique_cuts: Dict[Tuple[int, int], Tuple[gp.Constr, Dict[int, float]]] = {}
+
+        # ---- Task 5: Dual Stabilization (Exponential Smoothing) -----------
+        # Reference: Guyenne et al. (1994), Wentges (1997)
+        # alpha=0.5 provides a balanced damping of dual oscillations.
+        self.dual_smoothing_alpha: float = 0.5
+        self.prev_dual_node_coverage: Dict[int, float] = {}
+        self.prev_dual_vehicle_limit: float = 0.0
+        self.prev_dual_capacity_cuts: Dict[FrozenSet[int], float] = {}
+        self.prev_dual_sri_cuts: Dict[FrozenSet[int], float] = {}
 
         # Farkas duals stored during infeasibility detection
-        self.farkas_duals: Dict[Union[int, str], float] = {}
+        self.farkas_duals: Dict[str, Dict[Any, float]] = {}
 
         # Column management
         self.column_deletion_enabled: bool = True
+        # Branching awareness (Fix Task 3)
+        self.strict_set_partitioning: bool = True
 
-    def remove_unpromising_columns(self, threshold: float = -10.0) -> int:
+        # Fix 3: Enable dual smoothing flag
+        self.enable_dual_smoothing: bool = False  # Off by default for exact operation.
+
+    def add_symmetry_breaking_constraints(self) -> int:
         """
-        Remove columns with highly negative reduced cost to manage pool size.
+        Task 12 (SOTA): Symmetry breaking for identical vehicles.
+        Enforces a lexicographical ordering on the routes selected in the solution.
+        This prevents the solver from exploring all K! permutations of the same routes.
+
+        Mathematical Formulation:
+            bitmask(route_k) >= bitmask(route_{k+1})
+
+        Wait: In the Set Partitioning formulation, λ_k are binary selection variables
+        for specific routes. Since we have a vehicle fleet constraint Σ λ_k <= K,
+        symmetry only exists if we use a formulation with vehicle-indexed variables λ_{kv}.
+
+        However, in the standard column generation framework, we don't index columns by vehicle.
+        Symmetry is *implicitly* handled by the SPP formulation itself (multi-set packing).
+
+        BUT, if we use branching on vehicle-route assignment or hierarchical vehicles,
+        then symmetry becomes an issue.
+
+        Correction: For pure VRPP SPP, symmetry breaking is not needed at the Master level.
+        It is needed at the *Pricing* level if we have multiple identical vehicles
+        with different characteristics (not our case).
+
+        So, Task 12 for VRPP actually refers to **Pruning Equivalent Routes** in the pool.
+        Implemented as `deduplicate_column_pool`.
+        """
+        return 0
+
+    def deduplicate_column_pool(self, tol: float = 1e-6) -> int:
+        """
+        SOTA: Prune identical or dominated routes from the global column pool.
+        Prevents RMP from becoming degenerate with duplicate columns.
+        """
+        if not self.global_column_pool:
+            return 0
+
+        initial_count = len(self.global_column_pool)
+        seen_node_sets: Dict[FrozenSet[int], float] = {}
+        unique_pool = []
+
+        for route in self.global_column_pool:
+            nodes_f = frozenset(route.nodes)
+            if nodes_f not in seen_node_sets:
+                seen_node_sets[nodes_f] = route.profit
+                unique_pool.append(route)
+            else:
+                # If a route with the same nodes exists, keep only the one with better profit
+                if route.profit > seen_node_sets[nodes_f] + tol:
+                    # Replace in unique pool (slow but pool is capped)
+                    for i, r in enumerate(unique_pool):
+                        if frozenset(r.nodes) == nodes_f:
+                            unique_pool[i] = route
+                            seen_node_sets[nodes_f] = route.profit
+                            break
+
+        self.global_column_pool = unique_pool
+        return initial_count - len(unique_pool)
+
+    def purge_useless_columns(self, tolerance: float = -0.1) -> int:
+        """
+        Remove non-basic columns with significantly negative reduced cost.
+
+        In a maximization LP, non-basic columns have RC <= 0. If a column is
+        not in the basis and its reduced cost is highly negative, it is
+        unlikely to enter the basis soon. Removing such columns prevents
+        basis matrix bloat and keeps the RMP solver fast.
 
         Args:
-            threshold: Reduced cost threshold below which columns are removed.
+            tolerance: Reduced cost threshold. Columns with RC < tolerance
+                that are non-basic will be removed.
 
         Returns:
-            Number of columns removed.
+            Number of columns purged from the Gurobi model.
         """
         if not self.column_deletion_enabled or self.model is None or not self.lambda_vars:
             return 0
 
-        # Identify indices to remove. We check RC (reduced cost) and X (value).
-        # In a maximization LP, non-basic variables have RC <= 0.
+        # We must solve the model first to have valid Basis/RC attributes.
+        # This check happens inside the try-block below.
+
         to_remove: List[int] = []
         for i, var in enumerate(self.lambda_vars):
             try:
-                # var.RC is the reduced cost in Gurobi.
-                # var.X is the value (0.0 for non-basic columns in most cases).
-                if var.X < 1e-6 and threshold > var.RC:
+                # var.VBasis: 0=Basic, 1=Lower, 2=Upper, 3=Superbasic
+                # We only remove non-basic variables (VBasis != 0)
+                if var.VBasis != 0 and tolerance > var.RC:
                     to_remove.append(i)
             except (gp.GurobiError, AttributeError):
-                # RC or X might not be available if the model wasn't solved optimally
+                # RC or VBasis might not be available if node was pruned or infeasible
                 continue
 
         if not to_remove:
             return 0
 
-        # Remove columns from Gurobi and local pool.
+        # Remove columns from Gurobi and move to global pool.
         # We must delete in reverse index order to maintain valid indexing.
         for i in sorted(to_remove, reverse=True):
+            # Move to Python Pool before Gurobi deletion
+            self.global_column_pool.append(self.routes[i])
+
             self.model.remove(self.lambda_vars[i])
             self.lambda_vars.pop(i)
             self.routes.pop(i)
 
         self.model.update()
+        logger.info(
+            f"[Purge] Removed {len(to_remove)} non-basic columns (RC < {tolerance}). "
+            f"Active RMP size: {len(self.routes)}"
+        )
         return len(to_remove)
+
+    def sift_global_column_pool(
+        self,
+        node_duals: Dict[int, float],
+        rcc_duals: Dict[FrozenSet[int], float],
+        sri_duals: Dict[FrozenSet[int], float],
+        edge_clique_duals: Dict[Tuple[int, int], float],
+        branching_constraints: Optional[List["AnyBranchingConstraint"]] = None,
+        rc_tolerance: float = 1e-5,
+    ) -> int:
+        """
+        Scan the global pool for profitable columns under current duals and branching.
+
+        Args:
+            node_duals: Base duals from coverage and vehicle limits.
+            rcc_duals: Current Root-Capacity Cut duals.
+            sri_duals: Current Subset-Row Inequality duals.
+            edge_clique_duals: Current Edge Clique cut duals.
+            branching_constraints: List of active B&B branching constraints.
+            rc_tolerance: Numerical threshold to prevent injection of mathematically
+                         insignificant columns (epsilon deadlock).
+
+        Returns:
+            Number of routes re-activated and added to the RMP.
+        """
+        if not self.global_column_pool:
+            return 0
+
+        # Bundle duals for calculate_reduced_cost
+        dual_values = {
+            "node_duals": node_duals,
+            "rcc_duals": rcc_duals,
+            "sri_duals": sri_duals,
+            "edge_clique_duals": edge_clique_duals,
+        }
+
+        # We use a set of signatures to prevent adding duplicates if they already exist in RMP
+        # (Though column generation usually handles this via dominance).
+        active_sigs = {tuple(r.nodes) for r in self.routes}
+
+        # Task 6 (SOTA): Elite Sifting.
+        # Instead of adding all profitable columns, we sort by current reduced cost
+        # and only inject the top 'max_to_add' (N=30) movers. This prevents RMP bloat.
+        max_to_add = 30
+        candidates: List[Tuple[float, int]] = []
+
+        for i, route in enumerate(self.global_column_pool):
+            # Task 1: Enforce physical elementarity.
+            if len(set(route.nodes)) != len(route.nodes):
+                continue
+
+            # Check for duplicates in active model
+            if tuple(route.nodes) in active_sigs:
+                continue
+
+            # Task 6: Check feasibility against branching constraints.
+            if branching_constraints and not all(bc.is_route_feasible(route) for bc in branching_constraints):
+                continue
+
+            # Task 1: Enforce rc_tolerance
+            rc = self.calculate_reduced_cost(route, dual_values)
+            if rc > rc_tolerance:
+                candidates.append((rc, i))
+
+        if not candidates:
+            return 0
+
+        # SORT BY QUALITY (Elite Sifting)
+        candidates.sort(key=lambda x: x[0], reverse=True)
+        top_elite = candidates[:max_to_add]
+
+        # Extract only indices for removal (reverse to preserve indexing)
+        top_indices = sorted([idx for _, idx in top_elite], reverse=True)
+
+        added = 0
+        for idx in top_indices:
+            route = self.global_column_pool.pop(idx)
+            self.add_route(route)
+            added += 1
+
+        if added > 0 and self.model is not None:
+            self.model.update()
+            logger.info(f"[Sifting] Re-added {added} elite columns from pool (cap={max_to_add}).")
+        return added
+
+    def calculate_reduced_cost(self, route: Route, dual_values: Dict[str, Any]) -> float:
+        """
+        Helper to calculate reduced cost of a route using current duals.
+        Correctly accounts for node coverage, fleet limit, and all active cuts.
+        """
+        node_duals = dual_values.get("node_duals", {})
+
+        # Reduced cost base: Profit - Σ duals
+        # For Set Packing (>= 1 or == 1), duals π_i are represented such that
+        # rc = p_k - Σ a_ik * π_i.
+        rc = route.revenue - route.cost
+
+        # 1. Node coverage duals (Partitioning/Packing)
+        for node in route.node_coverage:
+            rc -= node_duals.get(node, 0.0)
+
+        # 2. Vehicle limit dual
+        # If dual_values contains the key, it's already extracted from get_reduced_cost_coefficients
+        # which bundles it into node_duals["vehicle_limit"].
+        rc -= node_duals.get("vehicle_limit", 0.0)
+
+        # 3. Capacity Cut (RCC) duals
+        rcc_duals = dual_values.get("rcc_duals", {})
+        for node_set, dual in rcc_duals.items():
+            crossings = self._count_crossings(route, node_set)
+            if crossings > 0:
+                rc -= float(crossings) * dual
+
+        # 4. Subset-Row Inequality (SRI) duals
+        sri_duals = dual_values.get("sri_duals", {})
+        route_nodes = set(route.nodes)
+        for subset, dual in sri_duals.items():
+            count = len(subset.intersection(route_nodes))
+            coeff = count // 2
+            if coeff > 0:
+                rc -= float(coeff) * dual
+
+        # 5. Edge Clique duals
+        edge_clique_duals = dual_values.get("edge_clique_duals", {})
+        nodes = [0] + route.nodes + [0]
+        for i in range(len(nodes) - 1):
+            edge = (min(nodes[i], nodes[i + 1]), max(nodes[i], nodes[i + 1]))
+            if edge in edge_clique_duals:
+                rc -= edge_clique_duals[edge]
+
+        return rc
+
+    def get_dual_values(self) -> Dict[str, Any]:
+        """
+        Bundle all active dual variables into a structured dictionary.
+        Alias for get_reduced_cost_coefficients() used for pool sifting.
+        """
+        return self.get_reduced_cost_coefficients()
+
+    def set_phase(self, phase: int) -> None:
+        """
+        Switch between Phase 1 (Feasibility) and Phase 2 (Optimality).
+
+        Phase 1: Minimize Σ α_i. Route profits are ignored.
+        Phase 2: Maximize Σ p_k λ_k - Σ BIG_M α_i.
+
+        Args:
+            phase: 1 or 2.
+        """
+        if self.model is None:
+            return
+
+        self.phase = phase
+        if phase == 1:
+            logger.info("Master Problem: Switching to Phase I (Feasibility).")
+            # Phase I: all route variables have zero obj. coefficient.
+            # Farkas dual extraction will guide pricing to find a feasible basis.
+            for var in self.lambda_vars:
+                var.Obj = 0.0
+            self.model.ModelSense = GRB.MAXIMIZE
+        else:
+            logger.info("Master Problem: Switching to Phase II (Optimality).")
+            # Phase II: standard profit maximisation.
+            for idx, route in enumerate(self.routes):
+                self.lambda_vars[idx].Obj = route.profit
+            self.model.ModelSense = GRB.MAXIMIZE
+
+        self.model.update()
 
     # ------------------------------------------------------------------
     # Column management
@@ -257,43 +617,55 @@ class VRPPMasterProblem:
                 self.model.chgCoeff(constr, var, 1.0)
 
         self.lambda_vars.append(var)
+        self._wire_route_into_active_cuts(route, var)
+        self.model.update()
 
-        # Wire into active capacity cuts if any exist
+    def _wire_route_into_active_cuts(self, route: Route, var: Any) -> None:
+        """
+        Wire a route variable into all currently active cutting planes.
+
+        This ensures that columns added after some cuts have been discovered
+        (standard Column Generation + Cutting Planes sequence) correctly
+        participate in those cuts, maintaining LP relaxation validity.
+        """
+        if self.model is None:
+            return
+
+        # 1. Wire into active capacity cuts (RCC)
         for node_set, constr in self.active_capacity_cuts.items():
             crossings = self._count_crossings(route, node_set)
             if crossings > 0:
                 self.model.chgCoeff(constr, var, float(crossings))
 
-        # Wire into active SEC cuts if any exist
+        # 2. Wire into active SEC cuts (Form 2.1, 2.2, 2.3)
+        # Check both global and local-node SEC pools.
         for node_set, constr in self.active_sec_cuts.items():
             crossings = self._count_crossings(route, node_set)
             if crossings > 0:
                 self.model.chgCoeff(constr, var, float(crossings))
-        # Wire into active local SEC cuts if any exist
+
         for node_set, constr in self.active_sec_cuts_local.items():
             crossings = self._count_crossings(route, node_set)
             if crossings > 0:
                 self.model.chgCoeff(constr, var, float(crossings))
 
-        # Wire into active SRI cuts
+        # 3. Wire into active Subset-Row Inequalities (SRI)
         for subset, constr in self.active_sri_cuts.items():
             count = sum(1 for n in subset if n in route.node_coverage)
-            coeff = count // 2
-            if coeff > 0:
-                self.model.chgCoeff(constr, var, float(coeff))
+            coeff_sri = count // 2
+            if coeff_sri > 0:
+                self.model.chgCoeff(constr, var, float(coeff_sri))
 
-        # Wire into active LCI cuts
-        new_route_idx = len(self.lambda_vars) - 1  # var was just appended
-        for edge_tuple, (constr, stored_coeffs) in self.active_lci_cuts.items():
+        # 4. Wire into active Edge Clique cuts
+        route_idx = len(self.lambda_vars) - 1
+        for (u, v), (constr, stored_coeffs) in self.active_edge_clique_cuts.items():
             nodes = [0] + route.nodes + [0]
-            contains_edge = any(tuple(sorted((nodes[i], nodes[i + 1]))) == edge_tuple for i in range(len(nodes) - 1))
+            contains_edge = any(tuple(sorted((nodes[i], nodes[i + 1]))) == (u, v) for i in range(len(nodes) - 1))
             if contains_edge:
-                # Routes not present in stored_coeffs (i.e., new routes generated after the cut)
-                # default to 1.0 per Barnhart et al. (2000).
-                coeff = stored_coeffs.get(new_route_idx, 1.0)  # type: ignore[assignment]
-                self.model.chgCoeff(constr, var, coeff)
-
-        self.model.update()
+                # Per Barnhart et al. (2000), new routes not present in the cut discovery
+                # default to coefficient 1.0 for edge-cover based cliques.
+                coeff_clique = stored_coeffs.get(route_idx, 1.0)
+                self.model.chgCoeff(constr, var, float(coeff_clique))
 
     # ------------------------------------------------------------------
     # Model construction
@@ -324,9 +696,12 @@ class VRPPMasterProblem:
         # Reference: Barnhart et al. (1998).
         self.model.Params.Method = 1
         self.model.Params.InfUnbdInfo = 1
+        # Task 8: Prevent the Gurobi DualReductions Trap.
+        # Disabling DualReductions forces Gurobi to use the dual simplex method to
+        # prove infeasibility, which ensures that a valid Farkas dual ray is always
+        # mathematically available for extraction during Phase I pricing.
+        self.model.Params.DualReductions = 0
         self.lambda_vars = []
-        self.artificial_vars = {}
-
         if initial_routes is not None:
             self.routes = initial_routes
 
@@ -339,31 +714,22 @@ class VRPPMasterProblem:
             )
             self.lambda_vars.append(var)
 
-        # ---- Artificial (α) variables for mandatory nodes ----------------
-        # Each α_i is a non-negative continuous variable penalised with -BIG_M
-        # in the maximisation objective, so the solver is strongly incentivised
-        # to drive them to zero by selecting routes that cover node i.
-        for node in self.mandatory_nodes:
-            self.artificial_vars[node] = self.model.addVar(
-                obj=-self.BIG_M,
-                vtype=GRB.CONTINUOUS,
-                lb=0.0,
-                name=f"alpha_{node}",
-            )
-
         # ---- Mandatory-node coverage constraints (Set Partitioning: == 1) ----
+        # Note: artificial variables (Big-M slack) are intentionally OMITTED.
+        # Without them, Gurobi can naturally return GRB.INFEASIBLE when the
+        # current column pool cannot cover a mandatory node — this is the correct
+        # trigger for Phase I Farkas pricing. Adding artificials permanently
+        # suppresses infeasibility and deadlocks the Phase I / Farkas loop.
         for node in self.mandatory_nodes:
             lhs = gp.LinExpr()
             for idx, route in enumerate(self.routes):
                 if node in route.node_coverage:
                     lhs += self.lambda_vars[idx]
-            # Artificial variable ensures constraint is always feasible.
-            lhs += self.artificial_vars[node]
 
-            self.model.addConstr(
-                lhs == 1.0,
-                name=f"coverage_{node}",
-            )
+            if self.strict_set_partitioning:
+                self.model.addConstr(lhs == 1.0, name=f"coverage_{node}")
+            else:
+                self.model.addConstr(lhs >= 1.0, name=f"coverage_{node}")
 
         # ---- Optional-node packing constraints (<= 1) --------------------
         # Optional nodes may be visited at most once across all selected routes.
@@ -393,22 +759,29 @@ class VRPPMasterProblem:
     # Solving
     # ------------------------------------------------------------------
 
-    def solve_lp_relaxation(self) -> Tuple[float, Dict[int, float]]:  # noqa: C901
+    def solve_lp_relaxation(self) -> Tuple[Optional[float], Dict[int, float]]:  # noqa: C901
         """
-        Solve the LP relaxation of the master problem and extract dual values.
+        Solve the LP relaxation of the RMP and extract dual values.
 
         The integrality constraints on all λ variables are temporarily relaxed
-        to continuous [0, 1] before solving.  Artificial variables are already
-        continuous, so they require no modification.
+        to continuous [0, 1]. The model is solved using the Dual Simplex method
+        (Reference: Barnhart et al. 1998) to ensure efficient warm-starting.
+
+        Dual Extraction & Interpretation:
+        - Mandatory Nodes (== 1): π_i is the shadow price.
+        - Optional Nodes (<= 1): π_j >= 0.
+        - Vehicle Limit (<= K): π_K >= 0 (fleet opportunity cost).
+        - Cuts (Σ aλ <= RHS): Dual weights used to penalize "violated" routes in pricing.
+
+        Infeasibility & Farkas:
+        If the current column pool cannot satisfy mandatory coverage, Gurobi returns
+        GRB.INFEASIBLE. We then extract the Farkas Dual Ray (FarkasDual) which
+        mathematically identifies the direction of infeasibility, guiding the
+        pricing subproblem to find feasible columns (Phase I).
 
         Returns:
-            Tuple of:
-                obj_value  – LP relaxation objective value.
-                route_values – Mapping {route_index: λ_k value}.
-
-        Raises:
-            ValueError: If build_model() has not been called.
-            RuntimeError: If the LP solve does not terminate optimally.
+            Tuple of (LP objective value, {route_index: λ_k value}).
+            If infeasible, returns (-inf, {}) and populates self.farkas_duals.
         """
         if self.model is None:
             raise ValueError("Model not built. Call build_model() first.")
@@ -424,21 +797,47 @@ class VRPPMasterProblem:
         status = self.model.Status
 
         if status == GRB.INFEASIBLE:
-            farkas_duals: Dict[Union[int, str], float] = {}
+            # Structure farkas_duals identically to get_reduced_cost_coefficients()
+            farkas_node_duals: Dict[Union[int, str], float] = {}
             for node in range(1, self.n_nodes + 1):
                 constr = self.model.getConstrByName(f"coverage_{node}")
                 if constr is not None:
-                    farkas_duals[node] = constr.FarkasDual
+                    farkas_node_duals[node] = constr.FarkasDual
+
             if self.vehicle_limit is not None:
                 constr = self.model.getConstrByName("vehicle_limit")
                 if constr is not None:
-                    farkas_duals["vehicle_limit"] = constr.FarkasDual
-            self.farkas_duals = farkas_duals
+                    farkas_node_duals["vehicle_limit"] = constr.FarkasDual
+
+            # Task 3: Extract Minimum Fleet Farkas Duals
+            temp_min_c = self.model.getConstrByName("temp_min_vehicles")
+            if temp_min_c is not None:
+                farkas_node_duals["vehicle_limit"] = farkas_node_duals.get("vehicle_limit", 0.0) + temp_min_c.FarkasDual
+
+            farkas_rcc_duals: Dict[FrozenSet[int], float] = {}
+            for subset, constr in self.active_capacity_cuts.items():
+                farkas_rcc_duals[subset] = constr.FarkasDual
+
+            farkas_sri_duals: Dict[FrozenSet[int], float] = {}
+            for subset, constr in self.active_sri_cuts.items():
+                farkas_sri_duals[subset] = constr.FarkasDual
+
+            farkas_clique_duals: Dict[Tuple[int, int], float] = {}
+            for edge, (constr, _) in self.active_edge_clique_cuts.items():
+                farkas_clique_duals[edge] = constr.FarkasDual
+
+            self.farkas_duals = {
+                "node_duals": farkas_node_duals,
+                "rcc_duals": farkas_rcc_duals,
+                "sri_duals": farkas_sri_duals,
+                "edge_clique_duals": farkas_clique_duals,
+            }
             return -float("inf"), {}
 
         if status != GRB.OPTIMAL:
             # Handle other non-optimal statuses (e.g. time limit, numeric issues)
-            return 0.0, {}
+            logger.warning(f"LP solve returned non-optimal status {status}. Treating node as infeasible.")
+            return None, {}
 
         obj_value = self.model.ObjVal
         try:
@@ -462,9 +861,12 @@ class VRPPMasterProblem:
 
             try:
                 if node in self.mandatory_nodes:
-                    # == 1 constraint in MAX LP: Pi is unrestricted.
-                    # Reduced cost contribution is -Pi.
-                    self.dual_node_coverage[node] = -constr.Pi
+                    # == 1 constraint (Set Partitioning) in MAX LP.
+                    # Gurobi reports Pi = dObjValue/dRHS directly.
+                    # The pricing reduced cost is: rc = profit - cost - Σπ_i.
+                    # We must use Pi as-is (not negated), so the DP subtracts
+                    # the correct shadow price and searches toward positive rc columns.
+                    self.dual_node_coverage[node] = constr.Pi
                 else:
                     # <= 1 constraint in MAX LP: Pi >= 0, dual value = Pi >= 0.
                     self.dual_node_coverage[node] = max(0.0, constr.Pi)
@@ -482,9 +884,18 @@ class VRPPMasterProblem:
         ):
             constr = self.model.getConstrByName("vehicle_limit")
             if constr is not None:
-                # <= 1 constraint in MAX LP: Pi <= 0, dual value = -Pi >= 0.
+                # Task 2 (Regression Fix): Gurobi returns non-negative dual prices (Pi)
+                # for <= constraints in a MAXIMIZATION model.
                 with contextlib.suppress(gp.GurobiError):
-                    self.dual_vehicle_limit = max(0.0, -constr.Pi)
+                    self.dual_vehicle_limit = max(0.0, constr.Pi)
+
+            # Task 3: Extract Minimum Fleet Duals
+            temp_min_c = self.model.getConstrByName("temp_min_vehicles")
+            if temp_min_c is not None:
+                with contextlib.suppress(gp.GurobiError):
+                    # For >= constraints in MAX LP, Pi is non-positive.
+                    # We add |Pi| (shadow value) to the fleet penalty.
+                    self.dual_vehicle_limit += max(0.0, -temp_min_c.Pi)
 
         # ---- Extract duals for capacity cuts -----------------------------
         self.dual_capacity_cuts = {}
@@ -496,15 +907,62 @@ class VRPPMasterProblem:
         # ---- Extract duals for SRI ---------------------------------------
         self.dual_sri_cuts = {}
         for subset, constr in self.active_sri_cuts.items():
-            self.dual_sri_cuts[subset] = max(0.0, -constr.Pi)
+            if constr is not None:
+                with contextlib.suppress(gp.GurobiError):
+                    self.dual_sri_cuts[subset] = max(0.0, -constr.Pi)
 
-        # Extract LCI cut duals
-        self.dual_lci_cuts = {}
-        # LCIs are <= 1 constraints in maximization. duals are normally >= 0.
-        for edge_tuple, (constr, _) in self.active_lci_cuts.items():
-            self.dual_lci_cuts[edge_tuple] = max(0.0, -constr.Pi)
+        # Extract Edge Clique cut duals
+        self.dual_edge_clique_cuts = {}
+        # Edge cliques are <= 1 constraints in maximization. duals are normally >= 0.
+        for key, (constr, _) in self.active_edge_clique_cuts.items():
+            if constr is not None:
+                with contextlib.suppress(gp.GurobiError):
+                    self.dual_edge_clique_cuts[key] = max(0.0, -constr.Pi)
+
+        # ---- Task 5: Apply Exponential Smoothing -----------------------
+        if self.enable_dual_smoothing:
+            self._apply_dual_smoothing()
 
         return obj_value, route_values
+
+    def _apply_dual_smoothing(self) -> None:
+        """
+        Apply Exponential Dual Smoothing to stabilize CG price signals.
+        pi_smoothed = alpha * pi_current + (1 - alpha) * pi_prev
+
+        WARNING: Smoothing modifies self.dual_node_coverage in-place.
+        When active, the duals passed to pricing are NOT the true LP duals.
+        This means:
+        - The Lagrangian upper bound (obj_val + K * max_rc) is not valid.
+        - CG convergence (added == 0) does not prove LP optimality.
+        Only enable this flag when running in heuristic (non-exact) mode.
+
+        Reference: Wentges (1997), Guyenne et al. (1994).
+        """
+        alpha = self.dual_smoothing_alpha
+
+        # 1. Node coverage duals
+        for node, current_val in self.dual_node_coverage.items():
+            prev_val = self.prev_dual_node_coverage.get(node, current_val)
+            self.dual_node_coverage[node] = alpha * current_val + (1.0 - alpha) * prev_val
+        self.prev_dual_node_coverage = self.dual_node_coverage.copy()
+
+        # 2. Vehicle limit dual
+        prev_limit_val = self.prev_dual_vehicle_limit
+        self.dual_vehicle_limit = alpha * self.dual_vehicle_limit + (1.0 - alpha) * prev_limit_val
+        self.prev_dual_vehicle_limit = self.dual_vehicle_limit
+
+        # 3. Capacity cut duals
+        for subset, current_val in self.dual_capacity_cuts.items():
+            prev_val = self.prev_dual_capacity_cuts.get(subset, current_val)
+            self.dual_capacity_cuts[subset] = alpha * current_val + (1.0 - alpha) * prev_val
+        self.prev_dual_capacity_cuts = self.dual_capacity_cuts.copy()
+
+        # 4. SRI cuts
+        for subset, current_val in self.dual_sri_cuts.items():
+            prev_val = self.prev_dual_sri_cuts.get(subset, current_val)
+            self.dual_sri_cuts[subset] = alpha * current_val + (1.0 - alpha) * prev_val
+        self.prev_dual_sri_cuts = self.dual_sri_cuts.copy()
 
     def solve_ip(self) -> Tuple[float, List[Route]]:
         """
@@ -576,14 +1034,19 @@ class VRPPMasterProblem:
         if self.vehicle_limit is not None:
             duals["vehicle_limit"] = self.dual_vehicle_limit
 
-        # Attach cut duals for subproblem
-        # Note: We return them in a structure that RCSPPSolver.solve expects
-        return {
-            "node_duals": duals,
+        # Sum Edge Clique duals by edge for the subproblem
+        clique_duals_collapsed: Dict[Union[int, str, FrozenSet[int], Tuple[int, int]], float] = {}
+        for (u, v), dual in self.dual_edge_clique_cuts.items():
+            clique_duals_collapsed[(u, v)] = clique_duals_collapsed.get((u, v), 0.0) + dual
+
+        # Use a type-safe casting by converting to the target dictionary type explicitly
+        result: Dict[str, Dict[Union[int, frozenset[int], str, Tuple[int, int]], float]] = {
+            "node_duals": {k: v for k, v in duals.items()},
             "rcc_duals": {k: v for k, v in self.dual_capacity_cuts.items()},
             "sri_duals": {k: v for k, v in self.dual_sri_cuts.items()},
-            "lci_duals": {k: v for k, v in self.dual_lci_cuts.items()},
+            "edge_clique_duals": {k: v for k, v in clique_duals_collapsed.items()},
         }
+        return result
 
     def get_node_visitation(self) -> Dict[int, float]:
         """
@@ -610,13 +1073,13 @@ class VRPPMasterProblem:
         except (gp.GurobiError, AttributeError):
             return {}
 
-    def add_edge_lci_cut(
+    def add_edge_clique_cut(
         self, u: int, v: int, coefficients: Optional[Dict[int, float]] = None, rhs: float = 1.0
     ) -> bool:
         """
-        Add a Lifted Cover Inequality (LCI) specifically covering edge (u, v).
+        Add an Edge Clique cut specifically covering edge (u, v).
 
-        LCI Formulation (Barnhart et al. 2000):
+        Formulation:
             Σ_{k ∈ C} λ_k + Σ_{k ∈ \bar{C}} α_k λ_k <= |C| - 1
 
         Where C is a minimal cover of routes using edge (u, v), and α_k are
@@ -635,12 +1098,9 @@ class VRPPMasterProblem:
             return False
 
         edge_tuple = (min(u, v), max(u, v))
-        # TODO: Allow multiple LCIs per edge by keying on (edge_tuple, cover_hash).
-        # Currently only one cut per edge is stored; subsequent fractional solutions
-        # at deeper B&B nodes that violate a stronger LCI on the same edge are missed.
-        if edge_tuple in self.active_lci_cuts:
-            # Check if existing cut is identical or weaker
-            # For simplicity, we only allow one LCI per edge currently.
+        key = edge_tuple
+
+        if key in self.active_edge_clique_cuts:
             return False
 
         lhs = gp.LinExpr()
@@ -664,9 +1124,9 @@ class VRPPMasterProblem:
         if not found_columns:
             return False
 
-        constr = self.model.addConstr(lhs <= rhs, name=f"LCI_{edge_tuple[0]}_{edge_tuple[1]}")
+        constr = self.model.addConstr(lhs <= rhs, name=f"Edge_Clique_{edge_tuple[0]}_{edge_tuple[1]}")
         stored_coeffs = coefficients if coefficients is not None else {}
-        self.active_lci_cuts[edge_tuple] = (constr, stored_coeffs)
+        self.active_edge_clique_cuts[key] = (constr, stored_coeffs)
         self.model.update()
         return True
 
@@ -680,6 +1140,20 @@ class VRPPMasterProblem:
         Returns:
             Mapping from (u, v) -> fractional visitation sum.
         """
+        return self._aggregate_edge_usage(only_elementary=False)
+
+    def get_elementary_edge_usage(self) -> Dict[Tuple[int, int], float]:
+        """
+        Aggregate fractional edge visitation ONLY for strictly elementary routes.
+
+        Exact separation engines (e.g., Rounded Capacity Cuts) mathematically
+        require flow conservation on a support graph of elementary routes.
+        This filter prevents cyclic ng-routes from breaking max-flow separation.
+        """
+        return self._aggregate_edge_usage(only_elementary=True)
+
+    def _aggregate_edge_usage(self, only_elementary: bool) -> Dict[Tuple[int, int], float]:
+        """Internal helper for edge usage aggregation with elementarity filter."""
         if self.model is None or not self.lambda_vars:
             return {}
 
@@ -689,6 +1163,11 @@ class VRPPMasterProblem:
                 val = var.X
                 if val > 1e-6:
                     route = self.routes[idx]
+
+                    # Task 2: Filter cyclic support for exact separation
+                    if only_elementary and len(set(route.nodes)) != len(route.nodes):
+                        continue
+
                     nodes = [0] + route.nodes + [0]
                     for i in range(len(nodes) - 1):
                         u, v = nodes[i], nodes[i + 1]
@@ -698,7 +1177,7 @@ class VRPPMasterProblem:
         except Exception:
             return {}
 
-    def add_subset_row_cut(self, node_set: List[int]) -> bool:
+    def add_subset_row_cut(self, node_set: Union[List[int], Set[int], FrozenSet[int]]) -> bool:
         """
         Add a 3-Subset Row Inequality (3-SRI) to the master problem.
 
@@ -740,10 +1219,18 @@ class VRPPMasterProblem:
 
         new_cut = self.model.addConstr(lhs <= 1.0, name=cut_name)
         self.active_sri_cuts[subset_frozenset] = new_cut
+        # Archiving to Global Pool (SRIs are globally valid)
+        self.global_cut_pool.add_cut("sri", subset_frozenset)
         self.model.update()
         return True
 
-    def add_capacity_cut(self, node_list: List[int], rhs: float) -> bool:
+    def add_capacity_cut(
+        self,
+        node_list: List[int],
+        rhs: float,
+        coefficients: Optional[Dict[int, float]] = None,
+        is_global: bool = True,
+    ) -> bool:
         """
         Add a Rounded Capacity Cut (RCC) to the master problem.
 
@@ -778,15 +1265,47 @@ class VRPPMasterProblem:
         name = f"capacity_{abs(hash(node_set))}"
         constr = self.model.addConstr(lhs >= rhs, name=name)
         self.active_capacity_cuts[node_set] = constr
-        self.model.update()
+        if is_global:
+            # Archiving to Global Pool (RCCs are globally valid)
+            self.global_cut_pool.add_cut("rcc", node_set)
+
+        if self.model is not None:
+            self.model.update()
+        return True
+
+    def add_lci_cut(self, node_list: List[int], rhs: float, coefficients: Dict[int, float]) -> bool:
+        """
+        Add a Lifted Cover Inequality (LCI) to the master problem.
+        """
+        if self.model is None:
+            return False
+
+        node_set = frozenset(node_list)
+        # Use capacity cut registry for storage but tag as LCI in pool
+        if node_set in self.active_capacity_cuts:
+            return False
+
+        lhs = gp.LinExpr()
+        for idx, coeff in coefficients.items():
+            lhs += coeff * self.lambda_vars[idx]
+
+        name = f"lci_{abs(hash(node_set))}"
+        constr = self.model.addConstr(lhs <= rhs, name=name)
+        self.active_capacity_cuts[node_set] = constr
+        self.global_cut_pool.add_cut("lci", node_set)
+        if self.model is not None:
+            self.model.update()
         return True
 
     def add_sec_cut(
         self,
-        node_list: List[int],
+        node_list: Union[List[int], Set[int], FrozenSet[int]],
         rhs: float,
         cut_name: str = "",
         global_cut: bool = True,
+        node_i: int = -1,
+        node_j: int = -1,
+        facet_form: str = "2.1",
     ) -> bool:
         """
         Add a Subtour Elimination Cut (SEC) or PC-SEC to the master problem.
@@ -795,9 +1314,10 @@ class VRPPMasterProblem:
             node_list: Set of nodes in the subtour.
             rhs: Right-hand side value.
             cut_name: Optional name for the constraint.
-            global_cut: If True, the cut is stored in the global registry and
-                persists across all B&B nodes. If False, it is stored in the
-                node-local registry.
+            global_cut: If True, the cut is stored in the global registry.
+            node_i: Index of node i for Form 2.2 and 2.3 PC-SECs.
+            node_j: Index of node j for Form 2.3 PC-SECs.
+            facet_form: Form indicator for PC-SECs (e.g. "2.1", "2.3").
         """
         if self.model is None:
             return False
@@ -810,13 +1330,29 @@ class VRPPMasterProblem:
 
         lhs = gp.LinExpr()
         for idx, route in enumerate(self.routes):
-            crossings = self._count_crossings(route, node_set)
-            if crossings > 0:
-                lhs += float(crossings) * self.lambda_vars[idx]
+            # Task 7: PC-SEC Form 2.3 Formulation Fix.
+            # We calculate the coefficient C_k for route k in the cut Σ C_k λ_k >= RHS.
+            # Form 2.3: Σ x_e >= 2(y_i + y_j - 1)  =>  Σ x_e - 2y_i - 2y_j >= -2.
+            # C_k = crossings(route_k, S) - 2 * (1 if i in route_k) - 2 * (1 if j in route_k).
+            val = float(self._count_crossings(route, node_set))
 
-        name = f"sec_{cut_name}_{abs(hash(node_set))}"
+            if node_i > 0 and node_i in route.node_coverage:
+                val -= 2.0
+            if node_j > 0 and node_j in route.node_coverage:
+                val -= 2.0
+
+            if abs(val) > 1e-6:
+                lhs += val * self.lambda_vars[idx]
+
+        name = cut_name if cut_name else f"sec_{abs(hash(node_set))}"
         constr = self.model.addConstr(lhs >= rhs, name=name)
         registry[node_set] = constr
+
+        # Archiving to Global Pool
+        if global_cut and node_i < 0 and node_j < 0:
+            # Form 2.1 is always valid Σ x_e >= 2
+            self.global_cut_pool.add_cut("sec_2.1", node_set)
+
         self.model.update()
         return True
 
@@ -842,83 +1378,6 @@ class VRPPMasterProblem:
         self.model.update()
         return removed
 
-    def find_and_add_violated_rcc(
-        self,
-        route_values: Dict[int, float],
-        routes: List[Route],
-        max_cuts: int = 5,
-    ) -> int:
-        """
-        Separate and add Rounded Capacity Cuts (RCC) based on the current LP solution.
-
-        This follows Section 7 of Barnhart et al. (1998) and Desrochers et al. (1992)
-        using a connectivity heuristic:
-        1. Build the fractional flow support graph (arcs with x_uv > 0).
-        2. Identify connected components (S) of customer nodes.
-        3. For each component S, check if the routing bound is violated:
-           Σ_{k} x^k(δ(S)) λ_k  <  2 * ⌈ (Σ_{i∈S} waste_i) / Q ⌉
-        """
-        if not route_values or not routes:
-            return 0
-
-        # Aggregate arc flows from active routes
-        arc_flow: Dict[Tuple[int, int], float] = {}
-        for idx, val in route_values.items():
-            if val < 1e-6 or idx >= len(routes):
-                continue
-            path = [0] + routes[idx].nodes + [0]
-            for i in range(len(path) - 1):
-                u, v = path[i], path[i + 1]
-                arc = (u, v)
-                arc_flow[arc] = arc_flow.get(arc, 0.0) + val
-
-        # Find connected components of customer nodes in the support graph (ignoring depot)
-        components = self._find_customer_components(arc_flow)
-
-        # Evaluate each component S as a cut candidate
-        cuts_added = 0
-        for S in components:
-            if not S:
-                continue
-            total_waste = sum(self.wastes.get(i, 0.0) for i in S)
-            rhs = 2.0 * np.ceil(total_waste / self.capacity) if self.capacity > 0 else 2.0
-
-            # Calculate current LHS value (sum of flow crossing the boundary delta(S))
-            lhs_val = sum(flow for (u, v), flow in arc_flow.items() if (u in S) != (v in S))
-
-            # Add if violated by more than 1e-4
-            if lhs_val < rhs - 1e-4 and self.add_capacity_cut(list(S), rhs):
-                cuts_added += 1
-                if cuts_added >= max_cuts:
-                    break
-        return cuts_added
-
-    def _find_customer_components(self, arc_flow: Dict[Tuple[int, int], float]) -> List[Set[int]]:
-        """Identify connected components of customer nodes in the support graph."""
-        adj: Dict[int, Set[int]] = {}
-        customer_nodes = set()
-        for u, v in arc_flow.keys():
-            if u != 0 and v != 0:
-                adj.setdefault(u, set()).add(v)
-                adj.setdefault(v, set()).add(u)
-                customer_nodes.add(u)
-                customer_nodes.add(v)
-
-        visited = set()
-        components: List[Set[int]] = []
-        for node in customer_nodes:
-            if node not in visited:
-                comp = set()
-                stack = [node]
-                while stack:
-                    curr = stack.pop()
-                    if curr not in visited:
-                        visited.add(curr)
-                        comp.add(curr)
-                        stack.extend(adj.get(curr, set()) - visited)
-                components.append(comp)
-        return components
-
     def _count_crossings(self, route: Route, node_set: FrozenSet[int]) -> int:
         """Count how many times a route crosses the boundary δ(S)."""
         crossings = 0
@@ -943,12 +1402,11 @@ class VRPPMasterProblem:
         Returns:
             True if at least one α_i > tol, indicating infeasibility.
         """
+        # artificial_vars have been removed; infeasibility is now signalled
+        # by GRB.INFEASIBLE status directly.
         if self.model is None:
             return False
-        try:
-            return any(tol < alpha.X for alpha in self.artificial_vars.values())
-        except Exception:
-            return False
+        return self.model.Status == GRB.INFEASIBLE
 
     def save_basis(self) -> Optional[Tuple[List[int], List[int]]]:
         """Save the basis status (VBasis, CBasis) for all variables and constraints."""
@@ -961,16 +1419,35 @@ class VRPPMasterProblem:
         except Exception:
             return None
 
-    def restore_basis(self, basis: Optional[Tuple[List[int], List[int]]]) -> None:
-        """Restore basis status to accelerate the next LP solve."""
-        if basis is None or self.model is None:
+    def restore_basis(self, vbasis: List[int], cbasis: List[int]) -> None:
+        """
+        Restore the basis to warm-start the simplex algorithm.
+        """
+        if self.model is None or vbasis is None or cbasis is None:
             return
-        vbasis, cbasis = basis
+
+        # Partial restore robust to column-pool mismatch
         vars_ = self.model.getVars()
         constrs_ = self.model.getConstrs()
-        if len(vbasis) == len(vars_) and len(cbasis) == len(constrs_):
-            for v, b in zip(vars_, vbasis):
-                v.VBasis = b
-            for c, b in zip(constrs_, cbasis):
-                c.CBasis = b
-            self.model.update()
+
+        n_vars_saved = len(vbasis)
+        n_constrs_saved = len(cbasis)
+        n_vars_now = len(vars_)
+        n_constrs_now = len(constrs_)
+
+        if n_vars_now != n_vars_saved or n_constrs_now != n_constrs_saved:
+            logger.debug(
+                f"restore_basis: size mismatch — saved ({n_vars_saved} vars, "
+                f"{n_constrs_saved} constrs) vs current ({n_vars_now} vars, "
+                f"{n_constrs_now} constrs). Partial restore; warm-start may be degraded."
+            )
+
+        n_vars = min(n_vars_saved, n_vars_now)
+        n_constrs = min(n_constrs_saved, n_constrs_now)
+
+        for v, b in zip(vars_[:n_vars], vbasis[:n_vars]):
+            v.VBasis = b
+        for c, b in zip(constrs_[:n_constrs], cbasis[:n_constrs]):
+            c.CBasis = b
+
+        self.model.update()

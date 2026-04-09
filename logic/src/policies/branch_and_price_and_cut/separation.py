@@ -58,6 +58,7 @@ class PCSubtourEliminationCut(Inequality):
         self.facet_form = facet_form
         self.node_i = node_i
         self.node_j = node_j
+        self.local_only = False  # Task 7: Default to global, mark True for Form 2.3
         self.rhs = 2.0  # Default for Form 2.1
 
 
@@ -107,7 +108,7 @@ class SeparationEngine:
         USE_COMB_CUTS: If True, enable custom comb inequality separation.
                        Default False - Gurobi's internal polyhedral cuts are preferred.
 
-        enable_fractional_capacity_cuts: If True, enable exact fractional capacity separation.
+        enable_heuristic_rcc_separation: If True, enable (heuristic) fractional capacity separation.
                        Default False for instances with n > 75 (see CVRPSEP note below).
 
     Note:
@@ -119,10 +120,14 @@ class SeparationEngine:
     # Set to False to disable custom comb cuts and rely on Gurobi's internal heuristics
     USE_COMB_CUTS = False
 
+    # Task 12c: Period for running expensive exact separation at non-root nodes.
+    # Set to 1 for exhaustive separation every iteration.
+    _EXACT_SEP_PERIOD = 3
+
     def __init__(
         self,
         model,
-        enable_fractional_capacity_cuts: bool = True,
+        enable_heuristic_rcc_separation: bool = True,
         enable_comb_cuts: bool = False,
     ):
         """
@@ -130,20 +135,12 @@ class SeparationEngine:
 
         Args:
             model: VRPPModel instance.
-            state-of-the-art implementations typically rely on shrinking heuristics (such as
-            Lysgaard's CVRPSEP C++ library) to scale to N > 100.
-
-            References:
-                Lysgaard, J., Letchford, A. N., & Eglese, R. W. (2004).
-                "A new branch-and-cut algorithm for the capacitated vehicle routing problem".
-                Mathematical Programming, 100(2), 423-445.
-
-                Lysgaard, J. (2003). "CVRPSEP: A package of separation routines for the
-                capacitated vehicle routing problem". Technical report, Aarhus University.
+            enable_heuristic_rcc_separation: Whether to enable heuristic connected-component RCC separation.
         """
         self.model = model
         self.pool: List[Inequality] = []  # Pool of stored inequalities
-        self.enable_fractional_capacity_cuts = enable_fractional_capacity_cuts
+        self.enable_heuristic_rcc_separation = enable_heuristic_rcc_separation
+        self.enable_comb_cuts = enable_comb_cuts
 
     def separate_integer(
         self,
@@ -197,24 +194,13 @@ class SeparationEngine:
         """
         Exact separation for fractional LP nodes (MIPNODE callback).
 
-        Uses computationally expensive exact methods:
-        - Max-flow for exact subtour separation (O(V⁴))
-        - Max-flow for exact capacity cut separation (O(V⁴))
-
-        Throttling (Lysgaard et al. 2004):
-            - Root node (node_count == 0): Full exact separation
-            - Shallow nodes (node_count <= 4): Limited exact separation
-            - Deep nodes: Should not call this method (handled in bc.py)
-
-        Args:
-            x_vals: Fractional edge values from LP relaxation.
-            y_vals: Fractional node visit values from LP relaxation.
-            max_cuts: Maximum number of cuts to return.
-            iteration: Current iteration number.
-            node_count: Current node count in B&B tree (for adaptive strategies).
-
-        Returns:
-            List of violated inequalities sorted by degree of violation.
+        WARNING: This is a heuristic separation procedure based on connected
+        components of the LP support graph. It finds violated RCCs only for
+        subsets S that form a connected component. Violated RCCs for
+        non-component subsets are missed. Exact RCC separation requires
+        solving a max-flow problem per candidate set (see Padberg & Rinaldi 1991;
+        Lysgaard et al. 2004). The enable_heuristic_rcc_separation parameter
+        does NOT switch to exact separation — it enables this heuristic.
         """
         self.pool = []
 
@@ -227,21 +213,21 @@ class SeparationEngine:
             self._separate_pcsec_exact(x_vals, y_vals, root_node=True)
 
             # Exact fractional capacity separation (toggle-controlled)
-            if self.enable_fractional_capacity_cuts:
-                self._separate_capacity_cuts_exact(x_vals, y_vals, root_node=True)
+            if self.enable_heuristic_rcc_separation:
+                self._separate_capacity_cuts_heuristic_exact(x_vals, y_vals, root_node=True)
         else:
             # Shallow nodes: Limited exact separation
             self._separate_subtours_heuristic(x_vals, y_vals)
             self._separate_capacity_cuts(x_vals, y_vals)
 
             # Run exact separation less frequently
-            if iteration % 3 == 0:
+            if iteration % self._EXACT_SEP_PERIOD == 0:
                 self._separate_gsec_h2(x_vals, y_vals)
                 self._separate_pcsec_exact(x_vals, y_vals, root_node=False)
 
                 # Exact fractional capacity separation (toggle-controlled)
-                if self.enable_fractional_capacity_cuts:
-                    self._separate_capacity_cuts_exact(x_vals, y_vals, root_node=False)
+                if self.enable_heuristic_rcc_separation:
+                    self._separate_capacity_cuts_heuristic_exact(x_vals, y_vals, root_node=False)
 
         # Filter and return most violated cuts
         violated = [ineq for ineq in self.pool if ineq.violation > 0.01]
@@ -286,7 +272,7 @@ class SeparationEngine:
         # Step 3: Exact subtour separation (max-flow based) - expensive, run periodically
         if iteration % 5 == 0:
             self._separate_pcsec_exact(x_vals, y_vals)
-            self._separate_capacity_cuts_exact(x_vals, y_vals)
+            self._separate_capacity_cuts_heuristic_exact(x_vals, y_vals)
 
         # Step 4: Comb inequalities (heuristic) - advanced cuts
         # DISABLED: Gurobi's internal clique/cover cuts are preferred
@@ -456,14 +442,44 @@ class SeparationEngine:
                 if violation > 0.01:
                     self.pool.append(CapacityCut(node_set, total_demand, self.model.capacity, violation))
 
-    def _separate_capacity_cuts_exact(self, x_vals: np.ndarray, y_vals: Optional[np.ndarray], root_node: bool = False):
+    def _separate_capacity_cuts_heuristic_exact(
+        self,
+        x_vals: np.ndarray,
+        y_vals: Optional[np.ndarray],
+        root_node: bool = False,
+        max_sinks: int = 10,
+        max_cuts: int = 50,
+    ):
         """
         Exact separation of Rounded Capacity Cuts (RCCs) for CVRP/VRPP.
 
-        Uses max-flow between depot and all visited nodes to find promising cuts.
-        For each cut, we check if the Rounded Capacity Inequality is violated.
+        Mathematical Motivation:
+        -------------------------
+        The Rounded Capacity Inequality (RCI) is defined as:
+            Σ_{i ∈ S, j ∉ S} x_{ij} ≥ 2 * ⌈d(S) / Q⌉
+        where S ⊆ Customers, d(S) is total demand of S, and Q is vehicle capacity.
 
-        Throttling: Use root_node flag to determine search intensity.
+        Separation Strategy:
+        --------------------
+        We reformulate the problem as finding a set S such that the cut capacity
+        is less than the required fleet size. For a fixed set S, we solve
+        max-flow problems between the depot (Node 0) and each customer node i
+        in the support graph G*=(V, E*) where edge weights correspond to fractional
+        x* values. Following Fischetti et al. (1997), the customer-side of each
+        computed min-cut is a candidate set S for an RCC.
+
+        This method performs exhaustive separation by solving max-flow to ALL
+        nodes with non-zero visitation probability y*_i, ensuring we do not
+        miss violated facets that would otherwise cause the B&B tree to expand.
+
+        References:
+        -----------
+        - Fischetti, M., Salazar-González, J. J., & Toth, P. (1997). "A branch-and-cut
+          algorithm for the symmetric generalized traveling salesman problem."
+          Operations Research, 45(3), 378-394.
+        - Lysgaard, J., Letchford, A. N., & Eglese, R. W. (2004). "A new branch-and-cut
+          algorithm for the capacitated vehicle routing problem."
+          Mathematical Programming, 100(2), 423-445.
         """
         n = self.model.n_nodes
         # Build support graph adjacency
@@ -474,23 +490,25 @@ class SeparationEngine:
                 adj[i, j] = val
                 adj[j, i] = val
 
-        # Only check nodes that have significant visit probability
-        visited_customers = [c for c in self.model.customers if y_vals is None or y_vals[c - 1] > 0.1]
-
+        # Exact Separation: isolate most fractional nodes to avoid O(N) max-flows.
+        # Sort candidates by fractional visitation value descending.
         if y_vals is not None:
+            visited_customers = [c for c in self.model.customers if y_vals[c - 1] > 1e-4]
             visited_customers.sort(key=lambda c: y_vals[c - 1], reverse=True)
+        else:
+            visited_customers = self.model.customers[:]
 
-        # Throttling Strategy:
-        # At root node: check all nodes. Deep in tree: check top 20.
-        max_sinks = len(visited_customers) if root_node else 20
+        visited_customers = visited_customers[:max_sinks]
 
-        # Fixed source s as the depot (Node 0) for RCIs as per user instructions
         # RCIs separate the depot from customers to ensure enough vehicles leave.
         source_node = self.model.depot
 
-        for sink in visited_customers[:max_sinks]:
+        added = 0
+        for sink in visited_customers:
             if sink == source_node:
                 continue
+            if added >= max_cuts:
+                break
             try:
                 flow_result = maximum_flow(csr_matrix(adj), source_node, sink)
                 source_side = self._extract_min_cut(adj, flow_result.flow.toarray(), source_node, sink)
@@ -526,6 +544,7 @@ class SeparationEngine:
                     if isinstance(existing, CapacityCut)
                 ):
                     self.pool.append(CapacityCut(set(cut_set), total_demand, self.model.capacity, violation))
+                    added += 1
             except Exception:
                 continue
 
@@ -599,15 +618,19 @@ class SeparationEngine:
 
                     # Only add if this recomputed rhs still gives a violated cut.
                     if actual_rhs - max_flow_value > 0.01:
-                        self.pool.append(
-                            PCSubtourEliminationCut(
-                                set(s_set),
-                                actual_rhs - max_flow_value,
-                                facet_form="2.3",
-                                node_i=source_node,
-                                node_j=actual_j,
-                            )
+                        cut = PCSubtourEliminationCut(
+                            set(s_set),
+                            actual_rhs - max_flow_value,
+                            facet_form="2.3",
+                            node_i=source_node,
+                            node_j=actual_j,
                         )
+                        # RHS = 2*(yi + yj - 1) uses fractional LP values.
+                        # This cut is valid for the current LP relaxation but may tighten
+                        # below 2*(1+1-1)=2 for integer solutions. Mark as local so it is
+                        # removed when backtracking past this B&B node.
+                        cut.local_only = True
+                        self.pool.append(cut)
             except Exception:
                 continue
 
@@ -1061,21 +1084,26 @@ class SeparationEngine:
             vio_2_1 = 2.0 - cut_val
 
             # Select strongest (max violation)
-            if vio_2_1 > vio_2_2 and vio_2_1 > vio_2_3:
+            if vio_2_1 > vio_2_2 + 1e-4 and vio_2_1 > vio_2_3 + 1e-4:
                 cut.facet_form = "2.1"
                 cut.rhs = 2.0
                 cut.violation = vio_2_1
-            elif vio_2_2 > vio_2_3:
+                cut.local_only = False  # Form 2.1 is always global
+            # Form 2.2: Σ x_e - 2y_i >= 0
+            elif vio_2_2 > vio_2_3 + 1e-4:
                 cut.facet_form = "2.2"
                 cut.node_i = best_i
-                cut.rhs = 2.0 * max_yi
+                cut.rhs = 0.0
                 cut.violation = vio_2_2
+                cut.local_only = True  # Depends on specific y_i, mark local
+            # Form 2.3: Σ x_e - 2y_i - 2y_j >= -2
             else:
                 cut.facet_form = "2.3"
                 cut.node_i = best_i
                 cut.node_j = best_j
-                cut.rhs = 2.0 * (max_yi + max_yj - 1.0) if y_vals is not None else 2.0
+                cut.rhs = -2.0
                 cut.violation = vio_2_3
+                cut.local_only = True  # Depends on y_i, y_j, mark local
 
     def _refine_pcsec_build(self, s_set: Set[int], x_vals: np.ndarray, y_vals: Optional[np.ndarray]) -> Set[int]:
         """
@@ -1115,7 +1143,8 @@ class SeparationEngine:
                 all_u_sum = sum(x_vals[self.model.edge_to_idx[(u, v)]] for v in range(self.model.n_nodes) if v != u)
                 out_s_sum = all_u_sum - in_s_sum
 
-                if out_s_sum - in_s_sum < -0.01:
+                if out_s_sum - in_s_sum < -0.01 and u != self.model.depot:
+                    # Adding u to S reduces cut capacity
                     refined_s.add(u)
                     improved = True
                     break

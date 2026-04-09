@@ -64,13 +64,28 @@ class BPCPolicy(BaseRoutingPolicy):
             - solver_cost: Raw travel distance (km), NOT multiplied by cost_unit.
               Callers needing monetary cost should compute solver_cost * cost_unit.
         """
+        # Return contract for run_bpc:
+        #   routes          — list of customer-node lists (depot excluded)
+        #   objective_value — net profit = Σ(revenue_i) - travel_cost, in monetary units.
+        #                     May be a greedy-fallback value if BPC found no integer solution.
         # Convert local mandatory indices to a set of must-go nodes for the solver
         must_go_indices: Set[int] = set(mandatory_nodes)
 
         # Initialize standardized params object (Phase 1 refactoring)
         params = BPCParams.from_config(values)
 
-        routes, solver_cost = run_bpc(
+        # Extract vehicle limit from simulation context (sim.n_vehicles)
+        n_vehicles = kwargs.get("n_vehicles")
+        # Explicit int conversion and positive check. None and 0 both map to
+        # unlimited fleet. False is rejected at the int() call (TypeError surfaced
+        # to the caller) rather than silently treated as unlimited.
+        vehicle_limit = None if n_vehicles is None else int(n_vehicles) if int(n_vehicles) > 0 else None
+
+        # run_bpc returns (routes, objective_value) where objective_value is
+        # net profit (revenue - travel_cost) in the problem's monetary units.
+        # It is NOT a raw travel cost despite the variable name used in run_bpc's
+        # return signature. Rename immediately to prevent future misreading.
+        routes, objective_value = run_bpc(
             sub_dist_matrix,
             sub_wastes,
             capacity,
@@ -78,19 +93,25 @@ class BPCPolicy(BaseRoutingPolicy):
             cost_unit,
             params,
             must_go_indices=must_go_indices,
+            vehicle_limit=vehicle_limit,
             env=kwargs.get("model_env"),
             node_coords=kwargs.get("node_coords"),
             recorder=kwargs.get("recorder"),
         )
 
-        # The run_bpc solver returns (routes, solver_cost).
-        # In our implementation, solver_cost is actually the net profit (revenue - cost).
-        profit = solver_cost
+        profit = objective_value
 
         # Compute raw travel distance (km)
         raw_distance = 0.0
         for route in routes:
-            path = [0] + route + [0]
+            # Normalize: strip any leading/trailing depot index before wrapping.
+            # Route.nodes stores customer-only sequences, but defensive stripping
+            # guards against representation changes in run_bpc's return value.
+            inner = [n for n in route if n != 0]
+            if not inner:
+                continue
+
+            path = [0] + inner + [0]
             for i in range(len(path) - 1):
                 raw_distance += sub_dist_matrix[path[i]][path[i + 1]]
 
