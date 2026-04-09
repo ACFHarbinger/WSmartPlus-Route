@@ -5,7 +5,7 @@ from typing import Dict, Tuple, Set
 from logic.src.policies.branch_and_price_and_cut.branching import MultiEdgePartitionBranching
 from logic.src.policies.branch_and_price_and_cut.master_problem import VRPPMasterProblem, Route
 from logic.src.policies.branch_and_price_and_cut.rcspp_dp import RCSPPSolver, Label
-from logic.src.policies.branch_and_price_and_cut.cutting_planes import create_cutting_plane_engine, SubsetRowCutEngine, LiftedCoverCutEngine
+from logic.src.policies.branch_and_price_and_cut.cutting_planes import create_cutting_plane_engine, SubsetRowCutEngine, EdgeCoverCutEngine
 from logic.src.policies.branch_and_price_and_cut.separation import SeparationEngine
 from logic.src.policies.branch_and_price_and_cut.vrpp_model import VRPPModel
 
@@ -33,7 +33,7 @@ def test_polar_angle_partitioning():
     route_values = {i: lambdas[i] for i in range(len(lambdas))}
 
     brancher = MultiEdgePartitionBranching()
-    d, set1, set2 = brancher.find_divergence_node(routes, route_values, node_coords=node_coords)
+    d, set1, set2, strength = brancher.find_divergence_node(routes, route_values, node_coords=node_coords)
 
     assert d == 0
     # Arcs sorted by angle: (0, 1) [0.78], (0, 3) [1.57], (0, 2) [2.35]
@@ -57,9 +57,9 @@ def test_sri_dual_penalties():
         cost_per_km=1.0
     )
 
-    # SRI on subset {1, 2, 3} with dual = 10.0
+    # SRI on subset {1, 2, 3} with dual = 5.0
     sri_subset = frozenset({1, 2, 3})
-    sri_duals = {sri_subset: 10.0}
+    sri_duals = {sri_subset: 5.0}
 
     composite_duals = {
         "node_duals": {1: 0.0, 2: 0.0, 3: 0.0},
@@ -69,8 +69,8 @@ def test_sri_dual_penalties():
     routes = solver.solve(dual_values=composite_duals)
 
     route_rcs = {tuple(r.nodes): r.reduced_cost for r in routes}
-    # Route [1, 2]: revenue 20, penalty 10 -> RC = 10.
-    assert route_rcs.get((1, 2)) == 10.0
+    # Route [1, 2]: revenue 20, penalty 5 -> RC = 15.
+    assert route_rcs.get((1, 2)) == 15.0
     # Route [1]: revenue 10, penalty 0 -> RC = 10.
     assert route_rcs.get((1,)) == 10.0
 
@@ -82,15 +82,15 @@ def test_cutting_plane_engine_composition():
     # create_cutting_plane_engine(engine_name, v_model, sep_engine)
     engine = create_cutting_plane_engine("all", mock_model, mock_sep)
     assert any(isinstance(e, SubsetRowCutEngine) for e in engine.engines)
-    assert any(isinstance(e, LiftedCoverCutEngine) for e in engine.engines)
+    assert any(isinstance(e, EdgeCoverCutEngine) for e in engine.engines)
 
 
-def test_lci_dual_penalties():
+def test_edge_clique_dual_penalties():
     """
     Test that LCI dual penalties are correctly applied to the step objective.
     """
     # 1. Setup pricer with a dummy environment
-    from logic.src.policies.branch_and_price.rcspp_dp import RCSPPSolver
+    from logic.src.policies.branch_and_price_and_cut.rcspp_dp import RCSPPSolver
 
     pricer = RCSPPSolver(
         n_nodes=2,
@@ -101,12 +101,14 @@ def test_lci_dual_penalties():
         cost_per_km=1.0,
     )
 
-    # 2. Define node duals and an LCI penalty on edge (1,2)
-    node_duals = {1: 2.0, 2: 2.0}
-    lci_cut_duals = {(1, 2): 5.0}
-
+    # 2. Add an Edge Clique dual for edge (1, 2)
+    # The solver expects "edge_clique_duals": {(1, 2): dual_value}
+    dual_values = {
+        "node_duals": {1: 0.0, 2: 0.0},
+        "edge_clique_duals": {(1, 2): 5.0}  # dual = 5.0
+    }
     # 3. Extend label from node 1 to node 2
-    from logic.src.policies.branch_and_price.rcspp_dp import Label
+    from logic.src.policies.branch_and_price_and_cut.rcspp_dp import Label
 
     l1 = Label(
         reduced_cost=10.0,  # Arbitrary starting RC
@@ -118,17 +120,17 @@ def test_lci_dual_penalties():
         visited={1},
     )
 
-    # Note: solve() must be called to initialize self.lci_cut_duals
-    pricer.solve(dual_values={"node_duals": node_duals, "lci_duals": lci_cut_duals})
+    # Note: solve() must be called to initialize self.edge_clique_cut_duals (formerly lci)
+    pricer.solve(dual_values=dual_values)
 
     l2 = pricer._extend_label(l1, 2, rf_together=set())
 
     # 4. Verify step_obj
     # revenue(2) = 10*R(1.0) = 10
     # edge_cost(1,2) = 1*C(1.0) = 1
-    # node_dual(2) = 2
-    # lci_penalty(1,2) = 5
-    # step_obj = 10 - 1 - 2 - 5 = 2
-    # new_rc = 10 + 2 = 12
+    # node_dual(2) = 0
+    # edge_clique_penalty(1,2) = 5
+    # step_obj = 10 - 1 - 0 - 5 = 4
+    # new_rc = 10 + 4 = 14
     assert l2 is not None
-    assert l2.reduced_cost == 12.0
+    assert l2.reduced_cost == 14.0

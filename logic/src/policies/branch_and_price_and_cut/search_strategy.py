@@ -16,10 +16,18 @@ References:
       (Discusses various node selection strategies and their impact)
 """
 
+import logging
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import TYPE_CHECKING, Any, List, Optional
 
-from .branching import BranchNode
+if TYPE_CHECKING:
+    from logic.src.policies.branch_and_price_and_cut.branching import BranchAndBoundTree, BranchNode
+else:
+    # Use Any for runtime or environments where TYPE_CHECKING is False
+    BranchAndBoundTree = Any
+    BranchNode = Any
+
+logger = logging.getLogger(__name__)
 
 
 class NodeSelectionStrategy(ABC):
@@ -154,29 +162,88 @@ class DepthFirstSearch(NodeSelectionStrategy):
         return "depth_first"
 
 
-def create_search_strategy(strategy_name: str) -> NodeSelectionStrategy:
+class HybridSearchStrategy(NodeSelectionStrategy):
+    """
+    Hybrid Dive-and-Best-Bound (D&BB) strategy.
+
+    Logic:
+    1. If no integer incumbent exists (best_integer_solution is None):
+       Behaves like DFS (LIFO). Rapidly dives to find a feasible solution.
+    2. Once an incumbent exists:
+       Behaves like BestFS (Best-Bound). Systematic closure of the gap.
+
+    This strategy combines the speed of DFS in finding feasible solutions with
+    the mathematical efficiency of BestFS in proving optimality.
+
+    NOTE ON PERFORMANCE:
+    Hybrid search is less efficient than pure DFS for resolving child LPs
+    because the Best-Bound phase frequently jumps between branches, forcing
+    frequent Basis invalidation and re-solving from scratch. It also occupies
+    more memory than DFS as Basis information must be stored for all open
+    nodes to maintain any hope of warm-starting.
+    """
+
+    def __init__(self, bb_tree: "BranchAndBoundTree"):
+        """
+        Store reference to tree state to monitor incumbents.
+
+        Args:
+            bb_tree: The B&B tree structure.
+        """
+        self.bb_tree = bb_tree
+
+    def select_node(self, open_nodes: List[BranchNode]) -> Optional[BranchNode]:
+        """
+        Select node based on search phase.
+
+        Args:
+            open_nodes: List of unexplored branch nodes.
+
+        Returns:
+            Selected node.
+        """
+        if not open_nodes:
+            return None
+
+        # Dive Phase: DFS (LIFO)
+        if self.bb_tree.best_integer_solution is None:
+            return open_nodes.pop()
+
+        # Bound Phase: Best-First Search (O(n) scan)
+        def get_best_first_key(i: int) -> float:
+            bound = open_nodes[i].lp_bound
+            return bound if bound is not None else float("-inf")
+
+        best_idx = max(range(len(open_nodes)), key=get_best_first_key)
+        return open_nodes.pop(best_idx)
+
+    def get_name(self) -> str:
+        return "hybrid"
+
+
+def create_search_strategy(strategy_name: str, bb_tree: Optional["Any"] = None) -> NodeSelectionStrategy:
     """
     Factory function to create node selection strategies.
 
     Args:
-        strategy_name: Name of the strategy ("best_first" or "depth_first")
+        strategy_name: Name of the strategy ("best_first", "depth_first", "hybrid")
+        bb_tree: Optional reference to the tree for hybrid strategy.
 
     Returns:
         Instance of the requested strategy
 
     Raises:
         ValueError: If strategy_name is not recognized
-
-    Example:
-        >>> strategy = create_search_strategy("best_first")
-        >>> next_node = strategy.select_node(open_nodes)
     """
-    strategies = {
-        "best_first": BestFirstSearch,
-        "depth_first": DepthFirstSearch,
-    }
-
-    if strategy_name not in strategies:
-        raise ValueError(f"Unknown search strategy '{strategy_name}'. Valid options are: {list(strategies.keys())}")
-
-    return strategies[strategy_name]()
+    if strategy_name == "best_first":
+        return BestFirstSearch()
+    elif strategy_name == "depth_first":
+        return DepthFirstSearch()
+    elif strategy_name == "hybrid":
+        if bb_tree is None:
+            raise ValueError("Hybrid search strategy requires a BranchAndBoundTree reference.")
+        return HybridSearchStrategy(bb_tree)
+    else:
+        raise ValueError(
+            f"Unknown search strategy '{strategy_name}'. Valid options are: ['best_first', 'depth_first', 'hybrid']"
+        )
