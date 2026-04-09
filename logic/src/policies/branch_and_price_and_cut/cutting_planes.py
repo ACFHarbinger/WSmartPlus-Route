@@ -45,7 +45,13 @@ class CuttingPlaneEngine(ABC):
 
     Each engine implements a specific family of valid inequalities and
     provides separation algorithms to identify violated cuts.
+
+    Implementations must only add globally valid inequalities. Cuts that
+    are valid only at the current B&B node (e.g. cuts that use branching
+    constraint data as parameters) must not be registered in the global
+    cut pool.
     """
+
 
     @abstractmethod
     def separate_and_add_cuts(self, master: VRPPMasterProblem, max_cuts: int, **kwargs) -> int:
@@ -281,24 +287,44 @@ class SubsetRowCutEngine(CuttingPlaneEngine):
         for node_fset in candidate_subsets:
             if added >= max_cuts:
                 break
-            if self._evaluate_and_add_sri(master, set(node_fset)):
+            if self._evaluate_and_add_sri(master, set(node_fset), **kwargs):
                 added += 1
 
         return added
 
-    def _evaluate_and_add_sri(self, master: VRPPMasterProblem, node_set: Set[int]) -> bool:
-        """Calculate SRI violation and add to master if violated."""
+    def _evaluate_and_add_sri(self, master: VRPPMasterProblem, node_set: Set[int], **kwargs) -> bool:
+        """
+        Calculate SRI violation and add to master if violated.
+
+        Task 9 (SOTA): Cut Similarity Filtering.
+        Evaluates the violation and similarity of the proposed SRI to the
+        active cut pool. Rejects if similarity > threshold.
+        """
+        threshold = kwargs.get("cut_orthogonality_threshold", 0.8)
         val = 0.0
+        # Build the coefficient vector for orthogonality testing
+        coeff_vec = np.zeros(len(master.routes))
+
         for idx, route in enumerate(master.routes):
-            lam = master.lambda_vars[idx].X
+            try:
+                lam = master.lambda_vars[idx].X
+            except Exception:
+                continue
+
             if lam < 1e-6:
                 continue
             count = len(node_set.intersection(route.node_coverage))
             coeff = count // 2
             if coeff > 0:
+                coeff_vec[idx] = float(coeff)
                 val += float(coeff) * lam
 
         if val > 1.0 + 1e-4:
+            # Task 9: Check similarity with existing SRI vectors in the Cut Pool
+            active_sri_vecs = list(master.global_cut_pool.active_sri_vectors.values())
+            if not self._is_orthogonal(coeff_vec, active_sri_vecs, threshold):
+                return False
+
             return master.add_subset_row_cut(list(node_set))
         return False
 
@@ -317,7 +343,8 @@ class EdgeCliqueCutEngine(CuttingPlaneEngine):
     Note: These are NOT Lifted Cover Inequalities (LCI) in the sense of
     Barnhart, Hane & Vance (2000), which are derived from commodity-flow
     arc-capacity knapsack constraints that do not exist in the VRPP formulation.
-    The 'lci' engine name is therefore intentionally mapped to NotImplementedError.
+    The 'lci' engine name is mapped to FleetCoverCutEngine for backward
+    compatibility; see that class for the analogous fleet-size cover cuts.
 
     Mathematical Theory:
     --------------------
@@ -354,6 +381,10 @@ class EdgeCliqueCutEngine(CuttingPlaneEngine):
         """
         if master.model is None or not master.lambda_vars:
             return 0
+
+        # Edge-clique cuts are globally valid: they depend only on the edge
+        # capacity structure, not on branching decisions. Safe for GlobalCutPool.
+
 
         # 1. Aggregate edge flow: x_e = Σ_{k} w_{ek} λ_k
         route_values = {i: var.X for i, var in enumerate(master.lambda_vars) if var.X > 1e-6}
@@ -513,24 +544,100 @@ class CompositeCuttingPlaneEngine(CuttingPlaneEngine):
         return "composite"
 
 
-class LiftedCoverCutEngine(CuttingPlaneEngine):
-    r"""
-    Separates Lifted Cover Inequalities (LCI) for knapsack constraints.
+class BasicFleetCoverEngine(CuttingPlaneEngine):
+    """
+    Separates basic cover inequalities for the fleet-size knapsack.
 
-    In VRPP, the primary knapsack constraint is the vehicle fleet limit:
-    $\sum_{k \in \Omega} \lambda_k \le K$
+    The fleet-size constraint Σλₖ ≤ K is a 0-1 knapsack where every route
+    has weight 1. A cover C is any subset of routes with |C| > K. The cover
+    inequality Σ_{k∈C} λₖ ≤ K is valid and violated when the top K+1
+    fractional routes sum to more than K.
 
-    A Cover $C \subseteq \Omega$ is a set of routes such that $|C| > K$.
-    The basic cover inequality is: $\sum_{k \in C} \lambda_k \le K$.
+    This engine is a strict uniform knapsack cover. It does not implement
+    true sequence-independent lifting because for a uniform knapsack,
+    all lifting coefficients theoretically collapse to 1.0. 
+    """
 
-    This engine strengthens this by lifting variables outside the cover:
-    $\sum_{k \in C} \lambda_k + \sum_{k \in \Omega \setminus C} \alpha_k \lambda_k \le K$
 
-    References:
-        - Barnhart et al. (2000), "Using branch-and-price-and-cut to solve
-          origin-destination integer multicommodity flow problems."
-          Operations Research, 48(2):318-326.
-        - Balas (1975), "Facets of the knapsack polytope."
+    def __init__(self, v_model: VRPPModel, epsilon: float = 0.01) -> None:
+        self.v_model = v_model
+        self.epsilon = epsilon
+
+    def separate_and_add_cuts(self, master: VRPPMasterProblem, max_cuts: int, **kwargs) -> int:
+        """
+        Separate and add basic fleet cover inequalities.
+
+        Identifies a violated cover C (a set of routes with |C| > K whose
+        fractional values sum to more than K) and adds the basic cover
+        inequality Σ_{k∈C} λ_k ≤ K to the master problem.
+        """
+        if master.vehicle_limit is None or not master.lambda_vars:
+            return 0
+
+        K = float(master.vehicle_limit)
+
+        # 1. Identify fractional routes sorted by λ_k descending.
+        active_routes = []
+        for i, var in enumerate(master.lambda_vars):
+            try:
+                val = var.X
+            except Exception:
+                continue
+            if val > 1e-4:
+                active_routes.append((i, val))
+        active_routes.sort(key=lambda x: x[1], reverse=True)
+
+        if len(active_routes) <= K:
+            return 0
+
+        # 2. Find a minimal cover C: the top K+1 routes by fractional value.
+        cover_indices = [idx for idx, _ in active_routes[: int(K) + 1]]
+        sum_val = sum(master.lambda_vars[i].X for i in cover_indices)
+
+        if sum_val <= K + self.epsilon:
+            return 0  # No violation — cut would not be useful.
+
+        # 3. Basic uniform lifting
+        # Because we have uniform route weights (=1), the exact lifting
+        # coefficients alpha_k simplify back to 1.0 across the board.
+        # We explicitly calculate it just as alpha_k = 1.0.
+        coefficients = {i: 1.0 for i in cover_indices}
+        for i in range(len(master.lambda_vars)):
+            if i not in cover_indices:
+                coefficients[i] = 1.0
+
+        # Represent the cover by its union of visited customer nodes.
+        # add_lci_cut keys by node_set; two covers with the same node union
+        # are treated as equivalent.
+        cover_node_set: List[int] = []
+        seen: set = set()
+        for i in cover_indices:
+            for n in master.routes[i].node_coverage:
+                if n not in seen:
+                    cover_node_set.append(n)
+                    seen.add(n)
+
+        if not cover_node_set:
+            return 0
+
+        added = 0
+        if master.add_lci_cut(cover_node_set, K, coefficients):
+            added += 1
+        return added
+
+    def get_name(self) -> str:
+        return "fleet_cover"
+
+
+class PhysicalCapacityLCIEngine(CuttingPlaneEngine):
+    """
+    Separates Lifted Cover Inequalities (LCI) over the heterogeneous
+    physical capacity knapsack (Σ_{i ∈ S} q_i y_i ≤ Q).
+    
+    Calculates exact sequence-independent lifting coefficients (α_i) based
+    on fractional demands q_i, according to Balas (1975). The node lifting
+    coefficients are then aggregated per route into α_k for the master problem
+    variables λ_k.
     """
 
     def __init__(self, v_model: VRPPModel, epsilon: float = 0.01) -> None:
@@ -538,54 +645,82 @@ class LiftedCoverCutEngine(CuttingPlaneEngine):
         self.epsilon = epsilon
 
     def separate_and_add_cuts(self, master: VRPPMasterProblem, max_cuts: int, **kwargs) -> int:
-        if master.vehicle_limit is None or not master.lambda_vars:
+        if master.model is None or not master.lambda_vars:
             return 0
-
-        K = float(master.vehicle_limit)
-        # 1. Identify Fractional Routes sorted by λ_k descending
-        active_routes = []
-        for i, var in enumerate(master.lambda_vars):
-            if var.X > 1e-4:
-                active_routes.append((i, var.X))
-        active_routes.sort(key=lambda x: x[1], reverse=True)
-
-        if len(active_routes) <= K:
-            return 0
-
-        # 2. Find Minimal Cover C
-        # Since all weights are 1.0, any K+1 routes form a cover.
-        # To maximize violation, pick the top K+1 fractional routes.
-        cover_indices = [idx for idx, _ in active_routes[: int(K) + 1]]
-        sum_val = sum(master.lambda_vars[i].X for i in cover_indices)
-
-        if sum_val <= K + self.epsilon:
-            return 0
-
-        # 3. Apply Sequence-Independent Lifting (Barnhart et al. 2000)
-        # For the knapsack Σ λ_k ≤ K, the lifting coefficient α_k for k ∉ C is:
-        # α_k = 1.0 (since all weights are identical and binary).
-        # This reduces the cut to Σ_{k ∈ Ω} λ_k ≤ K, which is already the
-        # fleet constraint. LCIs are most powerful when routes have different
-        # resource consumptions (e.g. multi-load).
-        # However, for VRPP, we can lift nodes NOT in S if we reformulate
-        # as a subset-visitation knapsack.
-
-        # Implementation Note: Modern BPC solvers (like VRPSolver) prefer
-        # Subset-Row Inequalities for tightening Set Partitioning.
-        # We add the basic cover cut here as a starting point.
+            
+        Q = self.v_model.capacity
+        y_vals = master.get_node_visitation()
+        
+        # Sort customer nodes by visitation y_i descending to find a heuristic cover
+        nodes_sorted = sorted(
+            [i for i in range(1, self.v_model.n_nodes)], 
+            key=lambda i: y_vals.get(i, 0.0), 
+            reverse=True
+        )
+        
         added = 0
-        coefficients = {i: 1.0 for i in cover_indices}
-        if master.add_capacity_cut(list(range(1, self.v_model.n_nodes)), K, coefficients=coefficients):
-            added += 1
-
+        cover = []
+        weight_sum = 0.0
+        
+        for i in nodes_sorted:
+            if y_vals.get(i, 0.0) < 1e-4:
+                continue
+            cover.append(i)
+            weight_sum += self.v_model.wastes[i]
+            if weight_sum > Q:
+                break
+                
+        if weight_sum > Q:
+            cover_y_sum = sum(y_vals.get(i, 0.0) for i in cover)
+            if cover_y_sum > len(cover) - 1 + self.epsilon:
+                # Calculate exact sequence-independent lifting coefficients alpha_j
+                cover_weights = sorted([self.v_model.wastes[i] for i in cover], reverse=True)
+                
+                # prefix sums of cover weights
+                prefix_sums = [0.0] * (len(cover) + 1)
+                for idx, w in enumerate(cover_weights):
+                    prefix_sums[idx+1] = prefix_sums[idx] + w
+                    
+                def compute_lifting_coeff(wj: float) -> float:
+                    # Gu, Nemhauser, Savelsbergh exact LCI mapping logic
+                    for p in range(len(cover), -1, -1):
+                        if wj >= prefix_sums[p]:
+                            return float(p)
+                    return 0.0
+                
+                # node alpha_i
+                alpha_nodes = {}
+                for j in range(1, self.v_model.n_nodes):
+                    if j in cover:
+                        alpha_nodes[j] = 1.0
+                    else:
+                        alpha_nodes[j] = compute_lifting_coeff(self.v_model.wastes[j])
+                        
+                # aggregate to route-level lambda coefficients
+                coefficients = {}
+                active_routes = [idx for idx, var in enumerate(master.lambda_vars) if var.X > 1e-6]
+                
+                for k in active_routes:
+                    route = master.routes[k]
+                    # Alpha for route k is sum of node alphas
+                    alpha_k = sum(alpha_nodes[n] for n in route.node_coverage if n != 0)
+                    if alpha_k > 1e-6:
+                        coefficients[k] = alpha_k
+                        
+                if master.add_lci_cut(cover, float(len(cover) - 1), coefficients):
+                    added += 1
+                    
         return added
 
     def get_name(self) -> str:
-        return "lci"
+        return "physical_lci"
+
 
 
 def create_cutting_plane_engine(
-    engine_name: str, v_model: VRPPModel, sep_engine: Optional[SeparationEngine] = None
+    engine_name: str,
+    v_model: VRPPModel,
+    sep_engine: Optional[SeparationEngine] = None,
 ) -> CuttingPlaneEngine:
     """
     Factory function to create cutting plane engines.
@@ -615,7 +750,12 @@ def create_cutting_plane_engine(
     elif engine_name == "edge_clique":
         return EdgeCliqueCutEngine(v_model)
     elif engine_name == "lci":
-        return LiftedCoverCutEngine(v_model)
+        # "lci" key retained for backward compatibility; engine adds basic covers.
+        return BasicFleetCoverEngine(v_model)
+    elif engine_name == "fleet_cover":
+        return BasicFleetCoverEngine(v_model)
+    elif engine_name == "physical_lci":
+        return PhysicalCapacityLCIEngine(v_model)
     elif engine_name == "cover":
         if sep_engine is None:
             raise ValueError("Cover engine requires sep_engine parameter")
@@ -625,11 +765,16 @@ def create_cutting_plane_engine(
         if sep_engine is not None:
             engines.append(RoundedCapacityCutEngine(v_model, sep_engine))
         engines.append(SubsetRowCutEngine(v_model))  # type: ignore[arg-type]
+        # Edge clique is always added as a spatial base cut
         engines.append(EdgeCliqueCutEngine(v_model))  # type: ignore[arg-type]
-        engines.append(LiftedCoverCutEngine(v_model))  # type: ignore[arg-type]
+        engines.append(BasicFleetCoverEngine(v_model))  # type: ignore[arg-type]
+        engines.append(PhysicalCapacityLCIEngine(v_model))  # type: ignore[arg-type]
         if sep_engine is not None:
             engines.append(KnapsackCoverEngine(v_model, sep_engine))  # type: ignore[arg-type]
-        return CompositeCuttingPlaneEngine(engines)  # type: ignore[arg-type]
+
+        comp = CompositeCuttingPlaneEngine(engines)  # type: ignore[arg-type]
+        return comp
+
     else:
-        valid = ["rcc", "sri", "edge_clique", "lci", "cover", "all"]
+        valid = ["rcc", "sri", "edge_clique", "lci", "fleet_cover", "cover", "all"]
         raise ValueError(f"Unknown cutting plane engine '{engine_name}'. Valid options are: {valid}")

@@ -86,10 +86,11 @@ bpc:
       #   - "sri": Subset-Row Inequalities (Jepsen et al. 2008)
       #     * Standard for 3-node subsets (3-SRI)
       #     * Strengthens the Set Partitioning relaxation
-      #   - "lci": Lifted Cover Inequalities (Balas 1975)
-      #     * For knapsack capacity constraints
+      #   - "fleet_cover": Fleet Cover Inequalities (Barnhart 2000)
+      #     * For knapsack capacity constraints (Σλₖ ≤ K)
       #   - "all": Composite engine
-      #     * Enables all supported cut families (RCC, SRI, LCI)
+      #     * Enables all supported cut families (RCC, SRI, fleet_cover)
+
 
     # ---------------------------------------------------------------------
     # Branching Strategy
@@ -112,6 +113,8 @@ bpc:
     # ---------------------------------------------------------------------
     - max_cg_iterations: 50
       # Maximum iterations for column generation loop per node
+    - max_cut_iterations: 5
+      # Maximum iterations for cutting plane loop per CG iteration
     - max_cuts_per_iteration: 5
       # Maximum number of violated cuts to add per iteration
     - max_routes_per_pricing: 5
@@ -137,12 +140,16 @@ bpc:
     # ---------------------------------------------------------------------
     # Advanced Cutting Plane Strategy
     # ---------------------------------------------------------------------
-    - enable_fractional_capacity_cuts: true
-      # Whether to enable exact separation of fractional capacity cuts
-      # true = Tighter bounds, significantly higher iteration time
+    - enable_heuristic_rcc_separation: true
+      # Whether to enable (heuristic) separation of fractional capacity cuts
+      # true = Tighter bounds via CC-based separation
     - enable_comb_cuts: false
       # Whether to enable heuristic separation of comb inequalities
-      # false = Standard (RCC+LCI only)
+      # false = Standard (RCC+FleetCover only)
+    - cut_orthogonality_threshold: 0.8
+      # Cosine similarity ceiling for cut filtering.
+      # Range: 0.5-0.95 (lower = fewer, more distinct cuts)
+
 
     # ---------------------------------------------------------------------
     # B&B Search & Branching
@@ -150,6 +157,22 @@ bpc:
     - use_spatial_partitioning: false
       # Whether to use spatial partitioning for divergence branching
       # true = Leverages node coordinates for balanced branches (Barnhart 1998)
+    - enable_strong_branching_heuristic: true
+      # Heuristic proxy for looking ahead (returns top pre-sorted candidate).
+      # Full LP-based strong branching is deferred.
+    - enable_column_pool_deduplication: true
+      # Whether to enable column pool deduplication to keep MP size manageable.
+    - enable_hybrid_search: false
+      # Whether to enable hybrid DFS/BFS search.
+    - rc_tolerance: 1e-5
+      # Minimum reduced cost to accept a new column.
+    - exact_mode: false
+      # Whether to enable strict exact management (bypasses dual smoothing).
+      # true = Mandatory exact Lagrangian bounds, slower convergence.
+    - strong_branching_size: 5
+      # Number of top candidates to evaluate via LP lookahead.
+      # Higher = stronger branching decisions, but significantly slower.
+
 
     # ---------------------------------------------------------------------
     # Solver Parameters (Implicit)
