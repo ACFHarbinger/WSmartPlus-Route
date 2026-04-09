@@ -73,7 +73,14 @@ class EdgeBranchingConstraint:
                           (x_{uv} = 1 branch).
                   False → arc (u, v) is FORBIDDEN in all routes
                           (x_{uv} = 0 branch).
+
+    Conflict rule:
+        At most one must_use arc may originate from any node, and at most one
+        must_use arc may terminate at any node. Violations are detected by the
+        column generation loop before the RCSPP solve and cause the B&B node
+        to be marked infeasible.
     """
+
 
     def __init__(self, u: int, v: int, must_use: bool) -> None:
         """
@@ -133,7 +140,6 @@ class RyanFosterBranchingConstraint:
         node_r: int,
         node_s: int,
         together: bool,
-        mandatory_nodes: Optional[Set[int]] = None,
     ) -> None:
         """
         Initialise a Ryan-Foster branching constraint.
@@ -143,15 +149,10 @@ class RyanFosterBranchingConstraint:
             node_s: Second node in the pair.
             together: Whether the two nodes must be co-visited (True) or
                 separated (False).
-            mandatory_nodes: Optional set of mandatory nodes to restrict over-pruning.
         """
         self.node_r = node_r
         self.node_s = node_s
         self.together = together
-        # Store mandatory set so feasibility check can skip optional-only routes.
-        # This prevents 'together' branching from over-pruning routes that only
-        # visit an optional node without its partner.
-        self._mandatory: Set[int] = mandatory_nodes or {node_r, node_s}
 
     # ------------------------------------------------------------------
     # Feasibility check
@@ -171,13 +172,12 @@ class RyanFosterBranchingConstraint:
         s_in = self.node_s in route.node_coverage
 
         if self.together:
-            # Only enforce co-occurrence when the route touches a mandatory node
-            # from the pair; visiting an optional node alone is always valid.
-            r_mandatory = self.node_r in self._mandatory
-            s_mandatory = self.node_s in self._mandatory
-
-            if (r_mandatory or s_mandatory) and (r_in != s_in):
+            # A route that visits either node of the pair must visit both.
+            # We do not restrict routes that visit neither node — those are
+            # always feasible on the together branch.
+            if r_in != s_in:
                 return False
+
         else:
             # The two nodes must never appear in the same route.
             if r_in and s_in:
@@ -365,32 +365,39 @@ class EdgeBranching:
 
 class MultiEdgePartitionBranching:
     r"""
-    Advanced Divergence Branching with Spatial (Polar-Angle) Partitioning.
+    Advanced Divergence Branching with Spatial Fleet Partitioning.
 
     This strategy formalizes the Divergence Branching of Barnhart et al. (1998)
     by utilizing node coordinates to induce a spatially cohesive arc-set
-    partition.
+    partition. Unlike ODIMCF which restricts specific vehicles (commodities),
+    this restricts the entire anonymous fleet, making it polyhedrally stronger.
 
     Mathematical Formulation:
     -------------------------
-    1. Identify a 'divergence node' $d$ where fractional flow $\bar{x}$ splits
-       into multiple outgoing arcs $(d, v_j)$.
-    2. Define a spatial mapping function $f(v) = \text{atan2}(y_v - y_d, x_v - x_d)$
-       which returns the polar angle of node $v$ relative to $d$.
-    3. Sort the set of active outgoing arcs $A_d = \{(d, v) \in E : \bar{x}_{dv} > 0\}$
-       by their destination nodes' polar angles.
-    4. Partition $A_d$ into two subsets $A_1$ and $A_2$ using a median split
-       on the sorted angles.
-    5. Generate two child nodes by imposing constraints:
-       - Left Child: $\sum_{(d, v) \in A_1} x_{dv} \le 0$ (forbidding set A1)
-       - Right Child: $\sum_{(d, v) \in A_2} x_{dv} \le 0$ (forbidding set A2)
+    1. Divergence Node Identification:
+       Identify a 'divergence node' $d$ where the fractional flow $\bar{x}$
+       diverges into multiple outgoing arcs.
+       $A_d^+ = \{(d, v) \in E : 0 < \bar{x}_{dv} < 1\}$
+
+    2. Polar Mapping:
+       Define a spatial mapping function $f(v) = \operatorname{atan2}(y_v - y_d, x_v - x_d)$
+       returning the polar angle of node $v$ relative to $d$.
+
+    3. Spatial Partitioning:
+       Sort $A_d^+$ by destination polar angles and partition into $S_1$ and $S_2$
+       via a median split. This creates two balanced geographic sectors.
+       $\mathcal{L}: \sum_{(d,v) \in S_1} x_{dv} = 0 \quad \text{and} \quad \mathcal{R}: \sum_{(d,v) \in S_2} x_{dv} = 0$
+
+    4. Candidate Scoring (SVRPC):
+       Candidates are ranked by the Spatial Variable Routing Persistence (SVRP) 
+       strength, calculated as the fractional flow persistence across the split:
+       $\sigma(d) = \sum_{(d,v) \in S_1} \bar{x}_{dv}$
 
     Theoretical Rationale:
     ----------------------
-    Unlike arbitrary arc splitting, spatial partitioning separates the routing
-    topology into geographic sectors. This is polyhedrally significant for
-    VRP variants as it tends to isolate independent sub-problems, leading to
-    more balanced and computationally efficient Branch-and-Bound trees.
+    Spatial fleet partitioning separates the routing topology into convex 
+    geographic polygons. By forbidding arc sets rather than single edges, 
+    it globally restricts the anonymous fleet, enforcing a strong bound.
     """
 
     @staticmethod
@@ -452,12 +459,12 @@ class MultiEdgePartitionBranching:
         arc_set_2: Set[Tuple[int, int]] = {a2}
 
         # 6. Partition remaining outgoing arcs based on polar angle relative to d
-        remaining_arcs = sorted(list(all_possible_outgoing - {a1, a2}))
+        sorted_arcs = sorted(list(all_possible_outgoing - {a1, a2}))
         if node_coords is not None:
             # Type-agnostic check for coordinate presence
-            has_d = (isinstance(node_coords, dict) and d in node_coords) or (
-                isinstance(node_coords, np.ndarray) and d < len(node_coords)
-            )
+            has_d = (
+                isinstance(node_coords, dict) and d in node_coords
+            ) or (isinstance(node_coords, np.ndarray) and d < len(node_coords))
 
             if has_d:
                 d_coord = node_coords[d]
@@ -468,30 +475,71 @@ class MultiEdgePartitionBranching:
                     )
                     if not has_v:
                         return 0.0
-                    v_coord = node_coords[v]
+                    v_coord = node_coords[v] # type: ignore[index]
                     return math.atan2(v_coord[1] - d_coord[1], v_coord[0] - d_coord[0])
 
                 # Sort by polar angle
-                remaining_arcs.sort(key=lambda a: get_polar_angle(a[1]))
+                sorted_arcs.sort(key=lambda a: get_polar_angle(a[1]))
 
                 # Split at the median to form two sets
-                mid = len(remaining_arcs) // 2
-                arc_set_1.update(remaining_arcs[:mid])
-                arc_set_2.update(remaining_arcs[mid:])
+                mid = len(sorted_arcs) // 2
+                arc_set_1.update(sorted_arcs[:mid])
+                arc_set_2.update(sorted_arcs[mid:])
             else:
-                # Fallback to naive alternating split if coordinates for d are missing
-                for i, arc in enumerate(remaining_arcs):
-                    if i % 2 == 0:
+                node_coords = None # Fall through to cluster approach
+                
+        if node_coords is None:
+            # Fallback: topological clustering (adjacency in fractional routes)
+            adjacency = {v: set() for _, v in sorted_arcs}
+            for route_obj in routes:
+                rn = [0] + route_obj.nodes + [0]
+                for i in range(len(rn) - 1):
+                    u_n, v_n = rn[i], rn[i + 1]
+                    if u_n in adjacency and v_n in adjacency:
+                        adjacency[u_n].add(v_n)
+                        adjacency[v_n].add(u_n)
+            
+            unvisited = set(adjacency.keys())
+            if unvisited:
+                start_node = next(iter(unvisited))
+                queue = [start_node]
+                cluster = set()
+                limit = len(sorted_arcs) // 2
+                while queue and len(cluster) < limit:
+                    curr = queue.pop(0)
+                    if curr in unvisited:
+                        unvisited.remove(curr)
+                        cluster.add(curr)
+                        for neighbor in adjacency[curr]:
+                            if neighbor in unvisited and neighbor not in queue:
+                                queue.append(neighbor)
+                
+                while len(cluster) < limit and unvisited:
+                    cluster.add(unvisited.pop())
+                    
+                for arc in sorted_arcs:
+                    if arc[1] in cluster:
                         arc_set_1.add(arc)
                     else:
                         arc_set_2.add(arc)
-        else:
-            # Fallback to naive alternating split if coordinates are missing entirely
-            for i, arc in enumerate(remaining_arcs):
-                if i % 2 == 0:
-                    arc_set_1.add(arc)
-                else:
-                    arc_set_2.add(arc)
+
+        # Enforce balance: if the split ratio exceeds 3:1, fall back to a
+        # count-based median split. Build the full sorted arc list (excluding
+        # the two anchor arcs a1/a2) then re-partition it evenly, and add
+        # the anchors back to their designated sides.
+        _total = len(arc_set_1) + len(arc_set_2)
+        if _total >= 2:
+            _larger = max(len(arc_set_1), len(arc_set_2))
+            if _larger / _total > 0.75:  # worse than 3:1
+                # Collect all arcs that are not the two anchors, in a
+                # consistent order (sorted by arc tuple for determinism).
+                _remaining = sorted((a for a in arc_set_1 | arc_set_2 if a != a1 and a != a2))
+                _mid = len(_remaining) // 2
+                arc_set_1 = set(_remaining[:_mid])
+                arc_set_1.add(a1)
+                arc_set_2 = set(_remaining[_mid:])
+                arc_set_2.add(a2)
+
 
         # 6. Check if both halves of the partition are non-empty
         if not arc_set_1 or not arc_set_2:
@@ -640,7 +688,6 @@ class RyanFosterBranching:
         node_r: int,
         node_s: int,
         together_sum: float = 0.5,
-        mandatory_nodes: Optional[Set[int]] = None,
     ) -> Tuple[BranchNode, BranchNode]:
         """
         Create together (left) and separate (right) child nodes.
@@ -650,7 +697,6 @@ class RyanFosterBranching:
             node_r: First node in the pair.
             node_s: Second node in the pair.
             together_sum: Fractional co-occurrence value for tie-breaking.
-            mandatory_nodes: Optional set of mandatory nodes for constraint exactness.
 
         Returns:
             (left_child, right_child)
@@ -660,15 +706,13 @@ class RyanFosterBranching:
         right_hint = hint - (together_sum * 1e-4)
 
         left = BranchNode(
-            constraints=[RyanFosterBranchingConstraint(node_r, node_s, together=True, mandatory_nodes=mandatory_nodes)],
+            constraints=[RyanFosterBranchingConstraint(node_r, node_s, together=True)],
             parent=parent,
             depth=parent.depth + 1,
             lp_bound_hint=hint,
         )
         right = BranchNode(
-            constraints=[
-                RyanFosterBranchingConstraint(node_r, node_s, together=False, mandatory_nodes=mandatory_nodes)
-            ],
+            constraints=[RyanFosterBranchingConstraint(node_r, node_s, together=False)],
             parent=parent,
             depth=parent.depth + 1,
             lp_bound_hint=right_hint,
@@ -926,9 +970,7 @@ class BranchAndBoundTree:
             res_rf = RyanFosterBranching.find_branching_pair(routes, route_values, mandatory_nodes)
             if res_rf is not None:
                 pair, together_sum = res_rf
-                return RyanFosterBranching.create_child_nodes(
-                    node, pair[0], pair[1], together_sum, mandatory_nodes=mandatory_nodes
-                )
+                return RyanFosterBranching.create_child_nodes(node, pair[0], pair[1], together_sum)
 
         # --- Level 4: Simple Edge Branching ---
         res_edge: Optional[Tuple[Tuple[int, int], float]] = EdgeBranching.find_branching_arc(routes, route_values)

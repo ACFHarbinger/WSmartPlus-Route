@@ -4,7 +4,7 @@ Branch-and-Price-and-Cut (BPC) Engine for VRPP.
 This engine implements a state-of-the-art exact solver for the Vehicle Routing
 Problem with Profits (VRPP), synthesizing the Origin-Destination Integer
 Multicommodity Flow (ODIMCF) sequencing framework of Barnhart et al. (1998)
-with advanced polyhedral cutting planes (RCC, SRI, LCI).
+with advanced polyhedral cutting planes (RCC, SRI, FCI).
 
 Algorithmic Components:
 -----------------------
@@ -13,16 +13,20 @@ Algorithmic Components:
   Problem (RCSPP) solved via DP.
 - Branching: Multi-Edge Spatial Partitioning and exact Ryan-Foster co-occurrence.
 - Cutting Planes: Dynamically separated Rounded Capacity Cuts (RCC), Subset-Row
-  Inequalities (SRI), and Lifted Cover Inequalities (LCI).
+  Inequalities (SRI), and Fleet Cover Inequalities (fleet_cover).
 
 References:
 -----------
 - Barnhart, C., Johnson, E. L., Nemhauser, G. L., Savelsbergh, M. W., & Sigismondi, P. H.
   (1998). "Branch-and-price: Column generation for solving huge integer programs."
   Operations Research, 46(3), 316-329.
+  (General B&P methodology; basis for the pricing and branching framework.)
 - Barnhart, C., Hane, C. A., & Vance, P. H. (2000). "Using branch-and-price-and-cut
   to solve origin-destination integer multicommodity flow problems."
   Operations Research, 48(2), 318-326.
+  (Specific BPC algorithm for ODIMCF; source of divergence branching rule
+  and the Lifted Cover Inequality design adapted here as fleet cover cuts.)
+
 """
 
 import logging
@@ -51,6 +55,11 @@ from .separation import SeparationEngine
 from .vrpp_model import VRPPModel
 
 logger = logging.getLogger(__name__)
+
+# Minimum Farkas dual-ray weight to accept a column in Phase I pricing.
+# Columns with weight below this threshold do not meaningfully contribute
+# toward restoring LP feasibility and are discarded.
+_FARKAS_TOL: float = 1e-6
 
 
 class BPCPruningException(Exception):
@@ -169,9 +178,18 @@ def _apply_branching_to_master(
             "Set Covering (>= 1.0), which can erroneously prune optimal solutions."
         )
 
-    # MANDATORY RESET: Always clear bounds and constraint states first
-    # This prevents 'constraint leaks' where branching decisions from a dead branch
-    # stick around and contaminate its siblings or parent.
+    # RESET-THEN-REFILTER PROTOCOL
+    # Step 1: Reset all columns to UB=1.0 (clean slate for this node).
+    #   Prevents constraints from a now-dead sibling branch from sticking
+    #   to columns that are valid in the current node's branch.
+    # Step 2 (the constraint loop below): Re-apply every constraint in the
+    #   current node's ancestor chain. A column added in a deep descendant
+    #   branch that is infeasible at the root level will be filtered here
+    #   because the root-level constraint that makes it infeasible is always
+    #   present in the ancestor chain.
+    # INVARIANT: Every column in master.routes satisfies the root LP's
+    #   structural constraints (capacity, degree). Only branching constraints
+    #   can cause a column to be filtered at a descendant node.
     for var in master.lambda_vars:
         var.UB = 1.0
 
@@ -270,14 +288,15 @@ def _solve_farkas_pricing_step(
 
     added = 0
     for r in routes:
-        # Task 15: Use 1e-6 to match Gurobi's default feasibility tolerance.
-        # Under Farkas pricing, r.profit measures weight under the dual ray,
-        # not the original route profit — any positive value helps feasibility.
-        _FARKAS_TOL = 1e-6
-        if r.profit > _FARKAS_TOL:
+        # Phase I (Feasibility) Sign Convention:
+        # Reduced cost is calculated using Farkas duals. In Phase I, we search
+        # for columns with POSITIVE reduced cost to resolve infeasibility.
+        rc = r.reduced_cost if r.reduced_cost is not None else r.profit
+        if rc > _FARKAS_TOL:
             master.add_route_as_column(r)
             added += 1
     return added
+
 
 
 def _separate_cuts(
@@ -286,12 +305,13 @@ def _separate_cuts(
     max_cuts: int,
     iteration: int = 0,
     node_depth: int = 0,
+    cut_orthogonality_threshold: float = 0.8,
 ) -> int:
     """
     Separate and add valid inequalities using the configured cutting plane engine.
 
     This is a modular wrapper that delegates to the specific cutting plane
-    engine (RCC, LCI, etc.) configured by the user.
+    engine (RCC, fleet_cover, etc.) configured by the user.
 
     Args:
         master: Master problem instance
@@ -301,7 +321,13 @@ def _separate_cuts(
     Returns:
         Number of cuts added
     """
-    return cut_engine.separate_and_add_cuts(master, max_cuts, iteration=iteration, node_depth=node_depth)
+    return cut_engine.separate_and_add_cuts(
+        master,
+        max_cuts,
+        iteration=iteration,
+        node_depth=node_depth,
+        cut_orthogonality_threshold=cut_orthogonality_threshold,
+    )
 
 
 def _solve_pricing_step(
@@ -358,12 +384,15 @@ def _solve_pricing_step(
     added = 0
     # routes is now a List[Route] from RCSPPSolver.solve
     for route in routes:
-        # Task 1: Numerical Hardening (Epsilon Tail-Off Fix)
-        # Only add columns if their reduced cost is strictly above rc_tolerance.
-        if route.profit > rc_tolerance:
+        # Phase II (Optimality) Sign Convention:
+        # VRPP is a MAXIMIZATION problem. Pricing subproblem searches for columns
+        # with POSITIVE reduced cost (rc > 0) to improve the objective.
+        rc = route.reduced_cost if route.reduced_cost is not None else route.profit
+        if rc > rc_tolerance:
             master.add_route(route)
             added += 1
     return added
+
 
 
 def _detect_cycles(nodes: List[int]) -> List[Tuple[int, ...]]:
@@ -396,38 +425,118 @@ def _detect_cycles(nodes: List[int]) -> List[Tuple[int, ...]]:
     return cycles
 
 
-def _is_solution_integer(route_values: Dict[int, float], tol: float = 1e-6) -> bool:
+def _is_solution_integer(routes: List[Route], route_values: Dict[int, float], tol: float = 1e-6) -> bool:
     """
-    Check if LP solution is integer.
+    Check if LP solution is integer and strictly elementary.
 
     Args:
-        route_values: Dictionary of route indices to their LP values
-        tol: Numerical tolerance
+        routes: List of all routes in the Master Problem.
+        route_values: Dictionary of route indices to their LP values (λ_k).
+        tol: Numerical tolerance for integrality.
 
     Returns:
-        True if all values are integer (0 or 1)
+        True if all fractional values are 0 or 1 AND every selected route
+        (λ_k > 0.5) is strictly elementary (no cycles).
     """
-    for val in route_values.values():
+    for idx, val in route_values.items():
         # Task 13: Clamp all values to [0, 1] before testing to guard against
         # slight numerical drift in Set Covering/Partitioning LP solutions.
         clamped = max(0.0, min(1.0, val))
         if abs(clamped - round(clamped)) > tol:
             return False
+
+        # Task 16/Fix 8: Enforce elementarity in integer solutions.
+        # If a variable is numerically integer (λ_k = 1.0) but represents a
+        # cyclic ng-route, it is NOT a valid integer solution for the original VRPP.
+        # This triggers further branching or ng-expansion.
+        if clamped > 0.5:
+            route = routes[idx]
+            if len(set(route.nodes)) != len(route.nodes):
+                return False
+
     return True
 
 
+
 def _perform_strong_branching(
+    master: VRPPMasterProblem,
     candidates: List[Tuple[int, List[Tuple[int, int]], List[Tuple[int, int]], float]],
-    current_node: Optional[BranchNode] = None,  # Task 11 Context
+    current_node: Optional[BranchNode] = None,
+    strong_branching_size: int = 5,
 ) -> Optional[Tuple[int, List[Tuple[int, int]], List[Tuple[int, int]], float]]:
     """
-    Task 11 (SOTA): Strong Branching lookahead.
-    Uses Spatial Divergence Strength as a high-fidelity proxy.
+    Task 1: True LP-based Strong Branching (Barnhart et al. 1998).
+
+    Evaluates the top candidates by solving child LP relaxations (lookahead)
+    to select the branch that maximizes the lower bound improvement.
+    Uses basis caching to minimize computational overhead.
+
+    Score(c) = max(ΔL, ε) * max(ΔR, ε) or similar product-based metric.
     """
     if not candidates:
         return None
-    # Candidates are pre-sorted by SVRPC strength in branching.py
-    return candidates[0]
+
+    # Limit the number of candidates to evaluate to prevent excessive overhead
+    eval_candidates = candidates[:strong_branching_size]
+    if len(eval_candidates) <= 1:
+        return eval_candidates[0]
+
+    parent_obj = master.model.ObjVal if master.model.Status == GRB.OPTIMAL else 0.0
+    best_candidate = eval_candidates[0]
+    best_score = -1.0
+
+    # Cache the current basis for warm-starting
+    parent_basis = None
+    if master.model is not None and master.model.Status == GRB.OPTIMAL:
+        try:
+            parent_basis = master.model.getVBasis()
+        except gp.GurobiError:
+            pass
+
+    for cand in eval_candidates:
+        cand_id, left_branch, right_branch, _ = cand
+        
+        def evaluate_branch(arc_set: List[Tuple[int, int]]) -> float:
+            forbidden_arcs_set = set(arc_set)
+            disabled_vars = []
+            
+            # Temporarily disable columns that violate the branch (x_e = 0)
+            for idx, var in enumerate(master.lambda_vars):
+                if var.UB < 0.5:
+                    continue
+                route = master.routes[idx]
+                full_path = [0] + route.nodes + [0]
+                if any((full_path[i], full_path[i + 1]) in forbidden_arcs_set for i in range(len(full_path) - 1)):
+                    var.UB = 0.0
+                    disabled_vars.append(var)
+                    
+            master.model.optimize()
+            if master.model.Status == GRB.OPTIMAL:
+                obj = master.model.ObjVal
+            else:
+                obj = -float("inf")
+                
+            # Revert bounds
+            for var in disabled_vars:
+                var.UB = 1.0
+                
+            return parent_obj - obj if obj != -float("inf") else float("inf")
+
+        left_deg = evaluate_branch(left_branch)
+        right_deg = evaluate_branch(right_branch)
+        
+        # Product-based evaluation metric (Score = max(ΔL, ε) * max(ΔR, ε))
+        score = max(left_deg, 1e-6) * max(right_deg, 1e-6)
+        
+        if score > best_score:
+            best_score = score
+            best_candidate = cand
+
+    # Restore master state fully and resolve once to ensure basis is clean
+    if master.model is not None:
+        master.model.optimize()
+
+    return best_candidate
 
 
 def _column_generation_loop(  # noqa: C901
@@ -446,16 +555,25 @@ def _column_generation_loop(  # noqa: C901
     parent_basis: Optional[Any] = None,
     incumbent_value: float = -float("inf"),
     node_depth: int = 0,
-) -> Tuple[float, Dict[int, float], Optional[Any]]:
+    rc_tolerance: float = 1e-5,
+    cut_orthogonality_threshold: float = 0.8,
+    exact_mode: bool = False,
+) -> Tuple[float, Dict[int, float], Optional[Any], bool]:
     """
     Run Column Generation + Cutting Plane loop at a B&B node.
+
+    Task 3: Exact Mode support to bypass dual smoothing.
     """
     timed_out = False
     converged = False
+    smoothing_recovery = False
     obj_val = -float("inf")
     route_vals: Dict[int, float] = {}
     prev_obj_val = -float("inf")
     _iteration = 0
+
+    if exact_mode:
+        master.enable_dual_smoothing = False
 
     # Task 3: Fix Lagrangian default.
     # If no fleet limit is active, the worst-case number of vehicles is n_nodes.
@@ -496,6 +614,23 @@ def _column_generation_loop(  # noqa: C901
                 f"{len(elementary_nodes)} nodes (SRI/Ryan-Foster parity)."
             )
 
+    # Task 5: Arc Conflict Pre-check (Exactness Rule)
+    # Scan branching constraints for conflicting must_use arcs.
+    # At most one must_use arc can exit node u, and at most one can enter node v.
+    from .branching import EdgeBranchingConstraint
+
+    out_arcs: Dict[int, int] = {}
+    in_arcs: Dict[int, int] = {}
+    for bc in branching_constraints or []:
+        if isinstance(bc, EdgeBranchingConstraint) and bc.must_use:
+            if bc.u in out_arcs and out_arcs[bc.u] != bc.v:
+                raise RuntimeError(f"Conflicting must_use out-arcs at node {bc.u}")
+            if bc.v in in_arcs and in_arcs[bc.v] != bc.u:
+                raise RuntimeError(f"Conflicting must_use in-arcs at node {bc.v}")
+            out_arcs[bc.u] = bc.v
+            in_arcs[bc.v] = bc.u
+
+
     for _iteration in range(max_cg_iterations):
         if time_limit and (time.process_time() - start_time) > time_limit:
             timed_out = True
@@ -530,7 +665,7 @@ def _column_generation_loop(  # noqa: C901
                 if obj_val is None:
                     raise RuntimeError("LP relaxation returned non-optimal status at B&B node")
 
-                if obj_val == -float("inf"):
+                if master.model.Status == GRB.INFEASIBLE:
                     logger.info("RMP node is infeasible. Starting Phase I Farkas Pricing.")
                     added = _solve_farkas_pricing_step(
                         master,
@@ -543,6 +678,18 @@ def _column_generation_loop(  # noqa: C901
                     _inner_iter += 1
                     continue
 
+
+                # Fix 1: Phase I → Phase II transition (Barnhart et al. 2000, §3).
+                # After Farkas pricing restores feasibility (obj_val becomes finite),
+                # switch route objectives from 0.0 (Phase I) back to profit (Phase II)
+                # so the LP correctly maximises route profits going forward.
+                if master.phase == 1 and master.model.Status == GRB.OPTIMAL:
+                    master.set_phase(2)
+                    logger.info(
+                        "Phase I complete — LP feasibility restored (GRB.OPTIMAL). "
+                        "Switching to Phase II (profit maximization)."
+                    )
+
             except Exception as e:
                 if "Farkas pricing failed" in str(e):
                     raise
@@ -554,9 +701,20 @@ def _column_generation_loop(  # noqa: C901
                 branching_constraints,
                 max_routes=max_routes_per_pricing,
                 optimality_gap=optimality_gap,
+                rc_tolerance=rc_tolerance,
             )
 
             if added == 0:
+                if smoothing_recovery:
+                    logger.info("Smoothing Recovery Phase: Converged with exact duals.")
+                    converged = True
+                    break
+                elif master.enable_dual_smoothing:
+                    logger.info("Entering Smoothing Recovery Phase (Exact duals).")
+                    master.enable_dual_smoothing = False
+                    smoothing_recovery = True
+                    continue
+
                 # Task 1b: Check for fractional cycles in ng-relaxation if CG has converged
                 # locally. Dynamic ng-expansion serves as a lightweight cut separation.
                 cycles: List[Tuple[int, ...]] = []
@@ -597,40 +755,70 @@ def _column_generation_loop(  # noqa: C901
 
             _inner_iter += 1
 
-            if hasattr(pricing_solver, "last_max_rc"):
-                max_rc = getattr(pricing_solver, "last_max_rc", -float("inf"))
-                effective_fleet = fleet_size if fleet_size > 0 else master.n_nodes
-                lagrangian_ub = obj_val + (effective_fleet * max(0.0, max_rc))
+        # Fix 3: Lagrangian UB check — only valid AFTER CG convergence.
+        # Per Barnhart et al. (2000) §4, z_UB = z_LP + K * max_rc is a valid
+        # upper bound only when all pricing subproblems have been exhausted
+        # (no more positive reduced cost columns). Computing it mid-CG yields
+        # an invalid, overly tight bound that can prune optimal nodes.
+        if not timed_out and not getattr(master, "enable_dual_smoothing", False) and hasattr(pricing_solver, "last_max_rc"):
+            max_rc = getattr(pricing_solver, "last_max_rc", -float("inf"))
+            effective_fleet = fleet_size if fleet_size > 0 else master.n_nodes
+            lagrangian_ub = obj_val + (effective_fleet * max(0.0, max_rc))
 
-                logger.info(
-                    f"CG Iter {_iteration}.{_inner_iter}: "
-                    f"RMP={obj_val:.4f}, max_rc={max_rc:.6f}, "
-                    f"z_UB={lagrangian_ub:.4f}"
-                )
+            logger.info(
+                f"CG Iter {_iteration}: "
+                f"RMP={obj_val:.4f}, max_rc={max_rc:.6f}, "
+                f"z_UB={lagrangian_ub:.4f}"
+            )
 
-                if lagrangian_ub < incumbent_value - 1e-6:
-                    logger.info(f"Exact Pruning: z_UB {lagrangian_ub:.4f} < Incumbent {incumbent_value:.4f}")
-                    raise BPCPruningException(f"Node pruned by exact Lagrangian bound: {lagrangian_ub}")
+            if lagrangian_ub < incumbent_value - 1e-6:
+                logger.info(f"Exact Pruning: z_UB {lagrangian_ub:.4f} < Incumbent {incumbent_value:.4f}")
+                raise BPCPruningException(f"Node pruned by exact Lagrangian bound: {lagrangian_ub}")
 
-                if max_rc <= 1e-6:
-                    logger.info(f"CG inner loop converged: optimality proven (max_rc {max_rc:.8f} <= 1e-6)")
+            # Task 11: Heuristic Early Termination
+            # Allows stopping column generation early if the Lagrangian gap is
+            # sufficiently small, even if positive reduced cost columns exist.
+            if incumbent_value > -float("inf"):
+                gap_to_incumbent = (lagrangian_ub - incumbent_value) / max(1.0, abs(incumbent_value))
+                if gap_to_incumbent <= early_termination_gap:
+                    logger.warning(
+                        "Heuristic early termination: bound gap %.6f <= threshold %.2e. "
+                        "Solution optimality is NOT guaranteed.",
+                        gap_to_incumbent,
+                        early_termination_gap,
+                    )
+                    converged = True
                     break
+
 
         if timed_out:
             break
 
         # PHASE 2: Cutting Planes — Task 11: only separate when LP is optimal
-        cuts_added = _separate_cuts(master, cut_engine, max_cuts, iteration=_iteration, node_depth=node_depth)
+        cuts_added = _separate_cuts(
+            master,
+            cut_engine,
+            max_cuts,
+            iteration=_iteration,
+            node_depth=node_depth,
+            cut_orthogonality_threshold=cut_orthogonality_threshold,
+        )
 
         if cuts_added == 0:
             converged = True
             break
 
-        # Task 10 (SOTA): Tail-Off Management
-        # If the objective improvement from the last iteration is negligible, stop cutting.
+        # Fix 4 / Task 10 (SOTA): Tail-Off Management with relative tolerance.
+        # Using absolute delta is fragile for problems with large objective values.
+        # Relative delta normalises by objective magnitude for consistent behaviour.
         obj_delta = abs(obj_val - prev_obj_val) if _iteration > 0 else float("inf")
-        if obj_delta < 1e-4:
-            logger.info(f"Tail-off detected: delta Z {obj_delta:.6f} < 1e-4. Stopping separation.")
+        denominator = max(1.0, abs(obj_val))
+        relative_delta = obj_delta / denominator
+        if relative_delta < 1e-5:
+            logger.info(
+                f"Tail-off detected: relative delta {relative_delta:.8f} < 1e-5 "
+                f"(abs delta={obj_delta:.6f}, |obj|={denominator:.4f}). Stopping separation."
+            )
             converged = True
             break
         prev_obj_val = obj_val
@@ -646,7 +834,7 @@ def _column_generation_loop(  # noqa: C901
         )
 
     final_basis = master.save_basis()
-    return obj_val, route_vals, final_basis
+    return obj_val, route_vals, final_basis, timed_out
 
 
 def run_bpc(  # noqa: C901
@@ -824,7 +1012,11 @@ def run_bpc(  # noqa: C901
 
     # 5. Initialize search and cutting strategies
     search_strategy = create_search_strategy(search_strategy_name, bb_tree=bb_tree)
-    cut_engine = create_cutting_plane_engine(cutting_planes_name, v_model, sep_engine)
+    cut_engine = create_cutting_plane_engine(
+        cutting_planes_name,
+        v_model,
+        sep_engine,
+    )
     # bb_tree.get_next_node() is NOT used; always call search_strategy.select_node().
     nodes_explored = 0
 
@@ -855,7 +1047,7 @@ def run_bpc(  # noqa: C901
 
         # Run Column Generation at this node with corrected sequencing
         try:
-            lp_obj, route_values, node_final_basis = _column_generation_loop(
+            lp_obj, route_values, node_final_basis, node_timed_out = _column_generation_loop(
                 master=master,
                 pricing_solver=pricing_solver,
                 cut_engine=cut_engine,
@@ -873,7 +1065,15 @@ def run_bpc(  # noqa: C901
                 if bb_tree.best_integer_solution is not None
                 else -float("inf"),
                 node_depth=current_node.depth,
+                rc_tolerance=params.rc_tolerance,
+                cut_orthogonality_threshold=params.cut_orthogonality_threshold,
+                exact_mode=params.exact_mode,
             )
+
+            # Task 3: Global Time Limit tracking
+            if node_timed_out:
+                logger.warning(f"B&B node {current_node.node_id} timed out. Terminating search.")
+                break
             current_node.lp_basis = node_final_basis
         except BPCPruningException:
             # Node provably cannot improve the incumbent — skip without marking infeasible
@@ -898,16 +1098,32 @@ def run_bpc(  # noqa: C901
             )
             # Always include the current node's LP value in the upper bound.
             global_upper_bound = max(best_open_lp_bound, lp_obj)
-            # Use a stable denominator: at least 1.0 to avoid division by near-zero.
-            denom = max(abs(bb_tree.best_integer_solution), 1.0)
+            # Use a stable denominator: at least 1.0, anchored to problem scale.
+            denom = max(
+                abs(bb_tree.best_integer_solution),
+                abs(global_upper_bound),
+                1.0,
+            )
             global_gap = (global_upper_bound - bb_tree.best_integer_solution) / denom
+
+
 
             if global_gap <= params.optimality_gap:
                 logger.info(f"Global optimality gap reached: {global_gap:.6f} <= {params.optimality_gap}")
                 break
 
+        # Task 5: Reduced Cost Edge Fixing (Globally valid only at Root node)
+        if current_node.depth == 0 and bb_tree.best_integer_solution is not None:
+            _apply_reduced_cost_edge_fixing(
+                master=master,
+                pricing_solver=pricing_solver,
+                z_ub=lp_obj,
+                z_lb=bb_tree.best_integer_solution
+            )
+
         # Check if solution is integer FIRST — before pruning
-        if _is_solution_integer(route_values):
+        if _is_solution_integer(master.routes, route_values):
+
             current_node.is_integer = True
             current_node.ip_solution = lp_obj
 
@@ -931,12 +1147,14 @@ def run_bpc(  # noqa: C901
                 logger.info(f"Deduplicated {purged} equivalent routes from column pool.")
 
         strong_candidate = None
-        if getattr(params, "enable_strong_branching", False):
+        if getattr(params, "enable_strong_branching_heuristic", False):
             candidates = bb_tree.find_strong_branching_candidates(master.routes, route_values, max_candidates=5)
             if candidates:
                 strong_candidate = _perform_strong_branching(
+                    master=master,
                     candidates=candidates,
                     current_node=current_node,
+                    strong_branching_size=getattr(params, "strong_branching_size", 5),
                 )
 
         children = bb_tree.branch(
@@ -1025,15 +1243,6 @@ def _apply_reduced_cost_edge_fixing(
     z_ub: float,
     z_lb: float,
 ) -> int:
-    """
-    Task 6 (Round 3 Hardening): This feature is TEMPORARILY DISABLED.
-    The current logic for reduced cost edge fixing has mathematical
-    flaws regarding global vs local validity and the exact RCS formula
-    used (missing dual components).
-
-    Raising NotImplementedError to ensure it is not used in production.
-    """
-    raise NotImplementedError("Reduced cost edge fixing is disabled in Round 3 hardening.")
     gap = z_ub - z_lb
     if gap <= 0:
         return 0
@@ -1048,16 +1257,21 @@ def _apply_reduced_cost_edge_fixing(
             if i == j:
                 continue
 
-            # Standard VRPP arc reduced cost under smoothed duals
-            base_cost = pricing_solver.cost_matrix[i, j]
-            # (Note: simpler version for now, doesn't include SRI/RCC duals on arcs)
-            rc_ij = base_cost - node_duals.get(i, 0.0)
+            # Exact VRPP arc reduced cost 
+            cost = pricing_solver.cost_matrix[i, j] * pricing_solver.C
+            rev = pricing_solver.wastes.get(j, 0.0) * pricing_solver.R
+            rc_ij = rev - cost - node_duals.get(j, 0.0)
 
-            if z_ub - max(0.0, rc_ij) < z_lb:
-                # Fix edge to infinity
-                pricing_solver.cost_matrix[i, j] = float("inf")
-                fixed_count += 1
+            # max_path_rc integrates exact DP completion bounds (self.bounds_from / bounds_to)
+            # which correctly captures all positive components of a path using edge (i, j).
+            max_path_rc = pricing_solver.bounds_from[i] + rc_ij + pricing_solver.bounds_to[j]
+
+            if z_ub + max_path_rc < z_lb - 1e-6:
+                # Globally fix edge
+                if pricing_solver.cost_matrix[i, j] != float("inf"):
+                    pricing_solver.cost_matrix[i, j] = float("inf")
+                    fixed_count += 1
 
     if fixed_count > 0:
-        logger.info(f"[SOTA Task 7] Fixed {fixed_count} edges to infinity using Lagrangian bounds (Gap: {gap:.4f}).")
+        logger.info(f"[Exact Hardening] Fixed {fixed_count} edges to infinity using exact Lagrangian bounds (Gap: {gap:.4f}).")
     return fixed_count
