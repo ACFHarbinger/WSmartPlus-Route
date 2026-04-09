@@ -549,6 +549,7 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.ant_colony_optimization_k_sparse.params.KSACOParams.elitist_weight"><code class="docutils literal notranslate"><span class="pre">KSACOParams.elitist_weight</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.ant_colony_optimization_k_sparse.params.KSACOParams.vrpp"><code class="docutils literal notranslate"><span class="pre">KSACOParams.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.ant_colony_optimization_k_sparse.params.KSACOParams.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">KSACOParams.profit_aware_operators</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.ant_colony_optimization_k_sparse.params.KSACOParams.q0"><code class="docutils literal notranslate"><span class="pre">KSACOParams.q0</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.ant_colony_optimization_k_sparse.params.KSACOParams.seed"><code class="docutils literal notranslate"><span class="pre">KSACOParams.seed</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.ant_colony_optimization_k_sparse.params.KSACOParams.__post_init__"><code class="docutils literal notranslate"><span class="pre">KSACOParams.__post_init__()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.ant_colony_optimization_k_sparse.params.KSACOParams.from_config"><code class="docutils literal notranslate"><span class="pre">KSACOParams.from_config()</span></code></a></li>
@@ -720,9 +721,15 @@ Strategies For Low-Memory Operating Environments”, 2021.</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.ant_colony_optimization_k_sparse.params.KSACOParams.q0">
+<span class="sig-name descname"><span class="pre">q0</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.ant_colony_optimization_k_sparse.params.KSACOParams.q0" title="Link to this definition">#</a></dt>
+<dd><p>0.9</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.ant_colony_optimization_k_sparse.params.KSACOParams.seed">
 <span class="sig-name descname"><span class="pre">seed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.ant_colony_optimization_k_sparse.params.KSACOParams.seed" title="Link to this definition">#</a></dt>
-<dd><p>None</p>
+<dd><p>42</p>
 </dd></dl>
 
 <dl class="py method">
@@ -812,6 +819,7 @@ KSACOParams instance with values from config.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.ant_colony_optimization_k_sparse.params.KSACOParams.elitist_weight"><code class="docutils literal notranslate"><span class="pre">KSACOParams.elitist_weight</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.ant_colony_optimization_k_sparse.params.KSACOParams.vrpp"><code class="docutils literal notranslate"><span class="pre">KSACOParams.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.ant_colony_optimization_k_sparse.params.KSACOParams.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">KSACOParams.profit_aware_operators</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.ant_colony_optimization_k_sparse.params.KSACOParams.q0"><code class="docutils literal notranslate"><span class="pre">KSACOParams.q0</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.ant_colony_optimization_k_sparse.params.KSACOParams.seed"><code class="docutils literal notranslate"><span class="pre">KSACOParams.seed</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.ant_colony_optimization_k_sparse.params.KSACOParams.__post_init__"><code class="docutils literal notranslate"><span class="pre">KSACOParams.__post_init__()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.ant_colony_optimization_k_sparse.params.KSACOParams.from_config"><code class="docutils literal notranslate"><span class="pre">KSACOParams.from_config()</span></code></a></li>

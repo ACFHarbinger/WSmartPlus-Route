@@ -64,7 +64,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.policies.branch_and_price_and_cut.bpc_engine';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.policies.branch_and_price_and_cut.dispatcher" href="src.policies.branch_and_price_and_cut.dispatcher.html" />
+    <link rel="next" title="src.policies.branch_and_price_and_cut.separation" href="src.policies.branch_and_price_and_cut.separation.html" />
     <link rel="prev" title="src.policies.branch_and_price_and_cut.policy_bpc" href="src.policies.branch_and_price_and_cut.policy_bpc.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -529,15 +529,26 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#algorithmic-components">Algorithmic Components:</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References:</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.bpc_engine.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.bpc_engine.BPCPruningException"><code class="docutils literal notranslate"><span class="pre">BPCPruningException</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.bpc_engine._reset_master_constraints"><code class="docutils literal notranslate"><span class="pre">_reset_master_constraints()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.bpc_engine._apply_route_level_branching_filters"><code class="docutils literal notranslate"><span class="pre">_apply_route_level_branching_filters()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.bpc_engine._apply_branching_to_master"><code class="docutils literal notranslate"><span class="pre">_apply_branching_to_master()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.bpc_engine._solve_farkas_pricing_step"><code class="docutils literal notranslate"><span class="pre">_solve_farkas_pricing_step()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.bpc_engine._separate_cuts"><code class="docutils literal notranslate"><span class="pre">_separate_cuts()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.bpc_engine._solve_pricing_step"><code class="docutils literal notranslate"><span class="pre">_solve_pricing_step()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.bpc_engine._detect_cycles"><code class="docutils literal notranslate"><span class="pre">_detect_cycles()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.bpc_engine._is_solution_integer"><code class="docutils literal notranslate"><span class="pre">_is_solution_integer()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.bpc_engine._perform_strong_branching"><code class="docutils literal notranslate"><span class="pre">_perform_strong_branching()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.bpc_engine._column_generation_loop"><code class="docutils literal notranslate"><span class="pre">_column_generation_loop()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.bpc_engine.run_custom_bpc"><code class="docutils literal notranslate"><span class="pre">run_custom_bpc()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.bpc_engine.run_bpc"><code class="docutils literal notranslate"><span class="pre">run_bpc()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.bpc_engine._apply_reduced_cost_edge_fixing"><code class="docutils literal notranslate"><span class="pre">_apply_reduced_cost_edge_fixing()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -555,53 +566,90 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.branch_and_price_and_cut.bpc_engine">
 <span id="src-policies-branch-and-price-and-cut-bpc-engine"></span><h1><a class="reference internal" href="#module-src.policies.branch_and_price_and_cut.bpc_engine" title="src.policies.branch_and_price_and_cut.bpc_engine"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.bpc_engine</span></code></a><a class="headerlink" href="#module-src.policies.branch_and_price_and_cut.bpc_engine" title="Link to this heading">#</a></h1>
-<p>Internal Branch-and-Price-and-Cut (BPC) engine.</p>
-<p>This module provides an exact Branch-and-Price-and-Cut (BPC) solver adapted for the
-Vehicle Routing Problem with Profits (VRPP). While it borrows the high-level
-algorithmic sequencing from the BPC framework for multicommodity flow (Barnhart et al., 1998),
-it is specifically tailored for the VRPP context.</p>
-<p>Key Features:</p>
+<section id="algorithmic-components">
+<h2>Algorithmic Components:<a class="headerlink" href="#algorithmic-components" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Adapts BPC sequencing: Column generation to convergence, followed by cut separation,
-followed by branching.</p></li>
-<li><p>Pricing Subproblem: Solves the Resource-Constrained Shortest Path Problem (RCSPP)
-via dynamic programming.</p></li>
-<li><p>Branching: Employs Ryan-Foster branching, which is suited for VRPP as it
-directly modifies the pricing problem’s state space.</p></li>
-<li><p>Valid Inequalities: Includes Rounded Capacity Cuts (RCC) for the VRPP context.</p></li>
+<li><p>Master Problem: Set Partitioning formulation using Gurobi with Column Generation.</p></li>
+<li><p>Pricing Subproblem: Elementary / ng-relaxed Resource Constrained Shortest Path
+Problem (RCSPP) solved via DP.</p></li>
+<li><p>Branching: Multi-Edge Spatial Partitioning and exact Ryan-Foster co-occurrence.</p></li>
+<li><p>Cutting Planes: Dynamically separated Rounded Capacity Cuts (RCC), Subset-Row
+Inequalities (SRI), and Lifted Cover Inequalities (LCI).</p></li>
 </ul>
-<p>References:
-- Barnhart, C., Johnson, E. L., Nemhauser, G. L., Savelsbergh, M. W., &amp; Vance, P. H. (1998).
-“Branch-and-price: Column generation for solving huge integer programs.”
-Operations Research, 46(3), 316-329.
-- Lysgaard, J., Letchford, A. N., &amp; Eglese, R. W. (2004).
-“A new branch-and-cut algorithm for the capacitated vehicle routing problem.”
-- Ryan, D. M., &amp; Foster, B. A. (1981).
-“An Integer Programming Approach to Scheduling”.</p>
+</section>
+<section id="references">
+<h2>References:<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Barnhart, C., Johnson, E. L., Nemhauser, G. L., Savelsbergh, M. W., &amp; Sigismondi, P. H.
+(1998). “Branch-and-price: Column generation for solving huge integer programs.”
+Operations Research, 46(3), 316-329.</p></li>
+<li><p>Barnhart, C., Hane, C. A., &amp; Vance, P. H. (2000). “Using branch-and-price-and-cut
+to solve origin-destination integer multicommodity flow problems.”
+Operations Research, 48(2), 318-326.</p></li>
+</ul>
+</section>
+<p>Branch-and-Price-and-Cut (BPC) Engine for VRPP.</p>
+<p>This engine implements a state-of-the-art exact solver for the Vehicle Routing
+Problem with Profits (VRPP), synthesizing the Origin-Destination Integer
+Multicommodity Flow (ODIMCF) sequencing framework of Barnhart et al. (1998)
+with advanced polyhedral cutting planes (RCC, SRI, LCI).</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
 <h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.bpc_engine._reset_master_constraints" title="src.policies.branch_and_price_and_cut.bpc_engine._reset_master_constraints"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_reset_master_constraints</span></code></a></p></td>
+<td><p>Reset vehicle limits and node senses to their base problem state.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.bpc_engine._apply_route_level_branching_filters" title="src.policies.branch_and_price_and_cut.bpc_engine._apply_route_level_branching_filters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_apply_route_level_branching_filters</span></code></a></p></td>
+<td><p>Apply route-level feasibility filters based on branching constraints.</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.bpc_engine._apply_branching_to_master" title="src.policies.branch_and_price_and_cut.bpc_engine._apply_branching_to_master"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_apply_branching_to_master</span></code></a></p></td>
 <td><p>Filter the Master Problem column pool by disabling routes that violate
 branching constraints at the current B&amp;B node.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.bpc_engine._separate_cuts" title="src.policies.branch_and_price_and_cut.bpc_engine._separate_cuts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_separate_cuts</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.bpc_engine._solve_farkas_pricing_step" title="src.policies.branch_and_price_and_cut.bpc_engine._solve_farkas_pricing_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_solve_farkas_pricing_step</span></code></a></p></td>
+<td><p>Phase I Pricing: Solve subproblem with Farkas dual ray to restore feasibility.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.bpc_engine._separate_cuts" title="src.policies.branch_and_price_and_cut.bpc_engine._separate_cuts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_separate_cuts</span></code></a></p></td>
 <td><p>Separate and add valid inequalities using the configured cutting plane engine.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.bpc_engine._solve_pricing_step" title="src.policies.branch_and_price_and_cut.bpc_engine._solve_pricing_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_solve_pricing_step</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.bpc_engine._solve_pricing_step" title="src.policies.branch_and_price_and_cut.bpc_engine._solve_pricing_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_solve_pricing_step</span></code></a></p></td>
 <td><p>Solve the pricing subproblem and add positive reduced cost columns.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.bpc_engine._detect_cycles" title="src.policies.branch_and_price_and_cut.bpc_engine._detect_cycles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_detect_cycles</span></code></a></p></td>
+<td><p>Detect cyclic node sequences in a route (excluding the depot).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.bpc_engine._is_solution_integer" title="src.policies.branch_and_price_and_cut.bpc_engine._is_solution_integer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_is_solution_integer</span></code></a></p></td>
 <td><p>Check if LP solution is integer.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.bpc_engine._column_generation_loop" title="src.policies.branch_and_price_and_cut.bpc_engine._column_generation_loop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_column_generation_loop</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.bpc_engine._perform_strong_branching" title="src.policies.branch_and_price_and_cut.bpc_engine._perform_strong_branching"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_perform_strong_branching</span></code></a></p></td>
+<td><p>Task 11 (SOTA): Strong Branching lookahead.
+Uses Spatial Divergence Strength as a high-fidelity proxy.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.bpc_engine._column_generation_loop" title="src.policies.branch_and_price_and_cut.bpc_engine._column_generation_loop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_column_generation_loop</span></code></a></p></td>
 <td><p>Run Column Generation + Cutting Plane loop at a B&amp;B node.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.bpc_engine.run_custom_bpc" title="src.policies.branch_and_price_and_cut.bpc_engine.run_custom_bpc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_custom_bpc</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.bpc_engine.run_bpc" title="src.policies.branch_and_price_and_cut.bpc_engine.run_bpc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_bpc</span></code></a></p></td>
 <td><p>Solve Waste-Collecting CVRP using exact Branch-and-Price-and-Cut.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.bpc_engine._apply_reduced_cost_edge_fixing" title="src.policies.branch_and_price_and_cut.bpc_engine._apply_reduced_cost_edge_fixing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_apply_reduced_cost_edge_fixing</span></code></a></p></td>
+<td><p>Task 6 (Round 3 Hardening): This feature is TEMPORARILY DISABLED.
+The current logic for reduced cost edge fixing has mathematical
+flaws regarding global vs local validity and the exact RCS formula
+used (missing dual components).</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="data">
+<h3>Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.bpc_engine.logger" title="src.policies.branch_and_price_and_cut.bpc_engine.logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logger</span></code></a></p></td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -609,12 +657,39 @@ branching constraints at the current B&amp;B node.</p></td>
 </section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
+<dl class="py data">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.bpc_engine.logger">
+<span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.bpc_engine.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.bpc_engine.logger" title="Link to this definition">#</a></dt>
+<dd><p>‘getLogger(…)’</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.bpc_engine.BPCPruningException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.bpc_engine.</span></span><span class="sig-name descname"><span class="pre">BPCPruningException</span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.bpc_engine.BPCPruningException" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Exception raised when a node is pruned by a bound (e.g., Lagrangian).</p>
+<p class="rubric">Initialization</p>
+<p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.bpc_engine._reset_master_constraints">
+<span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.bpc_engine.</span></span><span class="sig-name descname"><span class="pre">_reset_master_constraints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price_and_cut.master_problem.html#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem" title="src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem"><span class="pre">src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.bpc_engine._reset_master_constraints" title="Link to this definition">#</a></dt>
+<dd><p>Reset vehicle limits and node senses to their base problem state.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.bpc_engine._apply_route_level_branching_filters">
+<span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.bpc_engine.</span></span><span class="sig-name descname"><span class="pre">_apply_route_level_branching_filters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price_and_cut.master_problem.html#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem" title="src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem"><span class="pre">src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">bc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">src.policies.branch_and_price_and_cut.branching.AnyBranchingConstraint</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.bpc_engine._apply_route_level_branching_filters" title="Link to this definition">#</a></dt>
+<dd><p>Apply route-level feasibility filters based on branching constraints.</p>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.bpc_engine._apply_branching_to_master">
-<span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.bpc_engine.</span></span><span class="sig-name descname"><span class="pre">_apply_branching_to_master</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price.master_problem.html#src.policies.branch_and_price.master_problem.VRPPMasterProblem" title="src.policies.branch_and_price.master_problem.VRPPMasterProblem"><span class="pre">src.policies.branch_and_price.master_problem.VRPPMasterProblem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">branching_constraints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.bpc_engine._apply_branching_to_master" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.bpc_engine.</span></span><span class="sig-name descname"><span class="pre">_apply_branching_to_master</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price_and_cut.master_problem.html#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem" title="src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem"><span class="pre">src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">branching_constraints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">src.policies.branch_and_price_and_cut.branching.AnyBranchingConstraint</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">branching_strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'divergence'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.bpc_engine._apply_branching_to_master" title="Link to this definition">#</a></dt>
 <dd><p>Filter the Master Problem column pool by disabling routes that violate
 branching constraints at the current B&amp;B node.</p>
-<h2 class="rubric" id="id1">Column Contamination Problem:</h2>
+<h2 class="rubric" id="id2">Column Contamination Problem:</h2>
 <p>The Master Problem maintains a global column pool across the entire B&amp;B tree.
 When we branch at a node, we add constraints (e.g., “nodes r and s must be
 together” or “arc (u,v) is forbidden”). However, the existing column pool
@@ -622,42 +697,53 @@ may contain routes generated at ancestor nodes that violate these new constraint
 <p>If we don’t filter these routes, the LP solver will select them, producing
 fractional solutions that violate the branching decisions. This causes:</p>
 <ol class="arabic simple">
-<li><p>Incorrect LP bounds (too optimistic)</p></li>
-<li><p>Infinite branching loops (same fractional solution reappears)</p></li>
-<li><p>Invalid integer solutions</p></li>
+<li><p>Incorrect LP bounds (too optimistic).</p></li>
+<li><p>Infinite branching loops (same fractional solution reappears).</p></li>
+<li><p>Invalid integer solutions.</p></li>
 </ol>
-<h2 class="rubric" id="id2">Solution:</h2>
+<h2 class="rubric" id="id3">COLUMN BACKTRACKING &amp; RE-ACTIVATION:</h2>
+<p>Since we use a global column pool, we must reset all columns to a “clean”
+state (UB=1.0) before applying the current path of branching constraints.
+Failure to do this causes columns disabled in deep branches to remain
+disabled when backtracking, leading to incorrect bounds and potential
+missed optimal solutions.</p>
+<h2 class="rubric" id="id4">Solution:</h2>
 <p>We temporarily disable violating routes by setting their upper bound to 0:
 var.UB = 0.0</p>
 <p>This is more efficient than:</p>
 <ul class="simple">
-<li><p>Deleting and re-adding columns (expensive Gurobi operations)</p></li>
-<li><p>Maintaining separate column pools per node (memory intensive)</p></li>
-<li><p>Adding explicit branching constraints to Gurobi (creates dense constraint matrix)</p></li>
+<li><p>Deleting and re-adding columns (expensive Gurobi operations).</p></li>
+<li><p>Maintaining separate column pools per node (memory intensive).</p></li>
+<li><p>Adding explicit branching constraints to Gurobi (creates dense constraint matrix).</p></li>
 </ul>
 <p>The routes remain in the model structure but cannot be selected in the LP solution.</p>
-<h2 class="rubric" id="id3">Implementation:</h2>
+<h2 class="rubric" id="id5">Implementation:</h2>
 <p>For each route k and its corresponding Gurobi variable λ_k:</p>
 <ol class="arabic simple">
-<li><p>Reset upper bound to 1.0 (clean state for this node)</p></li>
-<li><p>Check if route satisfies all active branching constraints</p></li>
-<li><p>If any constraint is violated, set var.UB = 0.0 to disable the route</p></li>
+<li><p>Reset upper bound to 1.0 (clean state for this node).</p></li>
+<li><p>Check if route satisfies all active branching constraints (ancestors + current).</p></li>
+<li><p>If any constraint is violated, set var.UB = 0.0 to disable the route.</p></li>
 </ol>
 <p>Args:
-master: Master problem instance with Gurobi model
-branching_constraints: List of active branching constraints from current node</p>
-<h2 class="rubric" id="id4">References:</h2>
+master: Master problem instance with Gurobi model.
+branching_constraints: Complete list of branching constraints from root
+to the current node (all ancestors + current node).
+branching_strategy: Current branching rule name (e.g., “ryan_foster”).</p>
+<h2 class="rubric" id="id6">References:</h2>
 <p>Ryan-Foster branching (1981) is used here because it appropriately modifies the
 Resource-Constrained Shortest Path Problem (RCSPP) used for VRPP pricing by
-forbidding or enforcing pairs of nodes in the generated routes.
-This diverges from Barnhart et al. (1998), who utilized divergence branching
-to preserve simple shortest paths in the context of Origin-Destination
-Integer Multicommodity Flow (ODIMCF).</p>
+forbidding or enforcing pairs of nodes in the generated routes.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.bpc_engine._solve_farkas_pricing_step">
+<span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.bpc_engine.</span></span><span class="sig-name descname"><span class="pre">_solve_farkas_pricing_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price_and_cut.master_problem.html#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem" title="src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem"><span class="pre">src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pricing_solver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price_and_cut.rcspp_dp.html#src.policies.branch_and_price_and_cut.rcspp_dp.RCSPPSolver" title="src.policies.branch_and_price_and_cut.rcspp_dp.RCSPPSolver"><span class="pre">src.policies.branch_and_price_and_cut.rcspp_dp.RCSPPSolver</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">branching_constraints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">src.policies.branch_and_price_and_cut.branching.AnyBranchingConstraint</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">farkas_duals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.bpc_engine._solve_farkas_pricing_step" title="Link to this definition">#</a></dt>
+<dd><p>Phase I Pricing: Solve subproblem with Farkas dual ray to restore feasibility.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.bpc_engine._separate_cuts">
-<span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.bpc_engine.</span></span><span class="sig-name descname"><span class="pre">_separate_cuts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price.master_problem.html#src.policies.branch_and_price.master_problem.VRPPMasterProblem" title="src.policies.branch_and_price.master_problem.VRPPMasterProblem"><span class="pre">src.policies.branch_and_price.master_problem.VRPPMasterProblem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_engine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price_and_cut.cutting_planes.html#src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine" title="src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine"><span class="pre">src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.bpc_engine._separate_cuts" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.bpc_engine.</span></span><span class="sig-name descname"><span class="pre">_separate_cuts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price_and_cut.master_problem.html#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem" title="src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem"><span class="pre">src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_engine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price_and_cut.cutting_planes.html#src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine" title="src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine"><span class="pre">src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iteration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.bpc_engine._separate_cuts" title="Link to this definition">#</a></dt>
 <dd><p>Separate and add valid inequalities using the configured cutting plane engine.</p>
 <p>This is a modular wrapper that delegates to the specific cutting plane
 engine (RCC, LCI, etc.) configured by the user.</p>
@@ -671,14 +757,30 @@ Number of cuts added</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.bpc_engine._solve_pricing_step">
-<span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.bpc_engine.</span></span><span class="sig-name descname"><span class="pre">_solve_pricing_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price.master_problem.html#src.policies.branch_and_price.master_problem.VRPPMasterProblem" title="src.policies.branch_and_price.master_problem.VRPPMasterProblem"><span class="pre">src.policies.branch_and_price.master_problem.VRPPMasterProblem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pricing_solver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price.rcspp_dp.html#src.policies.branch_and_price.rcspp_dp.RCSPPSolver" title="src.policies.branch_and_price.rcspp_dp.RCSPPSolver"><span class="pre">src.policies.branch_and_price.rcspp_dp.RCSPPSolver</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">branching_constraints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.bpc_engine._solve_pricing_step" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.bpc_engine.</span></span><span class="sig-name descname"><span class="pre">_solve_pricing_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price_and_cut.master_problem.html#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem" title="src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem"><span class="pre">src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pricing_solver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price_and_cut.rcspp_dp.html#src.policies.branch_and_price_and_cut.rcspp_dp.RCSPPSolver" title="src.policies.branch_and_price_and_cut.rcspp_dp.RCSPPSolver"><span class="pre">src.policies.branch_and_price_and_cut.rcspp_dp.RCSPPSolver</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">branching_constraints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">src.policies.branch_and_price_and_cut.branching.AnyBranchingConstraint</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimality_gap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rc_tolerance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.bpc_engine._solve_pricing_step" title="Link to this definition">#</a></dt>
 <dd><p>Solve the pricing subproblem and add positive reduced cost columns.</p>
 <p>Args:
 master: Master problem instance
 pricing_solver: RCSPP solver for pricing
-branching_constraints: Optional Ryan-Foster branching constraints</p>
+branching_constraints: Optional Ryan-Foster or NodeVisitation constraints
+max_routes: Max routes to return
+optimality_gap: Basic gap
+rc_tolerance: Minimum reduced cost to prevent epsilon deadlock</p>
 <p>Returns:
 Number of columns added</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.bpc_engine._detect_cycles">
+<span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.bpc_engine.</span></span><span class="sig-name descname"><span class="pre">_detect_cycles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.bpc_engine._detect_cycles" title="Link to this definition">#</a></dt>
+<dd><p>Detect cyclic node sequences in a route (excluding the depot).</p>
+<p>Identifies segments like (i, j, k, i) where a customer node is visited
+more than once. These cycles violate the ng-route relaxation if the
+intermediate nodes are outside the neighborhood of the cycle origin.</p>
+<p>Args:
+nodes: Sequence of node IDs.</p>
+<p>Returns:
+List of node tuples forming cycles.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -693,37 +795,23 @@ True if all values are integer (0 or 1)</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.bpc_engine._column_generation_loop">
-<span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.bpc_engine.</span></span><span class="sig-name descname"><span class="pre">_column_generation_loop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price.master_problem.html#src.policies.branch_and_price.master_problem.VRPPMasterProblem" title="src.policies.branch_and_price.master_problem.VRPPMasterProblem"><span class="pre">src.policies.branch_and_price.master_problem.VRPPMasterProblem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pricing_solver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price.rcspp_dp.html#src.policies.branch_and_price.rcspp_dp.RCSPPSolver" title="src.policies.branch_and_price.rcspp_dp.RCSPPSolver"><span class="pre">src.policies.branch_and_price.rcspp_dp.RCSPPSolver</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_engine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price_and_cut.cutting_planes.html#src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine" title="src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine"><span class="pre">src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">branching_constraints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cg_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.bpc_engine._column_generation_loop" title="Link to this definition">#</a></dt>
-<dd><p>Run Column Generation + Cutting Plane loop at a B&amp;B node.</p>
-<h2 class="rubric" id="id5">CORRECTED SEQUENCING (Barnhart et al. 1998, Section 3):</h2>
-<ol class="arabic simple">
-<li><p>Price out columns until LP is optimal (no more positive reduced cost)</p></li>
-<li><p>Attempt to find violated cuts in the current LP solution</p></li>
-<li><p>If cuts are found, add them and return to Step 1</p></li>
-<li><p>Terminate when no columns price out AND no cuts are violated</p></li>
-</ol>
-<p>This ensures that cutting planes are separated on a “stable” LP solution
-where column generation has converged, avoiding premature cut generation
-on incomplete solutions.</p>
-<p>Args:
-master: Master problem
-pricing_solver: RCSPP pricing solver
-cut_engine: Cutting plane separation engine
-branching_constraints: Active branching constraints
-max_cg_iterations: Maximum CG iterations
-max_cuts: Maximum cuts per iteration
-time_limit: Optional time limit in seconds
-start_time: Process start time</p>
-<p>Returns:
-Tuple of (LP objective value, route values dictionary)</p>
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.bpc_engine._perform_strong_branching">
+<span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.bpc_engine.</span></span><span class="sig-name descname"><span class="pre">_perform_strong_branching</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">candidates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.branch_and_price_and_cut.branching.html#src.policies.branch_and_price_and_cut.branching.BranchNode" title="src.policies.branch_and_price_and_cut.branching.BranchNode"><span class="pre">src.policies.branch_and_price_and_cut.branching.BranchNode</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.bpc_engine._perform_strong_branching" title="Link to this definition">#</a></dt>
+<dd><p>Task 11 (SOTA): Strong Branching lookahead.
+Uses Spatial Divergence Strength as a high-fidelity proxy.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.bpc_engine.run_custom_bpc">
-<span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.bpc_engine.</span></span><span class="sig-name descname"><span class="pre">run_custom_bpc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expand_pool</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profit_aware_operators</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recorder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.tracking.viz_mixin.PolicyStateRecorder</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.bpc_engine.run_custom_bpc" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.bpc_engine._column_generation_loop">
+<span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.bpc_engine.</span></span><span class="sig-name descname"><span class="pre">_column_generation_loop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price_and_cut.master_problem.html#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem" title="src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem"><span class="pre">src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pricing_solver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price_and_cut.rcspp_dp.html#src.policies.branch_and_price_and_cut.rcspp_dp.RCSPPSolver" title="src.policies.branch_and_price_and_cut.rcspp_dp.RCSPPSolver"><span class="pre">src.policies.branch_and_price_and_cut.rcspp_dp.RCSPPSolver</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_engine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price_and_cut.cutting_planes.html#src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine" title="src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine"><span class="pre">src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">branching_constraints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">src.policies.branch_and_price_and_cut.branching.AnyBranchingConstraint</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cg_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_routes_per_pricing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vehicle_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimality_gap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">early_termination_gap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_basis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">incumbent_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-float('inf')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.bpc_engine._column_generation_loop" title="Link to this definition">#</a></dt>
+<dd><p>Run Column Generation + Cutting Plane loop at a B&amp;B node.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.bpc_engine.run_bpc">
+<span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.bpc_engine.</span></span><span class="sig-name descname"><span class="pre">run_bpc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.branch_and_price_and_cut.params.html#src.policies.branch_and_price_and_cut.params.BPCParams" title="src.policies.branch_and_price_and_cut.params.BPCParams"><span class="pre">src.policies.branch_and_price_and_cut.params.BPCParams</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">must_go_indices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vehicle_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recorder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.tracking.viz_mixin.PolicyStateRecorder</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.bpc_engine.run_bpc" title="Link to this definition">#</a></dt>
 <dd><p>Solve Waste-Collecting CVRP using exact Branch-and-Price-and-Cut.</p>
-<p>This engine implements the Barnhart et al. (1998) BPC framework with
+<p>This engine implements the Barnhart et al. (1998, OR 46(3):316-329) BPC framework with
 configurable algorithmic strategies:</p>
 <ol class="arabic simple">
 <li><p>Initial Column Generation via greedy heuristics</p></li>
@@ -760,13 +848,23 @@ values: Configuration dictionary with keys:
 - time_limit: Time limit in seconds (optional)
 - search_strategy: “best_first” or “depth_first” (default “depth_first”)
 - cutting_planes: “rcc” (default “rcc”)
-- branching_strategy: “ryan_foster”, “edge”, or “divergence” (default “ryan_foster”)
-mandatory_nodes: List of mandatory node indices
-expand_pool: Whether to expand initial route pool
-profit_aware_operators: Whether to use profit-aware greedy
+- branching_strategy: “ryan_foster”, “edge”, or “divergence” (default “divergence”)
+must_go_indices: Set of node indices that must be visited
+env: Gurobi environment (ignored, kept for compatibility)
+node_coords: Optional node coordinates for visualization
 recorder: Optional state recorder for tracking</p>
 <p>Returns:
 Tuple of (best_routes, best_cost)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.bpc_engine._apply_reduced_cost_edge_fixing">
+<span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.bpc_engine.</span></span><span class="sig-name descname"><span class="pre">_apply_reduced_cost_edge_fixing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price_and_cut.master_problem.html#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem" title="src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem"><span class="pre">src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pricing_solver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price_and_cut.rcspp_dp.html#src.policies.branch_and_price_and_cut.rcspp_dp.RCSPPSolver" title="src.policies.branch_and_price_and_cut.rcspp_dp.RCSPPSolver"><span class="pre">src.policies.branch_and_price_and_cut.rcspp_dp.RCSPPSolver</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_ub</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_lb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.bpc_engine._apply_reduced_cost_edge_fixing" title="Link to this definition">#</a></dt>
+<dd><p>Task 6 (Round 3 Hardening): This feature is TEMPORARILY DISABLED.
+The current logic for reduced cost edge fixing has mathematical
+flaws regarding global vs local validity and the exact RCS formula
+used (missing dual components).</p>
+<p>Raising NotImplementedError to ensure it is not used in production.</p>
 </dd></dl>
 
 </section>
@@ -794,11 +892,11 @@ Tuple of (best_routes, best_cost)</p>
       </div>
     </a>
     <a class="right-next"
-       href="src.policies.branch_and_price_and_cut.dispatcher.html"
+       href="src.policies.branch_and_price_and_cut.separation.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.dispatcher</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.separation</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -818,15 +916,26 @@ Tuple of (best_routes, best_cost)</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#algorithmic-components">Algorithmic Components:</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References:</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.bpc_engine.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.bpc_engine.BPCPruningException"><code class="docutils literal notranslate"><span class="pre">BPCPruningException</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.bpc_engine._reset_master_constraints"><code class="docutils literal notranslate"><span class="pre">_reset_master_constraints()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.bpc_engine._apply_route_level_branching_filters"><code class="docutils literal notranslate"><span class="pre">_apply_route_level_branching_filters()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.bpc_engine._apply_branching_to_master"><code class="docutils literal notranslate"><span class="pre">_apply_branching_to_master()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.bpc_engine._solve_farkas_pricing_step"><code class="docutils literal notranslate"><span class="pre">_solve_farkas_pricing_step()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.bpc_engine._separate_cuts"><code class="docutils literal notranslate"><span class="pre">_separate_cuts()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.bpc_engine._solve_pricing_step"><code class="docutils literal notranslate"><span class="pre">_solve_pricing_step()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.bpc_engine._detect_cycles"><code class="docutils literal notranslate"><span class="pre">_detect_cycles()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.bpc_engine._is_solution_integer"><code class="docutils literal notranslate"><span class="pre">_is_solution_integer()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.bpc_engine._perform_strong_branching"><code class="docutils literal notranslate"><span class="pre">_perform_strong_branching()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.bpc_engine._column_generation_loop"><code class="docutils literal notranslate"><span class="pre">_column_generation_loop()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.bpc_engine.run_custom_bpc"><code class="docutils literal notranslate"><span class="pre">run_custom_bpc()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.bpc_engine.run_bpc"><code class="docutils literal notranslate"><span class="pre">run_bpc()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.bpc_engine._apply_reduced_cost_edge_fixing"><code class="docutils literal notranslate"><span class="pre">_apply_reduced_cost_edge_fixing()</span></code></a></li>
 </ul>
 </li>
 </ul>

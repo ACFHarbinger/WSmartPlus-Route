@@ -14,6 +14,7 @@
 :maxdepth: 1
 
 src.policies.popmusic.solver
+src.policies.popmusic.params
 src.policies.popmusic.policy_popmusic
 ```
 

@@ -35,7 +35,7 @@
 
 ### API
 
-`````{py:class} BBSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, values: typing.Dict[str, typing.Any], must_go_indices: typing.Optional[typing.Set[int]] = None, env: typing.Optional[gurobipy.Env] = None, seed: typing.Optional[int] = None, recorder: typing.Optional[logic.src.tracking.viz_mixin.PolicyStateRecorder] = None)
+`````{py:class} BBSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, time_limit: float = 60.0, mip_gap: float = 0.01, branching_strategy: str = 'strong', strong_branching_limit: int = 5, must_go_indices: typing.Optional[typing.Set[int]] = None, env: typing.Optional[gurobipy.Env] = None, recorder: typing.Optional[logic.src.tracking.viz_mixin.PolicyStateRecorder] = None)
 :canonical: src.policies.branch_and_bound.mtz.BBSolver
 
 ```{autodoc2-docstring} src.policies.branch_and_bound.mtz.BBSolver
@@ -113,7 +113,7 @@
 
 `````
 
-````{py:function} run_bb_mtz(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, values: typing.Dict[str, typing.Any], must_go_indices: typing.Optional[typing.Set[int]] = None, env: typing.Optional[gurobipy.Env] = None, seed: typing.Optional[int] = None, recorder: typing.Optional[logic.src.tracking.viz_mixin.PolicyStateRecorder] = None) -> typing.Tuple[typing.List[typing.List[int]], float]
+````{py:function} run_bb_mtz(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: typing.Optional[src.policies.branch_and_bound.params.BBParams] = None, must_go_indices: typing.Optional[typing.Set[int]] = None, env: typing.Optional[gurobipy.Env] = None, recorder: typing.Optional[logic.src.tracking.viz_mixin.PolicyStateRecorder] = None, **kwargs: typing.Any) -> typing.Tuple[typing.List[typing.List[int]], float]
 :canonical: src.policies.branch_and_bound.mtz.run_bb_mtz
 
 ```{autodoc2-docstring} src.policies.branch_and_bound.mtz.run_bb_mtz

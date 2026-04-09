@@ -35,7 +35,7 @@
 
 ### API
 
-`````{py:class} CMABEvolution(split_manager: logic.src.policies.hybrid_genetic_search.split.LinearSplit, bandit_algorithm: str = 'linucb', max_iterations: int = 1000, quality_weight: float = 0.5, improvement_weight: float = 0.6, diversity_weight: float = 0.2, novelty_weight: float = 1.0, reward_threshold: float = 1e-06, default_reward: float = 5.0, rng: typing.Optional[random.Random] = None, **kwargs)
+`````{py:class} CMABEvolution(split_manager: logic.src.policies.hybrid_genetic_search.split.LinearSplit, bandit_algorithm: str = 'linucb', quality_weight: float = 0.5, improvement_weight: float = 0.6, diversity_weight: float = 0.2, novelty_weight: float = 1.0, reward_threshold: float = 1e-06, default_reward: float = 5.0, rng: typing.Optional[random.Random] = None, **kwargs)
 :canonical: src.policies.other.reinforcement_learning.evolution_cmab.CMABEvolution
 
 ```{autodoc2-docstring} src.policies.other.reinforcement_learning.evolution_cmab.CMABEvolution
@@ -47,7 +47,7 @@
 ```{autodoc2-docstring} src.policies.other.reinforcement_learning.evolution_cmab.CMABEvolution.__init__
 ```
 
-````{py:method} crossover(p1: logic.src.policies.hybrid_genetic_search.individual.Individual, p2: logic.src.policies.hybrid_genetic_search.individual.Individual, population: typing.List[logic.src.policies.hybrid_genetic_search.individual.Individual], iteration: int, max_iterations: int) -> logic.src.policies.hybrid_genetic_search.individual.Individual
+````{py:method} crossover(p1: logic.src.policies.hybrid_genetic_search.individual.Individual, p2: logic.src.policies.hybrid_genetic_search.individual.Individual, population: typing.List[logic.src.policies.hybrid_genetic_search.individual.Individual], iteration: int, progress: float = 0.0) -> logic.src.policies.hybrid_genetic_search.individual.Individual
 :canonical: src.policies.other.reinforcement_learning.evolution_cmab.CMABEvolution.crossover
 
 ```{autodoc2-docstring} src.policies.other.reinforcement_learning.evolution_cmab.CMABEvolution.crossover
@@ -97,7 +97,7 @@
 
 `````
 
-````{py:function} update_biased_fitness(population: typing.List[logic.src.policies.hybrid_genetic_search.individual.Individual], nb_elite: int, alpha_diversity: float = 0.5, neighbor_size: int = 15)
+````{py:function} update_biased_fitness(population: typing.List[logic.src.policies.hybrid_genetic_search.individual.Individual], nb_elite: int, neighbor_size: int = 15)
 :canonical: src.policies.other.reinforcement_learning.evolution_cmab.update_biased_fitness
 
 ```{autodoc2-docstring} src.policies.other.reinforcement_learning.evolution_cmab.update_biased_fitness

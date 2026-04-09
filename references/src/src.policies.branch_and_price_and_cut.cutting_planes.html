@@ -65,7 +65,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="src.policies.branch_and_price_and_cut.policy_bpc" href="src.policies.branch_and_price_and_cut.policy_bpc.html" />
-    <link rel="prev" title="src.policies.branch_and_price_and_cut.vrpy_engine" href="src.policies.branch_and_price_and_cut.vrpy_engine.html" />
+    <link rel="prev" title="src.policies.branch_and_price_and_cut.vrpp_model" href="src.policies.branch_and_price_and_cut.vrpp_model.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -536,11 +536,38 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine"><code class="docutils literal notranslate"><span class="pre">CuttingPlaneEngine</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine.separate_and_add_cuts"><code class="docutils literal notranslate"><span class="pre">CuttingPlaneEngine.separate_and_add_cuts()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine.get_name"><code class="docutils literal notranslate"><span class="pre">CuttingPlaneEngine.get_name()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine._is_orthogonal"><code class="docutils literal notranslate"><span class="pre">CuttingPlaneEngine._is_orthogonal()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.RoundedCapacityCutEngine"><code class="docutils literal notranslate"><span class="pre">RoundedCapacityCutEngine</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.RoundedCapacityCutEngine.separate_and_add_cuts"><code class="docutils literal notranslate"><span class="pre">RoundedCapacityCutEngine.separate_and_add_cuts()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.RoundedCapacityCutEngine.get_name"><code class="docutils literal notranslate"><span class="pre">RoundedCapacityCutEngine.get_name()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.SubsetRowCutEngine"><code class="docutils literal notranslate"><span class="pre">SubsetRowCutEngine</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.SubsetRowCutEngine.separate_and_add_cuts"><code class="docutils literal notranslate"><span class="pre">SubsetRowCutEngine.separate_and_add_cuts()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.SubsetRowCutEngine._evaluate_and_add_sri"><code class="docutils literal notranslate"><span class="pre">SubsetRowCutEngine._evaluate_and_add_sri()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.SubsetRowCutEngine.get_name"><code class="docutils literal notranslate"><span class="pre">SubsetRowCutEngine.get_name()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.EdgeCliqueCutEngine"><code class="docutils literal notranslate"><span class="pre">EdgeCliqueCutEngine</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.EdgeCliqueCutEngine.separate_and_add_cuts"><code class="docutils literal notranslate"><span class="pre">EdgeCliqueCutEngine.separate_and_add_cuts()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.EdgeCliqueCutEngine.get_name"><code class="docutils literal notranslate"><span class="pre">EdgeCliqueCutEngine.get_name()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.KnapsackCoverEngine"><code class="docutils literal notranslate"><span class="pre">KnapsackCoverEngine</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.KnapsackCoverEngine.separate_and_add_cuts"><code class="docutils literal notranslate"><span class="pre">KnapsackCoverEngine.separate_and_add_cuts()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.KnapsackCoverEngine.get_name"><code class="docutils literal notranslate"><span class="pre">KnapsackCoverEngine.get_name()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.CompositeCuttingPlaneEngine"><code class="docutils literal notranslate"><span class="pre">CompositeCuttingPlaneEngine</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.CompositeCuttingPlaneEngine.separate_and_add_cuts"><code class="docutils literal notranslate"><span class="pre">CompositeCuttingPlaneEngine.separate_and_add_cuts()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.CompositeCuttingPlaneEngine.get_name"><code class="docutils literal notranslate"><span class="pre">CompositeCuttingPlaneEngine.get_name()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.LiftedCoverCutEngine"><code class="docutils literal notranslate"><span class="pre">LiftedCoverCutEngine</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.LiftedCoverCutEngine.separate_and_add_cuts"><code class="docutils literal notranslate"><span class="pre">LiftedCoverCutEngine.separate_and_add_cuts()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.LiftedCoverCutEngine.get_name"><code class="docutils literal notranslate"><span class="pre">LiftedCoverCutEngine.get_name()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.create_cutting_plane_engine"><code class="docutils literal notranslate"><span class="pre">create_cutting_plane_engine()</span></code></a></li>
@@ -564,24 +591,25 @@ document.write(`
 <p>Cutting plane separation engines for Branch-and-Price-and-Cut algorithms.</p>
 <p>Provides modular separation algorithms for different cut families:</p>
 <ul class="simple">
-<li><p>RCC (Rounded Capacity Cuts): For capacitated vehicle routing</p></li>
-<li><p>LCI: (DEPRECATED) Lifted Cover Inequalities require complex RCSPP state-space
-modifications for dual integration and are currently disabled.</p></li>
+<li><p>RCC (Rounded Capacity Cuts): Standard VRP cuts derived from bin-packing requirements.</p></li>
+<li><p>SEC (Subtour Elimination Cuts): Enforces connectivity for prize-collecting variants.</p></li>
+<li><p>SRI (Subset-Row Inequalities): Tightens set partitioning for subsets (typically size 3).</p></li>
+<li><p>EdgeClique (Edge-Capacity Clique Cuts): Clique cuts for single-vehicle edge capacity.</p></li>
 </ul>
+<p>Methodology:
+Each engine implements a <code class="docutils literal notranslate"><span class="pre">separate_and_add_cuts</span></code> method that inspects the
+fractional LP solution of the Master Problem, identifies violated
+inequalities from its specific family, and registers them into the MP’s
+Gurobi model.</p>
 <p>References:
 - Lysgaard, J., Letchford, A. N., &amp; Eglese, R. W. (2004).
 “A new branch-and-cut algorithm for the capacitated vehicle routing problem.”
 Mathematical Programming, 100(2), 423-445.
-(Rounded Capacity Cuts)</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>- Balas, E. (1975). &quot;Facets of the knapsack polytope.&quot;
-  Mathematical Programming, 8(1), 146-164.
-  (Cover inequalities)
-
-- Zemel, E. (1989). &quot;Easily computable facets of the knapsack polytope.&quot;
-  Mathematics of Operations Research, 14(4), 760-764.
-  (Lifting procedures for cover inequalities)
-</pre></div>
-</div>
+- Jepsen, M., Petersen, B., Spoorendonk, S., &amp; Pisinger, D. (2008).
+“Subset-row inequalities applied to the vehicle-routing problem with time windows.”
+Operations Research, 56(2), 497-511.
+- Balas, E. (1975). “Facets of the knapsack polytope.”
+Mathematical Programming, 8(1), 146-164 (Cover inequalities).</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -593,6 +621,21 @@ Mathematical Programming, 100(2), 423-445.
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.cutting_planes.RoundedCapacityCutEngine" title="src.policies.branch_and_price_and_cut.cutting_planes.RoundedCapacityCutEngine"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoundedCapacityCutEngine</span></code></a></p></td>
 <td><p>Rounded Capacity Cut (RCC) separation engine for VRPP Set Packing.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.cutting_planes.SubsetRowCutEngine" title="src.policies.branch_and_price_and_cut.cutting_planes.SubsetRowCutEngine"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SubsetRowCutEngine</span></code></a></p></td>
+<td><p>Subset-Row Inequality (SRI) separation engine.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.cutting_planes.EdgeCliqueCutEngine" title="src.policies.branch_and_price_and_cut.cutting_planes.EdgeCliqueCutEngine"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EdgeCliqueCutEngine</span></code></a></p></td>
+<td><p>Separates edge-clique inequalities for the Set Partitioning master problem.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.cutting_planes.KnapsackCoverEngine" title="src.policies.branch_and_price_and_cut.cutting_planes.KnapsackCoverEngine"><code class="xref py py-obj docutils literal notranslate"><span class="pre">KnapsackCoverEngine</span></code></a></p></td>
+<td><p>Separates Cover Inequalities for knapsack constraints in the Master Problem.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.cutting_planes.CompositeCuttingPlaneEngine" title="src.policies.branch_and_price_and_cut.cutting_planes.CompositeCuttingPlaneEngine"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CompositeCuttingPlaneEngine</span></code></a></p></td>
+<td><p>Combines multiple separation engines to run in sequence.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.cutting_planes.LiftedCoverCutEngine" title="src.policies.branch_and_price_and_cut.cutting_planes.LiftedCoverCutEngine"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LiftedCoverCutEngine</span></code></a></p></td>
+<td><p>Separates Lifted Cover Inequalities (LCI) for knapsack constraints.</p></td>
 </tr>
 </tbody>
 </table>
@@ -620,7 +663,7 @@ Mathematical Programming, 100(2), 423-445.
 provides separation algorithms to identify violated cuts.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine.separate_and_add_cuts">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">separate_and_add_cuts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price.master_problem.html#src.policies.branch_and_price.master_problem.VRPPMasterProblem" title="src.policies.branch_and_price.master_problem.VRPPMasterProblem"><span class="pre">src.policies.branch_and_price.master_problem.VRPPMasterProblem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine.separate_and_add_cuts" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">separate_and_add_cuts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price_and_cut.master_problem.html#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem" title="src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem"><span class="pre">src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine.separate_and_add_cuts" title="Link to this definition">#</a></dt>
 <dd><p>Identify violated cuts and add them to the master problem.</p>
 <p>Args:
 master: Master problem instance
@@ -636,11 +679,19 @@ Number of cuts added</p>
 <dd><p>Return the engine name for logging.</p>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine._is_orthogonal">
+<span class="sig-name descname"><span class="pre">_is_orthogonal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">candidate_vec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_vecs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.8</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine._is_orthogonal" title="Link to this definition">#</a></dt>
+<dd><p>Task 9 (SOTA): Cut Orthogonality filtering.
+Calculates maximum cosine similarity between candidate vector and active vectors.
+Rejects if similarity &gt; threshold (i.e. if cut is too parallel to existing cuts).</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.cutting_planes.RoundedCapacityCutEngine">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.cutting_planes.</span></span><span class="sig-name descname"><span class="pre">RoundedCapacityCutEngine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_cut.vrpp_model.html#src.policies.branch_and_cut.vrpp_model.VRPPModel" title="src.policies.branch_and_cut.vrpp_model.VRPPModel"><span class="pre">src.policies.branch_and_cut.vrpp_model.VRPPModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sep_engine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_cut.separation.html#src.policies.branch_and_cut.separation.SeparationEngine" title="src.policies.branch_and_cut.separation.SeparationEngine"><span class="pre">src.policies.branch_and_cut.separation.SeparationEngine</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.cutting_planes.RoundedCapacityCutEngine" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.cutting_planes.</span></span><span class="sig-name descname"><span class="pre">RoundedCapacityCutEngine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price_and_cut.vrpp_model.html#src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel" title="src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel"><span class="pre">src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sep_engine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price_and_cut.separation.html#src.policies.branch_and_price_and_cut.separation.SeparationEngine" title="src.policies.branch_and_price_and_cut.separation.SeparationEngine"><span class="pre">src.policies.branch_and_price_and_cut.separation.SeparationEngine</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.cutting_planes.RoundedCapacityCutEngine" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine" title="src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine</span></code></a></p>
 <p>Rounded Capacity Cut (RCC) separation engine for VRPP Set Packing.</p>
 <h2 class="rubric" id="id1">Mathematical Formulation:</h2>
@@ -676,11 +727,12 @@ v_model: VRPP model for edge indexing and demand tracking
 sep_engine: Separation engine from branch-and-cut module</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.cutting_planes.RoundedCapacityCutEngine.separate_and_add_cuts">
-<span class="sig-name descname"><span class="pre">separate_and_add_cuts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price.master_problem.html#src.policies.branch_and_price.master_problem.VRPPMasterProblem" title="src.policies.branch_and_price.master_problem.VRPPMasterProblem"><span class="pre">src.policies.branch_and_price.master_problem.VRPPMasterProblem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.cutting_planes.RoundedCapacityCutEngine.separate_and_add_cuts" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">separate_and_add_cuts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price_and_cut.master_problem.html#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem" title="src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem"><span class="pre">src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.cutting_planes.RoundedCapacityCutEngine.separate_and_add_cuts" title="Link to this definition">#</a></dt>
 <dd><p>Separate RCCs and add to master problem.</p>
 <p>Algorithm:</p>
 <ol class="arabic simple">
-<li><p>Get current edge usage from master problem’s LP solution</p></li>
+<li><p>Get current edge usage from master problem’s LP solution
+(Elementary only: cycles break max-flow conservation).</p></li>
 <li><p>Map edge usage to the separation engine’s representation</p></li>
 <li><p>Run separation algorithms (heuristic + exact)</p></li>
 <li><p>Add violated cuts to master with Set Packing relaxation</p></li>
@@ -700,14 +752,170 @@ Number of cuts added</p>
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.cutting_planes.SubsetRowCutEngine">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.cutting_planes.</span></span><span class="sig-name descname"><span class="pre">SubsetRowCutEngine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price_and_cut.vrpp_model.html#src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel" title="src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel"><span class="pre">src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.cutting_planes.SubsetRowCutEngine" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine" title="src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine</span></code></a></p>
+<p>Subset-Row Inequality (SRI) separation engine.</p>
+<p>Specifically implements 3-SRI (k=3, p=2):
+Σ_{k} ⌊ 1/2 * |S ∩ route_k| ⌋ * λ_k  &lt;= 1</p>
+<p>Heuristic Separation:</p>
+<ol class="arabic simple">
+<li><p>Identify customer nodes with high fractional visitation.</p></li>
+<li><p>Check subsets of 3 nodes that are spatially close.</p></li>
+<li><p>Evaluate violation and add to master.</p></li>
+</ol>
+<p class="rubric">Initialization</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.cutting_planes.SubsetRowCutEngine.separate_and_add_cuts">
+<span class="sig-name descname"><span class="pre">separate_and_add_cuts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price_and_cut.master_problem.html#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem" title="src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem"><span class="pre">src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.cutting_planes.SubsetRowCutEngine.separate_and_add_cuts" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.cutting_planes.SubsetRowCutEngine._evaluate_and_add_sri">
+<span class="sig-name descname"><span class="pre">_evaluate_and_add_sri</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price_and_cut.master_problem.html#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem" title="src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem"><span class="pre">src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.cutting_planes.SubsetRowCutEngine._evaluate_and_add_sri" title="Link to this definition">#</a></dt>
+<dd><p>Calculate SRI violation and add to master if violated.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.cutting_planes.SubsetRowCutEngine.get_name">
+<span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.cutting_planes.SubsetRowCutEngine.get_name" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.cutting_planes.EdgeCliqueCutEngine">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.cutting_planes.</span></span><span class="sig-name descname"><span class="pre">EdgeCliqueCutEngine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price_and_cut.vrpp_model.html#src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel" title="src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel"><span class="pre">src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.cutting_planes.EdgeCliqueCutEngine" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine" title="src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine</span></code></a></p>
+<p>Separates edge-clique inequalities for the Set Partitioning master problem.</p>
+<p>These cuts enforce that at most one route may traverse a given edge (i, j),
+derived from the conflict graph of routes sharing that edge. They are a
+specialization of clique inequalities for the route-edge incidence matrix.</p>
+<p>Note: These are NOT Lifted Cover Inequalities (LCI) in the sense of
+Barnhart, Hane &amp; Vance (2000), which are derived from commodity-flow
+arc-capacity knapsack constraints that do not exist in the VRPP formulation.
+The ‘lci’ engine name is therefore intentionally mapped to NotImplementedError.</p>
+<h2 class="rubric" id="id4">Mathematical Theory:</h2>
+<p>For a physical edge (i, j) with capacity <span class="math notranslate nohighlight">\(W=1\)</span> (since node visits must be partitioned)
+and a fractional solution <span class="math notranslate nohighlight">\(\bar{\lambda}\)</span>, a clique <span class="math notranslate nohighlight">\(C\)</span> is the set of all routes traversing <span class="math notranslate nohighlight">\((i, j)\)</span>.</p>
+<p>The Edge-Clique Inequality is defined as:
+<span class="math notranslate nohighlight">\(\sum_{k \in C} \lambda_k \le 1\)</span></p>
+<h2 class="rubric" id="id5">O(1) Calculation:</h2>
+<p>Since weights <span class="math notranslate nohighlight">\(w_{ik}\)</span> are essentially 1, any set of routes crossing the same
+edge form a complete conflict graph. Thus, the lifting coefficient for all
+such routes simplifies directly to <span class="math notranslate nohighlight">\(\alpha_k = 1.0\)</span>.</p>
+<p class="rubric">Initialization</p>
+<p>Initialize the LCI separation engine.</p>
+<p>Args:
+v_model: VRPP model for edge indexing.
+capacity: Physical capacity of the arc (default 1.0 for VRP).
+epsilon: Violation threshold.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.cutting_planes.EdgeCliqueCutEngine.separate_and_add_cuts">
+<span class="sig-name descname"><span class="pre">separate_and_add_cuts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price_and_cut.master_problem.html#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem" title="src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem"><span class="pre">src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.cutting_planes.EdgeCliqueCutEngine.separate_and_add_cuts" title="Link to this definition">#</a></dt>
+<dd><p>Identify violated LCIs by lifting minimal covers.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.cutting_planes.EdgeCliqueCutEngine.get_name">
+<span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.cutting_planes.EdgeCliqueCutEngine.get_name" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.cutting_planes.KnapsackCoverEngine">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.cutting_planes.</span></span><span class="sig-name descname"><span class="pre">KnapsackCoverEngine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price_and_cut.vrpp_model.html#src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel" title="src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel"><span class="pre">src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sep_engine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price_and_cut.separation.html#src.policies.branch_and_price_and_cut.separation.SeparationEngine" title="src.policies.branch_and_price_and_cut.separation.SeparationEngine"><span class="pre">src.policies.branch_and_price_and_cut.separation.SeparationEngine</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.cutting_planes.KnapsackCoverEngine" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine" title="src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine</span></code></a></p>
+<p>Separates Cover Inequalities for knapsack constraints in the Master Problem.</p>
+<p>In the VRPP context, this primarily targets the fleet size (vehicle limit)
+constraint: Σ λ_k ≤ K. While simpler than a general knapsack with varied
+weights, separating covers for the fleet limit helps strengthen the
+integrality of the master problem in tightly constrained instances.</p>
+<p>Reference: Barnhart et al. (2000), Section 5.</p>
+<p>Interaction with the fleet constraint:
+When VRPPMasterProblem has an active vehicle_limit constraint
+(Σ λ_k ≤ K), the fleet constraint already prevents the LP from
+selecting more than K routes. In that case, this engine’s cover cut
+(Σ_{k ∈ top_K+1} λ_k ≤ K) is redundant and will never fire.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>This engine is primarily useful when NO explicit vehicle_limit is set
+in the master problem — e.g., in uncapacitated-fleet VRPP variants —
+where the cover cut provides a surrogate fleet-size tightening.
+
+If vehicle_limit is always set, consider disabling this engine to
+avoid unnecessary separation overhead.
+</pre></div>
+</div>
+<p class="rubric">Initialization</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.cutting_planes.KnapsackCoverEngine.separate_and_add_cuts">
+<span class="sig-name descname"><span class="pre">separate_and_add_cuts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price_and_cut.master_problem.html#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem" title="src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem"><span class="pre">src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.cutting_planes.KnapsackCoverEngine.separate_and_add_cuts" title="Link to this definition">#</a></dt>
+<dd><p>Identify and add violated cover inequalities for the vehicle limit.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.cutting_planes.KnapsackCoverEngine.get_name">
+<span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.cutting_planes.KnapsackCoverEngine.get_name" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.cutting_planes.CompositeCuttingPlaneEngine">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.cutting_planes.</span></span><span class="sig-name descname"><span class="pre">CompositeCuttingPlaneEngine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">engines</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine" title="src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine"><span class="pre">src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.cutting_planes.CompositeCuttingPlaneEngine" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine" title="src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine</span></code></a></p>
+<p>Combines multiple separation engines to run in sequence.</p>
+<p class="rubric">Initialization</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.cutting_planes.CompositeCuttingPlaneEngine.separate_and_add_cuts">
+<span class="sig-name descname"><span class="pre">separate_and_add_cuts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price_and_cut.master_problem.html#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem" title="src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem"><span class="pre">src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.cutting_planes.CompositeCuttingPlaneEngine.separate_and_add_cuts" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.cutting_planes.CompositeCuttingPlaneEngine.get_name">
+<span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.cutting_planes.CompositeCuttingPlaneEngine.get_name" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.cutting_planes.LiftedCoverCutEngine">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.cutting_planes.</span></span><span class="sig-name descname"><span class="pre">LiftedCoverCutEngine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price_and_cut.vrpp_model.html#src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel" title="src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel"><span class="pre">src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.cutting_planes.LiftedCoverCutEngine" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine" title="src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine</span></code></a></p>
+<p>Separates Lifted Cover Inequalities (LCI) for knapsack constraints.</p>
+<p>In VRPP, the primary knapsack constraint is the vehicle fleet limit:
+<span class="math notranslate nohighlight">\(\sum_{k \in \Omega} \lambda_k \le K\)</span></p>
+<p>A Cover <span class="math notranslate nohighlight">\(C \subseteq \Omega\)</span> is a set of routes such that <span class="math notranslate nohighlight">\(|C| &gt; K\)</span>.
+The basic cover inequality is: <span class="math notranslate nohighlight">\(\sum_{k \in C} \lambda_k \le K\)</span>.</p>
+<p>This engine strengthens this by lifting variables outside the cover:
+<span class="math notranslate nohighlight">\(\sum_{k \in C} \lambda_k + \sum_{k \in \Omega \setminus C} \alpha_k \lambda_k \le K\)</span></p>
+<p>References:
+- Barnhart et al. (2000), “Using branch-and-price-and-cut to solve
+origin-destination integer multicommodity flow problems.”
+Operations Research, 48(2):318-326.
+- Balas (1975), “Facets of the knapsack polytope.”</p>
+<p class="rubric">Initialization</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.cutting_planes.LiftedCoverCutEngine.separate_and_add_cuts">
+<span class="sig-name descname"><span class="pre">separate_and_add_cuts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price_and_cut.master_problem.html#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem" title="src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem"><span class="pre">src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.cutting_planes.LiftedCoverCutEngine.separate_and_add_cuts" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.cutting_planes.LiftedCoverCutEngine.get_name">
+<span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.cutting_planes.LiftedCoverCutEngine.get_name" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.cutting_planes.create_cutting_plane_engine">
-<span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.cutting_planes.</span></span><span class="sig-name descname"><span class="pre">create_cutting_plane_engine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">engine_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_cut.vrpp_model.html#src.policies.branch_and_cut.vrpp_model.VRPPModel" title="src.policies.branch_and_cut.vrpp_model.VRPPModel"><span class="pre">src.policies.branch_and_cut.vrpp_model.VRPPModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sep_engine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.branch_and_cut.separation.html#src.policies.branch_and_cut.separation.SeparationEngine" title="src.policies.branch_and_cut.separation.SeparationEngine"><span class="pre">src.policies.branch_and_cut.separation.SeparationEngine</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine" title="src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine"><span class="pre">src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine</span></a></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.cutting_planes.create_cutting_plane_engine" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.cutting_planes.</span></span><span class="sig-name descname"><span class="pre">create_cutting_plane_engine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">engine_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.policies.branch_and_price_and_cut.vrpp_model.html#src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel" title="src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel"><span class="pre">src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sep_engine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.branch_and_price_and_cut.separation.html#src.policies.branch_and_price_and_cut.separation.SeparationEngine" title="src.policies.branch_and_price_and_cut.separation.SeparationEngine"><span class="pre">src.policies.branch_and_price_and_cut.separation.SeparationEngine</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine" title="src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine"><span class="pre">src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine</span></a></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.cutting_planes.create_cutting_plane_engine" title="Link to this definition">#</a></dt>
 <dd><p>Factory function to create cutting plane engines.</p>
 <p>Args:
-engine_name: Name of the engine (“rcc” or “lci”)
+engine_name: Name of the engine (“rcc”, “src”, “cover”, or “all”)
 v_model: VRPP model for problem data
-sep_engine: Separation engine (required for RCC)</p>
+sep_engine: Separation engine (required for RCC/SRC)</p>
 <p>Returns:
 Instance of the requested cutting plane engine</p>
 <p>Raises:
@@ -734,12 +942,12 @@ ValueError: If engine_name is not recognized or required args missing</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.policies.branch_and_price_and_cut.vrpy_engine.html"
+       href="src.policies.branch_and_price_and_cut.vrpp_model.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.vrpy_engine</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.vrpp_model</span></code></p>
       </div>
     </a>
     <a class="right-next"
@@ -774,11 +982,38 @@ ValueError: If engine_name is not recognized or required args missing</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine"><code class="docutils literal notranslate"><span class="pre">CuttingPlaneEngine</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine.separate_and_add_cuts"><code class="docutils literal notranslate"><span class="pre">CuttingPlaneEngine.separate_and_add_cuts()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine.get_name"><code class="docutils literal notranslate"><span class="pre">CuttingPlaneEngine.get_name()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine._is_orthogonal"><code class="docutils literal notranslate"><span class="pre">CuttingPlaneEngine._is_orthogonal()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.RoundedCapacityCutEngine"><code class="docutils literal notranslate"><span class="pre">RoundedCapacityCutEngine</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.RoundedCapacityCutEngine.separate_and_add_cuts"><code class="docutils literal notranslate"><span class="pre">RoundedCapacityCutEngine.separate_and_add_cuts()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.RoundedCapacityCutEngine.get_name"><code class="docutils literal notranslate"><span class="pre">RoundedCapacityCutEngine.get_name()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.SubsetRowCutEngine"><code class="docutils literal notranslate"><span class="pre">SubsetRowCutEngine</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.SubsetRowCutEngine.separate_and_add_cuts"><code class="docutils literal notranslate"><span class="pre">SubsetRowCutEngine.separate_and_add_cuts()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.SubsetRowCutEngine._evaluate_and_add_sri"><code class="docutils literal notranslate"><span class="pre">SubsetRowCutEngine._evaluate_and_add_sri()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.SubsetRowCutEngine.get_name"><code class="docutils literal notranslate"><span class="pre">SubsetRowCutEngine.get_name()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.EdgeCliqueCutEngine"><code class="docutils literal notranslate"><span class="pre">EdgeCliqueCutEngine</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.EdgeCliqueCutEngine.separate_and_add_cuts"><code class="docutils literal notranslate"><span class="pre">EdgeCliqueCutEngine.separate_and_add_cuts()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.EdgeCliqueCutEngine.get_name"><code class="docutils literal notranslate"><span class="pre">EdgeCliqueCutEngine.get_name()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.KnapsackCoverEngine"><code class="docutils literal notranslate"><span class="pre">KnapsackCoverEngine</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.KnapsackCoverEngine.separate_and_add_cuts"><code class="docutils literal notranslate"><span class="pre">KnapsackCoverEngine.separate_and_add_cuts()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.KnapsackCoverEngine.get_name"><code class="docutils literal notranslate"><span class="pre">KnapsackCoverEngine.get_name()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.CompositeCuttingPlaneEngine"><code class="docutils literal notranslate"><span class="pre">CompositeCuttingPlaneEngine</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.CompositeCuttingPlaneEngine.separate_and_add_cuts"><code class="docutils literal notranslate"><span class="pre">CompositeCuttingPlaneEngine.separate_and_add_cuts()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.CompositeCuttingPlaneEngine.get_name"><code class="docutils literal notranslate"><span class="pre">CompositeCuttingPlaneEngine.get_name()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.LiftedCoverCutEngine"><code class="docutils literal notranslate"><span class="pre">LiftedCoverCutEngine</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.LiftedCoverCutEngine.separate_and_add_cuts"><code class="docutils literal notranslate"><span class="pre">LiftedCoverCutEngine.separate_and_add_cuts()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.LiftedCoverCutEngine.get_name"><code class="docutils literal notranslate"><span class="pre">LiftedCoverCutEngine.get_name()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.cutting_planes.create_cutting_plane_engine"><code class="docutils literal notranslate"><span class="pre">create_cutting_plane_engine()</span></code></a></li>

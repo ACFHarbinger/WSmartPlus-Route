@@ -58,10 +58,18 @@
 ```{autodoc2-docstring} src.policies.branch_and_price.master_problem.VRPPMasterProblem.__init__
 ```
 
-````{py:method} remove_unpromising_columns(threshold: float) -> int
+````{py:method} remove_unpromising_columns(threshold: float = -10.0) -> int
 :canonical: src.policies.branch_and_price.master_problem.VRPPMasterProblem.remove_unpromising_columns
 
 ```{autodoc2-docstring} src.policies.branch_and_price.master_problem.VRPPMasterProblem.remove_unpromising_columns
+```
+
+````
+
+````{py:method} add_route_as_column(route: src.policies.branch_and_price.master_problem.Route) -> None
+:canonical: src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_route_as_column
+
+```{autodoc2-docstring} src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_route_as_column
 ```
 
 ````
@@ -106,7 +114,7 @@
 
 ````
 
-````{py:method} get_reduced_cost_coefficients() -> typing.Dict[typing.Union[int, str], float]
+````{py:method} get_reduced_cost_coefficients() -> typing.Dict[str, typing.Dict[typing.Union[int, frozenset[int], str, typing.Tuple[int, int]], float]]
 :canonical: src.policies.branch_and_price.master_problem.VRPPMasterProblem.get_reduced_cost_coefficients
 
 ```{autodoc2-docstring} src.policies.branch_and_price.master_problem.VRPPMasterProblem.get_reduced_cost_coefficients
@@ -122,10 +130,98 @@
 
 ````
 
+````{py:method} add_edge_lci_cut(u: int, v: int) -> bool
+:canonical: src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_edge_lci_cut
+
+```{autodoc2-docstring} src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_edge_lci_cut
+```
+
+````
+
+````{py:method} get_edge_usage() -> typing.Dict[typing.Tuple[int, int], float]
+:canonical: src.policies.branch_and_price.master_problem.VRPPMasterProblem.get_edge_usage
+
+```{autodoc2-docstring} src.policies.branch_and_price.master_problem.VRPPMasterProblem.get_edge_usage
+```
+
+````
+
+````{py:method} add_subset_row_cut(node_set: typing.List[int]) -> bool
+:canonical: src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_subset_row_cut
+
+```{autodoc2-docstring} src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_subset_row_cut
+```
+
+````
+
+````{py:method} add_set_packing_capacity_cut(node_list: typing.List[int], rhs: float) -> bool
+:canonical: src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_set_packing_capacity_cut
+
+```{autodoc2-docstring} src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_set_packing_capacity_cut
+```
+
+````
+
+````{py:method} add_sec_cut(node_list: typing.List[int], rhs: float, cut_name: str = '', global_cut: bool = True) -> bool
+:canonical: src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_sec_cut
+
+```{autodoc2-docstring} src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_sec_cut
+```
+
+````
+
+````{py:method} remove_local_cuts() -> int
+:canonical: src.policies.branch_and_price.master_problem.VRPPMasterProblem.remove_local_cuts
+
+```{autodoc2-docstring} src.policies.branch_and_price.master_problem.VRPPMasterProblem.remove_local_cuts
+```
+
+````
+
+````{py:method} find_and_add_violated_rcc(route_values: typing.Dict[int, float], routes: typing.List[src.policies.branch_and_price.master_problem.Route], max_cuts: int = 5) -> int
+:canonical: src.policies.branch_and_price.master_problem.VRPPMasterProblem.find_and_add_violated_rcc
+
+```{autodoc2-docstring} src.policies.branch_and_price.master_problem.VRPPMasterProblem.find_and_add_violated_rcc
+```
+
+````
+
+````{py:method} _find_customer_components(arc_flow: typing.Dict[typing.Tuple[int, int], float]) -> typing.List[typing.Set[int]]
+:canonical: src.policies.branch_and_price.master_problem.VRPPMasterProblem._find_customer_components
+
+```{autodoc2-docstring} src.policies.branch_and_price.master_problem.VRPPMasterProblem._find_customer_components
+```
+
+````
+
+````{py:method} _count_crossings(route: src.policies.branch_and_price.master_problem.Route, node_set: typing.FrozenSet[int]) -> int
+:canonical: src.policies.branch_and_price.master_problem.VRPPMasterProblem._count_crossings
+
+```{autodoc2-docstring} src.policies.branch_and_price.master_problem.VRPPMasterProblem._count_crossings
+```
+
+````
+
 ````{py:method} has_artificial_variables_active(tol: float = 1e-06) -> bool
 :canonical: src.policies.branch_and_price.master_problem.VRPPMasterProblem.has_artificial_variables_active
 
 ```{autodoc2-docstring} src.policies.branch_and_price.master_problem.VRPPMasterProblem.has_artificial_variables_active
+```
+
+````
+
+````{py:method} save_basis() -> typing.Optional[typing.Tuple[typing.List[int], typing.List[int]]]
+:canonical: src.policies.branch_and_price.master_problem.VRPPMasterProblem.save_basis
+
+```{autodoc2-docstring} src.policies.branch_and_price.master_problem.VRPPMasterProblem.save_basis
+```
+
+````
+
+````{py:method} restore_basis(basis: typing.Optional[typing.Tuple[typing.List[int], typing.List[int]]]) -> None
+:canonical: src.policies.branch_and_price.master_problem.VRPPMasterProblem.restore_basis
+
+```{autodoc2-docstring} src.policies.branch_and_price.master_problem.VRPPMasterProblem.restore_basis
 ```
 
 ````

@@ -16,6 +16,7 @@
 src.policies.branch_and_price.master_problem
 src.policies.branch_and_price.rcspp_dp
 src.policies.branch_and_price.branching
+src.policies.branch_and_price.params
 src.policies.branch_and_price.pricing_subproblem
 src.policies.branch_and_price.bp
 src.policies.branch_and_price.policy_bp

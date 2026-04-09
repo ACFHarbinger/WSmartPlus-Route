@@ -27,6 +27,7 @@ src.policies.simulated_annealing_neighborhood_search.select
 :titlesonly:
 :maxdepth: 1
 
+src.policies.simulated_annealing_neighborhood_search.params
 src.policies.simulated_annealing_neighborhood_search.policy_sans
 src.policies.simulated_annealing_neighborhood_search.dispatcher
 ```

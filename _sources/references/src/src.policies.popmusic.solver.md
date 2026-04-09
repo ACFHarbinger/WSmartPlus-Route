@@ -47,7 +47,7 @@
 
 ### API
 
-````{py:function} run_popmusic(coords: pandas.DataFrame, must_go: typing.List[int], distance_matrix: numpy.ndarray, n_vehicles: int, subproblem_size: int = 3, max_iterations: typing.Optional[int] = 100, base_solver: str = 'fast_tsp', base_solver_config: typing.Optional[typing.Any] = None, cluster_solver: str = 'fast_tsp', cluster_solver_config: typing.Optional[typing.Any] = None, initial_solver: str = 'nearest_neighbor', seed: int = 42, wastes: typing.Optional[typing.Dict[int, float]] = None, capacity: float = 1000000000.0, R: float = 1.0, C: float = 0.0, vrpp: bool = True, profit_aware_operators: bool = False, k_prox: int = 10, seed_strategy: str = 'lifo') -> typing.Tuple[typing.List[typing.List[int]], float, float, typing.Dict[str, typing.Any]]
+````{py:function} run_popmusic(coords: pandas.DataFrame, must_go: typing.List[int], distance_matrix: numpy.ndarray, n_vehicles: int, subproblem_size: int = 3, max_iterations: typing.Optional[int] = None, base_solver: str = 'fast_tsp', base_solver_config: typing.Optional[typing.Any] = None, cluster_solver: str = 'fast_tsp', cluster_solver_config: typing.Optional[typing.Any] = None, initial_solver: str = 'nearest_neighbor', seed: int = 42, wastes: typing.Optional[typing.Dict[int, float]] = None, capacity: float = 1000000000.0, R: float = 1.0, C: float = 0.0, vrpp: bool = True, profit_aware_operators: bool = False, k_prox: int = 10, seed_strategy: str = 'lifo') -> typing.Tuple[typing.List[typing.List[int]], float, float, typing.Dict[str, typing.Any]]
 :canonical: src.policies.popmusic.solver.run_popmusic
 
 ```{autodoc2-docstring} src.policies.popmusic.solver.run_popmusic

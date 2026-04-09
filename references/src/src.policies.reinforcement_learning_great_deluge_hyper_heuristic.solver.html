@@ -574,11 +574,14 @@ acceptance criterion, as specified in Ozcan et al. (2010).</p>
 4. While t &lt; totalTime:
 a. Select LLH i with highest utility (random tie-break).
 b. Apply LLH i → S_temp, f_temp.
-c. Reward / punish u_i:
-Reward  iff f_temp strictly improves f_current.
-Punish  otherwise (including f_temp == f_current).
-d. Accept (update S_current) iff f_temp &gt;= level  [maximisation].
-e. Update level: level(t) = qualityLB + (f0 - qualityLB)×(1 - t/T).
+c. Reward / punish u_i &amp; Accept / Reject S_temp:
+If f_temp &gt; f_current:
+Reward u_i.
+Accept (S_current = S_temp).
+Else:
+Punish u_i.
+Accept (S_current = S_temp) iff f_temp &gt;= level.
+d. Update level: level(t) = qualityLB + (f0 - qualityLB)×(1 - t/T).
 5. Return best solution seen.</p>
 <p>RL Punishment Variants (Section 3.2):
 RL1 (default): u ← max(lb, u − penalty)          [subtractive]

@@ -564,8 +564,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.smart_waste_collection_two_commodity_flow.policy_swc_tcf.SWCTCFPolicy" title="src.policies.smart_waste_collection_two_commodity_flow.policy_swc_tcf.SWCTCFPolicy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SWCTCFPolicy</span></code></a></p></td>
-<td><p>Agnostic SWC-TCF Policy adapter.
-Delegates to run_swc_tcf_optimizer.</p></td>
+<td><p>Smart Waste Collection - Two-Commodity Flow (SWC-TCF) policy adapter.</p></td>
 </tr>
 </tbody>
 </table>
@@ -577,8 +576,23 @@ Delegates to run_swc_tcf_optimizer.</p></td>
 <dt class="sig sig-object py" id="src.policies.smart_waste_collection_two_commodity_flow.policy_swc_tcf.SWCTCFPolicy">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.smart_waste_collection_two_commodity_flow.policy_swc_tcf.</span></span><span class="sig-name descname"><span class="pre">SWCTCFPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.policies.SWCTCFConfig</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.smart_waste_collection_two_commodity_flow.policy_swc_tcf.SWCTCFPolicy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.policies.base.base_routing_policy.BaseRoutingPolicy</span></code></p>
-<p>Agnostic SWC-TCF Policy adapter.
-Delegates to run_swc_tcf_optimizer.</p>
+<p>Smart Waste Collection - Two-Commodity Flow (SWC-TCF) policy adapter.</p>
+<p>This policy implements a mathematical programming approach based on the
+Two-Commodity Flow formulation for the Vehicle Routing Problem. It allows
+for the use of either Gurobi (exact) or Hexaly (local search) as the
+underlying optimization engine.</p>
+<p>Technical Context:</p>
+<ul class="simple">
+<li><p>Formulation: Uses a flow-based MILP model to ensure subtour elimination
+and capacity enforcement.</p></li>
+<li><p>Dispatcher: Multi-backend dispatcher supporting exact and heuristic engines.</p></li>
+</ul>
+<p>Reference:</p>
+<ul class="simple">
+<li><p>Ramos, T. R. P., Morais, C. S., &amp; Barbosa-Povoa, A. P. (2018). “The smart
+waste collection routing problem: Alternative operational management
+approaches”. Expert Systems with Applications.</p></li>
+</ul>
 <p class="rubric">Initialization</p>
 <p>Initialize SWC-TCF policy with optional config.</p>
 <p>Args:

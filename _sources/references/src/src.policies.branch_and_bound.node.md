@@ -73,12 +73,4 @@
 
 ````
 
-````{py:method} __post_init__()
-:canonical: src.policies.branch_and_bound.node.Node.__post_init__
-
-```{autodoc2-docstring} src.policies.branch_and_bound.node.Node.__post_init__
-```
-
-````
-
 `````

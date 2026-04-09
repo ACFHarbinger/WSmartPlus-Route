@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} VectorizedPopulation(size: int, device: typing.Any, alpha_diversity: float = 0.0, generator: typing.Optional[torch.Generator] = None)
+`````{py:class} VectorizedPopulation(size: int, device: typing.Any, generator: typing.Optional[torch.Generator] = None)
 :canonical: src.models.policies.hgs_core.population.VectorizedPopulation
 
 ```{autodoc2-docstring} src.models.policies.hgs_core.population.VectorizedPopulation
@@ -51,7 +51,7 @@
 
 ````
 
-````{py:method} initialize(initial_pop: torch.Tensor, initial_costs: torch.Tensor)
+````{py:method} initialize(initial_pop: torch.Tensor, initial_costs: torch.Tensor, nb_elite: int)
 :canonical: src.models.policies.hgs_core.population.VectorizedPopulation.initialize
 
 ```{autodoc2-docstring} src.models.policies.hgs_core.population.VectorizedPopulation.initialize
@@ -59,7 +59,7 @@
 
 ````
 
-````{py:method} add_individuals(candidates: torch.Tensor, costs: torch.Tensor)
+````{py:method} add_individuals(candidates: torch.Tensor, costs: torch.Tensor, nb_elite: int)
 :canonical: src.models.policies.hgs_core.population.VectorizedPopulation.add_individuals
 
 ```{autodoc2-docstring} src.models.policies.hgs_core.population.VectorizedPopulation.add_individuals
@@ -67,7 +67,7 @@
 
 ````
 
-````{py:method} compute_biased_fitness()
+````{py:method} compute_biased_fitness(nb_elite: int)
 :canonical: src.models.policies.hgs_core.population.VectorizedPopulation.compute_biased_fitness
 
 ```{autodoc2-docstring} src.models.policies.hgs_core.population.VectorizedPopulation.compute_biased_fitness

@@ -15,6 +15,7 @@
 
 src.policies.lin_kernighan_helsgaun_three.policy_lkh3
 src.policies.lin_kernighan_helsgaun_three.subgradient
+src.policies.lin_kernighan_helsgaun_three.params
 src.policies.lin_kernighan_helsgaun_three.objective
 src.policies.lin_kernighan_helsgaun_three.tour_improvement
 src.policies.lin_kernighan_helsgaun_three.lkh3

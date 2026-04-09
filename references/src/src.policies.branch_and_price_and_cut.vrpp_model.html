@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>src.policies.branch_and_price_and_cut.ortools_engine &#8212; WSmart-Route  documentation</title>
+    <title>src.policies.branch_and_price_and_cut.vrpp_model &#8212; WSmart-Route  documentation</title>
   
   
   
@@ -61,11 +61,11 @@
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.policies.branch_and_price_and_cut.ortools_engine';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.policies.branch_and_price_and_cut.vrpp_model';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.policies.branch_and_price_and_cut.vrpy_engine" href="src.policies.branch_and_price_and_cut.vrpy_engine.html" />
-    <link rel="prev" title="src.policies.branch_and_price_and_cut.search_strategy" href="src.policies.branch_and_price_and_cut.search_strategy.html" />
+    <link rel="next" title="src.policies.branch_and_price_and_cut.cutting_planes" href="src.policies.branch_and_price_and_cut.cutting_planes.html" />
+    <link rel="prev" title="src.policies.branch_and_price_and_cut.params" href="src.policies.branch_and_price_and_cut.params.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -435,7 +435,7 @@
       
       
       
-      <li><a href="../../_sources/references/src/src.policies.branch_and_price_and_cut.ortools_engine.md" target="_blank"
+      <li><a href="../../_sources/references/src/src.policies.branch_and_price_and_cut.vrpp_model.md" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -519,7 +519,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>src.policies.branch_and_price_and_cut.ortools_engine</h1>
+    <h1>src.policies.branch_and_price_and_cut.vrpp_model</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -529,16 +529,23 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conceptual-link-to-bpc">Conceptual Link to BPC:</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References:</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.ortools_engine.run_bpc_ortools"><code class="docutils literal notranslate"><span class="pre">run_bpc_ortools()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.ortools_engine._add_distance_constraints"><code class="docutils literal notranslate"><span class="pre">_add_distance_constraints()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.ortools_engine._add_capacity_constraints"><code class="docutils literal notranslate"><span class="pre">_add_capacity_constraints()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.ortools_engine._add_waste_collecting_penalties"><code class="docutils literal notranslate"><span class="pre">_add_waste_collecting_penalties()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.ortools_engine._get_search_parameters"><code class="docutils literal notranslate"><span class="pre">_get_search_parameters()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.ortools_engine._parse_routes"><code class="docutils literal notranslate"><span class="pre">_parse_routes()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.ortools_engine._calculate_real_cost"><code class="docutils literal notranslate"><span class="pre">_calculate_real_cost()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel"><code class="docutils literal notranslate"><span class="pre">VRPPModel</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel.get_edge_cost"><code class="docutils literal notranslate"><span class="pre">VRPPModel.get_edge_cost()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel.get_node_profit"><code class="docutils literal notranslate"><span class="pre">VRPPModel.get_node_profit()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel.get_node_demand"><code class="docutils literal notranslate"><span class="pre">VRPPModel.get_node_demand()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel.delta"><code class="docutils literal notranslate"><span class="pre">VRPPModel.delta()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel.edges_in_set"><code class="docutils literal notranslate"><span class="pre">VRPPModel.edges_in_set()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel.total_demand"><code class="docutils literal notranslate"><span class="pre">VRPPModel.total_demand()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel.validate_tour"><code class="docutils literal notranslate"><span class="pre">VRPPModel.validate_tour()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel.compute_tour_profit"><code class="docutils literal notranslate"><span class="pre">VRPPModel.compute_tour_profit()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel.compute_tour_cost"><code class="docutils literal notranslate"><span class="pre">VRPPModel.compute_tour_cost()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -554,45 +561,40 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.branch_and_price_and_cut.ortools_engine">
-<span id="src-policies-branch-and-price-and-cut-ortools-engine"></span><h1><a class="reference internal" href="#module-src.policies.branch_and_price_and_cut.ortools_engine" title="src.policies.branch_and_price_and_cut.ortools_engine"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.ortools_engine</span></code></a><a class="headerlink" href="#module-src.policies.branch_and_price_and_cut.ortools_engine" title="Link to this heading">#</a></h1>
-<p>OR-Tools engine for Branch-and-Price-and-Cut module.</p>
-<p>IMPORTANT: This is NOT a true Branch-and-Price-and-Cut solver.
-This implementation uses OR-Tools’ Constraint Programming (CP) routing solver with
-local search metaheuristics. It does NOT implement:</p>
+  <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.branch_and_price_and_cut.vrpp_model">
+<span id="src-policies-branch-and-price-and-cut-vrpp-model"></span><h1><a class="reference internal" href="#module-src.policies.branch_and_price_and_cut.vrpp_model" title="src.policies.branch_and_price_and_cut.vrpp_model"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.vrpp_model</span></code></a><a class="headerlink" href="#module-src.policies.branch_and_price_and_cut.vrpp_model" title="Link to this heading">#</a></h1>
+<section id="conceptual-link-to-bpc">
+<h2>Conceptual Link to BPC:<a class="headerlink" href="#conceptual-link-to-bpc" title="Link to this heading">#</a></h2>
+<p>The Natural Edge Formulation <span class="math notranslate nohighlight">\((x, y)\)</span> provides the theoretical basis for our
+branching and cutting decisions. However, the BPC engine operates on an
+equivalent Set Partitioning formulation <span class="math notranslate nohighlight">\((\lambda)\)</span> for computational efficiency.
+This model bridges the two by:</p>
+<ol class="arabic simple">
+<li><p>Providing graph topology for RCSPP pricing.</p></li>
+<li><p>Formulating base constraints (degree, capacity) that are strengthened by
+dynamic cut separation.</p></li>
+<li><p>Defining the node selection and profit logic.</p></li>
+</ol>
+</section>
+<section id="references">
+<h2>References:<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Column Generation</p></li>
-<li><p>Pricing Subproblem (RCSPP)</p></li>
-<li><p>Branch-and-Bound tree</p></li>
-<li><p>Linear Programming relaxations</p></li>
+<li><p>Fischetti, M., Salazar-González, J. J., &amp; Toth, P. (1997). “A branch-and-cut
+algorithm for the symmetric generalized traveling salesman problem.”
+Operations Research, 45(3), 378-394.</p></li>
 </ul>
-<p>This is a CP/Local Search solver backend included for comparison purposes.</p>
+</section>
+<p>VRPP Model Formulation for Branch-and-Price-and-Cut (BPC).</p>
+<p>Implements the polyhedral structure and physical constraints for the Vehicle
+Routing Problem with Profits.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
-<section id="functions">
-<h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.ortools_engine.run_bpc_ortools" title="src.policies.branch_and_price_and_cut.ortools_engine.run_bpc_ortools"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_bpc_ortools</span></code></a></p></td>
-<td><p>Solve Waste-Collecting CVRP using Google OR-Tools.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.ortools_engine._add_distance_constraints" title="src.policies.branch_and_price_and_cut.ortools_engine._add_distance_constraints"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_add_distance_constraints</span></code></a></p></td>
-<td><p>Define Cost distance callback.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.ortools_engine._add_capacity_constraints" title="src.policies.branch_and_price_and_cut.ortools_engine._add_capacity_constraints"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_add_capacity_constraints</span></code></a></p></td>
-<td><p>Add Capacity Constraints.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.ortools_engine._add_waste_collecting_penalties" title="src.policies.branch_and_price_and_cut.ortools_engine._add_waste_collecting_penalties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_add_waste_collecting_penalties</span></code></a></p></td>
-<td><p>Add Penalties (Waste Collecting).</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.ortools_engine._get_search_parameters" title="src.policies.branch_and_price_and_cut.ortools_engine._get_search_parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_search_parameters</span></code></a></p></td>
-<td><p>Configure search parameters.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.ortools_engine._parse_routes" title="src.policies.branch_and_price_and_cut.ortools_engine._parse_routes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_parse_routes</span></code></a></p></td>
-<td><p>Parse routes from the solution.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.ortools_engine._calculate_real_cost" title="src.policies.branch_and_price_and_cut.ortools_engine._calculate_real_cost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_calculate_real_cost</span></code></a></p></td>
-<td><p>Calculate the real distance cost of the routes.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel" title="src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VRPPModel</span></code></a></p></td>
+<td><p>Mathematical model for the Vehicle Routing Problem with Profits (VRPP).</p></td>
 </tr>
 </tbody>
 </table>
@@ -600,46 +602,111 @@ local search metaheuristics. It does NOT implement:</p>
 </section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
-<dl class="py function">
-<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.ortools_engine.run_bpc_ortools">
-<span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.ortools_engine.</span></span><span class="sig-name descname"><span class="pre">run_bpc_ortools</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recorder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.tracking.viz_mixin.PolicyStateRecorder</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.ortools_engine.run_bpc_ortools" title="Link to this definition">#</a></dt>
-<dd><p>Solve Waste-Collecting CVRP using Google OR-Tools.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.vrpp_model.</span></span><span class="sig-name descname"><span class="pre">VRPPModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_vehicles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue_per_kg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_per_km</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel" title="Link to this definition">#</a></dt>
+<dd><p>Mathematical model for the Vehicle Routing Problem with Profits (VRPP).</p>
+<p>This solver adapts the Symmetric Generalized TSP (GTSP) infrastructure of
+Fischetti et al. (1997) to the Single-Vehicle VRPP, which is formulated
+as a Prize-Collecting TSP (PC-TSP) with a global knapsack constraint.</p>
+<p>The model utilizes Generalized Subtour Elimination Constraints (GSECs).
+In the absence of explicit clusters, it primarily utilizes the Equation (2.3)
+form of GSECs: ∑_{(i,j) ∈ δ(S)} x[i,j] ≥ 2(yi + yj - 1).</p>
+<p>Uses the Natural Edge Formulation for Branch-and-Cut optimization.
+MTZ variables are omitted to preserve a tight polyhedral relaxation,
+relying strictly on the SeparationEngine for SEC and Capacity cuts.</p>
+<p>The VRPP seeks to maximize:
+Total Profit = (Waste Collected × R) - (Distance Traveled × C)</p>
+<p>Variable Consistency:
+The objective is implemented as a minimization of (Cost - Revenue)
+which is mathematically equivalent to maximizing (Revenue - Cost).</p>
+<p>Decision Variables:
+- x[i,j] ∈ {0,1,2}: Edge (i,j) usage. (ub=2 for edges incident to depot).
+- y[i] ∈ {0,1}: Node i is visited.</p>
+<p>Base Model Constraints (before cutting planes):
+1. Degree constraints: ∑_{(i,j) ∈ δ(i)} x[i,j] = 2·y[i] for all customers i
+2. Depot degree: ∑_{(0,j) ∈ δ(0)} x[0,j] ≤ 2K (where K is fleet size)
+3. Global capacity: ∑_{i ∈ V{0}} demand[i]·y[i] ≤ K·Q (aggregate capacity)
+4. Mandatory nodes: y[i] = 1 for i ∈ must_go</p>
+<p>Dynamic Constraints (added via callbacks):
+5. Prize-Collecting Subtour Elimination Cuts (PC-SEC):
+- Form (2.1): ∑_{(i,j) ∈ δ(S)} x[i,j] ≥ 2
+- Form (2.2): ∑_{(i,j) ∈ δ(S)} x[i,j] ≥ 2yi
+- Form (2.3): ∑_{(i,j) ∈ δ(S)} x[i,j] ≥ 2(yi + yj - 1)
+6. Rounded Capacity Cuts (RCC): ∑_{(i,j) ∈ δ(S)} x[i,j] ≥ 2·⌈demand(S)/Q⌉</p>
+<p class="rubric">Initialization</p>
+<p>Initialize the VRPP model.</p>
+<p>Args:
+n_nodes: Total number of nodes (including depot at index 0).
+cost_matrix: Symmetric n_nodes × n_nodes distance/cost matrix.
+wastes: Dictionary mapping node index -&gt; waste/demand.
+capacity: Vehicle capacity constraint (Q).
+num_vehicles: Fleet size (K).
+revenue_per_kg: Revenue coefficient (R).
+cost_per_km: Cost coefficient (C).
+mandatory_nodes: Set of node indices that must be visited (must_go).
+node_coords: Node coordinates for spatial branching.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel.get_edge_cost">
+<span class="sig-name descname"><span class="pre">get_edge_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel.get_edge_cost" title="Link to this definition">#</a></dt>
+<dd><p>Get the travel cost of edge (i, j).</p>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.ortools_engine._add_distance_constraints">
-<span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.ortools_engine.</span></span><span class="sig-name descname"><span class="pre">_add_distance_constraints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ortools.constraint_solver.pywrapcp.RoutingModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">manager</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ortools.constraint_solver.pywrapcp.RoutingIndexManager</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.ortools_engine._add_distance_constraints" title="Link to this definition">#</a></dt>
-<dd><p>Define Cost distance callback.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel.get_node_profit">
+<span class="sig-name descname"><span class="pre">get_node_profit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel.get_node_profit" title="Link to this definition">#</a></dt>
+<dd><p>Get the profit from visiting node i.</p>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.ortools_engine._add_capacity_constraints">
-<span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.ortools_engine.</span></span><span class="sig-name descname"><span class="pre">_add_capacity_constraints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ortools.constraint_solver.pywrapcp.RoutingModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">manager</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ortools.constraint_solver.pywrapcp.RoutingIndexManager</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_vehicles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.ortools_engine._add_capacity_constraints" title="Link to this definition">#</a></dt>
-<dd><p>Add Capacity Constraints.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel.get_node_demand">
+<span class="sig-name descname"><span class="pre">get_node_demand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel.get_node_demand" title="Link to this definition">#</a></dt>
+<dd><p>Get the demand/waste at node i.</p>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.ortools_engine._add_waste_collecting_penalties">
-<span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.ortools_engine.</span></span><span class="sig-name descname"><span class="pre">_add_waste_collecting_penalties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ortools.constraint_solver.pywrapcp.RoutingModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">manager</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ortools.constraint_solver.pywrapcp.RoutingIndexManager</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.ortools_engine._add_waste_collecting_penalties" title="Link to this definition">#</a></dt>
-<dd><p>Add Penalties (Waste Collecting).</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel.delta">
+<span class="sig-name descname"><span class="pre">delta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel.delta" title="Link to this definition">#</a></dt>
+<dd><p>Return edges with exactly one endpoint in node_set (cut edges).</p>
+<p>δ(S) := {(i, j) ∈ E : i ∈ S, j ∉ S or i ∉ S, j ∈ S}</p>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.ortools_engine._get_search_parameters">
-<span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.ortools_engine.</span></span><span class="sig-name descname"><span class="pre">_get_search_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.ortools_engine._get_search_parameters" title="Link to this definition">#</a></dt>
-<dd><p>Configure search parameters.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel.edges_in_set">
+<span class="sig-name descname"><span class="pre">edges_in_set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel.edges_in_set" title="Link to this definition">#</a></dt>
+<dd><p>Return edges with both endpoints in node_set.</p>
+<p>E(S) := {(i, j) ∈ E : i ∈ S, j ∈ S}</p>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.ortools_engine._parse_routes">
-<span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.ortools_engine.</span></span><span class="sig-name descname"><span class="pre">_parse_routes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ortools.constraint_solver.pywrapcp.RoutingModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">manager</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ortools.constraint_solver.pywrapcp.RoutingIndexManager</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ortools.constraint_solver.pywrapcp.Assignment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_vehicles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.ortools_engine._parse_routes" title="Link to this definition">#</a></dt>
-<dd><p>Parse routes from the solution.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel.total_demand">
+<span class="sig-name descname"><span class="pre">total_demand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel.total_demand" title="Link to this definition">#</a></dt>
+<dd><p>Calculate total demand of nodes in node_set.</p>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.ortools_engine._calculate_real_cost">
-<span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.ortools_engine.</span></span><span class="sig-name descname"><span class="pre">_calculate_real_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.ortools_engine._calculate_real_cost" title="Link to this definition">#</a></dt>
-<dd><p>Calculate the real distance cost of the routes.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel.validate_tour">
+<span class="sig-name descname"><span class="pre">validate_tour</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel.validate_tour" title="Link to this definition">#</a></dt>
+<dd><p>Validate that a tour satisfies VRPP constraints.</p>
+<p>Args:
+tour: Sequence of node indices representing the tour.</p>
+<p>Returns:
+Tuple of (is_valid, error_message).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel.compute_tour_profit">
+<span class="sig-name descname"><span class="pre">compute_tour_profit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel.compute_tour_profit" title="Link to this definition">#</a></dt>
+<dd><p>Compute the total profit of a tour.</p>
+<p>Profit = (Waste Collected × R) - (Distance Traveled × C)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel.compute_tour_cost">
+<span class="sig-name descname"><span class="pre">compute_tour_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel.compute_tour_cost" title="Link to this definition">#</a></dt>
+<dd><p>Compute the total travel distance/cost of a tour.</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -658,20 +725,20 @@ local search metaheuristics. It does NOT implement:</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.policies.branch_and_price_and_cut.search_strategy.html"
+       href="src.policies.branch_and_price_and_cut.params.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.search_strategy</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.params</span></code></p>
       </div>
     </a>
     <a class="right-next"
-       href="src.policies.branch_and_price_and_cut.vrpy_engine.html"
+       href="src.policies.branch_and_price_and_cut.cutting_planes.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.vrpy_engine</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.cutting_planes</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -691,16 +758,23 @@ local search metaheuristics. It does NOT implement:</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conceptual-link-to-bpc">Conceptual Link to BPC:</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References:</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.ortools_engine.run_bpc_ortools"><code class="docutils literal notranslate"><span class="pre">run_bpc_ortools()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.ortools_engine._add_distance_constraints"><code class="docutils literal notranslate"><span class="pre">_add_distance_constraints()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.ortools_engine._add_capacity_constraints"><code class="docutils literal notranslate"><span class="pre">_add_capacity_constraints()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.ortools_engine._add_waste_collecting_penalties"><code class="docutils literal notranslate"><span class="pre">_add_waste_collecting_penalties()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.ortools_engine._get_search_parameters"><code class="docutils literal notranslate"><span class="pre">_get_search_parameters()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.ortools_engine._parse_routes"><code class="docutils literal notranslate"><span class="pre">_parse_routes()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.ortools_engine._calculate_real_cost"><code class="docutils literal notranslate"><span class="pre">_calculate_real_cost()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel"><code class="docutils literal notranslate"><span class="pre">VRPPModel</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel.get_edge_cost"><code class="docutils literal notranslate"><span class="pre">VRPPModel.get_edge_cost()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel.get_node_profit"><code class="docutils literal notranslate"><span class="pre">VRPPModel.get_node_profit()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel.get_node_demand"><code class="docutils literal notranslate"><span class="pre">VRPPModel.get_node_demand()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel.delta"><code class="docutils literal notranslate"><span class="pre">VRPPModel.delta()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel.edges_in_set"><code class="docutils literal notranslate"><span class="pre">VRPPModel.edges_in_set()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel.total_demand"><code class="docutils literal notranslate"><span class="pre">VRPPModel.total_demand()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel.validate_tour"><code class="docutils literal notranslate"><span class="pre">VRPPModel.validate_tour()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel.compute_tour_profit"><code class="docutils literal notranslate"><span class="pre">VRPPModel.compute_tour_profit()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel.compute_tour_cost"><code class="docutils literal notranslate"><span class="pre">VRPPModel.compute_tour_cost()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

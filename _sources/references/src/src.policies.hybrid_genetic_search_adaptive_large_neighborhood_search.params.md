@@ -40,17 +40,6 @@
 
 ````
 
-````{py:attribute} hgs_max_iter
-:canonical: src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.hgs_max_iter
-:type: int
-:value: >
-   100
-
-```{autodoc2-docstring} src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.hgs_max_iter
-```
-
-````
-
 ````{py:attribute} seed
 :canonical: src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.seed
 :type: typing.Optional[int]
@@ -102,6 +91,23 @@
    'field(...)'
 
 ```{autodoc2-docstring} src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.alns_params
+```
+
+````
+
+````{py:method} from_config(config: typing.Any) -> src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams
+:canonical: src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.from_config
+:classmethod:
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.from_config
+```
+
+````
+
+````{py:method} to_dict() -> typing.Dict[str, typing.Any]
+:canonical: src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.to_dict
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.to_dict
 ```
 
 ````

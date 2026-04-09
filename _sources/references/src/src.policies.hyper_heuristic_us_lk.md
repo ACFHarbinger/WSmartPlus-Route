@@ -59,7 +59,7 @@ src.policies.hyper_heuristic_us_lk.operators
 
 ````
 
-````{py:function} run_hulk(context, params: src.policies.hyper_heuristic_us_lk.params.HULKParams = None)
+````{py:function} run_hulk(context: typing.Any, params: typing.Optional[src.policies.hyper_heuristic_us_lk.params.HULKParams] = None) -> typing.Tuple[typing.List[typing.List[int]], float, float]
 :canonical: src.policies.hyper_heuristic_us_lk.run_hulk
 
 ```{autodoc2-docstring} src.policies.hyper_heuristic_us_lk.run_hulk

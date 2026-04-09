@@ -576,7 +576,7 @@ document.write(`
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.policies.hgs_core.population.VectorizedPopulation">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.policies.hgs_core.population.</span></span><span class="sig-name descname"><span class="pre">VectorizedPopulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_diversity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Generator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.hgs_core.population.VectorizedPopulation" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.policies.hgs_core.population.</span></span><span class="sig-name descname"><span class="pre">VectorizedPopulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Generator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.hgs_core.population.VectorizedPopulation" title="Link to this definition">#</a></dt>
 <dd><p>Manages a population of solutions for the HGS algorithm.</p>
 <p>Handles:</p>
 <ul class="simple">
@@ -588,14 +588,12 @@ document.write(`
 <p>Args:
 size (int): Maximum population size.
 device: Torch device.
-alpha_diversity (float): Weight for diversity in biased fitness calculation.
 generator (Optional[torch.Generator]): Torch random number generator.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the population.</p>
 <p>Args:
 size (int): Max population size.
 device: Computing device.
-alpha_diversity (float): Diversity weight.
 generator (Optional[torch.Generator]): Torch random number generator.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.policies.hgs_core.population.VectorizedPopulation.__getstate__">
@@ -611,30 +609,34 @@ generator (Optional[torch.Generator]): Torch random number generator.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.policies.hgs_core.population.VectorizedPopulation.initialize">
-<span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_pop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_costs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.hgs_core.population.VectorizedPopulation.initialize" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_pop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_costs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nb_elite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.hgs_core.population.VectorizedPopulation.initialize" title="Link to this definition">#</a></dt>
 <dd><p>Initializes the population with a set of starting solutions.</p>
 <p>Args:
 initial_pop (torch.Tensor): Initial solutions (giant tours). Shape (B, N) or (B, P0, N).
-initial_costs (torch.Tensor): Costs of initial solutions. Shape (B,) or (B, P0).</p>
+initial_costs (torch.Tensor): Costs of initial solutions. Shape (B,) or (B, P0).
+nb_elite (int): Number of elite individuals for biased fitness.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.policies.hgs_core.population.VectorizedPopulation.add_individuals">
-<span class="sig-name descname"><span class="pre">add_individuals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">candidates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">costs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.hgs_core.population.VectorizedPopulation.add_individuals" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">add_individuals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">candidates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">costs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nb_elite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.hgs_core.population.VectorizedPopulation.add_individuals" title="Link to this definition">#</a></dt>
 <dd><p>Merges new individuals into the population and selects survivors based on biased fitness.
 Maintains the population size at or below <code class="docutils literal notranslate"><span class="pre">max_size</span></code>.</p>
 <p>Args:
 candidates (torch.Tensor): New solutions to add. Shape (B, C, N).
-costs (torch.Tensor): Costs of new solutions. Shape (B, C).</p>
+costs (torch.Tensor): Costs of new solutions. Shape (B, C).
+nb_elite (int): Number of elite individuals for biased fitness.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.policies.hgs_core.population.VectorizedPopulation.compute_biased_fitness">
-<span class="sig-name descname"><span class="pre">compute_biased_fitness</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.hgs_core.population.VectorizedPopulation.compute_biased_fitness" title="Link to this definition">#</a></dt>
-<dd><p>Computer Biased Fitness for all individuals in the population.
-Biased Fitness = Rank(Cost) + alpha * Rank(Diversity).
+<span class="sig-name descname"><span class="pre">compute_biased_fitness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nb_elite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.hgs_core.population.VectorizedPopulation.compute_biased_fitness" title="Link to this definition">#</a></dt>
+<dd><p>Compute Biased Fitness for all individuals in the population.
+BF(I) = Rank_C(I) + (1 - N_elite/|Pop|) * Rank_D(I).
 Lower is better for both ranks (0 is best).
 Updates <code class="docutils literal notranslate"><span class="pre">self.biased_fitness</span></code> and <code class="docutils literal notranslate"><span class="pre">self.diversity_scores</span></code>.</p>
+<p>Args:
+nb_elite (int): Number of elite individuals to protect.</p>
 </dd></dl>
 
 <dl class="py method">

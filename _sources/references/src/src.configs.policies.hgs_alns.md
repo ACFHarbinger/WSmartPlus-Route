@@ -40,17 +40,6 @@
 
 ````
 
-````{py:attribute} hgs_max_iter
-:canonical: src.configs.policies.hgs_alns.HGSALNSConfig.hgs_max_iter
-:type: int
-:value: >
-   100
-
-```{autodoc2-docstring} src.configs.policies.hgs_alns.HGSALNSConfig.hgs_max_iter
-```
-
-````
-
 ````{py:attribute} vrpp
 :canonical: src.configs.policies.hgs_alns.HGSALNSConfig.vrpp
 :type: bool

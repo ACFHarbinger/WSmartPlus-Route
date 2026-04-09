@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} BranchAndCutSolver(model: logic.src.policies.branch_and_cut.vrpp_model.VRPPModel, time_limit: float = 300.0, mip_gap: float = 0.01, max_cuts_per_round: int = 50, use_heuristics: bool = True, verbose: bool = False, profit_aware_operators: bool = False, vrpp: bool = False, enable_fractional_capacity_cuts: bool = True)
+`````{py:class} BranchAndCutSolver(model: logic.src.policies.branch_and_cut.vrpp_model.VRPPModel, params: typing.Optional[src.policies.branch_and_cut.params.BCParams] = None, **kwargs: typing.Any)
 :canonical: src.policies.branch_and_cut.bc.BranchAndCutSolver
 
 ```{autodoc2-docstring} src.policies.branch_and_cut.bc.BranchAndCutSolver
@@ -35,7 +35,7 @@
 ```{autodoc2-docstring} src.policies.branch_and_cut.bc.BranchAndCutSolver.__init__
 ```
 
-````{py:method} solve() -> typing.Tuple[typing.List[int], float, typing.Dict[str, typing.Any]]
+````{py:method} solve() -> typing.Tuple[typing.List[typing.List[int]], float, typing.Dict[str, typing.Any]]
 :canonical: src.policies.branch_and_cut.bc.BranchAndCutSolver.solve
 
 ```{autodoc2-docstring} src.policies.branch_and_cut.bc.BranchAndCutSolver.solve
@@ -55,6 +55,14 @@
 :canonical: src.policies.branch_and_cut.bc.BranchAndCutSolver._lazy_constraint_callback
 
 ```{autodoc2-docstring} src.policies.branch_and_cut.bc.BranchAndCutSolver._lazy_constraint_callback
+```
+
+````
+
+````{py:method} _evaluate_pool_cuts(x_vals: numpy.ndarray, y_vals: numpy.ndarray) -> typing.List[typing.Any]
+:canonical: src.policies.branch_and_cut.bc.BranchAndCutSolver._evaluate_pool_cuts
+
+```{autodoc2-docstring} src.policies.branch_and_cut.bc.BranchAndCutSolver._evaluate_pool_cuts
 ```
 
 ````

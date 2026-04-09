@@ -75,7 +75,7 @@
 ```{autodoc2-docstring} src.policies.branch_and_price.branching.EdgeBranchingConstraint.__init__
 ```
 
-````{py:method} is_route_feasible(route: src.policies.branch_and_price.master_problem.Route) -> bool
+````{py:method} is_route_feasible(route: logic.src.policies.branch_and_price.master_problem.Route) -> bool
 :canonical: src.policies.branch_and_price.branching.EdgeBranchingConstraint.is_route_feasible
 
 ```{autodoc2-docstring} src.policies.branch_and_price.branching.EdgeBranchingConstraint.is_route_feasible
@@ -110,7 +110,7 @@
 ```{autodoc2-docstring} src.policies.branch_and_price.branching.RyanFosterBranchingConstraint.__init__
 ```
 
-````{py:method} is_route_feasible(route: src.policies.branch_and_price.master_problem.Route) -> bool
+````{py:method} is_route_feasible(route: logic.src.policies.branch_and_price.master_problem.Route) -> bool
 :canonical: src.policies.branch_and_price.branching.RyanFosterBranchingConstraint.is_route_feasible
 
 ```{autodoc2-docstring} src.policies.branch_and_price.branching.RyanFosterBranchingConstraint.is_route_feasible
@@ -145,7 +145,7 @@
 
 ````
 
-`````{py:class} BranchNode(constraints: typing.Optional[typing.List[src.policies.branch_and_price.branching.AnyBranchingConstraint]] = None, parent: typing.Optional[src.policies.branch_and_price.branching.BranchNode] = None, depth: int = 0)
+`````{py:class} BranchNode(constraints: typing.Optional[typing.List[src.policies.branch_and_price.branching.AnyBranchingConstraint]] = None, parent: typing.Optional[src.policies.branch_and_price.branching.BranchNode] = None, depth: int = 0, lp_bound_hint: typing.Optional[float] = None)
 :canonical: src.policies.branch_and_price.branching.BranchNode
 
 ```{autodoc2-docstring} src.policies.branch_and_price.branching.BranchNode
@@ -165,7 +165,7 @@
 
 ````
 
-````{py:method} is_route_feasible(route: src.policies.branch_and_price.master_problem.Route) -> bool
+````{py:method} is_route_feasible(route: logic.src.policies.branch_and_price.master_problem.Route) -> bool
 :canonical: src.policies.branch_and_price.branching.BranchNode.is_route_feasible
 
 ```{autodoc2-docstring} src.policies.branch_and_price.branching.BranchNode.is_route_feasible
@@ -181,7 +181,7 @@
 ```{autodoc2-docstring} src.policies.branch_and_price.branching.EdgeBranching
 ```
 
-````{py:method} compute_arc_flow(routes: typing.List[src.policies.branch_and_price.master_problem.Route], route_values: typing.Dict[int, float]) -> typing.Dict[typing.Tuple[int, int], float]
+````{py:method} compute_arc_flow(routes: typing.List[logic.src.policies.branch_and_price.master_problem.Route], route_values: typing.Dict[int, float]) -> typing.Dict[typing.Tuple[int, int], float]
 :canonical: src.policies.branch_and_price.branching.EdgeBranching.compute_arc_flow
 :staticmethod:
 
@@ -190,7 +190,7 @@
 
 ````
 
-````{py:method} find_branching_arc(routes: typing.List[src.policies.branch_and_price.master_problem.Route], route_values: typing.Dict[int, float], tol: float = 1e-06) -> typing.Optional[typing.Tuple[int, int]]
+````{py:method} find_branching_arc(routes: typing.List[logic.src.policies.branch_and_price.master_problem.Route], route_values: typing.Dict[int, float], tol: float = 1e-05) -> typing.Optional[typing.Tuple[int, int]]
 :canonical: src.policies.branch_and_price.branching.EdgeBranching.find_branching_arc
 :staticmethod:
 
@@ -216,7 +216,7 @@
 ```{autodoc2-docstring} src.policies.branch_and_price.branching.MultiEdgePartitionBranching
 ```
 
-````{py:method} find_divergence_node(routes: typing.List[src.policies.branch_and_price.master_problem.Route], route_values: typing.Dict[int, float], tol: float = 1e-06) -> typing.Optional[typing.Tuple[int, typing.List[typing.Tuple[int, int]], typing.List[typing.Tuple[int, int]]]]
+````{py:method} find_divergence_node(routes: typing.List[logic.src.policies.branch_and_price.master_problem.Route], route_values: typing.Dict[int, float], tol: float = 1e-05, node_coords: typing.Optional[typing.Union[numpy.ndarray, typing.Dict[int, typing.Tuple[float, float]]]] = None) -> typing.Optional[typing.Tuple[int, typing.List[typing.Tuple[int, int]], typing.List[typing.Tuple[int, int]]]]
 :canonical: src.policies.branch_and_price.branching.MultiEdgePartitionBranching.find_divergence_node
 :staticmethod:
 
@@ -242,7 +242,7 @@
 ```{autodoc2-docstring} src.policies.branch_and_price.branching.RyanFosterBranching
 ```
 
-````{py:method} find_branching_pair(routes: typing.List[src.policies.branch_and_price.master_problem.Route], route_values: typing.Dict[int, float], tol: float = 1e-06) -> typing.Optional[typing.Tuple[int, int]]
+````{py:method} find_branching_pair(routes: typing.List[logic.src.policies.branch_and_price.master_problem.Route], route_values: typing.Dict[int, float], tol: float = 1e-05) -> typing.Optional[typing.Tuple[int, int]]
 :canonical: src.policies.branch_and_price.branching.RyanFosterBranching.find_branching_pair
 :staticmethod:
 
@@ -262,7 +262,7 @@
 
 `````
 
-`````{py:class} BranchAndBoundTree(strategy: str = 'edge', search_strategy: str = 'best_first')
+`````{py:class} BranchAndBoundTree(v_model: typing.Optional[logic.src.policies.branch_and_cut.vrpp_model.VRPPModel] = None, node_coords: typing.Optional[typing.Union[numpy.ndarray, typing.Dict[int, typing.Tuple[float, float]]]] = None, max_nodes: int = 1000, strategy: str = 'edge', search_strategy: str = 'best_first')
 :canonical: src.policies.branch_and_price.branching.BranchAndBoundTree
 
 ```{autodoc2-docstring} src.policies.branch_and_price.branching.BranchAndBoundTree
@@ -274,10 +274,13 @@
 ```{autodoc2-docstring} src.policies.branch_and_price.branching.BranchAndBoundTree.__init__
 ```
 
-````{py:method} get_next_node() -> typing.Optional[src.policies.branch_and_price.branching.BranchNode]
-:canonical: src.policies.branch_and_price.branching.BranchAndBoundTree.get_next_node
+````{py:attribute} node_coords
+:canonical: src.policies.branch_and_price.branching.BranchAndBoundTree.node_coords
+:type: typing.Optional[numpy.ndarray]
+:value: >
+   None
 
-```{autodoc2-docstring} src.policies.branch_and_price.branching.BranchAndBoundTree.get_next_node
+```{autodoc2-docstring} src.policies.branch_and_price.branching.BranchAndBoundTree.node_coords
 ```
 
 ````
@@ -290,7 +293,15 @@
 
 ````
 
-````{py:method} branch(node: src.policies.branch_and_price.branching.BranchNode, routes: typing.List[src.policies.branch_and_price.master_problem.Route], route_values: typing.Dict[int, float]) -> typing.Optional[typing.Tuple[src.policies.branch_and_price.branching.BranchNode, src.policies.branch_and_price.branching.BranchNode]]
+````{py:method} get_next_node() -> typing.Optional[src.policies.branch_and_price.branching.BranchNode]
+:canonical: src.policies.branch_and_price.branching.BranchAndBoundTree.get_next_node
+
+```{autodoc2-docstring} src.policies.branch_and_price.branching.BranchAndBoundTree.get_next_node
+```
+
+````
+
+````{py:method} branch(node: src.policies.branch_and_price.branching.BranchNode, routes: typing.List[logic.src.policies.branch_and_price.master_problem.Route], route_values: typing.Dict[int, float]) -> typing.Optional[typing.Tuple[src.policies.branch_and_price.branching.BranchNode, src.policies.branch_and_price.branching.BranchNode]]
 :canonical: src.policies.branch_and_price.branching.BranchAndBoundTree.branch
 
 ```{autodoc2-docstring} src.policies.branch_and_price.branching.BranchAndBoundTree.branch

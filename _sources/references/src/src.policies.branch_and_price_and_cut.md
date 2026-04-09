@@ -13,14 +13,16 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.branch_and_price_and_cut.gurobi_engine
+src.policies.branch_and_price_and_cut.master_problem
 src.policies.branch_and_price_and_cut.search_strategy
-src.policies.branch_and_price_and_cut.ortools_engine
-src.policies.branch_and_price_and_cut.vrpy_engine
+src.policies.branch_and_price_and_cut.rcspp_dp
+src.policies.branch_and_price_and_cut.branching
+src.policies.branch_and_price_and_cut.params
+src.policies.branch_and_price_and_cut.vrpp_model
 src.policies.branch_and_price_and_cut.cutting_planes
 src.policies.branch_and_price_and_cut.policy_bpc
 src.policies.branch_and_price_and_cut.bpc_engine
-src.policies.branch_and_price_and_cut.dispatcher
+src.policies.branch_and_price_and_cut.separation
 ```
 
 ## Package Contents
@@ -42,7 +44,7 @@ src.policies.branch_and_price_and_cut.dispatcher
 ````{py:data} __all__
 :canonical: src.policies.branch_and_price_and_cut.__all__
 :value: >
-   ['run_bpc', 'run_bpc_gurobi', 'run_bpc_ortools', 'run_bpc_vrpy']
+   ['run_bpc']
 
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.__all__
 ```

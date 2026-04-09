@@ -15,46 +15,46 @@
 :class: autosummary longtable
 :align: left
 
-* - {py:obj}`BCPPolicy <src.policies.branch_and_price_and_cut.policy_bpc.BCPPolicy>`
-  - ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.policy_bpc.BCPPolicy
+* - {py:obj}`BPCPolicy <src.policies.branch_and_price_and_cut.policy_bpc.BPCPolicy>`
+  - ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.policy_bpc.BPCPolicy
     :summary:
     ```
 ````
 
 ### API
 
-`````{py:class} BCPPolicy(config: typing.Optional[typing.Union[logic.src.configs.policies.BPCConfig, typing.Dict[str, typing.Any]]] = None)
-:canonical: src.policies.branch_and_price_and_cut.policy_bpc.BCPPolicy
+`````{py:class} BPCPolicy(config: typing.Optional[typing.Union[logic.src.configs.policies.BPCConfig, typing.Dict[str, typing.Any]]] = None)
+:canonical: src.policies.branch_and_price_and_cut.policy_bpc.BPCPolicy
 
 Bases: {py:obj}`logic.src.policies.base.base_routing_policy.BaseRoutingPolicy`
 
-```{autodoc2-docstring} src.policies.branch_and_price_and_cut.policy_bpc.BCPPolicy
+```{autodoc2-docstring} src.policies.branch_and_price_and_cut.policy_bpc.BPCPolicy
 ```
 
 ```{rubric} Initialization
 ```
 
-```{autodoc2-docstring} src.policies.branch_and_price_and_cut.policy_bpc.BCPPolicy.__init__
+```{autodoc2-docstring} src.policies.branch_and_price_and_cut.policy_bpc.BPCPolicy.__init__
 ```
 
 ````{py:method} _config_class() -> typing.Optional[typing.Type]
-:canonical: src.policies.branch_and_price_and_cut.policy_bpc.BCPPolicy._config_class
+:canonical: src.policies.branch_and_price_and_cut.policy_bpc.BPCPolicy._config_class
 :classmethod:
 
 ````
 
 ````{py:method} _get_config_key() -> str
-:canonical: src.policies.branch_and_price_and_cut.policy_bpc.BCPPolicy._get_config_key
+:canonical: src.policies.branch_and_price_and_cut.policy_bpc.BPCPolicy._get_config_key
 
-```{autodoc2-docstring} src.policies.branch_and_price_and_cut.policy_bpc.BCPPolicy._get_config_key
+```{autodoc2-docstring} src.policies.branch_and_price_and_cut.policy_bpc.BPCPolicy._get_config_key
 ```
 
 ````
 
 ````{py:method} _run_solver(sub_dist_matrix: numpy.ndarray, sub_wastes: typing.Dict[int, float], capacity: float, revenue: float, cost_unit: float, values: typing.Dict[str, typing.Any], mandatory_nodes: typing.List[int], **kwargs: typing.Any) -> typing.Tuple[typing.List[typing.List[int]], float, float]
-:canonical: src.policies.branch_and_price_and_cut.policy_bpc.BCPPolicy._run_solver
+:canonical: src.policies.branch_and_price_and_cut.policy_bpc.BPCPolicy._run_solver
 
-```{autodoc2-docstring} src.policies.branch_and_price_and_cut.policy_bpc.BCPPolicy._run_solver
+```{autodoc2-docstring} src.policies.branch_and_price_and_cut.policy_bpc.BPCPolicy._run_solver
 ```
 
 ````

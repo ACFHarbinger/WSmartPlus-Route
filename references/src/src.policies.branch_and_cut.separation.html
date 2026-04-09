@@ -540,7 +540,6 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.separation.CapacityCut"><code class="docutils literal notranslate"><span class="pre">CapacityCut</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.separation.CombInequality"><code class="docutils literal notranslate"><span class="pre">CombInequality</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.separation.SeparationEngine"><code class="docutils literal notranslate"><span class="pre">SeparationEngine</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.separation.SeparationEngine.USE_COMB_CUTS"><code class="docutils literal notranslate"><span class="pre">SeparationEngine.USE_COMB_CUTS</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.separation.SeparationEngine.separate_integer"><code class="docutils literal notranslate"><span class="pre">SeparationEngine.separate_integer()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.separation.SeparationEngine.separate_fractional"><code class="docutils literal notranslate"><span class="pre">SeparationEngine.separate_fractional()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.separation.SeparationEngine.separate"><code class="docutils literal notranslate"><span class="pre">SeparationEngine.separate()</span></code></a></li>
@@ -672,8 +671,10 @@ Large-scale Symmetric Traveling Salesman Problems&quot;. SIAM Review, 33(1), 60-
 
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.branch_and_cut.separation.SeparationEngine">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_cut.separation.</span></span><span class="sig-name descname"><span class="pre">SeparationEngine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_fractional_capacity_cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.branch_and_cut.separation.SeparationEngine" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_cut.separation.</span></span><span class="sig-name descname"><span class="pre">SeparationEngine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_fractional_capacity_cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_comb_cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.branch_and_cut.separation.SeparationEngine" title="Link to this definition">#</a></dt>
 <dd><p>Separation algorithms for finding violated inequalities.</p>
+<p>Implements exact and heuristic separation procedures for identifying violated
+valid inequalities in the VRPP linear programming relaxation.</p>
 <p>Configuration:
 USE_COMB_CUTS: If True, enable custom comb inequality separation.
 Default False - Gurobi’s internal polyhedral cuts are preferred.</p>
@@ -681,33 +682,28 @@ Default False - Gurobi’s internal polyhedral cuts are preferred.</p>
                Default False for instances with n &gt; 75 (see CVRPSEP note below).
 </pre></div>
 </div>
+<p>Note:
+State-of-the-art implementations typically rely on shrinking heuristics (such as
+Lysgaard’s CVRPSEP C++ library) to scale to N &gt; 100.</p>
+<p>Attributes:
+model: VRPPModel instance containing problem graph and constants.
+pool: List of identified violated inequalities.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize separation engine.</p>
 <p>Args:
 model: VRPPModel instance.
-enable_fractional_capacity_cuts: Enable exact fractional RCC separation.
-If False, disables computationally expensive exact capacity separation.
-Recommended to set False for instances with n &gt; 75.</p>
-<p>Note on Fractional Capacity Separation:
-Finding the exact most violated fractional Capacity Cut is strongly NP-hard.
-While this exact separation is valid for small-to-medium instances (n ≤ 75),
-state-of-the-art implementations typically rely on shrinking heuristics (such as
+enable_fractional_capacity_cuts: Whether to enable expensive fractional capacity cuts.
+Default True but adaptive based on instance size.
+enable_comb_cuts: Whether to enable heuristic comb inequalities.</p>
+<p>Note:
+State-of-the-art implementations typically rely on shrinking heuristics (such as
 Lysgaard’s CVRPSEP C++ library) to scale to N &gt; 100.</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>References:
-    Lysgaard, J., Letchford, A. N., &amp; Eglese, R. W. (2004).
-    &quot;A new branch-and-cut algorithm for the capacitated vehicle routing problem&quot;.
-    Mathematical Programming, 100(2), 423-445.
-
-    Lysgaard, J. (2003). &quot;CVRPSEP: A package of separation routines for the
-    capacitated vehicle routing problem&quot;. Technical report, Aarhus University.
-</pre></div>
-</div>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.policies.branch_and_cut.separation.SeparationEngine.USE_COMB_CUTS">
-<span class="sig-name descname"><span class="pre">USE_COMB_CUTS</span></span><a class="headerlink" href="#src.policies.branch_and_cut.separation.SeparationEngine.USE_COMB_CUTS" title="Link to this definition">#</a></dt>
-<dd><p>False</p>
-</dd></dl>
-
+<p>References:
+- Lysgaard, J., Letchford, A. N., &amp; Eglese, R. W. (2004).
+“A new branch-and-cut algorithm for the capacitated vehicle routing problem”.
+Mathematical Programming, 100(2), 423-445.
+- Lysgaard, J. (2003). “CVRPSEP: A package of separation routines for the
+capacitated vehicle routing problem”. Technical report, Aarhus University.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.branch_and_cut.separation.SeparationEngine.separate_integer">
 <span class="sig-name descname"><span class="pre">separate_integer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_vals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_vals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iteration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sec_only</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.policies.branch_and_cut.separation.Inequality" title="src.policies.branch_and_cut.separation.Inequality"><span class="pre">src.policies.branch_and_cut.separation.Inequality</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_cut.separation.SeparationEngine.separate_integer" title="Link to this definition">#</a></dt>
@@ -801,29 +797,39 @@ List of violated inequalities sorted by degree of violation.</p>
 <span class="sig-name descname"><span class="pre">_separate_capacity_cuts_exact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_vals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_vals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.branch_and_cut.separation.SeparationEngine._separate_capacity_cuts_exact" title="Link to this definition">#</a></dt>
 <dd><p>Exact separation of Rounded Capacity Cuts (RCCs) for CVRP/VRPP.</p>
 <p>Uses max-flow between depot and all visited nodes to find promising cuts.
-For each cut, we check if the Rounded Capacity Inequality is violated.</p>
+For each cut S ⊂ N \ {0}, we check if the Rounded Capacity Inequality is violated:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>∑_{e ∈ δ(S)} x_e ≥ 2 * ⌈demand(S) / Q⌉
+</pre></div>
+</div>
 <p>Throttling: Use root_node flag to determine search intensity.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.branch_and_cut.separation.SeparationEngine._separate_pcsec_exact">
 <span class="sig-name descname"><span class="pre">_separate_pcsec_exact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_vals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_vals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.branch_and_cut.separation.SeparationEngine._separate_pcsec_exact" title="Link to this definition">#</a></dt>
-<dd><p>Exact prize-collecting subtour separation using minimum cut (max-flow).</p>
-<p>For selected seed pairs, compute minimum cut to find most violated PC-SEC.
-At the Root Node, the separation is truly exact (checks all nodes).</p>
+<dd><p>Exact prize-collecting subtour separation using minimum cut (max-flow).
+Fischetti et al. (1997), Section 3.1: GSEC_SEP.</p>
+<p>Finds violated PC-SECs by solving max-flow problems between a reference
+source node s and the depot. For a set S ⊂ N \ {0} containing s,
+the cut value ∑_{e ∈ δ(S)} x_e is minimized.</p>
+<p>Violation Check:
+violation = 2 * (y_i + y_j - 1) - ∑_{e ∈ δ(S)} x_e
+where i ∈ S and j ∉ S are nodes with maximum visit probabilities.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.branch_and_cut.separation.SeparationEngine._extract_min_cut">
 <span class="sig-name descname"><span class="pre">_extract_min_cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sink</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_cut.separation.SeparationEngine._extract_min_cut" title="Link to this definition">#</a></dt>
-<dd><p>Extract sink-side of minimum cut using BFS on residual graph.</p>
+<dd><p>Extract source-side of minimum cut using BFS on residual graph.
+Paper Section 3.1: the cut set is the set of nodes reachable from
+the source in the residual graph.</p>
 <p>Args:
 capacity: Capacity matrix (support graph edges).
 flow: Flow matrix from max-flow result.
-source: Source node index (depot).
+source: Source node index (depot or reference node).
 sink: Sink node index (customer).</p>
 <p>Returns:
-Set of nodes reachable from sink in the residual graph (sink-side of cut).</p>
+Set of nodes reachable from source in the residual graph.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -930,15 +936,27 @@ where i in S and j not in S have highest y* values.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.branch_and_cut.separation.SeparationEngine._strengthen_pool">
 <span class="sig-name descname"><span class="pre">_strengthen_pool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ineq_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.policies.branch_and_cut.separation.Inequality" title="src.policies.branch_and_cut.separation.Inequality"><span class="pre">src.policies.branch_and_cut.separation.Inequality</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_vals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_vals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.branch_and_cut.separation.SeparationEngine._strengthen_pool" title="Link to this definition">#</a></dt>
-<dd><p>Apply Procedure PCSEC_BUILD to all subtour sets.
-Refines sets S and selects the strongest facet form (2.1, 2.2, 2.3).</p>
+<dd><p>Apply Procedure PCSEC_BUILD to all subtour sets.</p>
+<p>Refines sets S and selects the strongest facet form (2.1, 2.2, 2.3)
+as defined in Fischetti et al. (1997):</p>
+<ul class="simple">
+<li><p>Form 2.1: ∑ x_e ≥ 2</p></li>
+<li><p>Form 2.2: ∑ x_e ≥ 2 * y_i</p></li>
+<li><p>Form 2.3: ∑ x_e ≥ 2 * (y_i + y_j - 1)</p></li>
+</ul>
+<p>The procedure ensures that we add the “deepest” possible cut for a given
+base set S identified by heuristic or exact separation.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.branch_and_cut.separation.SeparationEngine._refine_pcsec_build">
 <span class="sig-name descname"><span class="pre">_refine_pcsec_build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_vals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_vals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_cut.separation.SeparationEngine._refine_pcsec_build" title="Link to this definition">#</a></dt>
-<dd><p>Procedure PCSEC_BUILD (Fischetti et al. 1997, Section 3.1).
-Attempts to refine the set S by moving nodes to minimize cut value sum_{e in delta(S)} x_e.</p>
+<dd><p>Procedure PCSEC_BUILD (Fischetti et al. 1997, Section 3.1).</p>
+<p>Attempts to refine the set S by moving nodes to minimize cut value ∑_{e ∈ δ(S)} x_e.
+This greedy local search procedure expands or shrinks S by checking if
+moving a node u from S to V \ S (or vice versa) reduces the cut capacity.</p>
+<p>Objective:
+Minimize f(S) = ∑_{i ∈ S, j ∉ S} x_ij</p>
 </dd></dl>
 
 </dd></dl>
@@ -1003,7 +1021,6 @@ Attempts to refine the set S by moving nodes to minimize cut value sum_{e in del
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.separation.CapacityCut"><code class="docutils literal notranslate"><span class="pre">CapacityCut</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.separation.CombInequality"><code class="docutils literal notranslate"><span class="pre">CombInequality</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.separation.SeparationEngine"><code class="docutils literal notranslate"><span class="pre">SeparationEngine</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.separation.SeparationEngine.USE_COMB_CUTS"><code class="docutils literal notranslate"><span class="pre">SeparationEngine.USE_COMB_CUTS</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.separation.SeparationEngine.separate_integer"><code class="docutils literal notranslate"><span class="pre">SeparationEngine.separate_integer()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.separation.SeparationEngine.separate_fractional"><code class="docutils literal notranslate"><span class="pre">SeparationEngine.separate_fractional()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.separation.SeparationEngine.separate"><code class="docutils literal notranslate"><span class="pre">SeparationEngine.separate()</span></code></a></li>

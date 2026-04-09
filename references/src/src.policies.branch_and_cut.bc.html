@@ -536,6 +536,7 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.bc.BranchAndCutSolver.solve"><code class="docutils literal notranslate"><span class="pre">BranchAndCutSolver.solve()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.bc.BranchAndCutSolver._build_initial_model"><code class="docutils literal notranslate"><span class="pre">BranchAndCutSolver._build_initial_model()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.bc.BranchAndCutSolver._lazy_constraint_callback"><code class="docutils literal notranslate"><span class="pre">BranchAndCutSolver._lazy_constraint_callback()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.bc.BranchAndCutSolver._evaluate_pool_cuts"><code class="docutils literal notranslate"><span class="pre">BranchAndCutSolver._evaluate_pool_cuts()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.bc.BranchAndCutSolver._handle_custom_branching"><code class="docutils literal notranslate"><span class="pre">BranchAndCutSolver._handle_custom_branching()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.bc.BranchAndCutSolver._add_integer_cuts"><code class="docutils literal notranslate"><span class="pre">BranchAndCutSolver._add_integer_cuts()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.bc.BranchAndCutSolver._add_fractional_cuts"><code class="docutils literal notranslate"><span class="pre">BranchAndCutSolver._add_fractional_cuts()</span></code></a></li>
@@ -596,7 +597,7 @@ for the capacitated vehicle routing problem&quot;. Mathematical Programming, 100
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.branch_and_cut.bc.BranchAndCutSolver">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_cut.bc.</span></span><span class="sig-name descname"><span class="pre">BranchAndCutSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.branch_and_cut.vrpp_model.VRPPModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">300.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mip_gap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cuts_per_round</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_heuristics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profit_aware_operators</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vrpp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_fractional_capacity_cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.branch_and_cut.bc.BranchAndCutSolver" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_cut.bc.</span></span><span class="sig-name descname"><span class="pre">BranchAndCutSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.branch_and_cut.vrpp_model.VRPPModel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.branch_and_cut.params.html#src.policies.branch_and_cut.params.BCParams" title="src.policies.branch_and_cut.params.BCParams"><span class="pre">src.policies.branch_and_cut.params.BCParams</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.branch_and_cut.bc.BranchAndCutSolver" title="Link to this definition">#</a></dt>
 <dd><p>Branch-and-Cut solver for VRPP.</p>
 <p>Follows the cutting plane algorithm described in Section 5.1 of Fischetti et al. (1997):</p>
 <ol class="arabic simple">
@@ -610,18 +611,11 @@ for the capacitated vehicle routing problem&quot;. Mathematical Programming, 100
 <p>Initialize Branch-and-Cut solver.</p>
 <p>Args:
 model: VRPPModel instance defining the problem.
-time_limit: Maximum solving time in seconds.
-mip_gap: Relative MIP gap tolerance.
-max_cuts_per_round: Maximum cuts to add per separation round.
-use_heuristics: Whether to use primal heuristics.
-verbose: Print detailed logging.
-profit_aware_operators: Whether to use profit-aware heuristics.
-vrpp: Whether to use VRPP pool expansion in heuristics.
-enable_fractional_capacity_cuts: Enable exact fractional RCC separation.
-Recommended to set False for instances with n &gt; 75 (see SeparationEngine docs).</p>
+params: Standardized BC configuration.
+**kwargs: Legacy configuration parameters (for backward compatibility).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.branch_and_cut.bc.BranchAndCutSolver.solve">
-<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_cut.bc.BranchAndCutSolver.solve" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_cut.bc.BranchAndCutSolver.solve" title="Link to this definition">#</a></dt>
 <dd><p>Solve the VRPP instance.</p>
 <p>Returns:
 Tuple of (tour, profit, statistics).</p>
@@ -653,10 +647,30 @@ Tuple of (tour, profit, statistics).</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_cut.bc.BranchAndCutSolver._evaluate_pool_cuts">
+<span class="sig-name descname"><span class="pre">_evaluate_pool_cuts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_vals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_vals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_cut.bc.BranchAndCutSolver._evaluate_pool_cuts" title="Link to this definition">#</a></dt>
+<dd><p>Re-evaluate stored cuts against the current LP/MIP solution.
+Returns cuts whose violation exceeds the threshold.
+Paper Section 5.1: pool cuts are checked before any separation call.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="src.policies.branch_and_cut.bc.BranchAndCutSolver._handle_custom_branching">
 <span class="sig-name descname"><span class="pre">_handle_custom_branching</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.branch_and_cut.bc.BranchAndCutSolver._handle_custom_branching" title="Link to this definition">#</a></dt>
-<dd><p>Custom branching on cuts (Section 6.2, Fischetti et al. 1997).
-Identifies a subset S with non-even fractional cut value and branches.</p>
+<dd><p>Custom branching on cuts (Section 5.4, Fischetti et al. 1997).</p>
+<p>NOT IMPLEMENTED: Gurobi does not expose a programmatic branching
+interface from within Python callbacks. The paper’s “branching on cuts”
+strategy (choosing S such that sum_{e in delta(S)} x_e is fractional-odd
+and imposing sum x_e &lt;= 2k or sum x_e &gt;= 2k+2) cannot be enforced via
+cbBranch() — no such Gurobi API method exists.</p>
+<p>Alternative approaches for influencing branching in Gurobi:</p>
+<ol class="arabic simple">
+<li><p>Set BranchPriority on x_vars to prefer edges near 0.5.</p></li>
+<li><p>Use GRB.Param.BranchDir to prefer branching directions.</p></li>
+<li><p>Implement a custom B&amp;B loop outside Gurobi (not done here).</p></li>
+</ol>
+<p>Gurobi’s default variable branching (most fractional variable) is used
+instead, which corresponds to the paper’s fallback strategy.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -685,20 +699,21 @@ the SeparationEngine MUST detect it and return a CapacityCut.
 <dt class="sig sig-object py" id="src.policies.branch_and_cut.bc.BranchAndCutSolver._add_fractional_cuts">
 <span class="sig-name descname"><span class="pre">_add_fractional_cuts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.branch_and_cut.bc.BranchAndCutSolver._add_fractional_cuts" title="Link to this definition">#</a></dt>
 <dd><p>Add violated cuts at fractional LP relaxation nodes (MIPNODE callback).</p>
-<p>This method strengthens the LP relaxation during branch-and-bound:</p>
+<p>DIVERGENCE FROM PAPER (Section 5.1, procedure SEPARATION):
+The paper separates in this order:</p>
 <ol class="arabic simple">
-<li><p>Extracts fractional solution values via cbGetNodeRel()</p></li>
-<li><p>Invokes exact separation (throttled max-flow) to find deep cuts</p></li>
-<li><p>Adds violated cuts via model.cbCut()</p></li>
+<li><p>Pool re-evaluation (cuts found at ancestor nodes)</p></li>
+<li><p>Fan inequalities (Equation 2.12) — NOT IMPLEMENTED HERE</p></li>
+<li><p>GSEC_H2 heuristic</p></li>
+<li><p>GSEC_H1 heuristic</p></li>
+<li><p>Per-threshold ε ∈ {0.1, 0.01, 0.001} combined pool check</p></li>
+<li><p>GSEC_SEP exact separation (forced every 10th node)</p></li>
+<li><p>Generalised comb heuristics — NOT IMPLEMENTED HERE
+This implementation calls separate_fractional() which covers steps 3, 4,
+and 6 (throttled). Steps 2, 5, and 7 are not implemented.
+Paper Rule (Section 3.1): Exact separation (GSEC_SEP) is forced at every
+10th decision-tree node regardless of depth.</p></li>
 </ol>
-<p>Throttling Strategy (Lysgaard et al. 2004):
-- Exact max-flow separation is O(V⁴) and computationally expensive
-- Only run at root node (nodcnt == 0) or very shallow depths (nodcnt &lt; 5)
-- Deeper in the tree, rely on integer cuts and Gurobi’s internal cuts</p>
-<p>Performance:
-- Root node: Full exact separation (max-flow for SECs and RCCs)
-- Shallow nodes (depth &lt; 5): Limited exact separation
-- Deep nodes: Skip fractional separation entirely</p>
 </dd></dl>
 
 <dl class="py method">
@@ -756,7 +771,14 @@ Handles multiple routes in the aggregate flow formulation.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.branch_and_cut.bc.BranchAndCutSolver._find_k_tree_cycle">
 <span class="sig-name descname"><span class="pre">_find_k_tree_cycle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edges</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_cut.bc.BranchAndCutSolver._find_k_tree_cycle" title="Link to this definition">#</a></dt>
-<dd><p>Find a cycle in a K-tree graph using DFS.</p>
+<dd><p>Find a cycle in a K-tree graph using an iterative stack-based DFS.
+Replaces recursive implementation to prevent RecursionError on large graphs.</p>
+<p>Correctness note: each stack frame carries its own copy of the path from
+the start node to the current node. When we encounter a neighbour v that
+already appears in the current path (a back-edge), we have found a cycle
+and return it immediately. Globally-visited nodes are only skipped when
+they do not appear in the current path, preventing false negatives from
+cross-edges between separate DFS branches.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -826,6 +848,7 @@ Tuple of (edges, cost, all_components_from_kruskal).</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.bc.BranchAndCutSolver.solve"><code class="docutils literal notranslate"><span class="pre">BranchAndCutSolver.solve()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.bc.BranchAndCutSolver._build_initial_model"><code class="docutils literal notranslate"><span class="pre">BranchAndCutSolver._build_initial_model()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.bc.BranchAndCutSolver._lazy_constraint_callback"><code class="docutils literal notranslate"><span class="pre">BranchAndCutSolver._lazy_constraint_callback()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.bc.BranchAndCutSolver._evaluate_pool_cuts"><code class="docutils literal notranslate"><span class="pre">BranchAndCutSolver._evaluate_pool_cuts()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.bc.BranchAndCutSolver._handle_custom_branching"><code class="docutils literal notranslate"><span class="pre">BranchAndCutSolver._handle_custom_branching()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.bc.BranchAndCutSolver._add_integer_cuts"><code class="docutils literal notranslate"><span class="pre">BranchAndCutSolver._add_integer_cuts()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_cut.bc.BranchAndCutSolver._add_fractional_cuts"><code class="docutils literal notranslate"><span class="pre">BranchAndCutSolver._add_fractional_cuts()</span></code></a></li>

@@ -95,17 +95,6 @@
 
 ````
 
-````{py:attribute} alpha_diversity
-:canonical: src.configs.rl.policies.ahvpl.AHVPLConfig.alpha_diversity
-:type: float
-:value: >
-   0.5
-
-```{autodoc2-docstring} src.configs.rl.policies.ahvpl.AHVPLConfig.alpha_diversity
-```
-
-````
-
 ````{py:attribute} nb_elite
 :canonical: src.configs.rl.policies.ahvpl.AHVPLConfig.nb_elite
 :type: int

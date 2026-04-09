@@ -27,14 +27,14 @@
 
 ### API
 
-````{py:function} execute_new(policy: typing.Any, **kwargs: typing.Any) -> typing.Tuple[typing.List[int], float, typing.Any]
+````{py:function} execute_new(policy: typing.Any, params: src.policies.simulated_annealing_neighborhood_search.params.SANSParams, **kwargs: typing.Any) -> typing.Tuple[typing.List[int], float, typing.Any]
 :canonical: src.policies.simulated_annealing_neighborhood_search.dispatcher.execute_new
 
 ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.dispatcher.execute_new
 ```
 ````
 
-````{py:function} execute_og(policy: typing.Any, **kwargs: typing.Any) -> typing.Tuple[typing.List[int], float, typing.Any]
+````{py:function} execute_og(policy: typing.Any, params: src.policies.simulated_annealing_neighborhood_search.params.SANSParams, **kwargs: typing.Any) -> typing.Tuple[typing.List[int], float, typing.Any]
 :canonical: src.policies.simulated_annealing_neighborhood_search.dispatcher.execute_og
 
 ```{autodoc2-docstring} src.policies.simulated_annealing_neighborhood_search.dispatcher.execute_og

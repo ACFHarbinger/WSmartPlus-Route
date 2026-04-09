@@ -150,28 +150,6 @@
 
 ````
 
-````{py:attribute} min_diversity
-:canonical: src.policies.hybrid_genetic_search.params.HGSParams.min_diversity
-:type: float
-:value: >
-   0.2
-
-```{autodoc2-docstring} src.policies.hybrid_genetic_search.params.HGSParams.min_diversity
-```
-
-````
-
-````{py:attribute} diversity_change_rate
-:canonical: src.policies.hybrid_genetic_search.params.HGSParams.diversity_change_rate
-:type: float
-:value: >
-   0.05
-
-```{autodoc2-docstring} src.policies.hybrid_genetic_search.params.HGSParams.diversity_change_rate
-```
-
-````
-
 ````{py:attribute} local_search_iterations
 :canonical: src.policies.hybrid_genetic_search.params.HGSParams.local_search_iterations
 :type: int
@@ -347,15 +325,6 @@
 :type: int
 
 ```{autodoc2-docstring} src.policies.hybrid_genetic_search.params.HGSParams.elite_size
-```
-
-````
-
-````{py:property} min_diversity_threshold
-:canonical: src.policies.hybrid_genetic_search.params.HGSParams.min_diversity_threshold
-:type: float
-
-```{autodoc2-docstring} src.policies.hybrid_genetic_search.params.HGSParams.min_diversity_threshold
 ```
 
 ````

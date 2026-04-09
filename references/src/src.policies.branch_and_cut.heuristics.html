@@ -64,7 +64,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.policies.branch_and_cut.heuristics';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.policies.branch_and_cut.vrpp_model" href="src.policies.branch_and_cut.vrpp_model.html" />
+    <link rel="next" title="src.policies.branch_and_cut.params" href="src.policies.branch_and_cut.params.html" />
     <link rel="prev" title="src.policies.branch_and_cut.bc" href="src.policies.branch_and_cut.bc.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -634,7 +634,9 @@ Tuple of (tour, profit).</p>
 routes: List of routes (each route is a list of node indices).
 depot: Depot node index (typically 0).</p>
 <p>Returns:
-Single tour: [depot, route1_nodes…, depot, route2_nodes…, depot]</p>
+Single aggregated tour: [depot, route1_nodes…, depot, route2_nodes…, depot].
+Note: The 2-opt operator is designed for single trips and will skip tours
+containing internal depot visits (multi-vehicle routes).</p>
 </dd></dl>
 
 <dl class="py function">
@@ -676,11 +678,11 @@ Improved tour.</p>
       </div>
     </a>
     <a class="right-next"
-       href="src.policies.branch_and_cut.vrpp_model.html"
+       href="src.policies.branch_and_cut.params.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_cut.vrpp_model</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_cut.params</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

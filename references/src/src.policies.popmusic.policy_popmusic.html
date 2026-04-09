@@ -65,7 +65,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="src.policies.improving_and_equal" href="src.policies.improving_and_equal.html" />
-    <link rel="prev" title="src.policies.popmusic.solver" href="src.policies.popmusic.solver.html" />
+    <link rel="prev" title="src.policies.popmusic.params" href="src.policies.popmusic.params.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -578,6 +578,13 @@ Intensification Conditions) matheuristic.</p></td>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.policies.base.base_routing_policy.BaseRoutingPolicy</span></code></p>
 <p>Adapter for the POPMUSIC (Partial Optimization Metaheuristic Under Special
 Intensification Conditions) matheuristic.</p>
+<p>This policy encapsulates the LIFO-stack based neighborhood decomposition
+strategy defined by Taillard &amp; Voss (2002). It systematically selects “seed”
+nodes, builds proximity-based subproblems (parts), and optimizes them using
+a base solver (typically LKH3 or Gurobi) until no further improvements are
+possible across all centroids.</p>
+<p>The adapter handles the conversion from the simulator’s global state to the
+localized part-optimization context.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize policy with optional config dataclass or raw dict.</p>
 <p>Args:
@@ -619,12 +626,12 @@ typed dataclass automatically.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.policies.popmusic.solver.html"
+       href="src.policies.popmusic.params.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.popmusic.solver</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.popmusic.params</span></code></p>
       </div>
     </a>
     <a class="right-next"

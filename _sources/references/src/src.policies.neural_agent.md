@@ -17,6 +17,7 @@ src.policies.neural_agent.agent
 src.policies.neural_agent.policy_neural
 src.policies.neural_agent.batch
 src.policies.neural_agent.simulation
+src.policies.neural_agent.params
 ```
 
 ## Package Contents

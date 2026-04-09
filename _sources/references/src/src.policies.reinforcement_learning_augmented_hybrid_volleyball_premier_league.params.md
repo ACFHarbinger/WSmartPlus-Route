@@ -51,17 +51,6 @@
 
 ````
 
-````{py:attribute} max_iterations
-:canonical: src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.max_iterations
-:type: int
-:value: >
-   1000
-
-```{autodoc2-docstring} src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.max_iterations
-```
-
-````
-
 ````{py:attribute} elite_coaching_max_iterations
 :canonical: src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.RLAHVPLParams.elite_coaching_max_iterations
 :type: int

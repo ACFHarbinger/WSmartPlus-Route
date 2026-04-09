@@ -538,9 +538,6 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.elite_size"><code class="docutils literal notranslate"><span class="pre">HGSRRParams.elite_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.mutation_rate"><code class="docutils literal notranslate"><span class="pre">HGSRRParams.mutation_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.n_iterations_no_improvement"><code class="docutils literal notranslate"><span class="pre">HGSRRParams.n_iterations_no_improvement</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.alpha_diversity"><code class="docutils literal notranslate"><span class="pre">HGSRRParams.alpha_diversity</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.min_diversity"><code class="docutils literal notranslate"><span class="pre">HGSRRParams.min_diversity</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.diversity_change_rate"><code class="docutils literal notranslate"><span class="pre">HGSRRParams.diversity_change_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.no_improvement_threshold"><code class="docutils literal notranslate"><span class="pre">HGSRRParams.no_improvement_threshold</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.survivor_threshold"><code class="docutils literal notranslate"><span class="pre">HGSRRParams.survivor_threshold</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.max_vehicles"><code class="docutils literal notranslate"><span class="pre">HGSRRParams.max_vehicles</span></code></a></li>
@@ -608,9 +605,6 @@ mu (int): Minimum population size (for each subpopulation).
 nb_elite (int): Number of elite individuals preserved.
 mutation_rate (float): Probability of applying ruin-recreate mutation.
 n_offspring (int): Generation size (individuals created per iteration).
-alpha_diversity (float): Initial diversity weight in fitness calculation.
-min_diversity (float): Minimum population diversity threshold.
-diversity_change_rate (float): Rate of alpha adjustment.
 n_iterations_no_improvement (int): Max iterations without improvement.
 survivor_threshold (float): Population size multiplier for survivor selection.
 max_vehicles (int): Maximum number of vehicles (0 = unlimited).
@@ -664,24 +658,6 @@ seed (Optional[int]): Random seed for reproducibility.
 <dt class="sig sig-object py" id="src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.n_iterations_no_improvement">
 <span class="sig-name descname"><span class="pre">n_iterations_no_improvement</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.n_iterations_no_improvement" title="Link to this definition">#</a></dt>
 <dd><p>20000</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.alpha_diversity">
-<span class="sig-name descname"><span class="pre">alpha_diversity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.alpha_diversity" title="Link to this definition">#</a></dt>
-<dd><p>0.5</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.min_diversity">
-<span class="sig-name descname"><span class="pre">min_diversity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.min_diversity" title="Link to this definition">#</a></dt>
-<dd><p>0.2</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.diversity_change_rate">
-<span class="sig-name descname"><span class="pre">diversity_change_rate</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.diversity_change_rate" title="Link to this definition">#</a></dt>
-<dd><p>0.05</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -864,9 +840,6 @@ seed (Optional[int]): Random seed for reproducibility.
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.elite_size"><code class="docutils literal notranslate"><span class="pre">HGSRRParams.elite_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.mutation_rate"><code class="docutils literal notranslate"><span class="pre">HGSRRParams.mutation_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.n_iterations_no_improvement"><code class="docutils literal notranslate"><span class="pre">HGSRRParams.n_iterations_no_improvement</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.alpha_diversity"><code class="docutils literal notranslate"><span class="pre">HGSRRParams.alpha_diversity</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.min_diversity"><code class="docutils literal notranslate"><span class="pre">HGSRRParams.min_diversity</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.diversity_change_rate"><code class="docutils literal notranslate"><span class="pre">HGSRRParams.diversity_change_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.no_improvement_threshold"><code class="docutils literal notranslate"><span class="pre">HGSRRParams.no_improvement_threshold</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.survivor_threshold"><code class="docutils literal notranslate"><span class="pre">HGSRRParams.survivor_threshold</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.max_vehicles"><code class="docutils literal notranslate"><span class="pre">HGSRRParams.max_vehicles</span></code></a></li>

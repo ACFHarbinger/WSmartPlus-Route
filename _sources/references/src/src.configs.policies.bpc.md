@@ -40,17 +40,6 @@
 
 ````
 
-````{py:attribute} engine
-:canonical: src.configs.policies.bpc.BPCConfig.engine
-:type: str
-:value: >
-   'ortools'
-
-```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.engine
-```
-
-````
-
 ````{py:attribute} profit_aware_operators
 :canonical: src.configs.policies.bpc.BPCConfig.profit_aware_operators
 :type: bool
@@ -110,7 +99,7 @@
 :canonical: src.configs.policies.bpc.BPCConfig.search_strategy
 :type: str
 :value: >
-   'best_first'
+   'depth_first'
 
 ```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.search_strategy
 ```
@@ -132,9 +121,130 @@
 :canonical: src.configs.policies.bpc.BPCConfig.branching_strategy
 :type: str
 :value: >
-   'ryan_foster'
+   'divergence'
 
 ```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.branching_strategy
+```
+
+````
+
+````{py:attribute} max_cg_iterations
+:canonical: src.configs.policies.bpc.BPCConfig.max_cg_iterations
+:type: int
+:value: >
+   50
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.max_cg_iterations
+```
+
+````
+
+````{py:attribute} max_cuts_per_iteration
+:canonical: src.configs.policies.bpc.BPCConfig.max_cuts_per_iteration
+:type: int
+:value: >
+   5
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.max_cuts_per_iteration
+```
+
+````
+
+````{py:attribute} max_routes_per_pricing
+:canonical: src.configs.policies.bpc.BPCConfig.max_routes_per_pricing
+:type: int
+:value: >
+   5
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.max_routes_per_pricing
+```
+
+````
+
+````{py:attribute} max_bb_nodes
+:canonical: src.configs.policies.bpc.BPCConfig.max_bb_nodes
+:type: int
+:value: >
+   1000
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.max_bb_nodes
+```
+
+````
+
+````{py:attribute} optimality_gap
+:canonical: src.configs.policies.bpc.BPCConfig.optimality_gap
+:type: float
+:value: >
+   0.0001
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.optimality_gap
+```
+
+````
+
+````{py:attribute} early_termination_gap
+:canonical: src.configs.policies.bpc.BPCConfig.early_termination_gap
+:type: float
+:value: >
+   0.001
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.early_termination_gap
+```
+
+````
+
+````{py:attribute} use_ng_routes
+:canonical: src.configs.policies.bpc.BPCConfig.use_ng_routes
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.use_ng_routes
+```
+
+````
+
+````{py:attribute} ng_neighborhood_size
+:canonical: src.configs.policies.bpc.BPCConfig.ng_neighborhood_size
+:type: int
+:value: >
+   8
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.ng_neighborhood_size
+```
+
+````
+
+````{py:attribute} enable_fractional_capacity_cuts
+:canonical: src.configs.policies.bpc.BPCConfig.enable_fractional_capacity_cuts
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.enable_fractional_capacity_cuts
+```
+
+````
+
+````{py:attribute} enable_comb_cuts
+:canonical: src.configs.policies.bpc.BPCConfig.enable_comb_cuts
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.enable_comb_cuts
+```
+
+````
+
+````{py:attribute} use_spatial_partitioning
+:canonical: src.configs.policies.bpc.BPCConfig.use_spatial_partitioning
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.use_spatial_partitioning
 ```
 
 ````

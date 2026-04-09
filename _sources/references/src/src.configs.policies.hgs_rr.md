@@ -106,39 +106,6 @@
 
 ````
 
-````{py:attribute} alpha_diversity
-:canonical: src.configs.policies.hgs_rr.HGSRRConfig.alpha_diversity
-:type: float
-:value: >
-   0.5
-
-```{autodoc2-docstring} src.configs.policies.hgs_rr.HGSRRConfig.alpha_diversity
-```
-
-````
-
-````{py:attribute} min_diversity
-:canonical: src.configs.policies.hgs_rr.HGSRRConfig.min_diversity
-:type: float
-:value: >
-   0.2
-
-```{autodoc2-docstring} src.configs.policies.hgs_rr.HGSRRConfig.min_diversity
-```
-
-````
-
-````{py:attribute} diversity_change_rate
-:canonical: src.configs.policies.hgs_rr.HGSRRConfig.diversity_change_rate
-:type: float
-:value: >
-   0.05
-
-```{autodoc2-docstring} src.configs.policies.hgs_rr.HGSRRConfig.diversity_change_rate
-```
-
-````
-
 ````{py:attribute} no_improvement_threshold
 :canonical: src.configs.policies.hgs_rr.HGSRRConfig.no_improvement_threshold
 :type: int

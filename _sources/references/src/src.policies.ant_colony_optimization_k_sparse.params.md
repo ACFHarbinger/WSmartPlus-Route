@@ -205,11 +205,22 @@
 
 ````
 
+````{py:attribute} q0
+:canonical: src.policies.ant_colony_optimization_k_sparse.params.KSACOParams.q0
+:type: float
+:value: >
+   0.9
+
+```{autodoc2-docstring} src.policies.ant_colony_optimization_k_sparse.params.KSACOParams.q0
+```
+
+````
+
 ````{py:attribute} seed
 :canonical: src.policies.ant_colony_optimization_k_sparse.params.KSACOParams.seed
 :type: typing.Optional[int]
 :value: >
-   None
+   42
 
 ```{autodoc2-docstring} src.policies.ant_colony_optimization_k_sparse.params.KSACOParams.seed
 ```

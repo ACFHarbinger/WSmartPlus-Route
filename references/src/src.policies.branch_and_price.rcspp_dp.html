@@ -529,8 +529,6 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#edge-branching-constraint-enforcement">Edge-branching constraint enforcement</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ng-route-relaxation">ng-Route Relaxation</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
@@ -545,6 +543,7 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.rcspp_dp.Label.ng_memory"><code class="docutils literal notranslate"><span class="pre">Label.ng_memory</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.rcspp_dp.Label.rf_unmatched"><code class="docutils literal notranslate"><span class="pre">Label.rf_unmatched</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.rcspp_dp.Label.parent"><code class="docutils literal notranslate"><span class="pre">Label.parent</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.rcspp_dp.Label.sri_state"><code class="docutils literal notranslate"><span class="pre">Label.sri_state</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.rcspp_dp.Label.dominates"><code class="docutils literal notranslate"><span class="pre">Label.dominates()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.rcspp_dp.Label.is_feasible"><code class="docutils literal notranslate"><span class="pre">Label.is_feasible()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.rcspp_dp.Label.reconstruct_path"><code class="docutils literal notranslate"><span class="pre">Label.reconstruct_path()</span></code></a></li>
@@ -554,7 +553,6 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.rcspp_dp.RCSPPSolver._compute_ng_neighborhoods"><code class="docutils literal notranslate"><span class="pre">RCSPPSolver._compute_ng_neighborhoods()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.rcspp_dp.RCSPPSolver.solve"><code class="docutils literal notranslate"><span class="pre">RCSPPSolver.solve()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.rcspp_dp.RCSPPSolver._preprocess_constraints"><code class="docutils literal notranslate"><span class="pre">RCSPPSolver._preprocess_constraints()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.rcspp_dp.RCSPPSolver._compute_node_reduced_costs"><code class="docutils literal notranslate"><span class="pre">RCSPPSolver._compute_node_reduced_costs()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.rcspp_dp.RCSPPSolver._label_correcting_algorithm"><code class="docutils literal notranslate"><span class="pre">RCSPPSolver._label_correcting_algorithm()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.rcspp_dp.RCSPPSolver._extend_label"><code class="docutils literal notranslate"><span class="pre">RCSPPSolver._extend_label()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.rcspp_dp.RCSPPSolver._extend_to_depot"><code class="docutils literal notranslate"><span class="pre">RCSPPSolver._extend_to_depot()</span></code></a></li>
@@ -580,66 +578,30 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.branch_and_price.rcspp_dp">
 <span id="src-policies-branch-and-price-rcspp-dp"></span><h1><a class="reference internal" href="#module-src.policies.branch_and_price.rcspp_dp" title="src.policies.branch_and_price.rcspp_dp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price.rcspp_dp</span></code></a><a class="headerlink" href="#module-src.policies.branch_and_price.rcspp_dp" title="Link to this heading">#</a></h1>
-<section id="edge-branching-constraint-enforcement">
-<h2>Edge-branching constraint enforcement<a class="headerlink" href="#edge-branching-constraint-enforcement" title="Link to this heading">#</a></h2>
-<p>Branching constraints from <code class="docutils literal notranslate"><span class="pre">branching.EdgeBranchingConstraint</span></code> are enforced
-<em>inside</em> the label-extension loop rather than as a post-hoc feasibility filter
-on completed routes.  This is both more efficient (infeasible partial paths are
-discarded early) and mathematically correct (a post-hoc filter can mistakenly
-discard a dominating label before the constraint is checked, causing the
-algorithm to miss the constrained optimum).</p>
-<p>Three rules are applied before extending from node u to node v:</p>
-<ol class="arabic simple">
-<li><p>Forbidden-arc rule (must_use = False):
-If any constraint forbids arc (u → v), skip v entirely.</p></li>
-<li><p>Required-successor rule (must_use = True, source = u):
-If node u has a required outgoing arc to some node w, then the only
-permitted extension from u is to w.  Any v ≠ w is skipped.
-Exception: the depot is always a legal return destination.</p></li>
-<li><p>Required-predecessor rule (must_use = True, target = v):
-If node v has a required incoming arc from some node x, then the only
-node permitted to precede v is x.  Any u ≠ x is skipped.
-Exception: v may also be reached from the depot.</p></li>
-</ol>
-</section>
-<section id="ng-route-relaxation">
-<h2>ng-Route Relaxation<a class="headerlink" href="#ng-route-relaxation" title="Link to this heading">#</a></h2>
-<p>When <code class="docutils literal notranslate"><span class="pre">use_ng_routes=True</span></code> (default), the solver uses the <em>ng</em>-route
-relaxation of Baldacci et al. (2011) instead of exact ESPPRC.</p>
-<p>Exact ESPPRC tracks the complete visited set to prevent cycles, resulting
-in an exponential number of labels in the worst case.  The <em>ng</em>-route
-relaxation replaces this with a compact <em>ng</em>-memory set M_v, which only
-blocks revisiting nodes in the neighborhood N_v of the current node v.
-This makes dominance checks much more effective (smaller memory ⇒ more
-labels dominate each other) while still preventing the shortest, most
-profitable cycles.</p>
-<p>Key definitions (Baldacci et al. 2011, Section 3):
-N_i    – ng-neighborhood of node i: the k closest nodes to i by distance,
-always including i itself.
-M_v    – ng-memory of a label at node v: the subset of visited nodes
-that belong to N_v.  Computed incrementally as:
-M_v = (M_u ∪ {v}) ∩ N_v
-where u is the predecessor node.
-Feasibility: extension from a label at v to node w is allowed iff
-w ∉ M_v  (ng mode)  or  w ∉ visited  (exact ESPPRC).
-Dominance: label L1 dominates L2 at the same node iff:
-L1.rc ≥ L2.rc  AND  L1.load ≤ L2.load  AND
-L1.ng_memory ⊆ L2.ng_memory  (ng mode)  or
-L1.visited   ⊆ L2.visited    (exact ESPPRC).</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">visited</span></code> set is always maintained alongside <code class="docutils literal notranslate"><span class="pre">ng_memory</span></code> so that the
-final path can be reconstructed accurately and exact ESPPRC can be restored
-by a single flag toggle (<code class="docutils literal notranslate"><span class="pre">use_ng_routes=False</span></code>).</p>
-</section>
-<p>Resource-Constrained Shortest Path Problem (RCSPP) solver using Dynamic Programming.</p>
-<p>Implements label-setting algorithm for Elementary Shortest Path Problem with Resource
-Constraints (ESPPRC) as described in:</p>
-<ul class="simple">
-<li><p>Irnich &amp; Desaulniers (2005): “Shortest Path Problems with Resource Constraints”</p></li>
-<li><p>Feillet et al. (2004): “An exact algorithm for the ESPPRC”</p></li>
-<li><p>Baldacci, R., Mingozzi, A., &amp; Roberti, R. (2011). “New Route Relaxation and Pricing
-Strategies for the Vehicle Routing Problem”. Operations Research, 59(5), 1269-1283.</p></li>
-</ul>
-<p>This is the exact / ng-relaxed pricing subproblem for Branch-and-Price column generation.</p>
+<p>Resource-Constrained Shortest Path Problem (RCSPP) Solver with ng-Route Relaxation.</p>
+<p>This module provides the core pricing engine for the Branch-and-Price-and-Cut (BPC)
+algorithm. It implements a forward label-correcting dynamic programming
+algorithm to find profitable routes (columns) to add to the Master Problem.</p>
+<p>Theoretical Foundation:
+- ng-Route Relaxation (Baldacci et al. 2011): Provides a compromise between
+the high complexity of exact ESPPRC and the weak relaxation of SPPRC.
+Cycles are permitted as long as they don’t involve “recently visited”
+nodes within a local memory neighborhood.
+- Subset-Row Inequalities (SRI) (Jepsen et al. 2008): Strengthens the set
+partitioning relaxation by adding valid inequalities for subsets of size 3.
+- Rounded Capacity Cuts (RCC) (Lysgaard et al. 2004): Standard VRP capacity
+constraints based on bin-packing bounds.
+- exact ESPPRC: High-fidelity pricing achieved when ng-neighborhoods
+encompass all nodes, or when using strict elementary visit tracking.</p>
+<p>Key Algorithmic Features:
+- Bidirectional Dual Processing: Supports standard maximization duals
+and Farkas duals for infeasibility proof in B&amp;B nodes.
+- Parity Tracking: Tracks visit counts per SRI subset (modulo 2) to correctly
+apply dual penalties for the 3-SRI family.
+- Edge-Based Duals: Dynamic subtraction of penalties for edge-capacity
+clique cuts (LCIs) during label extension.
+- Structural Constraints: Enforces branching decisions (Arc-based or Ryan-Foster)
+to maintain search tree integrity.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -665,11 +627,6 @@ Strategies for the Vehicle Routing Problem”. Operations Research, 59(5), 1269-
 <p>Represents a partial path from the depot to the current node with
 accumulated resources.  Labels are ordered by reduced cost for efficient
 dominance checking (higher is better for the maximisation objective).</p>
-<p>When ng-route relaxation is active, the dominance and feasibility checks
-use <code class="docutils literal notranslate"><span class="pre">ng_memory</span></code> instead of <code class="docutils literal notranslate"><span class="pre">visited</span></code>.  The <code class="docutils literal notranslate"><span class="pre">visited</span></code> set is always
-maintained so that the final path sequence can be reconstructed correctly
-regardless of the relaxation mode, and to ensure that toggling
-<code class="docutils literal notranslate"><span class="pre">use_ng_routes=False</span></code> restores exact ESPPRC without any other changes.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.branch_and_price.rcspp_dp.Label.reduced_cost">
 <span class="sig-name descname"><span class="pre">reduced_cost</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.branch_and_price.rcspp_dp.Label.reduced_cost" title="Link to this definition">#</a></dt>
@@ -730,261 +687,99 @@ regardless of the relaxation mode, and to ensure that toggling
 <dd><p>‘field(…)’</p>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.branch_and_price.rcspp_dp.Label.sri_state">
+<span class="sig-name descname"><span class="pre">sri_state</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.branch_and_price.rcspp_dp.Label.sri_state" title="Link to this definition">#</a></dt>
+<dd><p>‘field(…)’</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.branch_and_price.rcspp_dp.Label.dominates">
 <span class="sig-name descname"><span class="pre">dominates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.policies.branch_and_price.rcspp_dp.Label" title="src.policies.branch_and_price.rcspp_dp.Label"><span class="pre">src.policies.branch_and_price.rcspp_dp.Label</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_ng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.branch_and_price.rcspp_dp.Label.dominates" title="Link to this definition">#</a></dt>
 <dd><p>Check whether this label dominates <em>other</em> at the same node.</p>
-<p>Dominance requires all four conditions to hold simultaneously:
-1. self.reduced_cost &gt;= other.reduced_cost
-2. self.load         &lt;= other.load
-3. self.rf_unmatched == other.rf_unmatched (Obligation Exactness)
-4a. [ng mode]   self.ng_memory ⊆ other.ng_memory
-4b. [exact mode] self.visited  ⊆ other.visited</p>
-<p>Condition 3a is the key difference from exact ESPPRC.  Because
-<code class="docutils literal notranslate"><span class="pre">ng_memory</span></code> is a <em>subset</em> of <code class="docutils literal notranslate"><span class="pre">visited</span></code> (only nearby nodes are
-retained), more pairs of labels satisfy the subset relation and more
-labels get pruned.  This is the efficiency gain of the ng-relaxation:
-the label count is dramatically reduced on large instances.</p>
-<p>Soundness: if L1 dominates L2 under ng-memory, every ng-feasible
-extension of L2 is also ng-feasible for L1, so discarding L2 is safe.
-Cycles that exact ESPPRC would prevent but ng-routes allow involve
-nodes outside N_v — those are typically far away and thus unprofitable
-after travel-cost subtraction.</p>
-<p>Args:
-other: Another label at the same node.
-use_ng: If True, use ng_memory for condition 3 (ng mode).
-If False, use visited (exact ESPPRC mode).
-epsilon: Numerical tolerance for floating-point comparisons.</p>
-<p>Returns:
-True if this label dominates <em>other</em>.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.branch_and_price.rcspp_dp.Label.is_feasible">
 <span class="sig-name descname"><span class="pre">is_feasible</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.branch_and_price.rcspp_dp.Label.is_feasible" title="Link to this definition">#</a></dt>
-<dd><p>Return True if the accumulated load does not exceed capacity.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.branch_and_price.rcspp_dp.Label.reconstruct_path">
 <span class="sig-name descname"><span class="pre">reconstruct_path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price.rcspp_dp.Label.reconstruct_path" title="Link to this definition">#</a></dt>
-<dd><p>Reconstruct the complete path by following parent pointers.</p>
-<p>Returns:
-Ordered list of node indices from depot to current node.</p>
-</dd></dl>
+<dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.branch_and_price.rcspp_dp.RCSPPSolver">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price.rcspp_dp.</span></span><span class="sig-name descname"><span class="pre">RCSPPSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue_per_kg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_per_km</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_ng_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ng_neighborhood_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.branch_and_price.rcspp_dp.RCSPPSolver" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price.rcspp_dp.</span></span><span class="sig-name descname"><span class="pre">RCSPPSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue_per_kg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_per_km</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_ng_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ng_neighborhood_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ng_neighborhoods</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.branch_and_price.rcspp_dp.RCSPPSolver" title="Link to this definition">#</a></dt>
 <dd><p>Exact / ng-relaxed solver for the Resource-Constrained Shortest Path Problem.</p>
-<p>Uses forward label-setting dynamic programming with dominance pruning to
-find elementary (or ng-feasible) paths of maximum reduced cost, subject to
-vehicle capacity.</p>
-<p>Two operating modes are supported:</p>
-<p>Exact ESPPRC (<code class="docutils literal notranslate"><span class="pre">use_ng_routes=False</span></code>)
-Tracks the complete visited set in every label.  Guarantees that every
-generated column is a true elementary route.  Exponential worst-case
-label count for dense instances.</p>
-<p>ng-Route relaxation (<code class="docutils literal notranslate"><span class="pre">use_ng_routes=True</span></code>, default)
-Tracks only the compact ng-memory set M_v = (M_u ∪ {v}) ∩ N_v per
-Baldacci et al. (2011).  Permits revisiting nodes outside N_v, but
-such revisits are typically unprofitable.  Dominance is far more
-effective, drastically reducing the label count on large instances.
-Setting <code class="docutils literal notranslate"><span class="pre">use_ng_routes=False</span></code> perfectly restores exact ESPPRC.</p>
-<p>Both modes accept <code class="docutils literal notranslate"><span class="pre">EdgeBranchingConstraint</span></code> objects from the current B&amp;B
-node and enforce them eagerly during label extension.</p>
-<p>References:
-Baldacci, R., Mingozzi, A., &amp; Roberti, R. (2011). “New Route Relaxation
-and Pricing Strategies for the Vehicle Routing Problem”. Operations
-Research, 59(5), 1269-1283.</p>
-<p>Attributes:
-n_nodes: Number of customer nodes (depot excluded; depot index = 0).
-cost_matrix: Distance matrix of shape (n_nodes+1, n_nodes+1).
-wastes: Mapping from customer node ID to waste volume.
-capacity: Vehicle payload capacity.
-R: Revenue per unit of waste.
-C: Cost per unit of distance.
-mandatory_nodes: Nodes that must appear in every feasible route.
-depot: Depot index (always 0).
-use_ng_routes: Whether ng-route relaxation is active.
-ng_neighborhood_size: Number of closest neighbors in each N_i.
-ng_neighborhoods: Precomputed neighborhood sets N_i for every node.</p>
 <p class="rubric">Initialization</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>    Initialise the RCSPP solver.
-
-    Args:
-        n_nodes: Number of customer nodes (excluding depot).
-        cost_matrix: Distance matrix (n_nodes+1 × n_nodes+1); index 0 is
-            the depot.
-        wastes: Mapping from node ID to waste volume.
-        capacity: Vehicle payload capacity.
-        revenue_per_kg: Revenue earned per unit of waste collected.
-        cost_per_km: Operating cost per unit of distance travelled.
-        mandatory_nodes: Set of customer node This pricer implements a **Label-Correcting** algorithm (FIFO queue) to handle
-</pre></div>
-</div>
-<p>potential negative edge costs introduced by dual variables. It supports both
-exact ESPPRC and the ng-route relaxation (Baldacci et al. 2011).
-Set False to restore exact ESPPRC behaviour.  Default True.
-ng_neighborhood_size: Size of each node’s ng-neighborhood N_i
-(including the node itself).  Larger values produce a tighter
-relaxation (approaching exact ESPPRC) at the cost of slower
-dominance checks.  Default 8.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.branch_and_price.rcspp_dp.RCSPPSolver._compute_ng_neighborhoods">
 <span class="sig-name descname"><span class="pre">_compute_ng_neighborhoods</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price.rcspp_dp.RCSPPSolver._compute_ng_neighborhoods" title="Link to this definition">#</a></dt>
-<dd><p>Precompute the ng-neighborhood N_i for every node including the depot.</p>
-<p>N_i is defined as node i itself plus the <code class="docutils literal notranslate"><span class="pre">ng_neighborhood_size</span> <span class="pre">-</span> <span class="pre">1</span></code>
-nodes with the smallest arc cost from i (Baldacci et al. 2011, Def. 1).
-All nodes (depot = 0, customers 1 … n_nodes) are eligible neighbors.</p>
-<p>The effective size is capped at the total number of nodes so that
-<code class="docutils literal notranslate"><span class="pre">ng_neighborhood_size</span></code> may safely exceed the instance size without
-error.</p>
-<p>Returns:
-Mapping node_id → frozenset-compatible set of neighbor IDs.
-Node i is always included in N_i.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.branch_and_price.rcspp_dp.RCSPPSolver.solve">
-<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dual_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">branching_constraints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price.rcspp_dp.RCSPPSolver.solve" title="Link to this definition">#</a></dt>
-<dd><p>Solve the RCSPP and return routes with positive reduced cost.</p>
-<p>Only node-coverage dual values from the master problem are used in the
-reduced-cost formula.  Capacity constraints are enforced implicitly by
-the resource tracker in the label extension step.  Edge-branching
-and Ryan-Foster constraints are enforced during extension and at
-route completion.</p>
-<p>When <code class="docutils literal notranslate"><span class="pre">use_ng_routes=True</span></code>, the ng-route relaxation (Baldacci et al.
-2011) is used in place of exact ESPPRC.  The relaxation may
-occasionally generate routes with short cycles; these are almost always
-unprofitable after dual subtraction and are rare in practice.</p>
+<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dual_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">branching_constraints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity_cut_duals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">FrozenSet</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sri_cut_duals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">FrozenSet</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lci_cut_duals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_farkas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.branch_and_price.master_problem.html#src.policies.branch_and_price.master_problem.Route" title="src.policies.branch_and_price.master_problem.Route"><span class="pre">src.policies.branch_and_price.master_problem.Route</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price.rcspp_dp.RCSPPSolver.solve" title="Link to this definition">#</a></dt>
+<dd><p>Solve the Resource-Constrained Shortest Path Problem (RCSPP).</p>
+<p>Executes a forward label-correcting algorithm to identify columns with
+positive reduced cost in the Master Problem. Supports composite dual
+inputs to facilitate simultaneous pricing of node revenues and various
+cutting plane families.</p>
 <p>Args:
-dual_values: Dual values from the master problem.  Keys are
-customer node IDs (int) and optionally <code class="docutils literal notranslate"><span class="pre">&quot;vehicle_limit&quot;</span></code>
-(str).
-max_routes: Maximum number of routes to return.
-branching_constraints: Active edge branching constraints at the
-current B&amp;B node, or None / empty list for the root.</p>
+dual_values: Dictionary of dual values. Supports two formats:
+1. Flat: mapping node ID (int) -&gt; dual value.
+2. Composite: Sub-dictionaries “node_duals”, “rcc_duals”,
+“sri_duals”, and “lci_duals”.
+max_routes: Maximum number of profitable routes to return.
+branching_constraints: List of branching objects to enforce.
+capacity_cut_duals: Explicit RCC duals (if not in composite).
+sri_cut_duals: Explicit SRI duals (if not in composite).
+lci_cut_duals: Explicit LCI duals (mapped by (u,v) edges).
+is_farkas: Whether to solve the dual of the Farkas lemma.
+True: proof of node infeasibility (minimizes violation).
+False: standard maximization of reduced cost profit.</p>
 <p>Returns:
-List of (route_nodes, reduced_cost) tuples sorted by descending
-reduced cost.  route_nodes excludes the depot.</p>
+List of generated Route objects with positive reduced cost.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.branch_and_price.rcspp_dp.RCSPPSolver._preprocess_constraints">
-<span class="sig-name descname"><span class="pre">_preprocess_constraints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">constraints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">FrozenSet</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price.rcspp_dp.RCSPPSolver._preprocess_constraints" title="Link to this definition">#</a></dt>
-<dd><p>Convert branching constraints into fast lookup structures.</p>
-<p>Uses duck-typing to handle both EdgeBranchingConstraint and
-RyanFosterBranchingConstraint without hard import dependencies.</p>
-<p>Args:
-constraints: Active branching constraints.</p>
-<p>Returns:
-Tuple (forbidden_arcs, req_successors, req_predecessors,
-rf_separate_pairs, rf_together_pairs).</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.policies.branch_and_price.rcspp_dp.RCSPPSolver._compute_node_reduced_costs">
-<span class="sig-name descname"><span class="pre">_compute_node_reduced_costs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.branch_and_price.rcspp_dp.RCSPPSolver._compute_node_reduced_costs" title="Link to this definition">#</a></dt>
-<dd><p>Pre-compute the per-node reduced-cost contribution.</p>
-<p>node_rc_i = waste_i * R  −  dual_i</p>
-</dd></dl>
+<span class="sig-name descname"><span class="pre">_preprocess_constraints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">constraints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.branch_and_price.rcspp_dp.RCSPPSolver._preprocess_constraints" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.branch_and_price.rcspp_dp.RCSPPSolver._label_correcting_algorithm">
-<span class="sig-name descname"><span class="pre">_label_correcting_algorithm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forbidden_arcs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FrozenSet</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">required_successors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">required_predecessors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rf_separate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rf_together</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price.rcspp_dp.RCSPPSolver._label_correcting_algorithm" title="Link to this definition">#</a></dt>
-<dd><p>Forward label-correcting algorithm for ESPPRC / ng-RCSPP.</p>
-<p>Extends labels from the depot through customer nodes back to the depot.
-At each extension step (u → v), edge-branching rules and the
-appropriate elementarity / ng-feasibility check are applied before a
-label is created.</p>
-<p>ng-route mode vs exact ESPPRC — the <em>only</em> two divergence points:</p>
-<ol class="arabic simple">
-<li><p><strong>Feasibility gate</strong> (line in the inner loop):
-ng mode:   v ∉ current.ng_memory
-exact:     v ∉ current.visited</p></li>
-<li><p><strong>Dominance check</strong> forwarded to Label.dominates(use_ng=…):
-ng mode:   self.ng_memory ⊆ other.ng_memory
-exact:     self.visited   ⊆ other.visited</p></li>
-</ol>
-<p>All other logic (arc costs, duals, capacity, branching constraints,
-depot return) is identical in both modes.</p>
-<p>Args:
-max_routes: Upper bound on the number of routes to collect.
-forbidden_arcs: Pairs (u, v) that must not be traversed.
-required_successors: u → w; from u the only valid next customer is w.
-required_predecessors: v → x; v may only be entered from x or depot.</p>
-<p>Returns:
-List of (route_nodes, reduced_cost) with reduced_cost &gt; 1e-6.</p>
-</dd></dl>
+<span class="sig-name descname"><span class="pre">_label_correcting_algorithm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forbidden_arcs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FrozenSet</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">required_successors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">required_predecessors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rf_separate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rf_together</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rcc_duals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">FrozenSet</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_sri_subsets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">FrozenSet</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sri_dual_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_to_sri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.branch_and_price.master_problem.html#src.policies.branch_and_price.master_problem.Route" title="src.policies.branch_and_price.master_problem.Route"><span class="pre">src.policies.branch_and_price.master_problem.Route</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price.rcspp_dp.RCSPPSolver._label_correcting_algorithm" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.branch_and_price.rcspp_dp.RCSPPSolver._extend_label">
-<span class="sig-name descname"><span class="pre">_extend_label</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.policies.branch_and_price.rcspp_dp.Label" title="src.policies.branch_and_price.rcspp_dp.Label"><span class="pre">src.policies.branch_and_price.rcspp_dp.Label</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">next_node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rf_together</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.policies.branch_and_price.rcspp_dp.Label" title="src.policies.branch_and_price.rcspp_dp.Label"><span class="pre">src.policies.branch_and_price.rcspp_dp.Label</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price.rcspp_dp.RCSPPSolver._extend_label" title="Link to this definition">#</a></dt>
-<dd><p>Extend <em>label</em> by visiting <em>next_node</em>.</p>
-<p>Incremental Update for Ryan-Foster ‘Together’ obligations:
-rf_unmatched_new = rf_unmatched_old ⊕ {next_node | partner in visited}
-(We track nodes in together-pairs that don’t yet have their partner).</p>
-<p>ng-memory update (Baldacci et al. 2011, Section 3):
-M_{next_node} = (M_u ∪ {next_node}) ∩ N_{next_node}</p>
-<p>The intersection with N_{next_node} is the key step: it drops nodes
-from the memory that are no longer relevant at the new position
-(i.e. nodes not in the neighborhood of next_node), keeping the
-memory compact and dominance comparisons cheap.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">visited</span></code> set is always extended regardless of mode so that
-path reconstruction and exact ESPPRC mode remain correct.</p>
-<p>Args:
-label: Current label (partial path ending at label.node).
-next_node: Customer node to append to the path.</p>
-<p>Returns:
-New extended label, or None if the extension violates capacity.</p>
-</dd></dl>
+<span class="sig-name descname"><span class="pre">_extend_label</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.policies.branch_and_price.rcspp_dp.Label" title="src.policies.branch_and_price.rcspp_dp.Label"><span class="pre">src.policies.branch_and_price.rcspp_dp.Label</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">next_node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rf_together</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_sri_subsets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">FrozenSet</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sri_dual_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_to_sri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.policies.branch_and_price.rcspp_dp.Label" title="src.policies.branch_and_price.rcspp_dp.Label"><span class="pre">src.policies.branch_and_price.rcspp_dp.Label</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price.rcspp_dp.RCSPPSolver._extend_label" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.branch_and_price.rcspp_dp.RCSPPSolver._extend_to_depot">
 <span class="sig-name descname"><span class="pre">_extend_to_depot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.policies.branch_and_price.rcspp_dp.Label" title="src.policies.branch_and_price.rcspp_dp.Label"><span class="pre">src.policies.branch_and_price.rcspp_dp.Label</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.policies.branch_and_price.rcspp_dp.Label" title="src.policies.branch_and_price.rcspp_dp.Label"><span class="pre">src.policies.branch_and_price.rcspp_dp.Label</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price.rcspp_dp.RCSPPSolver._extend_to_depot" title="Link to this definition">#</a></dt>
-<dd><p>Close a partial route by returning from <em>label.node</em> to the depot.</p>
-<p>Args:
-label: Current label at a customer node.</p>
-<p>Returns:
-Final label at the depot representing the completed route.</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.branch_and_price.rcspp_dp.RCSPPSolver._is_dominated">
-<span class="sig-name descname"><span class="pre">_is_dominated</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.policies.branch_and_price.rcspp_dp.Label" title="src.policies.branch_and_price.rcspp_dp.Label"><span class="pre">src.policies.branch_and_price.rcspp_dp.Label</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">existing_labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.policies.branch_and_price.rcspp_dp.Label" title="src.policies.branch_and_price.rcspp_dp.Label"><span class="pre">src.policies.branch_and_price.rcspp_dp.Label</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_ng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.branch_and_price.rcspp_dp.RCSPPSolver._is_dominated" title="Link to this definition">#</a></dt>
-<dd><p>Return True if <em>label</em> is dominated by any label in <em>existing_labels</em>.</p>
-<p>Args:
-label: Candidate label to check.
-existing_labels: Non-dominated labels already stored at the node.
-use_ng: Forwarded to Label.dominates to select the correct
-state-field for the subset check.</p>
-<p>Returns:
-True if at least one existing label dominates <em>label</em>.</p>
-</dd></dl>
+<span class="sig-name descname"><span class="pre">_is_dominated</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.policies.branch_and_price.rcspp_dp.Label" title="src.policies.branch_and_price.rcspp_dp.Label"><span class="pre">src.policies.branch_and_price.rcspp_dp.Label</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">existing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.policies.branch_and_price.rcspp_dp.Label" title="src.policies.branch_and_price.rcspp_dp.Label"><span class="pre">src.policies.branch_and_price.rcspp_dp.Label</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_ng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.branch_and_price.rcspp_dp.RCSPPSolver._is_dominated" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.branch_and_price.rcspp_dp.RCSPPSolver.compute_route_details">
-<span class="sig-name descname"><span class="pre">compute_route_details</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price.rcspp_dp.RCSPPSolver.compute_route_details" title="Link to this definition">#</a></dt>
-<dd><p>Compute cost, revenue, load, and node coverage for a given route.</p>
-<p>Args:
-route: Ordered list of customer nodes (depot excluded).</p>
-<p>Returns:
-Tuple of (cost, revenue, load, node_coverage).</p>
-</dd></dl>
+<span class="sig-name descname"><span class="pre">compute_route_details</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.branch_and_price.rcspp_dp.RCSPPSolver.compute_route_details" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.branch_and_price.rcspp_dp.RCSPPSolver.get_statistics">
-<span class="sig-name descname"><span class="pre">get_statistics</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price.rcspp_dp.RCSPPSolver.get_statistics" title="Link to this definition">#</a></dt>
-<dd><p>Return label-processing statistics from the most recent solve.</p>
-<p>Returns:
-Dictionary with keys:
-labels_generated  – total labels created and accepted,
-labels_dominated  – labels discarded by dominance,
-labels_infeasible – labels discarded for infeasibility.</p>
-</dd></dl>
+<span class="sig-name descname"><span class="pre">get_statistics</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.branch_and_price.rcspp_dp.RCSPPSolver.get_statistics" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -1037,8 +832,6 @@ labels_infeasible – labels discarded for infeasibility.</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#edge-branching-constraint-enforcement">Edge-branching constraint enforcement</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ng-route-relaxation">ng-Route Relaxation</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
@@ -1053,6 +846,7 @@ labels_infeasible – labels discarded for infeasibility.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.rcspp_dp.Label.ng_memory"><code class="docutils literal notranslate"><span class="pre">Label.ng_memory</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.rcspp_dp.Label.rf_unmatched"><code class="docutils literal notranslate"><span class="pre">Label.rf_unmatched</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.rcspp_dp.Label.parent"><code class="docutils literal notranslate"><span class="pre">Label.parent</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.rcspp_dp.Label.sri_state"><code class="docutils literal notranslate"><span class="pre">Label.sri_state</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.rcspp_dp.Label.dominates"><code class="docutils literal notranslate"><span class="pre">Label.dominates()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.rcspp_dp.Label.is_feasible"><code class="docutils literal notranslate"><span class="pre">Label.is_feasible()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.rcspp_dp.Label.reconstruct_path"><code class="docutils literal notranslate"><span class="pre">Label.reconstruct_path()</span></code></a></li>
@@ -1062,7 +856,6 @@ labels_infeasible – labels discarded for infeasibility.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.rcspp_dp.RCSPPSolver._compute_ng_neighborhoods"><code class="docutils literal notranslate"><span class="pre">RCSPPSolver._compute_ng_neighborhoods()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.rcspp_dp.RCSPPSolver.solve"><code class="docutils literal notranslate"><span class="pre">RCSPPSolver.solve()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.rcspp_dp.RCSPPSolver._preprocess_constraints"><code class="docutils literal notranslate"><span class="pre">RCSPPSolver._preprocess_constraints()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.rcspp_dp.RCSPPSolver._compute_node_reduced_costs"><code class="docutils literal notranslate"><span class="pre">RCSPPSolver._compute_node_reduced_costs()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.rcspp_dp.RCSPPSolver._label_correcting_algorithm"><code class="docutils literal notranslate"><span class="pre">RCSPPSolver._label_correcting_algorithm()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.rcspp_dp.RCSPPSolver._extend_label"><code class="docutils literal notranslate"><span class="pre">RCSPPSolver._extend_label()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.rcspp_dp.RCSPPSolver._extend_to_depot"><code class="docutils literal notranslate"><span class="pre">RCSPPSolver._extend_to_depot()</span></code></a></li>

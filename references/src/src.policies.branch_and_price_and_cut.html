@@ -64,7 +64,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.policies.branch_and_price_and_cut';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.policies.branch_and_price_and_cut.gurobi_engine" href="src.policies.branch_and_price_and_cut.gurobi_engine.html" />
+    <link rel="next" title="src.policies.branch_and_price_and_cut.master_problem" href="src.policies.branch_and_price_and_cut.master_problem.html" />
     <link rel="prev" title="src.policies.fast_iterative_localized_optimization.ruin_recreate" href="src.policies.fast_iterative_localized_optimization.ruin_recreate.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -557,14 +557,16 @@ Exposes the main runner function and individual engines.</p>
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="src.policies.branch_and_price_and_cut.gurobi_engine.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.gurobi_engine</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.branch_and_price_and_cut.master_problem.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.master_problem</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.branch_and_price_and_cut.search_strategy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.search_strategy</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="src.policies.branch_and_price_and_cut.ortools_engine.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.ortools_engine</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="src.policies.branch_and_price_and_cut.vrpy_engine.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.vrpy_engine</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.branch_and_price_and_cut.rcspp_dp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.rcspp_dp</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.branch_and_price_and_cut.branching.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.branching</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.branch_and_price_and_cut.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.params</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.branch_and_price_and_cut.vrpp_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.vrpp_model</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.branch_and_price_and_cut.cutting_planes.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.cutting_planes</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.branch_and_price_and_cut.policy_bpc.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.policy_bpc</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.branch_and_price_and_cut.bpc_engine.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.bpc_engine</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="src.policies.branch_and_price_and_cut.dispatcher.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.dispatcher</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.branch_and_price_and_cut.separation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.separation</span></code></a></li>
 </ul>
 </div>
 </section>
@@ -586,7 +588,7 @@ Exposes the main runner function and individual engines.</p>
 <dl class="py data">
 <dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.__all__">
 <span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.</span></span><span class="sig-name descname"><span class="pre">__all__</span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.__all__" title="Link to this definition">#</a></dt>
-<dd><p>[‘run_bpc’, ‘run_bpc_gurobi’, ‘run_bpc_ortools’, ‘run_bpc_vrpy’]</p>
+<dd><p>[‘run_bpc’]</p>
 </dd></dl>
 
 </section>
@@ -614,11 +616,11 @@ Exposes the main runner function and individual engines.</p>
       </div>
     </a>
     <a class="right-next"
-       href="src.policies.branch_and_price_and_cut.gurobi_engine.html"
+       href="src.policies.branch_and_price_and_cut.master_problem.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.gurobi_engine</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.master_problem</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

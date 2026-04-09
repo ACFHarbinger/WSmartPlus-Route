@@ -109,7 +109,7 @@ Bases: {py:obj}`src.policies.branch_and_cut.separation.Inequality`
 
 ````
 
-`````{py:class} SeparationEngine(model, enable_fractional_capacity_cuts: bool = True)
+`````{py:class} SeparationEngine(model, enable_fractional_capacity_cuts: bool = True, enable_comb_cuts: bool = False)
 :canonical: src.policies.branch_and_cut.separation.SeparationEngine
 
 ```{autodoc2-docstring} src.policies.branch_and_cut.separation.SeparationEngine
@@ -120,16 +120,6 @@ Bases: {py:obj}`src.policies.branch_and_cut.separation.Inequality`
 
 ```{autodoc2-docstring} src.policies.branch_and_cut.separation.SeparationEngine.__init__
 ```
-
-````{py:attribute} USE_COMB_CUTS
-:canonical: src.policies.branch_and_cut.separation.SeparationEngine.USE_COMB_CUTS
-:value: >
-   False
-
-```{autodoc2-docstring} src.policies.branch_and_cut.separation.SeparationEngine.USE_COMB_CUTS
-```
-
-````
 
 ````{py:method} separate_integer(x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray] = None, max_cuts: int = 100, iteration: int = 0, sec_only: bool = False) -> typing.List[src.policies.branch_and_cut.separation.Inequality]
 :canonical: src.policies.branch_and_cut.separation.SeparationEngine.separate_integer

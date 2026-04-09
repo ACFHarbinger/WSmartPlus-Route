@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} BranchAndPriceSolver(n_nodes: int, cost_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, revenue_per_kg: float, cost_per_km: float, mandatory_nodes: typing.Optional[typing.Set[int]] = None, max_iterations: int = 100, max_routes_per_iteration: int = 10, optimality_gap: float = 0.0001, use_ryan_foster: bool = False, branching_strategy: str = 'edge', tree_search_strategy: str = 'best_first', max_branch_nodes: int = 1000, use_exact_pricing: bool = False, vehicle_limit: typing.Optional[int] = None, use_ng_routes: bool = True, ng_neighborhood_size: int = 8, cleanup_frequency: int = 20, cleanup_threshold: float = -100.0, early_termination_gap: float = 0.001, multiple_waste_types: bool = False, allow_heuristic_ryan_foster: bool = False)
+`````{py:class} BranchAndPriceSolver(n_nodes: int, cost_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, revenue_per_kg: float, cost_per_km: float, mandatory_nodes: typing.Optional[typing.Set[int]] = None, max_iterations: int = 100, max_routes_per_iteration: int = 10, optimality_gap: float = 0.0001, use_ryan_foster: bool = False, branching_strategy: str = 'edge', tree_search_strategy: str = 'best_first', max_branch_nodes: int = 1000, use_exact_pricing: bool = False, vehicle_limit: typing.Optional[int] = None, use_ng_routes: bool = True, ng_neighborhood_size: int = 8, cleanup_frequency: int = 20, cleanup_threshold: float = -100.0, early_termination_gap: float = 0.001, multiple_waste_types: bool = False, allow_heuristic_ryan_foster: bool = False, params: typing.Optional[src.policies.branch_and_price.params.BPParams] = None)
 :canonical: src.policies.branch_and_price.bp.BranchAndPriceSolver
 
 ```{autodoc2-docstring} src.policies.branch_and_price.bp.BranchAndPriceSolver
@@ -59,7 +59,7 @@
 
 ````
 
-````{py:method} _solve_node(node: src.policies.branch_and_price.branching.BranchNode) -> typing.Tuple[typing.Optional[float], typing.Dict[int, float], typing.List[src.policies.branch_and_price.master_problem.Route]]
+````{py:method} _solve_node(node: src.policies.branch_and_price.branching.BranchNode, parent_routes: typing.Optional[typing.List[src.policies.branch_and_price.master_problem.Route]] = None) -> typing.Tuple[typing.Optional[float], typing.Dict[int, float], typing.List[src.policies.branch_and_price.master_problem.Route]]
 :canonical: src.policies.branch_and_price.bp.BranchAndPriceSolver._solve_node
 
 ```{autodoc2-docstring} src.policies.branch_and_price.bp.BranchAndPriceSolver._solve_node
@@ -75,7 +75,7 @@
 
 ````
 
-````{py:method} _column_generation_with_constraints(master: src.policies.branch_and_price.master_problem.VRPPMasterProblem, pricing: typing.Tuple[src.policies.branch_and_price.pricing_subproblem.PricingSubproblem, typing.Optional[src.policies.branch_and_price.rcspp_dp.RCSPPSolver]], node: src.policies.branch_and_price.branching.BranchNode, constraints: typing.List[src.policies.branch_and_price.branching.AnyBranchingConstraint]) -> typing.Tuple[float, typing.Dict[int, float]]
+````{py:method} _column_generation_with_constraints(master: src.policies.branch_and_price.master_problem.VRPPMasterProblem, pricing: typing.Tuple[src.policies.branch_and_price.pricing_subproblem.PricingSubproblem, typing.Optional[src.policies.branch_and_price.rcspp_dp.RCSPPSolver]], node: src.policies.branch_and_price.branching.BranchNode, constraints: typing.List[src.policies.branch_and_price.branching.AnyBranchingConstraint]) -> typing.Tuple[float, typing.Dict[int, float], float]
 :canonical: src.policies.branch_and_price.bp.BranchAndPriceSolver._column_generation_with_constraints
 
 ```{autodoc2-docstring} src.policies.branch_and_price.bp.BranchAndPriceSolver._column_generation_with_constraints
@@ -83,7 +83,7 @@
 
 ````
 
-````{py:method} _call_pricing(pricing: typing.Any, dual_values: typing.Dict[int, float], constraints: typing.Optional[typing.List[src.policies.branch_and_price.branching.AnyBranchingConstraint]]) -> typing.List[typing.Tuple[typing.List[int], float]]
+````{py:method} _call_pricing(pricing: typing.Union[src.policies.branch_and_price.pricing_subproblem.PricingSubproblem, src.policies.branch_and_price.rcspp_dp.RCSPPSolver], dual_values: typing.Dict[typing.Union[int, frozenset[int], str, typing.Tuple[int, int]], float], constraints: typing.Optional[typing.List[src.policies.branch_and_price.branching.AnyBranchingConstraint]]) -> typing.List[typing.Tuple[typing.List[int], float]]
 :canonical: src.policies.branch_and_price.bp.BranchAndPriceSolver._call_pricing
 
 ```{autodoc2-docstring} src.policies.branch_and_price.bp.BranchAndPriceSolver._call_pricing
@@ -139,10 +139,19 @@
 
 ````
 
-````{py:method} _is_integer_solution(route_values: typing.Dict[int, float], tol: float = 0.0001) -> bool
+````{py:method} _is_integer_solution(route_values: typing.Dict[int, float], tol: float = 1e-05) -> bool
 :canonical: src.policies.branch_and_price.bp.BranchAndPriceSolver._is_integer_solution
 
 ```{autodoc2-docstring} src.policies.branch_and_price.bp.BranchAndPriceSolver._is_integer_solution
+```
+
+````
+
+````{py:method} _resolve_branching_strategy(branching_strategy: str, use_ryan_foster: bool, values: typing.Dict[str, typing.Any]) -> str
+:canonical: src.policies.branch_and_price.bp.BranchAndPriceSolver._resolve_branching_strategy
+:staticmethod:
+
+```{autodoc2-docstring} src.policies.branch_and_price.bp.BranchAndPriceSolver._resolve_branching_strategy
 ```
 
 ````

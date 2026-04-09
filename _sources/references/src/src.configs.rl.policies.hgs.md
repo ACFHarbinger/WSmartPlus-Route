@@ -150,17 +150,6 @@
 
 ````
 
-````{py:attribute} alpha_diversity
-:canonical: src.configs.rl.policies.hgs.HGSConfig.alpha_diversity
-:type: float
-:value: >
-   0.5
-
-```{autodoc2-docstring} src.configs.rl.policies.hgs.HGSConfig.alpha_diversity
-```
-
-````
-
 ````{py:attribute} min_diversity
 :canonical: src.configs.rl.policies.hgs.HGSConfig.min_diversity
 :type: float

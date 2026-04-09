@@ -143,6 +143,17 @@
 
 ````
 
+````{py:attribute} sri_state
+:canonical: src.policies.branch_and_price.rcspp_dp.Label.sri_state
+:type: typing.Tuple[int, ...]
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.policies.branch_and_price.rcspp_dp.Label.sri_state
+```
+
+````
+
 ````{py:method} dominates(other: src.policies.branch_and_price.rcspp_dp.Label, use_ng: bool = False, epsilon: float = 1e-06) -> bool
 :canonical: src.policies.branch_and_price.rcspp_dp.Label.dominates
 
@@ -169,7 +180,7 @@
 
 `````
 
-`````{py:class} RCSPPSolver(n_nodes: int, cost_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, revenue_per_kg: float, cost_per_km: float, mandatory_nodes: typing.Optional[typing.Set[int]] = None, use_ng_routes: bool = True, ng_neighborhood_size: int = 8)
+`````{py:class} RCSPPSolver(n_nodes: int, cost_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, revenue_per_kg: float, cost_per_km: float, mandatory_nodes: typing.Optional[typing.Set[int]] = None, use_ng_routes: bool = True, ng_neighborhood_size: int = 8, ng_neighborhoods: typing.Optional[typing.Dict[int, typing.Set[int]]] = None)
 :canonical: src.policies.branch_and_price.rcspp_dp.RCSPPSolver
 
 ```{autodoc2-docstring} src.policies.branch_and_price.rcspp_dp.RCSPPSolver
@@ -189,7 +200,7 @@
 
 ````
 
-````{py:method} solve(dual_values: typing.Dict[int, float], max_routes: int = 10, branching_constraints: typing.Optional[typing.List[typing.Any]] = None) -> typing.List[typing.Tuple[typing.List[int], float]]
+````{py:method} solve(dual_values: typing.Dict[typing.Any, typing.Any], max_routes: int = 10, branching_constraints: typing.Optional[typing.List[typing.Any]] = None, capacity_cut_duals: typing.Optional[typing.Dict[typing.FrozenSet[int], float]] = None, sri_cut_duals: typing.Optional[typing.Dict[typing.FrozenSet[int], float]] = None, lci_cut_duals: typing.Optional[typing.Dict[typing.Tuple[int, int], float]] = None, is_farkas: bool = False) -> typing.List[src.policies.branch_and_price.master_problem.Route]
 :canonical: src.policies.branch_and_price.rcspp_dp.RCSPPSolver.solve
 
 ```{autodoc2-docstring} src.policies.branch_and_price.rcspp_dp.RCSPPSolver.solve
@@ -197,7 +208,7 @@
 
 ````
 
-````{py:method} _preprocess_constraints(constraints: typing.List[typing.Any]) -> typing.Tuple[typing.FrozenSet[typing.Tuple[int, int]], typing.Dict[int, int], typing.Dict[int, int], typing.Set[typing.Tuple[int, int]], typing.Set[typing.Tuple[int, int]]]
+````{py:method} _preprocess_constraints(constraints: typing.List[typing.Any])
 :canonical: src.policies.branch_and_price.rcspp_dp.RCSPPSolver._preprocess_constraints
 
 ```{autodoc2-docstring} src.policies.branch_and_price.rcspp_dp.RCSPPSolver._preprocess_constraints
@@ -205,15 +216,7 @@
 
 ````
 
-````{py:method} _compute_node_reduced_costs() -> None
-:canonical: src.policies.branch_and_price.rcspp_dp.RCSPPSolver._compute_node_reduced_costs
-
-```{autodoc2-docstring} src.policies.branch_and_price.rcspp_dp.RCSPPSolver._compute_node_reduced_costs
-```
-
-````
-
-````{py:method} _label_correcting_algorithm(max_routes: int, forbidden_arcs: typing.FrozenSet[typing.Tuple[int, int]], required_successors: typing.Dict[int, int], required_predecessors: typing.Dict[int, int], rf_separate: typing.Set[typing.Tuple[int, int]], rf_together: typing.Set[typing.Tuple[int, int]]) -> typing.List[typing.Tuple[typing.List[int], float]]
+````{py:method} _label_correcting_algorithm(max_routes: int, forbidden_arcs: typing.FrozenSet[typing.Tuple[int, int]], required_successors: typing.Dict[int, int], required_predecessors: typing.Dict[int, int], rf_separate: typing.Set[typing.Tuple[int, int]], rf_together: typing.Set[typing.Tuple[int, int]], rcc_duals: typing.Optional[typing.Dict[typing.FrozenSet[int], float]] = None, active_sri_subsets: typing.Optional[typing.List[typing.FrozenSet[int]]] = None, sri_dual_values: typing.Optional[typing.List[float]] = None, node_to_sri: typing.Optional[typing.Dict[int, typing.List[int]]] = None) -> typing.List[src.policies.branch_and_price.master_problem.Route]
 :canonical: src.policies.branch_and_price.rcspp_dp.RCSPPSolver._label_correcting_algorithm
 
 ```{autodoc2-docstring} src.policies.branch_and_price.rcspp_dp.RCSPPSolver._label_correcting_algorithm
@@ -221,7 +224,7 @@
 
 ````
 
-````{py:method} _extend_label(label: src.policies.branch_and_price.rcspp_dp.Label, next_node: int, rf_together: typing.Set[typing.Tuple[int, int]]) -> typing.Optional[src.policies.branch_and_price.rcspp_dp.Label]
+````{py:method} _extend_label(label: src.policies.branch_and_price.rcspp_dp.Label, next_node: int, rf_together: typing.Set[typing.Tuple[int, int]], active_sri_subsets: typing.Optional[typing.List[typing.FrozenSet[int]]] = None, sri_dual_values: typing.Optional[typing.List[float]] = None, node_to_sri: typing.Optional[typing.Dict[int, typing.List[int]]] = None) -> typing.Optional[src.policies.branch_and_price.rcspp_dp.Label]
 :canonical: src.policies.branch_and_price.rcspp_dp.RCSPPSolver._extend_label
 
 ```{autodoc2-docstring} src.policies.branch_and_price.rcspp_dp.RCSPPSolver._extend_label
@@ -237,7 +240,7 @@
 
 ````
 
-````{py:method} _is_dominated(label: src.policies.branch_and_price.rcspp_dp.Label, existing_labels: typing.List[src.policies.branch_and_price.rcspp_dp.Label], use_ng: bool) -> bool
+````{py:method} _is_dominated(label: src.policies.branch_and_price.rcspp_dp.Label, existing: typing.List[src.policies.branch_and_price.rcspp_dp.Label], use_ng: bool) -> bool
 :canonical: src.policies.branch_and_price.rcspp_dp.RCSPPSolver._is_dominated
 
 ```{autodoc2-docstring} src.policies.branch_and_price.rcspp_dp.RCSPPSolver._is_dominated
@@ -245,7 +248,7 @@
 
 ````
 
-````{py:method} compute_route_details(route: typing.List[int]) -> typing.Tuple[float, float, float, typing.Set[int]]
+````{py:method} compute_route_details(route: typing.List[int])
 :canonical: src.policies.branch_and_price.rcspp_dp.RCSPPSolver.compute_route_details
 
 ```{autodoc2-docstring} src.policies.branch_and_price.rcspp_dp.RCSPPSolver.compute_route_details
@@ -253,7 +256,7 @@
 
 ````
 
-````{py:method} get_statistics() -> typing.Dict[str, int]
+````{py:method} get_statistics()
 :canonical: src.policies.branch_and_price.rcspp_dp.RCSPPSolver.get_statistics
 
 ```{autodoc2-docstring} src.policies.branch_and_price.rcspp_dp.RCSPPSolver.get_statistics

@@ -538,6 +538,7 @@ document.write(`
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.remove_unpromising_columns"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.remove_unpromising_columns()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_route_as_column"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.add_route_as_column()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_route"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.add_route()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem._add_column_to_model"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem._add_column_to_model()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.build_model"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.build_model()</span></code></a></li>
@@ -545,7 +546,18 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.solve_ip"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.solve_ip()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.get_reduced_cost_coefficients"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.get_reduced_cost_coefficients()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.get_node_visitation"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.get_node_visitation()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_edge_lci_cut"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.add_edge_lci_cut()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.get_edge_usage"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.get_edge_usage()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_subset_row_cut"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.add_subset_row_cut()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_set_packing_capacity_cut"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.add_set_packing_capacity_cut()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_sec_cut"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.add_sec_cut()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.remove_local_cuts"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.remove_local_cuts()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.find_and_add_violated_rcc"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.find_and_add_violated_rcc()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem._find_customer_components"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem._find_customer_components()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem._count_crossings"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem._count_crossings()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.has_artificial_variables_active"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.has_artificial_variables_active()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.save_basis"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.save_basis()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.restore_basis"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.restore_basis()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -579,7 +591,7 @@ The master problem selects routes to cover all mandatory nodes while maximising 
 <td><p>Represents a single route (column) in the master problem.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem" title="src.policies.branch_and_price.master_problem.VRPPMasterProblem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VRPPMasterProblem</span></code></a></p></td>
-<td><p>Set Covering Master Problem for VRPP with Column Generation.</p></td>
+<td><p>Master Problem (MP) for the Branch-and-Price-and-Cut algorithm.</p></td>
 </tr>
 </tbody>
 </table>
@@ -609,38 +621,20 @@ node_coverage: Set of customer node IDs covered by this route.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.branch_and_price.master_problem.VRPPMasterProblem">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price.master_problem.</span></span><span class="sig-name descname"><span class="pre">VRPPMasterProblem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue_per_kg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_per_km</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vehicle_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem" title="Link to this definition">#</a></dt>
-<dd><p>Set Covering Master Problem for VRPP with Column Generation.</p>
-<p>This is a pure Branch-and-Price formulation WITHOUT cutting planes.
-All capacity and routing constraints are handled implicitly by the ESPPRC
-pricing subproblem, which only generates feasible routes.</p>
-<p>Formulation (Barnhart et al. 1998):
-max  Σ_k profit_k * λ_k  -  M * Σ_{i ∈ mand} α_i
-s.t. Σ_k a_{ik} * λ_k + α_i  &gt;=  1   ∀ i ∈ mandatory  (set covering)
-Σ_k a_{ik} * λ_k         &lt;=  1   ∀ i ∈ optional   (packing)
-Σ_k λ_k                  &lt;=  K                     (fleet limit, optional)
-λ_k ∈ {0, 1}             ∀ k                       (route selection)
-α_i &gt;= 0                 ∀ i ∈ mandatory           (artificial var)</p>
-<p>Key design decisions (Barnhart et al. 1998):
-Set Covering (&gt;= 1) vs Set Partitioning (== 1):
-Using &gt;= 1 for mandatory-node coverage constraints improves LP dual
-stability across B&amp;B nodes.  A strict == 1 constraint produces dual
-values that can flip sign at every branching step, causing column
-generation to stall.  The &gt;= relaxation keeps duals non-negative and
-monotone, which accelerates convergence of the pricing subproblem.</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Artificial variables (Big-M):
-    Adding α_i &gt;= 0 with objective coefficient -M (≫ 0) to each mandatory
-    node&#39;s coverage constraint guarantees LP feasibility at *every* node of
-    the B&amp;B tree, even when the current column pool cannot cover all
-    mandatory nodes.  In the optimal solution M drives α_i to zero; if any
-    α_i &gt; 0 in the final solution, the node is declared infeasible and pruned.
-
-No dynamic cuts:
-    Capacity and routing feasibility are delegated entirely to the ESPPRC
-    pricing subproblem (rcspp_dp.py).  Adding cutting planes to the master
-    would introduce extra dual variables that the pricing DP cannot account
-    for, creating a dual desync and invalidating the reduced-cost criterion.
-</pre></div>
-</div>
+<dd><p>Master Problem (MP) for the Branch-and-Price-and-Cut algorithm.</p>
+<p>Formulates and solves the Set Partitioning Problem (SPP) relaxation of the VRPP.
+The Master Problem is responsible for:
+1.  Managing the column pool (routes generate by the pricing subproblem).
+2.  Enforcing various valid inequalities (Rounded Capacity, Subset-Row, Lifted Cover).
+3.  Extracting dual values used to guide the search for profitable columns.
+4.  Interfacing with the Branch-and-Bound tree to enforce node-specific constraints.</p>
+<p>Mathematical Formulation:
+Maximize Σ p_k * λ_k
+Subject to:
+Σ a_{ik} * λ_k = 1           ∀ i ∈ Customers (Set Partitioning)
+Σ λ_k &lt;= K                   (Vehicle Fleet Constraint)
+Σ γ_S * λ_k &lt;= RHS           (Cutting Planes: RCC, SRI, LCI)
+λ_k ∈ {0, 1}</p>
 <p class="rubric">Initialization</p>
 <p>Initialise the master problem.</p>
 <p>Args:
@@ -656,15 +650,25 @@ vehicle_limit: Maximum number of vehicles (routes) allowed, or
 None to impose no fleet-size constraint.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.branch_and_price.master_problem.VRPPMasterProblem.remove_unpromising_columns">
-<span class="sig-name descname"><span class="pre">remove_unpromising_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.remove_unpromising_columns" title="Link to this definition">#</a></dt>
-<dd><p>Remove columns with highly negative reduced costs from the model.</p>
-<p>Frees up memory and accelerates LP solves by keeping the model small.
-Only non-basic variables (X=0) are candidates for deletion.</p>
+<span class="sig-name descname"><span class="pre">remove_unpromising_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-10.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.remove_unpromising_columns" title="Link to this definition">#</a></dt>
+<dd><p>Remove columns with highly negative reduced cost to manage pool size.</p>
 <p>Args:
-threshold: Reduced cost cutoff (e.g., -100.0).  Variables with
-RC &lt; threshold are deleted.</p>
+threshold: Reduced cost threshold below which columns are removed.</p>
 <p>Returns:
 Number of columns removed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_route_as_column">
+<span class="sig-name descname"><span class="pre">add_route_as_column</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.policies.branch_and_price.master_problem.Route" title="src.policies.branch_and_price.master_problem.Route"><span class="pre">src.policies.branch_and_price.master_problem.Route</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_route_as_column" title="Link to this definition">#</a></dt>
+<dd><p>Add a route as a column to the live Gurobi model.</p>
+<p>Alias for add_route — exists so that column-generation callers can
+distinguish between buffered pre-build additions (add_route before
+build_model) and live column insertions during CG (add_route_as_column
+after build_model).  Both delegate to _add_column_to_model when the
+model is already built.</p>
+<p>Args:
+route: Route to insert as a new λ variable.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -693,8 +697,8 @@ route: Route whose λ variable is being added.</p>
 <p>Implements the Big-M / artificial-variable formulation of
 Barnhart et al. (1998):</p>
 <ol class="arabic simple">
-<li><p>Mandatory-node coverage constraints use &gt;= 1 (Set Covering) so that
-dual values remain non-negative and stable across B&amp;B nodes.</p></li>
+<li><p>Mandatory-node coverage constraints use == 1 (Set Partitioning) to
+ensure that Ryan-Foster branching logic remains mathematically valid.</p></li>
 <li><p>An artificial variable α_i is added to every mandatory-node constraint
 with objective coefficient -BIG_M, guaranteeing LP feasibility even
 when the column pool cannot cover every mandatory node.</p></li>
@@ -740,7 +744,7 @@ RuntimeError: If the MIP solve fails.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.branch_and_price.master_problem.VRPPMasterProblem.get_reduced_cost_coefficients">
-<span class="sig-name descname"><span class="pre">get_reduced_cost_coefficients</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.get_reduced_cost_coefficients" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_reduced_cost_coefficients</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">frozenset</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.get_reduced_cost_coefficients" title="Link to this definition">#</a></dt>
 <dd><p>Return the dual-value coefficients used by the pricing subproblem.</p>
 <p>The reduced cost of a candidate route r is:
 rc(r) = profit(r)  −  Σ_{i ∈ r} dual_i  −  dual_vehicle_limit</p>
@@ -764,6 +768,110 @@ the model has not been solved yet.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_edge_lci_cut">
+<span class="sig-name descname"><span class="pre">add_edge_lci_cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_edge_lci_cut" title="Link to this definition">#</a></dt>
+<dd><p>Add a Lifted Cover Inequality (LCI) specifically covering edge (u, v).</p>
+<p>LCI Formulation:
+Σ_{k: {u,v} ⊆ Route_k} λ_k &lt;= 1</p>
+<p>This constraint strengthens the LP relaxation by preventing configurations
+where multiple fractional routes traverse the same physical edge, exceeding
+the unary capacity of a single vehicle edge. This is a special case of
+edge-capacity clique cuts.</p>
+<p>Args:
+u, v: Endpoint nodes of the edge.</p>
+<p>Returns:
+True if the cut was added, False if it was redundant.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price.master_problem.VRPPMasterProblem.get_edge_usage">
+<span class="sig-name descname"><span class="pre">get_edge_usage</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.get_edge_usage" title="Link to this definition">#</a></dt>
+<dd><p>Aggregate fractional edge visitation values from current LP solution.</p>
+<p>For an edge (i, j), returns Σ_{k: (i,j) ∈ route_k} λ_k.
+Edges are returned as canonical sorted tuples (min, max).</p>
+<p>Returns:
+Mapping from (u, v) -&gt; fractional visitation sum.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_subset_row_cut">
+<span class="sig-name descname"><span class="pre">add_subset_row_cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_subset_row_cut" title="Link to this definition">#</a></dt>
+<dd><p>Add a 3-Subset Row Inequality (3-SRI) to the master problem.</p>
+<p>SRI Formulation:
+Σ_{k} ⌊ 1/2 * |S ∩ Route_k| ⌋ * λ_k &lt;= 1</p>
+<p>For any subset S of 3 nodes, the sum of routes visiting at least 2 nodes
+in S cannot exceed 1. This strengthens the relaxation by cutting off
+fractional solutions where three routes visit pairs (node1, node2),
+(node2, node3), and (node1, node3) with value 0.5 each.</p>
+<p>Args:
+node_set: A list of exactly 3 customer nodes.</p>
+<p>Returns:
+True if the cut was successfully added to the model.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_set_packing_capacity_cut">
+<span class="sig-name descname"><span class="pre">add_set_packing_capacity_cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rhs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_set_packing_capacity_cut" title="Link to this definition">#</a></dt>
+<dd><p>Add a Rounded Capacity Cut (RCC) to the master problem.</p>
+<p>The cut enforces that the number of edges crossing the boundary δ(S)
+of the node set S must be at least twice the minimum number of
+vehicles required to serve S.</p>
+<p>Constraint:  Σ_{k: route_k crosses δ(S)} crossings_k(S) * λ_k  &gt;=  rhs</p>
+<p>Args:
+node_list: Nodes in set S.
+rhs: Right-hand side (2 * ⌈demand(S) / Q⌉).</p>
+<p>Returns:
+True if the cut was newly added, False if it already exists/failed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_sec_cut">
+<span class="sig-name descname"><span class="pre">add_sec_cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rhs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_cut</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_sec_cut" title="Link to this definition">#</a></dt>
+<dd><p>Add a Subtour Elimination Cut (SEC) or PC-SEC to the master problem.</p>
+<p>Args:
+node_list: Set of nodes in the subtour.
+rhs: Right-hand side value.
+cut_name: Optional name for the constraint.
+global_cut: If True, the cut is stored in the global registry and
+persists across all B&amp;B nodes. If False, it is stored in the
+node-local registry.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price.master_problem.VRPPMasterProblem.remove_local_cuts">
+<span class="sig-name descname"><span class="pre">remove_local_cuts</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.remove_local_cuts" title="Link to this definition">#</a></dt>
+<dd><p>Delete all node-local cuts from the Gurobi model and clear registries.</p>
+<p>Returns:
+Number of cuts removed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price.master_problem.VRPPMasterProblem.find_and_add_violated_rcc">
+<span class="sig-name descname"><span class="pre">find_and_add_violated_rcc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.policies.branch_and_price.master_problem.Route" title="src.policies.branch_and_price.master_problem.Route"><span class="pre">src.policies.branch_and_price.master_problem.Route</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_cuts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.find_and_add_violated_rcc" title="Link to this definition">#</a></dt>
+<dd><p>Separate and add Rounded Capacity Cuts (RCC) based on the current LP solution.</p>
+<p>This follows Section 7 of Barnhart et al. (1998) and Desrochers et al. (1992)
+using a connectivity heuristic:</p>
+<ol class="arabic simple">
+<li><p>Build the fractional flow support graph (arcs with x_uv &gt; 0).</p></li>
+<li><p>Identify connected components (S) of customer nodes.</p></li>
+<li><p>For each component S, check if the routing bound is violated:
+Σ_{k} x^k(δ(S)) λ_k  &lt;  2 * ⌈ (Σ_{i∈S} waste_i) / Q ⌉</p></li>
+</ol>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price.master_problem.VRPPMasterProblem._find_customer_components">
+<span class="sig-name descname"><span class="pre">_find_customer_components</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arc_flow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem._find_customer_components" title="Link to this definition">#</a></dt>
+<dd><p>Identify connected components of customer nodes in the support graph.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price.master_problem.VRPPMasterProblem._count_crossings">
+<span class="sig-name descname"><span class="pre">_count_crossings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.policies.branch_and_price.master_problem.Route" title="src.policies.branch_and_price.master_problem.Route"><span class="pre">src.policies.branch_and_price.master_problem.Route</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FrozenSet</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem._count_crossings" title="Link to this definition">#</a></dt>
+<dd><p>Count how many times a route crosses the boundary δ(S).</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="src.policies.branch_and_price.master_problem.VRPPMasterProblem.has_artificial_variables_active">
 <span class="sig-name descname"><span class="pre">has_artificial_variables_active</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.has_artificial_variables_active" title="Link to this definition">#</a></dt>
 <dd><p>Check whether any artificial variable is non-zero in the current solution.</p>
@@ -774,6 +882,18 @@ so the B&amp;B node should be declared infeasible and pruned.</p>
 tol: Threshold below which a variable value is considered zero.</p>
 <p>Returns:
 True if at least one α_i &gt; tol, indicating infeasibility.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price.master_problem.VRPPMasterProblem.save_basis">
+<span class="sig-name descname"><span class="pre">save_basis</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.save_basis" title="Link to this definition">#</a></dt>
+<dd><p>Save the basis status (VBasis, CBasis) for all variables and constraints.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price.master_problem.VRPPMasterProblem.restore_basis">
+<span class="sig-name descname"><span class="pre">restore_basis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">basis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.restore_basis" title="Link to this definition">#</a></dt>
+<dd><p>Restore basis status to accelerate the next LP solve.</p>
 </dd></dl>
 
 </dd></dl>
@@ -836,6 +956,7 @@ True if at least one α_i &gt; tol, indicating infeasibility.</p>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.remove_unpromising_columns"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.remove_unpromising_columns()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_route_as_column"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.add_route_as_column()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_route"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.add_route()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem._add_column_to_model"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem._add_column_to_model()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.build_model"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.build_model()</span></code></a></li>
@@ -843,7 +964,18 @@ True if at least one α_i &gt; tol, indicating infeasibility.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.solve_ip"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.solve_ip()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.get_reduced_cost_coefficients"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.get_reduced_cost_coefficients()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.get_node_visitation"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.get_node_visitation()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_edge_lci_cut"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.add_edge_lci_cut()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.get_edge_usage"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.get_edge_usage()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_subset_row_cut"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.add_subset_row_cut()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_set_packing_capacity_cut"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.add_set_packing_capacity_cut()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.add_sec_cut"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.add_sec_cut()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.remove_local_cuts"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.remove_local_cuts()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.find_and_add_violated_rcc"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.find_and_add_violated_rcc()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem._find_customer_components"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem._find_customer_components()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem._count_crossings"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem._count_crossings()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.has_artificial_variables_active"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.has_artificial_variables_active()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.save_basis"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.save_basis()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price.master_problem.VRPPMasterProblem.restore_basis"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.restore_basis()</span></code></a></li>
 </ul>
 </li>
 </ul>

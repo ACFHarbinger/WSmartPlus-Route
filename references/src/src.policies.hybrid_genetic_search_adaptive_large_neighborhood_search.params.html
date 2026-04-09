@@ -534,12 +534,13 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams"><code class="docutils literal notranslate"><span class="pre">HGSALNSParams</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.time_limit"><code class="docutils literal notranslate"><span class="pre">HGSALNSParams.time_limit</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.hgs_max_iter"><code class="docutils literal notranslate"><span class="pre">HGSALNSParams.hgs_max_iter</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.seed"><code class="docutils literal notranslate"><span class="pre">HGSALNSParams.seed</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.vrpp"><code class="docutils literal notranslate"><span class="pre">HGSALNSParams.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">HGSALNSParams.profit_aware_operators</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.hgs_params"><code class="docutils literal notranslate"><span class="pre">HGSALNSParams.hgs_params</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.alns_params"><code class="docutils literal notranslate"><span class="pre">HGSALNSParams.alns_params</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.from_config"><code class="docutils literal notranslate"><span class="pre">HGSALNSParams.from_config()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.to_dict"><code class="docutils literal notranslate"><span class="pre">HGSALNSParams.to_dict()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -559,8 +560,6 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params">
 <span id="src-policies-hybrid-genetic-search-adaptive-large-neighborhood-search-params"></span><h1><a class="reference internal" href="#module-src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params" title="src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params</span></code></a><a class="headerlink" href="#module-src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params" title="Link to this heading">#</a></h1>
-<p>Hyperparameters for the Hybrid Genetic Search with Adaptive Large Neighborhood Search (HGS-ALNS) algorithm.</p>
-<p>Combines HGS evolutionary operators with ALNS-based education phase for intensive local search.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -587,12 +586,6 @@ of adaptive large neighborhood search.</p>
 <dt class="sig sig-object py" id="src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.time_limit">
 <span class="sig-name descname"><span class="pre">time_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.time_limit" title="Link to this definition">#</a></dt>
 <dd><p>60.0</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.hgs_max_iter">
-<span class="sig-name descname"><span class="pre">hgs_max_iter</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.hgs_max_iter" title="Link to this definition">#</a></dt>
-<dd><p>100</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -623,6 +616,18 @@ of adaptive large neighborhood search.</p>
 <dt class="sig sig-object py" id="src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.alns_params">
 <span class="sig-name descname"><span class="pre">alns_params</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="src.policies.adaptive_large_neighborhood_search.params.html#src.policies.adaptive_large_neighborhood_search.params.ALNSParams" title="src.policies.adaptive_large_neighborhood_search.params.ALNSParams"><span class="pre">src.policies.adaptive_large_neighborhood_search.params.ALNSParams</span></a></em><a class="headerlink" href="#src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.alns_params" title="Link to this definition">#</a></dt>
 <dd><p>‘field(…)’</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.from_config">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams" title="src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams"><span class="pre">src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams</span></a></span></span><a class="headerlink" href="#src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.from_config" title="Link to this definition">#</a></dt>
+<dd><p>Create HGSALNSParams from a configuration object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.to_dict" title="Link to this definition">#</a></dt>
+<dd><p>Convert Params to a dictionary.</p>
 </dd></dl>
 
 </dd></dl>
@@ -681,12 +686,13 @@ of adaptive large neighborhood search.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams"><code class="docutils literal notranslate"><span class="pre">HGSALNSParams</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.time_limit"><code class="docutils literal notranslate"><span class="pre">HGSALNSParams.time_limit</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.hgs_max_iter"><code class="docutils literal notranslate"><span class="pre">HGSALNSParams.hgs_max_iter</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.seed"><code class="docutils literal notranslate"><span class="pre">HGSALNSParams.seed</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.vrpp"><code class="docutils literal notranslate"><span class="pre">HGSALNSParams.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">HGSALNSParams.profit_aware_operators</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.hgs_params"><code class="docutils literal notranslate"><span class="pre">HGSALNSParams.hgs_params</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.alns_params"><code class="docutils literal notranslate"><span class="pre">HGSALNSParams.alns_params</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.from_config"><code class="docutils literal notranslate"><span class="pre">HGSALNSParams.from_config()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params.HGSALNSParams.to_dict"><code class="docutils literal notranslate"><span class="pre">HGSALNSParams.to_dict()</span></code></a></li>
 </ul>
 </li>
 </ul>

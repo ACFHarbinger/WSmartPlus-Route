@@ -537,7 +537,6 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_bound.node.Node.fixed_x"><code class="docutils literal notranslate"><span class="pre">Node.fixed_x</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_bound.node.Node.fixed_y"><code class="docutils literal notranslate"><span class="pre">Node.fixed_y</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_bound.node.Node.depth"><code class="docutils literal notranslate"><span class="pre">Node.depth</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_bound.node.Node.__post_init__"><code class="docutils literal notranslate"><span class="pre">Node.__post_init__()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -582,8 +581,9 @@ variables (edges and node visits) has been fixed to specific integer values.</p>
 <p>Nodes are prioritized in the search queue based on their lower bound (LB)
 value, implementing a best-bound-first search strategy to minimize tree size.</p>
 <p>Attributes:
-bound (float): The objective value of the Linear Programming relaxation
-at this node. Serves as a deterministic lower bound for the subproblem.
+bound (float): The LP relaxation objective value at this node.
+Serves as an upper bound on any integer solution reachable from
+this node (for maximization problems).
 fixed_x (Dict[Tuple[int, int], int]): A dictionary mapping edge tuples (i, j)
 to their fixed binary values (0 or 1).
 fixed_y (Dict[int, int]): A dictionary mapping customer IDs to their
@@ -611,12 +611,6 @@ depth (int): The distance of the node from the root of the search tree.</p>
 <dt class="sig sig-object py" id="src.policies.branch_and_bound.node.Node.depth">
 <span class="sig-name descname"><span class="pre">depth</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.branch_and_bound.node.Node.depth" title="Link to this definition">#</a></dt>
 <dd><p>‘field(…)’</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.policies.branch_and_bound.node.Node.__post_init__">
-<span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.branch_and_bound.node.Node.__post_init__" title="Link to this definition">#</a></dt>
-<dd><p>Standardization of floating point precision for the bound if necessary.</p>
 </dd></dl>
 
 </dd></dl>
@@ -678,7 +672,6 @@ depth (int): The distance of the node from the root of the search tree.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_bound.node.Node.fixed_x"><code class="docutils literal notranslate"><span class="pre">Node.fixed_x</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_bound.node.Node.fixed_y"><code class="docutils literal notranslate"><span class="pre">Node.fixed_y</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_bound.node.Node.depth"><code class="docutils literal notranslate"><span class="pre">Node.depth</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_bound.node.Node.__post_init__"><code class="docutils literal notranslate"><span class="pre">Node.__post_init__()</span></code></a></li>
 </ul>
 </li>
 </ul>

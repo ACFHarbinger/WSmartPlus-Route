@@ -545,8 +545,6 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.mutation_rate"><code class="docutils literal notranslate"><span class="pre">HGSConfig.mutation_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.repair_probability"><code class="docutils literal notranslate"><span class="pre">HGSConfig.repair_probability</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.crossover_rate"><code class="docutils literal notranslate"><span class="pre">HGSConfig.crossover_rate</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.min_diversity"><code class="docutils literal notranslate"><span class="pre">HGSConfig.min_diversity</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.diversity_change_rate"><code class="docutils literal notranslate"><span class="pre">HGSConfig.diversity_change_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.local_search_iterations"><code class="docutils literal notranslate"><span class="pre">HGSConfig.local_search_iterations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.max_vehicles"><code class="docutils literal notranslate"><span class="pre">HGSConfig.max_vehicles</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.use_cross_exchange"><code class="docutils literal notranslate"><span class="pre">HGSConfig.use_cross_exchange</span></code></a></li>
@@ -616,8 +614,6 @@ n_iterations_no_improvement: Max iterations without improvement.
 mutation_rate: Probability of applying local search to offspring.
 repair_probability: Probability of repairing infeasible offspring.
 crossover_rate: Probability of applying crossover.
-min_diversity: Minimum diversity threshold.
-diversity_change_rate: Rate at which diversity changes.
 local_search_iterations: Number of local search iterations.
 use_cross_exchange: Whether to use cross exchange moves.
 use_lambda_interchange: Whether to use lambda interchange moves.
@@ -702,18 +698,6 @@ post_processing: List of post-processing operations to apply.</p>
 <dt class="sig sig-object py" id="src.configs.policies.hgs.HGSConfig.crossover_rate">
 <span class="sig-name descname"><span class="pre">crossover_rate</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.hgs.HGSConfig.crossover_rate" title="Link to this definition">#</a></dt>
 <dd><p>1.0</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.hgs.HGSConfig.min_diversity">
-<span class="sig-name descname"><span class="pre">min_diversity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.hgs.HGSConfig.min_diversity" title="Link to this definition">#</a></dt>
-<dd><p>0.2</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.hgs.HGSConfig.diversity_change_rate">
-<span class="sig-name descname"><span class="pre">diversity_change_rate</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.hgs.HGSConfig.diversity_change_rate" title="Link to this definition">#</a></dt>
-<dd><p>0.05</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -873,8 +857,6 @@ post_processing: List of post-processing operations to apply.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.mutation_rate"><code class="docutils literal notranslate"><span class="pre">HGSConfig.mutation_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.repair_probability"><code class="docutils literal notranslate"><span class="pre">HGSConfig.repair_probability</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.crossover_rate"><code class="docutils literal notranslate"><span class="pre">HGSConfig.crossover_rate</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.min_diversity"><code class="docutils literal notranslate"><span class="pre">HGSConfig.min_diversity</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.diversity_change_rate"><code class="docutils literal notranslate"><span class="pre">HGSConfig.diversity_change_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.local_search_iterations"><code class="docutils literal notranslate"><span class="pre">HGSConfig.local_search_iterations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.max_vehicles"><code class="docutils literal notranslate"><span class="pre">HGSConfig.max_vehicles</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.use_cross_exchange"><code class="docutils literal notranslate"><span class="pre">HGSConfig.use_cross_exchange</span></code></a></li>

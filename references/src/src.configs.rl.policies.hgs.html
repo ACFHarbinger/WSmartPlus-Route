@@ -544,7 +544,6 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.mutation_rate"><code class="docutils literal notranslate"><span class="pre">HGSConfig.mutation_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.repair_probability"><code class="docutils literal notranslate"><span class="pre">HGSConfig.repair_probability</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.crossover_rate"><code class="docutils literal notranslate"><span class="pre">HGSConfig.crossover_rate</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.alpha_diversity"><code class="docutils literal notranslate"><span class="pre">HGSConfig.alpha_diversity</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.min_diversity"><code class="docutils literal notranslate"><span class="pre">HGSConfig.min_diversity</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.diversity_change_rate"><code class="docutils literal notranslate"><span class="pre">HGSConfig.diversity_change_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.local_search_iterations"><code class="docutils literal notranslate"><span class="pre">HGSConfig.local_search_iterations</span></code></a></li>
@@ -605,7 +604,6 @@ n_iterations_no_improvement: Max iterations without improvement.
 mutation_rate: Probability of applying local search to offspring.
 repair_probability: Probability of repairing infeasible offspring.
 crossover_rate: Probability of applying crossover.
-alpha_diversity: Weight for diversity in fitness evaluation.
 min_diversity: Minimum diversity threshold.
 diversity_change_rate: Rate at which alpha diversity changes.
 local_search_iterations: Number of local search iterations.
@@ -677,12 +675,6 @@ penalty_decrease: Multiplier for decreasing penalty.</p>
 <dt class="sig sig-object py" id="src.configs.rl.policies.hgs.HGSConfig.crossover_rate">
 <span class="sig-name descname"><span class="pre">crossover_rate</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.policies.hgs.HGSConfig.crossover_rate" title="Link to this definition">#</a></dt>
 <dd><p>1.0</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.policies.hgs.HGSConfig.alpha_diversity">
-<span class="sig-name descname"><span class="pre">alpha_diversity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.policies.hgs.HGSConfig.alpha_diversity" title="Link to this definition">#</a></dt>
-<dd><p>0.5</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -793,7 +785,6 @@ penalty_decrease: Multiplier for decreasing penalty.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.mutation_rate"><code class="docutils literal notranslate"><span class="pre">HGSConfig.mutation_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.repair_probability"><code class="docutils literal notranslate"><span class="pre">HGSConfig.repair_probability</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.crossover_rate"><code class="docutils literal notranslate"><span class="pre">HGSConfig.crossover_rate</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.alpha_diversity"><code class="docutils literal notranslate"><span class="pre">HGSConfig.alpha_diversity</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.min_diversity"><code class="docutils literal notranslate"><span class="pre">HGSConfig.min_diversity</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.diversity_change_rate"><code class="docutils literal notranslate"><span class="pre">HGSConfig.diversity_change_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.local_search_iterations"><code class="docutils literal notranslate"><span class="pre">HGSConfig.local_search_iterations</span></code></a></li>

@@ -540,9 +540,6 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs_rr.HGSRRConfig.mutation_rate"><code class="docutils literal notranslate"><span class="pre">HGSRRConfig.mutation_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs_rr.HGSRRConfig.crossover_rate"><code class="docutils literal notranslate"><span class="pre">HGSRRConfig.crossover_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs_rr.HGSRRConfig.n_iterations_no_improvement"><code class="docutils literal notranslate"><span class="pre">HGSRRConfig.n_iterations_no_improvement</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs_rr.HGSRRConfig.alpha_diversity"><code class="docutils literal notranslate"><span class="pre">HGSRRConfig.alpha_diversity</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs_rr.HGSRRConfig.min_diversity"><code class="docutils literal notranslate"><span class="pre">HGSRRConfig.min_diversity</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs_rr.HGSRRConfig.diversity_change_rate"><code class="docutils literal notranslate"><span class="pre">HGSRRConfig.diversity_change_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs_rr.HGSRRConfig.no_improvement_threshold"><code class="docutils literal notranslate"><span class="pre">HGSRRConfig.no_improvement_threshold</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs_rr.HGSRRConfig.survivor_threshold"><code class="docutils literal notranslate"><span class="pre">HGSRRConfig.survivor_threshold</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs_rr.HGSRRConfig.neighbor_list_size"><code class="docutils literal notranslate"><span class="pre">HGSRRConfig.neighbor_list_size</span></code></a></li>
@@ -609,9 +606,6 @@ elite_size: Number of elite individuals to preserve.
 mutation_rate: Probability of applying ruin-recreate mutation.
 crossover_rate: Probability of crossover operation.
 n_iterations_no_improvement: Max iterations without improvement.
-alpha_diversity: Initial alpha diversity parameter for population management.
-min_diversity: Minimum diversity threshold for triggering diversity maintenance.
-diversity_change_rate: Rate at which alpha diversity changes.
 no_improvement_threshold: Number of generations without improvement to trigger diversity maintenance.
 survivor_threshold: Threshold for survivor selection.
 neighbor_list_size: Number of nearest neighbors to consider.
@@ -678,24 +672,6 @@ post_processing: List of post-processing operations to apply.
 <dt class="sig sig-object py" id="src.configs.policies.hgs_rr.HGSRRConfig.n_iterations_no_improvement">
 <span class="sig-name descname"><span class="pre">n_iterations_no_improvement</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.hgs_rr.HGSRRConfig.n_iterations_no_improvement" title="Link to this definition">#</a></dt>
 <dd><p>20000</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.hgs_rr.HGSRRConfig.alpha_diversity">
-<span class="sig-name descname"><span class="pre">alpha_diversity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.hgs_rr.HGSRRConfig.alpha_diversity" title="Link to this definition">#</a></dt>
-<dd><p>0.5</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.hgs_rr.HGSRRConfig.min_diversity">
-<span class="sig-name descname"><span class="pre">min_diversity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.hgs_rr.HGSRRConfig.min_diversity" title="Link to this definition">#</a></dt>
-<dd><p>0.2</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.hgs_rr.HGSRRConfig.diversity_change_rate">
-<span class="sig-name descname"><span class="pre">diversity_change_rate</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.hgs_rr.HGSRRConfig.diversity_change_rate" title="Link to this definition">#</a></dt>
-<dd><p>0.05</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -874,9 +850,6 @@ post_processing: List of post-processing operations to apply.
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs_rr.HGSRRConfig.mutation_rate"><code class="docutils literal notranslate"><span class="pre">HGSRRConfig.mutation_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs_rr.HGSRRConfig.crossover_rate"><code class="docutils literal notranslate"><span class="pre">HGSRRConfig.crossover_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs_rr.HGSRRConfig.n_iterations_no_improvement"><code class="docutils literal notranslate"><span class="pre">HGSRRConfig.n_iterations_no_improvement</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs_rr.HGSRRConfig.alpha_diversity"><code class="docutils literal notranslate"><span class="pre">HGSRRConfig.alpha_diversity</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs_rr.HGSRRConfig.min_diversity"><code class="docutils literal notranslate"><span class="pre">HGSRRConfig.min_diversity</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs_rr.HGSRRConfig.diversity_change_rate"><code class="docutils literal notranslate"><span class="pre">HGSRRConfig.diversity_change_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs_rr.HGSRRConfig.no_improvement_threshold"><code class="docutils literal notranslate"><span class="pre">HGSRRConfig.no_improvement_threshold</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs_rr.HGSRRConfig.survivor_threshold"><code class="docutils literal notranslate"><span class="pre">HGSRRConfig.survivor_threshold</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs_rr.HGSRRConfig.neighbor_list_size"><code class="docutils literal notranslate"><span class="pre">HGSRRConfig.neighbor_list_size</span></code></a></li>

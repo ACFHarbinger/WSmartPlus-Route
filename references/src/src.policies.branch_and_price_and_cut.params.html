@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>src.policies.branch_and_price_and_cut.gurobi_engine &#8212; WSmart-Route  documentation</title>
+    <title>src.policies.branch_and_price_and_cut.params &#8212; WSmart-Route  documentation</title>
   
   
   
@@ -61,11 +61,11 @@
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.policies.branch_and_price_and_cut.gurobi_engine';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.policies.branch_and_price_and_cut.params';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.policies.branch_and_price_and_cut.search_strategy" href="src.policies.branch_and_price_and_cut.search_strategy.html" />
-    <link rel="prev" title="src.policies.branch_and_price_and_cut" href="src.policies.branch_and_price_and_cut.html" />
+    <link rel="next" title="src.policies.branch_and_price_and_cut.vrpp_model" href="src.policies.branch_and_price_and_cut.vrpp_model.html" />
+    <link rel="prev" title="src.policies.branch_and_price_and_cut.branching" href="src.policies.branch_and_price_and_cut.branching.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -435,7 +435,7 @@
       
       
       
-      <li><a href="../../_sources/references/src/src.policies.branch_and_price_and_cut.gurobi_engine.md" target="_blank"
+      <li><a href="../../_sources/references/src/src.policies.branch_and_price_and_cut.params.md" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -519,7 +519,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>src.policies.branch_and_price_and_cut.gurobi_engine</h1>
+    <h1>src.policies.branch_and_price_and_cut.params</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -530,14 +530,34 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.gurobi_engine._setup_model"><code class="docutils literal notranslate"><span class="pre">_setup_model()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.gurobi_engine._create_variables"><code class="docutils literal notranslate"><span class="pre">_create_variables()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.gurobi_engine._create_objective"><code class="docutils literal notranslate"><span class="pre">_create_objective()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.gurobi_engine._add_constraints"><code class="docutils literal notranslate"><span class="pre">_add_constraints()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.gurobi_engine._extract_solution"><code class="docutils literal notranslate"><span class="pre">_extract_solution()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.gurobi_engine.run_bpc_gurobi"><code class="docutils literal notranslate"><span class="pre">run_bpc_gurobi()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams"><code class="docutils literal notranslate"><span class="pre">BPCParams</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.time_limit"><code class="docutils literal notranslate"><span class="pre">BPCParams.time_limit</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">BPCParams.profit_aware_operators</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.vrpp"><code class="docutils literal notranslate"><span class="pre">BPCParams.vrpp</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.seed"><code class="docutils literal notranslate"><span class="pre">BPCParams.seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.search_strategy"><code class="docutils literal notranslate"><span class="pre">BPCParams.search_strategy</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.cutting_planes"><code class="docutils literal notranslate"><span class="pre">BPCParams.cutting_planes</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.branching_strategy"><code class="docutils literal notranslate"><span class="pre">BPCParams.branching_strategy</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.max_cg_iterations"><code class="docutils literal notranslate"><span class="pre">BPCParams.max_cg_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.max_cuts_per_iteration"><code class="docutils literal notranslate"><span class="pre">BPCParams.max_cuts_per_iteration</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.max_routes_per_pricing"><code class="docutils literal notranslate"><span class="pre">BPCParams.max_routes_per_pricing</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.max_bb_nodes"><code class="docutils literal notranslate"><span class="pre">BPCParams.max_bb_nodes</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.optimality_gap"><code class="docutils literal notranslate"><span class="pre">BPCParams.optimality_gap</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.early_termination_gap"><code class="docutils literal notranslate"><span class="pre">BPCParams.early_termination_gap</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.use_ng_routes"><code class="docutils literal notranslate"><span class="pre">BPCParams.use_ng_routes</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.ng_neighborhood_size"><code class="docutils literal notranslate"><span class="pre">BPCParams.ng_neighborhood_size</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.enable_heuristic_rcc_separation"><code class="docutils literal notranslate"><span class="pre">BPCParams.enable_heuristic_rcc_separation</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.enable_comb_cuts"><code class="docutils literal notranslate"><span class="pre">BPCParams.enable_comb_cuts</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.use_spatial_partitioning"><code class="docutils literal notranslate"><span class="pre">BPCParams.use_spatial_partitioning</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.enable_strong_branching"><code class="docutils literal notranslate"><span class="pre">BPCParams.enable_strong_branching</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.enable_column_pool_deduplication"><code class="docutils literal notranslate"><span class="pre">BPCParams.enable_column_pool_deduplication</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.enable_hybrid_search"><code class="docutils literal notranslate"><span class="pre">BPCParams.enable_hybrid_search</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.from_config"><code class="docutils literal notranslate"><span class="pre">BPCParams.from_config()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.to_dict"><code class="docutils literal notranslate"><span class="pre">BPCParams.to_dict()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -553,41 +573,18 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.branch_and_price_and_cut.gurobi_engine">
-<span id="src-policies-branch-and-price-and-cut-gurobi-engine"></span><h1><a class="reference internal" href="#module-src.policies.branch_and_price_and_cut.gurobi_engine" title="src.policies.branch_and_price_and_cut.gurobi_engine"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.gurobi_engine</span></code></a><a class="headerlink" href="#module-src.policies.branch_and_price_and_cut.gurobi_engine" title="Link to this heading">#</a></h1>
-<p>Gurobi engine for Branch-and-Price-and-Cut module.</p>
-<p>IMPORTANT: This is NOT a true Branch-and-Price-and-Cut solver.
-This implementation uses Gurobi’s standard Branch-and-Cut algorithm with a compact
-edge-based formulation. It does NOT implement:</p>
-<ul class="simple">
-<li><p>Column Generation</p></li>
-<li><p>Pricing Subproblem (RCSPP)</p></li>
-<li><p>Branching on edge variables with modified pricing</p></li>
-</ul>
-<p>This is a standard MIP solver backend included for comparison purposes.</p>
+  <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.branch_and_price_and_cut.params">
+<span id="src-policies-branch-and-price-and-cut-params"></span><h1><a class="reference internal" href="#module-src.policies.branch_and_price_and_cut.params" title="src.policies.branch_and_price_and_cut.params"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.params</span></code></a><a class="headerlink" href="#module-src.policies.branch_and_price_and_cut.params" title="Link to this heading">#</a></h1>
+<p>Configuration parameters for the Branch-and-Price-and-Cut (BPC) solver.</p>
+<p>Based on Barnhart et al. (1998) and standard VRPP practices.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
-<section id="functions">
-<h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.gurobi_engine._setup_model" title="src.policies.branch_and_price_and_cut.gurobi_engine._setup_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_setup_model</span></code></a></p></td>
-<td><p>Initialize Gurobi model with parameters.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.gurobi_engine._create_variables" title="src.policies.branch_and_price_and_cut.gurobi_engine._create_variables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_create_variables</span></code></a></p></td>
-<td><p>Create decision variables x, y, u.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.gurobi_engine._create_objective" title="src.policies.branch_and_price_and_cut.gurobi_engine._create_objective"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_create_objective</span></code></a></p></td>
-<td><p>Set the objective function: Minimize Cost + Penalties.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.gurobi_engine._add_constraints" title="src.policies.branch_and_price_and_cut.gurobi_engine._add_constraints"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_add_constraints</span></code></a></p></td>
-<td><p>Add flow conservation and capacity constraints.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.gurobi_engine._extract_solution" title="src.policies.branch_and_price_and_cut.gurobi_engine._extract_solution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_extract_solution</span></code></a></p></td>
-<td><p>Extract optimal routes from the model.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.gurobi_engine.run_bpc_gurobi" title="src.policies.branch_and_price_and_cut.gurobi_engine.run_bpc_gurobi"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_bpc_gurobi</span></code></a></p></td>
-<td><p>Solve Waste-Collecting CVRP using Gurobi MIP solver.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.params.BPCParams" title="src.policies.branch_and_price_and_cut.params.BPCParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BPCParams</span></code></a></p></td>
+<td><p>Configuration parameters for the Branch-and-Price-and-Cut solver.</p></td>
 </tr>
 </tbody>
 </table>
@@ -595,51 +592,159 @@ edge-based formulation. It does NOT implement:</p>
 </section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
-<dl class="py function">
-<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.gurobi_engine._setup_model">
-<span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.gurobi_engine.</span></span><span class="sig-name descname"><span class="pre">_setup_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">gurobipy.Env</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">gurobipy.Model</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.gurobi_engine._setup_model" title="Link to this definition">#</a></dt>
-<dd><p>Initialize Gurobi model with parameters.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.params.BPCParams">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.params.</span></span><span class="sig-name descname"><span class="pre">BPCParams</span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.params.BPCParams" title="Link to this definition">#</a></dt>
+<dd><p>Configuration parameters for the Branch-and-Price-and-Cut solver.</p>
+<p>Attributes:
+optimality_gap: Relative gap for proven optimality.
+early_termination_gap: Gap at which we stop the search.
+use_ng_routes: Whether to use ng-route relaxation in pricing.
+ng_neighborhood_size: Size of ng-neighborhoods for relaxation.
+enable_heuristic_rcc_separation: Whether to enable (heuristic) fractional RCC separation.
+enable_comb_cuts: Whether to enable heuristic comb inequalities.</p>
+<p>Note:
+enable_heuristic_rcc_separation replaces the legacy enable_fractional_capacity_cuts
+to clarify that the connected-component-based separation is a heuristic,
+not an exact max-flow separation on the full support graph.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.params.BPCParams.time_limit">
+<span class="sig-name descname"><span class="pre">time_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.branch_and_price_and_cut.params.BPCParams.time_limit" title="Link to this definition">#</a></dt>
+<dd><p>60.0</p>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.gurobi_engine._create_variables">
-<span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.gurobi_engine.</span></span><span class="sig-name descname"><span class="pre">_create_variables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">gurobipy.Model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">customers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">gurobipy.Var</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">gurobipy.Var</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">gurobipy.Var</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.gurobi_engine._create_variables" title="Link to this definition">#</a></dt>
-<dd><p>Create decision variables x, y, u.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.params.BPCParams.profit_aware_operators">
+<span class="sig-name descname"><span class="pre">profit_aware_operators</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.branch_and_price_and_cut.params.BPCParams.profit_aware_operators" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.gurobi_engine._create_objective">
-<span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.gurobi_engine.</span></span><span class="sig-name descname"><span class="pre">_create_objective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">gurobipy.Model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">gurobipy.Var</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">gurobipy.Var</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">customers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.gurobi_engine._create_objective" title="Link to this definition">#</a></dt>
-<dd><p>Set the objective function: Minimize Cost + Penalties.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.params.BPCParams.vrpp">
+<span class="sig-name descname"><span class="pre">vrpp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.branch_and_price_and_cut.params.BPCParams.vrpp" title="Link to this definition">#</a></dt>
+<dd><p>True</p>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.gurobi_engine._add_constraints">
-<span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.gurobi_engine.</span></span><span class="sig-name descname"><span class="pre">_add_constraints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">gurobipy.Model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">gurobipy.Var</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">gurobipy.Var</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">gurobipy.Var</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">customers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.gurobi_engine._add_constraints" title="Link to this definition">#</a></dt>
-<dd><p>Add flow conservation and capacity constraints.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.params.BPCParams.seed">
+<span class="sig-name descname"><span class="pre">seed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.branch_and_price_and_cut.params.BPCParams.seed" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.gurobi_engine._extract_solution">
-<span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.gurobi_engine.</span></span><span class="sig-name descname"><span class="pre">_extract_solution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">gurobipy.Model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">gurobipy.Var</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.gurobi_engine._extract_solution" title="Link to this definition">#</a></dt>
-<dd><p>Extract optimal routes from the model.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.params.BPCParams.search_strategy">
+<span class="sig-name descname"><span class="pre">search_strategy</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.policies.branch_and_price_and_cut.params.BPCParams.search_strategy" title="Link to this definition">#</a></dt>
+<dd><p>‘depth_first’</p>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.gurobi_engine.run_bpc_gurobi">
-<span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.gurobi_engine.</span></span><span class="sig-name descname"><span class="pre">run_bpc_gurobi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">gurobipy.Env</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recorder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.tracking.viz_mixin.PolicyStateRecorder</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.gurobi_engine.run_bpc_gurobi" title="Link to this definition">#</a></dt>
-<dd><p>Solve Waste-Collecting CVRP using Gurobi MIP solver.</p>
-<p>Args:
-dist_matrix: NxN distance matrix.
-wastes: Dictionary of node wastes.
-capacity: Maximum vehicle capacity.
-R: Revenue multiplier.
-C: Cost multiplier.
-values: Config dictionary (time_limit).
-mandatory_nodes: List of mandatory node indices.
-env: Gurobi environment (Optional).</p>
-<p>Returns:
-Tuple[List[List[int]], float]: (routes, total_cost)</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.params.BPCParams.cutting_planes">
+<span class="sig-name descname"><span class="pre">cutting_planes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.policies.branch_and_price_and_cut.params.BPCParams.cutting_planes" title="Link to this definition">#</a></dt>
+<dd><p>‘rcc’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.params.BPCParams.branching_strategy">
+<span class="sig-name descname"><span class="pre">branching_strategy</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.policies.branch_and_price_and_cut.params.BPCParams.branching_strategy" title="Link to this definition">#</a></dt>
+<dd><p>‘divergence’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.params.BPCParams.max_cg_iterations">
+<span class="sig-name descname"><span class="pre">max_cg_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.branch_and_price_and_cut.params.BPCParams.max_cg_iterations" title="Link to this definition">#</a></dt>
+<dd><p>50</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.params.BPCParams.max_cuts_per_iteration">
+<span class="sig-name descname"><span class="pre">max_cuts_per_iteration</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.branch_and_price_and_cut.params.BPCParams.max_cuts_per_iteration" title="Link to this definition">#</a></dt>
+<dd><p>5</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.params.BPCParams.max_routes_per_pricing">
+<span class="sig-name descname"><span class="pre">max_routes_per_pricing</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.branch_and_price_and_cut.params.BPCParams.max_routes_per_pricing" title="Link to this definition">#</a></dt>
+<dd><p>5</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.params.BPCParams.max_bb_nodes">
+<span class="sig-name descname"><span class="pre">max_bb_nodes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.branch_and_price_and_cut.params.BPCParams.max_bb_nodes" title="Link to this definition">#</a></dt>
+<dd><p>1000</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.params.BPCParams.optimality_gap">
+<span class="sig-name descname"><span class="pre">optimality_gap</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.branch_and_price_and_cut.params.BPCParams.optimality_gap" title="Link to this definition">#</a></dt>
+<dd><p>0.0001</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.params.BPCParams.early_termination_gap">
+<span class="sig-name descname"><span class="pre">early_termination_gap</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.branch_and_price_and_cut.params.BPCParams.early_termination_gap" title="Link to this definition">#</a></dt>
+<dd><p>0.001</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.params.BPCParams.use_ng_routes">
+<span class="sig-name descname"><span class="pre">use_ng_routes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.branch_and_price_and_cut.params.BPCParams.use_ng_routes" title="Link to this definition">#</a></dt>
+<dd><p>True</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.params.BPCParams.ng_neighborhood_size">
+<span class="sig-name descname"><span class="pre">ng_neighborhood_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.branch_and_price_and_cut.params.BPCParams.ng_neighborhood_size" title="Link to this definition">#</a></dt>
+<dd><p>8</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.params.BPCParams.enable_heuristic_rcc_separation">
+<span class="sig-name descname"><span class="pre">enable_heuristic_rcc_separation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.branch_and_price_and_cut.params.BPCParams.enable_heuristic_rcc_separation" title="Link to this definition">#</a></dt>
+<dd><p>True</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.params.BPCParams.enable_comb_cuts">
+<span class="sig-name descname"><span class="pre">enable_comb_cuts</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.branch_and_price_and_cut.params.BPCParams.enable_comb_cuts" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.params.BPCParams.use_spatial_partitioning">
+<span class="sig-name descname"><span class="pre">use_spatial_partitioning</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.branch_and_price_and_cut.params.BPCParams.use_spatial_partitioning" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.params.BPCParams.enable_strong_branching">
+<span class="sig-name descname"><span class="pre">enable_strong_branching</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.branch_and_price_and_cut.params.BPCParams.enable_strong_branching" title="Link to this definition">#</a></dt>
+<dd><p>True</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.params.BPCParams.enable_column_pool_deduplication">
+<span class="sig-name descname"><span class="pre">enable_column_pool_deduplication</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.branch_and_price_and_cut.params.BPCParams.enable_column_pool_deduplication" title="Link to this definition">#</a></dt>
+<dd><p>True</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.params.BPCParams.enable_hybrid_search">
+<span class="sig-name descname"><span class="pre">enable_hybrid_search</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.branch_and_price_and_cut.params.BPCParams.enable_hybrid_search" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.params.BPCParams.from_config">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.branch_and_price_and_cut.params.BPCParams" title="src.policies.branch_and_price_and_cut.params.BPCParams"><span class="pre">src.policies.branch_and_price_and_cut.params.BPCParams</span></a></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.params.BPCParams.from_config" title="Link to this definition">#</a></dt>
+<dd><p>Create BPCParams from a configuration object or dictionary.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.params.BPCParams.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.params.BPCParams.to_dict" title="Link to this definition">#</a></dt>
+<dd><p>Convert BPCParams to a dictionary for backend compatibility.</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -658,20 +763,20 @@ Tuple[List[List[int]], float]: (routes, total_cost)</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.policies.branch_and_price_and_cut.html"
+       href="src.policies.branch_and_price_and_cut.branching.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.branching</span></code></p>
       </div>
     </a>
     <a class="right-next"
-       href="src.policies.branch_and_price_and_cut.search_strategy.html"
+       href="src.policies.branch_and_price_and_cut.vrpp_model.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.search_strategy</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.vrpp_model</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -692,14 +797,34 @@ Tuple[List[List[int]], float]: (routes, total_cost)</p>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.gurobi_engine._setup_model"><code class="docutils literal notranslate"><span class="pre">_setup_model()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.gurobi_engine._create_variables"><code class="docutils literal notranslate"><span class="pre">_create_variables()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.gurobi_engine._create_objective"><code class="docutils literal notranslate"><span class="pre">_create_objective()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.gurobi_engine._add_constraints"><code class="docutils literal notranslate"><span class="pre">_add_constraints()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.gurobi_engine._extract_solution"><code class="docutils literal notranslate"><span class="pre">_extract_solution()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.gurobi_engine.run_bpc_gurobi"><code class="docutils literal notranslate"><span class="pre">run_bpc_gurobi()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams"><code class="docutils literal notranslate"><span class="pre">BPCParams</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.time_limit"><code class="docutils literal notranslate"><span class="pre">BPCParams.time_limit</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">BPCParams.profit_aware_operators</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.vrpp"><code class="docutils literal notranslate"><span class="pre">BPCParams.vrpp</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.seed"><code class="docutils literal notranslate"><span class="pre">BPCParams.seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.search_strategy"><code class="docutils literal notranslate"><span class="pre">BPCParams.search_strategy</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.cutting_planes"><code class="docutils literal notranslate"><span class="pre">BPCParams.cutting_planes</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.branching_strategy"><code class="docutils literal notranslate"><span class="pre">BPCParams.branching_strategy</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.max_cg_iterations"><code class="docutils literal notranslate"><span class="pre">BPCParams.max_cg_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.max_cuts_per_iteration"><code class="docutils literal notranslate"><span class="pre">BPCParams.max_cuts_per_iteration</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.max_routes_per_pricing"><code class="docutils literal notranslate"><span class="pre">BPCParams.max_routes_per_pricing</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.max_bb_nodes"><code class="docutils literal notranslate"><span class="pre">BPCParams.max_bb_nodes</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.optimality_gap"><code class="docutils literal notranslate"><span class="pre">BPCParams.optimality_gap</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.early_termination_gap"><code class="docutils literal notranslate"><span class="pre">BPCParams.early_termination_gap</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.use_ng_routes"><code class="docutils literal notranslate"><span class="pre">BPCParams.use_ng_routes</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.ng_neighborhood_size"><code class="docutils literal notranslate"><span class="pre">BPCParams.ng_neighborhood_size</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.enable_heuristic_rcc_separation"><code class="docutils literal notranslate"><span class="pre">BPCParams.enable_heuristic_rcc_separation</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.enable_comb_cuts"><code class="docutils literal notranslate"><span class="pre">BPCParams.enable_comb_cuts</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.use_spatial_partitioning"><code class="docutils literal notranslate"><span class="pre">BPCParams.use_spatial_partitioning</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.enable_strong_branching"><code class="docutils literal notranslate"><span class="pre">BPCParams.enable_strong_branching</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.enable_column_pool_deduplication"><code class="docutils literal notranslate"><span class="pre">BPCParams.enable_column_pool_deduplication</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.enable_hybrid_search"><code class="docutils literal notranslate"><span class="pre">BPCParams.enable_hybrid_search</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.from_config"><code class="docutils literal notranslate"><span class="pre">BPCParams.from_config()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.to_dict"><code class="docutils literal notranslate"><span class="pre">BPCParams.to_dict()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

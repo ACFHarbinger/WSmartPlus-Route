@@ -14,6 +14,7 @@
 :maxdepth: 1
 
 src.policies.kernel_search.solver
+src.policies.kernel_search.params
 src.policies.kernel_search.policy_ks
 ```
 

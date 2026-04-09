@@ -15,6 +15,7 @@
 
 src.policies.cluster_first_route_second.mip_assignment
 src.policies.cluster_first_route_second.solver
+src.policies.cluster_first_route_second.params
 src.policies.cluster_first_route_second.tsp_metaheuristics
 src.policies.cluster_first_route_second.policy_cf_rs
 src.policies.cluster_first_route_second.greedy_assignment

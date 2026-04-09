@@ -35,7 +35,7 @@
 ```{autodoc2-docstring} src.policies.other.reinforcement_learning.features.context.ContextFeatureExtractor.__init__
 ```
 
-````{py:method} extract_features(p1: src.policies.hybrid_genetic_search.individual.Individual, p2: src.policies.hybrid_genetic_search.individual.Individual, population: typing.List[src.policies.hybrid_genetic_search.individual.Individual], iteration: int, max_iterations: int) -> numpy.ndarray
+````{py:method} extract_features(p1: src.policies.hybrid_genetic_search.individual.Individual, p2: src.policies.hybrid_genetic_search.individual.Individual, population: typing.List[src.policies.hybrid_genetic_search.individual.Individual], iteration: int, progress: float = 0.0) -> numpy.ndarray
 :canonical: src.policies.other.reinforcement_learning.features.context.ContextFeatureExtractor.extract_features
 
 ```{autodoc2-docstring} src.policies.other.reinforcement_learning.features.context.ContextFeatureExtractor.extract_features

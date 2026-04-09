@@ -544,8 +544,6 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.mutation_rate"><code class="docutils literal notranslate"><span class="pre">HGSParams.mutation_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.repair_probability"><code class="docutils literal notranslate"><span class="pre">HGSParams.repair_probability</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.crossover_rate"><code class="docutils literal notranslate"><span class="pre">HGSParams.crossover_rate</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.min_diversity"><code class="docutils literal notranslate"><span class="pre">HGSParams.min_diversity</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.diversity_change_rate"><code class="docutils literal notranslate"><span class="pre">HGSParams.diversity_change_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.local_search_iterations"><code class="docutils literal notranslate"><span class="pre">HGSParams.local_search_iterations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.max_vehicles"><code class="docutils literal notranslate"><span class="pre">HGSParams.max_vehicles</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.initial_penalty_capacity"><code class="docutils literal notranslate"><span class="pre">HGSParams.initial_penalty_capacity</span></code></a></li>
@@ -563,7 +561,6 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.lambda_param"><code class="docutils literal notranslate"><span class="pre">HGSParams.lambda_param</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.population_size"><code class="docutils literal notranslate"><span class="pre">HGSParams.population_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.elite_size"><code class="docutils literal notranslate"><span class="pre">HGSParams.elite_size</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.min_diversity_threshold"><code class="docutils literal notranslate"><span class="pre">HGSParams.min_diversity_threshold</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.no_improvement_threshold"><code class="docutils literal notranslate"><span class="pre">HGSParams.no_improvement_threshold</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.neighbor_list_size"><code class="docutils literal notranslate"><span class="pre">HGSParams.neighbor_list_size</span></code></a></li>
 </ul>
@@ -619,8 +616,6 @@ n_iterations_no_improvement: Max iterations without improvement before stopping.
 mutation_rate: Probability of applying local search (education) to offspring.
 repair_probability: Probability of repairing infeasible offspring (default 0.5).
 crossover_rate: Probability of applying crossover.
-min_diversity: Minimum diversity threshold.
-diversity_change_rate: Rate at which diversity changes.
 local_search_iterations: Number of iterations for local search.
 use_cross_exchange: Whether to use cross exchange moves.
 use_lambda_interchange: Whether to use lambda interchange moves.
@@ -695,18 +690,6 @@ penalty_decrease: Multiplier for decreasing penalty (when too many infeasible).<
 <dt class="sig sig-object py" id="src.policies.hybrid_genetic_search.params.HGSParams.crossover_rate">
 <span class="sig-name descname"><span class="pre">crossover_rate</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.hybrid_genetic_search.params.HGSParams.crossover_rate" title="Link to this definition">#</a></dt>
 <dd><p>1.0</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.policies.hybrid_genetic_search.params.HGSParams.min_diversity">
-<span class="sig-name descname"><span class="pre">min_diversity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.hybrid_genetic_search.params.HGSParams.min_diversity" title="Link to this definition">#</a></dt>
-<dd><p>0.2</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.policies.hybrid_genetic_search.params.HGSParams.diversity_change_rate">
-<span class="sig-name descname"><span class="pre">diversity_change_rate</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.hybrid_genetic_search.params.HGSParams.diversity_change_rate" title="Link to this definition">#</a></dt>
-<dd><p>0.05</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -816,12 +799,6 @@ HGSParams instance with values from config.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="src.policies.hybrid_genetic_search.params.HGSParams.min_diversity_threshold">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">min_diversity_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.hybrid_genetic_search.params.HGSParams.min_diversity_threshold" title="Link to this definition">#</a></dt>
-<dd><p>Alias for min_diversity.</p>
-</dd></dl>
-
-<dl class="py property">
 <dt class="sig sig-object py" id="src.policies.hybrid_genetic_search.params.HGSParams.no_improvement_threshold">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">no_improvement_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.hybrid_genetic_search.params.HGSParams.no_improvement_threshold" title="Link to this definition">#</a></dt>
 <dd><p>Alias for n_iterations_no_improvement.</p>
@@ -899,8 +876,6 @@ HGSParams instance with values from config.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.mutation_rate"><code class="docutils literal notranslate"><span class="pre">HGSParams.mutation_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.repair_probability"><code class="docutils literal notranslate"><span class="pre">HGSParams.repair_probability</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.crossover_rate"><code class="docutils literal notranslate"><span class="pre">HGSParams.crossover_rate</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.min_diversity"><code class="docutils literal notranslate"><span class="pre">HGSParams.min_diversity</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.diversity_change_rate"><code class="docutils literal notranslate"><span class="pre">HGSParams.diversity_change_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.local_search_iterations"><code class="docutils literal notranslate"><span class="pre">HGSParams.local_search_iterations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.max_vehicles"><code class="docutils literal notranslate"><span class="pre">HGSParams.max_vehicles</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.initial_penalty_capacity"><code class="docutils literal notranslate"><span class="pre">HGSParams.initial_penalty_capacity</span></code></a></li>
@@ -918,7 +893,6 @@ HGSParams instance with values from config.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.lambda_param"><code class="docutils literal notranslate"><span class="pre">HGSParams.lambda_param</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.population_size"><code class="docutils literal notranslate"><span class="pre">HGSParams.population_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.elite_size"><code class="docutils literal notranslate"><span class="pre">HGSParams.elite_size</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.min_diversity_threshold"><code class="docutils literal notranslate"><span class="pre">HGSParams.min_diversity_threshold</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.no_improvement_threshold"><code class="docutils literal notranslate"><span class="pre">HGSParams.no_improvement_threshold</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.hybrid_genetic_search.params.HGSParams.neighbor_list_size"><code class="docutils literal notranslate"><span class="pre">HGSParams.neighbor_list_size</span></code></a></li>
 </ul>

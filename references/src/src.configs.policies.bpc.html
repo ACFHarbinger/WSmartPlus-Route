@@ -534,7 +534,6 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig"><code class="docutils literal notranslate"><span class="pre">BPCConfig</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.time_limit"><code class="docutils literal notranslate"><span class="pre">BPCConfig.time_limit</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.engine"><code class="docutils literal notranslate"><span class="pre">BPCConfig.engine</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">BPCConfig.profit_aware_operators</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">BPCConfig.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.seed"><code class="docutils literal notranslate"><span class="pre">BPCConfig.seed</span></code></a></li>
@@ -543,6 +542,17 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.search_strategy"><code class="docutils literal notranslate"><span class="pre">BPCConfig.search_strategy</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.cutting_planes"><code class="docutils literal notranslate"><span class="pre">BPCConfig.cutting_planes</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.branching_strategy"><code class="docutils literal notranslate"><span class="pre">BPCConfig.branching_strategy</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.max_cg_iterations"><code class="docutils literal notranslate"><span class="pre">BPCConfig.max_cg_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.max_cuts_per_iteration"><code class="docutils literal notranslate"><span class="pre">BPCConfig.max_cuts_per_iteration</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.max_routes_per_pricing"><code class="docutils literal notranslate"><span class="pre">BPCConfig.max_routes_per_pricing</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.max_bb_nodes"><code class="docutils literal notranslate"><span class="pre">BPCConfig.max_bb_nodes</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.optimality_gap"><code class="docutils literal notranslate"><span class="pre">BPCConfig.optimality_gap</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.early_termination_gap"><code class="docutils literal notranslate"><span class="pre">BPCConfig.early_termination_gap</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.use_ng_routes"><code class="docutils literal notranslate"><span class="pre">BPCConfig.use_ng_routes</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.ng_neighborhood_size"><code class="docutils literal notranslate"><span class="pre">BPCConfig.ng_neighborhood_size</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.enable_fractional_capacity_cuts"><code class="docutils literal notranslate"><span class="pre">BPCConfig.enable_fractional_capacity_cuts</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.enable_comb_cuts"><code class="docutils literal notranslate"><span class="pre">BPCConfig.enable_comb_cuts</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.use_spatial_partitioning"><code class="docutils literal notranslate"><span class="pre">BPCConfig.use_spatial_partitioning</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -584,25 +594,29 @@ document.write(`
 <dd><p>Configuration for Branch-and-Price-and-Cut (BPC) policy.</p>
 <p>Attributes:
 time_limit: Maximum time in seconds for the solver.
-engine: Solver engine to use (‘ortools’, ‘gurobi’, ‘custom’).
 profit_aware_operators: Whether to use profit-aware operators.
 vrpp: Whether to use VRPP.
 seed: Random seed for reproducibility.
 must_go: List of must-go strategy config files.
 post_processing: List of post-processing operations to apply.
 search_strategy: B&amp;B node selection strategy (‘best_first’ or ‘depth_first’).
-cutting_planes: Cutting plane family (‘rcc’ or ‘lci’).
-branching_strategy: Branching rule (‘ryan_foster’, ‘edge’, or ‘divergence’).</p>
+cutting_planes: Cutting plane family (‘rcc’, ‘sri’, ‘lci’, or ‘all’).
+branching_strategy: Branching rule (‘ryan_foster’, ‘edge’, or ‘divergence’).
+max_cg_iterations: Maximum iterations for column generation loop.
+max_cuts_per_iteration: Maximum cuts to add per iteration.
+max_routes_per_pricing: Maximum routes to add per pricing call.
+max_bb_nodes: Maximum nodes to explore in the B&amp;B tree.
+optimality_gap: Relative gap for proven optimality.
+early_termination_gap: Gap at which to stop search early.
+use_ng_routes: Whether to use ng-route relaxation in pricing.
+ng_neighborhood_size: Size of ng-neighborhoods for relaxation.
+enable_fractional_capacity_cuts: Whether to enable fractional capacity cuts.
+enable_comb_cuts: Whether to enable heuristic comb inequalities.
+use_spatial_partitioning: Whether to use spatial partitioning for branching.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.bpc.BPCConfig.time_limit">
 <span class="sig-name descname"><span class="pre">time_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.bpc.BPCConfig.time_limit" title="Link to this definition">#</a></dt>
 <dd><p>60.0</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.bpc.BPCConfig.engine">
-<span class="sig-name descname"><span class="pre">engine</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.policies.bpc.BPCConfig.engine" title="Link to this definition">#</a></dt>
-<dd><p>‘ortools’</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -638,7 +652,7 @@ branching_strategy: Branching rule (‘ryan_foster’, ‘edge’, or ‘diverge
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.bpc.BPCConfig.search_strategy">
 <span class="sig-name descname"><span class="pre">search_strategy</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.policies.bpc.BPCConfig.search_strategy" title="Link to this definition">#</a></dt>
-<dd><p>‘best_first’</p>
+<dd><p>‘depth_first’</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -650,7 +664,73 @@ branching_strategy: Branching rule (‘ryan_foster’, ‘edge’, or ‘diverge
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.bpc.BPCConfig.branching_strategy">
 <span class="sig-name descname"><span class="pre">branching_strategy</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.policies.bpc.BPCConfig.branching_strategy" title="Link to this definition">#</a></dt>
-<dd><p>‘ryan_foster’</p>
+<dd><p>‘divergence’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.bpc.BPCConfig.max_cg_iterations">
+<span class="sig-name descname"><span class="pre">max_cg_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.bpc.BPCConfig.max_cg_iterations" title="Link to this definition">#</a></dt>
+<dd><p>50</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.bpc.BPCConfig.max_cuts_per_iteration">
+<span class="sig-name descname"><span class="pre">max_cuts_per_iteration</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.bpc.BPCConfig.max_cuts_per_iteration" title="Link to this definition">#</a></dt>
+<dd><p>5</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.bpc.BPCConfig.max_routes_per_pricing">
+<span class="sig-name descname"><span class="pre">max_routes_per_pricing</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.bpc.BPCConfig.max_routes_per_pricing" title="Link to this definition">#</a></dt>
+<dd><p>5</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.bpc.BPCConfig.max_bb_nodes">
+<span class="sig-name descname"><span class="pre">max_bb_nodes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.bpc.BPCConfig.max_bb_nodes" title="Link to this definition">#</a></dt>
+<dd><p>1000</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.bpc.BPCConfig.optimality_gap">
+<span class="sig-name descname"><span class="pre">optimality_gap</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.bpc.BPCConfig.optimality_gap" title="Link to this definition">#</a></dt>
+<dd><p>0.0001</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.bpc.BPCConfig.early_termination_gap">
+<span class="sig-name descname"><span class="pre">early_termination_gap</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.bpc.BPCConfig.early_termination_gap" title="Link to this definition">#</a></dt>
+<dd><p>0.001</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.bpc.BPCConfig.use_ng_routes">
+<span class="sig-name descname"><span class="pre">use_ng_routes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.bpc.BPCConfig.use_ng_routes" title="Link to this definition">#</a></dt>
+<dd><p>True</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.bpc.BPCConfig.ng_neighborhood_size">
+<span class="sig-name descname"><span class="pre">ng_neighborhood_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.bpc.BPCConfig.ng_neighborhood_size" title="Link to this definition">#</a></dt>
+<dd><p>8</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.bpc.BPCConfig.enable_fractional_capacity_cuts">
+<span class="sig-name descname"><span class="pre">enable_fractional_capacity_cuts</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.bpc.BPCConfig.enable_fractional_capacity_cuts" title="Link to this definition">#</a></dt>
+<dd><p>True</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.bpc.BPCConfig.enable_comb_cuts">
+<span class="sig-name descname"><span class="pre">enable_comb_cuts</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.bpc.BPCConfig.enable_comb_cuts" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.bpc.BPCConfig.use_spatial_partitioning">
+<span class="sig-name descname"><span class="pre">use_spatial_partitioning</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.bpc.BPCConfig.use_spatial_partitioning" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
 </dd></dl>
 
 </dd></dl>
@@ -709,7 +789,6 @@ branching_strategy: Branching rule (‘ryan_foster’, ‘edge’, or ‘diverge
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig"><code class="docutils literal notranslate"><span class="pre">BPCConfig</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.time_limit"><code class="docutils literal notranslate"><span class="pre">BPCConfig.time_limit</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.engine"><code class="docutils literal notranslate"><span class="pre">BPCConfig.engine</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">BPCConfig.profit_aware_operators</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">BPCConfig.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.seed"><code class="docutils literal notranslate"><span class="pre">BPCConfig.seed</span></code></a></li>
@@ -718,6 +797,17 @@ branching_strategy: Branching rule (‘ryan_foster’, ‘edge’, or ‘diverge
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.search_strategy"><code class="docutils literal notranslate"><span class="pre">BPCConfig.search_strategy</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.cutting_planes"><code class="docutils literal notranslate"><span class="pre">BPCConfig.cutting_planes</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.branching_strategy"><code class="docutils literal notranslate"><span class="pre">BPCConfig.branching_strategy</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.max_cg_iterations"><code class="docutils literal notranslate"><span class="pre">BPCConfig.max_cg_iterations</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.max_cuts_per_iteration"><code class="docutils literal notranslate"><span class="pre">BPCConfig.max_cuts_per_iteration</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.max_routes_per_pricing"><code class="docutils literal notranslate"><span class="pre">BPCConfig.max_routes_per_pricing</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.max_bb_nodes"><code class="docutils literal notranslate"><span class="pre">BPCConfig.max_bb_nodes</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.optimality_gap"><code class="docutils literal notranslate"><span class="pre">BPCConfig.optimality_gap</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.early_termination_gap"><code class="docutils literal notranslate"><span class="pre">BPCConfig.early_termination_gap</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.use_ng_routes"><code class="docutils literal notranslate"><span class="pre">BPCConfig.use_ng_routes</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.ng_neighborhood_size"><code class="docutils literal notranslate"><span class="pre">BPCConfig.ng_neighborhood_size</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.enable_fractional_capacity_cuts"><code class="docutils literal notranslate"><span class="pre">BPCConfig.enable_fractional_capacity_cuts</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.enable_comb_cuts"><code class="docutils literal notranslate"><span class="pre">BPCConfig.enable_comb_cuts</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.use_spatial_partitioning"><code class="docutils literal notranslate"><span class="pre">BPCConfig.use_spatial_partitioning</span></code></a></li>
 </ul>
 </li>
 </ul>

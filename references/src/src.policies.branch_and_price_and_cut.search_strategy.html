@@ -64,8 +64,8 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.policies.branch_and_price_and_cut.search_strategy';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.policies.branch_and_price_and_cut.ortools_engine" href="src.policies.branch_and_price_and_cut.ortools_engine.html" />
-    <link rel="prev" title="src.policies.branch_and_price_and_cut.gurobi_engine" href="src.policies.branch_and_price_and_cut.gurobi_engine.html" />
+    <link rel="next" title="src.policies.branch_and_price_and_cut.rcspp_dp" href="src.policies.branch_and_price_and_cut.rcspp_dp.html" />
+    <link rel="prev" title="src.policies.branch_and_price_and_cut.master_problem" href="src.policies.branch_and_price_and_cut.master_problem.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -532,7 +532,9 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.search_strategy.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.search_strategy.NodeSelectionStrategy"><code class="docutils literal notranslate"><span class="pre">NodeSelectionStrategy</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.search_strategy.NodeSelectionStrategy.select_node"><code class="docutils literal notranslate"><span class="pre">NodeSelectionStrategy.select_node()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.search_strategy.NodeSelectionStrategy.get_name"><code class="docutils literal notranslate"><span class="pre">NodeSelectionStrategy.get_name()</span></code></a></li>
@@ -546,6 +548,11 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.search_strategy.DepthFirstSearch"><code class="docutils literal notranslate"><span class="pre">DepthFirstSearch</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.search_strategy.DepthFirstSearch.select_node"><code class="docutils literal notranslate"><span class="pre">DepthFirstSearch.select_node()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.search_strategy.DepthFirstSearch.get_name"><code class="docutils literal notranslate"><span class="pre">DepthFirstSearch.get_name()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.search_strategy.HybridSearchStrategy"><code class="docutils literal notranslate"><span class="pre">HybridSearchStrategy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.search_strategy.HybridSearchStrategy.select_node"><code class="docutils literal notranslate"><span class="pre">HybridSearchStrategy.select_node()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.search_strategy.HybridSearchStrategy.get_name"><code class="docutils literal notranslate"><span class="pre">HybridSearchStrategy.get_name()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.search_strategy.create_search_strategy"><code class="docutils literal notranslate"><span class="pre">create_search_strategy()</span></code></a></li>
@@ -597,6 +604,9 @@ Multicommodity Flow Problems.” Operations Research, 48(2), 318-326.
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.search_strategy.DepthFirstSearch" title="src.policies.branch_and_price_and_cut.search_strategy.DepthFirstSearch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DepthFirstSearch</span></code></a></p></td>
 <td><p>Depth-First Search strategy: selects deepest node in the tree.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.search_strategy.HybridSearchStrategy" title="src.policies.branch_and_price_and_cut.search_strategy.HybridSearchStrategy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HybridSearchStrategy</span></code></a></p></td>
+<td><p>Hybrid Dive-and-Best-Bound (D&amp;BB) strategy.</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -612,8 +622,25 @@ Multicommodity Flow Problems.” Operations Research, 48(2), 318-326.
 </table>
 </div>
 </section>
+<section id="data">
+<h3>Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.branch_and_price_and_cut.search_strategy.logger" title="src.policies.branch_and_price_and_cut.search_strategy.logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logger</span></code></a></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
+<dl class="py data">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.search_strategy.logger">
+<span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.search_strategy.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.search_strategy.logger" title="Link to this definition">#</a></dt>
+<dd><p>‘getLogger(…)’</p>
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.search_strategy.NodeSelectionStrategy">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.search_strategy.</span></span><span class="sig-name descname"><span class="pre">NodeSelectionStrategy</span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.search_strategy.NodeSelectionStrategy" title="Link to this definition">#</a></dt>
@@ -623,7 +650,7 @@ Multicommodity Flow Problems.” Operations Research, 48(2), 318-326.
 search performance and the ability to leverage LP basis information.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.search_strategy.NodeSelectionStrategy.select_node">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">select_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">open_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.branch_and_price.branching.html#src.policies.branch_and_price.branching.BranchNode" title="src.policies.branch_and_price.branching.BranchNode"><span class="pre">src.policies.branch_and_price.branching.BranchNode</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.branch_and_price.branching.html#src.policies.branch_and_price.branching.BranchNode" title="src.policies.branch_and_price.branching.BranchNode"><span class="pre">src.policies.branch_and_price.branching.BranchNode</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.search_strategy.NodeSelectionStrategy.select_node" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">select_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">open_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.branch_and_price_and_cut.branching.BranchNode</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.branch_and_price_and_cut.branching.BranchNode</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.search_strategy.NodeSelectionStrategy.select_node" title="Link to this definition">#</a></dt>
 <dd><p>Select and remove the next node to explore from the open node list.</p>
 <p>Args:
 open_nodes: List of unexplored branch nodes</p>
@@ -650,7 +677,7 @@ frequently jumps across different tree branches, preventing effective
 LP basis reuse.</p>
 <p>Characteristics:</p>
 <ul class="simple">
-<li><p>Time complexity: O(n log n) per selection (due to sorting)</p></li>
+<li><p>Time complexity: O(n) per selection (linear scan for maximum)</p></li>
 <li><p>Space complexity: O(n) where n is number of open nodes</p></li>
 <li><p>Optimality guarantee: Yes (like all complete B&amp;B strategies)</p></li>
 <li><p>Basis reuse: Poor (jumps across different tree branches)</p></li>
@@ -663,7 +690,7 @@ prioritized over computational speed per node.</p></li>
 </ul>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.search_strategy.BestFirstSearch.select_node">
-<span class="sig-name descname"><span class="pre">select_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">open_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.branch_and_price.branching.html#src.policies.branch_and_price.branching.BranchNode" title="src.policies.branch_and_price.branching.BranchNode"><span class="pre">src.policies.branch_and_price.branching.BranchNode</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.branch_and_price.branching.html#src.policies.branch_and_price.branching.BranchNode" title="src.policies.branch_and_price.branching.BranchNode"><span class="pre">src.policies.branch_and_price.branching.BranchNode</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.search_strategy.BestFirstSearch.select_node" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">select_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">open_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.branch_and_price_and_cut.branching.BranchNode</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.branch_and_price_and_cut.branching.BranchNode</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.search_strategy.BestFirstSearch.select_node" title="Link to this definition">#</a></dt>
 <dd><p>Select node with highest LP bound (maximization problem).</p>
 <p>For maximization problems (VRPP profit maximization), we want
 to explore nodes with the highest upper bound first.</p>
@@ -690,11 +717,11 @@ Node with highest LP bound, or None if list is empty</p>
 <li><p>Maximizes LP basis reuse by staying within the same branch.</p></li>
 <li><p>Achieves significant speedups (often 3-5x) by resolving child LPs
 from the parent’s basis using dual simplex.</p></li>
-<li><p>Effectively leverages LP warm-starts as advocated by Barnhart et al. (1998).</p></li>
+<li><p>Effectively leverages LP warm-starts as advocated by Barnhart et al. (1998, OR 46(3):316-329).</p></li>
 </ul>
 <p>Characteristics:</p>
 <ul class="simple">
-<li><p>Time complexity: O(n) per selection (simple depth comparison)</p></li>
+<li><p>Time complexity: O(n) per selection (linear scan)</p></li>
 <li><p>Space complexity: O(n) where n is number of open nodes</p></li>
 <li><p>Optimality guarantee: Yes (explores entire tree if needed)</p></li>
 <li><p>Basis reuse: Excellent (stays within same branch until fathomed)</p></li>
@@ -708,7 +735,7 @@ for Best-First search would be prohibitive.</p></li>
 <h2 class="rubric" id="id1">Implementation Note:</h2>
 <p>When combined with LP warmstarts, DFS can achieve 3-5x speedup on
 large multicommodity flow instances by reusing the basis from the
-parent node (Barnhart et al., 1998, Section 5).</p>
+parent node (Barnhart et al., 1998, OR 46(3):316-329, Section 5).</p>
 <p>The solver should leverage Gurobi’s or CPLEX’s basis warmstart
 capabilities by:</p>
 <ol class="arabic simple">
@@ -718,15 +745,12 @@ capabilities by:</p>
 </ol>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.search_strategy.DepthFirstSearch.select_node">
-<span class="sig-name descname"><span class="pre">select_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">open_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.branch_and_price.branching.html#src.policies.branch_and_price.branching.BranchNode" title="src.policies.branch_and_price.branching.BranchNode"><span class="pre">src.policies.branch_and_price.branching.BranchNode</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.branch_and_price.branching.html#src.policies.branch_and_price.branching.BranchNode" title="src.policies.branch_and_price.branching.BranchNode"><span class="pre">src.policies.branch_and_price.branching.BranchNode</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.search_strategy.DepthFirstSearch.select_node" title="Link to this definition">#</a></dt>
-<dd><p>Select deepest node in the tree (highest depth value).</p>
-<p>When multiple nodes have the same depth (siblings), we break ties
-by selecting the node with the highest LP bound to maintain
-some optimality-driven exploration.</p>
+<span class="sig-name descname"><span class="pre">select_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">open_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.branch_and_price_and_cut.branching.BranchNode</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.branch_and_price_and_cut.branching.BranchNode</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.search_strategy.DepthFirstSearch.select_node" title="Link to this definition">#</a></dt>
+<dd><p>Select the next node to explore using DFS (LIFO).</p>
 <p>Args:
-open_nodes: List of unexplored branch nodes</p>
+open_nodes: List of unexplored branch nodes (treated as a stack).</p>
 <p>Returns:
-Deepest node, or None if list is empty</p>
+The last node appended, or None if the list is empty.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -736,19 +760,58 @@ Deepest node, or None if list is empty</p>
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.search_strategy.HybridSearchStrategy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.search_strategy.</span></span><span class="sig-name descname"><span class="pre">HybridSearchStrategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bb_tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.branch_and_price_and_cut.branching.BranchAndBoundTree</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.search_strategy.HybridSearchStrategy" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#src.policies.branch_and_price_and_cut.search_strategy.NodeSelectionStrategy" title="src.policies.branch_and_price_and_cut.search_strategy.NodeSelectionStrategy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.search_strategy.NodeSelectionStrategy</span></code></a></p>
+<p>Hybrid Dive-and-Best-Bound (D&amp;BB) strategy.</p>
+<p>Logic:</p>
+<ol class="arabic simple">
+<li><p>If no integer incumbent exists (best_integer_solution is None):
+Behaves like DFS (LIFO). Rapidly dives to find a feasible solution.</p></li>
+<li><p>Once an incumbent exists:
+Behaves like BestFS (Best-Bound). Systematic closure of the gap.</p></li>
+</ol>
+<p>This strategy combines the speed of DFS in finding feasible solutions with
+the mathematical efficiency of BestFS in proving optimality.</p>
+<p>NOTE ON PERFORMANCE:
+Hybrid search is less efficient than pure DFS for resolving child LPs
+because the Best-Bound phase frequently jumps between branches, forcing
+frequent Basis invalidation and re-solving from scratch. It also occupies
+more memory than DFS as Basis information must be stored for all open
+nodes to maintain any hope of warm-starting.</p>
+<p class="rubric">Initialization</p>
+<p>Store reference to tree state to monitor incumbents.</p>
+<p>Args:
+bb_tree: The B&amp;B tree structure.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.search_strategy.HybridSearchStrategy.select_node">
+<span class="sig-name descname"><span class="pre">select_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">open_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.branch_and_price_and_cut.branching.BranchNode</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.branch_and_price_and_cut.branching.BranchNode</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.search_strategy.HybridSearchStrategy.select_node" title="Link to this definition">#</a></dt>
+<dd><p>Select node based on search phase.</p>
+<p>Args:
+open_nodes: List of unexplored branch nodes.</p>
+<p>Returns:
+Selected node.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.search_strategy.HybridSearchStrategy.get_name">
+<span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.search_strategy.HybridSearchStrategy.get_name" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.search_strategy.create_search_strategy">
-<span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.search_strategy.</span></span><span class="sig-name descname"><span class="pre">create_search_strategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strategy_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.branch_and_price_and_cut.search_strategy.NodeSelectionStrategy" title="src.policies.branch_and_price_and_cut.search_strategy.NodeSelectionStrategy"><span class="pre">src.policies.branch_and_price_and_cut.search_strategy.NodeSelectionStrategy</span></a></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.search_strategy.create_search_strategy" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.search_strategy.</span></span><span class="sig-name descname"><span class="pre">create_search_strategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strategy_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bb_tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.branch_and_price_and_cut.search_strategy.NodeSelectionStrategy" title="src.policies.branch_and_price_and_cut.search_strategy.NodeSelectionStrategy"><span class="pre">src.policies.branch_and_price_and_cut.search_strategy.NodeSelectionStrategy</span></a></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.search_strategy.create_search_strategy" title="Link to this definition">#</a></dt>
 <dd><p>Factory function to create node selection strategies.</p>
 <p>Args:
-strategy_name: Name of the strategy (“best_first” or “depth_first”)</p>
+strategy_name: Name of the strategy (“best_first”, “depth_first”, “hybrid”)
+bb_tree: Optional reference to the tree for hybrid strategy.</p>
 <p>Returns:
 Instance of the requested strategy</p>
 <p>Raises:
 ValueError: If strategy_name is not recognized</p>
-<p>Example:
-&gt;&gt;&gt; strategy = create_search_strategy(“best_first”)
-&gt;&gt;&gt; next_node = strategy.select_node(open_nodes)</p>
 </dd></dl>
 
 </section>
@@ -767,20 +830,20 @@ ValueError: If strategy_name is not recognized</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.policies.branch_and_price_and_cut.gurobi_engine.html"
+       href="src.policies.branch_and_price_and_cut.master_problem.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.gurobi_engine</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.master_problem</span></code></p>
       </div>
     </a>
     <a class="right-next"
-       href="src.policies.branch_and_price_and_cut.ortools_engine.html"
+       href="src.policies.branch_and_price_and_cut.rcspp_dp.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.ortools_engine</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.rcspp_dp</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -803,7 +866,9 @@ ValueError: If strategy_name is not recognized</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.search_strategy.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.search_strategy.NodeSelectionStrategy"><code class="docutils literal notranslate"><span class="pre">NodeSelectionStrategy</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.search_strategy.NodeSelectionStrategy.select_node"><code class="docutils literal notranslate"><span class="pre">NodeSelectionStrategy.select_node()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.search_strategy.NodeSelectionStrategy.get_name"><code class="docutils literal notranslate"><span class="pre">NodeSelectionStrategy.get_name()</span></code></a></li>
@@ -817,6 +882,11 @@ ValueError: If strategy_name is not recognized</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.search_strategy.DepthFirstSearch"><code class="docutils literal notranslate"><span class="pre">DepthFirstSearch</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.search_strategy.DepthFirstSearch.select_node"><code class="docutils literal notranslate"><span class="pre">DepthFirstSearch.select_node()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.search_strategy.DepthFirstSearch.get_name"><code class="docutils literal notranslate"><span class="pre">DepthFirstSearch.get_name()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.search_strategy.HybridSearchStrategy"><code class="docutils literal notranslate"><span class="pre">HybridSearchStrategy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.search_strategy.HybridSearchStrategy.select_node"><code class="docutils literal notranslate"><span class="pre">HybridSearchStrategy.select_node()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.search_strategy.HybridSearchStrategy.get_name"><code class="docutils literal notranslate"><span class="pre">HybridSearchStrategy.get_name()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.search_strategy.create_search_strategy"><code class="docutils literal notranslate"><span class="pre">create_search_strategy()</span></code></a></li>

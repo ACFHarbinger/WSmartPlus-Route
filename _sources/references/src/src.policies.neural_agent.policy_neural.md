@@ -26,7 +26,7 @@
 `````{py:class} NeuralPolicy(config: typing.Optional[typing.Any] = None)
 :canonical: src.policies.neural_agent.policy_neural.NeuralPolicy
 
-Bases: {py:obj}`logic.src.interfaces.adapter.IPolicyAdapter`
+Bases: {py:obj}`logic.src.policies.base.base_routing_policy.BaseRoutingPolicy`
 
 ```{autodoc2-docstring} src.policies.neural_agent.policy_neural.NeuralPolicy
 ```

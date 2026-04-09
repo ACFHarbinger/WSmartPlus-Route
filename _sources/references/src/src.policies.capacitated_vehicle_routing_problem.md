@@ -15,5 +15,6 @@
 
 src.policies.capacitated_vehicle_routing_problem.cvrp
 src.policies.capacitated_vehicle_routing_problem.policy_cvrp
+src.policies.capacitated_vehicle_routing_problem.params
 src.policies.capacitated_vehicle_routing_problem.clark_wright
 ```

@@ -84,39 +84,6 @@
 
 ````
 
-````{py:attribute} alpha_diversity
-:canonical: src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.alpha_diversity
-:type: float
-:value: >
-   0.5
-
-```{autodoc2-docstring} src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.alpha_diversity
-```
-
-````
-
-````{py:attribute} min_diversity
-:canonical: src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.min_diversity
-:type: float
-:value: >
-   0.2
-
-```{autodoc2-docstring} src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.min_diversity
-```
-
-````
-
-````{py:attribute} diversity_change_rate
-:canonical: src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.diversity_change_rate
-:type: float
-:value: >
-   0.05
-
-```{autodoc2-docstring} src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.diversity_change_rate
-```
-
-````
-
 ````{py:attribute} no_improvement_threshold
 :canonical: src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.no_improvement_threshold
 :type: int
