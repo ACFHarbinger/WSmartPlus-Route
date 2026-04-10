@@ -526,35 +526,34 @@ class SeparationEngine:
                     continue
 
             # Prune invalid cuts: single-node sets, depot in set, or empty sets
-                # Single-node sets are already handled by degree constraints (∑ x_ij = 2y_i)
-                if not cut_set or len(cut_set) <= 1 or self.model.depot in cut_set:
-                    continue
-
-                current_y_vals = y_vals if y_vals is not None else np.ones(len(self.model.customers))
-                total_demand = sum(
-                    self.model.get_node_demand(i) for i in cut_set if i > 0 and current_y_vals[i - 1] > 0.1
-                )
-
-                if total_demand <= 1e-4:
-                    continue
-
-                min_vehicles = int(np.ceil(total_demand / self.model.capacity))
-                if min_vehicles < 1:
-                    continue
-
-                cut_val = self._get_cut_value(cut_set, x_vals)
-                required_val = 2.0 * min_vehicles
-
-                violation = required_val - cut_val
-                if violation > 0.01 and not any(
-                    set(cut_set) == set(existing.node_set)
-                    for existing in self.pool
-                    if isinstance(existing, CapacityCut)
-                ):
-                    self.pool.append(CapacityCut(set(cut_set), total_demand, self.model.capacity, violation))
-                    added += 1
-            except Exception:
+            # Single-node sets are already handled by degree constraints (∑ x_ij = 2y_i)
+            if not cut_set or len(cut_set) <= 1 or self.model.depot in cut_set:
                 continue
+
+            current_y_vals = y_vals if y_vals is not None else np.ones(len(self.model.customers))
+            total_demand = sum(
+                self.model.get_node_demand(i) for i in cut_set if i > 0 and current_y_vals[i - 1] > 0.1
+            )
+
+            if total_demand <= 1e-4:
+                continue
+
+            min_vehicles = int(np.ceil(total_demand / self.model.capacity))
+            if min_vehicles < 1:
+                continue
+
+            cut_val = self._get_cut_value(cut_set, x_vals)
+            required_val = 2.0 * min_vehicles
+
+            violation = required_val - cut_val
+            if violation > 0.01 and not any(
+                set(cut_set) == set(existing.node_set)
+                for existing in self.pool
+                if isinstance(existing, CapacityCut)
+            ):
+                self.pool.append(CapacityCut(set(cut_set), total_demand, self.model.capacity, violation))
+                added += 1
+
 
     def _separate_pcsec_exact(self, x_vals: np.ndarray, y_vals: Optional[np.ndarray], root_node: bool = False):
         """
@@ -619,38 +618,37 @@ class SeparationEngine:
                     if isinstance(existing, PCSubtourEliminationCut)
                 )
             ):
-                    # Re-select j from N\S to satisfy Form 2.3 requirement j ∉ S.
-                    not_in_s = set(range(self.model.n_nodes)) - s_set - {self.model.depot}
-                    if not not_in_s:
-                        continue
-                    if y_vals is not None:
-                        actual_j, actual_yj = max(
-                            [(v, y_vals[v - 1] if v > 0 else 1.0) for v in not_in_s],
-                            key=lambda x: x[1],
-                        )
-                    else:
-                        actual_j, actual_yj = next(iter(not_in_s)), 1.0
+                # Re-select j from N\S to satisfy Form 2.3 requirement j ∉ S.
+                not_in_s = set(range(self.model.n_nodes)) - s_set - {self.model.depot}
+                if not not_in_s:
+                    continue
+                if y_vals is not None:
+                    actual_j, actual_yj = max(
+                        [(v, y_vals[v - 1] if v > 0 else 1.0) for v in not_in_s],
+                        key=lambda x: x[1],
+                    )
+                else:
+                    actual_j, actual_yj = next(iter(not_in_s)), 1.0
 
-                    yi = y_vals[source_node - 1] if y_vals is not None else 1.0
-                    actual_rhs = 2.0 * (yi + actual_yj - 1.0)
+                yi = y_vals[source_node - 1] if y_vals is not None else 1.0
+                actual_rhs = 2.0 * (yi + actual_yj - 1.0)
 
-                    # Only add if this recomputed rhs still gives a violated cut.
-                    if actual_rhs - max_flow_value > 0.01:
-                        cut = PCSubtourEliminationCut(
-                            set(s_set),
-                            actual_rhs - max_flow_value,
-                            facet_form="2.3",
-                            node_i=source_node,
-                            node_j=actual_j,
-                        )
-                        # RHS = 2*(yi + yj - 1) uses fractional LP values.
-                        # This cut is valid for the current LP relaxation but may tighten
-                        # below 2*(1+1-1)=2 for integer solutions. Mark as local so it is
-                        # removed when backtracking past this B&B node.
-                        cut.local_only = True
-                        self.pool.append(cut)
-            except Exception:
-                continue
+                # Only add if this recomputed rhs still gives a violated cut.
+                if actual_rhs - max_flow_value > 0.01:
+                    cut = PCSubtourEliminationCut(
+                        set(s_set),
+                        actual_rhs - max_flow_value,
+                        facet_form="2.3",
+                        node_i=source_node,
+                        node_j=actual_j,
+                    )
+                    # RHS = 2*(yi + yj - 1) uses fractional LP values.
+                    # This cut is valid for the current LP relaxation but may tighten
+                    # below 2*(1+1-1)=2 for integer solutions. Mark as local so it is
+                    # removed when backtracking past this B&B node.
+                    cut.local_only = True
+                    self.pool.append(cut)
+
 
     def _extract_min_cut(self, capacity: np.ndarray, flow: np.ndarray, source: int, sink: int) -> Set[int]:
         """

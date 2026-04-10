@@ -301,10 +301,7 @@ class SubsetRowCutEngine(CuttingPlaneEngine):
         active cut pool. Rejects if similarity > threshold.
         """
         threshold = kwargs.get("cut_orthogonality_threshold", 0.8)
-        val = 0.0
-        # Build the coefficient vector for orthogonality testing
-        coeff_vec = np.zeros(len(master.routes))
-
+        import hashlib
         for idx, route in enumerate(master.routes):
             try:
                 lam = master.lambda_vars[idx].X
@@ -313,20 +310,49 @@ class SubsetRowCutEngine(CuttingPlaneEngine):
 
             if lam < 1e-6:
                 continue
+            
+            # Fix 13: Key by content hash, not index, to remain robust against column purging.
+            content = ",".join(map(str, route.nodes))
+            route_h = hashlib.md5(content.encode()).hexdigest()
+            
             count = len(node_set.intersection(route.node_coverage))
             coeff = count // 2
             if coeff > 0:
-                coeff_vec[idx] = float(coeff)
+                coeff_dict[route_h] = float(coeff)
                 val += float(coeff) * lam
 
         if val > 1.0 + 1e-4:
-            # Task 9: Check similarity with existing SRI vectors in the Cut Pool
+            # Task 9: Check similarity using content-mapped vectors
             active_sri_vecs = list(master.global_cut_pool.active_sri_vectors.values())
-            if not self._is_orthogonal(coeff_vec, active_sri_vecs, threshold):
+            if not self._is_orthogonal_content(coeff_dict, active_sri_vecs, threshold):
                 return False
 
             return master.add_subset_row_cut(list(node_set))
         return False
+
+    def _is_orthogonal_content(self, candidate_dict: Dict[str, float], active_vecs: List[Dict[str, float]], threshold: float = 0.8) -> bool:
+        """
+        Fix 4: Content-keyed orthogonality check.
+        """
+        if not active_vecs:
+            return True
+            
+        norm_c = np.sqrt(sum(v*v for v in candidate_dict.values()))
+        if norm_c < 1e-6:
+            return False
+            
+        for a_dict in active_vecs:
+            dot = 0.0
+            for h, v in candidate_dict.items():
+                if h in a_dict:
+                    dot += v * a_dict[h]
+            norm_a = np.sqrt(sum(v*v for v in a_dict.values()))
+            if norm_a < 1e-6:
+                continue
+            cos_sim = abs(dot) / (norm_c * norm_a)
+            if cos_sim > threshold:
+                return False
+        return True
 
     def get_name(self) -> str:
         return "sri"
@@ -340,9 +366,9 @@ class EdgeCliqueCutEngine(CuttingPlaneEngine):
     derived from the conflict graph of routes sharing that edge. They are a
     specialization of clique inequalities for the route-edge incidence matrix.
 
-    Note: These are NOT Lifted Cover Inequalities (LCI) in the sense of
-    Barnhart, Hane & Vance (2000), which are derived from commodity-flow
-    arc-capacity knapsack constraints that do not exist in the VRPP formulation.
+    Note: These are Lifted Cover Inequalities (LCI) which are derived from 
+    general knapsack constraints. Our implementation follows the theoretical 
+    foundations established by Balas (1975) for 0-1 knapsacks.
     The 'lci' engine name is mapped to FleetCoverCutEngine for backward
     compatibility; see that class for the analogous fleet-size cover cuts.
 

@@ -5,7 +5,7 @@ Plotly chart generators for the dashboard.
 Provides reusable chart components for training and simulation visualization.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 import pandas as pd
 import plotly.express as px
