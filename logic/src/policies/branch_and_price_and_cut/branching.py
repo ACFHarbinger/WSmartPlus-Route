@@ -7,14 +7,12 @@ EdgeBranchingConstraint
     Operates on directed arcs (u → v).  Integrates cleanly with the DP label
     extension step: forbidden / required arcs are enforced in O(1) per
     extension without any post-hoc filtering.
-
     Reference: Barnhart et al. (1998), Section 4.
 
 RyanFosterBranchingConstraint
     Operates on *node pairs* (r, s).  Requires routes to either always contain
     both nodes in the same route (`together=True`) or never contain them
     together (`together=False`).
-
     Reference: Ryan & Foster (1981), Proposition 1.
 
 FleetSizeBranchingConstraint
@@ -24,17 +22,22 @@ FleetSizeBranchingConstraint
 NodeVisitationBranchingConstraint
     Operates on a single node i. Enforces v_i = 0 (forbidden) or v_i = 1 (forced).
 
-Both constraint classes expose a common ``is_route_feasible(route)`` method
-used by the master problem to filter its existing column pool whenever a new
-B&B node is created.
+MultiEdgePartitionBranching
+    Spatial fleet-partitioning heuristic. Uses polar mapping geometry to 
+    forbid sets of arcs across different branches, yielding stronger 
+    polyhedral divergence for anonymous fleets.
+    Reference: Barnhart et al. (1998, 2000).
 
-Note on VRPP Selection:
+Theoretical Framework:
 ----------------------
-Ryan-Foster branching is utilized for VRPP because it appropriately modifies
-the Resource-Constrained Shortest Path Problem (RCSPP) used for pricing by
-enforcing or forbidding node pairs. This differs from Barnhart et al. (1998),
-who primarily used divergence branching to maintain simple shortest paths
-for the Origin-Destination Integer Multicommodity Flow (ODIMCF) problem.
+Ryan-Foster branching is utilized for VRPP because it appropriately modifies 
+the Resource-Constrained Shortest Path Problem (RCSPP) used for pricing by 
+enforcing or forbidding node pairs. In a Set Partitioning Problem (SPP), 
+node-pair branching is mathematically exact and avoids the "symmetry" issues
+inherent in arc-based branching for problems with multiple identical vehicles.
+While Barnhart et al. (2000) avoids this for ODIMCF to maintain simple 
+shortest-path pricing, the RCSPP pricing in VRPP is already weakly NP-hard,
+and node-pair constraints are easily integrated into the DP label extension.
 """
 
 from __future__ import annotations
@@ -50,8 +53,12 @@ if TYPE_CHECKING:
 
 # Forward reference resolved at runtime — avoids a circular import with
 # master_problem.py while still enabling full type annotations.
+from logic.src.tracking.logging.pylogger import get_pylogger
+
 from .master_problem import Route
 from .params import BPCParams
+
+logger = get_pylogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Constraint classes
@@ -124,10 +131,14 @@ class EdgeBranchingConstraint:
 
 class RyanFosterBranchingConstraint:
     """
-    Node-pair branching constraint for Ryan-Foster B&P branching.
+    Node-pair branching constraint for Ryan-Foster B&P branching (1981).
 
     Enforces co-occurrence or separation of two customer nodes across routes.
-
+    Unlike divergence branching used in ODIMCF (Barnhart et al. 2000), 
+    Ryan-Foster node-pair branching is highly effective for VRPP as it 
+    directly modifies the RCSPP pricing subproblem without increasing 
+    the label state space complexity.
+    
     Attributes:
         node_r: First node in the branching pair.
         node_s: Second node in the branching pair.
@@ -393,14 +404,14 @@ class MultiEdgePartitionBranching:
        $\mathcal{L}: \sum_{(d,v) \in S_1} x_{dv} = 0 \quad \text{and} \quad \mathcal{R}: \sum_{(d,v) \in S_2} x_{dv} = 0$
 
     4. Candidate Scoring (SVRPC):
-       Candidates are ranked by the Spatial Variable Routing Persistence (SVRP) 
+       Candidates are ranked by the Spatial Variable Routing Persistence (SVRP)
        strength, calculated as the fractional flow persistence across the split:
        $\sigma(d) = \sum_{(d,v) \in S_1} \bar{x}_{dv}$
 
     Theoretical Rationale:
     ----------------------
-    Spatial fleet partitioning separates the routing topology into convex 
-    geographic polygons. By forbidding arc sets rather than single edges, 
+    Spatial fleet partitioning separates the routing topology into convex
+    geographic polygons. By forbidding arc sets rather than single edges,
     it globally restricts the anonymous fleet, enforcing a strong bound.
     """
 
@@ -460,22 +471,22 @@ class MultiEdgePartitionBranching:
                 node_universe.update(r.nodes)
         node_universe.discard(d)
         all_possible_outgoing = {(d, v) for v in node_universe}
-        
+
         # A1 contains the arc with the largest flow, A2 contains the rest (initial)
         # Spatial refinement if coords are available
         flows = node_out_flows[d]
         v_sorted = sorted(flows.keys(), key=lambda v: flows[v], reverse=True)
-        
+
         v1 = v_sorted[0]
         arc_set_1 = {(d, v1)}
-        
+
         if node_coords is not None:
             # Spatial partition: group arcs by distance to v1 in the graph
             # Arcs to nodes spatially close to v1 go to A1.
             d_coord = np.array(node_coords[d])
             v1_coord = np.array(node_coords[v1])
             vec_v1 = v1_coord - d_coord
-            
+
             for v in node_universe:
                 if v == v1:
                     continue
@@ -487,11 +498,11 @@ class MultiEdgePartitionBranching:
                     arc_set_1.add((d, v))
 
         arc_set_2 = all_possible_outgoing - arc_set_1
-        
+
         # Invariant: A1 and A2 must partition ALL outgoing arcs from d
-        if not (arc_set_1 | arc_set_2) == all_possible_outgoing:
-             logger.error("Divergence arc partition is incomplete.")
-             
+        if (arc_set_1 | arc_set_2) != all_possible_outgoing:
+            logger.error("Divergence arc partition is incomplete.")
+
         score = sum(flows[v] for v in flows if (d, v) in arc_set_1)
         return d, list(arc_set_1), list(arc_set_2), score
 
@@ -578,29 +589,37 @@ class MultiEdgePartitionBranching:
 
 class RyanFosterBranching:
     """
-    Ryan-Foster branching: select a fractional node-pair co-occurrence.
+    Ryan-Foster branching strategy for Set Partitioning Problems.
 
-    Produces two child nodes:
-        left  → r and s MUST be in the same route  (together = True)
-        right → r and s MUST NOT be in the same route (together = False)
+    Identifies a node pair (r, s) that are "fractionally co-occurring" in 
+    the current LP solution and partitions the search space to eliminate 
+    this fractional state.
 
-    Ryan-Foster branching (1981) for the Set Partitioning Problem.
+    Mathematical Basis:
+    -------------------
+    Based on Proposition 1 of Ryan and Foster (1981): 
+    If a Set Partitioning Problem has a fractional solution λ, there must 
+    exist two nodes r and s such that the set of routes visiting both 
+    r and s has a fractional sum:
+        0 < ∑_{k: r ∈ route_k, s ∈ route_k} λ_k < 1
 
-    Theoretical Exactness:
-    ----------------------
-    Ryan-Foster branching loses its theoretical exactness guarantee when applied
-    to a Set Covering master problem (>= 1), as it can erroneously prune optimal
-    over-covering solutions. Total theoretical rigor is maintained here by
-    enforcing strict Set Partitioning (== 1.0) whenever this strategy is active.
+    Branching Rule:
+    ---------------
+    - Left Branch: r and s MUST be in the same route (∑_{k: r,s ∈ route_k} λ_k = 1).
+      Any route visiting only one of the pair is disabled.
+    - Right Branch: r and s MUST NOT be in the same route (∑_{k: r,s ∈ route_k} λ_k = 0).
+      Any route visiting both nodes is disabled.
 
-    Specifically, the `together=True` branch disables any route that visits
-    only one of the pair (r, s). In a Set Partitioning (== 1) master, this
-    is always safe because each node is covered by exactly one route.
-
-    To ensure exactness, the `VRPPMasterProblem` automatically enforces strict
-    Set Partitioning (== 1) logic for mandatory nodes. This removes the risk of
-    pruning optimal solutions that can occur with Set Covering (>= 1).
-
+    Theoretical Rationale for VRPP:
+    -------------------------------
+    Ryan-Foster branching is polyhedrally stronger than simple edge-based 
+    branching for VRPs with identical vehicles (anonymous fleet). By 
+    constraining node pairs, the search space is partitioned without 
+    inducing the massive symmetry issues of arc-fixing. Furthermore, it is 
+    easily enforced in the RCSPP pricing subproblem by forbidding or 
+    requiring specific label transitions without increasing state space 
+    complexity.
+    
     Reference: Ryan & Foster (1981), Proposition 1.
     """
 

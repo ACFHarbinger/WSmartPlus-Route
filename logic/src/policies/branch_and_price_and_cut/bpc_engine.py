@@ -2,31 +2,29 @@ r"""
 Branch-and-Price-and-Cut (BPC) Engine for VRPP.
 
 This engine implements a state-of-the-art exact solver for the Vehicle Routing
-Problem with Profits (VRPP), synthesizing the Origin-Destination Integer
-Multicommodity Flow (ODIMCF) sequencing framework of Barnhart et al. (1998)
-with advanced polyhedral cutting planes (RCC, SRI, FCI).
+Problem with Profits (VRPP), adapting the macro-architectural sequencing 
+framework of Barnhart et al. (1998, 2000) to modern routing heuristics.
+
+While the solver adopts Barnhart's Depth-First Search (DFS) node selection 
+logic to maximize basis reuse, the core mathematical engines are rooted in 
+VRPP-specific Set Partitioning formulations and polyhedral theory.
 
 Algorithmic Components:
 -----------------------
-- Master Problem: Set Partitioning formulation using Gurobi with Column Generation.
-- Pricing Subproblem: Elementary / ng-relaxed Resource Constrained Shortest Path
-  Problem (RCSPP) solved via DP.
-- Branching: Multi-Edge Spatial Partitioning and exact Ryan-Foster co-occurrence.
-- Cutting Planes: Dynamically separated Rounded Capacity Cuts (RCC), Subset-Row
-  Inequalities (SRI), and Fleet Cover Inequalities (fleet_cover).
+- Master Problem: Set Partitioning Problem (SPP) formulation using Gurobi.
+- Pricing Subproblem: Weakly NP-hard Resource-Constrained Shortest Path 
+  Problem (RCSPP) with ng-route relaxation (Baldacci et al. 2011).
+- Branching: Spatial Fleet-Partitioning heuristic and exact Ryan-Foster (1981) 
+  node-pair branching.
+- Cutting Planes: Rounded Capacity Cuts (RCC, Lysgaard et al. 2004), 
+  Subset-Row Inequalities (3-SRI, Jepsen et al. 2008), and Fleet Cover 
+  Inequalities (adapted from Balas 1975).
 
 References:
 -----------
-- Barnhart, C., Johnson, E. L., Nemhauser, G. L., Savelsbergh, M. W., & Sigismondi, P. H.
-  (1998). "Branch-and-price: Column generation for solving huge integer programs."
-  Operations Research, 46(3), 316-329.
-  (General B&P methodology; basis for the pricing and branching framework.)
-- Barnhart, C., Hane, C. A., & Vance, P. H. (2000). "Using branch-and-price-and-cut
-  to solve origin-destination integer multicommodity flow problems."
-  Operations Research, 48(2), 318-326.
-  (Specific BPC algorithm for ODIMCF; source of divergence branching rule
-  and the Lifted Cover Inequality design adapted here as fleet cover cuts.)
-
+- Barnhart, C., et al. (1998). "Branch-and-price: Column generation for solving huge integer programs."
+- Barnhart, C., et al. (2000). "Using branch-and-price-and-cut to solve origin-destination integer multicommodity flow problems."
+- Baldacci, R., et al. (2011). "New state-space relaxation for the car-dependent VRP."
 """
 
 import logging
@@ -260,7 +258,12 @@ def _solve_farkas_pricing_step(
     max_routes: int = 5,
 ) -> int:
     """
-    Phase I Pricing: Solve subproblem with Farkas dual ray to restore feasibility.
+    Phase I Pricing: Solve RCSPP with the Farkas dual ray to restore feasibility.
+    
+    Implements the 2-Phase method by resolving LP primary infeasibility without 
+    Big-M artificial variables. The Farkas ray identifies the direction of 
+    infeasibility, guiding the DP pricer to find columns that restore the 
+    mandatory coverage basis.
     """
     # Task 3/6: Extract forced nodes and RF conflicts for DP enforcement
     forced_nodes: Set[int] = set()
@@ -339,7 +342,10 @@ def _solve_pricing_step(
     rc_tolerance: float = 1e-5,
 ) -> int:
     """
-    Solve the pricing subproblem and add positive reduced cost columns.
+    Phase II Pricing: Solve the RCSPP pricing subproblem for profitable columns.
+
+    Utilizes the current dual signal—optionally stabilized via Exponential 
+    Dual Smoothing (Wentges 1997)—to identify routes with positive reduced cost.
 
     Args:
         master: Master problem instance
@@ -457,8 +463,7 @@ def _is_solution_integer(routes: List[Route], route_values: Dict[int, float], to
     return True
 
 
-
-def _perform_strong_branching(
+def _perform_strong_branching(  # noqa: C901
     master: VRPPMasterProblem,
     candidates: List[Tuple[int, List[Tuple[int, int]], List[Tuple[int, int]], float]],
     current_node: Optional[BranchNode] = None,
@@ -488,18 +493,15 @@ def _perform_strong_branching(
     # Cache the current basis for warm-starting
     parent_basis = None
     if master.model is not None and master.model.Status == GRB.OPTIMAL:
-        try:
-            parent_basis = master.model.getVBasis()
-        except gp.GurobiError:
-            pass
+        parent_basis = master.save_basis()
 
     for cand in eval_candidates:
         cand_id, left_branch, right_branch, _ = cand
-        
+
         def evaluate_branch(arc_set: List[Tuple[int, int]]) -> float:
             forbidden_arcs_set = set(arc_set)
             disabled_vars = []
-            
+
             # Temporarily disable columns that violate the branch (x_e = 0)
             for idx, var in enumerate(master.lambda_vars):
                 if var.UB < 0.5:
@@ -509,31 +511,34 @@ def _perform_strong_branching(
                 if any((full_path[i], full_path[i + 1]) in forbidden_arcs_set for i in range(len(full_path) - 1)):
                     var.UB = 0.0
                     disabled_vars.append(var)
-                    
+
             master.model.optimize()
-            if master.model.Status == GRB.OPTIMAL:
-                obj = master.model.ObjVal
-            else:
-                obj = -float("inf")
-                
+            obj = master.model.ObjVal if master.model.Status == GRB.OPTIMAL else -float("inf")
+
             # Revert bounds
             for var in disabled_vars:
                 var.UB = 1.0
-                
+
+            if parent_basis is not None:
+                master.restore_basis(*parent_basis)
+
             return parent_obj - obj if obj != -float("inf") else float("inf")
 
         left_deg = evaluate_branch(left_branch)
         right_deg = evaluate_branch(right_branch)
-        
+
         # Product-based evaluation metric (Score = max(ΔL, ε) * max(ΔR, ε))
         score = max(left_deg, 1e-6) * max(right_deg, 1e-6)
-        
+
         if score > best_score:
             best_score = score
             best_candidate = cand
 
     # Restore master state fully and resolve once to ensure basis is clean
     if master.model is not None:
+        if parent_basis is not None:
+            master.restore_basis(*parent_basis)
+
         master.model.optimize()
         if master.model.Status != GRB.OPTIMAL:
             logger.warning(
@@ -573,9 +578,12 @@ def _column_generation_loop(  # noqa: C901
     exact_mode: bool = False,
 ) -> Tuple[float, Dict[int, float], Optional[Any], bool]:
     """
-    Run Column Generation + Cutting Plane loop at a B&B node.
+    Run the Column Generation and Cutting Plane loop at a B&B node.
 
-    Task 3: Exact Mode support to bypass dual smoothing.
+    Adopts the Barnhart et al. (1998) protocol for sequencing Cut Separation 
+    after CG convergence. Maintains the ng-route relaxation state and 
+    enforces strict elementarity for nodes in active SRI or node-pair 
+    branching constraints.
     """
     timed_out = False
     converged = False
@@ -1313,7 +1321,7 @@ def _apply_reduced_cost_edge_fixing(
             if i == j:
                 continue
 
-            # Exact VRPP arc reduced cost 
+            # Exact VRPP arc reduced cost
             cost = pricing_solver.cost_matrix[i, j] * pricing_solver.C
             rev = pricing_solver.wastes.get(j, 0.0) * pricing_solver.R
             rc_ij = rev - cost - node_duals.get(j, 0.0)
@@ -1322,11 +1330,10 @@ def _apply_reduced_cost_edge_fixing(
             # which correctly captures all positive components of a path using edge (i, j).
             max_path_rc = pricing_solver.bounds_from[i] + rc_ij + pricing_solver.bounds_to[j]
 
-            if z_ub + max_path_rc < z_lb - 1e-6:
+            if z_ub + max_path_rc < z_lb - 1e-6 and (i, j) not in pricing_solver.fixed_arcs:
                 # Globally fix edge
-                if (i, j) not in pricing_solver.fixed_arcs:
-                    pricing_solver.fixed_arcs.add((i, j))
-                    fixed_count += 1
+                pricing_solver.fixed_arcs.add((i, j))
+                fixed_count += 1
 
     if fixed_count > 0:
         logger.info(f"[Exact Hardening] Fixed {fixed_count} edges to infinity using exact Lagrangian bounds (Gap: {gap:.4f}).")

@@ -19,7 +19,7 @@ References:
     - Comb inequalities are disabled in favor of Gurobi's internal polyhedral cuts
 """
 
-from typing import Dict, FrozenSet, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 
 import networkx as nx
 import numpy as np
@@ -443,7 +443,7 @@ class SeparationEngine:
                 if violation > 0.01:
                     self.pool.append(CapacityCut(node_set, total_demand, self.model.capacity, violation))
 
-    def _separate_capacity_cuts_heuristic_exact(
+    def _separate_capacity_cuts_heuristic_exact(    # noqa: C901
         self,
         x_vals: np.ndarray,
         y_vals: Optional[np.ndarray],
