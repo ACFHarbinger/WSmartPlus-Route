@@ -14,10 +14,10 @@
 :maxdepth: 1
 
 src.policies.other.operators.crossover.position_independent
-src.policies.other.operators.crossover.ordered
-src.policies.other.operators.crossover.selective_route_exchange
 src.policies.other.operators.crossover.edge_recombination
+src.policies.other.operators.crossover.selective_route_exchange
 src.policies.other.operators.crossover.generalized_partition
+src.policies.other.operators.crossover.ordered
 ```
 
 ## Package Contents

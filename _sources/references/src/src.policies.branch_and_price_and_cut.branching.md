@@ -67,6 +67,10 @@
 :class: autosummary longtable
 :align: left
 
+* - {py:obj}`logger <src.policies.branch_and_price_and_cut.branching.logger>`
+  - ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.branching.logger
+    :summary:
+    ```
 * - {py:obj}`BranchingConstraint <src.policies.branch_and_price_and_cut.branching.BranchingConstraint>`
   - ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.branching.BranchingConstraint
     :summary:
@@ -78,6 +82,16 @@
 ````
 
 ### API
+
+````{py:data} logger
+:canonical: src.policies.branch_and_price_and_cut.branching.logger
+:value: >
+   'get_pylogger(...)'
+
+```{autodoc2-docstring} src.policies.branch_and_price_and_cut.branching.logger
+```
+
+````
 
 `````{py:class} EdgeBranchingConstraint(u: int, v: int, must_use: bool)
 :canonical: src.policies.branch_and_price_and_cut.branching.EdgeBranchingConstraint
@@ -114,7 +128,7 @@
 
 `````
 
-`````{py:class} RyanFosterBranchingConstraint(node_r: int, node_s: int, together: bool, mandatory_nodes: typing.Optional[typing.Set[int]] = None)
+`````{py:class} RyanFosterBranchingConstraint(node_r: int, node_s: int, together: bool)
 :canonical: src.policies.branch_and_price_and_cut.branching.RyanFosterBranchingConstraint
 
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.branching.RyanFosterBranchingConstraint
@@ -151,7 +165,7 @@
 
 ````
 
-`````{py:class} BranchNode(constraints: typing.Optional[typing.List[src.policies.branch_and_price_and_cut.branching.AnyBranchingConstraint]] = None, parent: typing.Optional[src.policies.branch_and_price_and_cut.branching.BranchNode] = None, depth: int = 0, lp_bound_hint: typing.Optional[float] = None)
+`````{py:class} BranchNode(constraints: typing.Optional[typing.List[src.policies.branch_and_price_and_cut.branching.AnyBranchingConstraint]] = None, parent: typing.Optional[src.policies.branch_and_price_and_cut.branching.BranchNode] = None, depth: int = 0, lp_bound_hint: typing.Optional[float] = None, branching_rule: str = 'none')
 :canonical: src.policies.branch_and_price_and_cut.branching.BranchNode
 
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.branching.BranchNode
@@ -205,7 +219,7 @@
 
 ````
 
-````{py:method} create_child_nodes(parent: src.policies.branch_and_price_and_cut.branching.BranchNode, u: int, v: int, arc_flow: float = 0.5) -> typing.Tuple[src.policies.branch_and_price_and_cut.branching.BranchNode, src.policies.branch_and_price_and_cut.branching.BranchNode]
+````{py:method} create_child_nodes(parent: src.policies.branch_and_price_and_cut.branching.BranchNode, u: int, v: int, flow: float = 0.5) -> typing.Tuple[src.policies.branch_and_price_and_cut.branching.BranchNode, src.policies.branch_and_price_and_cut.branching.BranchNode]
 :canonical: src.policies.branch_and_price_and_cut.branching.EdgeBranching.create_child_nodes
 :staticmethod:
 
@@ -222,7 +236,7 @@
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.branching.MultiEdgePartitionBranching
 ```
 
-````{py:method} find_divergence_node(routes: typing.List[src.policies.branch_and_price_and_cut.master_problem.Route], route_values: typing.Dict[int, float], tol: float = 1e-05, node_coords: typing.Optional[typing.Union[numpy.ndarray, typing.Dict[int, typing.Tuple[float, float]]]] = None) -> typing.Optional[typing.Tuple[int, typing.List[typing.Tuple[int, int]], typing.List[typing.Tuple[int, int]], float]]
+````{py:method} find_divergence_node(routes: typing.List[src.policies.branch_and_price_and_cut.master_problem.Route], route_values: typing.Dict[int, float], tol: float = 1e-05, node_coords: typing.Optional[numpy.ndarray] = None, n_nodes: int = 0) -> typing.Optional[typing.Tuple[int, typing.List[typing.Tuple[int, int]], typing.List[typing.Tuple[int, int]], float]]
 :canonical: src.policies.branch_and_price_and_cut.branching.MultiEdgePartitionBranching.find_divergence_node
 :staticmethod:
 
@@ -231,7 +245,7 @@
 
 ````
 
-````{py:method} find_multiple_divergence_nodes(routes: typing.List[src.policies.branch_and_price_and_cut.master_problem.Route], route_values: typing.Dict[int, float], node_coords: typing.Optional[typing.Union[numpy.ndarray, typing.Dict[int, typing.Tuple[float, float]]]] = None, limit: int = 5, tol: float = 1e-05) -> typing.List[typing.Tuple[int, typing.List[typing.Tuple[int, int]], typing.List[typing.Tuple[int, int]], float]]
+````{py:method} find_multiple_divergence_nodes(routes: typing.List[src.policies.branch_and_price_and_cut.master_problem.Route], route_values: typing.Dict[int, float], node_coords: typing.Optional[numpy.ndarray] = None, limit: int = 5, tol: float = 1e-05, n_nodes: int = 0) -> typing.List[typing.Tuple[int, typing.List[typing.Tuple[int, int]], typing.List[typing.Tuple[int, int]], float]]
 :canonical: src.policies.branch_and_price_and_cut.branching.MultiEdgePartitionBranching.find_multiple_divergence_nodes
 :staticmethod:
 
@@ -266,7 +280,7 @@
 
 ````
 
-````{py:method} create_child_nodes(parent: src.policies.branch_and_price_and_cut.branching.BranchNode, node_r: int, node_s: int, together_sum: float = 0.5, mandatory_nodes: typing.Optional[typing.Set[int]] = None) -> typing.Tuple[src.policies.branch_and_price_and_cut.branching.BranchNode, src.policies.branch_and_price_and_cut.branching.BranchNode]
+````{py:method} create_child_nodes(parent: src.policies.branch_and_price_and_cut.branching.BranchNode, node_r: int, node_s: int, together_sum: float = 0.5) -> typing.Tuple[src.policies.branch_and_price_and_cut.branching.BranchNode, src.policies.branch_and_price_and_cut.branching.BranchNode]
 :canonical: src.policies.branch_and_price_and_cut.branching.RyanFosterBranching.create_child_nodes
 :staticmethod:
 
@@ -423,18 +437,18 @@
 
 ````
 
-````{py:method} branch(node: src.policies.branch_and_price_and_cut.branching.BranchNode, routes: typing.List[src.policies.branch_and_price_and_cut.master_problem.Route], route_values: typing.Dict[int, float], mandatory_nodes: typing.Optional[typing.Set[int]] = None, strong_candidate: typing.Optional[typing.Tuple[int, typing.List[typing.Tuple[int, int]], typing.List[typing.Tuple[int, int]], float]] = None) -> typing.Optional[typing.Tuple[src.policies.branch_and_price_and_cut.branching.BranchNode, src.policies.branch_and_price_and_cut.branching.BranchNode]]
-:canonical: src.policies.branch_and_price_and_cut.branching.BranchAndBoundTree.branch
-
-```{autodoc2-docstring} src.policies.branch_and_price_and_cut.branching.BranchAndBoundTree.branch
-```
-
-````
-
 ````{py:method} find_strong_branching_candidates(routes: typing.List[src.policies.branch_and_price_and_cut.master_problem.Route], route_values: typing.Dict[int, float], max_candidates: int = 5) -> typing.List[typing.Tuple[int, typing.List[typing.Tuple[int, int]], typing.List[typing.Tuple[int, int]], float]]
 :canonical: src.policies.branch_and_price_and_cut.branching.BranchAndBoundTree.find_strong_branching_candidates
 
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.branching.BranchAndBoundTree.find_strong_branching_candidates
+```
+
+````
+
+````{py:method} branch(node: src.policies.branch_and_price_and_cut.branching.BranchNode, routes: typing.List[src.policies.branch_and_price_and_cut.master_problem.Route], route_values: typing.Dict[int, float], mandatory_nodes: typing.Set[int], strong_candidate: typing.Optional[typing.Any] = None) -> typing.Optional[typing.Tuple[src.policies.branch_and_price_and_cut.branching.BranchNode, src.policies.branch_and_price_and_cut.branching.BranchNode]]
+:canonical: src.policies.branch_and_price_and_cut.branching.BranchAndBoundTree.branch
+
+```{autodoc2-docstring} src.policies.branch_and_price_and_cut.branching.BranchAndBoundTree.branch
 ```
 
 ````

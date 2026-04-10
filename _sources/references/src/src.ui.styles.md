@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.ui.styles.kpi
 src.ui.styles.colors
 src.ui.styles.css
+src.ui.styles.kpi
 ```
 
 ## Package Contents

@@ -75,6 +75,10 @@
   - ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.bpc_engine.logger
     :summary:
     ```
+* - {py:obj}`_FARKAS_TOL <src.policies.branch_and_price_and_cut.bpc_engine._FARKAS_TOL>`
+  - ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.bpc_engine._FARKAS_TOL
+    :summary:
+    ```
 ````
 
 ### API
@@ -85,6 +89,17 @@
    'getLogger(...)'
 
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.bpc_engine.logger
+```
+
+````
+
+````{py:data} _FARKAS_TOL
+:canonical: src.policies.branch_and_price_and_cut.bpc_engine._FARKAS_TOL
+:type: float
+:value: >
+   1e-06
+
+```{autodoc2-docstring} src.policies.branch_and_price_and_cut.bpc_engine._FARKAS_TOL
 ```
 
 ````
@@ -133,7 +148,7 @@ Bases: {py:obj}`Exception`
 ```
 ````
 
-````{py:function} _separate_cuts(master: src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem, cut_engine: src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine, max_cuts: int, iteration: int = 0, node_depth: int = 0) -> int
+````{py:function} _separate_cuts(master: src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem, cut_engine: src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine, max_cuts: int, iteration: int = 0, node_depth: int = 0, cut_orthogonality_threshold: float = 0.8) -> int
 :canonical: src.policies.branch_and_price_and_cut.bpc_engine._separate_cuts
 
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.bpc_engine._separate_cuts
@@ -154,21 +169,21 @@ Bases: {py:obj}`Exception`
 ```
 ````
 
-````{py:function} _is_solution_integer(route_values: typing.Dict[int, float], tol: float = 1e-06) -> bool
+````{py:function} _is_solution_integer(routes: typing.List[src.policies.branch_and_price_and_cut.master_problem.Route], route_values: typing.Dict[int, float], tol: float = 1e-06) -> bool
 :canonical: src.policies.branch_and_price_and_cut.bpc_engine._is_solution_integer
 
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.bpc_engine._is_solution_integer
 ```
 ````
 
-````{py:function} _perform_strong_branching(candidates: typing.List[typing.Tuple[int, typing.List[typing.Tuple[int, int]], typing.List[typing.Tuple[int, int]], float]], current_node: typing.Optional[src.policies.branch_and_price_and_cut.branching.BranchNode] = None) -> typing.Optional[typing.Tuple[int, typing.List[typing.Tuple[int, int]], typing.List[typing.Tuple[int, int]], float]]
+````{py:function} _perform_strong_branching(master: src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem, candidates: typing.List[typing.Tuple[int, typing.List[typing.Tuple[int, int]], typing.List[typing.Tuple[int, int]], float]], current_node: typing.Optional[src.policies.branch_and_price_and_cut.branching.BranchNode] = None, strong_branching_size: int = 5) -> typing.Optional[typing.Tuple[int, typing.List[typing.Tuple[int, int]], typing.List[typing.Tuple[int, int]], float]]
 :canonical: src.policies.branch_and_price_and_cut.bpc_engine._perform_strong_branching
 
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.bpc_engine._perform_strong_branching
 ```
 ````
 
-````{py:function} _column_generation_loop(master: src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem, pricing_solver: src.policies.branch_and_price_and_cut.rcspp_dp.RCSPPSolver, cut_engine: src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine, branching_constraints: typing.Optional[typing.List[src.policies.branch_and_price_and_cut.branching.AnyBranchingConstraint]], max_cg_iterations: int, max_cuts: int, time_limit: typing.Optional[float], start_time: float, max_routes_per_pricing: int = 5, vehicle_limit: typing.Optional[int] = None, optimality_gap: float = 0.0001, early_termination_gap: float = 0.001, parent_basis: typing.Optional[typing.Any] = None, incumbent_value: float = -float('inf'), node_depth: int = 0) -> typing.Tuple[float, typing.Dict[int, float], typing.Optional[typing.Any]]
+````{py:function} _column_generation_loop(master: src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem, pricing_solver: src.policies.branch_and_price_and_cut.rcspp_dp.RCSPPSolver, cut_engine: src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine, branching_constraints: typing.Optional[typing.List[src.policies.branch_and_price_and_cut.branching.AnyBranchingConstraint]], max_cg_iterations: int, max_cuts: int, time_limit: typing.Optional[float], start_time: float, max_routes_per_pricing: int = 5, vehicle_limit: typing.Optional[int] = None, optimality_gap: float = 0.0001, early_termination_gap: float = 0.001, parent_basis: typing.Optional[typing.Any] = None, incumbent_value: float = -float('inf'), node_depth: int = 0, rc_tolerance: float = 1e-05, cut_orthogonality_threshold: float = 0.8, exact_mode: bool = False) -> typing.Tuple[float, typing.Dict[int, float], typing.Optional[typing.Any], bool]
 :canonical: src.policies.branch_and_price_and_cut.bpc_engine._column_generation_loop
 
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.bpc_engine._column_generation_loop

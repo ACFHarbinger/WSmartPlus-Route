@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
+src.pipeline.rl.core.losses.nll_loss
 src.pipeline.rl.core.losses.kl_divergence_loss
 src.pipeline.rl.core.losses.js_divergence_loss
-src.pipeline.rl.core.losses.nll_loss
 src.pipeline.rl.core.losses.weighted_nll_loss
 ```
 

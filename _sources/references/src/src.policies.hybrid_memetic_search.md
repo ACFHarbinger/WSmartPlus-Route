@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.hybrid_memetic_search.solver
 src.policies.hybrid_memetic_search.params
+src.policies.hybrid_memetic_search.solver
 src.policies.hybrid_memetic_search.policy_hms
 ```
 

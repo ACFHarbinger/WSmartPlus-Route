@@ -13,11 +13,11 @@
 :titlesonly:
 :maxdepth: 3
 
-src.models.common
-src.models.meta
-src.models.core
 src.models.subnets
+src.models.meta
 src.models.policies
+src.models.core
+src.models.common
 ```
 
 ## Package Contents

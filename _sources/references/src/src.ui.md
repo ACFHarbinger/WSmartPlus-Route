@@ -15,8 +15,8 @@
 
 src.ui.components
 src.ui.pages
-src.ui.services
 src.ui.styles
+src.ui.services
 ```
 
 ## Submodules

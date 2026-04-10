@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
+src.policies.reinforcement_learning_great_deluge_hyper_heuristic.params
 src.policies.reinforcement_learning_great_deluge_hyper_heuristic.policy_rl_gd_hh
 src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver
-src.policies.reinforcement_learning_great_deluge_hyper_heuristic.params
 ```
 
 ## Package Contents

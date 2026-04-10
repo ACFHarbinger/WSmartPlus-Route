@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.utils.tasks.simulation_utils
 src.utils.tasks.losses
-src.utils.tasks.task_utils
-src.utils.tasks.dummy_problem
 src.utils.tasks.training_utils
+src.utils.tasks.dummy_problem
+src.utils.tasks.task_utils
+src.utils.tasks.simulation_utils
 ```

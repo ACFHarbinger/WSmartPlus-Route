@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
+src.policies.step_counting_hill_climbing.params
 src.policies.step_counting_hill_climbing.policy_schc
 src.policies.step_counting_hill_climbing.solver
-src.policies.step_counting_hill_climbing.params
 ```
 
 ## Package Contents

@@ -14,13 +14,13 @@
 :maxdepth: 3
 
 src.policies.other.operators.intra_route
-src.policies.other.operators.crossover
-src.policies.other.operators.perturbation
-src.policies.other.operators.destroy
 src.policies.other.operators.inter_route
-src.policies.other.operators.unstringing_stringing
-src.policies.other.operators.repair
 src.policies.other.operators.heuristics
+src.policies.other.operators.destroy
+src.policies.other.operators.crossover
+src.policies.other.operators.repair
+src.policies.other.operators.unstringing_stringing
+src.policies.other.operators.perturbation
 ```
 
 ## Submodules

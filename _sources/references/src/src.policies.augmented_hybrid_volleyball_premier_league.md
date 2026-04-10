@@ -13,7 +13,7 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.augmented_hybrid_volleyball_premier_league.ahvpl
 src.policies.augmented_hybrid_volleyball_premier_league.params
 src.policies.augmented_hybrid_volleyball_premier_league.policy_ahvpl
+src.policies.augmented_hybrid_volleyball_premier_league.ahvpl
 ```

@@ -13,6 +13,6 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.other.reinforcement_learning.features.state
 src.policies.other.reinforcement_learning.features.context
+src.policies.other.reinforcement_learning.features.state
 ```

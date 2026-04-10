@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.late_acceptance_hill_climbing.solver
 src.policies.late_acceptance_hill_climbing.params
 src.policies.late_acceptance_hill_climbing.policy_lahc
+src.policies.late_acceptance_hill_climbing.solver
 ```
 
 ## Package Contents

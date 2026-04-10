@@ -14,8 +14,8 @@
 :maxdepth: 1
 
 src.utils.validation.count_loc
+src.utils.validation.tree_loc
 src.utils.validation.debug_utils
 src.utils.validation.check_multi_classes
-src.utils.validation.tree_loc
 src.utils.validation.check_nested_imports
 ```

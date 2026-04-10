@@ -13,11 +13,11 @@
 :titlesonly:
 :maxdepth: 3
 
+src.configs.envs
 src.configs.tasks
-src.configs.models
 src.configs.policies
 src.configs.rl
-src.configs.envs
+src.configs.models
 ```
 
 ## Submodules

@@ -13,10 +13,10 @@
 :titlesonly:
 :maxdepth: 1
 
+src.policies.evolution_strategy_mu_kappa_lambda.policy_es_mkl
+src.policies.evolution_strategy_mu_kappa_lambda.params
 src.policies.evolution_strategy_mu_kappa_lambda.individual
 src.policies.evolution_strategy_mu_kappa_lambda.solver
-src.policies.evolution_strategy_mu_kappa_lambda.params
-src.policies.evolution_strategy_mu_kappa_lambda.policy_es_mkl
 ```
 
 ## Package Contents

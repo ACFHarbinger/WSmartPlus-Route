@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
+src.policies.volleyball_premier_league.params
 src.policies.volleyball_premier_league.policy_vpl
 src.policies.volleyball_premier_league.solver
-src.policies.volleyball_premier_league.params
 ```
 
 ## Package Contents

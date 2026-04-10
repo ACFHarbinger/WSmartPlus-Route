@@ -14,11 +14,11 @@
 :maxdepth: 1
 
 src.policies.branch_and_bound.policy_bb
-src.policies.branch_and_bound.params
-src.policies.branch_and_bound.dfj
-src.policies.branch_and_bound.node
 src.policies.branch_and_bound.mtz
+src.policies.branch_and_bound.params
+src.policies.branch_and_bound.node
 src.policies.branch_and_bound.dispatcher
+src.policies.branch_and_bound.dfj
 ```
 
 ## Package Contents

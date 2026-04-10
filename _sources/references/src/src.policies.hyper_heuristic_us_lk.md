@@ -13,12 +13,12 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.hyper_heuristic_us_lk.hulk
+src.policies.hyper_heuristic_us_lk.adaptive_selection
 src.policies.hyper_heuristic_us_lk.solution
+src.policies.hyper_heuristic_us_lk.operators
 src.policies.hyper_heuristic_us_lk.params
 src.policies.hyper_heuristic_us_lk.policy_hulk
-src.policies.hyper_heuristic_us_lk.adaptive_selection
-src.policies.hyper_heuristic_us_lk.operators
+src.policies.hyper_heuristic_us_lk.hulk
 ```
 
 ## Package Contents

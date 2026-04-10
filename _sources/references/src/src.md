@@ -13,18 +13,18 @@
 :titlesonly:
 :maxdepth: 3
 
-src.pipeline
-src.cli
 src.constants
-src.data
-src.configs
-src.models
-src.utils
-src.interfaces
-src.policies
+src.pipeline
 src.envs
-src.tracking
 src.ui
+src.utils
+src.policies
+src.cli
+src.configs
+src.interfaces
+src.tracking
+src.models
+src.data
 ```
 
 ## Submodules

@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.relaxation_enforced_neighborhood_search.solver
 src.policies.relaxation_enforced_neighborhood_search.params
 src.policies.relaxation_enforced_neighborhood_search.policy_rens
+src.policies.relaxation_enforced_neighborhood_search.solver
 ```
 
 ## Package Contents

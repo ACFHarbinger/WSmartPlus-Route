@@ -14,10 +14,10 @@
 :maxdepth: 1
 
 src.data.datasets.simulation.npz_dataset
-src.data.datasets.simulation.pd_xlsx_dataset
 src.data.datasets.simulation.np_pkl_dataset
-src.data.datasets.simulation.pd_csv_dataset
 src.data.datasets.simulation.gen_dataset
+src.data.datasets.simulation.pd_csv_dataset
+src.data.datasets.simulation.pd_xlsx_dataset
 src.data.datasets.simulation.sim_dataset
 ```
 

@@ -139,6 +139,17 @@
 
 ````
 
+````{py:attribute} max_cut_iterations
+:canonical: src.configs.policies.bpc.BPCConfig.max_cut_iterations
+:type: int
+:value: >
+   5
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.max_cut_iterations
+```
+
+````
+
 ````{py:attribute} max_cuts_per_iteration
 :canonical: src.configs.policies.bpc.BPCConfig.max_cuts_per_iteration
 :type: int
@@ -216,13 +227,13 @@
 
 ````
 
-````{py:attribute} enable_fractional_capacity_cuts
-:canonical: src.configs.policies.bpc.BPCConfig.enable_fractional_capacity_cuts
+````{py:attribute} enable_heuristic_rcc_separation
+:canonical: src.configs.policies.bpc.BPCConfig.enable_heuristic_rcc_separation
 :type: bool
 :value: >
    True
 
-```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.enable_fractional_capacity_cuts
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.enable_heuristic_rcc_separation
 ```
 
 ````
@@ -238,6 +249,17 @@
 
 ````
 
+````{py:attribute} cut_orthogonality_threshold
+:canonical: src.configs.policies.bpc.BPCConfig.cut_orthogonality_threshold
+:type: float
+:value: >
+   0.8
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.cut_orthogonality_threshold
+```
+
+````
+
 ````{py:attribute} use_spatial_partitioning
 :canonical: src.configs.policies.bpc.BPCConfig.use_spatial_partitioning
 :type: bool
@@ -245,6 +267,72 @@
    False
 
 ```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.use_spatial_partitioning
+```
+
+````
+
+````{py:attribute} enable_strong_branching_heuristic
+:canonical: src.configs.policies.bpc.BPCConfig.enable_strong_branching_heuristic
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.enable_strong_branching_heuristic
+```
+
+````
+
+````{py:attribute} enable_column_pool_deduplication
+:canonical: src.configs.policies.bpc.BPCConfig.enable_column_pool_deduplication
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.enable_column_pool_deduplication
+```
+
+````
+
+````{py:attribute} enable_hybrid_search
+:canonical: src.configs.policies.bpc.BPCConfig.enable_hybrid_search
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.enable_hybrid_search
+```
+
+````
+
+````{py:attribute} rc_tolerance
+:canonical: src.configs.policies.bpc.BPCConfig.rc_tolerance
+:type: float
+:value: >
+   1e-05
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.rc_tolerance
+```
+
+````
+
+````{py:attribute} exact_mode
+:canonical: src.configs.policies.bpc.BPCConfig.exact_mode
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.exact_mode
+```
+
+````
+
+````{py:attribute} strong_branching_size
+:canonical: src.configs.policies.bpc.BPCConfig.strong_branching_size
+:type: int
+:value: >
+   5
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.strong_branching_size
 ```
 
 ````

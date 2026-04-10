@@ -13,11 +13,11 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.other.operators.intra_route.k_opt
+src.policies.other.operators.intra_route.k_permutation
 src.policies.other.operators.intra_route.cross_exchange
+src.policies.other.operators.intra_route.k_opt
 src.policies.other.operators.intra_route.relocate
 src.policies.other.operators.intra_route.swap
-src.policies.other.operators.intra_route.k_permutation
 ```
 
 ## Package Contents

@@ -13,7 +13,7 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.sequence_based_selection_hyper_heuristic.solver
 src.policies.sequence_based_selection_hyper_heuristic.params
 src.policies.sequence_based_selection_hyper_heuristic.policy_ss_hh
+src.policies.sequence_based_selection_hyper_heuristic.solver
 ```

@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.core.dr_alns.dr_alns_solver
-src.models.core.dr_alns.ppo_trainer
 src.models.core.dr_alns.ppo_agent
+src.models.core.dr_alns.ppo_trainer
+src.models.core.dr_alns.dr_alns_solver
 ```
 
 ## Package Contents

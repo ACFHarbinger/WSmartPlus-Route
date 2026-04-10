@@ -45,30 +45,7 @@
     ```
 ````
 
-### Data
-
-````{list-table}
-:class: autosummary longtable
-:align: left
-
-* - {py:obj}`PLOTLY_LAYOUT_DEFAULTS <src.ui.components.charts.PLOTLY_LAYOUT_DEFAULTS>`
-  - ```{autodoc2-docstring} src.ui.components.charts.PLOTLY_LAYOUT_DEFAULTS
-    :summary:
-    ```
-````
-
 ### API
-
-````{py:data} PLOTLY_LAYOUT_DEFAULTS
-:canonical: src.ui.components.charts.PLOTLY_LAYOUT_DEFAULTS
-:type: typing.Dict[str, typing.Any]
-:value: >
-   None
-
-```{autodoc2-docstring} src.ui.components.charts.PLOTLY_LAYOUT_DEFAULTS
-```
-
-````
 
 ````{py:function} apply_moving_average(data: pandas.Series, window: int) -> pandas.Series
 :canonical: src.ui.components.charts.apply_moving_average

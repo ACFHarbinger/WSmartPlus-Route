@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 3
 
-src.data.datasets.pytorch
 src.data.datasets.simulation
+src.data.datasets.pytorch
 ```
 
 ## Package Contents

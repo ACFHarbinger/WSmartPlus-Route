@@ -13,13 +13,13 @@
 :titlesonly:
 :maxdepth: 1
 
-src.data.processor.setup
 src.data.processor._logging
-src.data.processor.processing
-src.data.processor.mapper
-src.data.processor.dataframes
+src.data.processor.setup
 src.data.processor.transforms
+src.data.processor.mapper
+src.data.processor.processing
 src.data.processor.formatting
+src.data.processor.dataframes
 ```
 
 ## Package Contents

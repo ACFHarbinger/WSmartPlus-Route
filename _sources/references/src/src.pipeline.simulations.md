@@ -13,12 +13,12 @@
 :titlesonly:
 :maxdepth: 3
 
-src.pipeline.simulations.bins
-src.pipeline.simulations.wsmart_bin_analysis
-src.pipeline.simulations.actions
-src.pipeline.simulations.repository
-src.pipeline.simulations.states
 src.pipeline.simulations.checkpoints
+src.pipeline.simulations.bins
+src.pipeline.simulations.repository
+src.pipeline.simulations.actions
+src.pipeline.simulations.wsmart_bin_analysis
+src.pipeline.simulations.states
 ```
 
 ## Submodules

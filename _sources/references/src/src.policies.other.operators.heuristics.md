@@ -13,15 +13,15 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.other.operators.heuristics._tour_improvement
+src.policies.other.operators.heuristics.large_neighborhood_search
+src.policies.other.operators.heuristics._tour_adapter
+src.policies.other.operators.heuristics._tour_construction
 src.policies.other.operators.heuristics.nearest_neighbor_initialization
 src.policies.other.operators.heuristics.lin_kernighan_helsgaun
-src.policies.other.operators.heuristics._tour_construction
-src.policies.other.operators.heuristics.greedy_initialization
-src.policies.other.operators.heuristics.large_neighborhood_search
-src.policies.other.operators.heuristics._objective
 src.policies.other.operators.heuristics.guided_ejection_search
-src.policies.other.operators.heuristics._tour_adapter
+src.policies.other.operators.heuristics._tour_improvement
+src.policies.other.operators.heuristics._objective
+src.policies.other.operators.heuristics.greedy_initialization
 ```
 
 ## Package Contents

@@ -64,8 +64,8 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.policies.branch_and_price_and_cut.master_problem';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.policies.branch_and_price_and_cut.search_strategy" href="src.policies.branch_and_price_and_cut.search_strategy.html" />
-    <link rel="prev" title="src.policies.branch_and_price_and_cut" href="src.policies.branch_and_price_and_cut.html" />
+    <link rel="next" title="src.policies.branch_and_price_and_cut.params" href="src.policies.branch_and_price_and_cut.params.html" />
+    <link rel="prev" title="src.policies.branch_and_price_and_cut.rcspp_dp" href="src.policies.branch_and_price_and_cut.rcspp_dp.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -173,6 +173,23 @@
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="src.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.testing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.testing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.routing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.stats.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.stats</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.paths.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.paths</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.models</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.system</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.dashboard.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.dashboard</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.metrics.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.metrics</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.tasks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.hpo.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.hpo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.user_interface.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.user_interface</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.waste.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.waste</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.simulation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.simulation</span></code></a></li>
+</ul>
+</details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.pipeline.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.simulations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features</span></code></a></li>
@@ -180,200 +197,183 @@
 <li class="toctree-l4"><a class="reference internal" href="src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
 </ul>
 </details></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="src.cli.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.cli.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.base</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.cli.ts_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.ts_parser</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.cli.benchmark_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.benchmark_parser</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.cli.registry.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.registry</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.cli.fs_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.fs_parser</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.cli.gui_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.gui_parser</span></code></a></li>
-</ul>
-</details></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.constants.testing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.testing</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.constants.metrics.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.metrics</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.constants.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.tasks</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.constants.simulation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.simulation</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.constants.stats.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.stats</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.constants.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.data</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.constants.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.models</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.constants.dashboard.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.dashboard</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.constants.hpo.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.hpo</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.constants.system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.system</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.constants.user_interface.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.user_interface</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.constants.paths.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.paths</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.constants.waste.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.waste</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.constants.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.routing</span></code></a></li>
-</ul>
-</details></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="src.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.data.generators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generators</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.data.distributions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.distributions</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.data.network.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.network</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.data.processor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.processor</span></code></a></li>
-</ul>
-</details></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="src.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.configs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.tasks</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.configs.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.models</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.configs.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.configs.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.configs.envs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.envs</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.configs.tracking.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.tracking</span></code></a></li>
-</ul>
-</details></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="src.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.models.common.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.common</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.models.meta.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.meta</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.models.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.core</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.models.subnets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.models.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies</span></code></a></li>
-</ul>
-</details></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="src.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.model</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.ops.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.ops</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.io.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.graph.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.graph</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.output.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.output</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.decoding.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.decoding</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.tasks</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.configs</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.security.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.security</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.ui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.ui</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.validation</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.functions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.docs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.docs</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.utils.io_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io_utils</span></code></a></li>
-</ul>
-</details></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="src.interfaces.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.interfaces.tensor_dict_like.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.tensor_dict_like</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.interfaces.env.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.env</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.interfaces.bin_container.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.bin_container</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.interfaces.must_go.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.must_go</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.interfaces.adapter.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.adapter</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.interfaces.traversable.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.traversable</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.interfaces.model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.model</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.interfaces.policy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.policy</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.interfaces.post_processing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.post_processing</span></code></a></li>
-</ul>
-</details></li>
-<li class="toctree-l3 current active has-children"><a class="reference internal" href="src.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="src.policies.adaptive_kernel_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_kernel_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.soccer_league_competition.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.soccer_league_competition</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.fast_iterative_localized_optimization.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.fast_iterative_localized_optimization</span></code></a></li>
-<li class="toctree-l4 current active"><a class="reference internal" href="src.policies.branch_and_price_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.guided_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.guided_local_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.firefly_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.firefly_algorithm</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.travelling_salesman_problem.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.travelling_salesman_problem</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.volleyball_premier_league</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.iterated_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.iterated_local_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization_hyper_heuristic</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.differential_evolution</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.guided_indicators_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.guided_indicators_hyper_heuristic</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.sine_cosine_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.sine_cosine_algorithm</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.relaxation_enforced_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.relaxation_enforced_neighborhood_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.genius.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.genius</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.particle_swarm_optimization_memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.particle_swarm_optimization_memetic_algorithm</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_island_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_island_model</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.evolution_strategy_mu_plus_lambda.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.evolution_strategy_mu_plus_lambda</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.base</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_volleyball_premier_league</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.kernel_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.kernel_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.smart_waste_collection_two_commodity_flow.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.smart_waste_collection_two_commodity_flow</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.ensemble_move_acceptance.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ensemble_move_acceptance</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.harmony_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.harmony_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search_ruin_and_recreate.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_ruin_and_recreate</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.capacitated_vehicle_routing_problem.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.capacitated_vehicle_routing_problem</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.other.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.particle_swarm_optimization.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.particle_swarm_optimization</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.simulated_annealing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.simulated_annealing</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.only_improving.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.only_improving</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.reactive_tabu_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reactive_tabu_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.late_acceptance_hill_climbing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.late_acceptance_hill_climbing</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.hidden_markov_model_great_deluge_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hidden_markov_model_great_deluge_hyper_heuristic</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.variable_neighborhood_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_hybrid_volleyball_premier_league</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.league_championship_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.league_championship_algorithm</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.record_to_record_travel.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.record_to_record_travel</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.local_branching_variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching_variable_neighborhood_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.quantum_differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.quantum_differential_evolution</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.hyper_heuristic_us_lk.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hyper_heuristic_us_lk</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.evolution_strategy_mu_comma_lambda.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.evolution_strategy_mu_comma_lambda</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_cut</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.local_branching.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_great_deluge_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_great_deluge_hyper_heuristic</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.augmented_hybrid_volleyball_premier_league</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.lin_kernighan_helsgaun_three.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan_helsgaun_three</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.neural_agent.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.neural_agent</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.evolution_strategy_mu_kappa_lambda.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.evolution_strategy_mu_kappa_lambda</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.popmusic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.popmusic</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.improving_and_equal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.improving_and_equal</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.artificial_bee_colony.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.artificial_bee_colony</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.simulated_annealing_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.simulated_annealing_neighborhood_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.tabu_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.tabu_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_memetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_memetic_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.threshold_accepting.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.threshold_accepting</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.genetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.genetic_algorithm</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.cluster_first_route_second.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.cluster_first_route_second</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.particle_swarm_optimization_distance_based_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.particle_swarm_optimization_distance_based_algorithm</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_dual_population.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_dual_population</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.great_deluge.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.great_deluge</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.step_counting_hill_climbing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.step_counting_hill_climbing</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_large_neighborhood_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.genetic_programming_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.genetic_programming_hyper_heuristic</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_bound.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_bound</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.old_bachelor_acceptance.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.old_bachelor_acceptance</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.knowledge_guided_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.knowledge_guided_local_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_tolerance_based_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_tolerance_based_selection</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization_k_sparse.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization_k_sparse</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.sequence_based_selection_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.sequence_based_selection_hyper_heuristic</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_adaptive_large_neighborhood_search</span></code></a></li>
-</ul>
-</details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.envs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.generators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.generators</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.base</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.wcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.wcvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.base</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.cwcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.cwcvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.swcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.swcvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.vrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.vrpp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.cvrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.cvrpp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.swcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.swcvrp</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.vrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.vrpp</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.cwcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.cwcvrp</span></code></a></li>
-</ul>
-</details></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="src.tracking.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.tracking.logging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.tracking.database.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.database</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.tracking.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.core</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.tracking.integrations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.integrations</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.tracking.hooks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.hooks</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.tracking.profiling.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.profiling</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.tracking.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.helpers</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.tracking.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.validation</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.tracking.viz_mixin.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.viz_mixin</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.wcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.wcvrp</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.ui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="src.ui.components.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.components</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.ui.pages.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.pages</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.ui.services.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.services</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.ui.styles.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.styles</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.ui.services.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.services</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.ui.app.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.app</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.output.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.output</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.functions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.ui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.ui</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.tasks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.decoding.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.decoding</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.io.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.docs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.docs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.graph.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.graph</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.validation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.configs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.security.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.security</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.ops.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.ops</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.io_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io_utils</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="src.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="src.policies.evolution_strategy_mu_plus_lambda.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.evolution_strategy_mu_plus_lambda</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.volleyball_premier_league</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.step_counting_hill_climbing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.step_counting_hill_climbing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.tabu_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.tabu_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_bound.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_bound</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.threshold_accepting.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.threshold_accepting</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.guided_indicators_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.guided_indicators_hyper_heuristic</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.simulated_annealing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.simulated_annealing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_large_neighborhood_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_volleyball_premier_league</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_dual_population.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_dual_population</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_memetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_memetic_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.differential_evolution</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.cluster_first_route_second.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.cluster_first_route_second</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_island_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_island_model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.improving_and_equal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.improving_and_equal</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.local_branching_variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching_variable_neighborhood_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.genetic_programming_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.genetic_programming_hyper_heuristic</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.league_championship_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.league_championship_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.other.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_tolerance_based_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_tolerance_based_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.artificial_bee_colony.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.artificial_bee_colony</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.particle_swarm_optimization.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.particle_swarm_optimization</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.knowledge_guided_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.knowledge_guided_local_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search_ruin_and_recreate.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_ruin_and_recreate</span></code></a></li>
+<li class="toctree-l4 current active"><a class="reference internal" href="src.policies.branch_and_price_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.harmony_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.harmony_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.smart_waste_collection_two_commodity_flow.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.smart_waste_collection_two_commodity_flow</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.variable_neighborhood_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.particle_swarm_optimization_memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.particle_swarm_optimization_memetic_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.travelling_salesman_problem.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.travelling_salesman_problem</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization_k_sparse.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization_k_sparse</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.sine_cosine_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.sine_cosine_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hyper_heuristic_us_lk.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hyper_heuristic_us_lk</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.evolution_strategy_mu_kappa_lambda.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.evolution_strategy_mu_kappa_lambda</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.lin_kernighan_helsgaun_three.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan_helsgaun_three</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.adaptive_kernel_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_kernel_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.only_improving.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.only_improving</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.base</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.soccer_league_competition.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.soccer_league_competition</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.quantum_differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.quantum_differential_evolution</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.old_bachelor_acceptance.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.old_bachelor_acceptance</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.great_deluge.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.great_deluge</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.local_branching.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.popmusic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.popmusic</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization_hyper_heuristic</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_cut</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.firefly_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.firefly_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.fast_iterative_localized_optimization.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.fast_iterative_localized_optimization</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.simulated_annealing_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.simulated_annealing_neighborhood_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.guided_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.guided_local_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.particle_swarm_optimization_distance_based_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.particle_swarm_optimization_distance_based_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.genetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.genetic_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.record_to_record_travel.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.record_to_record_travel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.augmented_hybrid_volleyball_premier_league</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.ensemble_move_acceptance.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ensemble_move_acceptance</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.late_acceptance_hill_climbing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.late_acceptance_hill_climbing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.hidden_markov_model_great_deluge_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hidden_markov_model_great_deluge_hyper_heuristic</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_great_deluge_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_great_deluge_hyper_heuristic</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_adaptive_large_neighborhood_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.kernel_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.kernel_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.sequence_based_selection_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.sequence_based_selection_hyper_heuristic</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.evolution_strategy_mu_comma_lambda.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.evolution_strategy_mu_comma_lambda</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.relaxation_enforced_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.relaxation_enforced_neighborhood_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.genius.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.genius</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.iterated_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.iterated_local_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.neural_agent.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.neural_agent</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.capacitated_vehicle_routing_problem.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.capacitated_vehicle_routing_problem</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.reactive_tabu_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reactive_tabu_search</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.reinforcement_learning_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_hybrid_volleyball_premier_league</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.cli.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.base</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.fs_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.fs_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.gui_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.gui_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.benchmark_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.benchmark_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.registry.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.registry</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.ts_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.ts_parser</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.envs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.envs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.tasks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.models</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.tracking.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.tracking</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.interfaces.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.post_processing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.post_processing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.tensor_dict_like.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.tensor_dict_like</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.adapter.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.adapter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.policy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.policy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.must_go.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.must_go</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.bin_container.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.bin_container</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.env.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.env</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.traversable.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.traversable</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.tracking.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.database.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.database</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.core</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.profiling.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.profiling</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.helpers</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.validation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.logging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.hooks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.hooks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.integrations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.integrations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.viz_mixin.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.viz_mixin</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.models.subnets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.meta.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.meta</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.core</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.common.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.common</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.data.generators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generators</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.network.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.network</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.processor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.processor</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.distributions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.distributions</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3"><a class="reference internal" href="src.file_system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.file_system</span></code></a></li>
@@ -545,7 +545,6 @@ document.write(`
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.add_symmetry_breaking_constraints"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.add_symmetry_breaking_constraints()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.deduplicate_column_pool"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.deduplicate_column_pool()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.purge_useless_columns"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.purge_useless_columns()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.sift_global_column_pool"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.sift_global_column_pool()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.calculate_reduced_cost"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.calculate_reduced_cost()</span></code></a></li>
@@ -559,6 +558,7 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.solve_lp_relaxation"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.solve_lp_relaxation()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem._apply_dual_smoothing"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem._apply_dual_smoothing()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.solve_ip"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.solve_ip()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.deduplicate_column_pool"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.deduplicate_column_pool()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.get_reduced_cost_coefficients"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.get_reduced_cost_coefficients()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.get_node_visitation"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.get_node_visitation()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.add_edge_clique_cut"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.add_edge_clique_cut()</span></code></a></li>
@@ -593,10 +593,11 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.branch_and_price_and_cut.master_problem">
 <span id="src-policies-branch-and-price-and-cut-master-problem"></span><h1><a class="reference internal" href="#module-src.policies.branch_and_price_and_cut.master_problem" title="src.policies.branch_and_price_and_cut.master_problem"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.master_problem</span></code></a><a class="headerlink" href="#module-src.policies.branch_and_price_and_cut.master_problem" title="Link to this heading">#</a></h1>
-<p>Master Problem for Branch-and-Price VRPP.</p>
-<p>Implements the set covering formulation where each column represents a feasible route.
-The master problem selects routes to cover all mandatory nodes while maximising profit.</p>
-<p>Based on Section 3.2 of Barnhart et al. (1998).</p>
+<p>Master Problem for Branch-and-Price-and-Cut VRPP.</p>
+<p>Implements the Set Partitioning Problem (SPP) formulation where each column
+represents a feasible route. The master problem selects routes to maximize
+total collected profit across a finite fleet.</p>
+<p>Theoretical Basis: Barnhart et al. (1998).</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -663,15 +664,34 @@ In BPC, separation is expensive. By pooling valid inequalities (RCC, SRI, SEC 2.
 globally, we ensure that a cut discovered in one branch tightens the LP bound
 in sibling and child branches immediately, avoiding redundant separation and
 reducing the total number of B&amp;B nodes explored.</p>
+<p>RCC storage note:
+RCC cuts are stored as (node_set, rhs) pairs so that the original RHS
+(= 2*⌈demand(S)/Q⌉, computed at discovery) is faithfully replayed when
+the cut is re-injected at descendant nodes. Storing only the node set
+and hard-coding rhs=1.0 would produce trivially weak cuts.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Assumption: Customer demands and vehicle capacities are static throughout
+the B&amp;B tree. If these were dynamic (e.g., stochastic demands handled at
+internal nodes), the RHS of purely node-set-based cuts could change,
+invalidating the global mathematical integrity of this archive.
+</pre></div>
+</div>
 <p class="rubric">Initialization</p>
 <p>Initialise empty global cut registries.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.master_problem.GlobalCutPool.add_cut">
 <span class="sig-name descname"><span class="pre">add_cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cut_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.master_problem.GlobalCutPool.add_cut" title="Link to this definition">#</a></dt>
 <dd><p>Archive a globally valid cut in the pool.</p>
+<p>Global Validity Contract:
+Only archive cuts here that are valid at EVERY node in the B&amp;B tree
+(e.g., RCC, SRI, SEC 2.1). Node-local cuts (branching-dependent SECs,
+lifted cover cuts dependent on local bounds) MUST NOT be added to
+this pool or they will lead to incorrect pruning and loss of optimality.</p>
 <p>Args:
-cut_type: The type of cut (“rcc”, “sri”, “sec_2.1”, “lci”).
-data: Cut-specific data (usually a FrozenSet of nodes).</p>
+cut_type: The type of cut (“rcc”, “sri”, “sec_2.1”, “edge_clique”, “lci”).
+data: Cut-specific data.
+For “rcc”: (FrozenSet[int], rhs: float)
+For “lci”: (FrozenSet[int], rhs: float, coefficients: Dict[int, float])
+For others: FrozenSet[int] or Tuple[int, int].</p>
 </dd></dl>
 
 <dl class="py method">
@@ -692,37 +712,48 @@ Number of cuts successfully applied.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_price_and_cut.master_problem.</span></span><span class="sig-name descname"><span class="pre">VRPPMasterProblem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue_per_kg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_per_km</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vehicle_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_cut_pool</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.policies.branch_and_price_and_cut.master_problem.GlobalCutPool" title="src.policies.branch_and_price_and_cut.master_problem.GlobalCutPool"><span class="pre">src.policies.branch_and_price_and_cut.master_problem.GlobalCutPool</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem" title="Link to this definition">#</a></dt>
 <dd><p>Master Problem (MP) for the Branch-and-Price-and-Cut algorithm.</p>
 <p>Formulates and solves the Set Partitioning Problem (SPP) relaxation of the VRPP.
-The Master Problem is responsible for:
-1.  Managing the column pool (routes generate by the pricing subproblem).
-2.  Enforcing various valid inequalities (Rounded Capacity, Subset-Row, Lifted Cover).
-3.  Extracting dual values used to guide the search for profitable columns.
-4.  Interfacing with the Branch-and-Bound tree to enforce node-specific constraints.</p>
+The Master Problem is the core coordinator for the column generation loop,
+managing the interaction between the linear relaxation (Gurobi), the
+cutting plane engines, and the branching constraints.</p>
 <h2 class="rubric" id="id1">Mathematical Formulation:</h2>
-<p>Maximize Σ p_k * λ_k
+<p>Maximize ∑_{k ∈ Ω} p_k * λ_k
 Subject to:
-Σ a_{ik} * λ_k = 1           ∀ i ∈ Mandatory Customers
-Σ a_{jk} * λ_k ≤ 1           ∀ j ∈ Optional Customers
-Σ λ_k &lt;= K                   (Vehicle Fleet Constraint)
-Σ γ_S * λ_k &lt;= RHS           (Cutting Planes: RCC, SRI, Edge Clique)
+∑_{k ∈ Ω} a_{ik} * λ_k = 1           ∀ i ∈ Mandatory Customers (Set Partitioning)
+∑_{k ∈ Ω} a_{jk} * λ_k ≤ 1           ∀ j ∈ Optional Customers (Set Packing)
+∑_{k ∈ Ω} λ_k &lt;= K                   (Vehicle Fleet Constraint / Knapsack)
+∑_{k ∈ Ω} γ_{Sk} * λ_k ≤ RHS_S       (Cutting Planes: RCC, SRI, Fleet Cover)
 λ_k ∈ {0, 1}</p>
-<h2 class="rubric" id="id2">Theoretical Exactness:</h2>
-<p>To support Ryan-Foster branching and ensure rigorous optimality proofs,
-this implementation defaults to strict Set Partitioning (== 1.0) logic
-for all covered nodes (enforced via <code class="docutils literal notranslate"><span class="pre">strict_set_partitioning</span></code>).
-If a node is over-covered (Σ λ_{ik} &gt; 1), the corresponding artificial
-variable would need to be negative to satisfy the equality, which is
-forbidden by its lower bound (LB=0.0).</p>
+<h2 class="rubric" id="id2">Theoretical Exactness &amp; Farkas Pricing:</h2>
+<p>To maintain theoretical exactness and support Ryan-Foster branching, this
+implementation utilizes strict Set Partitioning for all mandatory nodes.
+In the event of LP infeasibility (common during the early stages of
+branching), the RMP utilizes a 2-Phase approach. Instead of using
+arbitrary Big-M artificial variables which can cause numerical instability,
+we extract the <code class="docutils literal notranslate"><span class="pre">FarkasDual</span></code> ray from Gurobi. This dual ray points in the
+direction of infeasibility, allowing the pricing subproblem to generate
+columns that specifically resolve the unmet coverage requirements.</p>
+<h2 class="rubric" id="id3">Dual Smoothing &amp; Stabilization:</h2>
+<p>To mitigate the “tailing-off” effect and dual degeneracy in column
+generation, this MP supports Exponential Dual Smoothing (EDS) as
+proposed by Wentges (1997). This stabilizes the dual values π passed
+to the subproblem, accelerating convergence by preventing the
+dual signal from oscillating between extreme basin points.</p>
+<p>Reference:
+- Barnhart, C., et al. (1998, 2000).
+- Wentges, T. (1997). “Weighted Dantzig-Wolfe decomposition.”</p>
 <p class="rubric">Initialization</p>
 <p>Initialise the Master Problem for VRPP.</p>
-<p>Framework (Barnhart et al. 1998, 2000):
-This class maintains the Restricted Master Problem (RMP), which is the Set
-Partitioning relaxation of the VRPP. It manages column addition, cutting
-plane integration, and dual extraction.</p>
+<p>Framework (Barnhart, Hane, and Vance 2000):
+This class maintains the Restricted Master Problem (RMP) using the
+Barnhart-style sequencing of CG followed by separation.</p>
 <p>Set Partitioning &amp; Branching:
 To maintain Ryan-Foster (1981) compatibility, we use strict equality (== 1)
 for mandatory nodes. Artificial variables (Big-M) are omitted in favor of
-Farkas dual extraction, ensuring that infeasibility directly triggers the
-feasibility-search phase of column generation.</p>
+Farkas dual extraction (Phase I), ensuring that primary infeasibility guides
+the search for feasible basis columns.</p>
+<p>Dual Stabilization:
+Includes support for Exponential Dual Smoothing (Wentges, 1997) to
+stabilize the price signal and mitigate the “heading-in” effect.</p>
 <p>Args:
 n_nodes: Number of customer nodes (excluding depot).
 mandatory_nodes: Set of node indices that must be visited.
@@ -753,13 +784,6 @@ It is needed at the <em>Pricing</em> level if we have multiple identical vehicle
 with different characteristics (not our case).</p>
 <p>So, Task 12 for VRPP actually refers to <strong>Pruning Equivalent Routes</strong> in the pool.
 Implemented as <code class="docutils literal notranslate"><span class="pre">deduplicate_column_pool</span></code>.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.deduplicate_column_pool">
-<span class="sig-name descname"><span class="pre">deduplicate_column_pool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.deduplicate_column_pool" title="Link to this definition">#</a></dt>
-<dd><p>SOTA: Prune identical or dominated routes from the global column pool.
-Prevents RMP from becoming degenerate with duplicate columns.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -811,8 +835,12 @@ Alias for get_reduced_cost_coefficients() used for pool sifting.</p>
 <dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.set_phase">
 <span class="sig-name descname"><span class="pre">set_phase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.set_phase" title="Link to this definition">#</a></dt>
 <dd><p>Switch between Phase 1 (Feasibility) and Phase 2 (Optimality).</p>
-<p>Phase 1: Minimize Σ α_i. Route profits are ignored.
-Phase 2: Maximize Σ p_k λ_k - Σ BIG_M α_i.</p>
+<p>Phase 1: All route objectives are set to 0.0 so the LP has no inherent
+bias.  Gurobi will find the RMP infeasible (no Big-M artificials),
+and the Farkas dual ray guides pricing toward columns that restore
+coverage of mandatory nodes.
+Phase 2: Route objectives are restored to their profit values so the LP
+maximises total profit (standard column generation).</p>
 <p>Args:
 phase: 1 or 2.</p>
 </dd></dl>
@@ -862,14 +890,15 @@ participate in those cuts, maintaining LP relaxation validity.</p>
 <dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.build_model">
 <span class="sig-name descname"><span class="pre">build_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.policies.branch_and_price_and_cut.master_problem.Route" title="src.policies.branch_and_price_and_cut.master_problem.Route"><span class="pre">src.policies.branch_and_price_and_cut.master_problem.Route</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.build_model" title="Link to this definition">#</a></dt>
 <dd><p>Build the Gurobi model for the set-covering master problem.</p>
-<p>Implements the Big-M / artificial-variable formulation of
-Barnhart et al. (1998):</p>
+<p>Implements the Restricted Master Problem (RMP) formulation:</p>
 <ol class="arabic simple">
 <li><p>Mandatory-node coverage constraints use == 1 (Set Partitioning) to
 ensure that Ryan-Foster branching logic remains mathematically valid.</p></li>
-<li><p>An artificial variable α_i is added to every mandatory-node constraint
-with objective coefficient -BIG_M, guaranteeing LP feasibility even
-when the column pool cannot cover every mandatory node.</p></li>
+<li><p>Artificial variables (Big-M) are intentionally omitted.  When the
+column pool cannot cover a mandatory node, Gurobi returns INFEASIBLE
+and we extract the Farkas dual ray to guide Phase I pricing toward
+feasibility (Barnhart et al. 2000, §3).  Big-M variables would
+suppress infeasibility and deadlock the Phase I / Farkas loop.</p></li>
 <li><p>Optional-node constraints are packing inequalities (&lt;= 1).</p></li>
 </ol>
 <p>Args:
@@ -935,14 +964,23 @@ RuntimeError: If the MIP solve fails.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.deduplicate_column_pool">
+<span class="sig-name descname"><span class="pre">deduplicate_column_pool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.deduplicate_column_pool" title="Link to this definition">#</a></dt>
+<dd><p>Fix 18: Prune mathematically equivalent routes from the global column pool.
+Uses MD5 content hashes of node sequences for O(1) deduplication.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.get_reduced_cost_coefficients">
-<span class="sig-name descname"><span class="pre">get_reduced_cost_coefficients</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">frozenset</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.get_reduced_cost_coefficients" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_reduced_cost_coefficients</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">FrozenSet</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.get_reduced_cost_coefficients" title="Link to this definition">#</a></dt>
 <dd><p>Return the dual-value coefficients used by the pricing subproblem.</p>
-<p>The reduced cost of a candidate route r is:
-rc(r) = profit(r)  −  Σ_{i ∈ r} dual_i  −  dual_vehicle_limit</p>
-<p>This method collects both node-coverage duals and the vehicle-limit
-dual into a single dictionary consumed by PricingSubproblem /
-RCSPPSolver.</p>
+<p>Sign Convention &amp; Maximization:
+The VRPP is formulated as a maximization problem. Under Gurobi’s
+standard dual representation, the reduced cost calculation for
+pricing (searching for columns to boost the objective) is:
+rc(r) = profit(r) - Σ (a_{ik} * π_i), where π_i are the duals.
+- For &gt;= constraints (e.g. RCC), Pi is non-positive; we use -Pi.
+- For &lt;= constraints (e.g. SRI, Vehicle Limit), Pi is non-negative; we use +Pi.</p>
 <p>Returns:
 Dictionary mapping node ID (int) → dual value, plus the key
 “vehicle_limit” → vehicle-limit dual if a fleet cap is active.</p>
@@ -1019,7 +1057,7 @@ True if the cut was successfully added to the model.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.add_capacity_cut">
-<span class="sig-name descname"><span class="pre">add_capacity_cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rhs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coefficients</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_global</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.add_capacity_cut" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">add_capacity_cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rhs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coefficients</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_global</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_skip_pool</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.add_capacity_cut" title="Link to this definition">#</a></dt>
 <dd><p>Add a Rounded Capacity Cut (RCC) to the master problem.</p>
 <p>The cut enforces that the number of edges crossing the boundary δ(S)
 of the node set S must be at least twice the minimum number of
@@ -1036,6 +1074,11 @@ True if the cut was newly added, False if it already exists/failed.</p>
 <dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.add_lci_cut">
 <span class="sig-name descname"><span class="pre">add_lci_cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rhs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coefficients</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.add_lci_cut" title="Link to this definition">#</a></dt>
 <dd><p>Add a Lifted Cover Inequality (LCI) to the master problem.</p>
+<p>LCI formulation (Barnhart et al. 2000, §4):
+Σ_{k ∈ C} λ_k + Σ_{k ∉ C} α_k λ_k  ≤  |C| - 1</p>
+<p>LCI cuts are stored in <code class="docutils literal notranslate"><span class="pre">active_lci_cuts</span></code> (separate from <code class="docutils literal notranslate"><span class="pre">active_capacity_cuts</span></code>
+which holds &gt;= RCC constraints) so that dual extraction uses the correct
+sign: Pi &gt;= 0 for a &lt;= constraint in a MAX LP.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -1109,20 +1152,20 @@ True if at least one α_i &gt; tol, indicating infeasibility.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.policies.branch_and_price_and_cut.html"
+       href="src.policies.branch_and_price_and_cut.rcspp_dp.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.rcspp_dp</span></code></p>
       </div>
     </a>
     <a class="right-next"
-       href="src.policies.branch_and_price_and_cut.search_strategy.html"
+       href="src.policies.branch_and_price_and_cut.params.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.search_strategy</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut.params</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -1158,7 +1201,6 @@ True if at least one α_i &gt; tol, indicating infeasibility.</p>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.add_symmetry_breaking_constraints"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.add_symmetry_breaking_constraints()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.deduplicate_column_pool"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.deduplicate_column_pool()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.purge_useless_columns"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.purge_useless_columns()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.sift_global_column_pool"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.sift_global_column_pool()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.calculate_reduced_cost"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.calculate_reduced_cost()</span></code></a></li>
@@ -1172,6 +1214,7 @@ True if at least one α_i &gt; tol, indicating infeasibility.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.solve_lp_relaxation"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.solve_lp_relaxation()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem._apply_dual_smoothing"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem._apply_dual_smoothing()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.solve_ip"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.solve_ip()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.deduplicate_column_pool"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.deduplicate_column_pool()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.get_reduced_cost_coefficients"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.get_reduced_cost_coefficients()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.get_node_visitation"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.get_node_visitation()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.add_edge_clique_cut"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.add_edge_clique_cut()</span></code></a></li>

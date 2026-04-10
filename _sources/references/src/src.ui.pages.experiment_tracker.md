@@ -67,10 +67,6 @@
   - ```{autodoc2-docstring} src.ui.pages.experiment_tracker._PALETTE
     :summary:
     ```
-* - {py:obj}`_STATUS_ICONS <src.ui.pages.experiment_tracker._STATUS_ICONS>`
-  - ```{autodoc2-docstring} src.ui.pages.experiment_tracker._STATUS_ICONS
-    :summary:
-    ```
 * - {py:obj}`_EVENT_TYPE_ICONS <src.ui.pages.experiment_tracker._EVENT_TYPE_ICONS>`
   - ```{autodoc2-docstring} src.ui.pages.experiment_tracker._EVENT_TYPE_ICONS
     :summary:
@@ -85,16 +81,6 @@
    ['#667eea', '#f093fb', '#4fd1c5', '#f6ad55', '#fc8181', '#90cdf4', '#9ae6b4', '#fbd38d', '#d6bcfa', ...
 
 ```{autodoc2-docstring} src.ui.pages.experiment_tracker._PALETTE
-```
-
-````
-
-````{py:data} _STATUS_ICONS
-:canonical: src.ui.pages.experiment_tracker._STATUS_ICONS
-:value: >
-   None
-
-```{autodoc2-docstring} src.ui.pages.experiment_tracker._STATUS_ICONS
 ```
 
 ````

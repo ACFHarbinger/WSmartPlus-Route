@@ -13,12 +13,12 @@
 :titlesonly:
 :maxdepth: 1
 
-src.envs.tasks.wcvrp
-src.envs.tasks.cvrpp
-src.envs.tasks.scwcvrp
-src.envs.tasks.vrpp
-src.envs.tasks.base
 src.envs.tasks.cwcvrp
+src.envs.tasks.base
+src.envs.tasks.vrpp
+src.envs.tasks.cvrpp
+src.envs.tasks.wcvrp
+src.envs.tasks.scwcvrp
 ```
 
 ## Package Contents

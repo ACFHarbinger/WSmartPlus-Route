@@ -13,7 +13,7 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.common.improvement.encoder
 src.models.common.improvement.decoder
 src.models.common.improvement.policy
+src.models.common.improvement.encoder
 ```

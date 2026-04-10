@@ -13,11 +13,11 @@
 :titlesonly:
 :maxdepth: 1
 
+src.policies.other.local_search.local_search_filo
 src.policies.other.local_search.local_search_manager
+src.policies.other.local_search.local_search_base
 src.policies.other.local_search.local_search_hgs
 src.policies.other.local_search.local_search_aco
-src.policies.other.local_search.local_search_filo
-src.policies.other.local_search.local_search_base
 ```
 
 ## Package Contents

@@ -13,7 +13,7 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.league_championship_algorithm.solver
-src.policies.league_championship_algorithm.params
 src.policies.league_championship_algorithm.policy_lca
+src.policies.league_championship_algorithm.params
+src.policies.league_championship_algorithm.solver
 ```

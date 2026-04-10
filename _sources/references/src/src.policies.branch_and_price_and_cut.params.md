@@ -117,6 +117,17 @@
 
 ````
 
+````{py:attribute} max_cut_iterations
+:canonical: src.policies.branch_and_price_and_cut.params.BPCParams.max_cut_iterations
+:type: int
+:value: >
+   5
+
+```{autodoc2-docstring} src.policies.branch_and_price_and_cut.params.BPCParams.max_cut_iterations
+```
+
+````
+
 ````{py:attribute} max_cuts_per_iteration
 :canonical: src.policies.branch_and_price_and_cut.params.BPCParams.max_cuts_per_iteration
 :type: int
@@ -216,6 +227,17 @@
 
 ````
 
+````{py:attribute} cut_orthogonality_threshold
+:canonical: src.policies.branch_and_price_and_cut.params.BPCParams.cut_orthogonality_threshold
+:type: float
+:value: >
+   0.8
+
+```{autodoc2-docstring} src.policies.branch_and_price_and_cut.params.BPCParams.cut_orthogonality_threshold
+```
+
+````
+
 ````{py:attribute} use_spatial_partitioning
 :canonical: src.policies.branch_and_price_and_cut.params.BPCParams.use_spatial_partitioning
 :type: bool
@@ -227,13 +249,13 @@
 
 ````
 
-````{py:attribute} enable_strong_branching
-:canonical: src.policies.branch_and_price_and_cut.params.BPCParams.enable_strong_branching
+````{py:attribute} enable_strong_branching_heuristic
+:canonical: src.policies.branch_and_price_and_cut.params.BPCParams.enable_strong_branching_heuristic
 :type: bool
 :value: >
-   True
+   False
 
-```{autodoc2-docstring} src.policies.branch_and_price_and_cut.params.BPCParams.enable_strong_branching
+```{autodoc2-docstring} src.policies.branch_and_price_and_cut.params.BPCParams.enable_strong_branching_heuristic
 ```
 
 ````
@@ -249,13 +271,35 @@
 
 ````
 
-````{py:attribute} enable_hybrid_search
-:canonical: src.policies.branch_and_price_and_cut.params.BPCParams.enable_hybrid_search
+````{py:attribute} rc_tolerance
+:canonical: src.policies.branch_and_price_and_cut.params.BPCParams.rc_tolerance
+:type: float
+:value: >
+   1e-05
+
+```{autodoc2-docstring} src.policies.branch_and_price_and_cut.params.BPCParams.rc_tolerance
+```
+
+````
+
+````{py:attribute} exact_mode
+:canonical: src.policies.branch_and_price_and_cut.params.BPCParams.exact_mode
 :type: bool
 :value: >
    False
 
-```{autodoc2-docstring} src.policies.branch_and_price_and_cut.params.BPCParams.enable_hybrid_search
+```{autodoc2-docstring} src.policies.branch_and_price_and_cut.params.BPCParams.exact_mode
+```
+
+````
+
+````{py:attribute} strong_branching_size
+:canonical: src.policies.branch_and_price_and_cut.params.BPCParams.strong_branching_size
+:type: int
+:value: >
+   5
+
+```{autodoc2-docstring} src.policies.branch_and_price_and_cut.params.BPCParams.strong_branching_size
 ```
 
 ````

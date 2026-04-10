@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.other.reinforcement_learning.agents.contextual.linucb
-src.policies.other.reinforcement_learning.agents.contextual.thompson
 src.policies.other.reinforcement_learning.agents.contextual.base
+src.policies.other.reinforcement_learning.agents.contextual.thompson
+src.policies.other.reinforcement_learning.agents.contextual.linucb
 src.policies.other.reinforcement_learning.agents.contextual.gpcmab
 ```
 

@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.hybrid_volleyball_premier_league.solver
-src.policies.hybrid_volleyball_premier_league.params
 src.policies.hybrid_volleyball_premier_league.policy_hvpl
+src.policies.hybrid_volleyball_premier_league.params
+src.policies.hybrid_volleyball_premier_league.solver
 ```
 
 ## Package Contents

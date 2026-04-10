@@ -13,12 +13,12 @@
 :titlesonly:
 :maxdepth: 1
 
+src.policies.branch_and_cut.params
 src.policies.branch_and_cut.policy_bc
 src.policies.branch_and_cut.bc
 src.policies.branch_and_cut.heuristics
-src.policies.branch_and_cut.params
-src.policies.branch_and_cut.vrpp_model
 src.policies.branch_and_cut.separation
+src.policies.branch_and_cut.vrpp_model
 ```
 
 ## Package Contents

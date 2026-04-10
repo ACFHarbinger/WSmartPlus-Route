@@ -23,6 +23,14 @@
   - ```{autodoc2-docstring} src.constants.dashboard.BIN_COLORS
     :summary:
     ```
+* - {py:obj}`PLOTLY_LAYOUT_DEFAULTS <src.constants.dashboard.PLOTLY_LAYOUT_DEFAULTS>`
+  - ```{autodoc2-docstring} src.constants.dashboard.PLOTLY_LAYOUT_DEFAULTS
+    :summary:
+    ```
+* - {py:obj}`STATUS_ICONS <src.constants.dashboard.STATUS_ICONS>`
+  - ```{autodoc2-docstring} src.constants.dashboard.STATUS_ICONS
+    :summary:
+    ```
 ````
 
 ### API
@@ -43,6 +51,27 @@
    None
 
 ```{autodoc2-docstring} src.constants.dashboard.BIN_COLORS
+```
+
+````
+
+````{py:data} PLOTLY_LAYOUT_DEFAULTS
+:canonical: src.constants.dashboard.PLOTLY_LAYOUT_DEFAULTS
+:type: typing.Dict[str, typing.Any]
+:value: >
+   None
+
+```{autodoc2-docstring} src.constants.dashboard.PLOTLY_LAYOUT_DEFAULTS
+```
+
+````
+
+````{py:data} STATUS_ICONS
+:canonical: src.constants.dashboard.STATUS_ICONS
+:value: >
+   None
+
+```{autodoc2-docstring} src.constants.dashboard.STATUS_ICONS
 ```
 
 ````

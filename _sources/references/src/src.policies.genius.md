@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.genius.solver
 src.policies.genius.params
+src.policies.genius.solver
 src.policies.genius.policy_genius
 ```
 

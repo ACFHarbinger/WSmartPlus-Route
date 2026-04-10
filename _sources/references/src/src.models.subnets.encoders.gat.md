@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
+src.models.subnets.encoders.gat.gat_feed_forward_sublayer
 src.models.subnets.encoders.gat.gat_multi_head_attention_layer
 src.models.subnets.encoders.gat.encoder
-src.models.subnets.encoders.gat.gat_feed_forward_sublayer
 ```
 
 ## Package Contents

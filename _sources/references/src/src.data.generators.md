@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.data.generators.datasets
-src.data.generators.validators
 src.data.generators.builders
+src.data.generators.validators
+src.data.generators.datasets
 src.data.generators.waste
 ```
 

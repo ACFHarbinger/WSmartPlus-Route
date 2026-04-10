@@ -13,7 +13,7 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.common.non_autoregressive.encoder
 src.models.common.non_autoregressive.decoder
 src.models.common.non_autoregressive.policy
+src.models.common.non_autoregressive.encoder
 ```

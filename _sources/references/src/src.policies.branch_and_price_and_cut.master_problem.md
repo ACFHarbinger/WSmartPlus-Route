@@ -122,14 +122,6 @@
 
 ````
 
-````{py:method} deduplicate_column_pool(tol: float = 1e-06) -> int
-:canonical: src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.deduplicate_column_pool
-
-```{autodoc2-docstring} src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.deduplicate_column_pool
-```
-
-````
-
 ````{py:method} purge_useless_columns(tolerance: float = -0.1) -> int
 :canonical: src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.purge_useless_columns
 
@@ -234,7 +226,15 @@
 
 ````
 
-````{py:method} get_reduced_cost_coefficients() -> typing.Dict[str, typing.Dict[typing.Union[int, frozenset[int], str, typing.Tuple[int, int]], float]]
+````{py:method} deduplicate_column_pool(tol: float = 1e-06) -> int
+:canonical: src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.deduplicate_column_pool
+
+```{autodoc2-docstring} src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.deduplicate_column_pool
+```
+
+````
+
+````{py:method} get_reduced_cost_coefficients() -> typing.Dict[str, typing.Dict[typing.Union[int, typing.FrozenSet[int], str, typing.Tuple[int, int]], float]]
 :canonical: src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.get_reduced_cost_coefficients
 
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.get_reduced_cost_coefficients
@@ -290,7 +290,7 @@
 
 ````
 
-````{py:method} add_capacity_cut(node_list: typing.List[int], rhs: float, coefficients: typing.Optional[typing.Dict[int, float]] = None, is_global: bool = True) -> bool
+````{py:method} add_capacity_cut(node_list: typing.List[int], rhs: float, coefficients: typing.Optional[typing.Dict[int, float]] = None, is_global: bool = True, _skip_pool: bool = False) -> bool
 :canonical: src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.add_capacity_cut
 
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.add_capacity_cut

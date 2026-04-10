@@ -13,15 +13,15 @@
 :titlesonly:
 :maxdepth: 1
 
-src.interfaces.tensor_dict_like
-src.interfaces.env
-src.interfaces.bin_container
-src.interfaces.must_go
-src.interfaces.adapter
-src.interfaces.traversable
-src.interfaces.model
-src.interfaces.policy
 src.interfaces.post_processing
+src.interfaces.tensor_dict_like
+src.interfaces.adapter
+src.interfaces.policy
+src.interfaces.must_go
+src.interfaces.bin_container
+src.interfaces.env
+src.interfaces.model
+src.interfaces.traversable
 ```
 
 ## Package Contents

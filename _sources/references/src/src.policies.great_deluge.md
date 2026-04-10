@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
+src.policies.great_deluge.params
 src.policies.great_deluge.policy_gd
 src.policies.great_deluge.solver
-src.policies.great_deluge.params
 ```
 
 ## Package Contents

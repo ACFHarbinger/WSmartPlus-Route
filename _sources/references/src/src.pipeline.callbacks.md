@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 3
 
-src.pipeline.callbacks.pytorch
 src.pipeline.callbacks.simulation
+src.pipeline.callbacks.pytorch
 ```
 
 ## Package Contents

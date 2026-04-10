@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.memetic_algorithm_tolerance_based_selection.solver
 src.policies.memetic_algorithm_tolerance_based_selection.params
 src.policies.memetic_algorithm_tolerance_based_selection.policy_ma_ts
+src.policies.memetic_algorithm_tolerance_based_selection.solver
 ```
 
 ## Package Contents

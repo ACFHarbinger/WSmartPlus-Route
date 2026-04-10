@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.policy_hgs_alns
 src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.params
 src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.hgs_alns
+src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.policy_hgs_alns
 ```
 
 ## Package Contents

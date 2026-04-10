@@ -13,16 +13,16 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.other.operators.destroy.route
-src.policies.other.operators.destroy.worst
-src.policies.other.operators.destroy.sector
+src.policies.other.operators.destroy.guided
 src.policies.other.operators.destroy.string
 src.policies.other.operators.destroy.random
-src.policies.other.operators.destroy.shaw
-src.policies.other.operators.destroy.neighbor
-src.policies.other.operators.destroy.historical
 src.policies.other.operators.destroy.cluster
-src.policies.other.operators.destroy.guided
+src.policies.other.operators.destroy.neighbor
+src.policies.other.operators.destroy.worst
+src.policies.other.operators.destroy.sector
+src.policies.other.operators.destroy.shaw
+src.policies.other.operators.destroy.route
+src.policies.other.operators.destroy.historical
 ```
 
 ## Package Contents
