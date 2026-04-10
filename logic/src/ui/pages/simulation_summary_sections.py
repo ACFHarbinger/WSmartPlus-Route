@@ -12,8 +12,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
-from logic.src.ui.components.charts import (
-    PLOTLY_LAYOUT_DEFAULTS,
+from logic.src.constants.dashboard import PLOTLY_LAYOUT_DEFAULTS
+from logic.src.ui.components.explorer_charts import (
     calculate_pareto_front,
     create_pareto_scatter_chart,
 )

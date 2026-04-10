@@ -11,7 +11,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-from logic.src.ui.components.charts import PLOTLY_LAYOUT_DEFAULTS
+from logic.src.constants.dashboard import PLOTLY_LAYOUT_DEFAULTS
 from logic.src.ui.services.data_loader import load_hparams
 from logic.src.ui.styles.kpi import create_kpi_row
 

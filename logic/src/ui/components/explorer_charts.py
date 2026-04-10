@@ -13,7 +13,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-from logic.src.ui.components.charts import PLOTLY_LAYOUT_DEFAULTS
+from logic.src.constants.dashboard import PLOTLY_LAYOUT_DEFAULTS
 
 
 def create_area_chart(

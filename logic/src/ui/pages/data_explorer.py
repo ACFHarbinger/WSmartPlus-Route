@@ -27,15 +27,13 @@ try:
 except ImportError:
     torch = None
 
-from logic.src.ui.components.charts import (
-    PLOTLY_LAYOUT_DEFAULTS,
-    create_correlation_matrix_chart,
-)
+from logic.src.constants.dashboard import PLOTLY_LAYOUT_DEFAULTS
 from logic.src.ui.pages.data_explorer_charts import (
     _numeric_columns,
     _render_td_overview_tab,
     _render_visualization_tab,
     _resolve_column,
+    create_correlation_matrix_chart,
 )
 
 # Internal column prefixes used by simulation JSON pivoting

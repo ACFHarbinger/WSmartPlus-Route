@@ -10,19 +10,11 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-from logic.src.ui.components.charts import PLOTLY_LAYOUT_DEFAULTS
+from logic.src.constants.dashboard import PLOTLY_LAYOUT_DEFAULTS, STATUS_ICONS
 from logic.src.ui.services.tracking_service import (
     load_zenml_pipeline_runs,
     load_zenml_run_steps,
 )
-
-_STATUS_ICONS = {
-    "completed": "✅",
-    "running": "🔄",
-    "failed": "❌",
-    "interrupted": "⚠️",
-    "cached": "💾",
-}
 
 
 def _render_zenml_pipelines() -> None:
@@ -41,7 +33,7 @@ def _render_zenml_pipelines() -> None:
 
     # Pipeline run table
     df = pd.DataFrame(zenml_runs)
-    df["status"] = df["status"].apply(lambda s: f"{_STATUS_ICONS.get(s, '❓')} {s}")
+    df["status"] = df["status"].apply(lambda s: f"{STATUS_ICONS.get(s, '❓')} {s}")
 
     st.dataframe(
         df,
@@ -73,7 +65,7 @@ def _render_zenml_pipelines() -> None:
 
     # Step status timeline
     step_df = pd.DataFrame(steps)
-    step_df["status"] = step_df["status"].apply(lambda s: f"{_STATUS_ICONS.get(s, '❓')} {s}")
+    step_df["status"] = step_df["status"].apply(lambda s: f"{STATUS_ICONS.get(s, '❓')} {s}")
 
     st.dataframe(
         step_df,

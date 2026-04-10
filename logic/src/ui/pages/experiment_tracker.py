@@ -17,7 +17,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-from logic.src.ui.components.charts import PLOTLY_LAYOUT_DEFAULTS
+from logic.src.constants.dashboard import PLOTLY_LAYOUT_DEFAULTS, STATUS_ICONS
 from logic.src.ui.pages.experiment_tracker_mlflow import _render_mlflow_explorer
 from logic.src.ui.pages.experiment_tracker_zenml import _render_zenml_pipelines
 from logic.src.ui.services.tracking_service import (
@@ -47,14 +47,6 @@ _PALETTE = [
     "#d6bcfa",
     "#fed7d7",
 ]
-
-_STATUS_ICONS = {
-    "completed": "✅",
-    "running": "🔄",
-    "failed": "❌",
-    "interrupted": "⚠️",
-    "cached": "💾",
-}
 
 # ---------------------------------------------------------------------------
 # WSTracker sections
@@ -88,7 +80,7 @@ def _render_run_table(
         )
 
     df = pd.DataFrame(rows)
-    df["Status"] = df["Status"].apply(lambda s: f"{_STATUS_ICONS.get(s, '❓')} {s}")
+    df["Status"] = df["Status"].apply(lambda s: f"{STATUS_ICONS.get(s, '❓')} {s}")
 
     st.dataframe(
         df.drop(columns=["Full ID"]),
