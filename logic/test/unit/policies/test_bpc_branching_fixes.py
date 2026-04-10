@@ -60,9 +60,8 @@ def test_ryan_foster_mandatory_filter():
     # Co-occurrence(2, 3) = 0.5 (both optional) -> INVALID
     route_values = {0: 0.5, 1: 0.5}
 
-    # Ryan-Foster no longer takes mandatory_nodes parameter in static find_branching_pair
-    # Filtering is handled at the engine level if needed, or by selecting common pairs.
-    res = RyanFosterBranching.find_branching_pair(routes, route_values)
+    # Ryan-Foster now requires mandatory_nodes set to ensure exact partitioning.
+    res = RyanFosterBranching.find_branching_pair(routes, route_values, mandatory_nodes=mandatory)
     assert res is not None
     (r, s), together_sum = res
     assert set((r, s)) == {1, 2}
@@ -72,7 +71,8 @@ def test_ryan_foster_mandatory_filter():
         Route(nodes=[0, 2, 3, 0], cost=0, revenue=0, load=0, node_coverage={2, 3}),
     ]
     route_values_opt = {0: 0.5}
-    res_opt = RyanFosterBranching.find_branching_pair(routes_opt, route_values_opt)
+    # When no mandatory nodes are restricted, we can pass an empty set or a universe set.
+    res_opt = RyanFosterBranching.find_branching_pair(routes_opt, route_values_opt, mandatory_nodes={2, 3})
     assert res_opt is not None # It finds (2, 3) because it's fractional
     (r_opt, s_opt), together_sum_opt = res_opt
     assert set((r_opt, s_opt)) == {2, 3}

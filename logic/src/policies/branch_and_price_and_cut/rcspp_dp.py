@@ -115,6 +115,7 @@ class RCSPPSolver:
         self.dual_values: Dict[int, float] = {}
         self.bounds_to: np.ndarray = np.zeros(self.n_nodes + 1)
         self.bounds_from: np.ndarray = np.zeros(self.n_nodes + 1)
+        self.fixed_arcs: Set[Tuple[int, int]] = set()
 
         if ng_neighborhoods is not None:
             self.ng_neighborhoods = ng_neighborhoods
@@ -157,6 +158,14 @@ class RCSPPSolver:
                 added_count += len(self.ng_neighborhoods[i]) - before
         return added_count
 
+    def save_ng_snapshot(self) -> Dict[int, Set[int]]:
+        """Return a deep copy of the current ng-neighborhoods."""
+        return {k: set(v) for k, v in self.ng_neighborhoods.items()}
+
+    def restore_ng_snapshot(self, snapshot: Dict[int, Set[int]]) -> None:
+        """Restore ng-neighborhoods from a previously saved snapshot."""
+        self.ng_neighborhoods = {k: set(v) for k, v in snapshot.items()}
+
     def enforce_elementarity(self, nodes: List[int]) -> int:
         added_count = 0
         nodes_to_enforce = [n for n in nodes if n != self.depot]
@@ -181,8 +190,8 @@ class RCSPPSolver:
         forced_nodes: Optional[Set[int]] = None,
         rf_conflicts: Optional[Dict[int, Set[int]]] = None,
         is_farkas: bool = False,
-        is_farkas: bool = False,
     ) -> List[Route]:
+        self._rcc_duals_for_bounds = cast(Dict[str, Any], dual_values).get("rcc_duals", {}) if isinstance(dual_values, dict) else capacity_cut_duals or {}
         # 1. Dual handling
         if isinstance(dual_values, dict) and "node_duals" in dual_values:
             # Composite duals from Master Problem
@@ -259,10 +268,11 @@ class RCSPPSolver:
         return routes[:max_routes]
 
     def _compute_completion_bounds(self):
-        # Fix 2: Reset to zero before each relaxation so stale values from the previous
-        # solve() call do not inflate bounds and prune valid labels.
+        # Fix 11: Incorporate RCC duals into completion bounds for tighter pruning.
+        # RCC duals are arc-crossing penalties with a clear per-edge interpretation.
         self.bounds_to = np.zeros(self.n_nodes + 1)
         self.bounds_from = np.zeros(self.n_nodes + 1)
+        rcc_duals = getattr(self, "_rcc_duals_for_bounds", {})
         nodes = list(range(self.n_nodes + 1))
         for _ in range(min(self.n_nodes, 10)):
             changed = False
@@ -274,7 +284,15 @@ class RCSPPSolver:
                     edge_cost = self.cost_matrix[i, j] * self.C
                     node_dual = self.dual_values.get(j, 0.0)
                     node_rev = self.wastes.get(j, 0.0) * self.R
-                    val = (node_rev - edge_cost - node_dual) + self.bounds_to[j]
+                    
+                    # Add RCC dual contributions: for each cut set S containing j,
+                    # subtract the dual if crossing the cut boundary.
+                    rcc_penalty = sum(
+                        mu for S, mu in rcc_duals.items()
+                        if j in S and i not in S
+                    )
+                    
+                    val = (node_rev - edge_cost - node_dual - rcc_penalty) + self.bounds_to[j]
                     if val > self.bounds_to[i]:
                         self.bounds_to[i] = val
                         changed = True
@@ -285,7 +303,13 @@ class RCSPPSolver:
                     edge_cost = self.cost_matrix[j, i] * self.C
                     node_dual = self.dual_values.get(i, 0.0)
                     node_rev = self.wastes.get(i, 0.0) * self.R
-                    val = (node_rev - edge_cost - node_dual) + self.bounds_from[j]
+                    
+                    rcc_penalty = sum(
+                        mu for S, mu in rcc_duals.items()
+                        if i in S and j not in S
+                    )
+
+                    val = (node_rev - edge_cost - node_dual - rcc_penalty) + self.bounds_from[j]
                     if val > self.bounds_from[i]:
                         self.bounds_from[i] = val
                         changed = True
@@ -434,6 +458,9 @@ class RCSPPSolver:
                     edge_clique_duals=edge_clique_duals,
                 )
                 if new_label is None:
+                    continue
+
+                if (u, v) in self.fixed_arcs:
                     continue
 
                 if len(new_label.visited) > self.n_nodes:

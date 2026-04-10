@@ -208,6 +208,7 @@ class BranchNode:
         parent: Optional["BranchNode"] = None,
         depth: int = 0,
         lp_bound_hint: Optional[float] = None,
+        branching_rule: str = "none",
     ) -> None:
         """
         Initialise a branch node.
@@ -221,6 +222,8 @@ class BranchNode:
         self.constraints: List[AnyBranchingConstraint] = constraints or []
         self.parent: Optional["BranchNode"] = parent
         self.depth: int = depth
+        self.lp_bound_hint = lp_bound_hint
+        self.branching_rule = branching_rule
         self.lp_bound: Optional[float] = lp_bound_hint
         self.ip_solution: Optional[float] = None
         self.is_integer: bool = False
@@ -330,7 +333,7 @@ class EdgeBranching:
         parent: BranchNode,
         u: int,
         v: int,
-        arc_flow: float = 0.5,
+        flow: float = 0.5,
     ) -> Tuple[BranchNode, BranchNode]:
         """
         Create left (must-use) and right (forbidden) child nodes.
@@ -343,24 +346,25 @@ class EdgeBranching:
         Returns:
             (left_child, right_child)
         """
-        hint = parent.lp_bound if parent.lp_bound is not None else 0.0
-        # In maximization, the forbidden branch (right) is expected to have a lower
-        # bound estimate than the parent. We subtract a small tie-breaker.
-        right_hint = hint - (arc_flow * 1e-4)
+        left_bc = EdgeBranchingConstraint(u, v, must_use=True)
+        right_bc = EdgeBranchingConstraint(u, v, must_use=False)
 
-        left = BranchNode(
-            constraints=[EdgeBranchingConstraint(u, v, must_use=True)],
-            parent=parent,
-            depth=parent.depth + 1,
-            lp_bound_hint=hint,
+        return (
+            BranchNode(
+                constraints=parent.constraints + [left_bc],
+                parent=parent,
+                depth=parent.depth + 1,
+                lp_bound_hint=flow,
+                branching_rule="edge",
+            ),
+            BranchNode(
+                constraints=parent.constraints + [right_bc],
+                parent=parent,
+                depth=parent.depth + 1,
+                lp_bound_hint=1.0 - flow,
+                branching_rule="edge",
+            ),
         )
-        right = BranchNode(
-            constraints=[EdgeBranchingConstraint(u, v, must_use=False)],
-            parent=parent,
-            depth=parent.depth + 1,
-            lp_bound_hint=right_hint,
-        )
-        return left, right
 
 
 class MultiEdgePartitionBranching:
@@ -401,171 +405,128 @@ class MultiEdgePartitionBranching:
     """
 
     @staticmethod
-    def find_divergence_node(  # noqa: C901
+    def find_divergence_node(
         routes: List[Route],
         route_values: Dict[int, float],
         tol: float = 1e-5,
-        node_coords: Optional[Union[np.ndarray, Dict[int, Tuple[float, float]]]] = None,
+        node_coords: Optional[np.ndarray] = None,
+        n_nodes: int = 0,
     ) -> Optional[Tuple[int, List[Tuple[int, int]], List[Tuple[int, int]], float]]:
         """
-        Identify a divergence node and compute the spatial partition.
+        Identify a node 'd' where routes diverge into two arc sets.
+
+        The divergence branching rule (Barnhart et al. 2000, §4.3) identifies
+        a node 'd' such that the outgoing flow from 'd' is split between two
+        sets of arcs A1 and A2.
+
+        Args:
+            routes: Column pool.
+            route_values: Fractional solution (λ_k).
+            tol: Fractional tolerance.
+            node_coords: Optional coords for spatial partitioning.
+            n_nodes: Total number of customer nodes in the problem.
+
+        Returns:
+            Tuple of (divergence_node_d, arc_set_1, arc_set_2, score) or None.
         """
-        # 1. Collect fractional routes
-        fractional_routes = [(idx, val) for idx, val in route_values.items() if tol < abs(val - round(val))]
-        if len(fractional_routes) < 2:
+        # 1. Identify divergence node d (must have at least two outgoing arcs)
+        node_out_flows: Dict[int, Dict[int, float]] = {}
+        for idx, lam in route_values.items():
+            if lam < tol:
+                continue
+            r = routes[idx]
+            full_path = [0] + r.nodes + [0]
+            for i in range(len(full_path) - 1):
+                u, v = full_path[i], full_path[i + 1]
+                node_out_flows.setdefault(u, {}).setdefault(v, 0.0)
+                node_out_flows[u][v] += lam
+
+        # Candidate divergence nodes (those with >1 outgoing arcs in the fractional soln)
+        div_candidates = [d for d, flows in node_out_flows.items() if len(flows) >= 2]
+        if not div_candidates:
             return None
 
-        # 2. Sort fractional routes by lambda value descending and take the top two
-        fractional_routes.sort(key=lambda x: x[1], reverse=True)
-        idx_a, val_a = fractional_routes[0]
-        idx_b, val_b = fractional_routes[1]
+        # 2. Select node d (tie-break by flow magnitude)
+        d = max(div_candidates, key=lambda x: sum(node_out_flows[x].values()))
 
-        # 3. Construct the full arc sequences for both routes (including depot 0)
-        path_a = [0] + routes[idx_a].nodes + [0]
-        path_b = [0] + routes[idx_b].nodes + [0]
-
-        # 4. Walk both paths to find first divergence node d
-        d = 0
-        a1_v = path_a[1]
-        a2_v = path_b[1]
-
-        min_len = min(len(path_a), len(path_b))
-        for i in range(min_len - 1):
-            if path_a[i] == path_b[i]:
-                if path_a[i + 1] != path_b[i + 1]:
-                    d = path_a[i]
-                    a1_v = path_a[i + 1]
-                    a2_v = path_b[i + 1]
-                    break
-            else:
-                # Paths differ at the very first step or earlier
-                break
-
-        a1 = (d, a1_v)
-        a2 = (d, a2_v)
-
-        # reaching completeness guarantee.
-        # Build the node universe from all routes in the pool, then treat every
-        # customer that is not d as a valid potential successor.
-        node_universe: Set[int] = {0}  # Task 2: Explicitly include the depot
-        for route in routes:
-            node_universe.update(route.nodes)
-        all_possible_outgoing: Set[Tuple[int, int]] = {(d, v) for v in node_universe if v != d}
-        # Always include the two diverging arcs themselves
-        all_possible_outgoing.add(a1)
-        all_possible_outgoing.add(a2)
-
-        arc_set_1: Set[Tuple[int, int]] = {a1}
-        arc_set_2: Set[Tuple[int, int]] = {a2}
-
-        # 6. Partition remaining outgoing arcs based on polar angle relative to d
-        sorted_arcs = sorted(list(all_possible_outgoing - {a1, a2}))
+        # 3. Partition all possible outgoing arcs from d into A1 and A2.
+        # Fix 6: Node universe must cover all possible customer nodes to ensure
+        # the partition is complete and cannot be bypassed by new columns.
+        if n_nodes > 0:
+            node_universe = set(range(n_nodes + 1))
+        else:
+            node_universe = {0}
+            for r in routes:
+                node_universe.update(r.nodes)
+        node_universe.discard(d)
+        all_possible_outgoing = {(d, v) for v in node_universe}
+        
+        # A1 contains the arc with the largest flow, A2 contains the rest (initial)
+        # Spatial refinement if coords are available
+        flows = node_out_flows[d]
+        v_sorted = sorted(flows.keys(), key=lambda v: flows[v], reverse=True)
+        
+        v1 = v_sorted[0]
+        arc_set_1 = {(d, v1)}
+        
         if node_coords is not None:
-            # Type-agnostic check for coordinate presence
-            has_d = (
-                isinstance(node_coords, dict) and d in node_coords
-            ) or (isinstance(node_coords, np.ndarray) and d < len(node_coords))
-
-            if has_d:
-                d_coord = node_coords[d]
-
-                def get_polar_angle(v: int) -> float:
-                    has_v = (isinstance(node_coords, dict) and v in node_coords) or (
-                        isinstance(node_coords, np.ndarray) and v < len(node_coords)
-                    )
-                    if not has_v:
-                        return 0.0
-                    v_coord = node_coords[v] # type: ignore[index]
-                    return math.atan2(v_coord[1] - d_coord[1], v_coord[0] - d_coord[0])
-
-                # Sort by polar angle
-                sorted_arcs.sort(key=lambda a: get_polar_angle(a[1]))
-
-                # Split at the median to form two sets
-                mid = len(sorted_arcs) // 2
-                arc_set_1.update(sorted_arcs[:mid])
-                arc_set_2.update(sorted_arcs[mid:])
-            else:
-                node_coords = None # Fall through to cluster approach
-                
-        if node_coords is None:
-            # Fallback: topological clustering (adjacency in fractional routes)
-            adjacency = {v: set() for _, v in sorted_arcs}
-            for route_obj in routes:
-                rn = [0] + route_obj.nodes + [0]
-                for i in range(len(rn) - 1):
-                    u_n, v_n = rn[i], rn[i + 1]
-                    if u_n in adjacency and v_n in adjacency:
-                        adjacency[u_n].add(v_n)
-                        adjacency[v_n].add(u_n)
+            # Spatial partition: group arcs by distance to v1 in the graph
+            # Arcs to nodes spatially close to v1 go to A1.
+            d_coord = np.array(node_coords[d])
+            v1_coord = np.array(node_coords[v1])
+            vec_v1 = v1_coord - d_coord
             
-            unvisited = set(adjacency.keys())
-            if unvisited:
-                start_node = next(iter(unvisited))
-                queue = [start_node]
-                cluster = set()
-                limit = len(sorted_arcs) // 2
-                while queue and len(cluster) < limit:
-                    curr = queue.pop(0)
-                    if curr in unvisited:
-                        unvisited.remove(curr)
-                        cluster.add(curr)
-                        for neighbor in adjacency[curr]:
-                            if neighbor in unvisited and neighbor not in queue:
-                                queue.append(neighbor)
-                
-                while len(cluster) < limit and unvisited:
-                    cluster.add(unvisited.pop())
-                    
-                for arc in sorted_arcs:
-                    if arc[1] in cluster:
-                        arc_set_1.add(arc)
-                    else:
-                        arc_set_2.add(arc)
+            for v in node_universe:
+                if v == v1:
+                    continue
+                v_coord = np.array(node_coords[v])
+                vec_v = v_coord - d_coord
+                # Cosine similarity for direction-based grouping
+                similarity = np.dot(vec_v1, vec_v) / (np.linalg.norm(vec_v1) * np.linalg.norm(vec_v) + 1e-9)
+                if similarity > 0.5:
+                    arc_set_1.add((d, v))
 
-        # Enforce balance: if the split ratio exceeds 3:1, fall back to a
-        # count-based median split. Build the full sorted arc list (excluding
-        # the two anchor arcs a1/a2) then re-partition it evenly, and add
-        # the anchors back to their designated sides.
-        _total = len(arc_set_1) + len(arc_set_2)
-        if _total >= 2:
-            _larger = max(len(arc_set_1), len(arc_set_2))
-            if _larger / _total > 0.75:  # worse than 3:1
-                # Collect all arcs that are not the two anchors, in a
-                # consistent order (sorted by arc tuple for determinism).
-                _remaining = sorted((a for a in arc_set_1 | arc_set_2 if a != a1 and a != a2))
-                _mid = len(_remaining) // 2
-                arc_set_1 = set(_remaining[:_mid])
-                arc_set_1.add(a1)
-                arc_set_2 = set(_remaining[_mid:])
-                arc_set_2.add(a2)
-
-
-        # 6. Check if both halves of the partition are non-empty
-        if not arc_set_1 or not arc_set_2:
-            return None
-
-        # 7. Return Tuple of (node, arc_set_1, arc_set_2, strength)
-        # Strength is the total flow of arcs in set 1 (the 'left' partition)
-        arc_flow = EdgeBranching.compute_arc_flow(routes, route_values)
-        strength = sum(arc_flow.get(a, 0.0) for a in arc_set_1)
-        return (d, list(arc_set_1), list(arc_set_2), strength)
+        arc_set_2 = all_possible_outgoing - arc_set_1
+        
+        # Invariant: A1 and A2 must partition ALL outgoing arcs from d
+        if not (arc_set_1 | arc_set_2) == all_possible_outgoing:
+             logger.error("Divergence arc partition is incomplete.")
+             
+        score = sum(flows[v] for v in flows if (d, v) in arc_set_1)
+        return d, list(arc_set_1), list(arc_set_2), score
 
     @staticmethod
     def find_multiple_divergence_nodes(
         routes: List[Route],
         route_values: Dict[int, float],
-        node_coords: Optional[Union[np.ndarray, Dict[int, Tuple[float, float]]]] = None,
+        node_coords: Optional[np.ndarray] = None,
         limit: int = 5,
         tol: float = 1e-5,
+        n_nodes: int = 0,
     ) -> List[Tuple[int, List[Tuple[int, int]], List[Tuple[int, int]], float]]:
         """
-        Identify top branching candidates (divergence nodes) for lookahead eval.
+        Implement proper multi-candidate support (Fix 19).
         """
-        res = MultiEdgePartitionBranching.find_divergence_node(routes, route_values, tol, node_coords)
-        if res:
-            return [res]
-        return []
+        candidates = []
+        remaining_route_values = dict(route_values)
+
+        for _ in range(limit):
+            if len(remaining_route_values) < 2:
+                break
+            res = MultiEdgePartitionBranching.find_divergence_node(
+                routes, remaining_route_values, tol, node_coords, n_nodes
+            )
+            if res is None:
+                break
+            candidates.append(res)
+            d, arc_set_1, arc_set_2, _ = res
+            # Remove routes passing through d to find the next divergence node
+            remaining_route_values = {
+                idx: lam for idx, lam in remaining_route_values.items()
+                if d not in ([0] + routes[idx].nodes + [0])
+            }
+
+        return candidates
 
     @staticmethod
     def create_child_nodes(
@@ -598,16 +559,18 @@ class MultiEdgePartitionBranching:
         right_hint = hint - (strength * 1e-4)
 
         left = BranchNode(
-            constraints=constraints_1,  # type: ignore[arg-type]
+            constraints=parent.constraints + constraints_1,
             parent=parent,
             depth=parent.depth + 1,
             lp_bound_hint=hint,
+            branching_rule="divergence",
         )
         right = BranchNode(
-            constraints=constraints_2,  # type: ignore[arg-type]
+            constraints=parent.constraints + constraints_2,
             parent=parent,
             depth=parent.depth + 1,
             lp_bound_hint=right_hint,
+            branching_rule="divergence",
         )
 
         return left, right
@@ -664,7 +627,10 @@ class RyanFosterBranching:
         """
         for frac_idx, val in route_values.items():
             if abs(val - round(val)) > tol:
-                nodes_in_frac = sorted([n for n in routes[frac_idx].node_coverage if n in mandatory_nodes])
+                # Search over all fractional nodes (Fix 7).
+                # Note: Ryan-Foster pairs are most effective for mandatory nodes
+                # but mathematically valid for any nodes in a Set Partitioning RMP.
+                nodes_in_frac = sorted(list(routes[frac_idx].node_coverage))
                 if len(nodes_in_frac) < 2:
                     continue
 
@@ -934,43 +900,68 @@ class BranchAndBoundTree:
     # Branching
     # ------------------------------------------------------------------
 
+    def find_strong_branching_candidates(
+        self, routes: List[Route], route_values: Dict[int, float], max_candidates: int = 5
+    ) -> List[Tuple[int, List[Tuple[int, int]], List[Tuple[int, int]], float]]:
+        """
+        Task 11 (SOTA): Identify top branching candidates for lookahead eval.
+        Uses Spatial Divergence strength as the primary heuristic.
+        """
+        candidates = []
+        # Divergence candidates
+        div_candidates = MultiEdgePartitionBranching.find_multiple_divergence_nodes(
+            routes,
+            route_values,
+            node_coords=self.node_coords,
+            limit=max_candidates,
+            n_nodes=self.v_model.n_nodes - 1,
+        )
+        for cand in div_candidates:
+            d, arcs1, arcs2, score = cand
+            candidates.append((d, arcs1, arcs2, score))
+
+        # Sort by fractional score (how close flow is to 0.5)
+        candidates.sort(key=lambda x: abs(0.5 - (x[3] % 1.0)), reverse=True)
+        return candidates[:max_candidates]
+
     def branch(
         self,
         node: BranchNode,
         routes: List[Route],
         route_values: Dict[int, float],
-        mandatory_nodes: Optional[Set[int]] = None,
-        strong_candidate: Optional[Tuple[int, List[Tuple[int, int]], List[Tuple[int, int]], float]] = None,  # Task 11
+        mandatory_nodes: Set[int],
+        strong_candidate: Optional[Any] = None,
     ) -> Optional[Tuple[BranchNode, BranchNode]]:
         """
-        Apply the hierarchical branching strategy and return two child nodes.
-
-        Task 11 (SOTA): Strong Branching.
-        If a strong_candidate is provided (lookahead-verified winner), use it.
-        Otherwise, follow the default hierarchy.
+        Create child nodes by branching on a fractional solution.
         """
-        # --- Level 0: Strong Branching Winner (Task 11) ---
-        if strong_candidate is not None:
-            div_node, arc_set_1, arc_set_2, strength = strong_candidate
-            return MultiEdgePartitionBranching.create_child_nodes(node, div_node, arc_set_1, arc_set_2, strength)
+        # 1. Strong Branching candidate override
+        if strong_candidate:
+            d, arcs1, arcs2, _ = strong_candidate
+            return MultiEdgePartitionBranching.create_child_nodes(node, d, arcs1, arcs2)
 
-        # --- Level 1: Fleet Size ---
-        fleet_frac = FleetSizeBranching.find_fleet_branching(route_values)
-        if fleet_frac is not None:
-            return FleetSizeBranching.create_child_nodes(node, fleet_frac)
+        # 2. Level 1: Fleet Size branching
+        res_fleet = FleetSizeBranching.find_fleet_branching(route_values)
+        if res_fleet:
+            return FleetSizeBranching.create_child_nodes(node, *res_fleet)
 
-        # --- Level 2: Spatial Divergence ---
-        res_div = MultiEdgePartitionBranching.find_divergence_node(routes, route_values, node_coords=self.node_coords)
-        if res_div is not None:
-            div_node, arc_set_1, arc_set_2, strength = res_div
-            return MultiEdgePartitionBranching.create_child_nodes(node, div_node, arc_set_1, arc_set_2, strength)
+        # 3. Level 2: Divergence branching (Preferred spatial rule)
+        # Fix 6: Pass n_nodes to ensure complete arc partition.
+        res_div = MultiEdgePartitionBranching.find_divergence_node(
+            routes,
+            route_values,
+            node_coords=self.node_coords,
+            n_nodes=self.v_model.n_nodes - 1,
+        )
+        if res_div:
+            d, arcs1, arcs2, _ = res_div
+            return MultiEdgePartitionBranching.create_child_nodes(node, d, arcs1, arcs2)
 
-        # --- Level 3: Ryan-Foster co-occurrence ---
-        if mandatory_nodes is not None:
-            res_rf = RyanFosterBranching.find_branching_pair(routes, route_values, mandatory_nodes)
-            if res_rf is not None:
-                pair, together_sum = res_rf
-                return RyanFosterBranching.create_child_nodes(node, pair[0], pair[1], together_sum)
+        # 4. Level 3: Ryan-Foster branching (co-occurrence)
+        res_rf = RyanFosterBranching.find_branching_pair(routes, route_values, mandatory_nodes)
+        if res_rf:
+            pair, together_sum = res_rf
+            return RyanFosterBranching.create_child_nodes(node, pair[0], pair[1], together_sum)
 
         # --- Level 4: Simple Edge Branching ---
         res_edge: Optional[Tuple[Tuple[int, int], float]] = EdgeBranching.find_branching_arc(routes, route_values)
@@ -988,18 +979,7 @@ class BranchAndBoundTree:
 
         return None
 
-    def find_strong_branching_candidates(
-        self, routes: List[Route], route_values: Dict[int, float], max_candidates: int = 5
-    ) -> List[Tuple[int, List[Tuple[int, int]], List[Tuple[int, int]], float]]:
-        """
-        Task 11 (SOTA): Identify top branching candidates for lookahead eval.
-        Uses Spatial Divergence strength as the primary heuristic.
-        """
-        # We target divergence nodes as they provide the most robust branching
-        candidates = MultiEdgePartitionBranching.find_multiple_divergence_nodes(
-            routes, route_values, node_coords=self.node_coords, limit=max_candidates
-        )
-        return candidates
+
 
     # ------------------------------------------------------------------
     # Pruning and incumbent management

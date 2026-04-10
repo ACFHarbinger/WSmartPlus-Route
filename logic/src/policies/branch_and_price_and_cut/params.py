@@ -24,7 +24,6 @@ class BPCParams:
         enable_comb_cuts: Whether to enable heuristic comb inequalities.
         cut_orthogonality_threshold: cosine similarity ceiling for cut filtering.
         enable_column_pool_deduplication: Whether to enable column pool deduplication.
-        enable_hybrid_search: Whether to enable hybrid DFS/BFS search.
         rc_tolerance: Minimum reduced cost to accept a new column.
         exact_mode: Whether to enable strict exact management (no dual smoothing).
         strong_branching_size: Number of candidates to evaluate in strong branching.
@@ -64,7 +63,6 @@ class BPCParams:
     # (2×N child LP solves per candidate).
     enable_strong_branching_heuristic: bool = False
     enable_column_pool_deduplication: bool = True
-    enable_hybrid_search: bool = False  # Task 13: DFS -> BFS switch
     rc_tolerance: float = 1e-5  # Fix 8: Minimum reduced cost to accept a new column
     exact_mode: bool = False  # Task 3: Enable strict exact management
     strong_branching_size: int = 5  # Task 1: Number of candidates for strong branching

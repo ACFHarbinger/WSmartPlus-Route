@@ -839,6 +839,10 @@ class VRPPMasterProblem:
         for var in self.lambda_vars:
             var.VType = GRB.CONTINUOUS
 
+        # Fix 14: Basis reuse. In BPC, RMP basis stability is critical for
+        # performance. Gurobi naturally warm-starts from the previous basis if the
+        # model is only updated. By ensuring we only call update() and not reset(),
+        # we maximize the speed of solving sibling/child nodes.
         self.model.update()
         if self.model.NumVars == 0:
             return 0.0, {}
@@ -982,9 +986,19 @@ class VRPPMasterProblem:
         # ---- Extract duals for capacity cuts -----------------------------
         self.dual_capacity_cuts = {}
         for node_set, constr in self.active_capacity_cuts.items():
-            with contextlib.suppress(gp.GurobiError):
-                # >= rhs constraint in MAX LP: Pi <= 0, dual value = -Pi >= 0.
-                self.dual_capacity_cuts[node_set] = max(0.0, -constr.Pi)
+            val = 0.0
+            if self.model.Status == GRB.OPTIMAL:
+                try:
+                    val = abs(constr.Pi)
+                except (gp.GurobiError, AttributeError):
+                    pass
+            # Avoid using smoothed duals for exact Lagrangian UB calculation
+            use_smoothing = self.enable_dual_smoothing and not getattr(self, "_exact_mode_active", False)
+            if use_smoothing:
+                prev_val = self.prev_dual_capacity_cuts.get(node_set, 0.0)
+                val = self.dual_smoothing_alpha * val + (1 - self.dual_smoothing_alpha) * prev_val
+                self.prev_dual_capacity_cuts[node_set] = val
+            self.dual_capacity_cuts[node_set] = val
 
         # ---- Extract duals for SRI ---------------------------------------
         # SRI cuts are <= 1 constraints.  In a MAX LP, Gurobi reports Pi >= 0
@@ -994,9 +1008,17 @@ class VRPPMasterProblem:
         # so SRI cuts never influenced the pricing subproblem.
         self.dual_sri_cuts = {}
         for subset, constr in self.active_sri_cuts.items():
-            if constr is not None:
-                with contextlib.suppress(gp.GurobiError):
-                    self.dual_sri_cuts[subset] = max(0.0, constr.Pi)
+            val = 0.0
+            if self.model.Status == GRB.OPTIMAL:
+                try:
+                    val = abs(constr.Pi)
+                except (gp.GurobiError, AttributeError):
+                    pass
+            if self.enable_dual_smoothing and not getattr(self, "_exact_mode_active", False):
+                prev_val = self.prev_dual_sri_cuts.get(subset, 0.0)
+                val = self.dual_smoothing_alpha * val + (1 - self.dual_smoothing_alpha) * prev_val
+                self.prev_dual_sri_cuts[subset] = val
+            self.dual_sri_cuts[subset] = val
 
         # Extract Edge Clique cut duals
         # Edge cliques are <= 1 constraints in MAX LP — same sign convention as SRI.
@@ -1017,7 +1039,7 @@ class VRPPMasterProblem:
                     self.dual_lci_cuts[node_set] = max(0.0, constr.Pi)
 
         # ---- Task 5: Apply Exponential Smoothing -----------------------
-        if self.enable_dual_smoothing:
+        if self.enable_dual_smoothing and not getattr(self, "_exact_mode_active", False):
             self._apply_dual_smoothing()
 
         return obj_value, route_values
@@ -1048,18 +1070,6 @@ class VRPPMasterProblem:
         prev_limit_val = self.prev_dual_vehicle_limit
         self.dual_vehicle_limit = alpha * self.dual_vehicle_limit + (1.0 - alpha) * prev_limit_val
         self.prev_dual_vehicle_limit = self.dual_vehicle_limit
-
-        # 3. Capacity cut duals
-        for subset, current_val in self.dual_capacity_cuts.items():
-            prev_val = self.prev_dual_capacity_cuts.get(subset, current_val)
-            self.dual_capacity_cuts[subset] = alpha * current_val + (1.0 - alpha) * prev_val
-        self.prev_dual_capacity_cuts = self.dual_capacity_cuts.copy()
-
-        # 4. SRI cuts
-        for subset, current_val in self.dual_sri_cuts.items():
-            prev_val = self.prev_dual_sri_cuts.get(subset, current_val)
-            self.dual_sri_cuts[subset] = alpha * current_val + (1.0 - alpha) * prev_val
-        self.prev_dual_sri_cuts = self.dual_sri_cuts.copy()
 
     def solve_ip(self) -> Tuple[float, List[Route]]:
         """
@@ -1109,6 +1119,39 @@ class VRPPMasterProblem:
     # ------------------------------------------------------------------
     # Dual / pricing helpers
     # ------------------------------------------------------------------
+
+    def deduplicate_column_pool(self, tol: float = 1e-6) -> int:
+        """
+        Fix 18: Prune mathematically equivalent routes from the global column pool.
+        Uses MD5 content hashes of node sequences for O(1) deduplication.
+        """
+        import hashlib
+        if not self.global_column_pool:
+            return 0
+
+        initial_count = len(self.global_column_pool)
+        seen_hashes: Dict[str, float] = {}
+        unique_pool = []
+
+        for route in self.global_column_pool:
+            content = ",".join(map(str, route.nodes))
+            h = hashlib.md5(content.encode()).hexdigest()
+            if h not in seen_hashes:
+                seen_hashes[h] = route.profit
+                unique_pool.append(route)
+            else:
+                if route.profit > seen_hashes[h] + tol:
+                    # Replace existing with higher profit version
+                    for idx, r in enumerate(unique_pool):
+                        r_content = ",".join(map(str, r.nodes))
+                        rh = hashlib.md5(r_content.encode()).hexdigest()
+                        if rh == h:
+                            unique_pool[idx] = route
+                            seen_hashes[h] = route.profit
+                            break
+
+        self.global_column_pool = unique_pool
+        return initial_count - len(unique_pool)
 
     def get_reduced_cost_coefficients(self) -> Dict[str, Dict[Union[int, FrozenSet[int], str, Tuple[int, int]], float]]:
         """

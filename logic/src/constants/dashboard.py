@@ -22,6 +22,8 @@ Usage Example
     >>>     plt.plot(tour, color=color, label=f"Vehicle {route_id}")
 """
 
+from typing import Any, Dict
+
 # Color palette for different vehicles/routes
 # ColorBrewer2 "Set1" qualitative palette (8 colors)
 # Optimized for: categorical data, print, colorblind-safe
