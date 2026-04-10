@@ -284,14 +284,14 @@ class RCSPPSolver:
                     edge_cost = self.cost_matrix[i, j] * self.C
                     node_dual = self.dual_values.get(j, 0.0)
                     node_rev = self.wastes.get(j, 0.0) * self.R
-                    
+
                     # Add RCC dual contributions: for each cut set S containing j,
                     # subtract the dual if crossing the cut boundary.
                     rcc_penalty = sum(
                         mu for S, mu in rcc_duals.items()
                         if j in S and i not in S
                     )
-                    
+
                     val = (node_rev - edge_cost - node_dual - rcc_penalty) + self.bounds_to[j]
                     if val > self.bounds_to[i]:
                         self.bounds_to[i] = val
@@ -303,7 +303,7 @@ class RCSPPSolver:
                     edge_cost = self.cost_matrix[j, i] * self.C
                     node_dual = self.dual_values.get(i, 0.0)
                     node_rev = self.wastes.get(i, 0.0) * self.R
-                    
+
                     rcc_penalty = sum(
                         mu for S, mu in rcc_duals.items()
                         if i in S and j not in S
