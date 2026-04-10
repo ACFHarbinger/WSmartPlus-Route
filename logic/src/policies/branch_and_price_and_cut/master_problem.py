@@ -1,10 +1,11 @@
 """
-Master Problem for Branch-and-Price VRPP.
+Master Problem for Branch-and-Price-and-Cut VRPP.
 
-Implements the set covering formulation where each column represents a feasible route.
-The master problem selects routes to cover all mandatory nodes while maximising profit.
+Implements the Set Partitioning Problem (SPP) formulation where each column 
+represents a feasible route. The master problem selects routes to maximize 
+total collected profit across a finite fleet.
 
-Based on Section 3.2 of Barnhart et al. (1998).
+Theoretical Basis: Barnhart et al. (1998).
 """
 
 import contextlib
@@ -70,9 +71,9 @@ class GlobalCutPool:
         the cut is re-injected at descendant nodes. Storing only the node set
         and hard-coding rhs=1.0 would produce trivially weak cuts.
 
-        Assumption: Customer demands and vehicle capacities are static throughout 
-        the B&B tree. If these were dynamic (e.g., stochastic demands handled at 
-        internal nodes), the RHS of purely node-set-based cuts could change, 
+        Assumption: Customer demands and vehicle capacities are static throughout
+        the B&B tree. If these were dynamic (e.g., stochastic demands handled at
+        internal nodes), the RHS of purely node-set-based cuts could change,
         invalidating the global mathematical integrity of this archive.
     """
 
@@ -162,30 +163,42 @@ class VRPPMasterProblem:
     Master Problem (MP) for the Branch-and-Price-and-Cut algorithm.
 
     Formulates and solves the Set Partitioning Problem (SPP) relaxation of the VRPP.
-    The Master Problem is responsible for:
-        1.  Managing the column pool (routes generate by the pricing subproblem).
-        2.  Enforcing various valid inequalities (Rounded Capacity, Subset-Row, Lifted Cover).
-        3.  Extracting dual values used to guide the search for profitable columns.
-        4.  Interfacing with the Branch-and-Bound tree to enforce node-specific constraints.
+    The Master Problem is the core coordinator for the column generation loop, 
+    managing the interaction between the linear relaxation (Gurobi), the 
+    cutting plane engines, and the branching constraints.
 
     Mathematical Formulation:
     -------------------------
-    Maximize Σ p_k * λ_k
+    Maximize ∑_{k ∈ Ω} p_k * λ_k
     Subject to:
-        Σ a_{ik} * λ_k = 1           ∀ i ∈ Mandatory Customers
-        Σ a_{jk} * λ_k ≤ 1           ∀ j ∈ Optional Customers
-        Σ λ_k <= K                   (Vehicle Fleet Constraint)
-        Σ γ_S * λ_k <= RHS           (Cutting Planes: RCC, SRI, Edge Clique)
+        ∑_{k ∈ Ω} a_{ik} * λ_k = 1           ∀ i ∈ Mandatory Customers (Set Partitioning)
+        ∑_{k ∈ Ω} a_{jk} * λ_k ≤ 1           ∀ j ∈ Optional Customers (Set Packing)
+        ∑_{k ∈ Ω} λ_k <= K                   (Vehicle Fleet Constraint / Knapsack)
+        ∑_{k ∈ Ω} γ_{Sk} * λ_k ≤ RHS_S       (Cutting Planes: RCC, SRI, Fleet Cover)
         λ_k ∈ {0, 1}
 
-    Theoretical Exactness:
-    ----------------------
-    To support Ryan-Foster branching and ensure rigorous optimality proofs,
-    this implementation defaults to strict Set Partitioning (== 1.0) logic
-    for all covered nodes (enforced via `strict_set_partitioning`).
-    If a node is over-covered (Σ λ_{ik} > 1), the corresponding artificial
-    variable would need to be negative to satisfy the equality, which is
-    forbidden by its lower bound (LB=0.0).
+    Theoretical Exactness & Farkas Pricing:
+    ---------------------------------------
+    To maintain theoretical exactness and support Ryan-Foster branching, this 
+    implementation utilizes strict Set Partitioning for all mandatory nodes. 
+    In the event of LP infeasibility (common during the early stages of 
+    branching), the RMP utilizes a 2-Phase approach. Instead of using 
+    arbitrary Big-M artificial variables which can cause numerical instability, 
+    we extract the `FarkasDual` ray from Gurobi. This dual ray points in the 
+    direction of infeasibility, allowing the pricing subproblem to generate 
+    columns that specifically resolve the unmet coverage requirements.
+
+    Dual Smoothing & Stabilization:
+    -------------------------------
+    To mitigate the "tailing-off" effect and dual degeneracy in column 
+    generation, this MP supports Exponential Dual Smoothing (EDS) as 
+    proposed by Wentges (1997). This stabilizes the dual values π passed 
+    to the subproblem, accelerating convergence by preventing the 
+    dual signal from oscillating between extreme basin points.
+
+    Reference:
+        - Barnhart, C., et al. (1998, 2000).
+        - Wentges, T. (1997). "Weighted Dantzig-Wolfe decomposition."
     """
 
     def __init__(
@@ -205,14 +218,17 @@ class VRPPMasterProblem:
 
         Framework (Barnhart, Hane, and Vance 2000):
         This class maintains the Restricted Master Problem (RMP) using the
-        Barnhart-style ODIMCF column management. It manages column addition,
-        cutting plane integration, and dual extraction.
-
+        Barnhart-style sequencing of CG followed by separation. 
+        
         Set Partitioning & Branching:
         To maintain Ryan-Foster (1981) compatibility, we use strict equality (== 1)
         for mandatory nodes. Artificial variables (Big-M) are omitted in favor of
-        Farkas dual extraction, ensuring that infeasibility directly triggers the
-        feasibility-search phase of column generation.
+        Farkas dual extraction (Phase I), ensuring that primary infeasibility guides 
+        the search for feasible basis columns.
+
+        Dual Stabilization:
+        Includes support for Exponential Dual Smoothing (Wentges, 1997) to 
+        stabilize the price signal and mitigate the "heading-in" effect.
 
         Args:
             n_nodes: Number of customer nodes (excluding depot).
@@ -346,36 +362,6 @@ class VRPPMasterProblem:
         Implemented as `deduplicate_column_pool`.
         """
         return 0
-
-    def deduplicate_column_pool(self, tol: float = 1e-6) -> int:
-        """
-        SOTA: Prune identical or dominated routes from the global column pool.
-        Prevents RMP from becoming degenerate with duplicate columns.
-        """
-        if not self.global_column_pool:
-            return 0
-
-        initial_count = len(self.global_column_pool)
-        seen_node_sets: Dict[FrozenSet[int], float] = {}
-        unique_pool = []
-
-        for route in self.global_column_pool:
-            nodes_f = frozenset(route.nodes)
-            if nodes_f not in seen_node_sets:
-                seen_node_sets[nodes_f] = route.profit
-                unique_pool.append(route)
-            else:
-                # If a route with the same nodes exists, keep only the one with better profit
-                if route.profit > seen_node_sets[nodes_f] + tol:
-                    # Replace in unique pool (slow but pool is capped)
-                    for i, r in enumerate(unique_pool):
-                        if frozenset(r.nodes) == nodes_f:
-                            unique_pool[i] = route
-                            seen_node_sets[nodes_f] = route.profit
-                            break
-
-        self.global_column_pool = unique_pool
-        return initial_count - len(unique_pool)
 
     def purge_useless_columns(self, tolerance: float = -0.1) -> int:
         """
@@ -888,11 +874,11 @@ class VRPPMasterProblem:
                 }
                 return -float("inf"), {}
             except AttributeError:
-                # Big-M Fallback: If Farkas dual extraction fails (e.g. numeric issues 
-                # or DualReductions=1 override), artificially force feasibility with 
+                # Big-M Fallback: If Farkas dual extraction fails (e.g. numeric issues
+                # or DualReductions=1 override), artificially force feasibility with
                 # highly penalized Big-M slacks to extract exact surrogate Farkas penalties.
                 logger.warning("FarkasDual extraction failed. Falling back to Big-M artificial variables.")
-                
+
                 artificial_vars = []
                 big_m = -1e6
                 # We need to satisfy mandatory node coverage constraints
@@ -903,18 +889,18 @@ class VRPPMasterProblem:
                         art = self.model.addVar(obj=big_m, vtype=GRB.CONTINUOUS, name=f"art_cov_{node}")
                         self.model.chgCoeff(constr, art, 1.0)
                         artificial_vars.append(art)
-                        
+
                 self.model.update()
                 self.model.optimize()
-                
+
                 if self.model.Status == GRB.OPTIMAL:
                     # Extract standard duals directly since artificials bridged the infeasibility.
-                    # Because the objective penalty is huge negative, the Pi values will be 
+                    # Because the objective penalty is huge negative, the Pi values will be
                     # huge negative/positive accordingly, acting exactly as scaled Farkas duals.
                     self.farkas_duals = self.get_reduced_cost_coefficients()
                 else:
                     self.farkas_duals = {"node_duals": {}, "rcc_duals": {}, "sri_duals": {}, "edge_clique_duals": {}}
-                    
+
                 for art in artificial_vars:
                     self.model.remove(art)
                 self.model.update()
@@ -988,10 +974,8 @@ class VRPPMasterProblem:
         for node_set, constr in self.active_capacity_cuts.items():
             val = 0.0
             if self.model.Status == GRB.OPTIMAL:
-                try:
+                with contextlib.suppress(gp.GurobiError, AttributeError):
                     val = abs(constr.Pi)
-                except (gp.GurobiError, AttributeError):
-                    pass
             # Avoid using smoothed duals for exact Lagrangian UB calculation
             use_smoothing = self.enable_dual_smoothing and not getattr(self, "_exact_mode_active", False)
             if use_smoothing:
@@ -1010,10 +994,8 @@ class VRPPMasterProblem:
         for subset, constr in self.active_sri_cuts.items():
             val = 0.0
             if self.model.Status == GRB.OPTIMAL:
-                try:
+                with contextlib.suppress(gp.GurobiError, AttributeError):
                     val = abs(constr.Pi)
-                except (gp.GurobiError, AttributeError):
-                    pass
             if self.enable_dual_smoothing and not getattr(self, "_exact_mode_active", False):
                 prev_val = self.prev_dual_sri_cuts.get(subset, 0.0)
                 val = self.dual_smoothing_alpha * val + (1 - self.dual_smoothing_alpha) * prev_val

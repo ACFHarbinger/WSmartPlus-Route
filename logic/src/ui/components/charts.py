@@ -12,6 +12,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
+from logic.src.constants.dashboard import PLOTLY_LAYOUT_DEFAULTS
+
 
 def apply_moving_average(data: pd.Series, window: int) -> pd.Series:
     """Apply moving average smoothing to a series."""
