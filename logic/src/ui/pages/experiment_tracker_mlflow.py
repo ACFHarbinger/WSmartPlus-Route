@@ -8,7 +8,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-from logic.src.ui.components.charts import PLOTLY_LAYOUT_DEFAULTS
+from logic.src.constants.dashboard import PLOTLY_LAYOUT_DEFAULTS
 from logic.src.ui.services.tracking_service import (
     list_mlflow_metric_keys,
     load_mlflow_metric_history,

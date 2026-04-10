@@ -12,13 +12,13 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
-from logic.src.ui.components.charts import (
-    PLOTLY_LAYOUT_DEFAULTS,
+from logic.src.constants.dashboard import PLOTLY_LAYOUT_DEFAULTS
+from logic.src.ui.components.charts import create_heatmap_chart
+from logic.src.ui.components.explorer_charts import (
     calculate_pareto_front,
     create_area_chart,
     create_box_plot_chart,
     create_correlation_matrix_chart,
-    create_heatmap_chart,
     create_histogram_chart,
     create_multi_y_line_chart,
     create_pareto_scatter_chart,
