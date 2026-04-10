@@ -12,35 +12,6 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-# Shared Plotly layout defaults for visual consistency across all charts
-PLOTLY_LAYOUT_DEFAULTS: Dict[str, Any] = {
-    "font_family": "Inter, -apple-system, BlinkMacSystemFont, sans-serif",
-    "font_color": "#e8eaed",
-    "plot_bgcolor": "rgba(0,0,0,0)",
-    "paper_bgcolor": "rgba(0,0,0,0)",
-    "margin": dict(l=40, r=20, t=50, b=40),
-    "xaxis": dict(
-        gridcolor="#3c4043",
-        gridwidth=1,
-        zeroline=False,
-        tickfont=dict(color="#e8eaed"),
-        title=dict(font=dict(color="#e8eaed")),
-    ),
-    "yaxis": dict(
-        gridcolor="#3c4043",
-        gridwidth=1,
-        zeroline=False,
-        tickfont=dict(color="#e8eaed"),
-        title=dict(font=dict(color="#e8eaed")),
-    ),
-    "hoverlabel": dict(
-        bgcolor="#3c4043",
-        font_size=13,
-        font_family="Inter, sans-serif",
-        font_color="#e8eaed",
-    ),
-}
-
 
 def apply_moving_average(data: pd.Series, window: int) -> pd.Series:
     """Apply moving average smoothing to a series."""

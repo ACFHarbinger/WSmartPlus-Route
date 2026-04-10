@@ -8,7 +8,8 @@ from logic.src.ui.components.charts import (
     create_radar_chart,
     create_simulation_metrics_chart,
 )
-from logic.src.ui.services.data_loader import compute_daily_stats, compute_summary_statistics
+from logic.src.ui.services.data_loader import compute_daily_stats
+from logic.src.ui.services.simulation_analytics import compute_summary_statistics
 from logic.src.ui.services.log_parser import filter_entries, get_unique_policies
 from logic.src.ui.services.tracking_service import (
     list_metric_keys,
