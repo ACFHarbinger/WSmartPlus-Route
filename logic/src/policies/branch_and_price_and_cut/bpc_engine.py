@@ -535,6 +535,19 @@ def _perform_strong_branching(
     # Restore master state fully and resolve once to ensure basis is clean
     if master.model is not None:
         master.model.optimize()
+        if master.model.Status != GRB.OPTIMAL:
+            logger.warning(
+                "Strong branching left master in non-optimal state (status=%d). "
+                "Falling back to first candidate.",
+                master.model.Status,
+            )
+            # Attempt a full reset by re-enabling all UBs and resolving.
+            for var in master.lambda_vars:
+                var.UB = 1.0
+            master.model.optimize()
+            if master.model.Status != GRB.OPTIMAL:
+                logger.error("Master could not be restored after strong branching.")
+            return eval_candidates[0]  # safe fallback
 
     return best_candidate
 
@@ -632,14 +645,14 @@ def _column_generation_loop(  # noqa: C901
 
 
     for _iteration in range(max_cg_iterations):
-        if time_limit and (time.process_time() - start_time) > time_limit:
+        if time_limit and (time.monotonic() - start_time) > time_limit:
             timed_out = True
             break
 
         # PHASE 1: Column Generation (price until convergence)
         _inner_iter = 0
         while True:
-            if time_limit and (time.process_time() - start_time) > time_limit:
+            if time_limit and (time.monotonic() - start_time) > time_limit:
                 timed_out = True
                 break
 
@@ -657,6 +670,12 @@ def _column_generation_loop(  # noqa: C901
                         branching_constraints=branching_constraints,
                     )
                     if reactivated > 0:
+                        # Re-apply branching filters to any newly activated columns.
+                        # Sifting sets UB=1.0 for all positive-RC columns regardless of branching,
+                        # so we must re-enforce the branching constraints immediately.
+                        _apply_branching_to_master(
+                            master, branching_constraints or [], branching_strategy="divergence"
+                        )
                         _inner_iter += 1
                         continue
 
@@ -667,11 +686,17 @@ def _column_generation_loop(  # noqa: C901
 
                 if master.model.Status == GRB.INFEASIBLE:
                     logger.info("RMP node is infeasible. Starting Phase I Farkas Pricing.")
+                    farkas = getattr(master, "farkas_duals", None)
+                    if not farkas:
+                        raise RuntimeError(
+                            "LP is infeasible but Farkas duals are unavailable. "
+                            "Gurobi may have returned INF_OR_UNBD — check model bounds."
+                        )
                     added = _solve_farkas_pricing_step(
                         master,
                         pricing_solver,
                         branching_constraints,  # type: ignore[arg-type]
-                        master.farkas_duals,
+                        farkas,
                     )
                     if added == 0:
                         raise RuntimeError("LP infeasible at B&B node - Farkas pricing failed to find columns")
@@ -745,6 +770,7 @@ def _column_generation_loop(  # noqa: C901
                         continue  # Re-run pricing with tightened relaxation
 
                 # Truly converged for this cut-iteration
+                converged = True
                 break
 
             # Task 2b: Periodic Column Purging
@@ -760,7 +786,17 @@ def _column_generation_loop(  # noqa: C901
         # upper bound only when all pricing subproblems have been exhausted
         # (no more positive reduced cost columns). Computing it mid-CG yields
         # an invalid, overly tight bound that can prune optimal nodes.
-        if not timed_out and not getattr(master, "enable_dual_smoothing", False) and hasattr(pricing_solver, "last_max_rc"):
+        # Lagrangian UB is only valid when CG has fully converged: i.e., the pricing
+        # subproblem confirmed that NO column with positive reduced cost exists.
+        # If we compute it while positive-RC columns may still exist (e.g., the batch
+        # was capped by max_routes_per_pricing), last_max_rc underestimates the true
+        # max RC, producing an UB that is tighter than valid and can prune optimal nodes.
+        if (
+            converged
+            and not timed_out
+            and not getattr(master, "enable_dual_smoothing", False)
+            and hasattr(pricing_solver, "last_max_rc")
+        ):
             max_rc = getattr(pricing_solver, "last_max_rc", -float("inf"))
             effective_fleet = fleet_size if fleet_size > 0 else master.n_nodes
             lagrangian_ub = obj_val + (effective_fleet * max(0.0, max_rc))
@@ -895,7 +931,7 @@ def run_bpc(  # noqa: C901
     Returns:
         Tuple of (best_routes, best_cost)
     """
-    start_time = time.process_time()
+    start_time = time.monotonic()
     n_nodes = len(dist_matrix) - 1
     m_set = must_go_indices if must_go_indices is not None else set()
 
@@ -1022,7 +1058,7 @@ def run_bpc(  # noqa: C901
 
     # 6. Branch-and-Bound Loop
     while not bb_tree.is_empty() and nodes_explored < max_bb_nodes:
-        if time_limit and (time.process_time() - start_time) > time_limit:
+        if time_limit and (time.monotonic() - start_time) > time_limit:
             break
 
         # Get next node using configured search strategy
@@ -1047,28 +1083,35 @@ def run_bpc(  # noqa: C901
 
         # Run Column Generation at this node with corrected sequencing
         try:
-            lp_obj, route_values, node_final_basis, node_timed_out = _column_generation_loop(
-                master=master,
-                pricing_solver=pricing_solver,
-                cut_engine=cut_engine,
-                branching_constraints=branching_constraints,
-                max_cg_iterations=max_cg_iter,
-                max_cuts=max_cuts,
-                time_limit=time_limit,
-                start_time=start_time,
-                max_routes_per_pricing=max_routes_per_pricing,
-                vehicle_limit=master.vehicle_limit,
-                optimality_gap=params.optimality_gap,
-                early_termination_gap=params.early_termination_gap,
-                parent_basis=current_node.parent.lp_basis if current_node.parent else None,
-                incumbent_value=bb_tree.best_integer_solution
-                if bb_tree.best_integer_solution is not None
-                else -float("inf"),
-                node_depth=current_node.depth,
-                rc_tolerance=params.rc_tolerance,
-                cut_orthogonality_threshold=params.cut_orthogonality_threshold,
-                exact_mode=params.exact_mode,
-            )
+            # Fix 12: Snapshot-and-restore ng-neighborhoods
+            ng_snapshot = pricing_solver.save_ng_snapshot()
+            try:
+                lp_obj, route_values, node_final_basis, node_timed_out = _column_generation_loop(
+                    master=master,
+                    pricing_solver=pricing_solver,
+                    cut_engine=cut_engine,
+                    branching_constraints=branching_constraints,
+                    max_cg_iterations=max_cg_iter,
+                    max_cuts=max_cuts,
+                    time_limit=time_limit,
+                    start_time=start_time,
+                    max_routes_per_pricing=max_routes_per_pricing,
+                    vehicle_limit=master.vehicle_limit,
+                    optimality_gap=params.optimality_gap,
+                    early_termination_gap=params.early_termination_gap,
+                    parent_basis=current_node.parent.lp_basis if current_node.parent else None,
+                    incumbent_value=bb_tree.best_integer_solution
+                    if bb_tree.best_integer_solution is not None
+                    else -float("inf"),
+                    node_depth=current_node.depth,
+                    rc_tolerance=params.rc_tolerance,
+                    cut_orthogonality_threshold=params.cut_orthogonality_threshold,
+                    exact_mode=params.exact_mode,
+                )
+            finally:
+                # Restore ng-neighborhoods so sibling nodes are unaffected by this
+                # node's dynamic ng-expansion.
+                pricing_solver.restore_ng_snapshot(ng_snapshot)
 
             # Task 3: Global Time Limit tracking
             if node_timed_out:
@@ -1112,13 +1155,13 @@ def run_bpc(  # noqa: C901
                 logger.info(f"Global optimality gap reached: {global_gap:.6f} <= {params.optimality_gap}")
                 break
 
-        # Task 5: Reduced Cost Edge Fixing (Globally valid only at Root node)
-        if current_node.depth == 0 and bb_tree.best_integer_solution is not None:
+        # Task 5: Reduced Cost Edge Fixing (Globally valid at every node)
+        if bb_tree.best_integer_solution is not None:
             _apply_reduced_cost_edge_fixing(
                 master=master,
                 pricing_solver=pricing_solver,
                 z_ub=lp_obj,
-                z_lb=bb_tree.best_integer_solution
+                z_lb=bb_tree.best_integer_solution,
             )
 
         # Check if solution is integer FIRST — before pruning
@@ -1164,6 +1207,19 @@ def run_bpc(  # noqa: C901
             mandatory_nodes=master.mandatory_nodes,
             strong_candidate=strong_candidate,
         )
+
+        if children is not None:
+            left_child, right_child = children
+            # If Ryan-Foster was selected at any level, we must harden the master to
+            # strict Set Partitioning. Failure to do so allows over-covering solutions
+            # to satisfy the "together" branch constraint, invalidating the bound.
+            rf_used = getattr(left_child, "branching_rule", None) == "ryan_foster"
+            if rf_used and not master.strict_set_partitioning:
+                logger.warning(
+                    "Ryan-Foster branching activated at a non-RF-primary node. "
+                    "Hardening master to strict Set Partitioning for correctness."
+                )
+                master.strict_set_partitioning = True
 
         if children is None:
             # Primary branching strategy found no candidate (e.g., divergence branching
@@ -1268,8 +1324,8 @@ def _apply_reduced_cost_edge_fixing(
 
             if z_ub + max_path_rc < z_lb - 1e-6:
                 # Globally fix edge
-                if pricing_solver.cost_matrix[i, j] != float("inf"):
-                    pricing_solver.cost_matrix[i, j] = float("inf")
+                if (i, j) not in pricing_solver.fixed_arcs:
+                    pricing_solver.fixed_arcs.add((i, j))
                     fixed_count += 1
 
     if fixed_count > 0:
