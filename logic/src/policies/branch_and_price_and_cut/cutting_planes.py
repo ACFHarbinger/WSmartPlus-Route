@@ -2,13 +2,13 @@
 Cutting plane separation engines for Branch-and-Price-and-Cut algorithms.
 
 Provides modular separation algorithms for VRPP-specific valid inequalities:
-- RCC (Rounded Capacity Cuts): Standard VRP cuts derived from bin-packing 
+- RCC (Rounded Capacity Cuts): Standard VRP cuts derived from bin-packing
   requirements (Lysgaard et al. 2004). Essential for problems with fractional
   load coverage.
-- 3-SRI (Subset-Row Inequalities): Tightens the set partitioning relaxation 
+- 3-SRI (Subset-Row Inequalities): Tightens the set partitioning relaxation
   for subsets of 3 nodes (Jepsen et al. 2008). These handle the "entanglement"
   of fractional routes that partially cover the same customer set.
-- Fleet Cover: 0-1 knapsack covers derived from the global vehicle fleet 
+- Fleet Cover: 0-1 knapsack covers derived from the global vehicle fleet
   limit (adapted from Balas 1975). These strengthen the fleet-size knapsack
   by lifting minimal covers on the route-selection variables.
 - SEC (Subtour Elimination Cuts): Enforces connectivity for prize-collecting
@@ -61,7 +61,6 @@ class CuttingPlaneEngine(ABC):
     cut pool.
     """
 
-
     @abstractmethod
     def separate_and_add_cuts(self, master: VRPPMasterProblem, max_cuts: int, **kwargs) -> int:
         """
@@ -106,13 +105,13 @@ class CuttingPlaneEngine(ABC):
 
 
 class RoundedCapacityCutEngine(CuttingPlaneEngine):
-    """
+    r"""
     Rounded Capacity Cut (RCC) separation engine for VRPP Set Partitioning.
 
-    Derived from the physical payload capacity (Q) of the fleet, RCCs are a 
-    standard family of valid inequalities for the Capacitated Vehicle Routing 
-    Problem (CVRP), adapted here for the VRPP Set Partitioning context. 
-    They enforce that the total flow crossing the boundary of a subset of nodes 
+    Derived from the physical payload capacity (Q) of the fleet, RCCs are a
+    standard family of valid inequalities for the Capacitated Vehicle Routing
+    Problem (CVRP), adapted here for the VRPP Set Partitioning context.
+    They enforce that the total flow crossing the boundary of a subset of nodes
     S must be sufficient to cover the total demand of S.
 
     Mathematical Formulation:
@@ -123,30 +122,30 @@ class RoundedCapacityCutEngine(CuttingPlaneEngine):
     where:
     - δ(S) = {(i, j) ∈ E : i ∈ S, j ∉ S or i ∉ S, j ∈ S} is the edge cutset of S.
     - डिमांड(S) = ∑_{i ∈ S} q_i is the total demand requirement in S.
-    - k(S) = ⌈ डिमांड(S) / Q ⌉ is the minimum number of vehicles required to 
+    - k(S) = ⌈ डिमांड(S) / Q ⌉ is the minimum number of vehicles required to
       service all customers in S given the capacity limit Q.
     - x_e = ∑_{k: e ∈ route_k} λ_k is the aggregated flow of edge e in the RMP solution.
 
     Theoretical Context:
     --------------------
-    RCCs are polyhedrally stronger than simple connectivity constraints because 
-    they incorporate the physical resource constraint (Q). Since VRPP involves 
-    selecting nodes to visit, the Master Problem uses Set Partitioning, making 
-    RCCs essential for pruning fractional solutions where multiple routes 
-    "fractionally" visit nodes in a cluster without collectively satisfying 
+    RCCs are polyhedrally stronger than simple connectivity constraints because
+    they incorporate the physical resource constraint (Q). Since VRPP involves
+    selecting nodes to visit, the Master Problem uses Set Partitioning, making
+    RCCs essential for pruning fractional solutions where multiple routes
+    "fractionally" visit nodes in a cluster without collectively satisfying
     the capacity logic.
 
     Separation Methodology:
     -----------------------
-    This engine utilizes the separation framework of Lysgaard et al. (2004), 
-    supporting both heuristic (Tabu Search) and exact (Max-Flow Min-Cut) 
-    separation procedures. The separation operates on the support graph 
+    This engine utilizes the separation framework of Lysgaard et al. (2004),
+    supporting both heuristic (Tabu Search) and exact (Max-Flow Min-Cut)
+    separation procedures. The separation operates on the support graph
     defined by edges with fractional flow x_e > 0.
 
     Integration with Pricing:
     --------------------------
-    Dual variables associated with RCCs (dual_S) contribute to the reduced 
-    cost of labels in the RCSPP pricing subproblem. For every edge e in the 
+    Dual variables associated with RCCs (dual_S) contribute to the reduced
+    cost of labels in the RCSPP pricing subproblem. For every edge e in the
     boundary δ(S), the dual value π_S is subtracted from the edge cost.
 
     References:
@@ -250,40 +249,40 @@ class SubsetRowCutEngine(CuttingPlaneEngine):
     """
     Subset-Row Inequality (SRI) separation engine.
 
-    The Subset-Row Inequalities are a class of Chvátal-Gomory rank-1 
-    inequalities derived from the Set Partitioning Problem (SPP) formulation. 
-    They are essential for tightening the LP relaxation when solving VRPs 
+    The Subset-Row Inequalities are a class of Chvátal-Gomory rank-1
+    inequalities derived from the Set Partitioning Problem (SPP) formulation.
+    They are essential for tightening the LP relaxation when solving VRPs
     with column generation.
 
     Mathematical Formulation (3-SRI):
     ---------------------------------
-    For a subset S of exactly |S| = 3 customer nodes, the 3-SRI (with p=2) 
+    For a subset S of exactly |S| = 3 customer nodes, the 3-SRI (with p=2)
     is defined as:
         ∑_{k} ⌊ 1/2 * |S ∩ route_k| ⌋ * λ_k ≤ 1
 
     Logic:
-    If three routes each visit exactly two nodes of the triplet S, the sum 
-    of their fractional variables λ_k cannot exceed 1.0. If it does (e.g., 
+    If three routes each visit exactly two nodes of the triplet S, the sum
+    of their fractional variables λ_k cannot exceed 1.0. If it does (e.g.,
     three routes with λ_k = 0.5), the solution is fractional and violated.
 
     Theoretical Context:
     --------------------
-    SRIs handle the "entanglement" of fractional routes. By penalizing 
-    routes that share too many nodes in a specified triplet, they force 
-    the branch-and-bound tree toward integer solutions. This implementation 
+    SRIs handle the "entanglement" of fractional routes. By penalizing
+    routes that share too many nodes in a specified triplet, they force
+    the branch-and-bound tree toward integer solutions. This implementation
     follows the separation logic established by Jepsen et al. (2008).
 
     Separation Methodology:
     -----------------------
-    Heuristic search identifies candidate triplets where the sum of visitation 
-    variables y_i = ∑_{k: i ∈ route_k} λ_k is high. We specifically target 
+    Heuristic search identifies candidate triplets where the sum of visitation
+    variables y_i = ∑_{k: i ∈ route_k} λ_k is high. We specifically target
     triplets forming triangles in the fractional support graph.
 
     Integration with Pricing:
     --------------------------
-    Specifically for 3-SRIs, the dual variables π_SRI modify the RCSPP label 
-    transition. A labeling state must track how many nodes of S it has 
-    visited. When the count transitions from 1 to 2, the dual value π_SRI 
+    Specifically for 3-SRIs, the dual variables π_SRI modify the RCSPP label
+    transition. A labeling state must track how many nodes of S it has
+    visited. When the count transitions from 1 to 2, the dual value π_SRI
     is subtracted from the path profit (or added to reduced cost).
     """
 
@@ -381,14 +380,16 @@ class SubsetRowCutEngine(CuttingPlaneEngine):
             return master.add_subset_row_cut(list(node_set))
         return False
 
-    def _is_orthogonal_content(self, candidate_dict: Dict[str, float], active_vecs: List[Dict[str, float]], threshold: float = 0.8) -> bool:
+    def _is_orthogonal_content(
+        self, candidate_dict: Dict[str, float], active_vecs: List[Dict[str, float]], threshold: float = 0.8
+    ) -> bool:
         """
         Fix 4: Content-keyed orthogonality check.
         """
         if not active_vecs:
             return True
 
-        norm_c = np.sqrt(sum(v*v for v in candidate_dict.values()))
+        norm_c = np.sqrt(sum(v * v for v in candidate_dict.values()))
         if norm_c < 1e-6:
             return False
 
@@ -397,7 +398,7 @@ class SubsetRowCutEngine(CuttingPlaneEngine):
             for h, v in candidate_dict.items():
                 if h in a_dict:
                     dot += v * a_dict[h]
-            norm_a = np.sqrt(sum(v*v for v in a_dict.values()))
+            norm_a = np.sqrt(sum(v * v for v in a_dict.values()))
             if norm_a < 1e-6:
                 continue
             cos_sim = abs(dot) / (norm_c * norm_a)
@@ -413,31 +414,31 @@ class EdgeCliqueCutEngine(CuttingPlaneEngine):
     """
     Fleet Cover Inequality (Edge-Clique) separation engine.
 
-    This engine separates valid inequalities derived from conflict graphs 
-    on the route-selection variables. Specifically, it identifies cliques 
-    in the conflict graph of routes that compete for a shared resource 
+    This engine separates valid inequalities derived from conflict graphs
+    on the route-selection variables. Specifically, it identifies cliques
+    in the conflict graph of routes that compete for a shared resource
     (in this case, single-use of a directed arc or a total vehicle count).
 
     Mathematical Formulation:
     -------------------------
-    For a physical edge e = (i, j), let C(e) be the set of all routes in 
+    For a physical edge e = (i, j), let C(e) be the set of all routes in
     the RMP that traverse edge e. The Edge-Clique inequality is:
         ∑_{k ∈ C(e)} λ_k ≤ 1
 
     Theoretical Context:
     --------------------
-    Standard Set Partitioning restricts each node to one visit, but 
-    Edge-Clique inequalities extend this to the "edges" of the graph. 
-    They are derived by lifting minimal covers on the arc capacity knapsack, 
-    forming facets of the resulting knapsack polytope. This implementation 
-    adapts the Lifting and Cover Inequality (LCI) logic of Balas (1975) 
+    Standard Set Partitioning restricts each node to one visit, but
+    Edge-Clique inequalities extend this to the "edges" of the graph.
+    They are derived by lifting minimal covers on the arc capacity knapsack,
+    forming facets of the resulting knapsack polytope. This implementation
+    adapts the Lifting and Cover Inequality (LCI) logic of Balas (1975)
     and Barnhart et al. (2000).
 
     Heuristic Separation:
     --------------------
-    The engine computes the aggregated flow x_{ij} for every edge in the 
-    current solution. Edges where x_{ij} > 1.0 + ε are candidates for a 
-    clique cut. For anonymous fleets where route weights are uniform (=1), 
+    The engine computes the aggregated flow x_{ij} for every edge in the
+    current solution. Edges where x_{ij} > 1.0 + ε are candidates for a
+    clique cut. For anonymous fleets where route weights are uniform (=1),
     the lifting coefficient for all routes in the clique simplifies to 1.0.
 
     Operational Logic:
@@ -470,7 +471,6 @@ class EdgeCliqueCutEngine(CuttingPlaneEngine):
 
         # Edge-clique cuts are globally valid: they depend only on the edge
         # capacity structure, not on branching decisions. Safe for GlobalCutPool.
-
 
         # 1. Aggregate edge flow: x_e = Σ_{k} w_{ek} λ_k
         route_values = {i: var.X for i, var in enumerate(master.lambda_vars) if var.X > 1e-6}
@@ -545,31 +545,31 @@ class KnapsackCoverEngine(CuttingPlaneEngine):
     Separates Cover Inequalities for knapsack constraints in the Master Problem.
 
     In the VRPP context, this primarily targets the fleet size (vehicle limit)
-    constraint (Σ λ_k ≤ K) or any other resource knapsacks. While simpler 
-    than a general knapsack with varied weights, cover cuts help strengthen 
-    the integrality of the master problem by excluding fractional solutions 
+    constraint (Σ λ_k ≤ K) or any other resource knapsacks. While simpler
+    than a general knapsack with varied weights, cover cuts help strengthen
+    the integrality of the master problem by excluding fractional solutions
     that exceed the logical resource boundary.
 
     Mathematical Formulation:
     -------------------------
-    Given a knapsack constraint ∑ w_j x_j ≤ b, a set of routes C is a 'cover' 
+    Given a knapsack constraint ∑ w_j x_j ≤ b, a set of routes C is a 'cover'
     if ∑_{j ∈ C} w_j > b. The resulting cover inequality is:
         ∑_{j ∈ C} λ_j ≤ |C| - 1
 
     Theoretical Rationale:
     ----------------------
-    A cover inequality excludes the point where all routes in C are selected 
-    with fractional values that sum to more than the capacity b. For the 
+    A cover inequality excludes the point where all routes in C are selected
+    with fractional values that sum to more than the capacity b. For the
     fleet constraint (w_j = 1), a minimal cover is any subset C of size K+1.
     This implementation adapts the logic of Barnhart et al. (2000).
 
     Interaction with Master Problem:
     --------------------------------
-    If a vehicle_limit (K) is explicitly set in the RMP, the fleet constraint 
-    already prevents the LP from selecting more than K total routes. 
-    However, cover cuts provide additional polyhedral strength by 
+    If a vehicle_limit (K) is explicitly set in the RMP, the fleet constraint
+    already prevents the LP from selecting more than K total routes.
+    However, cover cuts provide additional polyhedral strength by
     specifically targeting the most fractional routes in the solution.
-    
+
     Reference: Barnhart et al. (2000), Section 5.
     """
 
@@ -652,7 +652,6 @@ class BasicFleetCoverEngine(CuttingPlaneEngine):
     all lifting coefficients theoretically collapse to 1.0.
     """
 
-
     def __init__(self, v_model: VRPPModel, epsilon: float = 0.01) -> None:
         self.v_model = v_model
         self.epsilon = epsilon
@@ -727,9 +726,9 @@ class PhysicalCapacityLCIEngine(CuttingPlaneEngine):
     """
     Separates Lifted Cover Inequalities (LCI) over node-visit knapsacks.
 
-    Targets the heterogeneous physical capacity knapsack (Σ_{i ∈ S} q_i y_i ≤ Q), 
-    where q_i is the demand of customer i and Q is the vehicle capacity. 
-    These cuts target the visitation variables (y_i) rather than the route 
+    Targets the heterogeneous physical capacity knapsack (Σ_{i ∈ S} q_i y_i ≤ Q),
+    where q_i is the demand of customer i and Q is the vehicle capacity.
+    These cuts target the visitation variables (y_i) rather than the route
     selection variables (λ_k).
 
     Mathematical Formulation:
@@ -741,8 +740,8 @@ class PhysicalCapacityLCIEngine(CuttingPlaneEngine):
 
     Lifting Procedure (Balas 1975):
     -------------------------------
-    Calculates exact lifting coefficients (α_i) for nodes based on their 
-    fractional demands q_i. These node-level coefficients are then aggregated 
+    Calculates exact lifting coefficients (α_i) for nodes based on their
+    fractional demands q_i. These node-level coefficients are then aggregated
     into the route variables λ_k for the RMP:
         ∑_{k} (∑_{i ∈ node_coverage_k} α_i) λ_k ≤ α_0
 
@@ -757,77 +756,251 @@ class PhysicalCapacityLCIEngine(CuttingPlaneEngine):
         self.v_model = v_model
         self.epsilon = epsilon
 
-    def separate_and_add_cuts(self, master: VRPPMasterProblem, max_cuts: int, **kwargs) -> int: # noqa: C901
+    def separate_and_add_cuts(self, master: VRPPMasterProblem, max_cuts: int, **kwargs) -> int:  # noqa: C901
         if master.model is None or not master.lambda_vars:
             return 0
 
         Q = self.v_model.capacity
         y_vals = master.get_node_visitation()
 
-        # Sort customer nodes by visitation y_i descending to find a heuristic cover
-        nodes_sorted = sorted(
-            [i for i in range(1, self.v_model.n_nodes)],
-            key=lambda i: y_vals.get(i, 0.0),
-            reverse=True
-        )
-
         added = 0
-        cover = []
-        weight_sum = 0.0
+        already_covered: List[List[int]] = []
 
-        for i in nodes_sorted:
-            if y_vals.get(i, 0.0) < 1e-4:
-                continue
-            cover.append(i)
-            weight_sum += self.v_model.wastes[i]
-            if weight_sum > Q:
+        # Try multiple cover orderings to find distinct violated LCIs.
+        # Paper §6: Gu et al. (1995a) heuristic generates one LCI per saturated structure.
+        # We diversify by sorting by three different keys so non-dominated covers are found.
+        customer_nodes = [i for i in range(1, self.v_model.n_nodes) if y_vals.get(i, 0.0) > 1e-4]
+        orderings = [
+            sorted(customer_nodes, key=lambda i: y_vals.get(i, 0.0), reverse=True),  # high visitation first
+            sorted(customer_nodes, key=lambda i: self.v_model.wastes.get(i, 0.0), reverse=True),  # heavy demand first
+            sorted(
+                customer_nodes, key=lambda i: y_vals.get(i, 0.0) * self.v_model.wastes.get(i, 0.0), reverse=True
+            ),  # weighted first
+        ]
+
+        for nodes_sorted in orderings:
+            if added >= max_cuts:
                 break
 
-        if weight_sum > Q:
+            cover: List[int] = []
+            weight_sum = 0.0
+
+            for i in nodes_sorted:
+                cover.append(i)
+                weight_sum += self.v_model.wastes.get(i, 0.0)
+                if weight_sum > Q:
+                    break
+
+            if weight_sum <= Q or not cover:
+                continue
+
+            # Deduplicate: skip if this cover is too similar to an already-added one
+            cover_set = frozenset(cover)
+            if any(frozenset(prev) == cover_set for prev in already_covered):
+                continue
+
             cover_y_sum = sum(y_vals.get(i, 0.0) for i in cover)
-            if cover_y_sum > len(cover) - 1 + self.epsilon:
-                # Calculate exact sequence-independent lifting coefficients alpha_j
-                cover_weights = sorted([self.v_model.wastes[i] for i in cover], reverse=True)
+            if cover_y_sum <= len(cover) - 1 + self.epsilon:
+                continue
 
-                # prefix sums of cover weights
-                prefix_sums = [0.0] * (len(cover) + 1)
-                for idx, w in enumerate(cover_weights):
-                    prefix_sums[idx+1] = prefix_sums[idx] + w
+            # Sequence-independent lifting coefficients (Gu, Nemhauser, Savelsbergh 1995a)
+            cover_weights_sorted = sorted([self.v_model.wastes.get(i, 0.0) for i in cover], reverse=True)
 
-                def compute_lifting_coeff(wj: float) -> float:
-                    # Gu, Nemhauser, Savelsbergh exact LCI mapping logic
-                    for p in range(len(cover), -1, -1):
-                        if wj >= prefix_sums[p]:
-                            return float(p)
-                    return 0.0
+            prefix_sums = [0.0] * (len(cover) + 1)
+            for idx, w in enumerate(cover_weights_sorted):
+                prefix_sums[idx + 1] = prefix_sums[idx] + w
 
-                # node alpha_i
-                alpha_nodes = {}
-                for j in range(1, self.v_model.n_nodes):
-                    if j in cover:
-                        alpha_nodes[j] = 1.0
-                    else:
-                        alpha_nodes[j] = compute_lifting_coeff(self.v_model.wastes[j])
+            def compute_lifting_coeff(
+                wj: float,
+                _ps: List[float] = prefix_sums,
+                _cover_len: int = len(cover),
+            ) -> float:
+                # Gu et al. (1995a) exact lifting: α_j = max p such that w_j + Σ_{top p} ≥ Q+ε
+                for p in range(_cover_len, -1, -1):
+                    if wj + _ps[p] > Q:
+                        return float(p)
+                return 0.0
 
-                # aggregate to route-level lambda coefficients
-                coefficients = {}
-                active_routes = [idx for idx, var in enumerate(master.lambda_vars) if var.X > 1e-6]
+            # Node-level lifting coefficients α_i
+            alpha_nodes: Dict[int, float] = {}
+            for j in range(1, self.v_model.n_nodes):
+                if j in cover:
+                    alpha_nodes[j] = 1.0
+                else:
+                    alpha_nodes[j] = compute_lifting_coeff(self.v_model.wastes.get(j, 0.0))
 
-                for k in active_routes:
-                    route = master.routes[k]
-                    # Alpha for route k is sum of node alphas
-                    alpha_k = sum(alpha_nodes[n] for n in route.node_coverage if n != 0)
-                    if alpha_k > 1e-6:
-                        coefficients[k] = alpha_k
+            # Route-level lambda coefficients Σ_{i ∈ route ∩ domain} α_i
+            # All routes must be included regardless of current LP value; a route
+            # with var.X ≈ 0 now may become active in future LP iterations, and
+            # omitting it leaves the LCI constraint under-constrained from the start.
+            coefficients: Dict[int, float] = {}
+            for k, route in enumerate(master.routes):
+                alpha_k = sum(alpha_nodes.get(n, 0.0) for n in route.node_coverage if n != 0)
+                if alpha_k > 1e-6:
+                    coefficients[k] = alpha_k
 
-                if master.add_lci_cut(cover, float(len(cover) - 1), coefficients):
-                    added += 1
+            # Pass both route coefficients AND node alphas for pricing dual integration.
+            if master.add_lci_cut(cover, float(len(cover) - 1), coefficients, node_alphas=alpha_nodes):
+                already_covered.append(cover)
+                added += 1
 
         return added
 
     def get_name(self) -> str:
         return "physical_lci"
 
+
+class SaturatedArcLCIEngine(CuttingPlaneEngine):
+    r"""
+    Saturated-Arc Lifted Cover Inequality engine — the primary LCI mechanism
+    described in Barnhart, Hane, and Vance (2000) §6.
+
+    Algorithm (paper §6, Gu et al. 1995a):
+    -----------------------------------------
+    Finding the most violated Lifted Cover Inequality is theoretically NP-hard.
+    Consequently, this module employs a heuristic mechanism to identify minimal
+    covers derived from saturated arcs in the fractional support graph.
+
+    For each ARC (i, j) that is saturated in the current LP solution
+    (i.e., fractional arc flow x_{ij} > capacity − ε):
+
+    1. Identify C(i,j) = {routes k : arc (i,j) ∈ route k}.
+    2. If C(i,j) is a cover (Σ_{k ∈ C} demand_k > arc_capacity), form the
+       basic cover inequality:
+           Σ_{k ∈ C} λ_k ≤ |C| − 1
+    3. Lift coefficients for routes NOT in C using the Gu et al. (1995a)
+       exact sequence-independent procedure:
+           α_k = max p s.t. p routes from \bar{C} can fit with remaining capacity.
+    4. Translate to the path-based formulation via delta_{ij}^p indicators.
+    5. Add violated LCI to the master.
+
+    Pricing Integration (§4.2):
+    In the VRPP RCSPP, when the DP traverses arc (i,j), the reduced cost is
+    decreased by α_{ij}^k · γ_{ij}, exactly as in the paper.  Since arcs are
+    unit-capacity in VRPP, α_{ij}^k = 1 for all routes in C, and the lifting
+    coefficients for routes outside C are computed via the Gu heuristic.
+
+    Arc Capacity in VRPP:
+    ---------------------
+    In Set Partitioning, each arc can appear in at most 1 selected route in any
+    integer solution.  A fractional LP may assign more than 1.0 total flow to an
+    arc across multiple fractional routes; this constitutes arc saturation.
+    The corresponding capacity knapsack is:
+        Σ_{k : arc ∈ route_k} λ_k ≤ 1   (arc capacity = 1 in unit-flow VRP)
+    """
+
+    def __init__(self, v_model: VRPPModel, epsilon: float = 0.01) -> None:
+        self.v_model = v_model
+        self.epsilon = epsilon
+
+    def separate_and_add_cuts(self, master: VRPPMasterProblem, max_cuts: int, **kwargs) -> int:  # noqa: C901
+        """
+        Separate saturated-arc LCIs and add to master.
+
+        Returns:
+            Number of cuts added.
+        """
+        if master.model is None or not master.lambda_vars:
+            return 0
+
+        # 1. Aggregate arc flows x_{ij} = Σ_k λ_k · δ_{ij}^k
+        arc_to_routes: Dict[Tuple[int, int], List[int]] = {}
+        route_values: Dict[int, float] = {}
+
+        for ridx, var in enumerate(master.lambda_vars):
+            try:
+                val = var.X
+            except Exception:
+                continue
+            if val < 1e-6:
+                continue
+            route_values[ridx] = val
+            route = master.routes[ridx]
+            full_path = [0] + route.nodes + [0]
+            for pos in range(len(full_path) - 1):
+                arc = (full_path[pos], full_path[pos + 1])
+                arc_to_routes.setdefault(arc, []).append(ridx)
+
+        # 2. Find saturated arcs: Σ_{k : arc ∈ route_k} λ_k > 1.0 − ε
+        arc_capacity = 1.0  # unit capacity in VRPP SP
+        saturated: List[Tuple[float, Tuple[int, int]]] = []
+        for arc, route_indices in arc_to_routes.items():
+            flow = sum(route_values.get(k, 0.0) for k in route_indices)
+            if flow > arc_capacity - self.epsilon:
+                violation = flow - arc_capacity
+                saturated.append((violation, arc))
+
+        # Sort by most violated first — focus separation on the tightest constraints
+        saturated.sort(reverse=True)
+
+        added = 0
+        for _violation, arc in saturated:
+            if added >= max_cuts:
+                break
+
+            cover_indices = arc_to_routes[arc]
+            if not cover_indices:
+                continue
+
+            # 3. Basic cover: all routes using this arc form a cover (sum > capacity = 1)
+            cover_flow = sum(route_values.get(k, 0.0) for k in cover_indices)
+            if cover_flow <= arc_capacity - self.epsilon:
+                continue  # Not actually violated
+
+            # 4. Sequence-independent lifting (Gu et al. 1995a)
+            # For arc capacity = 1, weights are all 1.0 (each route contributes 1).
+            # α_k = 1 for routes in C; for routes NOT in C, α_k = 1 if adding that
+            # route saturates the arc with the current cover.
+            cover_set_idx = set(cover_indices)
+            n_cover = len(cover_indices)
+            rhs = float(n_cover - 1)
+
+            # Coefficient for routes IN cover: 1.0
+            coefficients: Dict[int, float] = {k: 1.0 for k in cover_indices}
+
+            # Coefficient for routes NOT in cover: α_k ∈ {0, 1}
+            # Since arc capacity = 1 and cover already saturates it, any additional route
+            # also using this arc has lifting coefficient α_k = 1 (extends the cover).
+            for ridx_other in route_values:
+                if ridx_other in cover_set_idx:
+                    continue
+                route_other = master.routes[ridx_other]
+                full_path = [0] + route_other.nodes + [0]
+                if any(full_path[pos] == arc[0] and full_path[pos + 1] == arc[1] for pos in range(len(full_path) - 1)):
+                    coefficients[ridx_other] = 1.0
+
+            # Node-level alphas: α_i = 1 for nodes in routes that use this arc.
+            # These allow pricing to penalise arc-covering routes at the node level.
+            alpha_nodes: Dict[int, float] = {}
+            for k in cover_indices:
+                for node in master.routes[k].node_coverage:
+                    alpha_nodes[node] = max(alpha_nodes.get(node, 0.0), 1.0)
+
+            # 5. Check current violation before adding
+            lhs_val = sum(coefficients.get(k, 0.0) * route_values.get(k, 0.0) for k in coefficients)
+            if lhs_val <= rhs + 1e-4:
+                continue  # Not violated in fractional solution
+
+            # Use the covered node set as the LCI dedup key.
+            # This is semantically correct: the cut constrains routes that share
+            # this node cover, and two arcs with identical covered-node sets
+            # would generate the same constraint (so skipping is safe).
+            cover_node_list = sorted(alpha_nodes.keys())
+            if not cover_node_list:
+                continue
+
+            if master.add_lci_cut(
+                cover_node_list,
+                rhs,
+                coefficients,
+                node_alphas=alpha_nodes,
+            ):
+                added += 1
+
+        return added
+
+    def get_name(self) -> str:
+        return "saturated_arc_lci"
 
 
 def create_cutting_plane_engine(
@@ -862,13 +1035,12 @@ def create_cutting_plane_engine(
         return SubsetRowCutEngine(v_model)
     elif engine_name == "edge_clique":
         return EdgeCliqueCutEngine(v_model)
-    elif engine_name == "lci":
-        # "lci" key retained for backward compatibility; engine adds basic covers.
-        return BasicFleetCoverEngine(v_model)
     elif engine_name == "fleet_cover":
         return BasicFleetCoverEngine(v_model)
     elif engine_name == "physical_lci":
         return PhysicalCapacityLCIEngine(v_model)
+    elif engine_name == "saturated_arc_lci":
+        return SaturatedArcLCIEngine(v_model)
     elif engine_name == "cover":
         if sep_engine is None:
             raise ValueError("Cover engine requires sep_engine parameter")
@@ -882,6 +1054,7 @@ def create_cutting_plane_engine(
         engines.append(EdgeCliqueCutEngine(v_model))  # type: ignore[arg-type]
         engines.append(BasicFleetCoverEngine(v_model))  # type: ignore[arg-type]
         engines.append(PhysicalCapacityLCIEngine(v_model))  # type: ignore[arg-type]
+        engines.append(SaturatedArcLCIEngine(v_model))  # type: ignore[arg-type]
         if sep_engine is not None:
             engines.append(KnapsackCoverEngine(v_model, sep_engine))  # type: ignore[arg-type]
 
@@ -889,5 +1062,15 @@ def create_cutting_plane_engine(
         return comp
 
     else:
-        valid = ["rcc", "sri", "edge_clique", "lci", "fleet_cover", "cover", "all"]
+        valid = [
+            "rcc",
+            "sri",
+            "edge_clique",
+            "fleet_cover",
+            "physical_lci",
+            "saturated_arc_lci",
+            "cover",
+            "all",
+            "composite",
+        ]
         raise ValueError(f"Unknown cutting plane engine '{engine_name}'. Valid options are: {valid}")

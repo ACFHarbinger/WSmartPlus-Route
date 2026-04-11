@@ -91,7 +91,6 @@ bpc:
       #   - "all": Composite engine
       #     * Enables all supported cut families (RCC, SRI, fleet_cover)
 
-
     # ---------------------------------------------------------------------
     # Branching Strategy
     # ---------------------------------------------------------------------
@@ -125,6 +124,16 @@ bpc:
       # Relative gap (1e-4) to stop when optimal solution proven
     - early_termination_gap: 0.001
       # Relative gap (1e-3) to stop early if solution is "good enough"
+    - cg_at_root_only: false
+      # Whether to run column generation only at the root B&B node
+      # true = Faster pricing, weaker lower bound
+      # false = Exact elementarity (O(2^n)), exponentially slow
+    - use_swc_tcf_initialization: false
+      # Whether to use SWC-TCF algorithm for initial RMP column generation
+    - use_swc_tcf_heuristic_pricing: false
+      # Whether to use SWC-TCF as a fast heuristic pricer
+    - use_swc_tcf_primal_heuristic: false
+      # Whether to execute SWC-TCF at intermediate B&B nodes to update upper bound
 
     # ---------------------------------------------------------------------
     # RCSPP Pricing Relaxation
@@ -150,7 +159,6 @@ bpc:
       # Cosine similarity ceiling for cut filtering.
       # Range: 0.5-0.95 (lower = fewer, more distinct cuts)
 
-
     # ---------------------------------------------------------------------
     # B&B Search & Branching
     # ---------------------------------------------------------------------
@@ -172,7 +180,6 @@ bpc:
     - strong_branching_size: 5
       # Number of top candidates to evaluate via LP lookahead.
       # Higher = stronger branching decisions, but significantly slower.
-
 
     # ---------------------------------------------------------------------
     # Solver Parameters (Implicit)

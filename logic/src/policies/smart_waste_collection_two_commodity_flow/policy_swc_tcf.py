@@ -96,6 +96,7 @@ class SWCTCFPolicy(BaseRoutingPolicy):
         seed = kwargs.get("seed") if kwargs.get("seed") is not None else params.seed
 
         # 5. Run optimizer
+        dual_values = kwargs.get("dual_values")
         route, profit, cost = run_swc_tcf_optimizer(
             bins=amounts,  # type: ignore[arg-type]
             distance_matrix=distance_matrix,  # type: ignore[arg-type]
@@ -106,6 +107,7 @@ class SWCTCFPolicy(BaseRoutingPolicy):
             time_limit=int(params.time_limit),
             optimizer=params.engine,
             seed=int(seed) if seed is not None else 42,
+            dual_values=dual_values,
         )
 
         return route, cost, {"profit": profit}

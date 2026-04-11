@@ -23,19 +23,19 @@ NodeVisitationBranchingConstraint
     Operates on a single node i. Enforces v_i = 0 (forbidden) or v_i = 1 (forced).
 
 MultiEdgePartitionBranching
-    Spatial fleet-partitioning heuristic. Uses polar mapping geometry to 
-    forbid sets of arcs across different branches, yielding stronger 
+    Spatial fleet-partitioning heuristic. Uses polar mapping geometry to
+    forbid sets of arcs across different branches, yielding stronger
     polyhedral divergence for anonymous fleets.
     Reference: Barnhart et al. (1998, 2000).
 
 Theoretical Framework:
 ----------------------
-Ryan-Foster branching is utilized for VRPP because it appropriately modifies 
-the Resource-Constrained Shortest Path Problem (RCSPP) used for pricing by 
-enforcing or forbidding node pairs. In a Set Partitioning Problem (SPP), 
+Ryan-Foster branching is utilized for VRPP because it appropriately modifies
+the Resource-Constrained Shortest Path Problem (RCSPP) used for pricing by
+enforcing or forbidding node pairs. In a Set Partitioning Problem (SPP),
 node-pair branching is mathematically exact and avoids the "symmetry" issues
 inherent in arc-based branching for problems with multiple identical vehicles.
-While Barnhart et al. (2000) avoids this for ODIMCF to maintain simple 
+While Barnhart et al. (2000) avoids this for ODIMCF to maintain simple
 shortest-path pricing, the RCSPP pricing in VRPP is already weakly NP-hard,
 and node-pair constraints are easily integrated into the DP label extension.
 """
@@ -88,7 +88,6 @@ class EdgeBranchingConstraint:
         to be marked infeasible.
     """
 
-
     def __init__(self, u: int, v: int, must_use: bool) -> None:
         """
         Initialise an edge branching constraint.
@@ -134,11 +133,11 @@ class RyanFosterBranchingConstraint:
     Node-pair branching constraint for Ryan-Foster B&P branching (1981).
 
     Enforces co-occurrence or separation of two customer nodes across routes.
-    Unlike divergence branching used in ODIMCF (Barnhart et al. 2000), 
-    Ryan-Foster node-pair branching is highly effective for VRPP as it 
-    directly modifies the RCSPP pricing subproblem without increasing 
+    Unlike divergence branching used in ODIMCF (Barnhart et al. 2000),
+    Ryan-Foster node-pair branching is highly effective for VRPP as it
+    directly modifies the RCSPP pricing subproblem without increasing
     the label state space complexity.
-    
+
     Attributes:
         node_r: First node in the branching pair.
         node_s: Second node in the branching pair.
@@ -362,14 +361,14 @@ class EdgeBranching:
 
         return (
             BranchNode(
-                constraints=parent.constraints + [left_bc],
+                constraints=[left_bc],
                 parent=parent,
                 depth=parent.depth + 1,
                 lp_bound_hint=flow,
                 branching_rule="edge",
             ),
             BranchNode(
-                constraints=parent.constraints + [right_bc],
+                constraints=[right_bc],
                 parent=parent,
                 depth=parent.depth + 1,
                 lp_bound_hint=1.0 - flow,
@@ -416,31 +415,139 @@ class MultiEdgePartitionBranching:
     """
 
     @staticmethod
-    def find_divergence_node(
+    def find_divergence_node(  # noqa: C901
         routes: List[Route],
         route_values: Dict[int, float],
         tol: float = 1e-5,
         node_coords: Optional[np.ndarray] = None,
         n_nodes: int = 0,
     ) -> Optional[Tuple[int, List[Tuple[int, int]], List[Tuple[int, int]], float]]:
-        """
-        Identify a node 'd' where routes diverge into two arc sets.
+        r"""
+        Barnhart, Hane, and Vance (2000) §4.3 path-tracing divergence branching.
 
-        The divergence branching rule (Barnhart et al. 2000, §4.3) identifies
-        a node 'd' such that the outgoing flow from 'd' is split between two
-        sets of arcs A1 and A2.
+        Primary method — explicit path tracing (paper §4.3):
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        Selects the two highest-λ fractional routes (P1, P2) and walks them
+        in lock-step from the depot until they take different outgoing arcs
+        from some node d.  That node is the *divergence node*.
+
+        Arc-set convention (DFS child ordering):
+          arc_set_1  = arc taken by the LONGER-remaining-path route from d.
+          arc_set_2  = all other possible outgoing arcs from d.
+
+        child 1 (forbids arc_set_1) → keeps shorter routes feasible,
+                 explored FIRST in DFS (higher lp_bound_hint in caller).
+        child 2 (forbids arc_set_2) → only the longer arc survives at d,
+                 explored SECOND, typically yields a tighter bound.
+
+        This matches the paper's recommendation to prefer DFS nodes whose
+        LP basis is closest to the parent (shorter paths → fewer new
+        columns, faster re-solve).
+
+        Fallback — aggregate-flow heuristic with optional spatial partition:
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        Used when fewer than two fractional routes exist, or when the two
+        chosen routes share no common initial sub-path long enough to reveal
+        a non-trivial divergence node.  Falls back to the arc with the
+        highest aggregate flow, then uses cosine-similarity spatial grouping
+        to build a balanced arc-set partition.
+
+        Arc-universe completeness guarantee:
+        arc_set_1 ∪ arc_set_2 = all possible outgoing arcs from d, so no
+        new column can bypass the branching constraint in either child.
 
         Args:
             routes: Column pool.
-            route_values: Fractional solution (λ_k).
-            tol: Fractional tolerance.
-            node_coords: Optional coords for spatial partitioning.
-            n_nodes: Total number of customer nodes in the problem.
+            route_values: Fractional LP solution {route_index: λ_k}.
+            tol: Integrality tolerance.
+            node_coords: Optional (N+1)×2 coordinate array; used only in
+                the fallback spatial partition.
+            n_nodes: Number of customer nodes (excluding depot); used to
+                build the complete outgoing-arc universe.
 
         Returns:
-            Tuple of (divergence_node_d, arc_set_1, arc_set_2, score) or None.
+            (d, arc_set_1, arc_set_2, score) or None if solution is integer.
         """
-        # 1. Identify divergence node d (must have at least two outgoing arcs)
+        # ------------------------------------------------------------------ #
+        # 1. Collect fractional routes  λ_k ∈ (tol, 1−tol)                  #
+        # ------------------------------------------------------------------ #
+        fractional: List[Tuple[float, int]] = [(lam, idx) for idx, lam in route_values.items() if tol < lam < 1.0 - tol]
+
+        # ------------------------------------------------------------------ #
+        # 2. Primary: explicit path tracing (paper §4.3)                      #
+        # ------------------------------------------------------------------ #
+        if len(fractional) >= 2:
+            fractional.sort(reverse=True)  # largest λ first
+            lam1, idx1 = fractional[0]
+            lam2, idx2 = fractional[1]
+
+            path1: List[int] = [0] + routes[idx1].nodes + [0]
+            path2: List[int] = [0] + routes[idx2].nodes + [0]
+
+            divergence_d: Optional[int] = None
+            arc_p1: Optional[Tuple[int, int]] = None
+            arc_p2: Optional[Tuple[int, int]] = None
+
+            for pos in range(min(len(path1), len(path2)) - 1):
+                if path1[pos] != path2[pos]:
+                    # The two paths have already diverged at this position;
+                    # no common prefix beyond the previous step.
+                    break
+                d_cand = path1[pos]
+                nxt1, nxt2 = path1[pos + 1], path2[pos + 1]
+                if nxt1 != nxt2:
+                    divergence_d = d_cand
+                    arc_p1 = (d_cand, nxt1)
+                    arc_p2 = (d_cand, nxt2)
+                    # Arcs remaining after the divergence arc (depot return excluded)
+                    break
+
+            if divergence_d is not None and arc_p1 is not None and arc_p2 is not None:
+                # Build the complete universe of outgoing arcs from divergence_d
+                if n_nodes > 0:
+                    node_univ: Set[int] = set(range(n_nodes + 1))
+                else:
+                    node_univ = {0}
+                    for r in routes:
+                        node_univ.update(r.nodes)
+                node_univ.discard(divergence_d)
+                all_out: Set[Tuple[int, int]] = {(divergence_d, v) for v in node_univ}
+
+                # Fix 3: Balanced median split of fractional arc flows (paper §4.3 extension).
+                # Instead of a degenerate single-arc split, we partition the entire
+                # outgoing arc-set universe from d based on a median split of
+                # the current cumulative fractional flow.
+                d_out_flows: Dict[int, float] = {}
+                for idx, lam in route_values.items():
+                    if lam < tol:
+                        continue
+                    path = [0] + routes[idx].nodes + [0]
+                    for p in range(len(path) - 1):
+                        if path[p] == divergence_d:
+                            v_nxt = path[p + 1]
+                            d_out_flows[v_nxt] = d_out_flows.get(v_nxt, 0.0) + lam
+
+                sorted_v = sorted(d_out_flows.keys(), key=lambda v: d_out_flows[v], reverse=True)
+                total_f = sum(d_out_flows.values())
+                acc = 0.0
+                split_idx = 0
+                for i, v in enumerate(sorted_v):
+                    acc += d_out_flows[v]
+                    if acc >= total_f / 2.0:
+                        split_idx = i + 1
+                        break
+
+                s1_nodes = set(sorted_v[: max(1, split_idx)])
+                arc_set_1_pt = [(divergence_d, v) for v in s1_nodes]
+                arc_set_2_pt = sorted(all_out - set(arc_set_1_pt))
+
+                # Score = cumulative fractional flow on the chosen arc-set.
+                score_pt = sum(d_out_flows[v] for v in s1_nodes)
+                return divergence_d, arc_set_1_pt, arc_set_2_pt, score_pt
+
+        # ------------------------------------------------------------------ #
+        # 3. Fallback: aggregate-flow heuristic with optional spatial          #
+        # ------------------------------------------------------------------ #
         node_out_flows: Dict[int, Dict[int, float]] = {}
         for idx, lam in route_values.items():
             if lam < tol:
@@ -452,59 +559,48 @@ class MultiEdgePartitionBranching:
                 node_out_flows.setdefault(u, {}).setdefault(v, 0.0)
                 node_out_flows[u][v] += lam
 
-        # Candidate divergence nodes (those with >1 outgoing arcs in the fractional soln)
         div_candidates = [d for d, flows in node_out_flows.items() if len(flows) >= 2]
         if not div_candidates:
             return None
 
-        # 2. Select node d (tie-break by flow magnitude)
         d = max(div_candidates, key=lambda x: sum(node_out_flows[x].values()))
 
-        # 3. Partition all possible outgoing arcs from d into A1 and A2.
-        # Fix 6: Node universe must cover all possible customer nodes to ensure
-        # the partition is complete and cannot be bypassed by new columns.
         if n_nodes > 0:
-            node_universe = set(range(n_nodes + 1))
+            node_universe_fb: Set[int] = set(range(n_nodes + 1))
         else:
-            node_universe = {0}
+            node_universe_fb = {0}
             for r in routes:
-                node_universe.update(r.nodes)
-        node_universe.discard(d)
-        all_possible_outgoing = {(d, v) for v in node_universe}
+                node_universe_fb.update(r.nodes)
+        node_universe_fb.discard(d)
+        all_possible_outgoing: Set[Tuple[int, int]] = {(d, v) for v in node_universe_fb}
 
-        # A1 contains the arc with the largest flow, A2 contains the rest (initial)
-        # Spatial refinement if coords are available
-        flows = node_out_flows[d]
-        v_sorted = sorted(flows.keys(), key=lambda v: flows[v], reverse=True)
-
-        v1 = v_sorted[0]
-        arc_set_1 = {(d, v1)}
+        flows_fb = node_out_flows[d]
+        v_sorted_fb = sorted(flows_fb.keys(), key=lambda v: flows_fb[v], reverse=True)
+        v1 = v_sorted_fb[0]
+        arc_set_1_fb: Set[Tuple[int, int]] = {(d, v1)}
 
         if node_coords is not None:
-            # Spatial partition: group arcs by distance to v1 in the graph
-            # Arcs to nodes spatially close to v1 go to A1.
             d_coord = np.array(node_coords[d])
             v1_coord = np.array(node_coords[v1])
             vec_v1 = v1_coord - d_coord
+            norm_v1 = float(np.linalg.norm(vec_v1))
+            if norm_v1 > 1e-9:
+                for v in node_universe_fb:
+                    if v == v1:
+                        continue
+                    v_coord = np.array(node_coords[v])
+                    vec_v = v_coord - d_coord
+                    norm_v = float(np.linalg.norm(vec_v))
+                    if norm_v < 1e-9:
+                        continue
+                    similarity = float(np.dot(vec_v1, vec_v)) / (norm_v1 * norm_v)
+                    if similarity > 0.5:
+                        arc_set_1_fb.add((d, v))
 
-            for v in node_universe:
-                if v == v1:
-                    continue
-                v_coord = np.array(node_coords[v])
-                vec_v = v_coord - d_coord
-                # Cosine similarity for direction-based grouping
-                similarity = np.dot(vec_v1, vec_v) / (np.linalg.norm(vec_v1) * np.linalg.norm(vec_v) + 1e-9)
-                if similarity > 0.5:
-                    arc_set_1.add((d, v))
+        arc_set_2_fb = all_possible_outgoing - arc_set_1_fb
 
-        arc_set_2 = all_possible_outgoing - arc_set_1
-
-        # Invariant: A1 and A2 must partition ALL outgoing arcs from d
-        if (arc_set_1 | arc_set_2) != all_possible_outgoing:
-            logger.error("Divergence arc partition is incomplete.")
-
-        score = sum(flows[v] for v in flows if (d, v) in arc_set_1)
-        return d, list(arc_set_1), list(arc_set_2), score
+        score_fb = sum(flows_fb[v] for v in flows_fb if (d, v) in arc_set_1_fb)
+        return d, list(arc_set_1_fb), list(arc_set_2_fb), score_fb
 
     @staticmethod
     def find_multiple_divergence_nodes(
@@ -533,8 +629,7 @@ class MultiEdgePartitionBranching:
             d, arc_set_1, arc_set_2, _ = res
             # Remove routes passing through d to find the next divergence node
             remaining_route_values = {
-                idx: lam for idx, lam in remaining_route_values.items()
-                if d not in ([0] + routes[idx].nodes + [0])
+                idx: lam for idx, lam in remaining_route_values.items() if d not in ([0] + routes[idx].nodes + [0])
             }
 
         return candidates
@@ -560,24 +655,28 @@ class MultiEdgePartitionBranching:
             (left_child, right_child)
         """
         # Child 1: Forbid arcs in arc_set_1
-        constraints_1 = [EdgeBranchingConstraint(u, v, must_use=False) for u, v in arc_set_1]
+        constraints_1: List[AnyBranchingConstraint] = [
+            EdgeBranchingConstraint(u, v, must_use=False) for u, v in arc_set_1
+        ]
 
         # Child 2: Forbid arcs in arc_set_2
-        constraints_2 = [EdgeBranchingConstraint(u, v, must_use=False) for u, v in arc_set_2]
+        constraints_2: List[AnyBranchingConstraint] = [
+            EdgeBranchingConstraint(u, v, must_use=False) for u, v in arc_set_2
+        ]
 
         hint = parent.lp_bound if parent.lp_bound is not None else 0.0
         # Child 1 is standard, child 2 gets a small penalty for sorting
         right_hint = hint - (strength * 1e-4)
 
         left = BranchNode(
-            constraints=parent.constraints + constraints_1,
+            constraints=constraints_1,
             parent=parent,
             depth=parent.depth + 1,
             lp_bound_hint=hint,
             branching_rule="divergence",
         )
         right = BranchNode(
-            constraints=parent.constraints + constraints_2,
+            constraints=constraints_2,
             parent=parent,
             depth=parent.depth + 1,
             lp_bound_hint=right_hint,
@@ -591,15 +690,15 @@ class RyanFosterBranching:
     """
     Ryan-Foster branching strategy for Set Partitioning Problems.
 
-    Identifies a node pair (r, s) that are "fractionally co-occurring" in 
-    the current LP solution and partitions the search space to eliminate 
+    Identifies a node pair (r, s) that are "fractionally co-occurring" in
+    the current LP solution and partitions the search space to eliminate
     this fractional state.
 
     Mathematical Basis:
     -------------------
-    Based on Proposition 1 of Ryan and Foster (1981): 
-    If a Set Partitioning Problem has a fractional solution λ, there must 
-    exist two nodes r and s such that the set of routes visiting both 
+    Based on Proposition 1 of Ryan and Foster (1981):
+    If a Set Partitioning Problem has a fractional solution λ, there must
+    exist two nodes r and s such that the set of routes visiting both
     r and s has a fractional sum:
         0 < ∑_{k: r ∈ route_k, s ∈ route_k} λ_k < 1
 
@@ -612,14 +711,14 @@ class RyanFosterBranching:
 
     Theoretical Rationale for VRPP:
     -------------------------------
-    Ryan-Foster branching is polyhedrally stronger than simple edge-based 
-    branching for VRPs with identical vehicles (anonymous fleet). By 
-    constraining node pairs, the search space is partitioned without 
-    inducing the massive symmetry issues of arc-fixing. Furthermore, it is 
-    easily enforced in the RCSPP pricing subproblem by forbidding or 
-    requiring specific label transitions without increasing state space 
+    Ryan-Foster branching is polyhedrally stronger than simple edge-based
+    branching for VRPs with identical vehicles (anonymous fleet). By
+    constraining node pairs, the search space is partitioned without
+    inducing the massive symmetry issues of arc-fixing. Furthermore, it is
+    easily enforced in the RCSPP pricing subproblem by forbidding or
+    requiring specific label transitions without increasing state space
     complexity.
-    
+
     Reference: Ryan & Foster (1981), Proposition 1.
     """
 
@@ -962,7 +1061,7 @@ class BranchAndBoundTree:
         # 2. Level 1: Fleet Size branching
         res_fleet = FleetSizeBranching.find_fleet_branching(route_values)
         if res_fleet:
-            return FleetSizeBranching.create_child_nodes(node, *res_fleet)
+            return FleetSizeBranching.create_child_nodes(node, res_fleet)
 
         # 3. Level 2: Divergence branching (Preferred spatial rule)
         # Fix 6: Pass n_nodes to ensure complete arc partition.
@@ -997,8 +1096,6 @@ class BranchAndBoundTree:
                 return NodeVisitationBranching.create_child_nodes(node, n, visitation)
 
         return None
-
-
 
     # ------------------------------------------------------------------
     # Pruning and incumbent management
