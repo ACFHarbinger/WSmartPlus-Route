@@ -215,7 +215,7 @@ class SeparationEngine:
 
             # Exact fractional capacity separation (toggle-controlled)
             if self.enable_heuristic_rcc_separation:
-                self._separate_capacity_cuts_heuristic_exact(x_vals, y_vals, root_node=True)
+                self._separate_capacity_cuts_maxflow_heuristic(x_vals, y_vals, root_node=True)
         else:
             # Shallow nodes: Limited exact separation
             self._separate_subtours_heuristic(x_vals, y_vals)
@@ -228,7 +228,7 @@ class SeparationEngine:
 
                 # Exact fractional capacity separation (toggle-controlled)
                 if self.enable_heuristic_rcc_separation:
-                    self._separate_capacity_cuts_heuristic_exact(x_vals, y_vals, root_node=False)
+                    self._separate_capacity_cuts_maxflow_heuristic(x_vals, y_vals, root_node=False)
 
         # Filter and return most violated cuts
         violated = [ineq for ineq in self.pool if ineq.violation > 0.01]
@@ -273,7 +273,7 @@ class SeparationEngine:
         # Step 3: Exact subtour separation (max-flow based) - expensive, run periodically
         if iteration % 5 == 0:
             self._separate_pcsec_exact(x_vals, y_vals)
-            self._separate_capacity_cuts_heuristic_exact(x_vals, y_vals)
+            self._separate_capacity_cuts_maxflow_heuristic(x_vals, y_vals)
 
         # Step 4: Comb inequalities (heuristic) - advanced cuts
         # DISABLED: Gurobi's internal clique/cover cuts are preferred
@@ -443,7 +443,7 @@ class SeparationEngine:
                 if violation > 0.01:
                     self.pool.append(CapacityCut(node_set, total_demand, self.model.capacity, violation))
 
-    def _separate_capacity_cuts_heuristic_exact(    # noqa: C901
+    def _separate_capacity_cuts_maxflow_heuristic(  # noqa: C901
         self,
         x_vals: np.ndarray,
         y_vals: Optional[np.ndarray],
@@ -451,11 +451,11 @@ class SeparationEngine:
         max_cuts: int = 50,
     ):
         """
-        Exact separation of Rounded Capacity Cuts (RCCs) for CVRP/VRPP.
+        Max-Flow-based heuristic separation of Rounded Capacity Cuts (RCCs) for CVRP/VRPP.
 
         Mathematical Motivation:
         -------------------------
-        The Rounded Capacity Inequality (RCI) is defined as:
+        The Rounded Capacity Cut (RCC) is defined as:
             Σ_{i ∈ S, j ∉ S} x_{ij} ≥ 2 * ⌈d(S) / Q⌉
         where S ⊆ Customers, d(S) is total demand of S, and Q is vehicle capacity.
 
@@ -468,9 +468,10 @@ class SeparationEngine:
         x* values. Following Fischetti et al. (1997), the customer-side of each
         computed min-cut is a candidate set S for an RCC.
 
-        This method performs exhaustive separation by solving max-flow to ALL
-        nodes with non-zero visitation probability y*_i, ensuring we do not
-        miss violated facets that would otherwise cause the B&B tree to expand.
+        This heuristic method performs extensive separation by solving max-flow to ALL
+        nodes with non-zero visitation probability y*_i. While highly rigorous, it operates
+        on the fractional support graph and does not strictly guarantee finding all
+        mathematically violated facets.
 
         References:
         -----------
@@ -531,9 +532,7 @@ class SeparationEngine:
                 continue
 
             current_y_vals = y_vals if y_vals is not None else np.ones(len(self.model.customers))
-            total_demand = sum(
-                self.model.get_node_demand(i) for i in cut_set if i > 0 and current_y_vals[i - 1] > 0.1
-            )
+            total_demand = sum(self.model.get_node_demand(i) for i in cut_set if i > 0 and current_y_vals[i - 1] > 0.1)
 
             if total_demand <= 1e-4:
                 continue
@@ -547,13 +546,10 @@ class SeparationEngine:
 
             violation = required_val - cut_val
             if violation > 0.01 and not any(
-                set(cut_set) == set(existing.node_set)
-                for existing in self.pool
-                if isinstance(existing, CapacityCut)
+                set(cut_set) == set(existing.node_set) for existing in self.pool if isinstance(existing, CapacityCut)
             ):
                 self.pool.append(CapacityCut(set(cut_set), total_demand, self.model.capacity, violation))
                 added += 1
-
 
     def _separate_pcsec_exact(self, x_vals: np.ndarray, y_vals: Optional[np.ndarray], root_node: bool = False):
         """
@@ -648,7 +644,6 @@ class SeparationEngine:
                     # removed when backtracking past this B&B node.
                     cut.local_only = True
                     self.pool.append(cut)
-
 
     def _extract_min_cut(self, capacity: np.ndarray, flow: np.ndarray, source: int, sink: int) -> Set[int]:
         """

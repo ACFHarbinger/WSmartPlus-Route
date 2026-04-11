@@ -1,14 +1,15 @@
 """
 Master Problem for Branch-and-Price-and-Cut VRPP.
 
-Implements the Set Partitioning Problem (SPP) formulation where each column 
-represents a feasible route. The master problem selects routes to maximize 
+Implements the Set Partitioning Problem (SPP) formulation where each column
+represents a feasible route. The master problem selects routes to maximize
 total collected profit across a finite fleet.
 
 Theoretical Basis: Barnhart et al. (1998).
 """
 
 import contextlib
+import hashlib
 import logging
 from typing import TYPE_CHECKING, Any, Dict, FrozenSet, List, Optional, Set, Tuple, Union
 
@@ -82,11 +83,12 @@ class GlobalCutPool:
         # RCC: maps node_set -> original rhs (2*ceil(demand/Q))
         self.rcc_cuts: Dict[FrozenSet[int], float] = {}
         self.sri_cuts: Set[FrozenSet[int]] = set()
-        self.active_sri_vectors: Dict[FrozenSet[int], np.ndarray] = {}
+        self.active_sri_vectors: Dict[FrozenSet[int], Dict[str, float]] = {}
         self.sec_cuts: Set[FrozenSet[int]] = set()  # Form 2.1 (Global)
         self.edge_clique_cuts: Set[Tuple[int, int]] = set()
-        # LCI: maps node_set -> rhs (the fleet-size cover bound K)
-        self.lci_cuts: Dict[FrozenSet[int], Tuple[float, Dict[int, float]]] = {}
+        # LCI: maps node_set -> (rhs, route_coefficients, node_alphas)
+        # node_alphas: per-node lifting coefficients for pricing (Barnhart et al. 2000 §4.2)
+        self.lci_cuts: Dict[FrozenSet[int], Tuple[float, Dict[int, float], Dict[int, float]]] = {}
 
     def add_cut(self, cut_type: str, data: Any) -> None:
         """
@@ -102,7 +104,8 @@ class GlobalCutPool:
             cut_type: The type of cut ("rcc", "sri", "sec_2.1", "edge_clique", "lci").
             data: Cut-specific data.
                   For "rcc": (FrozenSet[int], rhs: float)
-                  For "lci": (FrozenSet[int], rhs: float, coefficients: Dict[int, float])
+                  For "lci": (FrozenSet[int], rhs: float, route_coefficients: Dict[int, float],
+                              node_alphas: Dict[int, float])  — 4-tuple (node_alphas optional)
                   For others: FrozenSet[int] or Tuple[int, int].
         """
 
@@ -121,8 +124,13 @@ class GlobalCutPool:
         elif cut_type == "edge_clique":
             self.edge_clique_cuts.add(data)
         elif cut_type == "lci":
-            node_set, rhs, coefficients = data
-            self.lci_cuts[node_set] = (rhs, coefficients)
+            # Accept both legacy 3-tuple and new 4-tuple with node_alphas
+            if len(data) == 4:
+                node_set, rhs, coefficients, node_alphas = data
+            else:
+                node_set, rhs, coefficients = data
+                node_alphas = {}
+            self.lci_cuts[node_set] = (rhs, coefficients, node_alphas)
 
     def apply_to_master(self, master: "VRPPMasterProblem") -> int:
         """
@@ -151,9 +159,22 @@ class GlobalCutPool:
         for edge_tuple in self.edge_clique_cuts:
             if master.add_edge_clique_cut(edge_tuple[0], edge_tuple[1]):
                 added += 1
-        # Re-inject LCI cuts.
-        for node_set, (rhs, coefficients) in self.lci_cuts.items():
-            if master.add_lci_cut(list(node_set), rhs, coefficients):
+        # Re-inject LCI cuts — recompute route coefficients from node_alphas using the
+        # current master's route list.  The stale coefficients stored at discovery time
+        # reference route indices from the discovery B&B node; at a descendant node the
+        # master may have a different route pool, so those indices are meaningless.
+        for node_set, lci_data in self.lci_cuts.items():
+            if len(lci_data) == 3:
+                rhs, _stale_coefficients, node_alphas = lci_data
+            else:
+                rhs, _stale_coefficients = lci_data  # type: ignore[misc]
+                node_alphas = {}
+            new_coefficients: Dict[int, float] = {}
+            for idx, route in enumerate(master.routes):
+                alpha_k = sum(node_alphas.get(n, 1.0 if n in node_set else 0.0) for n in route.node_coverage if n != 0)
+                if alpha_k > 1e-6:
+                    new_coefficients[idx] = alpha_k
+            if master.add_lci_cut(list(node_set), rhs, new_coefficients, node_alphas=node_alphas):
                 added += 1
         return added
 
@@ -163,8 +184,8 @@ class VRPPMasterProblem:
     Master Problem (MP) for the Branch-and-Price-and-Cut algorithm.
 
     Formulates and solves the Set Partitioning Problem (SPP) relaxation of the VRPP.
-    The Master Problem is the core coordinator for the column generation loop, 
-    managing the interaction between the linear relaxation (Gurobi), the 
+    The Master Problem is the core coordinator for the column generation loop,
+    managing the interaction between the linear relaxation (Gurobi), the
     cutting plane engines, and the branching constraints.
 
     Mathematical Formulation:
@@ -179,21 +200,21 @@ class VRPPMasterProblem:
 
     Theoretical Exactness & Farkas Pricing:
     ---------------------------------------
-    To maintain theoretical exactness and support Ryan-Foster branching, this 
-    implementation utilizes strict Set Partitioning for all mandatory nodes. 
-    In the event of LP infeasibility (common during the early stages of 
-    branching), the RMP utilizes a 2-Phase approach. Instead of using 
-    arbitrary Big-M artificial variables which can cause numerical instability, 
-    we extract the `FarkasDual` ray from Gurobi. This dual ray points in the 
-    direction of infeasibility, allowing the pricing subproblem to generate 
+    To maintain theoretical exactness and support Ryan-Foster branching, this
+    implementation utilizes strict Set Partitioning for all mandatory nodes.
+    In the event of LP infeasibility (common during the early stages of
+    branching), the RMP utilizes a 2-Phase approach. Instead of using
+    arbitrary Big-M artificial variables which can cause numerical instability,
+    we extract the `FarkasDual` ray from Gurobi. This dual ray points in the
+    direction of infeasibility, allowing the pricing subproblem to generate
     columns that specifically resolve the unmet coverage requirements.
 
     Dual Smoothing & Stabilization:
     -------------------------------
-    To mitigate the "tailing-off" effect and dual degeneracy in column 
-    generation, this MP supports Exponential Dual Smoothing (EDS) as 
-    proposed by Wentges (1997). This stabilizes the dual values π passed 
-    to the subproblem, accelerating convergence by preventing the 
+    To mitigate the "tailing-off" effect and dual degeneracy in column
+    generation, this MP supports Exponential Dual Smoothing (EDS) as
+    proposed by Wentges (1997). This stabilizes the dual values π passed
+    to the subproblem, accelerating convergence by preventing the
     dual signal from oscillating between extreme basin points.
 
     Reference:
@@ -218,16 +239,16 @@ class VRPPMasterProblem:
 
         Framework (Barnhart, Hane, and Vance 2000):
         This class maintains the Restricted Master Problem (RMP) using the
-        Barnhart-style sequencing of CG followed by separation. 
-        
+        Barnhart-style sequencing of CG followed by separation.
+
         Set Partitioning & Branching:
         To maintain Ryan-Foster (1981) compatibility, we use strict equality (== 1)
         for mandatory nodes. Artificial variables (Big-M) are omitted in favor of
-        Farkas dual extraction (Phase I), ensuring that primary infeasibility guides 
+        Farkas dual extraction (Phase I), ensuring that primary infeasibility guides
         the search for feasible basis columns.
 
         Dual Stabilization:
-        Includes support for Exponential Dual Smoothing (Wentges, 1997) to 
+        Includes support for Exponential Dual Smoothing (Wentges, 1997) to
         stabilize the price signal and mitigate the "heading-in" effect.
 
         Args:
@@ -297,6 +318,10 @@ class VRPPMasterProblem:
         # dual extraction (positive for <= in MAX LP) is not confused with RCC
         # duals (negative for >= in MAX LP).
         self.active_lci_cuts: Dict[FrozenSet[int], gp.Constr] = {}
+        # Per-node lifting coefficients α_i for each active LCI.
+        # Required by the pricing subproblem: c'_lm^k = c_lm^k + π_lm + α_lm^k · γ_lm
+        # (Barnhart, Hane, Vance 2000 §4.2).
+        self.active_lci_node_alphas: Dict[FrozenSet[int], Dict[int, float]] = {}
 
         # Dual mappings
         self.dual_src_cuts: Dict[FrozenSet[int], float] = {}
@@ -422,6 +447,8 @@ class VRPPMasterProblem:
         rcc_duals: Dict[FrozenSet[int], float],
         sri_duals: Dict[FrozenSet[int], float],
         edge_clique_duals: Dict[Tuple[int, int], float],
+        lci_duals: Optional[Dict[FrozenSet[int], float]] = None,
+        lci_node_alphas: Optional[Dict[FrozenSet[int], Dict[int, float]]] = None,
         branching_constraints: Optional[List["AnyBranchingConstraint"]] = None,
         rc_tolerance: float = 1e-5,
     ) -> int:
@@ -433,6 +460,8 @@ class VRPPMasterProblem:
             rcc_duals: Current Root-Capacity Cut duals.
             sri_duals: Current Subset-Row Inequality duals.
             edge_clique_duals: Current Edge Clique cut duals.
+            lci_duals: Current Lifted Cover Inequality duals (γ per cover set S).
+            lci_node_alphas: Per-node lifting coefficients for LCI pricing adjustment.
             branching_constraints: List of active B&B branching constraints.
             rc_tolerance: Numerical threshold to prevent injection of mathematically
                          insignificant columns (epsilon deadlock).
@@ -444,11 +473,13 @@ class VRPPMasterProblem:
             return 0
 
         # Bundle duals for calculate_reduced_cost
-        dual_values = {
+        dual_values: Dict[str, Any] = {
             "node_duals": node_duals,
             "rcc_duals": rcc_duals,
             "sri_duals": sri_duals,
             "edge_clique_duals": edge_clique_duals,
+            "lci_duals": lci_duals or {},
+            "lci_node_alphas": lci_node_alphas or {},
         }
 
         # We use a set of signatures to prevent adding duplicates if they already exist in RMP
@@ -544,6 +575,23 @@ class VRPPMasterProblem:
             edge = (min(nodes[i], nodes[i + 1]), max(nodes[i], nodes[i + 1]))
             if edge in edge_clique_duals:
                 rc -= edge_clique_duals[edge]
+
+        # 6. Lifted Cover Inequality (LCI) duals — Barnhart et al. (2000) §4.2
+        # For each active LCI with cover set S and dual γ_S, the reduced cost
+        # contribution is:  rc -= Σ_{i ∈ route ∩ S} α_i · γ_S
+        # where α_i is the node-level lifting coefficient.
+        lci_duals = dual_values.get("lci_duals", {})
+        lci_node_alphas = dual_values.get("lci_node_alphas", {})
+        if lci_duals:
+            route_nodes_set = route.node_coverage
+            for cover_set, dual in lci_duals.items():
+                if dual < 1e-9:
+                    continue
+                node_alpha = lci_node_alphas.get(cover_set, {})
+                for node in route_nodes_set:
+                    alpha = node_alpha.get(node, 1.0 if node in cover_set else 0.0)
+                    if alpha > 1e-9:
+                        rc -= alpha * dual
 
         return rc
 
@@ -701,6 +749,18 @@ class VRPPMasterProblem:
                 coeff_clique = stored_coeffs.get(route_idx, 1.0)
                 self.model.chgCoeff(constr, var, float(coeff_clique))
 
+        # 5. Wire into active LCI cuts — recompute per-route coefficient from stored node alphas.
+        # Routes added after an LCI cut was created would have coefficient 0 by default,
+        # making the LCI constraint mathematically under-constrained.  We fix this by
+        # computing α_k = Σ_{i ∈ route} α_i using the archived per-node lifting coefficients.
+        for node_set, constr in self.active_lci_cuts.items():
+            node_alphas_for_set = self.active_lci_node_alphas.get(node_set, {})
+            alpha_k = sum(
+                node_alphas_for_set.get(n, 1.0 if n in node_set else 0.0) for n in route.node_coverage if n != 0
+            )
+            if alpha_k > 1e-6:
+                self.model.chgCoeff(constr, var, alpha_k)
+
     # ------------------------------------------------------------------
     # Model construction
     # ------------------------------------------------------------------
@@ -852,7 +912,9 @@ class VRPPMasterProblem:
                 # Task 3: Extract Minimum Fleet Farkas Duals
                 temp_min_c = self.model.getConstrByName("temp_min_vehicles")
                 if temp_min_c is not None:
-                    farkas_node_duals["vehicle_limit"] = farkas_node_duals.get("vehicle_limit", 0.0) + temp_min_c.FarkasDual
+                    farkas_node_duals["vehicle_limit"] = (
+                        farkas_node_duals.get("vehicle_limit", 0.0) + temp_min_c.FarkasDual
+                    )
 
                 farkas_rcc_duals: Dict[FrozenSet[int], float] = {}
                 for subset, constr in self.active_capacity_cuts.items():
@@ -970,13 +1032,18 @@ class VRPPMasterProblem:
                     self.dual_vehicle_limit += max(0.0, -temp_min_c.Pi)
 
         # ---- Extract duals for capacity cuts -----------------------------
+        self.exact_dual_capacity_cuts = {}
         self.dual_capacity_cuts = {}
         for node_set, constr in self.active_capacity_cuts.items():
             val = 0.0
             if self.model.Status == GRB.OPTIMAL:
                 with contextlib.suppress(gp.GurobiError, AttributeError):
                     val = abs(constr.Pi)
-            # Avoid using smoothed duals for exact Lagrangian UB calculation
+
+            # Store exact mathematically pure dual for bound calculation
+            self.exact_dual_capacity_cuts[node_set] = val
+
+            # Apply Wentges heuristic smoothing if enabled
             use_smoothing = self.enable_dual_smoothing and not getattr(self, "_exact_mode_active", False)
             if use_smoothing:
                 prev_val = self.prev_dual_capacity_cuts.get(node_set, 0.0)
@@ -990,12 +1057,16 @@ class VRPPMasterProblem:
         # objective).  We therefore use +Pi, not -Pi.
         # Bug history: using max(0, -Pi) always yielded 0 because -Pi <= 0,
         # so SRI cuts never influenced the pricing subproblem.
+        self.exact_dual_sri_cuts = {}
         self.dual_sri_cuts = {}
         for subset, constr in self.active_sri_cuts.items():
             val = 0.0
             if self.model.Status == GRB.OPTIMAL:
                 with contextlib.suppress(gp.GurobiError, AttributeError):
                     val = abs(constr.Pi)
+
+            self.exact_dual_sri_cuts[subset] = val
+
             if self.enable_dual_smoothing and not getattr(self, "_exact_mode_active", False):
                 prev_val = self.prev_dual_sri_cuts.get(subset, 0.0)
                 val = self.dual_smoothing_alpha * val + (1 - self.dual_smoothing_alpha) * prev_val
@@ -1021,8 +1092,21 @@ class VRPPMasterProblem:
                     self.dual_lci_cuts[node_set] = max(0.0, constr.Pi)
 
         # ---- Task 5: Apply Exponential Smoothing -----------------------
+        # Strictly separate exact duals before any smoothing is applied in-place
+        self.exact_duals = {
+            "node_duals": self.dual_node_coverage.copy(),
+            "rcc_duals": getattr(self, "exact_dual_capacity_cuts", self.dual_capacity_cuts.copy()),
+            "sri_duals": getattr(self, "exact_dual_sri_cuts", self.dual_sri_cuts.copy()),
+            "edge_clique_duals": self.dual_edge_clique_cuts.copy(),
+            "lci_duals": self.dual_lci_cuts.copy(),
+            "vehicle_limit": self.dual_vehicle_limit,
+        }
+
         if self.enable_dual_smoothing and not getattr(self, "_exact_mode_active", False):
+            self.smoothed_duals_active = True
             self._apply_dual_smoothing()
+        else:
+            self.smoothed_duals_active = False
 
         return obj_value, route_values
 
@@ -1108,6 +1192,7 @@ class VRPPMasterProblem:
         Uses MD5 content hashes of node sequences for O(1) deduplication.
         """
         import hashlib
+
         if not self.global_column_pool:
             return 0
 
@@ -1151,9 +1236,9 @@ class VRPPMasterProblem:
             Dictionary mapping node ID (int) → dual value, plus the key
             "vehicle_limit" → vehicle-limit dual if a fleet cap is active.
         """
-        assert (
-            self.model is not None and self.model.ModelSense == GRB.MAXIMIZE
-        ), "Reduced cost extraction assumes a MAXIMIZATION master problem."
+        assert self.model is not None and self.model.ModelSense == GRB.MAXIMIZE, (
+            "Reduced cost extraction assumes a MAXIMIZATION master problem."
+        )
 
         duals: Dict[Union[int, str, frozenset[int], Tuple[int, int]], float] = {
             k: v for k, v in self.dual_node_coverage.items()
@@ -1167,11 +1252,16 @@ class VRPPMasterProblem:
             clique_duals_collapsed[(u, v)] = clique_duals_collapsed.get((u, v), 0.0) + dual
 
         # Use a type-safe casting by converting to the target dictionary type explicitly
-        result: Dict[str, Dict[Union[int, frozenset[int], str, Tuple[int, int]], float]] = {
+        result: Dict[str, Any] = {
             "node_duals": {k: v for k, v in duals.items()},
             "rcc_duals": {k: v for k, v in self.dual_capacity_cuts.items()},
             "sri_duals": {k: v for k, v in self.dual_sri_cuts.items()},
             "edge_clique_duals": {k: v for k, v in clique_duals_collapsed.items()},
+            # LCI duals (γ) and per-node lifting coefficients (α_i) for pricing.
+            # These allow the RCSPP to deduct α_i · γ when visiting node i in cover S,
+            # implementing Barnhart et al. (2000) §4.2: c'_lm^k = c_lm^k + π_lm + α_lm^k · γ_lm
+            "lci_duals": {k: v for k, v in self.dual_lci_cuts.items()},
+            "lci_node_alphas": {k: v for k, v in self.active_lci_node_alphas.items()},
         }
         return result
 
@@ -1336,14 +1426,16 @@ class VRPPMasterProblem:
 
         lhs = gp.LinExpr()
         found_columns = False
-        coeff_vec = np.zeros(len(self.routes))
+        coeff_dict: Dict[str, float] = {}
         for idx, route in enumerate(self.routes):
             # Check node coverage for SRI violation calculation
             count = sum(1 for n in nodes if n in route.node_coverage)
             coeff = count // 2
             if coeff > 0:
                 lhs.add(self.lambda_vars[idx], float(coeff))
-                coeff_vec[idx] = float(coeff)
+                content = ",".join(map(str, route.nodes))
+                route_h = hashlib.md5(content.encode()).hexdigest()
+                coeff_dict[route_h] = float(coeff)
                 found_columns = True
 
         if not found_columns:
@@ -1352,7 +1444,7 @@ class VRPPMasterProblem:
         new_cut = self.model.addConstr(lhs <= 1.0, name=cut_name)
         self.active_sri_cuts[subset_frozenset] = new_cut
         # Archiving to Global Pool (SRIs are globally valid); store vector for orthogonality checks
-        self.global_cut_pool.add_cut("sri", (subset_frozenset, coeff_vec))
+        self.global_cut_pool.add_cut("sri", (subset_frozenset, coeff_dict))
         self.model.update()
         return True
 
@@ -1407,7 +1499,13 @@ class VRPPMasterProblem:
             self.model.update()
         return True
 
-    def add_lci_cut(self, node_list: List[int], rhs: float, coefficients: Dict[int, float]) -> bool:
+    def add_lci_cut(
+        self,
+        node_list: List[int],
+        rhs: float,
+        coefficients: Dict[int, float],
+        node_alphas: Optional[Dict[int, float]] = None,
+    ) -> bool:
         """
         Add a Lifted Cover Inequality (LCI) to the master problem.
 
@@ -1417,6 +1515,19 @@ class VRPPMasterProblem:
         LCI cuts are stored in `active_lci_cuts` (separate from `active_capacity_cuts`
         which holds >= RCC constraints) so that dual extraction uses the correct
         sign: Pi >= 0 for a <= constraint in a MAX LP.
+
+        The optional ``node_alphas`` mapping (node_id → lifting coefficient α_i)
+        enables the pricing subproblem to apply the correct per-node penalty when
+        the cut's dual variable γ is nonzero.  Per Barnhart et al. (2000) §4.2:
+
+            c'_lm^k = c_lm^k + π_lm + α_lm^k · γ_lm
+
+        Args:
+            node_list: Customer nodes defining the cover set S.
+            rhs: Right-hand side of the inequality (|C| - 1 or lifting bound K).
+            coefficients: Route-index → route-level lifting coefficient (α_k).
+            node_alphas: Node-id → per-node lifting coefficient (α_i).
+                         If None, defaults to 1.0 for cover nodes, 0.0 for others.
         """
         if self.model is None:
             return False
@@ -1436,8 +1547,11 @@ class VRPPMasterProblem:
         name = f"lci_{abs(hash(node_set))}"
         constr = self.model.addConstr(lhs <= rhs, name=name)
         self.active_lci_cuts[node_set] = constr
-        # Archive with rhs and coefficients so descendant nodes can replay correctly.
-        self.global_cut_pool.add_cut("lci", (node_set, rhs, coefficients))
+        # Store per-node alphas for pricing dual integration.
+        effective_node_alphas: Dict[int, float] = node_alphas if node_alphas is not None else {}
+        self.active_lci_node_alphas[node_set] = effective_node_alphas
+        # Archive with rhs, route coefficients AND node_alphas so descendant nodes replay correctly.
+        self.global_cut_pool.add_cut("lci", (node_set, rhs, coefficients, effective_node_alphas))
         if self.model is not None:
             self.model.update()
         return True

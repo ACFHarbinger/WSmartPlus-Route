@@ -42,7 +42,13 @@ class BPCConfig:
         rc_tolerance: Minimum reduced cost to accept a new column.
         exact_mode: Whether to enable strict exact management.
         strong_branching_size: Number of candidates for strong branching.
-
+        cg_at_root_only: Run column generation only at the root B&B node; at all
+            descendant nodes, no new columns are generated (use the pool built at
+            root).  Replicates the "CG at root only" experiment in Table 2 of
+            Barnhart, Hane, and Vance (2000).  Trades solution quality for speed.
+        use_swc_tcf_initialization: Whether to use SWC-TCF for RMP initialization.
+        use_swc_tcf_heuristic_pricing: Whether to use SWC-TCF as a fast heuristic pricer.
+        use_swc_tcf_primal_heuristic: Whether to use SWC-TCF as a primal heuristic at nodes.
     """
 
     time_limit: float = 60.0
@@ -73,4 +79,7 @@ class BPCConfig:
     rc_tolerance: float = 1e-5
     exact_mode: bool = False
     strong_branching_size: int = 5
-
+    cg_at_root_only: bool = False
+    use_swc_tcf_initialization: bool = False
+    use_swc_tcf_heuristic_pricing: bool = False
+    use_swc_tcf_primal_heuristic: bool = False

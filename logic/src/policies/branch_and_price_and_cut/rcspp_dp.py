@@ -3,6 +3,16 @@ RCSPP Pricing Subproblem Solver.
 
 Solves the Resource-Constrained Shortest Path Problem (RCSPP) to identify
 profitable columns (routes) for the BPC Master Problem.
+
+Theoretical Deviation Note:
+---------------------------
+Unlike the pure ODIMCF formulation in Barnhart, Hane, and Vance (2000) which
+manages state-space explosion strictly via branching, this implementation intentionally
+incorporates Subset-Row Inequalities (SRIs) and accommodates Ryan-Foster branching.
+These algorithmic choices fundamentally expand the DP state space by requiring auxiliary
+resource dimensions (e.g., tracking SRI parity constraints). To mitigate this explosion
+and maintain tractability, we rely heavily on the ng-route relaxation framework,
+balancing bounding strength with computational viability for the VRPP.
 """
 
 from __future__ import annotations
@@ -190,8 +200,13 @@ class RCSPPSolver:
         forced_nodes: Optional[Set[int]] = None,
         rf_conflicts: Optional[Dict[int, Set[int]]] = None,
         is_farkas: bool = False,
+        exact_mode: bool = False,
     ) -> List[Route]:
-        self._rcc_duals_for_bounds = cast(Dict[str, Any], dual_values).get("rcc_duals", {}) if isinstance(dual_values, dict) else capacity_cut_duals or {}
+        self._rcc_duals_for_bounds = (
+            cast(Dict[str, Any], dual_values).get("rcc_duals", {})
+            if isinstance(dual_values, dict)
+            else capacity_cut_duals or {}
+        )
         # 1. Dual handling
         if isinstance(dual_values, dict) and "node_duals" in dual_values:
             # Composite duals from Master Problem
@@ -202,12 +217,29 @@ class RCSPPSolver:
             # Edge-clique duals are keyed by canonical (min, max) edge tuples.
             # They penalise the reduced cost whenever the DP traverses a cut edge.
             edge_clique_duals: Dict[Tuple[int, int], float] = complex_duals.get("edge_clique_duals", {})
+            self.vehicle_dual = complex_duals.get("vehicle_limit", 0.0)
+            # LCI duals (γ_S) and node-level lifting coefficients (α_i).
+            # Per Barnhart et al. (2000) §4.2, when traversing a node i in cover S:
+            #   rc_delta -= α_i · γ_S
+            lci_duals_raw: Dict[FrozenSet[int], float] = complex_duals.get("lci_duals", {})
+            lci_node_alphas_raw: Dict[FrozenSet[int], Dict[int, float]] = complex_duals.get("lci_node_alphas", {})
         else:
             # Simple node duals only
             node_duals = dual_values  # type: ignore[assignment]
             rcc_duals = capacity_cut_duals or {}
             sri_duals = sri_cut_duals or {}
             edge_clique_duals = edge_clique_cut_duals or {}
+            self.vehicle_dual = 0.0
+            lci_duals_raw = {}
+            lci_node_alphas_raw = {}
+
+        # Build LCI cover items for DP extension: list of (cover_set, node_alpha, dual_value).
+        # Only include cuts with non-negligible dual to avoid wasted iteration in the inner loop.
+        lci_cover_items: List[Tuple[FrozenSet[int], Dict[int, float], float]] = [
+            (cover_set, lci_node_alphas_raw.get(cover_set, {}), dual)
+            for cover_set, dual in lci_duals_raw.items()
+            if dual > 1e-8
+        ]
 
         # 2. Reset state
         self.labels_generated = 0
@@ -260,6 +292,8 @@ class RCSPPSolver:
                 node_to_sri=node_to_sri,
                 forced_nodes=self.forced_nodes,
                 edge_clique_duals=edge_clique_duals,
+                lci_cover_items=lci_cover_items,
+                exact_mode=exact_mode,
             )
         finally:
             self.use_ng_routes = original_use_ng
@@ -274,7 +308,7 @@ class RCSPPSolver:
         self.bounds_from = np.zeros(self.n_nodes + 1)
         rcc_duals = getattr(self, "_rcc_duals_for_bounds", {})
         nodes = list(range(self.n_nodes + 1))
-        for _ in range(min(self.n_nodes, 10)):
+        for _ in range(self.n_nodes):
             changed = False
             for i in nodes:
                 # To Depot
@@ -287,10 +321,7 @@ class RCSPPSolver:
 
                     # Add RCC dual contributions: for each cut set S containing j,
                     # subtract the dual if crossing the cut boundary.
-                    rcc_penalty = sum(
-                        mu for S, mu in rcc_duals.items()
-                        if j in S and i not in S
-                    )
+                    rcc_penalty = sum(mu for S, mu in rcc_duals.items() if j in S and i not in S)
 
                     val = (node_rev - edge_cost - node_dual - rcc_penalty) + self.bounds_to[j]
                     if val > self.bounds_to[i]:
@@ -304,10 +335,7 @@ class RCSPPSolver:
                     node_dual = self.dual_values.get(i, 0.0)
                     node_rev = self.wastes.get(i, 0.0) * self.R
 
-                    rcc_penalty = sum(
-                        mu for S, mu in rcc_duals.items()
-                        if i in S and j not in S
-                    )
+                    rcc_penalty = sum(mu for S, mu in rcc_duals.items() if i in S and j not in S)
 
                     val = (node_rev - edge_cost - node_dual - rcc_penalty) + self.bounds_from[j]
                     if val > self.bounds_from[i]:
@@ -346,6 +374,7 @@ class RCSPPSolver:
         rc = rev - cost
         for node in route_nodes:
             rc -= self.dual_values.get(node, 0.0)
+        rc -= self.vehicle_dual
 
         route = Route(
             nodes=route_nodes,
@@ -393,6 +422,8 @@ class RCSPPSolver:
         forced_nodes: Set[int],
         sri_memory_nodes: Optional[List[Set[int]]] = None,
         edge_clique_duals: Optional[Dict[Tuple[int, int], float]] = None,
+        lci_cover_items: Optional[List[Tuple[FrozenSet[int], Dict[int, float], float]]] = None,
+        exact_mode: bool = False,
     ) -> List[Route]:
         """Forward label-correcting algorithm (priority-queue order)."""
         use_ng = self.use_ng_routes
@@ -423,7 +454,10 @@ class RCSPPSolver:
             u = current.node
 
             # Candidate successors
-            candidate_nodes = [required_successors[u]] if u in required_successors else self._get_neighbors(u, 20)
+            neighbor_limit = self.n_nodes if exact_mode else 20
+            candidate_nodes = (
+                [required_successors[u]] if u in required_successors else self._get_neighbors(u, neighbor_limit)
+            )
 
             for v in candidate_nodes:
                 is_required = u in required_successors and required_successors[u] == v
@@ -456,10 +490,12 @@ class RCSPPSolver:
                     node_to_sri=node_to_sri,
                     sri_memory_nodes=sri_memory_nodes,
                     edge_clique_duals=edge_clique_duals,
+                    lci_cover_items=lci_cover_items,
                 )
                 if new_label is None:
                     continue
 
+                # Fix 7: Early exit for fixed arcs before dominance check
                 if (u, v) in self.fixed_arcs:
                     continue
 
@@ -516,16 +552,20 @@ class RCSPPSolver:
 
     def _extend_to_depot(self, label: Label) -> Optional[Label]:
         edge_cost = self.cost_matrix[label.node, self.depot] * self.C
-        # Extract vehicle limit dual (index "vehicle_limit" if composite, else 0.0)
-        vehicle_dual = 0.0
-        if isinstance(self.dual_values, dict) and "vehicle_limit" in self.dual_values:
-            vehicle_dual = float(self.dual_values["vehicle_limit"])
+        # Extract vehicle limit dual
+        vehicle_dual = getattr(self, "vehicle_dual", 0.0)
 
-        # Simplified crossing penalty for depot return
+        # RCC crossing penalty for the depot-return arc.
+        # The depot (node 0) is never inside a customer cut set S, so an arc
+        # from label.node ∈ S back to the depot is always a boundary exit crossing
+        # and must carry the RCC dual penalty.  Omitting this caused the pricing DP
+        # to over-value depot returns from within a cut set, generating columns that
+        # violated RCC constraints.
         crossing_penalty = 0.0
-        # In VRPP SPP, we typically don't separate capacity cuts on depot arcs
-        # but for robustness we follow the same logic as _extend_label if needed.
-        # Here we skip for now as per instructions.
+        rcc_duals_depot = getattr(self, "_rcc_duals_for_bounds", {})
+        for subset, dual in rcc_duals_depot.items():
+            if label.node in subset and self.depot not in subset:
+                crossing_penalty += dual
 
         new_rc = label.reduced_cost - edge_cost - vehicle_dual - crossing_penalty
 
@@ -562,6 +602,7 @@ class RCSPPSolver:
         node_to_sri: Dict[int, List[int]],
         sri_memory_nodes: Optional[List[Set[int]]] = None,
         edge_clique_duals: Optional[Dict[Tuple[int, int], float]] = None,
+        lci_cover_items: Optional[List[Tuple[FrozenSet[int], Dict[int, float], float]]] = None,
     ) -> Optional[Label]:
         edge = (label.node, next_node)
         if edge in forbidden:
@@ -577,8 +618,15 @@ class RCSPPSolver:
 
         # Duals
         rc_delta = rev - cost - self.dual_values.get(next_node, 0.0)
+        # RCC duals: penalise each boundary CROSSING, not each node visit.
+        # A crossing occurs when the arc (label.node → next_node) transitions
+        # between the interior and exterior of cut set S.
+        # Applying the dual per node visit would double-count arcs within S
+        # and miss exit crossings entirely, producing incorrect reduced costs.
         for subset, dual in rcc_duals.items():
-            if next_node in subset:
+            current_in_set = label.node in subset
+            next_in_set = next_node in subset
+            if current_in_set != next_in_set:
                 rc_delta -= dual
 
         # Edge-Clique dual penalty (Barnhart et al. 2000, §4.2).
@@ -604,6 +652,14 @@ class RCSPPSolver:
                     new_sri[idx] = 2
                     rc_delta -= sri_duals[idx]
                 # 3rd visit: ⌊3/2⌋ = 1 still — no additional penalty; keep state at 2.
+
+        # LCI Dual Penalty — Barnhart, Hane, Vance (2000) §4.2
+        if lci_cover_items:
+            for cover_set, node_alpha, dual in lci_cover_items:
+                if next_node in cover_set:  # Fix 2: Strict guard for cover set members
+                    alpha = node_alpha.get(next_node, 1.0)
+                    if alpha > 1e-9:
+                        rc_delta -= alpha * dual
 
         new_rc = label.reduced_cost + rc_delta
         new_visited = label.visited | {next_node}
