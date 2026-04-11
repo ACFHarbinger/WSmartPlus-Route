@@ -27,6 +27,10 @@ class BPCParams:
         rc_tolerance: Minimum reduced cost to accept a new column.
         exact_mode: Whether to enable strict exact management (no dual smoothing).
         strong_branching_size: Number of candidates to evaluate in strong branching.
+        cg_at_root_only: Run column generation only at the root B&B node; at all
+            descendant nodes, no new columns are generated (use the pool built at
+            root).  Replicates the "CG at root only" experiment in Table 2 of
+            Barnhart, Hane, and Vance (2000).  Trades solution quality for speed.
 
 
     Note:
@@ -63,9 +67,15 @@ class BPCParams:
     # (2×N child LP solves per candidate).
     enable_strong_branching_heuristic: bool = False
     enable_column_pool_deduplication: bool = True
-    rc_tolerance: float = 1e-5  # Fix 8: Minimum reduced cost to accept a new column
+    rc_tolerance: float = 1e-8  # Fix 8: Minimum reduced cost to accept a new column
     exact_mode: bool = False  # Task 3: Enable strict exact management
     strong_branching_size: int = 5  # Task 1: Number of candidates for strong branching
+    cg_at_root_only: bool = False  # Paper Table 2: Run column generation only at root node
+
+    # Matheuristic Integration Flags (SWC-TCF)
+    use_swc_tcf_initialization: bool = False
+    use_swc_tcf_heuristic_pricing: bool = False
+    use_swc_tcf_primal_heuristic: bool = False
 
     @classmethod
     def from_config(cls, config: Any) -> BPCParams:

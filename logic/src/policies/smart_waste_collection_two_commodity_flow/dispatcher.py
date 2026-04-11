@@ -31,6 +31,7 @@ def run_swc_tcf_optimizer(
     optimizer: str = "gurobi",
     seed: int = 42,
     max_iter_no_improv: int = 10,
+    dual_values: Optional[Dict[int, float]] = None,
 ):
     """
     Solve SWC-TCF using either Gurobi or Hexaly optimizer.
@@ -46,6 +47,7 @@ def run_swc_tcf_optimizer(
             number_vehicles,
             time_limit,
             seed,
+            dual_values=dual_values,
         )
     elif optimizer == "hexaly":
         return _run_hexaly_optimizer(

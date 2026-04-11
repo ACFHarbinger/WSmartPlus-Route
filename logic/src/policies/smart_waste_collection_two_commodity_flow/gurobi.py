@@ -24,6 +24,7 @@ def _run_gurobi_optimizer(  # noqa: C901
     number_vehicles: int = 1,
     time_limit: int = 60,
     seed: int = 42,
+    dual_values: Optional[Dict[int, float]] = None,
 ):
     """Solve the Vehicle Routing Problem with Profits."""
     Omega, delta, psi = values["Omega"], values["delta"], values["psi"]
@@ -127,12 +128,24 @@ def _run_gurobi_optimizer(  # noqa: C901
     # Two-commodity flow handles subtour elimination and capacity automatically.
     # No need for the old 'f' based commodity flow here.
 
-    mdl.setObjective(
-        R * quicksum(S_dict[i] * g[i] for i in nodes_real)
-        - 0.5 * C * quicksum(x[i, j] * distance_matrix[i][j] for i, j in pares_viaveis)
-        - Omega * k_var,
-        GRB.MAXIMIZE,
-    )
+    if dual_values:
+        # VRPP Pricing Phase: Maximize Reduced Cost = Profit - sum(π_i * g_i) - π_0 * k_var
+        # Depot dual is usually at index 0 (representing the fleet limit constraint)
+        pi_0 = dual_values.get(idx_deposito, 0.0)
+        mdl.setObjective(
+            quicksum((R * S_dict[i] - dual_values.get(i, 0.0)) * g[i] for i in nodes_real)
+            - 0.5 * C * quicksum(x[i, j] * distance_matrix[i][j] for i, j in pares_viaveis)
+            - pi_0 * k_var,
+            GRB.MAXIMIZE,
+        )
+    else:
+        # Standard Objective
+        mdl.setObjective(
+            R * quicksum(S_dict[i] * g[i] for i in nodes_real)
+            - 0.5 * C * quicksum(x[i, j] * distance_matrix[i][j] for i, j in pares_viaveis)
+            - Omega * k_var,
+            GRB.MAXIMIZE,
+        )
 
     mdl.Params.MIPFocus = 1
     mdl.Params.Heuristics = HEURISTICS_RATIO
