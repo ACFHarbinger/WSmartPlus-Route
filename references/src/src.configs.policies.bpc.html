@@ -561,6 +561,10 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.rc_tolerance"><code class="docutils literal notranslate"><span class="pre">BPCConfig.rc_tolerance</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.exact_mode"><code class="docutils literal notranslate"><span class="pre">BPCConfig.exact_mode</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.strong_branching_size"><code class="docutils literal notranslate"><span class="pre">BPCConfig.strong_branching_size</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.cg_at_root_only"><code class="docutils literal notranslate"><span class="pre">BPCConfig.cg_at_root_only</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.use_swc_tcf_initialization"><code class="docutils literal notranslate"><span class="pre">BPCConfig.use_swc_tcf_initialization</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.use_swc_tcf_heuristic_pricing"><code class="docutils literal notranslate"><span class="pre">BPCConfig.use_swc_tcf_heuristic_pricing</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.use_swc_tcf_primal_heuristic"><code class="docutils literal notranslate"><span class="pre">BPCConfig.use_swc_tcf_primal_heuristic</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -628,7 +632,14 @@ enable_column_pool_deduplication: Whether to enable column pool deduplication.
 enable_hybrid_search: Whether to enable hybrid DFS/BFS search.
 rc_tolerance: Minimum reduced cost to accept a new column.
 exact_mode: Whether to enable strict exact management.
-strong_branching_size: Number of candidates for strong branching.</p>
+strong_branching_size: Number of candidates for strong branching.
+cg_at_root_only: Run column generation only at the root B&amp;B node; at all
+descendant nodes, no new columns are generated (use the pool built at
+root).  Replicates the “CG at root only” experiment in Table 2 of
+Barnhart, Hane, and Vance (2000).  Trades solution quality for speed.
+use_swc_tcf_initialization: Whether to use SWC-TCF for RMP initialization.
+use_swc_tcf_heuristic_pricing: Whether to use SWC-TCF as a fast heuristic pricer.
+use_swc_tcf_primal_heuristic: Whether to use SWC-TCF as a primal heuristic at nodes.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.bpc.BPCConfig.time_limit">
 <span class="sig-name descname"><span class="pre">time_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.bpc.BPCConfig.time_limit" title="Link to this definition">#</a></dt>
@@ -797,6 +808,30 @@ strong_branching_size: Number of candidates for strong branching.</p>
 <dd><p>5</p>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.bpc.BPCConfig.cg_at_root_only">
+<span class="sig-name descname"><span class="pre">cg_at_root_only</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.bpc.BPCConfig.cg_at_root_only" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.bpc.BPCConfig.use_swc_tcf_initialization">
+<span class="sig-name descname"><span class="pre">use_swc_tcf_initialization</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.bpc.BPCConfig.use_swc_tcf_initialization" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.bpc.BPCConfig.use_swc_tcf_heuristic_pricing">
+<span class="sig-name descname"><span class="pre">use_swc_tcf_heuristic_pricing</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.bpc.BPCConfig.use_swc_tcf_heuristic_pricing" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.bpc.BPCConfig.use_swc_tcf_primal_heuristic">
+<span class="sig-name descname"><span class="pre">use_swc_tcf_primal_heuristic</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.bpc.BPCConfig.use_swc_tcf_primal_heuristic" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -880,6 +915,10 @@ strong_branching_size: Number of candidates for strong branching.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.rc_tolerance"><code class="docutils literal notranslate"><span class="pre">BPCConfig.rc_tolerance</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.exact_mode"><code class="docutils literal notranslate"><span class="pre">BPCConfig.exact_mode</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.strong_branching_size"><code class="docutils literal notranslate"><span class="pre">BPCConfig.strong_branching_size</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.cg_at_root_only"><code class="docutils literal notranslate"><span class="pre">BPCConfig.cg_at_root_only</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.use_swc_tcf_initialization"><code class="docutils literal notranslate"><span class="pre">BPCConfig.use_swc_tcf_initialization</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.use_swc_tcf_heuristic_pricing"><code class="docutils literal notranslate"><span class="pre">BPCConfig.use_swc_tcf_heuristic_pricing</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.use_swc_tcf_primal_heuristic"><code class="docutils literal notranslate"><span class="pre">BPCConfig.use_swc_tcf_primal_heuristic</span></code></a></li>
 </ul>
 </li>
 </ul>

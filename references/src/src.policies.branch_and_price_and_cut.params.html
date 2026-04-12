@@ -558,6 +558,10 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.rc_tolerance"><code class="docutils literal notranslate"><span class="pre">BPCParams.rc_tolerance</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.exact_mode"><code class="docutils literal notranslate"><span class="pre">BPCParams.exact_mode</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.strong_branching_size"><code class="docutils literal notranslate"><span class="pre">BPCParams.strong_branching_size</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.cg_at_root_only"><code class="docutils literal notranslate"><span class="pre">BPCParams.cg_at_root_only</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_initialization"><code class="docutils literal notranslate"><span class="pre">BPCParams.use_swc_tcf_initialization</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_heuristic_pricing"><code class="docutils literal notranslate"><span class="pre">BPCParams.use_swc_tcf_heuristic_pricing</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_primal_heuristic"><code class="docutils literal notranslate"><span class="pre">BPCParams.use_swc_tcf_primal_heuristic</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.from_config"><code class="docutils literal notranslate"><span class="pre">BPCParams.from_config()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.to_dict"><code class="docutils literal notranslate"><span class="pre">BPCParams.to_dict()</span></code></a></li>
 </ul>
@@ -611,7 +615,11 @@ cut_orthogonality_threshold: cosine similarity ceiling for cut filtering.
 enable_column_pool_deduplication: Whether to enable column pool deduplication.
 rc_tolerance: Minimum reduced cost to accept a new column.
 exact_mode: Whether to enable strict exact management (no dual smoothing).
-strong_branching_size: Number of candidates to evaluate in strong branching.</p>
+strong_branching_size: Number of candidates to evaluate in strong branching.
+cg_at_root_only: Run column generation only at the root B&amp;B node; at all
+descendant nodes, no new columns are generated (use the pool built at
+root).  Replicates the “CG at root only” experiment in Table 2 of
+Barnhart, Hane, and Vance (2000).  Trades solution quality for speed.</p>
 <p>Note:
 enable_heuristic_rcc_separation replaces the legacy enable_fractional_capacity_cuts
 to clarify that the connected-component-based separation is a heuristic,
@@ -751,7 +759,7 @@ not an exact max-flow separation on the full support graph.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.params.BPCParams.rc_tolerance">
 <span class="sig-name descname"><span class="pre">rc_tolerance</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.branch_and_price_and_cut.params.BPCParams.rc_tolerance" title="Link to this definition">#</a></dt>
-<dd><p>1e-05</p>
+<dd><p>1e-08</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -764,6 +772,30 @@ not an exact max-flow separation on the full support graph.</p>
 <dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.params.BPCParams.strong_branching_size">
 <span class="sig-name descname"><span class="pre">strong_branching_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.branch_and_price_and_cut.params.BPCParams.strong_branching_size" title="Link to this definition">#</a></dt>
 <dd><p>5</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.params.BPCParams.cg_at_root_only">
+<span class="sig-name descname"><span class="pre">cg_at_root_only</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.branch_and_price_and_cut.params.BPCParams.cg_at_root_only" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_initialization">
+<span class="sig-name descname"><span class="pre">use_swc_tcf_initialization</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_initialization" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_heuristic_pricing">
+<span class="sig-name descname"><span class="pre">use_swc_tcf_heuristic_pricing</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_heuristic_pricing" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_primal_heuristic">
+<span class="sig-name descname"><span class="pre">use_swc_tcf_primal_heuristic</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_primal_heuristic" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
 </dd></dl>
 
 <dl class="py method">
@@ -858,6 +890,10 @@ not an exact max-flow separation on the full support graph.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.rc_tolerance"><code class="docutils literal notranslate"><span class="pre">BPCParams.rc_tolerance</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.exact_mode"><code class="docutils literal notranslate"><span class="pre">BPCParams.exact_mode</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.strong_branching_size"><code class="docutils literal notranslate"><span class="pre">BPCParams.strong_branching_size</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.cg_at_root_only"><code class="docutils literal notranslate"><span class="pre">BPCParams.cg_at_root_only</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_initialization"><code class="docutils literal notranslate"><span class="pre">BPCParams.use_swc_tcf_initialization</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_heuristic_pricing"><code class="docutils literal notranslate"><span class="pre">BPCParams.use_swc_tcf_heuristic_pricing</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_primal_heuristic"><code class="docutils literal notranslate"><span class="pre">BPCParams.use_swc_tcf_primal_heuristic</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.from_config"><code class="docutils literal notranslate"><span class="pre">BPCParams.from_config()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_price_and_cut.params.BPCParams.to_dict"><code class="docutils literal notranslate"><span class="pre">BPCParams.to_dict()</span></code></a></li>
 </ul>

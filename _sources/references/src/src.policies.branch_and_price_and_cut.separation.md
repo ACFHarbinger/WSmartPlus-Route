@@ -205,10 +205,10 @@ Bases: {py:obj}`src.policies.branch_and_price_and_cut.separation.Inequality`
 
 ````
 
-````{py:method} _separate_capacity_cuts_heuristic_exact(x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray], root_node: bool = False, max_cuts: int = 50)
-:canonical: src.policies.branch_and_price_and_cut.separation.SeparationEngine._separate_capacity_cuts_heuristic_exact
+````{py:method} _separate_capacity_cuts_maxflow_heuristic(x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray], root_node: bool = False, max_cuts: int = 50)
+:canonical: src.policies.branch_and_price_and_cut.separation.SeparationEngine._separate_capacity_cuts_maxflow_heuristic
 
-```{autodoc2-docstring} src.policies.branch_and_price_and_cut.separation.SeparationEngine._separate_capacity_cuts_heuristic_exact
+```{autodoc2-docstring} src.policies.branch_and_price_and_cut.separation.SeparationEngine._separate_capacity_cuts_maxflow_heuristic
 ```
 
 ````

@@ -47,6 +47,10 @@
   - ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.cutting_planes.PhysicalCapacityLCIEngine
     :summary:
     ```
+* - {py:obj}`SaturatedArcLCIEngine <src.policies.branch_and_price_and_cut.cutting_planes.SaturatedArcLCIEngine>`
+  - ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.cutting_planes.SaturatedArcLCIEngine
+    :summary:
+    ```
 ````
 
 ### Functions
@@ -304,6 +308,35 @@ Bases: {py:obj}`src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlan
 
 ````{py:method} get_name() -> str
 :canonical: src.policies.branch_and_price_and_cut.cutting_planes.PhysicalCapacityLCIEngine.get_name
+
+````
+
+`````
+
+`````{py:class} SaturatedArcLCIEngine(v_model: src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel, epsilon: float = 0.01)
+:canonical: src.policies.branch_and_price_and_cut.cutting_planes.SaturatedArcLCIEngine
+
+Bases: {py:obj}`src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine`
+
+```{autodoc2-docstring} src.policies.branch_and_price_and_cut.cutting_planes.SaturatedArcLCIEngine
+```
+
+```{rubric} Initialization
+```
+
+```{autodoc2-docstring} src.policies.branch_and_price_and_cut.cutting_planes.SaturatedArcLCIEngine.__init__
+```
+
+````{py:method} separate_and_add_cuts(master: src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem, max_cuts: int, **kwargs) -> int
+:canonical: src.policies.branch_and_price_and_cut.cutting_planes.SaturatedArcLCIEngine.separate_and_add_cuts
+
+```{autodoc2-docstring} src.policies.branch_and_price_and_cut.cutting_planes.SaturatedArcLCIEngine.separate_and_add_cuts
+```
+
+````
+
+````{py:method} get_name() -> str
+:canonical: src.policies.branch_and_price_and_cut.cutting_planes.SaturatedArcLCIEngine.get_name
 
 ````
 

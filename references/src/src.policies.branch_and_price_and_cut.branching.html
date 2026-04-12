@@ -919,18 +919,47 @@ it globally restricts the anonymous fleet, enforcing a strong bound.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.branching.MultiEdgePartitionBranching.find_divergence_node">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">find_divergence_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.branch_and_price_and_cut.master_problem.html#src.policies.branch_and_price_and_cut.master_problem.Route" title="src.policies.branch_and_price_and_cut.master_problem.Route"><span class="pre">src.policies.branch_and_price_and_cut.master_problem.Route</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.branching.MultiEdgePartitionBranching.find_divergence_node" title="Link to this definition">#</a></dt>
-<dd><p>Identify a node ‘d’ where routes diverge into two arc sets.</p>
-<p>The divergence branching rule (Barnhart et al. 2000, §4.3) identifies
-a node ‘d’ such that the outgoing flow from ‘d’ is split between two
-sets of arcs A1 and A2.</p>
+<dd><p>Barnhart, Hane, and Vance (2000) §4.3 path-tracing divergence branching.</p>
+<p>Primary method — explicit path tracing (paper §4.3):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Selects the two highest-λ fractional routes (P1, P2) and walks them
+in lock-step from the depot until they take different outgoing arcs
+from some node d.  That node is the *divergence node*.
+
+Arc-set convention (DFS child ordering):
+  arc_set_1  contains the higher-flow half of a balanced median split of
+             all outgoing fractional arcs from d (by aggregate λ weight).
+  arc_set_2  contains the lower-flow half plus all non-fractional outgoing
+             arcs from d, guaranteeing arc-universe completeness.
+
+Child 1 (forbids arc_set_1) → Typically the &quot;weaker&quot; branch, explored
+         FIRST in DFS to find an early feasible solution.
+Child 2 (forbids arc_set_2) → Typically the &quot;stronger&quot; branch, explored
+         SECOND, focusing search on the higher-flow arc cluster.
+
+This balanced partition prevents &quot;thin&quot; branches and improves tree
+convergence compared to singleton arc branching.
+
+Fallback — aggregate-flow heuristic with optional spatial partition:
+</pre></div>
+</div>
+<p>Used when fewer than two fractional routes exist, or when the two
+chosen routes share no common initial sub-path long enough to reveal
+a non-trivial divergence node.  Falls back to the arc with the
+highest aggregate flow, then uses cosine-similarity spatial grouping
+to build a balanced arc-set partition.</p>
+<p>Arc-universe completeness guarantee:
+arc_set_1 ∪ arc_set_2 = all possible outgoing arcs from d, so no
+new column can bypass the branching constraint in either child.</p>
 <p>Args:
 routes: Column pool.
-route_values: Fractional solution (λ_k).
-tol: Fractional tolerance.
-node_coords: Optional coords for spatial partitioning.
-n_nodes: Total number of customer nodes in the problem.</p>
+route_values: Fractional LP solution {route_index: λ_k}.
+tol: Integrality tolerance.
+node_coords: Optional (N+1)×2 coordinate array; used only in
+the fallback spatial partition.
+n_nodes: Number of customer nodes (excluding depot); used to
+build the complete outgoing-arc universe.</p>
 <p>Returns:
-Tuple of (divergence_node_d, arc_set_1, arc_set_2, score) or None.</p>
+(d, arc_set_1, arc_set_2, score) or None if solution is integer.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -986,16 +1015,22 @@ complexity.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.branch_and_price_and_cut.branching.RyanFosterBranching.find_branching_pair">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">find_branching_pair</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.policies.branch_and_price_and_cut.master_problem.html#src.policies.branch_and_price_and_cut.master_problem.Route" title="src.policies.branch_and_price_and_cut.master_problem.Route"><span class="pre">src.policies.branch_and_price_and_cut.master_problem.Route</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.branch_and_price_and_cut.branching.RyanFosterBranching.find_branching_pair" title="Link to this definition">#</a></dt>
-<dd><p>Find a node pair (r, s) whose fractional co-occurrence lies in (0, 1).
-Only considers pairs where both nodes are mandatory, fulfilling the
-strict Set Partitioning requirement for exactness.</p>
+<dd><p>Find the node pair (r, s) whose fractional co-occurrence is closest to 0.5.</p>
+<p>Ryan &amp; Foster (1981) Proposition 1 guarantees that for any fractional SPP
+solution there exists such a pair.  Among all fractional pairs we select the
+one with <code class="docutils literal notranslate"><span class="pre">|together_sum</span> <span class="pre">−</span> <span class="pre">round(together_sum)|</span></code> maximised (i.e. closest to
+0.5), which produces the strongest symmetry-breaking branch (equal LP bound
+reduction on both children) and leads to fewer B&amp;B nodes overall.</p>
+<p>The previous implementation returned the <em>first</em> fractional pair encountered
+(dependent on arbitrary dict-iteration order), which could produce very
+lopsided branches.  This version scores all candidates and returns the best.</p>
 <p>Args:
 routes: All routes in the master problem.
 route_values: Current LP solution {route_index: λ_k}.
 mandatory_nodes: Set of mandatory nodes needing exact partitioning.
 tol: Integrality tolerance.</p>
 <p>Returns:
-((node_r, node_s), together_sum) to branch on, or None if the solution is already integer.</p>
+((node_r, node_s), together_sum) to branch on, or None if integer.</p>
 </dd></dl>
 
 <dl class="py method">

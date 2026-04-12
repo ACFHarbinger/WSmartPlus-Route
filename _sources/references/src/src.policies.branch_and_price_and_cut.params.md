@@ -275,7 +275,7 @@
 :canonical: src.policies.branch_and_price_and_cut.params.BPCParams.rc_tolerance
 :type: float
 :value: >
-   1e-05
+   1e-08
 
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.params.BPCParams.rc_tolerance
 ```
@@ -300,6 +300,50 @@
    5
 
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.params.BPCParams.strong_branching_size
+```
+
+````
+
+````{py:attribute} cg_at_root_only
+:canonical: src.policies.branch_and_price_and_cut.params.BPCParams.cg_at_root_only
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.branch_and_price_and_cut.params.BPCParams.cg_at_root_only
+```
+
+````
+
+````{py:attribute} use_swc_tcf_initialization
+:canonical: src.policies.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_initialization
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_initialization
+```
+
+````
+
+````{py:attribute} use_swc_tcf_heuristic_pricing
+:canonical: src.policies.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_heuristic_pricing
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_heuristic_pricing
+```
+
+````
+
+````{py:attribute} use_swc_tcf_primal_heuristic
+:canonical: src.policies.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_primal_heuristic
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_primal_heuristic
 ```
 
 ````

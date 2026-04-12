@@ -337,4 +337,48 @@
 
 ````
 
+````{py:attribute} cg_at_root_only
+:canonical: src.configs.policies.bpc.BPCConfig.cg_at_root_only
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.cg_at_root_only
+```
+
+````
+
+````{py:attribute} use_swc_tcf_initialization
+:canonical: src.configs.policies.bpc.BPCConfig.use_swc_tcf_initialization
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.use_swc_tcf_initialization
+```
+
+````
+
+````{py:attribute} use_swc_tcf_heuristic_pricing
+:canonical: src.configs.policies.bpc.BPCConfig.use_swc_tcf_heuristic_pricing
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.use_swc_tcf_heuristic_pricing
+```
+
+````
+
+````{py:attribute} use_swc_tcf_primal_heuristic
+:canonical: src.configs.policies.bpc.BPCConfig.use_swc_tcf_primal_heuristic
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.use_swc_tcf_primal_heuristic
+```
+
+````
+
 `````

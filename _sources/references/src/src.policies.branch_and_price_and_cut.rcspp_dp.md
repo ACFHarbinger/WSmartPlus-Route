@@ -25,7 +25,29 @@
     ```
 ````
 
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`_LCICoverItem <src.policies.branch_and_price_and_cut.rcspp_dp._LCICoverItem>`
+  - ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.rcspp_dp._LCICoverItem
+    :summary:
+    ```
+````
+
 ### API
+
+````{py:data} _LCICoverItem
+:canonical: src.policies.branch_and_price_and_cut.rcspp_dp._LCICoverItem
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.branch_and_price_and_cut.rcspp_dp._LCICoverItem
+```
+
+````
 
 `````{py:class} Label
 :canonical: src.policies.branch_and_price_and_cut.rcspp_dp.Label
@@ -207,7 +229,7 @@
 
 ````
 
-````{py:method} solve(dual_values: typing.Union[typing.Dict[int, float], typing.Dict[str, typing.Any]], max_routes: int = 10, branching_constraints: typing.Optional[typing.List[src.policies.branch_and_price_and_cut.branching.AnyBranchingConstraint]] = None, capacity_cut_duals: typing.Optional[typing.Dict[typing.FrozenSet[int], float]] = None, sri_cut_duals: typing.Optional[typing.Dict[typing.FrozenSet[int], float]] = None, edge_clique_cut_duals: typing.Optional[typing.Dict[typing.Tuple[int, int], float]] = None, forced_nodes: typing.Optional[typing.Set[int]] = None, rf_conflicts: typing.Optional[typing.Dict[int, typing.Set[int]]] = None, is_farkas: bool = False) -> typing.List[src.policies.branch_and_price_and_cut.master_problem.Route]
+````{py:method} solve(dual_values: typing.Union[typing.Dict[int, float], typing.Dict[str, typing.Any]], max_routes: int = 10, branching_constraints: typing.Optional[typing.List[src.policies.branch_and_price_and_cut.branching.AnyBranchingConstraint]] = None, capacity_cut_duals: typing.Optional[typing.Dict[typing.FrozenSet[int], float]] = None, sri_cut_duals: typing.Optional[typing.Dict[typing.FrozenSet[int], float]] = None, edge_clique_cut_duals: typing.Optional[typing.Dict[typing.Tuple[int, int], float]] = None, forced_nodes: typing.Optional[typing.Set[int]] = None, rf_conflicts: typing.Optional[typing.Dict[int, typing.Set[int]]] = None, is_farkas: bool = False, exact_mode: bool = False) -> typing.List[src.policies.branch_and_price_and_cut.master_problem.Route]
 :canonical: src.policies.branch_and_price_and_cut.rcspp_dp.RCSPPSolver.solve
 
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.rcspp_dp.RCSPPSolver.solve
@@ -239,7 +261,7 @@
 
 ````
 
-````{py:method} _label_correcting_algorithm(max_routes: int, forbidden_arcs: typing.FrozenSet[typing.Tuple[int, int]], required_successors: typing.Dict[int, int], required_predecessors: typing.Dict[int, int], rf_separate: typing.Set[typing.Tuple[int, int]], rf_together: typing.Set[typing.Tuple[int, int]], rcc_duals: typing.Dict[typing.FrozenSet[int], float], active_sri_subsets: typing.List[typing.FrozenSet[int]], sri_dual_values: typing.List[float], node_to_sri: typing.Dict[int, typing.List[int]], forced_nodes: typing.Set[int], sri_memory_nodes: typing.Optional[typing.List[typing.Set[int]]] = None, edge_clique_duals: typing.Optional[typing.Dict[typing.Tuple[int, int], float]] = None) -> typing.List[src.policies.branch_and_price_and_cut.master_problem.Route]
+````{py:method} _label_correcting_algorithm(max_routes: int, forbidden_arcs: typing.FrozenSet[typing.Tuple[int, int]], required_successors: typing.Dict[int, int], required_predecessors: typing.Dict[int, int], rf_separate: typing.Set[typing.Tuple[int, int]], rf_together: typing.Set[typing.Tuple[int, int]], rcc_duals: typing.Dict[typing.FrozenSet[int], float], active_sri_subsets: typing.List[typing.FrozenSet[int]], sri_dual_values: typing.List[float], node_to_sri: typing.Dict[int, typing.List[int]], forced_nodes: typing.Set[int], sri_memory_nodes: typing.Optional[typing.List[typing.Set[int]]] = None, edge_clique_duals: typing.Optional[typing.Dict[typing.Tuple[int, int], float]] = None, lci_cover_items: typing.Optional[typing.List[src.policies.branch_and_price_and_cut.rcspp_dp._LCICoverItem]] = None, exact_mode: bool = False) -> typing.List[src.policies.branch_and_price_and_cut.master_problem.Route]
 :canonical: src.policies.branch_and_price_and_cut.rcspp_dp.RCSPPSolver._label_correcting_algorithm
 
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.rcspp_dp.RCSPPSolver._label_correcting_algorithm
@@ -271,7 +293,7 @@
 
 ````
 
-````{py:method} _extend_label(label: src.policies.branch_and_price_and_cut.rcspp_dp.Label, next_node: int, forbidden: typing.FrozenSet[typing.Tuple[int, int]], rcc_duals: typing.Dict[typing.FrozenSet[int], float], active_sri: typing.List[typing.FrozenSet[int]], sri_duals: typing.List[float], node_to_sri: typing.Dict[int, typing.List[int]], sri_memory_nodes: typing.Optional[typing.List[typing.Set[int]]] = None, edge_clique_duals: typing.Optional[typing.Dict[typing.Tuple[int, int], float]] = None) -> typing.Optional[src.policies.branch_and_price_and_cut.rcspp_dp.Label]
+````{py:method} _extend_label(label: src.policies.branch_and_price_and_cut.rcspp_dp.Label, next_node: int, forbidden: typing.FrozenSet[typing.Tuple[int, int]], rcc_duals: typing.Dict[typing.FrozenSet[int], float], active_sri: typing.List[typing.FrozenSet[int]], sri_duals: typing.List[float], node_to_sri: typing.Dict[int, typing.List[int]], sri_memory_nodes: typing.Optional[typing.List[typing.Set[int]]] = None, edge_clique_duals: typing.Optional[typing.Dict[typing.Tuple[int, int], float]] = None, lci_cover_items: typing.Optional[typing.List[src.policies.branch_and_price_and_cut.rcspp_dp._LCICoverItem]] = None) -> typing.Optional[src.policies.branch_and_price_and_cut.rcspp_dp.Label]
 :canonical: src.policies.branch_and_price_and_cut.rcspp_dp.RCSPPSolver._extend_label
 
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.rcspp_dp.RCSPPSolver._extend_label

@@ -130,7 +130,7 @@
 
 ````
 
-````{py:method} sift_global_column_pool(node_duals: typing.Dict[int, float], rcc_duals: typing.Dict[typing.FrozenSet[int], float], sri_duals: typing.Dict[typing.FrozenSet[int], float], edge_clique_duals: typing.Dict[typing.Tuple[int, int], float], branching_constraints: typing.Optional[typing.List[src.policies.branch_and_price_and_cut.branching.AnyBranchingConstraint]] = None, rc_tolerance: float = 1e-05) -> int
+````{py:method} sift_global_column_pool(node_duals: typing.Dict[int, float], rcc_duals: typing.Dict[typing.FrozenSet[int], float], sri_duals: typing.Dict[typing.FrozenSet[int], float], edge_clique_duals: typing.Dict[typing.Tuple[int, int], float], lci_duals: typing.Optional[typing.Dict[typing.FrozenSet[int], float]] = None, lci_node_alphas: typing.Optional[typing.Dict[typing.FrozenSet[int], typing.Dict[int, float]]] = None, branching_constraints: typing.Optional[typing.List[src.policies.branch_and_price_and_cut.branching.AnyBranchingConstraint]] = None, rc_tolerance: float = 1e-05) -> int
 :canonical: src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.sift_global_column_pool
 
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.sift_global_column_pool
@@ -298,7 +298,7 @@
 
 ````
 
-````{py:method} add_lci_cut(node_list: typing.List[int], rhs: float, coefficients: typing.Dict[int, float]) -> bool
+````{py:method} add_lci_cut(node_list: typing.List[int], rhs: float, coefficients: typing.Dict[int, float], node_alphas: typing.Optional[typing.Dict[int, float]] = None, arc: typing.Optional[typing.Tuple[int, int]] = None) -> bool
 :canonical: src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.add_lci_cut
 
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem.add_lci_cut

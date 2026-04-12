@@ -141,7 +141,7 @@ Bases: {py:obj}`Exception`
 ```
 ````
 
-````{py:function} _solve_farkas_pricing_step(master: src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem, pricing_solver: src.policies.branch_and_price_and_cut.rcspp_dp.RCSPPSolver, branching_constraints: typing.List[src.policies.branch_and_price_and_cut.branching.AnyBranchingConstraint], farkas_duals: typing.Any, max_routes: int = 5) -> int
+````{py:function} _solve_farkas_pricing_step(master: src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem, pricing_solver: src.policies.branch_and_price_and_cut.rcspp_dp.RCSPPSolver, branching_constraints: typing.List[src.policies.branch_and_price_and_cut.branching.AnyBranchingConstraint], farkas_duals: typing.Any, max_routes: int = 5) -> typing.Tuple[int, bool]
 :canonical: src.policies.branch_and_price_and_cut.bpc_engine._solve_farkas_pricing_step
 
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.bpc_engine._solve_farkas_pricing_step
@@ -155,7 +155,7 @@ Bases: {py:obj}`Exception`
 ```
 ````
 
-````{py:function} _solve_pricing_step(master: src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem, pricing_solver: src.policies.branch_and_price_and_cut.rcspp_dp.RCSPPSolver, branching_constraints: typing.Optional[typing.List[src.policies.branch_and_price_and_cut.branching.AnyBranchingConstraint]] = None, max_routes: int = 5, optimality_gap: float = 0.0001, rc_tolerance: float = 1e-05) -> int
+````{py:function} _solve_pricing_step(master: src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem, pricing_solver: src.policies.branch_and_price_and_cut.rcspp_dp.RCSPPSolver, branching_constraints: typing.Optional[typing.List[src.policies.branch_and_price_and_cut.branching.AnyBranchingConstraint]] = None, max_routes: int = 5, optimality_gap: float = 0.0001, rc_tolerance: float = 1e-05, use_swc_tcf_heuristic_pricing: bool = False) -> typing.Tuple[int, bool]
 :canonical: src.policies.branch_and_price_and_cut.bpc_engine._solve_pricing_step
 
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.bpc_engine._solve_pricing_step
@@ -183,7 +183,7 @@ Bases: {py:obj}`Exception`
 ```
 ````
 
-````{py:function} _column_generation_loop(master: src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem, pricing_solver: src.policies.branch_and_price_and_cut.rcspp_dp.RCSPPSolver, cut_engine: src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine, branching_constraints: typing.Optional[typing.List[src.policies.branch_and_price_and_cut.branching.AnyBranchingConstraint]], max_cg_iterations: int, max_cuts: int, time_limit: typing.Optional[float], start_time: float, max_routes_per_pricing: int = 5, vehicle_limit: typing.Optional[int] = None, optimality_gap: float = 0.0001, early_termination_gap: float = 0.001, parent_basis: typing.Optional[typing.Any] = None, incumbent_value: float = -float('inf'), node_depth: int = 0, rc_tolerance: float = 1e-05, cut_orthogonality_threshold: float = 0.8, exact_mode: bool = False) -> typing.Tuple[float, typing.Dict[int, float], typing.Optional[typing.Any], bool]
+````{py:function} _column_generation_loop(master: src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem, pricing_solver: src.policies.branch_and_price_and_cut.rcspp_dp.RCSPPSolver, cut_engine: src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine, branching_constraints: typing.Optional[typing.List[src.policies.branch_and_price_and_cut.branching.AnyBranchingConstraint]], max_cg_iterations: int, max_cuts: int, time_limit: typing.Optional[float], start_time: float, max_routes_per_pricing: int = 5, vehicle_limit: typing.Optional[int] = None, optimality_gap: float = 0.0001, early_termination_gap: float = 0.001, parent_basis: typing.Optional[typing.Any] = None, incumbent_value: float = -float('inf'), node_depth: int = 0, rc_tolerance: float = 1e-05, cut_orthogonality_threshold: float = 0.8, exact_mode: bool = False, cg_at_root_only: bool = False, use_swc_tcf_heuristic_pricing: bool = False, branching_strategy: str = 'divergence') -> typing.Tuple[float, typing.Dict[int, float], typing.Optional[typing.Any], bool]
 :canonical: src.policies.branch_and_price_and_cut.bpc_engine._column_generation_loop
 
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.bpc_engine._column_generation_loop
