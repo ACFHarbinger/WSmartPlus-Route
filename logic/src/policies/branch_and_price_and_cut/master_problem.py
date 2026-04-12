@@ -89,6 +89,10 @@ class GlobalCutPool:
         # LCI: maps node_set -> (rhs, route_coefficients, node_alphas)
         # node_alphas: per-node lifting coefficients for pricing (Barnhart et al. 2000 §4.2)
         self.lci_cuts: Dict[FrozenSet[int], Tuple[float, Dict[int, float], Dict[int, float]]] = {}
+        # Optional source arc (i, j) for arc-saturation LCI (SaturatedArcLCIEngine).
+        # When set, the pricing dual fires ONLY when the DP traverses that specific arc,
+        # not on any visit to a node in the cover set.  None for node/capacity LCI.
+        self.lci_arcs: Dict[FrozenSet[int], Optional[Tuple[int, int]]] = {}
 
     def add_cut(self, cut_type: str, data: Any) -> None:
         """
@@ -124,13 +128,21 @@ class GlobalCutPool:
         elif cut_type == "edge_clique":
             self.edge_clique_cuts.add(data)
         elif cut_type == "lci":
-            # Accept both legacy 3-tuple and new 4-tuple with node_alphas
-            if len(data) == 4:
+            # Accept 3-tuple, 4-tuple (+ node_alphas), or 5-tuple (+ arc) variants.
+            # 5-tuple: (node_set, rhs, coefficients, node_alphas, arc)
+            # 4-tuple: (node_set, rhs, coefficients, node_alphas)
+            # 3-tuple: (node_set, rhs, coefficients)
+            if len(data) == 5:
+                node_set, rhs, coefficients, node_alphas, arc = data
+            elif len(data) == 4:
                 node_set, rhs, coefficients, node_alphas = data
+                arc = None
             else:
                 node_set, rhs, coefficients = data
                 node_alphas = {}
+                arc = None
             self.lci_cuts[node_set] = (rhs, coefficients, node_alphas)
+            self.lci_arcs[node_set] = arc
 
     def apply_to_master(self, master: "VRPPMasterProblem") -> int:
         """
@@ -169,12 +181,14 @@ class GlobalCutPool:
             else:
                 rhs, _stale_coefficients = lci_data  # type: ignore[misc]
                 node_alphas = {}
+            # Retrieve the source arc stored at discovery time (None for node-capacity LCI).
+            lci_arc: Optional[Tuple[int, int]] = self.lci_arcs.get(node_set)
             new_coefficients: Dict[int, float] = {}
             for idx, route in enumerate(master.routes):
                 alpha_k = sum(node_alphas.get(n, 1.0 if n in node_set else 0.0) for n in route.node_coverage if n != 0)
                 if alpha_k > 1e-6:
                     new_coefficients[idx] = alpha_k
-            if master.add_lci_cut(list(node_set), rhs, new_coefficients, node_alphas=node_alphas):
+            if master.add_lci_cut(list(node_set), rhs, new_coefficients, node_alphas=node_alphas, arc=lci_arc):
                 added += 1
         return added
 
@@ -322,6 +336,9 @@ class VRPPMasterProblem:
         # Required by the pricing subproblem: c'_lm^k = c_lm^k + π_lm + α_lm^k · γ_lm
         # (Barnhart, Hane, Vance 2000 §4.2).
         self.active_lci_node_alphas: Dict[FrozenSet[int], Dict[int, float]] = {}
+        # Source arc (i, j) for arc-saturation LCI cuts.  None for node-capacity LCI.
+        # Passed to the pricing DP so it gates the dual on the specific arc traversal.
+        self.active_lci_arcs: Dict[FrozenSet[int], Optional[Tuple[int, int]]] = {}
 
         # Dual mappings
         self.dual_src_cuts: Dict[FrozenSet[int], float] = {}
@@ -1262,6 +1279,9 @@ class VRPPMasterProblem:
             # implementing Barnhart et al. (2000) §4.2: c'_lm^k = c_lm^k + π_lm + α_lm^k · γ_lm
             "lci_duals": {k: v for k, v in self.dual_lci_cuts.items()},
             "lci_node_alphas": {k: v for k, v in self.active_lci_node_alphas.items()},
+            # Source arc per LCI cut: None for node-capacity cuts, (i,j) for arc-saturation
+            # cuts.  The pricing DP uses this to gate the dual on the exact arc traversal.
+            "lci_arcs": {k: v for k, v in self.active_lci_arcs.items()},
         }
         return result
 
@@ -1505,6 +1525,7 @@ class VRPPMasterProblem:
         rhs: float,
         coefficients: Dict[int, float],
         node_alphas: Optional[Dict[int, float]] = None,
+        arc: Optional[Tuple[int, int]] = None,
     ) -> bool:
         """
         Add a Lifted Cover Inequality (LCI) to the master problem.
@@ -1522,12 +1543,20 @@ class VRPPMasterProblem:
 
             c'_lm^k = c_lm^k + π_lm + α_lm^k · γ_lm
 
+        The optional ``arc`` parameter identifies the specific saturated arc (i, j)
+        that generated this LCI (used by SaturatedArcLCIEngine).  When set, the
+        pricing DP applies the dual **only** when traversing arc (i, j), matching
+        the paper's arc-level formula exactly.  For node/capacity LCI (e.g.
+        PhysicalCapacityLCIEngine) leave ``arc=None``; the DP then falls back to
+        the node-visit approximation.
+
         Args:
             node_list: Customer nodes defining the cover set S.
             rhs: Right-hand side of the inequality (|C| - 1 or lifting bound K).
             coefficients: Route-index → route-level lifting coefficient (α_k).
             node_alphas: Node-id → per-node lifting coefficient (α_i).
                          If None, defaults to 1.0 for cover nodes, 0.0 for others.
+            arc: Optional source arc (i, j) for arc-saturation LCI.
         """
         if self.model is None:
             return False
@@ -1550,8 +1579,10 @@ class VRPPMasterProblem:
         # Store per-node alphas for pricing dual integration.
         effective_node_alphas: Dict[int, float] = node_alphas if node_alphas is not None else {}
         self.active_lci_node_alphas[node_set] = effective_node_alphas
-        # Archive with rhs, route coefficients AND node_alphas so descendant nodes replay correctly.
-        self.global_cut_pool.add_cut("lci", (node_set, rhs, coefficients, effective_node_alphas))
+        # Store source arc (None for node/capacity LCI, set for arc-saturation LCI).
+        self.active_lci_arcs[node_set] = arc
+        # Archive with rhs, route coefficients, node_alphas, AND arc for descendant replay.
+        self.global_cut_pool.add_cut("lci", (node_set, rhs, coefficients, effective_node_alphas, arc))
         if self.model is not None:
             self.model.update()
         return True

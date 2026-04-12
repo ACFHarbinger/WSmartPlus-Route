@@ -334,7 +334,7 @@ def _solve_farkas_pricing_step(
     branching_constraints: List[AnyBranchingConstraint],
     farkas_duals: Any,
     max_routes: int = 5,
-) -> int:
+) -> Tuple[int, bool]:
     """
     Phase I Pricing: Solve RCSPP with the Farkas dual ray to restore feasibility.
 
@@ -376,7 +376,10 @@ def _solve_farkas_pricing_step(
         if rc > _FARKAS_TOL:
             master.add_route_as_column(r)
             added += 1
-    return added
+    # Proper exhausting flag for Lagrangian bound validity (Phase I).
+    # If last_max_rc <= 0, no improving column exists regardless of return count.
+    exhausted = getattr(pricing_solver, "last_max_rc", -float("inf")) <= 0.0
+    return added, exhausted
 
 
 def _separate_cuts(
@@ -501,7 +504,8 @@ def _solve_pricing_step(
     )
 
     if not routes:
-        return 0, False  # No more positive reduced cost columns
+        exhausted = getattr(pricing_solver, "last_max_rc", -float("inf")) <= 0.0
+        return 0, exhausted
 
     # Add new columns to master
     added = 0
@@ -514,11 +518,10 @@ def _solve_pricing_step(
         if rc > rc_tolerance:
             master.add_route(route)
             added += 1
-    # Proper exhausting flag for Lagrangian bound validity.
-    # Exhaustion occurs when the DP search returns fewer than the requested
-    # budget of routes, meaning no more positive reduced cost columns exist
-    # within the current neighborhood / elementarity relaxation.
-    exhausted = len(routes) < max_routes
+    # Proper exhausting flag for Lagrangian bound validity (Phase II).
+    # last_max_rc is the maximum reduced cost seen across all labels in the DP.
+    # If it is <= 0, no improving column exists; the pricing is truly exhausted.
+    exhausted = getattr(pricing_solver, "last_max_rc", -float("inf")) <= 0.0
     return added, exhausted
 
 
@@ -714,6 +717,7 @@ def _column_generation_loop(  # noqa: C901
     exact_mode: bool = False,
     cg_at_root_only: bool = False,
     use_swc_tcf_heuristic_pricing: bool = False,
+    branching_strategy: str = "divergence",
 ) -> Tuple[float, Dict[int, float], Optional[Any], bool]:
     """
     Run the Column Generation and Cutting Plane loop at a B&B node.
@@ -828,7 +832,9 @@ def _column_generation_loop(  # noqa: C901
                         # Re-apply branching filters to any newly activated columns.
                         # Sifting sets UB=1.0 for all positive-RC columns regardless of branching,
                         # so we must re-enforce the branching constraints immediately.
-                        _apply_branching_to_master(master, branching_constraints or [], branching_strategy="divergence")
+                        _apply_branching_to_master(
+                            master, branching_constraints or [], branching_strategy=branching_strategy
+                        )
                         _inner_iter += 1
                         continue
 
@@ -845,7 +851,7 @@ def _column_generation_loop(  # noqa: C901
                             "LP is infeasible but Farkas duals are unavailable. "
                             "Gurobi may have returned INF_OR_UNBD — check model bounds."
                         )
-                    added = _solve_farkas_pricing_step(
+                    added, _ = _solve_farkas_pricing_step(
                         master,
                         pricing_solver,
                         branching_constraints,  # type: ignore[arg-type]
@@ -1264,6 +1270,8 @@ def run_bpc(  # noqa: C901
 
         # 3. Apply branching constraints to master and pricing
         _apply_branching_to_master(master, branching_constraints, branching_strategy_name)
+        if master.model:
+            master.model.update()
 
         # Run Column Generation at this node with corrected sequencing
         try:
@@ -1293,6 +1301,7 @@ def run_bpc(  # noqa: C901
                     exact_mode=params.exact_mode,
                     cg_at_root_only=params.cg_at_root_only,
                     use_swc_tcf_heuristic_pricing=getattr(params, "use_swc_tcf_heuristic_pricing", False),
+                    branching_strategy=branching_strategy_name,
                 )
             finally:
                 # Restore ng-neighborhoods so sibling nodes are unaffected by this
@@ -1339,12 +1348,13 @@ def run_bpc(  # noqa: C901
                 logger.info(f"Global optimality gap reached: {global_gap:.6f} <= {params.optimality_gap}")
                 break
 
-        # Task 5: Reduced Cost Edge Fixing (Globally valid at every node)
-        if bb_tree.best_integer_solution is not None:
+            # Task 5: Reduced Cost Edge Fixing (Globally valid at every node)
+            # We use the global_upper_bound (max of all open node bounds and current)
+            # to ensure arc fixing is mathematically sound for all sibling branches.
             _apply_reduced_cost_edge_fixing(
                 master=master,
                 pricing_solver=pricing_solver,
-                z_ub=lp_obj,
+                z_ub=global_upper_bound,
                 z_lb=bb_tree.best_integer_solution,
             )
 

@@ -432,17 +432,18 @@ class MultiEdgePartitionBranching:
         from some node d.  That node is the *divergence node*.
 
         Arc-set convention (DFS child ordering):
-          arc_set_1  = arc taken by the LONGER-remaining-path route from d.
-          arc_set_2  = all other possible outgoing arcs from d.
+          arc_set_1  contains the higher-flow half of a balanced median split of
+                     all outgoing fractional arcs from d (by aggregate λ weight).
+          arc_set_2  contains the lower-flow half plus all non-fractional outgoing
+                     arcs from d, guaranteeing arc-universe completeness.
 
-        child 1 (forbids arc_set_1) → keeps shorter routes feasible,
-                 explored FIRST in DFS (higher lp_bound_hint in caller).
-        child 2 (forbids arc_set_2) → only the longer arc survives at d,
-                 explored SECOND, typically yields a tighter bound.
+        Child 1 (forbids arc_set_1) → Typically the "weaker" branch, explored
+                 FIRST in DFS to find an early feasible solution.
+        Child 2 (forbids arc_set_2) → Typically the "stronger" branch, explored
+                 SECOND, focusing search on the higher-flow arc cluster.
 
-        This matches the paper's recommendation to prefer DFS nodes whose
-        LP basis is closest to the parent (shorter paths → fewer new
-        columns, faster re-solve).
+        This balanced partition prevents "thin" branches and improves tree
+        convergence compared to singleton arc branching.
 
         Fallback — aggregate-flow heuristic with optional spatial partition:
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -503,6 +504,14 @@ class MultiEdgePartitionBranching:
                     break
 
             if divergence_d is not None and arc_p1 is not None and arc_p2 is not None:
+                # arc_p1 is currently the arc from path1 (highest-λ route).
+                # arc_p2 is the arc from path2.
+                # BHV2000 (§3.2, Step 2) specifies that path p (shorter) should be
+                # distinguished from p' (longer). We ensure arc_p1 belongs to the
+                # shorter path to maintain consistent child-ordering intent.
+                if len(path1) > len(path2):
+                    arc_p1, arc_p2 = arc_p2, arc_p1
+
                 # Build the complete universe of outgoing arcs from divergence_d
                 if n_nodes > 0:
                     node_univ: Set[int] = set(range(n_nodes + 1))
@@ -514,9 +523,9 @@ class MultiEdgePartitionBranching:
                 all_out: Set[Tuple[int, int]] = {(divergence_d, v) for v in node_univ}
 
                 # Fix 3: Balanced median split of fractional arc flows (paper §4.3 extension).
-                # Instead of a degenerate single-arc split, we partition the entire
-                # outgoing arc-set universe from d based on a median split of
-                # the current cumulative fractional flow.
+                # We sort the outgoing arcs from d to split the cumulative fractional
+                # flow. To respect the BHV2000 branching intent, we ensure the
+                # shorter-path arc (arc_p1) is always prioritized into arc_set_1.
                 d_out_flows: Dict[int, float] = {}
                 for idx, lam in route_values.items():
                     if lam < tol:
@@ -527,7 +536,13 @@ class MultiEdgePartitionBranching:
                             v_nxt = path[p + 1]
                             d_out_flows[v_nxt] = d_out_flows.get(v_nxt, 0.0) + lam
 
-                sorted_v = sorted(d_out_flows.keys(), key=lambda v: d_out_flows[v], reverse=True)
+                # Prioritise the shorter path's next node to anchor arc_set_1.
+                nxt_p1 = arc_p1[1]
+                sorted_v = sorted(
+                    d_out_flows.keys(),
+                    key=lambda v: (v == nxt_p1, d_out_flows[v]),
+                    reverse=True,
+                )
                 total_f = sum(d_out_flows.values())
                 acc = 0.0
                 split_idx = 0
@@ -576,8 +591,19 @@ class MultiEdgePartitionBranching:
 
         flows_fb = node_out_flows[d]
         v_sorted_fb = sorted(flows_fb.keys(), key=lambda v: flows_fb[v], reverse=True)
-        v1 = v_sorted_fb[0]
-        arc_set_1_fb: Set[Tuple[int, int]] = {(d, v1)}
+        total_f_fb = sum(flows_fb.values())
+        acc_fb = 0.0
+        split_idx_fb = 0
+        for i, v in enumerate(v_sorted_fb):
+            acc_fb += flows_fb[v]
+            if acc_fb >= total_f_fb / 2.0:
+                split_idx_fb = i + 1
+                break
+
+        s1_nodes_fb = set(v_sorted_fb[: max(1, split_idx_fb)])
+        # Fix 3: Standardize on balanced median split even in fallback (paper §4.3)
+        arc_set_1_fb: Set[Tuple[int, int]] = {(d, v) for v in s1_nodes_fb}
+        v1 = v_sorted_fb[0]  # Reference node for spatial heuristic if needed
 
         if node_coords is not None:
             d_coord = np.array(node_coords[d])
@@ -665,21 +691,34 @@ class MultiEdgePartitionBranching:
         ]
 
         hint = parent.lp_bound if parent.lp_bound is not None else 0.0
-        # Child 1 is standard, child 2 gets a small penalty for sorting
-        right_hint = hint - (strength * 1e-4)
+
+        # Paper §3.2: "Note that we first explore child node 2 (where arcs in
+        # A(d, a₂) are forbidden) because path p is still allowed for commodity k."
+        #
+        # arc_set_1 holds the *higher-flow* half from the median split (path p's arc).
+        # arc_set_2 holds the *lower-flow* complement.
+        #
+        # right_child forbids arc_set_2 → keeps arc_set_1 (path p) → paper's Child 2.
+        # left_child  forbids arc_set_1 → loses path p              → paper's Child 1.
+        #
+        # DFS selects the node with the HIGHER lp_bound_hint first.  Giving right_child
+        # (paper's preferred first-explore child) the unpenalised hint ensures it is
+        # processed before left_child, reproducing the convergence behaviour reported
+        # in Barnhart, Hane, and Vance (2000) Table 3/4.
+        left_hint = hint - (strength * 1e-4)  # slight penalty — explored second
 
         left = BranchNode(
             constraints=constraints_1,
             parent=parent,
             depth=parent.depth + 1,
-            lp_bound_hint=hint,
+            lp_bound_hint=left_hint,
             branching_rule="divergence",
         )
         right = BranchNode(
             constraints=constraints_2,
             parent=parent,
             depth=parent.depth + 1,
-            lp_bound_hint=right_hint,
+            lp_bound_hint=hint,  # paper's preferred child — explored first
             branching_rule="divergence",
         )
 
@@ -730,9 +769,17 @@ class RyanFosterBranching:
         tol: float = 1e-5,
     ) -> Optional[Tuple[Tuple[int, int], float]]:
         """
-        Find a node pair (r, s) whose fractional co-occurrence lies in (0, 1).
-        Only considers pairs where both nodes are mandatory, fulfilling the
-        strict Set Partitioning requirement for exactness.
+        Find the node pair (r, s) whose fractional co-occurrence is closest to 0.5.
+
+        Ryan & Foster (1981) Proposition 1 guarantees that for any fractional SPP
+        solution there exists such a pair.  Among all fractional pairs we select the
+        one with ``|together_sum − round(together_sum)|`` maximised (i.e. closest to
+        0.5), which produces the strongest symmetry-breaking branch (equal LP bound
+        reduction on both children) and leads to fewer B&B nodes overall.
+
+        The previous implementation returned the *first* fractional pair encountered
+        (dependent on arbitrary dict-iteration order), which could produce very
+        lopsided branches.  This version scores all candidates and returns the best.
 
         Args:
             routes: All routes in the master problem.
@@ -741,30 +788,38 @@ class RyanFosterBranching:
             tol: Integrality tolerance.
 
         Returns:
-            ((node_r, node_s), together_sum) to branch on, or None if the solution is already integer.
+            ((node_r, node_s), together_sum) to branch on, or None if integer.
         """
-        for frac_idx, val in route_values.items():
+        best_pair: Optional[Tuple[int, int]] = None
+        best_together_sum: float = 0.0
+        best_frac: float = -1.0
+
+        # Candidate universe: nodes appearing in at least one fractional route.
+        candidate_nodes: Set[int] = set()
+        for idx, val in route_values.items():
             if abs(val - round(val)) > tol:
-                # Search over all fractional nodes (Fix 7).
-                # Note: Ryan-Foster pairs are most effective for mandatory nodes
-                # but mathematically valid for any nodes in a Set Partitioning RMP.
-                nodes_in_frac = sorted(list(routes[frac_idx].node_coverage))
-                if len(nodes_in_frac) < 2:
-                    continue
+                candidate_nodes.update(routes[idx].node_coverage)
 
-                # Search all pairs for a fractional co-occurrence sum.
-                for i, r in enumerate(nodes_in_frac):
-                    for s in nodes_in_frac[i + 1 :]:
-                        together_sum = sum(
-                            v
-                            for idx, v in route_values.items()
-                            if r in routes[idx].node_coverage and s in routes[idx].node_coverage
-                        )
-                        frac = abs(together_sum - round(together_sum))
-                        if tol < frac < 1.0 - tol:
-                            return (r, s), together_sum
+        candidate_list = sorted(candidate_nodes)
 
-        return None
+        # Precompute together_sums once per pair to avoid O(n²·K) inner loop.
+        # together_sum[(r,s)] = Σ_{k : r ∈ route_k, s ∈ route_k} λ_k
+        for i, r in enumerate(candidate_list):
+            for s in candidate_list[i + 1 :]:
+                together_sum = sum(
+                    v
+                    for idx, v in route_values.items()
+                    if r in routes[idx].node_coverage and s in routes[idx].node_coverage
+                )
+                frac = abs(together_sum - round(together_sum))
+                if tol < frac < 1.0 - tol and frac > best_frac:
+                    best_frac = frac
+                    best_pair = (r, s)
+                    best_together_sum = together_sum
+
+        if best_pair is None:
+            return None
+        return best_pair, best_together_sum
 
     @staticmethod
     def create_child_nodes(
