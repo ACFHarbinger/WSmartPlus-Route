@@ -989,11 +989,16 @@ class SaturatedArcLCIEngine(CuttingPlaneEngine):
             if not cover_node_list:
                 continue
 
+            # Pass the saturated arc so the pricing DP gates the dual on exact arc
+            # traversal (i→j) rather than on any visit to a node in the cover set.
+            # This implements Barnhart et al. (2000) §4.2 c'_lm^k = c_lm^k + α·γ
+            # without the over-penalisation caused by a node-visit approximation.
             if master.add_lci_cut(
                 cover_node_list,
                 rhs,
                 coefficients,
                 node_alphas=alpha_nodes,
+                arc=arc,
             ):
                 added += 1
 
