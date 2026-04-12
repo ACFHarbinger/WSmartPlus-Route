@@ -28,6 +28,11 @@ import numpy as np
 
 from .master_problem import Route
 
+# Type alias for LCI cover items passed to the DP extension step.
+# Each tuple: (cover_set, node_alpha_dict, dual_value, source_arc_or_none)
+# source_arc_or_none is (i, j) for arc-saturation LCI, None for node/capacity LCI.
+_LCICoverItem = Tuple[FrozenSet[int], Dict[int, float], float, Optional[Tuple[int, int]]]
+
 
 @dataclass(order=True)
 class Label:
@@ -132,6 +137,9 @@ class RCSPPSolver:
         else:
             self.ng_neighborhoods = self._compute_ng_neighborhoods()
 
+        # Dual for the vehicle-limit convexity constraint (set by solve() before use)
+        self.vehicle_dual: float = 0.0
+
         # Fix 8: Precompute distance-sorted neighbor lists
         self._sorted_neighbors: Dict[int, List[int]] = self._precompute_sorted_neighbors()
 
@@ -223,6 +231,9 @@ class RCSPPSolver:
             #   rc_delta -= α_i · γ_S
             lci_duals_raw: Dict[FrozenSet[int], float] = complex_duals.get("lci_duals", {})
             lci_node_alphas_raw: Dict[FrozenSet[int], Dict[int, float]] = complex_duals.get("lci_node_alphas", {})
+            # Source arc for arc-saturation LCI (SaturatedArcLCIEngine).
+            # None → node-visit penalty.  (i,j) → penalty fires only on arc (i,j).
+            lci_arcs_raw: Dict[FrozenSet[int], Optional[Tuple[int, int]]] = complex_duals.get("lci_arcs", {})
         else:
             # Simple node duals only
             node_duals = dual_values  # type: ignore[assignment]
@@ -232,11 +243,14 @@ class RCSPPSolver:
             self.vehicle_dual = 0.0
             lci_duals_raw = {}
             lci_node_alphas_raw = {}
+            lci_arcs_raw: Dict[FrozenSet[int], Optional[Tuple[int, int]]] = {}  # type: ignore[no-redef]
 
-        # Build LCI cover items for DP extension: list of (cover_set, node_alpha, dual_value).
+        # Build LCI cover items for DP extension: list of (cover_set, node_alpha, dual, arc_or_none).
         # Only include cuts with non-negligible dual to avoid wasted iteration in the inner loop.
-        lci_cover_items: List[Tuple[FrozenSet[int], Dict[int, float], float]] = [
-            (cover_set, lci_node_alphas_raw.get(cover_set, {}), dual)
+        # 4-tuple: (cover_set, node_alpha, dual, arc_or_none)
+        # arc_or_none is None for node/capacity LCI, (i,j) for arc-saturation LCI.
+        lci_cover_items: List[_LCICoverItem] = [
+            (cover_set, lci_node_alphas_raw.get(cover_set, {}), dual, lci_arcs_raw.get(cover_set))
             for cover_set, dual in lci_duals_raw.items()
             if dual > 1e-8
         ]
@@ -245,6 +259,7 @@ class RCSPPSolver:
         self.labels_generated = 0
         self.labels_dominated = 0
         self.labels_infeasible = 0
+        self.last_max_rc = -float("inf")
         self.dual_values = node_duals
         self.is_farkas = is_farkas
         self.forced_nodes = forced_nodes or set()
@@ -422,7 +437,7 @@ class RCSPPSolver:
         forced_nodes: Set[int],
         sri_memory_nodes: Optional[List[Set[int]]] = None,
         edge_clique_duals: Optional[Dict[Tuple[int, int], float]] = None,
-        lci_cover_items: Optional[List[Tuple[FrozenSet[int], Dict[int, float], float]]] = None,
+        lci_cover_items: Optional[List[_LCICoverItem]] = None,
         exact_mode: bool = False,
     ) -> List[Route]:
         """Forward label-correcting algorithm (priority-queue order)."""
@@ -460,6 +475,10 @@ class RCSPPSolver:
             )
 
             for v in candidate_nodes:
+                # Fix 2: Early exit for fixed arcs before expensive feasibility checks
+                if (u, v) in self.fixed_arcs:
+                    continue
+
                 is_required = u in required_successors and required_successors[u] == v
 
                 # Elementarity
@@ -495,10 +514,6 @@ class RCSPPSolver:
                 if new_label is None:
                     continue
 
-                # Fix 7: Early exit for fixed arcs before dominance check
-                if (u, v) in self.fixed_arcs:
-                    continue
-
                 if len(new_label.visited) > self.n_nodes:
                     continue
 
@@ -518,9 +533,16 @@ class RCSPPSolver:
             # Attempt depot return
             if u != self.depot:
                 can_return = not (u in required_successors and required_successors[u] != self.depot)
-                # Completion bounds pruning
+                # Completion bounds pruning.
+                # Only skip the depot-return attempt when the BEST possible final
+                # reduced cost from this label is provably ≤ 0 — i.e., even the
+                # optimal completion cannot produce a column worth adding.
+                # Previous threshold was 1e-4, which silently dropped columns with
+                # RC in [0, 1e-4) even though rc_tolerance=1e-8 would have accepted
+                # them in _solve_pricing_step.  Using 0.0 makes this gate consistent
+                # with the optimality criterion and preserves all improving columns.
                 bound = current.reduced_cost + self.bounds_to[u]
-                if bound < 1e-4:
+                if bound <= 0.0:
                     continue
 
                 if can_return:
@@ -591,7 +613,7 @@ class RCSPPSolver:
         waste = sum(self.wastes.get(n, 0.0) for n in route_nodes)
         return cost, waste * self.R, waste, set(route_nodes)
 
-    def _extend_label(
+    def _extend_label(  # noqa: C901
         self,
         label: Label,
         next_node: int,
@@ -602,7 +624,7 @@ class RCSPPSolver:
         node_to_sri: Dict[int, List[int]],
         sri_memory_nodes: Optional[List[Set[int]]] = None,
         edge_clique_duals: Optional[Dict[Tuple[int, int], float]] = None,
-        lci_cover_items: Optional[List[Tuple[FrozenSet[int], Dict[int, float], float]]] = None,
+        lci_cover_items: Optional[List[_LCICoverItem]] = None,
     ) -> Optional[Label]:
         edge = (label.node, next_node)
         if edge in forbidden:
@@ -654,12 +676,28 @@ class RCSPPSolver:
                 # 3rd visit: ⌊3/2⌋ = 1 still — no additional penalty; keep state at 2.
 
         # LCI Dual Penalty — Barnhart, Hane, Vance (2000) §4.2
+        # Two penalty modes depending on cut origin:
+        #
+        # 1. Arc-saturation LCI (SaturatedArcLCIEngine): ``lci_arc`` is the specific
+        #    saturated arc (i, j).  The paper's formula c'_lm^k = c_lm^k + α^k_lm·γ_lm
+        #    fires **only** when the DP traverses that exact arc, i.e. when
+        #    (label.node, next_node) == (i, j).  For unit arc capacity α = 1.
+        #
+        # 2. Node/capacity LCI (PhysicalCapacityLCIEngine, BasicFleetCoverEngine):
+        #    ``lci_arc`` is None.  The penalty fires on any visit to a node in the
+        #    cover set, weighted by the node's lifting coefficient α_i.
         if lci_cover_items:
-            for cover_set, node_alpha, dual in lci_cover_items:
-                if next_node in cover_set:  # Fix 2: Strict guard for cover set members
-                    alpha = node_alpha.get(next_node, 1.0)
-                    if alpha > 1e-9:
-                        rc_delta -= alpha * dual
+            for cover_set, node_alpha, dual, lci_arc in lci_cover_items:
+                if lci_arc is not None:
+                    # Arc-based: exact arc-traversal gate (paper §4.2 formula)
+                    if label.node == lci_arc[0] and next_node == lci_arc[1]:
+                        rc_delta -= dual  # α = 1 for unit-capacity arc
+                else:
+                    # Node-based: visit-trigger with per-node lifting coefficient
+                    if next_node in cover_set:
+                        alpha = node_alpha.get(next_node, 1.0)
+                        if alpha > 1e-9:
+                            rc_delta -= alpha * dual
 
         new_rc = label.reduced_cost + rc_delta
         new_visited = label.visited | {next_node}
