@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional, Set
 
 """
 HGS Individual Module.
@@ -50,8 +50,10 @@ class Individual:
                         If False (CVRP mode), repair operators only consider removed nodes.
         """
         self.giant_tour = giant_tour
-        self.routes: List[List[int]] = []
-        self.fitness = -float("inf")
+        self._routes: List[List[int]] = []
+        self._visited_cache: Optional[Set[int]] = None
+        # Fix 8: Fitness is minimized, so initialize to +inf.
+        self.fitness = float("inf")
         self.profit_score = -float("inf")
         self.cost = 0.0
         self.revenue = 0.0
@@ -70,14 +72,39 @@ class Individual:
         # VRPP-specific: controls whether repair operators expand node pool
         self.expand_pool = expand_pool
 
-    def get_visited_nodes(self) -> set:
+    @property
+    def routes(self) -> List[List[int]]:
+        """Actual vehicle routes after Split algorithm (phenotype)."""
+        return self._routes
+
+    @routes.setter
+    def routes(self, value: List[List[int]]) -> None:
+        """Set routes and invalidate visited nodes cache."""
+        self._routes = value
+        self._visited_cache = None
+
+    @property
+    def penalized_profit(self) -> float:
+        """
+        Revenue minus penalized cost. Used for quality ranking in HGS.
+        (Fix 10: Named property for penalised profit expression)
+        """
+        # penalized_cost = cost + penalty * violation
+        # profit_score = revenue - cost
+        # revenue - cost - penalty * violation = profit_score - penalized_cost + cost
+        return self.profit_score - self.penalized_cost + self.cost
+
+    def get_visited_nodes(self) -> Set[int]:
         """
         Get the set of nodes that are currently visited in the solution.
 
         Returns:
             Set of node IDs present in routes (phenotype).
         """
-        return {node for route in self.routes for node in route}
+        # Fix 9: Cache visited nodes for performance in tight local search loops.
+        if self._visited_cache is None:
+            self._visited_cache = {node for route in self._routes for node in route}
+        return self._visited_cache
 
     def get_unvisited_nodes(self) -> List[int]:
         """
@@ -91,6 +118,31 @@ class Individual:
         """
         visited = self.get_visited_nodes()
         return [node for node in self.giant_tour if node not in visited]
+
+    def assert_invariants(self, expected_nodes: Optional[Set[int]] = None) -> None:
+        """
+        Assert that the individual satisfies HGS genotype invariants:
+
+        1. giant_tour contains no duplicate nodes.
+        2. All nodes in routes are also in giant_tour.
+        3. If expected_nodes is provided, giant_tour contains exactly those nodes.
+        (Fix 21: Add a genotype integrity check utility)
+        """
+        tour_set = set(self.giant_tour)
+        assert len(tour_set) == len(self.giant_tour), (
+            f"giant_tour contains duplicates: {len(self.giant_tour) - len(tour_set)} duplicate(s)."
+        )
+
+        for route in self._routes:
+            for node in route:
+                assert node in tour_set, f"Node {node} appears in routes but not in giant_tour."
+
+        if expected_nodes is not None:
+            assert tour_set == expected_nodes, (
+                f"giant_tour node set mismatch. "
+                f"Missing: {expected_nodes - tour_set}. "
+                f"Extra: {tour_set - expected_nodes}."
+            )
 
     def __lt__(self, other: "Individual") -> bool:
         """Comparison based on biased fitness (used for sorting)."""

@@ -20,22 +20,29 @@ Key Implementation Features:
    - Hash table tracks visited solutions to prevent rewarding revisits
 
 3. **Simulated Annealing Acceptance**:
-   - For VRPP profit maximization: P(accept) = exp(-Δ/T) where Δ = current - new
-   - Dynamic temperature initialization: T_start = |initial_profit * w| / ln(2)
-     such that solutions w% worse are accepted with probability 0.5
+   - For VRPP profit maximization: P(accept) = exp(-Δ/T) where Δ = current_profit - new_profit.
+   - This inversion (current - new) correctly handles profit maximization where
+     solutions with Δ <= 0 (new >= current) are always accepted.
 
 4. **Randomized Worst Removal** (Section 3.4.1):
    - Index selection: floor(y^p * |L|) where y ~ U(0,1) and p >= 1
    - Higher p values bias toward deterministically worst nodes
    - Default p = 3.0 provides good exploration/exploitation balance
 
-5. **Adaptive Noise in Repair** (Section 3.4.3):
+5. **Adaptive Noise in Repair** (Section 3.4.3 / Configuration 15):
    - Applied additively to final insertion cost: C' = max{0, C + noise}
    - Noise ~ U[-η * max_dist, η * max_dist] where η (default: 0.025)
-   - Separate clean (noise=0) and noisy operator variants in weight mechanism
-   - Algorithm learns which variant is most effective via adaptive weights
+   - Clean and noisy variants are **separate operator slots** in the weight
+     mechanism (paper Conf. 15), so the algorithm learns which is more
+     effective rather than using a fixed 50% coin flip.
+   - Operator naming: "<Name>Clean" / "<Name>Noisy"
 
-6. **Profit-Aware Operators** (Novel Contribution):
+6. **Operator Registry** (Section 3.3):
+   - Destroy: random, worst, shaw [+ string, cluster, neighbor if extended_operators=True]
+   - Repair: greedy × {clean,noisy}, regret-k × {clean,noisy} for k in regret_pool
+   - Roulette-wheel selection (Eq. 20): p_j = w_j / Σ w_i
+
+7. **Profit-Aware Operators** (Novel Contribution):
    - Speculative Seeding: seed_hurdle = -0.5 * detour_cost
      Allows initially unprofitable routes that may become profitable
    - Profit-based removal: targets nodes with lowest marginal profit
@@ -46,12 +53,18 @@ Performance Optimizations:
 - Shallow copy via list comprehension (replaces deepcopy): ~10x faster
 - Visited solutions tracked via canonical tuple hashing
 - Incremental route evaluation during operator application
+- _viz_record pre-assigned as no-op when recorder=None (avoids getattr
+  in hot loop)
 
 Usage for Ablation Studies:
 ============================
 Toggle `profit_aware_operators` in ALNSParams to compare:
 - Standard ALNS (False): cost-minimization operators
 - Profit-aware ALNS (True): revenue-cost maximization operators
+
+Toggle `extended_operators` in ALNSParams to compare:
+- Core destroy set (False): random, worst, shaw  [3 operators]
+- Extended destroy set (True): + string, cluster, neighbor  [6 operators]
 
 References:
 ===========
@@ -72,8 +85,12 @@ from logic.src.utils.functions import safe_exp
 
 from ..other.operators import (
     build_greedy_routes,
+    cluster_profit_removal,
+    cluster_removal,
     greedy_insertion,
     greedy_profit_insertion,
+    neighbor_profit_removal,
+    neighbor_removal,
     random_removal,
     regret_2_insertion,
     regret_2_profit_insertion,
@@ -81,8 +98,12 @@ from ..other.operators import (
     regret_3_profit_insertion,
     regret_4_insertion,
     regret_4_profit_insertion,
+    savings_insertion,
+    savings_profit_insertion,
     shaw_profit_removal,
     shaw_removal,
+    string_profit_removal,
+    string_removal,
     worst_profit_removal,
     worst_removal,
 )
@@ -91,8 +112,11 @@ from .params import ALNSParams
 
 class ALNSSolver:
     """
-    Custom implementation of Adaptive Large Neighborhood Search for CVRP.
-    Follows Pisinger & Ropke (2007) with segment-based weight updates and noise.
+    Custom implementation of Adaptive Large Neighborhood Search for VRPP.
+
+    Follows Ropke & Pisinger (2005) with segment-based weight updates,
+    clean/noisy operator pairs (paper Configuration 15), and optional
+    extended destroy operator registry.
     """
 
     def __init__(
@@ -118,161 +142,32 @@ class ALNSSolver:
         self.mandatory_nodes = mandatory_nodes
         self.vrpp = getattr(params, "vrpp", True)
         self.profit_aware_operators = getattr(params, "profit_aware_operators", False)
+        self.extended_operators = getattr(params, "extended_operators", False)
         self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
         self.np_random = np.random.default_rng(params.seed) if params.seed is not None else np.random.default_rng(42)
 
-        if recorder is not None:
-            self._viz_record = recorder.record
+        # Pre-assign no-op to avoid getattr in the hot iteration loop.
+        self._viz_record: Callable = recorder.record if recorder is not None else lambda **k: None
 
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
 
-        # Operator registry
-        if self.profit_aware_operators:
-            self.destroy_ops = [
-                lambda r, n: random_removal(r, n, rng=self.random),
-                lambda r, n: worst_profit_removal(
-                    r,
-                    n,
-                    self.dist_matrix,
-                    self.wastes,
-                    self.R,
-                    self.C,
-                    p=params.worst_removal_randomness,
-                    rng=self.random,  # type: ignore[arg-type]
-                ),
-                lambda r, n: shaw_profit_removal(
-                    r,
-                    n,
-                    self.dist_matrix,
-                    wastes=self.wastes,
-                    R=self.R,
-                    C=self.C,
-                    randomization_factor=params.shaw_randomization,
-                    rng=self.random,
-                ),
-            ]
-        else:
-            self.destroy_ops = [
-                lambda r, n: random_removal(r, n, rng=self.random),
-                lambda r, n: worst_removal(
-                    r, n, self.dist_matrix, p=params.worst_removal_randomness, rng=self.np_random
-                ),
-                lambda r, n: shaw_removal(
-                    r,
-                    n,
-                    self.dist_matrix,
-                    wastes=self.wastes,
-                    randomization_factor=params.shaw_randomization,
-                    rng=self.random,
-                ),
-            ]
+        # ------------------------------------------------------------------
+        # Destroy operator registry
+        # ------------------------------------------------------------------
+        self.destroy_ops, self.destroy_names = self._build_destroy_ops()
 
-        # In Conf. 15 (paper), clean and noisy variants are separate operator slots
-        # The adaptive weight mechanism learns which variant is better.
-        self.repair_ops: List[Callable] = []
-        self.repair_names: List[str] = []
+        # ------------------------------------------------------------------
+        # Repair operator registry — Section 3.6 / Conf. 15:
+        # Clean and noisy variants are separate operator slots so that the
+        # adaptive weight mechanism can learn which is more effective.
+        # Slots are interleaved: [Op0_clean, Op0_noisy, Op1_clean, Op1_noisy, ...]
+        # ------------------------------------------------------------------
+        self.repair_ops, self.repair_names, self.repair_noisy = self._build_repair_ops()
 
-        if self.profit_aware_operators:
-            # 4 total slots (greedy, regret-2, regret-3, regret-4), each accepts noise injected at call time.
-            self.repair_ops = [
-                lambda r, n, _noise=0.0: greedy_profit_insertion(
-                    r,
-                    n,
-                    self.dist_matrix,
-                    self.wastes,
-                    self.capacity,
-                    self.R,
-                    self.C,
-                    mandatory_nodes=self.mandatory_nodes,
-                    expand_pool=self.vrpp,
-                    noise=_noise,
-                ),
-                lambda r, n, _noise=0.0: regret_2_profit_insertion(
-                    r,
-                    n,
-                    self.dist_matrix,
-                    self.wastes,
-                    self.capacity,
-                    self.R,
-                    self.C,
-                    mandatory_nodes=self.mandatory_nodes,
-                    expand_pool=self.vrpp,
-                    noise=_noise,
-                ),
-                lambda r, n, _noise=0.0: regret_3_profit_insertion(
-                    r,
-                    n,
-                    self.dist_matrix,
-                    self.wastes,
-                    self.capacity,
-                    self.R,
-                    self.C,
-                    mandatory_nodes=self.mandatory_nodes,
-                    expand_pool=self.vrpp,
-                    noise=_noise,
-                ),
-                lambda r, n, _noise=0.0: regret_4_profit_insertion(
-                    r,
-                    n,
-                    self.dist_matrix,
-                    self.wastes,
-                    self.capacity,
-                    self.R,
-                    self.C,
-                    mandatory_nodes=self.mandatory_nodes,
-                    expand_pool=self.vrpp,
-                    noise=_noise,
-                ),
-            ]
-            self.repair_names = ["GreedyProfit", "Regret2Profit", "Regret3Profit", "Regret4Profit"]
-        else:
-            # Standard branch - 4 slots
-            self.repair_ops = [
-                lambda r, n, _noise=0.0: greedy_insertion(
-                    r,
-                    n,
-                    self.dist_matrix,
-                    self.wastes,
-                    self.capacity,
-                    mandatory_nodes=self.mandatory_nodes,
-                    expand_pool=self.vrpp,
-                    noise=_noise,
-                ),
-                lambda r, n, _noise=0.0: regret_2_insertion(
-                    r,
-                    n,
-                    self.dist_matrix,
-                    self.wastes,
-                    self.capacity,
-                    mandatory_nodes=self.mandatory_nodes,
-                    expand_pool=self.vrpp,
-                    noise=_noise,
-                ),
-                lambda r, n, _noise=0.0: regret_3_insertion(
-                    r,
-                    n,
-                    self.dist_matrix,
-                    self.wastes,
-                    self.capacity,
-                    mandatory_nodes=self.mandatory_nodes,
-                    expand_pool=self.vrpp,
-                    noise=_noise,
-                ),
-                lambda r, n, _noise=0.0: regret_4_insertion(
-                    r,
-                    n,
-                    self.dist_matrix,
-                    self.wastes,
-                    self.capacity,
-                    mandatory_nodes=self.mandatory_nodes,
-                    expand_pool=self.vrpp,
-                    noise=_noise,
-                ),
-            ]
-            self.repair_names = ["Greedy", "Regret2", "Regret3", "Regret4"]
-
-        # Segment-based weight update logic (Ropke & Pisinger 2005, Section 3.4.4)
+        # ------------------------------------------------------------------
+        # Segment-based weight update (Ropke & Pisinger 2005, Section 3.4.4)
+        # ------------------------------------------------------------------
         self.segment_size = params.segment_size
         self.destroy_weights = [1.0] * len(self.destroy_ops)
         self.repair_weights = [1.0] * len(self.repair_ops)
@@ -286,8 +181,287 @@ class ALNSSolver:
         self.weight_learning_rate = params.reaction_factor
 
         # Visited solutions tracking (Ropke & Pisinger 2005, Section 3.3)
-        # Hash table to track visited solutions for adjusted scoring
         self.visited_solutions: Set[Tuple[int, ...]] = set()
+
+    # ------------------------------------------------------------------
+    # Operator registry builders
+    # ------------------------------------------------------------------
+
+    def _build_destroy_ops(self) -> Tuple[List[Callable], List[str]]:
+        """
+        Build the destroy operator registry.
+
+        Core set (always included):
+            random, worst[_profit], shaw[_profit]
+
+        Extended set (when extended_operators=True):
+            + string[_profit], cluster[_profit], neighbor[_profit]
+
+        Returns:
+            Tuple of (operator callables, operator names).
+        """
+        params = self.params
+        pa = self.profit_aware_operators
+
+        if pa:
+            core: List[Tuple[str, Callable]] = [
+                (
+                    "RandomRemoval",
+                    lambda r, n: random_removal(r, n, rng=self.random),
+                ),
+                (
+                    "WorstProfitRemoval",
+                    lambda r, n: worst_profit_removal(
+                        r,
+                        n,
+                        self.dist_matrix,
+                        self.wastes,
+                        self.R,
+                        self.C,
+                        p=params.worst_removal_randomness,
+                        rng=self.random,  # type: ignore[arg-type]
+                    ),
+                ),
+                (
+                    "ShawProfitRemoval",
+                    lambda r, n: shaw_profit_removal(
+                        r,
+                        n,
+                        self.dist_matrix,
+                        wastes=self.wastes,
+                        R=self.R,
+                        C=self.C,
+                        randomization_factor=params.shaw_randomization,
+                        rng=self.random,
+                    ),
+                ),
+            ]
+            extended: List[Tuple[str, Callable]] = [
+                (
+                    "StringProfitRemoval",
+                    lambda r, n: string_profit_removal(
+                        r,
+                        n,
+                        self.dist_matrix,
+                        wastes=self.wastes,
+                        R=self.R,
+                        C=self.C,
+                        rng=self.random,
+                    ),
+                ),
+                (
+                    "ClusterProfitRemoval",
+                    lambda r, n: cluster_profit_removal(
+                        r,
+                        n,
+                        self.dist_matrix,
+                        wastes=self.wastes,
+                        R=self.R,
+                        C=self.C,
+                        rng=self.random,
+                    ),
+                ),
+                (
+                    "NeighborProfitRemoval",
+                    lambda r, n: neighbor_profit_removal(
+                        r,
+                        n,
+                        self.dist_matrix,
+                        wastes=self.wastes,
+                        R=self.R,
+                        C=self.C,
+                        rng=self.random,
+                    ),
+                ),
+            ]
+        else:
+            core = [
+                (
+                    "RandomRemoval",
+                    lambda r, n: random_removal(r, n, rng=self.random),
+                ),
+                (
+                    "WorstRemoval",
+                    lambda r, n: worst_removal(
+                        r, n, self.dist_matrix, p=params.worst_removal_randomness, rng=self.np_random
+                    ),
+                ),
+                (
+                    "ShawRemoval",
+                    lambda r, n: shaw_removal(
+                        r,
+                        n,
+                        self.dist_matrix,
+                        wastes=self.wastes,
+                        randomization_factor=params.shaw_randomization,
+                        rng=self.random,
+                    ),
+                ),
+            ]
+            extended = [
+                (
+                    "StringRemoval",
+                    lambda r, n: string_removal(r, n, self.dist_matrix, rng=self.random),
+                ),
+                (
+                    "ClusterRemoval",
+                    lambda r, n: cluster_removal(r, n, self.dist_matrix, nodes=self.nodes, rng=self.random),
+                ),
+                (
+                    "NeighborRemoval",
+                    lambda r, n: neighbor_removal(r, n, self.dist_matrix, rng=self.random),
+                ),
+            ]
+
+        registry = core + extended if self.extended_operators else core
+        ops = [fn for _, fn in registry]
+        names = [nm for nm, _ in registry]
+        return ops, names
+
+    def _build_repair_ops(self) -> Tuple[List[Callable], List[str], List[bool]]:
+        """
+        Build the repair operator registry with clean/noisy operator pairs.
+
+        Noise-capable operators (greedy, regret-k) produce two consecutive slots:
+            [<Name>Clean, <Name>Noisy]
+        The adaptive weight mechanism tracks them independently, learning
+        whether noisy or clean variants perform better (paper Conf. 15).
+
+        Operators that do not accept a noise parameter (e.g. savings) produce
+        a single slot only — including them in both slots would be redundant.
+
+        Operator set is controlled by params.regret_pool:
+            "regret2"   → greedy, regret-2                        (4 slots)
+            "regret234" → greedy, regret-2, regret-3, regret-4    (8 slots, default)
+            "regretAll" → greedy, regret-2, regret-3, regret-4,
+                          savings                                  (9 slots)
+
+        Returns:
+            Tuple of (operator callables, operator names, is_noisy flags).
+        """
+        params = self.params
+        pa = self.profit_aware_operators
+        regret_pool: str = getattr(params, "regret_pool", "regret234")
+
+        # ------------------------------------------------------------------
+        # Define the logical repair base functions.
+        # Each entry: (label, fn, supports_noise)
+        #   supports_noise=True  → expanded into (Clean, Noisy) slot pair
+        #   supports_noise=False → single slot only
+        # ------------------------------------------------------------------
+        common_kw: Dict = dict(
+            dist_matrix=self.dist_matrix,
+            wastes=self.wastes,
+            capacity=self.capacity,
+            mandatory_nodes=self.mandatory_nodes,
+            expand_pool=self.vrpp,
+        )
+        profit_kw: Dict = dict(**common_kw, R=self.R, C=self.C)
+
+        if pa:
+            base_repair: List[Tuple[str, Callable, bool]] = [
+                (
+                    "GreedyProfit",
+                    lambda r, n, _noise=0.0: greedy_profit_insertion(r, n, noise=_noise, **profit_kw),
+                    True,
+                ),
+                (
+                    "Regret2Profit",
+                    lambda r, n, _noise=0.0: regret_2_profit_insertion(r, n, noise=_noise, **profit_kw),
+                    True,
+                ),
+            ]
+            if regret_pool in ("regret234", "regretAll"):
+                base_repair += [
+                    (
+                        "Regret3Profit",
+                        lambda r, n, _noise=0.0: regret_3_profit_insertion(r, n, noise=_noise, **profit_kw),
+                        True,
+                    ),
+                    (
+                        "Regret4Profit",
+                        lambda r, n, _noise=0.0: regret_4_profit_insertion(r, n, noise=_noise, **profit_kw),
+                        True,
+                    ),
+                ]
+            if regret_pool == "regretAll":
+                base_repair += [
+                    (
+                        "SavingsProfit",
+                        lambda r, n, _noise=0.0: savings_profit_insertion(r, n, **profit_kw),
+                        False,  # savings_profit_insertion has no noise parameter; _noise ignored
+                    ),
+                ]
+        else:
+            base_repair = [
+                (
+                    "Greedy",
+                    lambda r, n, _noise=0.0: greedy_insertion(r, n, noise=_noise, **common_kw),
+                    True,
+                ),
+                (
+                    "Regret2",
+                    lambda r, n, _noise=0.0: regret_2_insertion(r, n, noise=_noise, **common_kw),
+                    True,
+                ),
+            ]
+            if regret_pool in ("regret234", "regretAll"):
+                base_repair += [
+                    (
+                        "Regret3",
+                        lambda r, n, _noise=0.0: regret_3_insertion(r, n, noise=_noise, **common_kw),
+                        True,
+                    ),
+                    (
+                        "Regret4",
+                        lambda r, n, _noise=0.0: regret_4_insertion(r, n, noise=_noise, **common_kw),
+                        True,
+                    ),
+                ]
+            if regret_pool == "regretAll":
+                base_repair += [
+                    (
+                        "Savings",
+                        lambda r, n, _noise=0.0: savings_insertion(r, n, **common_kw),
+                        False,  # savings_insertion has no noise parameter; _noise ignored
+                    ),
+                ]
+
+        # ------------------------------------------------------------------
+        # Expand each base heuristic:
+        #   supports_noise=True  → [<Name>Clean (even idx), <Name>Noisy (odd idx)]
+        #   supports_noise=False → [<Name>] (single slot, always clean)
+        #
+        # All slots are called as repair_op(routes, removed, noise_val) from
+        # _select_and_apply_operators, so every lambda accepts a 3rd positional
+        # _noise argument (even if it is discarded for clean / no-noise ops).
+        # ------------------------------------------------------------------
+        ops: List[Callable] = []
+        names: List[str] = []
+        noisy_flags: List[bool] = []
+
+        for label, fn, supports_noise in base_repair:
+            if supports_noise:
+                # Clean slot: always passes 0.0; the _noise arg (from the call site) is discarded.
+                # Using positional args avoids any keyword-name mismatch across base lambdas.
+                ops.append(lambda r, n, _noise=0.0, _fn=fn: _fn(r, n, 0.0))
+                names.append(f"{label}Clean")
+                noisy_flags.append(False)
+                # Noisy slot: forwards _noise (the noise value computed by _get_noise) positionally.
+                ops.append(lambda r, n, _noise=0.0, _fn=fn: _fn(r, n, _noise))
+                names.append(f"{label}Noisy")
+                noisy_flags.append(True)
+            else:
+                # Single slot: no noise expansion; fn already accepts and discards _noise=0.0.
+                ops.append(fn)
+                names.append(label)
+                noisy_flags.append(False)
+
+        return ops, names, noisy_flags
+
+    # ------------------------------------------------------------------
+    # Core solver loop helpers
+    # ------------------------------------------------------------------
 
     def _get_noise(self) -> float:
         """
@@ -295,10 +469,6 @@ class ALNSSolver:
 
         Noise is scaled relative to the maximum distance in the problem instance:
         noise ~ U[-eta * max_dist, eta * max_dist]
-
-        The decision to use noise vs. clean insertion is handled by the adaptive
-        weight mechanism, which maintains separate weights for clean and noisy variants
-        of each operator.
 
         Returns:
             float: Noise value in range [-eta * max_dist, eta * max_dist]
@@ -310,13 +480,9 @@ class ALNSSolver:
         """
         Create a canonical hash of a solution for tracking visited states.
 
-        Args:
-            routes: List of routes to hash
-
         Returns:
-            Tuple representation of sorted routes for hashing
+            Tuple representation of sorted routes for hashing.
         """
-        # Sort routes by their first element for canonical representation
         sorted_routes = sorted([tuple(route) for route in routes if route])
         return tuple(sorted_routes)
 
@@ -328,7 +494,17 @@ class ALNSSolver:
         best_profit = best_rev - best_cost
         return current_routes, best_routes, best_profit, best_cost
 
-    def _select_and_apply_operators(self, current_routes):
+    def _select_and_apply_operators(self, current_routes: List[List[int]]) -> Tuple[List[List[int]], int, int]:
+        """
+        Select and apply one destroy + one repair operator.
+
+        Repair operators are selected via roulette-wheel (Eq. 20). Clean and
+        noisy variants are independent slots — the adaptive mechanism decides
+        which is preferable rather than a fixed coin flip (paper Conf. 15).
+
+        Returns:
+            (new_routes, destroy_idx, repair_idx)
+        """
         d_idx = self.select_operator(self.destroy_weights)
         r_idx = self.select_operator(self.repair_weights)
         destroy_op = self.destroy_ops[d_idx]
@@ -340,29 +516,27 @@ class ALNSSolver:
         else:
             lower_bound = min(current_n_nodes, self.params.min_removal)
             max_pct_remove = int(current_n_nodes * self.params.max_removal_pct)
-            # Upper bound: min(100, xi * n) per paper §4.3.1
+            # Upper bound: min(100, ξ * n) per paper §4.3.1
             upper_bound = min(current_n_nodes, self.params.max_removal_cap, max(lower_bound, max_pct_remove))
             upper_bound = max(upper_bound, lower_bound)
             n_remove = self.random.randint(lower_bound, upper_bound)
 
-        # 50% coin-flip per paper §3.6 for noise insertion variant
-        use_noise = self.random.random() < 0.5
-        noise_val = self._get_noise() if use_noise else 0.0
+        # Noise value is only computed when a noisy repair slot was selected.
+        # The adaptive weight mechanism controls how often noisy slots are chosen.
+        noise_val = self._get_noise() if self.repair_noisy[r_idx] else 0.0
 
         new_routes, removed = destroy_op([route[:] for route in current_routes], n_remove)
         new_routes = repair_op(new_routes, removed, noise_val)
         return new_routes, d_idx, r_idx
 
-    def _accept_solution(self, current_profit, new_profit, T):
+    def _accept_solution(self, current_profit: float, new_profit: float, T: float) -> bool:
         """
         Simulated Annealing acceptance criterion for VRPP profit maximization.
 
         For maximization problems, we accept if:
         1. new_profit > current_profit (always accept better solutions)
-        2. new_profit <= current_profit with probability exp(-Δ/T) where Δ = current_profit - new_profit
-
-        This is equivalent to the standard SA acceptance for minimization (f(x_new) < f(x_current))
-        by using delta = f(x_current) - f(x_new) for the profit objective.
+        2. new_profit <= current_profit with probability exp(-Δ/T)
+           where Δ = current_profit - new_profit >= 0
 
         Args:
             current_profit: Current solution profit (revenue - cost)
@@ -376,17 +550,16 @@ class ALNSSolver:
         if delta < -1e-6:  # new_profit > current_profit (improvement)
             return True
 
-        # Acceptance probability: P(accept) = exp(-Δ/T) where Δ >= 0
         prob = safe_exp(-delta / T) if T > 0 else 0
         return self.random.random() < prob
 
-    def _update_weights(self, d_idx, r_idx, score):
+    def _update_weights(self, d_idx: int, r_idx: int, score: float) -> None:
         self.destroy_scores[d_idx] += score
         self.repair_scores[r_idx] += score
         self.destroy_counts[d_idx] += 1
         self.repair_counts[r_idx] += 1
 
-    def _end_segment(self):
+    def _end_segment(self) -> None:
         """
         Update operator weights at the end of a segment (Ropke & Pisinger 2005, Eq. 4.1).
 
@@ -399,9 +572,7 @@ class ALNSSolver:
         """
         for i in range(len(self.destroy_weights)):
             if self.destroy_counts[i] > 0:
-                # Average score per usage: π_i / θ_i
                 avg_score = self.destroy_scores[i] / self.destroy_counts[i]
-                # Update: w_{i,j+1} = (1-r) * w_{i,j} + r * avg_score
                 self.destroy_weights[i] = (
                     self.weight_decay * self.destroy_weights[i] + self.weight_learning_rate * avg_score
                 )
@@ -419,15 +590,14 @@ class ALNSSolver:
 
     def _calculate_dynamic_start_temp(self, initial_profit: float, w_percent: float = 0.05) -> float:
         """
-        Calculate dynamic initial temperature (Ropke & Pisinger 2005, Section 3.3).
+        Calculate dynamic initial temperature (Ropke & Pisinger 2005, Section 3.5).
 
-        The temperature is set such that a solution that is w% worse than the initial
-        solution is accepted with probability 0.5.
+        The temperature is set such that a solution that is w% worse than the
+        initial solution is accepted with probability 0.5.
 
-        For maximization: A solution w% worse has profit = initial_profit * (1 - w)
-        Delta = initial_profit - (initial_profit * (1-w)) = initial_profit * w
-        We want: exp(-Delta/T) = 0.5
-        Therefore: T = -Delta / ln(0.5) = Delta / ln(2)
+        For maximization:
+            Delta = initial_profit * w
+            T_start = Delta / ln(2)   [from exp(-Delta/T) = 0.5]
 
         Args:
             initial_profit: Profit of initial solution
@@ -440,18 +610,20 @@ class ALNSSolver:
         if delta < 1e-9:
             return 100.0  # Fallback if initial solution has near-zero profit
         T_start = delta / math.log(2)  # ln(2) ≈ 0.693
-        return max(T_start, 1.0)  # Ensure minimum temperature
+        return max(T_start, 1.0)
+
+    # ------------------------------------------------------------------
+    # Main solve loop
+    # ------------------------------------------------------------------
 
     def solve(self, initial_solution: Optional[List[List[int]]] = None) -> Tuple[List[List[int]], float, float]:
         start_time = time.process_time()
         current_routes, best_routes, best_profit, best_cost = self._initialize_solve(initial_solution)
         current_profit = best_profit
 
-        # Clear visited solutions set
         self.visited_solutions.clear()
         self.visited_solutions.add(self._hash_solution(best_routes))  # type: ignore[arg-type]
 
-        # Dynamic temperature initialization (Ropke & Pisinger 2005, Section 3.3)
         if self.params.start_temp > 0:
             T = self.params.start_temp
         else:
@@ -466,49 +638,38 @@ class ALNSSolver:
             new_rev = sum(self.wastes.get(node_idx, 0) * self.R for route in new_routes for node_idx in route)
             new_profit = new_rev - new_cost
 
-            # Hash the new solution
             new_hash = self._hash_solution(new_routes)
             is_new_solution = new_hash not in self.visited_solutions
 
             accept = self._accept_solution(current_profit, new_profit, T)
 
-            # Scoring based on Ropke & Pisinger (2005, Section 3.3):
+            # ------------------------------------------------------------------
+            # Scoring (Ropke & Pisinger 2005, Section 3.4):
+            #   σ₁ — new global best (no "not visited" qualifier)
+            #   σ₂ — better than current, not visited before, accepted
+            #   σ₃ — worse than current, not visited before, accepted
+            # ------------------------------------------------------------------
             score = 0.0
             if new_profit > best_profit + 1e-6:
-                # σ₁: new global best — evaluated before accept, awarded regardless of
-                # whether new_profit > current_profit
                 best_routes = [r[:] for r in new_routes]
                 best_profit = new_profit
                 best_cost = new_cost
                 score = self.params.sigma_1
+            elif accept and is_new_solution:
+                score = self.params.sigma_2 if new_profit > current_profit + 1e-6 else self.params.sigma_3
 
             if accept:
-                if score == 0:
-                    # σ₁ was not already awarded
-                    if new_profit > current_profit + 1e-6:
-                        # σ₂: better solution not visited before
-                        if is_new_solution:
-                            score = self.params.sigma_2
-                    else:
-                        # σ₃: accepted worse solution not visited before
-                        if is_new_solution:
-                            score = self.params.sigma_3
-
                 self.visited_solutions.add(new_hash)  # type: ignore[arg-type]
                 current_routes = new_routes
                 current_profit = new_profit
-            else:
-                # score is already 0.0 unless σ₁ was found but not accepted (impossible in profit maximization)
-                pass
 
             self._update_weights(d_idx, r_idx, score)
             if (_it + 1) % self.segment_size == 0:
                 self._end_segment()
 
-            # Cooling schedule
             T *= self.params.cooling_rate
 
-            getattr(self, "_viz_record", lambda **k: None)(
+            self._viz_record(
                 iteration=_it,
                 d_idx=d_idx,
                 r_idx=r_idx,
@@ -520,7 +681,12 @@ class ALNSSolver:
             )
         return best_routes, best_profit, best_cost
 
+    # ------------------------------------------------------------------
+    # Utility methods
+    # ------------------------------------------------------------------
+
     def select_operator(self, weights: List[float]) -> int:
+        """Roulette-wheel operator selection (Eq. 20)."""
         total = sum(weights)
         r = self.random.uniform(0, total)
         curr = 0.0
@@ -531,7 +697,7 @@ class ALNSSolver:
         return len(weights) - 1
 
     def calculate_cost(self, routes: List[List[int]]) -> float:
-        total_dist = 0
+        total_dist = 0.0
         for route in routes:
             if not route:
                 continue
@@ -543,9 +709,7 @@ class ALNSSolver:
         return total_dist * self.C
 
     def build_initial_solution(self) -> List[List[int]]:
-        """
-        Build an initial solution using the greedy profit-aware heuristic.
-        """
+        """Build an initial solution using the greedy profit-aware heuristic."""
         return build_greedy_routes(
             dist_matrix=self.dist_matrix,
             wastes=self.wastes,

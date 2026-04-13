@@ -114,25 +114,19 @@ class HGSSolver:
 
         return pop_feasible, pop_infeasible
 
-    def _trim_populations(self, pop_feasible: List[Individual], pop_infeasible: List[Individual]) -> None:
-        self._trim_one(pop_feasible)
-        self._trim_one(pop_infeasible)
-
-    def _trim_one(self, pop: List[Individual]) -> None:
+    def _trim_one(self, pop: List[Individual], distance_cache: Optional[dict] = None) -> None:
         """Trim one sub-population to mu, removing clones first then worst by fitness."""
-        max_pop_size = self.params.mu + self.params.lambda_param
-        if len(pop) <= max_pop_size:
+        # Fix 1: Subpopulation survivor selection is triggered when size reaches mu + lambda
+        if len(pop) < self.params.mu + self.params.n_offspring:
             return
 
-        update_biased_fitness(pop, self.params.nb_elite, self.params.nb_close)
-
+        # Fix 5: Recompute fitness after each individual is removed so ranks remain valid
         while len(pop) > self.params.mu:
-            # Step 1: remove a clone (broken-pairs distance == 0) if one exists
+            update_biased_fitness(pop, self.params.nb_elite, self.params.nb_close, distance_cache)
             clone_idx = self._find_clone(pop)
             if clone_idx is not None:
                 pop.pop(clone_idx)
                 continue
-            # Step 2: no clone — remove the individual with the worst (highest) fitness
             worst_idx = max(range(len(pop)), key=lambda i: pop[i].fitness)
             pop.pop(worst_idx)
 
@@ -147,6 +141,22 @@ class HGSSolver:
             seen.add(key)
         return None
 
+    def _get_diversity_distance(
+        self,
+        ind_a: Individual,
+        ind_b: Individual,
+        cache: dict,
+    ) -> float:
+        """Get diversity distance between two individuals using object-ID based cache."""
+        from .evolution import _compute_broken_pairs_distance
+
+        key = (id(ind_a), id(ind_b))
+        if key not in cache:
+            d = _compute_broken_pairs_distance(ind_a, ind_b)
+            cache[key] = d
+            cache[(id(ind_b), id(ind_a))] = d
+        return cache[key]
+
     def solve(self) -> Tuple[List[List[int]], float, float]:
         """
         Run the Hybrid Genetic Search algorithm following Vidal et al. (2022).
@@ -159,34 +169,66 @@ class HGSSolver:
         # Initialize dual subpopulations and penalty
         penalty_capacity = self.params.initial_penalty_capacity
         pop_feasible, pop_infeasible = self._initialize_population(penalty_capacity)
+
+        # Fix 4: best_profit_so_far initialized from feasible pool only.
+        # Track the best feasible individual across all restarts (Fix 3).
+        best_feasible_ind: Optional[Individual] = (
+            max(pop_feasible, key=lambda x: x.profit_score) if pop_feasible else None
+        )
+        best_profit_so_far = best_feasible_ind.profit_score if best_feasible_ind is not None else -float("inf")
+
         it = 0
         it_no_improvement = 0
-        best_profit_so_far = max(ind.profit_score for ind in pop_feasible) if pop_feasible else -float("inf")
+        diversity_cache: dict = {}
+        use_time_limit = self.params.time_limit > 0
+        restart_threshold = (
+            self.params.restart_timer if self.params.restart_timer > 0 else self.params.n_iterations_no_improvement
+        )
 
         # Main evolutionary loop (Algorithm 1)
-        while it_no_improvement < self.params.n_iterations_no_improvement:
-            if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
+        while True:
+            # --- Primary stopping criterion ---
+            elapsed = time.process_time() - start_time
+            if use_time_limit and elapsed >= self.params.time_limit:
                 break
+            if not use_time_limit and it_no_improvement >= self.params.n_iterations_no_improvement:
+                break
+
+            # --- Restart logic (only when time_limit > 0) ---
+            if use_time_limit and it_no_improvement >= restart_threshold:
+                penalty_capacity = self.params.initial_penalty_capacity
+                pop_feasible, pop_infeasible = self._initialize_population(penalty_capacity)
+                it_no_improvement = 0
+                diversity_cache.clear()  # Fix 9: Invalidate cache after re-initialization
+
             it += 1
             it_no_improvement += 1
 
             # Generate and educate offspring
-            combined_pop = pop_feasible + pop_infeasible
-            if len(combined_pop) < 2:
+            combined = pop_feasible + pop_infeasible
+            if len(combined) < 2:
                 break
 
-            child = self._generate_offspring(combined_pop, penalty_capacity)
+            child = self._generate_offspring(pop_feasible, pop_infeasible, penalty_capacity, diversity_cache)
 
             # Insert into subpopulation and optionally repair
             self._insert_and_repair(child, pop_feasible, pop_infeasible, penalty_capacity)
 
-            # Track improvements
+            # Track improvement in feasible best
             if child.is_feasible and child.profit_score > best_profit_so_far:
                 best_profit_so_far = child.profit_score
+                best_feasible_ind = child
                 it_no_improvement = 0
 
-            # Trim populations and adjust penalties (batched every 100 iterations per Vidal 2022)
-            self._trim_populations(pop_feasible, pop_infeasible)
+            # Fix 1 & 5: Trim populations conditionally after insertion
+            if len(pop_feasible) >= self.params.mu + self.params.n_offspring:
+                self._trim_one(pop_feasible)
+                diversity_cache.clear()  # Fix 9: Invalidate cache after trim
+            if len(pop_infeasible) >= self.params.mu + self.params.n_offspring:
+                self._trim_one(pop_infeasible)
+                diversity_cache.clear()
+
+            # Adjust penalties (batched every 100 iterations per Vidal 2022)
             if it % 100 == 0:
                 penalty_capacity = self._adjust_penalties(pop_feasible, pop_infeasible, penalty_capacity)
 
@@ -198,11 +240,32 @@ class HGSSolver:
                 population_size=len(pop_feasible) + len(pop_infeasible),
             )
 
+        # Return global best feasible found across all restarts
+        if best_feasible_ind is not None:
+            return (
+                best_feasible_ind.routes,
+                best_feasible_ind.profit_score,
+                best_feasible_ind.cost,
+            )
         return self._get_best_solution(pop_feasible, pop_infeasible)
 
-    def _generate_offspring(self, population: List[Individual], penalty_capacity: float) -> Individual:
+    def _generate_offspring(
+        self,
+        pop_feasible: List[Individual],
+        pop_infeasible: List[Individual],
+        penalty_capacity: float,
+        diversity_cache: Optional[dict] = None,
+    ) -> Individual:
         """Generate and educate offspring via crossover and local search."""
-        p1, p2 = self._select_parents(population)
+        # Fix 2: Ranks are maintained per subpopulation as specified in Vidal (2022).
+        # Recompute before selection so tournament uses current values.
+        if pop_feasible:
+            update_biased_fitness(pop_feasible, self.params.nb_elite, self.params.nb_close, diversity_cache)
+        if pop_infeasible:
+            update_biased_fitness(pop_infeasible, self.params.nb_elite, self.params.nb_close, diversity_cache)
+
+        combined = pop_feasible + pop_infeasible
+        p1, p2 = self._select_parents(combined)
         child = ordered_crossover(p1, p2, rng=self.random)
         evaluate(child, self.split_manager, penalty_capacity)
         child = self.ls.optimize(child)
@@ -274,18 +337,9 @@ class HGSSolver:
             return current_penalty
 
     def _select_parents(self, population: List[Individual]) -> Tuple[Individual, Individual]:
-        """
-        Select two parents using binary tournament selection.
+        """Binary tournament selection on pre-computed fitness values."""
 
-        Args:
-            population: Combined population (feasible + infeasible).
-
-        Returns:
-            Two selected parent individuals.
-        """
-
-        def tournament():
-            """Perform a binary tournament selection."""
+        def tournament() -> Individual:
             i1, i2 = self.random.sample(population, 2)
             return i1 if i1.fitness < i2.fitness else i2
 

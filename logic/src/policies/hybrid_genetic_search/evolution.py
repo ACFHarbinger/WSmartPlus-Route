@@ -5,7 +5,7 @@ This module contains the crossover, evaluation, and fitness calculation
 logic for maintaining and improving the HGS population.
 """
 
-from typing import List
+from typing import List, Optional
 
 import numpy as np
 
@@ -15,28 +15,29 @@ from .split import LinearSplit
 
 def _extract_edges(individual: Individual) -> set:
     """
-    Extract all directed edges from an individual's routes.
+    Extract all undirected edges from an individual's routes.
 
-    An edge (A, B) exists if node B immediately follows node A in a route,
-    including edges from/to the depot (node 0).
+    An edge {A, B} exists if node B immediately follows node A in a route
+    (or vice-versa), including edges from/to the depot (node 0).
+    Using frozenset ensures edges are undirected (Fix 8).
 
     Args:
         individual: Individual whose edges to extract.
 
     Returns:
-        Set of directed edges (tuples of node pairs).
+        Set of undirected edges (frozensets of node pairs).
     """
     edges = set()
     for route in individual.routes:
         if not route:
             continue
         # Edge from depot to first node
-        edges.add((0, route[0]))
+        edges.add(frozenset({0, route[0]}))
         # Edges within route
         for i in range(len(route) - 1):
-            edges.add((route[i], route[i + 1]))
+            edges.add(frozenset({route[i], route[i + 1]}))
         # Edge from last node back to depot
-        edges.add((route[-1], 0))
+        edges.add(frozenset({route[-1], 0}))
     return edges
 
 
@@ -69,7 +70,12 @@ def _compute_broken_pairs_distance(ind1: Individual, ind2: Individual) -> float:
     return 1.0 - (intersection / max_edges)
 
 
-def update_biased_fitness(population: List[Individual], nb_elite: int, neighbor_size: int = 5):
+def update_biased_fitness(
+    population: List[Individual],
+    nb_elite: int,
+    neighbor_size: int = 5,
+    distance_cache: Optional[dict] = None,
+):
     """
     Update biased fitness based on profit rank and diversity rank.
     Follows Vidal et al. (2022) HGS-CVRP implementation with parameterless
@@ -79,6 +85,7 @@ def update_biased_fitness(population: List[Individual], nb_elite: int, neighbor_
         population: List of individuals to update (single subpopulation).
         nb_elite: Number of elite individuals to protect.
         neighbor_size: Number of nearest neighbors (nbClose) to consider for diversity.
+        distance_cache: Optional cache for pairwise diversity distances (Fix 9).
     """
     if not population:
         return
@@ -90,28 +97,41 @@ def update_biased_fitness(population: List[Individual], nb_elite: int, neighbor_
     # For feasible individuals capacity_violation == 0 so this equals profit_score.
     # For infeasible individuals this penalises solutions with greater violations,
     # matching Vidal (2022) which ranks by solution quality including penalties.
-    population.sort(key=lambda x: x.profit_score - x.penalized_cost + x.cost, reverse=True)
+    # Fix 10: Use the named property penalized_profit for sorting.
+    population.sort(key=lambda x: x.penalized_profit, reverse=True)
     for i, ind in enumerate(population):
         ind.rank_profit = i + 1
 
     # Diversity: Average broken pairs distance to nbClose closest individuals
     # Based on edge similarity (topological diversity)
-    for i, ind1 in enumerate(population):
-        dists = []
-        for j, ind2 in enumerate(population):
-            if i == j:
-                continue
-            # Compute edge-based distance (broken pairs)
-            dist = _compute_broken_pairs_distance(ind1, ind2)
-            dists.append(dist)
+    # Fix 11: Compute pairwise distance matrix using symmetry (O(P^2) -> O(P^2/2)).
+    n = len(population)
+    dist_matrix_local = [[0.0] * n for _ in range(n)]
 
-        # Average distance to nbClose closest individuals
+    for i in range(n):
+        for j in range(i + 1, n):
+            d = 0.0
+            if distance_cache is not None:
+                key = (id(population[i]), id(population[j]))
+                if key not in distance_cache:
+                    d = _compute_broken_pairs_distance(population[i], population[j])
+                    distance_cache[key] = d
+                    distance_cache[(id(population[j]), id(population[i]))] = d
+                else:
+                    d = distance_cache[key]
+            else:
+                d = _compute_broken_pairs_distance(population[i], population[j])
+
+            dist_matrix_local[i][j] = d
+            dist_matrix_local[j][i] = d
+
+    for i, ind in enumerate(population):
+        dists = sorted(dist_matrix_local[i][j] for j in range(n) if j != i)
         if dists:
-            dists.sort()
             n_neighbors = min(neighbor_size, len(dists))
-            ind1.dist_to_parents = float(np.mean(dists[:n_neighbors]))
+            ind.dist_to_parents = float(np.mean(dists[:n_neighbors]))
         else:
-            ind1.dist_to_parents = 0.0
+            ind.dist_to_parents = 0.0
 
     # Rank by Diversity (rank 1 = most diverse = best diversity contribution).
     # Since fitness is minimized in tournament selection, rank 1 gives the lowest

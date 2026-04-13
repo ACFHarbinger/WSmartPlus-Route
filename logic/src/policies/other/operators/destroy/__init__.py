@@ -3,7 +3,7 @@ Destroy Operators Package.
 
 This package contains implementations of removal heuristics for ALNS, including
 random, worst-case, cluster-based, Shaw (relatedness), string, route, neighbor,
-historical, and sector removal.
+historical, sector, and branch-and-bound removal.
 
 Also includes profit-based variants for VRPP problems: random_profit_removal,
 cluster_profit_removal, worst_profit_removal, shaw_profit_removal,
@@ -20,6 +20,7 @@ Example:
 """
 
 # Unstringing/Stringing imports removed to avoid circularity with ..unstringing_stringing
+from .branch_bound import bb_profit_removal, bb_removal
 from .cluster import cluster_profit_removal, cluster_removal
 from .guided import penalized_removal
 from .historical import historical_profit_removal, historical_removal
@@ -32,6 +33,8 @@ from .string import string_profit_removal, string_removal
 from .worst import worst_profit_removal, worst_removal
 
 __all__ = [
+    "bb_removal",
+    "bb_profit_removal",
     "random_removal",
     "worst_removal",
     "cluster_removal",
@@ -47,9 +50,9 @@ __all__ = [
     "worst_profit_removal",
     "shaw_profit_removal",
     "route_profit_removal",
+    "cluster_profit_removal",
     # Unused profit-based variants for VRPP
     "random_profit_removal",
-    "cluster_profit_removal",
     "neighbor_profit_removal",
     "string_profit_removal",
     "sector_profit_removal",

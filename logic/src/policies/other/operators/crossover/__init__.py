@@ -7,7 +7,7 @@ This module implements seven advanced crossover operators for VRP genetic algori
    - Preserves relative order of elements
    - Good for TSP-like problems
 
-2. **Position Independent Crossover (PIX)** - Adapted for VRP
+2. **Random Node Inheritance Crossover** - Custom
    - Focuses on which nodes to inherit, not their positions
    - Excellent for node selection in VRPP
 
@@ -16,7 +16,7 @@ This module implements seven advanced crossover operators for VRP genetic algori
    - Preserves good route structures
 
 4. **Generalized Partition Crossover (GPX)** - Whitley et al., 2009
-   - Graph-based recombination using common edges
+   - Graph-based recombination using uncommon edges
    - Creates offspring from edge unions
 
 5. **Edge Recombination Crossover (ERX)** - Whitley, 1989
@@ -41,10 +41,12 @@ from .generalized_partition import (
 )
 from .ordered import ordered_crossover
 from .position_independent import position_independent_crossover
+from .random_node_inheritance import random_node_inheritance_crossover
 from .selective_route_exchange import selective_route_exchange_crossover
 
 CROSSOVER_OPERATORS = {
     "OX": ordered_crossover,
+    "RANDOM_NODE": random_node_inheritance_crossover,
     "PIX": position_independent_crossover,
     "SREX": selective_route_exchange_crossover,
     "GPX": generalized_partition_crossover,
@@ -63,6 +65,7 @@ __all__ = [
     "generalized_partition_crossover",
     "ordered_crossover",
     "position_independent_crossover",
+    "random_node_inheritance_crossover",
     "route_profit_gpx_crossover",
     "selective_route_exchange_crossover",
 ]

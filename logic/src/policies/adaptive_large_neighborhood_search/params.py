@@ -35,6 +35,9 @@ class ALNSParams:
             - True: Profit-aware variants (worst_profit_removal, greedy_profit_insertion, regret_k_profit_insertion)
             For scientific publication, run comparative experiments with this flag toggled
             to statistically validate the contribution of profit-aware heuristics.
+        extended_operators: If True, add string, cluster, and neighbor removal operators
+            to the destroy pool in addition to random/worst/shaw (3 → 6 operators).
+            Increases operator diversity at the cost of slightly higher per-iteration overhead.
         seed: Random seed for reproducibility.
     """
 
@@ -56,6 +59,7 @@ class ALNSParams:
     sigma_3: float = 13.0  # Score for accepted worse solution (not visited)
     vrpp: bool = True
     profit_aware_operators: bool = False
+    extended_operators: bool = False
     seed: Optional[int] = None
 
     @classmethod
@@ -90,5 +94,6 @@ class ALNSParams:
             sigma_3=getattr(config, "sigma_3", 13.0),
             vrpp=getattr(config, "vrpp", True),
             profit_aware_operators=getattr(config, "profit_aware_operators", False),
+            extended_operators=getattr(config, "extended_operators", False),
             seed=getattr(config, "seed", None),
         )

@@ -1,10 +1,15 @@
 import random
-from typing import Optional
+from typing import List, Optional
 
 from logic.src.policies.hybrid_genetic_search.individual import Individual
 
 
-def ordered_crossover(p1: Individual, p2: Individual, rng: Optional[random.Random] = None) -> Individual:
+def ordered_crossover(
+    p1: Individual,
+    p2: Individual,
+    rng: Optional[random.Random] = None,
+    mandatory_nodes: Optional[List[int]] = None,
+) -> Individual:
     """
     Classical Ordered Crossover (OX1) for fixed-length permutations.
 
@@ -27,6 +32,7 @@ def ordered_crossover(p1: Individual, p2: Individual, rng: Optional[random.Rando
         p1: First parent individual.
         p2: Second parent individual.
         rng: Random number generator.
+        mandatory_nodes: List of nodes that MUST be visited.
 
     Returns:
         Child individual with fixed-length giant tour.
@@ -38,16 +44,26 @@ def ordered_crossover(p1: Individual, p2: Individual, rng: Optional[random.Rando
     t2 = p2.giant_tour
     n = len(t1)
 
+    # Fix 12 (now moved/renumbered): Upfront assertion for identical node sets.
+    if set(t1) != set(t2):
+        raise ValueError(
+            f"ordered_crossover requires both parents to have identical node sets. "
+            f"Symmetric difference: {set(t1).symmetric_difference(set(t2))}."
+        )
+
     # Edge case: Empty or small parents
     if n < 2 or len(t2) < 2:
         return Individual(t1[:] if t1 else t2[:], expand_pool=p1.expand_pool)
 
     # Strict consistency checks
     assert len(t1) == len(t2), f"Parent tours must have equal length: {len(t1)} vs {len(t2)}"
-    assert p1.expand_pool == p2.expand_pool, "Parents must have matching expand_pool settings"
 
     # 1. Select crossover points
-    a, b = sorted(rng.sample(range(n), 2))
+    # Fix 1: Guarantee segment never spans the full tour (when n >= 4).
+    if n >= 4:
+        a, b = sorted(rng.sample(range(1, n - 1), 2))
+    else:
+        a, b = sorted(rng.sample(range(n), 2))
 
     # 2. Initialize child and copy segment from p1 into exact same positions
     child_tour = [-1] * n
@@ -58,10 +74,12 @@ def ordered_crossover(p1: Individual, p2: Individual, rng: Optional[random.Rando
     curr_p2 = (b + 1) % n
     curr_child = (b + 1) % n
 
-    # O(n) fill logic with safety break for mismatched node pools
+    # O(n) fill logic
     total_to_fill = n - (b - a + 1)
     filled = 0
-    while filled < total_to_fill:
+    steps = 0
+    max_steps = 2 * n  # full circular sweep is at most n steps
+    while filled < total_to_fill and steps < max_steps:
         node = t2[curr_p2]
         if node not in segment_set:
             child_tour[curr_child] = node
@@ -69,15 +87,22 @@ def ordered_crossover(p1: Individual, p2: Individual, rng: Optional[random.Rando
             filled += 1
 
         curr_p2 = (curr_p2 + 1) % n
-        if curr_p2 == (b + 1) % n and filled < total_to_fill:
-            break  # Guard against mismatched node pools
+        steps += 1
 
-    # Final fallback for incomplete tours (should not happen in valid HGS)
+    # Fix 12 (now moved/renumbered): Replace the silent fallback with an explicit ValueError.
     if -1 in child_tour:
-        # Fill remaining slots with any missing nodes from a canonical set if necessary
-        # For now, just copy from t1 to maintain length and valid type
-        for i in range(n):
-            if child_tour[i] == -1:
-                child_tour[i] = t1[i]
+        missing_positions = [i for i, v in enumerate(child_tour) if v == -1]
+        raise ValueError(
+            f"ordered_crossover: {len(missing_positions)} positions could not be "
+            f"filled. Parent node pools are inconsistent. Positions: "
+            f"{missing_positions}. "
+            f"P1 nodes: {set(t1)}, P2 nodes: {set(t2)}, "
+            f"difference: {set(t1).symmetric_difference(set(t2))}."
+        )
+
+    # Fix 22: Debug assertion: mandatory nodes must appear in the giant tour.
+    assert mandatory_nodes is None or all(node in set(child_tour) for node in mandatory_nodes), (
+        f"Crossover produced a giant tour missing mandatory nodes: {set(mandatory_nodes) - set(child_tour)}"
+    )
 
     return Individual(giant_tour=child_tour, expand_pool=p1.expand_pool)
