@@ -17,7 +17,7 @@ Example:
 """
 
 from random import Random
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 import numpy as np
 
@@ -39,14 +39,16 @@ def shaw_removal(  # noqa: C901
 
     Efficiency: O(n) selection using np.partition instead of O(n log n) sorting.
     Implements Ropke & Pisinger (2005) relatedness measure:
-        R(i,j) = φ * d(i,j) + χ * |T_i - T_j| + ψ * |q_i - q_j| + ω * vehicle_compatibility
+        R(i,j) = φ * d(i,j) + χ * |T_i - T_j| + ψ * |q_i - q_j|
+
+    **VRPP Adaptation Note**: While the Ropke & Pisinger (2005) measure includes
+    temporal components (T_ij), the VRPP-specific relatedness primarily relies
+    on spatial distance and profit difference. This implementation drops the
+    vehicle compatibility term (ω) and emphasizes profit attributes.
 
     **Note on ω (omega) term**: The vehicle compatibility component (ω) is intentionally
     omitted from this implementation. Theoretical justification: The target domain is
-    CVRP/VRPP with a homogeneous fleet where any vehicle can serve any node. Since all
-    nodes have identical vehicle compatibility, the ω term is mathematically constant
-    across all node pairs and does not affect relative node selection. Therefore, it can
-    be safely omitted without changing the algorithm's behavior.
+    CVRP/VRPP with a homogeneous fleet.
 
     Args:
         routes: Current routes.
@@ -147,18 +149,20 @@ def shaw_removal(  # noqa: C901
         selected_node = int(partitioned[k]["node"])
         removed.append(selected_node)
 
-    # Execution removals
-    to_remove_locs = [(node_map[n][0], node_map[n][1], n) for n in removed if n in node_map]
-    to_remove_locs.sort(key=lambda x: (x[0], x[1]), reverse=True)
-
+    # Execution removals: efficient route modification using list filtering
+    removed_set: Set[int] = set(removed)
     final_removed = []
-    for r_idx, pos, node in to_remove_locs:
-        if pos < len(routes[r_idx]) and routes[r_idx][pos] == node:
-            routes[r_idx].pop(pos)
-            final_removed.append(node)
+    modified_routes = []
+    for r in routes:
+        new_route = [node for node in r if node not in removed_set]
+        # Track removals from this specific route for final_removed
+        for node in r:
+            if node in removed_set:
+                final_removed.append(node)
+        if new_route:
+            modified_routes.append(new_route)
 
-    routes = [r for r in routes if r]
-    return routes, final_removed
+    return modified_routes, final_removed
 
 
 def shaw_profit_removal(  # noqa: C901
@@ -180,14 +184,11 @@ def shaw_profit_removal(  # noqa: C901
     Implements profit-aware relatedness for VRPP problems:
         R(i,j) = φ * d(i,j)/d_max + ψ * |profit_i - profit_j|/profit_max
 
-    Customers that are similar in terms of distance and marginal profit are removed
-    together, maximizing the potential for profitable rearrangement during repair.
+    Calculates relatedness purely based on spatial distance and profit difference,
+    dropping the temporal components (T_ij) of standard PDPTW Shaw Removal.
 
     **Note on ω (omega) term**: The vehicle compatibility component (ω) is intentionally
-    omitted from this implementation. Theoretical justification: The target domain is
-    VRPP with a homogeneous fleet where any vehicle can serve any node. Since all nodes
-    have identical vehicle compatibility, the ω term is mathematically constant across
-    all node pairs and does not affect relative node selection.
+    omitted as the fleet is homogeneous.
 
     Args:
         routes: Current routes.
@@ -255,7 +256,7 @@ def shaw_profit_removal(  # noqa: C901
 
             total_rel: float = 0.0
             for rem_node in removed:
-                dist_rel = float(dist_matrix[node, rem_node]) / max_dist
+                dist_rel = float(dist_matrix[node, rem_node]) / max_dist if max_dist > 0 else 0.0
                 profit_rel = float(abs(node_profits[node] - node_profits[rem_node])) / profit_range
 
                 rel = phi * dist_rel + psi * profit_rel
@@ -280,15 +281,17 @@ def shaw_profit_removal(  # noqa: C901
         selected_node = int(partitioned[k]["node"])
         removed.append(selected_node)
 
-    # 4. Final removal
-    to_remove_locs = [(node_map[n][0], node_map[n][1], n) for n in removed if n in node_map]
-    to_remove_locs.sort(key=lambda x: (x[0], x[1]), reverse=True)
-
+    # 4. Efficient route modification
+    removed_set: Set[int] = set(removed)
     final_removed = []
-    for r_idx, pos, node in to_remove_locs:
-        if pos < len(routes[r_idx]) and routes[r_idx][pos] == node:
-            routes[r_idx].pop(pos)
-            final_removed.append(node)
+    modified_routes = []
+    for r in routes:
+        new_route = [node for node in r if node not in removed_set]
+        # Track removals from this specific route for final_removed
+        for node in r:
+            if node in removed_set:
+                final_removed.append(node)
+        if new_route:
+            modified_routes.append(new_route)
 
-    routes = [r for r in routes if r]
-    return routes, final_removed
+    return modified_routes, final_removed

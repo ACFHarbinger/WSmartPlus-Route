@@ -10,12 +10,14 @@ Includes:
     - double_bridge: 4-opt double-bridge move.
     - genetic_transformation: Elite-guided edge preservation.
     - evolutionary_perturbation: Micro-GA on route clusters.
+    - bb_perturbation: B&B destroy-and-repair (Shaw 1998).
 
 Example:
     >>> from logic.src.policies.other.operators.perturbation import kick
     >>> kick(context, destroy_ratio=0.2)
 """
 
+from .branch_bound import bb_perturbation, bb_profit_perturbation
 from .double_bridge import double_bridge
 from .evolutionary import (
     evolutionary_perturbation,
@@ -29,6 +31,8 @@ from .kick import kick, kick_profit
 from .perturb import perturb, perturb_profit
 
 __all__ = [
+    "bb_perturbation",
+    "bb_profit_perturbation",
     "perturb",
     "perturb_profit",
     "kick",

@@ -1,10 +1,8 @@
 """
-Cluster Removal Operator Module.
+Profit-Similarity and Cluster Removal Operator Module.
 
-This module implements the cluster removal heuristic, which removes a cluster of
-nodes based on spatial proximity, effectively acting as a variant of Shaw removal.
-
-Also includes profit-based cluster removal for VRPP problems.
+This module implements removal heuristics based on spatial and attribute similarity.
+Includes standard cluster removal (spatial) and profit-similarity removal (VRPP).
 
 Attributes:
     None
@@ -14,11 +12,11 @@ Example:
     >>> routes, removed = cluster_removal(routes, n_remove=5, dist_matrix=d, nodes=all_nodes)
     >>> from logic.src.policies.other.operators.destroy.cluster import cluster_profit_removal
     >>> routes, removed = cluster_profit_removal(routes, n_remove=5, dist_matrix=d,
-    ...                                          wastes=w, R=1.0, C=1.0)
+    ...                                              wastes=w, R=1.0, C=1.0)
 """
 
 from random import Random
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 
 import numpy as np
 
@@ -57,15 +55,10 @@ def cluster_removal(
 
     removed = [seed_node]
 
-    node_map = {}
-    for r_idx, r in enumerate(routes):
-        for n_idx, node in enumerate(r):
-            node_map[node] = (r_idx, n_idx)
-
     # Find geographic neighbors
     candidates = []
     for v in nodes:
-        if v == seed_node or v not in node_map:
+        if v == seed_node or v not in all_visited:
             continue
         dist = dist_matrix[seed_node][v]
         candidates.append((v, dist))
@@ -74,20 +67,22 @@ def cluster_removal(
     target_nodes = [x[0] for x in candidates[: n_remove - 1]]
     removed.extend(target_nodes)
 
-    to_remove_locs = []
-    for node in removed:
-        if node in node_map:
-            to_remove_locs.append((*node_map[node], node))
-
-    to_remove_locs.sort(key=lambda x: (x[0], x[1]), reverse=True)
-
+    # Efficient route modification: filter out removed nodes in a single pass
+    removed_set: Set[int] = set(removed)
     final_removed = []
-    for r_idx, n_idx, node in to_remove_locs:
-        routes[r_idx].pop(n_idx)
-        final_removed.append(node)
 
-    routes = [r for r in routes if r]
-    return routes, final_removed
+    modified_routes = []
+    for r in routes:
+        new_route = []
+        for node in r:
+            if node in removed_set:
+                final_removed.append(node)
+            else:
+                new_route.append(node)
+        if new_route:
+            modified_routes.append(new_route)
+
+    return modified_routes, final_removed
 
 
 def cluster_profit_removal(
@@ -100,10 +95,12 @@ def cluster_profit_removal(
     rng: Optional[Random] = None,
 ) -> Tuple[List[List[int]], List[int]]:
     """
-    Remove a cluster of nodes based on low profit potential (VRPP).
+    Remove a group of nodes based on similarity in their profit contributions.
 
-    Selects a seed node with low profit (bottom 25%), then removes nodes with
-    similar low profit values, effectively targeting unprofitable regions.
+    Unlike standard Cluster Removal which uses spatial proximity (Pisinger & Ropke 2007),
+    this is a novel VRPP adaptation that destroys routes by targeting nodes with
+    similar marginal profit levels, effectively isolating regions of equivalent
+    unprofitability for the search to re-evaluate.
 
     Args:
         routes (List[List[int]]): Current routes.
@@ -125,8 +122,7 @@ def cluster_profit_removal(
 
     # 1. Pre-calculate marginal profits
     all_nodes_data = []
-    node_map = {}
-    for r_idx, route in enumerate(routes):
+    for _, route in enumerate(routes):
         for pos, node in enumerate(route):
             revenue = wastes.get(node, 0.0) * R
             prev = 0 if pos == 0 else route[pos - 1]
@@ -135,7 +131,6 @@ def cluster_profit_removal(
             profit = revenue - (detour_cost * C)
 
             all_nodes_data.append((node, profit))
-            node_map[node] = (r_idx, pos)
 
     if not all_nodes_data:
         return routes, []
@@ -156,17 +151,18 @@ def cluster_profit_removal(
     target_nodes = [x[0] for x in candidates[: n_remove - 1]]
     removed = [seed_node] + target_nodes
 
-    # 4. Remove
-    to_remove_locs = []
-    for node in removed:
-        if node in node_map:
-            to_remove_locs.append((*node_map[node], node))
-    to_remove_locs.sort(key=lambda x: (x[0], x[1]), reverse=True)
-
+    # 4. Efficient route modification
+    removed_set: Set[int] = set(removed)
     final_removed = []
-    for r_idx, n_idx, node in to_remove_locs:
-        routes[r_idx].pop(n_idx)
-        final_removed.append(node)
+    modified_routes = []
+    for r in routes:
+        new_route = []
+        for node in r:
+            if node in removed_set:
+                final_removed.append(node)
+            else:
+                new_route.append(node)
+        if new_route:
+            modified_routes.append(new_route)
 
-    routes = [r for r in routes if r]
-    return routes, final_removed
+    return modified_routes, final_removed

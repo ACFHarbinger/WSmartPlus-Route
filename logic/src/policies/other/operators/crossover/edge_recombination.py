@@ -7,60 +7,66 @@ import numpy as np
 from logic.src.policies.hybrid_genetic_search.individual import Individual
 
 
-def edge_recombination_crossover(p1: Individual, p2: Individual, rng: Optional[random.Random] = None) -> Individual:
+def edge_recombination_crossover(
+    p1: Individual,
+    p2: Individual,
+    rng: Optional[random.Random] = None,
+    mandatory_nodes: Optional[List[int]] = None,
+) -> Individual:
     """
     Edge Recombination Crossover (ERX): Preserves edge adjacencies.
 
     Algorithm:
-        1. Build edge adjacency table from both parents
-        2. Start from random node
-        3. Iteratively select next node with fewest remaining edges
-        4. Update adjacency table after each selection
-
-    Maximizes preservation of parent edges in offspring.
+        1. Build edge adjacency table from decoded physical routes of both parents.
+           Unvisited nodes (those not in any route) have empty adjacency sets and
+           are placed via the random fallback, preserving the full genotype.
+        2. Start from a uniformly random node.
+        3. Iteratively select next node with fewest remaining edges.
+        4. Update adjacency table after each selection.
 
     Args:
         p1: First parent individual.
         p2: Second parent individual.
         rng: Random number generator.
+        mandatory_nodes: List of nodes that MUST be visited.
 
     Returns:
         Child individual.
     """
     if rng is None:
-        rng = random.Random(42)
+        rng = random.Random()
 
-    # Build edge adjacency table
-    adj_table: Dict[int, Set[int]] = defaultdict(set)
-
-    def add_tour_edges(tour: List[int]):
-        for i in range(len(tour)):
-            current = tour[i]
-            # Add neighbors (predecessor and successor)
-            prev_node = tour[i - 1] if i > 0 else tour[-1]
-            next_node = tour[i + 1] if i < len(tour) - 1 else tour[0]
-
-            if current != 0:  # Exclude depot
-                if prev_node != 0:
-                    adj_table[current].add(prev_node)
-                if next_node != 0:
-                    adj_table[current].add(next_node)
-
-    add_tour_edges(p1.giant_tour)
-    add_tour_edges(p2.giant_tour)
-
-    # Start from random node
+    # All nodes in the genotype (visited + unvisited).
     all_nodes = list(set(p1.giant_tour) | set(p2.giant_tour))
-    all_nodes = [n for n in all_nodes if n != 0]  # Exclude depot
-
     if not all_nodes:
         return Individual([])
 
-    child_gt = []
+    adj_table: Dict[int, Set[int]] = defaultdict(set)
+
+    def add_route_edges(routes: List[List[int]]) -> None:
+        """Add undirected edges from decoded physical routes."""
+        for route in routes:
+            if not route:
+                continue
+            for i in range(len(route) - 1):
+                u, v = route[i], route[i + 1]
+                adj_table[u].add(v)
+                adj_table[v].add(u)
+
+    # Use decoded routes when available, otherwise skip edge building.
+    # Unvisited nodes will have empty adjacency and trigger the random fallback.
+    if p1.routes:
+        add_route_edges(p1.routes)
+    if p2.routes:
+        add_route_edges(p2.routes)
+
+    # Fix 12: Start from a random node instead of biased candidates.
     current = rng.choice(all_nodes)
-    child_gt.append(current)
+
+    child_gt: List[int] = []
     remaining = set(all_nodes)
-    remaining.remove(current)
+    remaining.discard(current)
+    child_gt.append(current)
 
     # Build tour by selecting nodes with fewest edges
     while remaining:
@@ -69,16 +75,14 @@ def edge_recombination_crossover(p1: Individual, p2: Individual, rng: Optional[r
 
         if neighbors:
             # Select neighbor with fewest edges (ties broken randomly)
-            next_node = min(
-                neighbors,
-                key=lambda n: (len(adj_table[n] & remaining), rng.random()),
-            )
+            candidates = [(len(adj_table[n] & remaining), rng.random(), n) for n in neighbors]
+            next_node = min(candidates)[2]
         else:
             # No neighbors available, select random remaining node
             next_node = rng.choice(list(remaining))
 
         child_gt.append(next_node)
-        remaining.remove(next_node)
+        remaining.discard(next_node)
 
         # Remove selected node from all adjacency lists
         for node in remaining:
@@ -86,7 +90,7 @@ def edge_recombination_crossover(p1: Individual, p2: Individual, rng: Optional[r
 
         current = next_node
 
-    return Individual(child_gt)
+    return Individual(child_gt, expand_pool=p1.expand_pool)
 
 
 def _get_physical_edges(routes: List[List[int]]) -> Set[Tuple[int, int]]:
@@ -110,6 +114,7 @@ def capacity_aware_erx(
     R: float = 1.0,
     C: float = 1.0,
     rng: Optional[random.Random] = None,
+    mandatory_nodes: Optional[List[int]] = None,
 ) -> Individual:
     """
     Capacity-Aware Edge Recombination Crossover (C-ERX).
@@ -117,7 +122,7 @@ def capacity_aware_erx(
     both parents while strictly enforcing vehicle capacity and using profit tie-breakers.
     """
     if rng is None:
-        rng = random.Random(42)
+        rng = random.Random()
 
     if not p1.routes or not p2.routes:
         return Individual(p1.giant_tour[:])
@@ -139,49 +144,78 @@ def capacity_aware_erx(
     current_route: List[int] = []
     current_load = 0.0
     remaining = set(all_nodes)
+    mandatory_nodes_set = set(mandatory_nodes) if mandatory_nodes else set()
 
-    # Start at a random node
-    current_node = rng.choice(all_nodes)
-    current_route.append(current_node)
-    current_load += wastes.get(current_node, 0.0)
-    remaining.remove(current_node)
-
-    # 2. The Capacity Walk
+    # The Capacity Walk
     while remaining:
+        # Start a new route if the current one is empty
+        if not current_route:
+            candidate = rng.choice(list(remaining))
+            solo_cost = (dist_matrix[0, candidate] + dist_matrix[candidate, 0]) * C
+            solo_revenue = wastes.get(candidate, 0.0) * R
+            if solo_revenue < solo_cost and candidate not in mandatory_nodes_set:
+                remaining.discard(candidate)
+                continue
+            current_route.append(candidate)
+            current_load += wastes.get(candidate, 0.0)
+            remaining.discard(candidate)
+
+        current_node = current_route[-1]  # always set from current route state
         raw_neighbors = adj_table[current_node] & remaining
         valid_neighbors = [n for n in raw_neighbors if current_load + wastes.get(n, 0.0) <= capacity]
 
         if valid_neighbors:
-            # 3. Profit Tie-Breaker
-            next_node = min(
-                valid_neighbors,
-                key=lambda n: (
+            candidates = [
+                (
                     len(adj_table[n] & remaining),
                     -(wastes.get(n, 0.0) * R - dist_matrix[current_node, n] * C),
-                ),
-            )
+                    rng.random(),
+                    n,
+                )
+                for n in valid_neighbors
+            ]
+            next_node = min(candidates)[3]
             current_route.append(next_node)
             current_load += wastes.get(next_node, 0.0)
-            remaining.remove(next_node)
-            current_node = next_node
-
+            remaining.discard(next_node)
         else:
-            # Capacity full or dead end -> Return to depot
             child_routes.append(current_route)
             current_route = []
             current_load = 0.0
 
-            current_node = rng.choice(list(remaining))
-            current_route.append(current_node)
-            current_load += wastes.get(current_node, 0.0)
-            remaining.remove(current_node)
-
     if current_route:
         child_routes.append(current_route)
 
-    # Convert evaluated routes back into a giant tour
-    child_gt = [node for route in child_routes for node in route]
+    # Fix 22: Enforce mandatory nodes in visited routes.
+    if mandatory_nodes:
+        visited_in_routes = {n for route in child_routes for n in route}
+        missing_mandatory = mandatory_nodes_set - visited_in_routes
+        loads = [sum(wastes.get(n, 0.0) for n in r) for r in child_routes]
 
-    ind = Individual(child_gt)
-    ind.routes = child_routes
-    return ind
+        for node in missing_mandatory:
+            node_waste = wastes.get(node, 0.0)
+            best_r = min(range(len(child_routes)), key=lambda i: loads[i], default=None)
+            if best_r is not None and loads[best_r] + node_waste <= capacity:
+                child_routes[best_r].append(node)
+                loads[best_r] += node_waste
+            else:
+                child_routes.append([node])
+                loads.append(node_waste)
+
+        # Pre-Split sanity check: mandatory nodes are in the visited prefix of
+        # child_gt, making them more likely to be assigned routes by Split.
+        # The definitive enforcement is in LinearSplit.mandatory_nodes.
+        visited_prefix = {n for route in child_routes for n in route}
+        assert all(n in visited_prefix for n in mandatory_nodes), (
+            f"Mandatory nodes missing from routes: {mandatory_nodes_set - visited_prefix}"
+        )
+
+    # Reconstruct a full-length giant tour: visited nodes first, then unvisited.
+    # Fix 17: Shuffle unvisited suffix to remove Split evaluation bias.
+    visited_set = {node for route in child_routes for node in route}
+    route_nodes = [node for route in child_routes for node in route]
+    unvisited = [n for n in p1.giant_tour if n not in visited_set]
+    rng.shuffle(unvisited)
+    child_gt = route_nodes + unvisited
+
+    return Individual(child_gt, expand_pool=p1.expand_pool)

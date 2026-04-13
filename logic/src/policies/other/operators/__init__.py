@@ -19,18 +19,22 @@ organized by category:
 from .crossover import (
     CROSSOVER_NAMES,
     CROSSOVER_OPERATORS,
+    capacity_aware_erx,
     edge_recombination_crossover,
     generalized_partition_crossover,
     ordered_crossover,
-    position_independent_crossover,
+    random_node_inheritance_crossover,
+    route_profit_gpx_crossover,
     selective_route_exchange_crossover,
 )
 
 # Destroy operators
 from .destroy import (
+    cluster_profit_removal,
     cluster_removal,
     historical_profit_removal,
     historical_removal,
+    neighbor_profit_removal,
     neighbor_removal,
     penalized_removal,
     random_removal,
@@ -39,6 +43,7 @@ from .destroy import (
     sector_removal,
     shaw_profit_removal,
     shaw_removal,
+    string_profit_removal,
     string_removal,
     worst_profit_removal,
     worst_removal,
@@ -148,10 +153,12 @@ __all__ = [
     # Crossover
     "CROSSOVER_NAMES",
     "CROSSOVER_OPERATORS",
+    "capacity_aware_erx",
     "edge_recombination_crossover",
     "generalized_partition_crossover",
     "ordered_crossover",
-    "position_independent_crossover",
+    "random_node_inheritance_crossover",
+    "route_profit_gpx_crossover",
     "selective_route_exchange_crossover",
     # Destroy
     "random_removal",
@@ -166,7 +173,9 @@ __all__ = [
     "worst_profit_removal",
     "shaw_profit_removal",
     "route_profit_removal",
+    "cluster_profit_removal",
     "neighbor_profit_removal",
+    "string_profit_removal",
     "historical_profit_removal",
     "sector_profit_removal",
     "penalized_removal",

@@ -14,7 +14,7 @@ import copy
 import random
 import time
 from collections import defaultdict, deque
-from typing import DefaultDict, Deque, Dict, List, Optional, Set, Tuple
+from typing import Any, DefaultDict, Deque, Dict, List, Optional, Sequence, Set, Tuple
 
 import numpy as np
 
@@ -73,12 +73,12 @@ class TSSolver:
 
         # Short-term memory: Tabu list stores (move_type, move_attributes, expiration_iter)
         # move_attributes is a tuple representing the move (e.g., (node1, node2) for swap)
-        self.tabu_list: Deque[Tuple[str, Tuple[int, ...], int]] = deque()
+        self.tabu_list: Deque[Tuple[str, Any, int]] = deque()
 
         # Long-term memory: Frequency matrices
         # Track how often nodes appear in solutions and how often moves are performed
         self.node_frequency: DefaultDict[int, int] = defaultdict(int)
-        self.move_frequency: DefaultDict[Tuple[str, Tuple[int, ...]], int] = defaultdict(int)
+        self.move_frequency: DefaultDict[Tuple[str, Any], int] = defaultdict(int)
 
         # Elite solutions pool for intensification and path relinking
         self.elite_solutions: List[Tuple[List[List[int]], float]] = []
@@ -199,9 +199,9 @@ class TSSolver:
 
     def _select_best_candidate(
         self,
-        candidates: List[Tuple[List[List[int]], Tuple[str, Tuple[int, ...]]]],
+        candidates: Sequence[Tuple[List[List[int]], Tuple[str, Any]]],
         best_profit: float,
-    ) -> Tuple[Optional[List[List[int]]], float, Optional[Tuple[str, Tuple[int, ...]]]]:
+    ) -> Tuple[Optional[List[List[int]]], float, Optional[Tuple[str, Any]]]:
         """
         Select best non-tabu candidate with aspiration criteria.
 
@@ -250,7 +250,7 @@ class TSSolver:
     # Tabu List Management (Short-term Memory)
     # ========================================================================
 
-    def _is_tabu(self, move_desc: Tuple[str, Tuple[int, ...]]) -> bool:
+    def _is_tabu(self, move_desc: Tuple[str, Any]) -> bool:
         """Check if a move is currently tabu."""
         move_type, move_attrs = move_desc
         for tabu_type, tabu_attrs, expiration in self.tabu_list:
@@ -258,7 +258,7 @@ class TSSolver:
                 return True
         return False
 
-    def _add_to_tabu_list(self, move_desc: Tuple[str, Tuple[int, ...]]):
+    def _add_to_tabu_list(self, move_desc: Tuple[str, Any]):
         """Add a move to the tabu list with appropriate tenure."""
         move_type, move_attrs = move_desc
 
@@ -273,7 +273,7 @@ class TSSolver:
 
     def _clean_tabu_list(self):
         """Remove expired tabu entries."""
-        while self.tabu_list and self.tabu_list[0][2] <= self.iteration:
+        while self.tabu_list and self.tabu_List[0][2] <= self.iteration:
             self.tabu_list.popleft()
 
     def _compute_dynamic_tenure(self) -> int:
@@ -303,11 +303,11 @@ class TSSolver:
             for node in route:
                 self.node_frequency[node] += 1
 
-    def _update_move_frequency(self, move_desc: Tuple[str, Tuple[int, ...]]):
+    def _update_move_frequency(self, move_desc: Tuple[str, Any]):
         """Update move frequency counters."""
         self.move_frequency[move_desc] += 1
 
-    def _compute_frequency_penalty(self, move_desc: Tuple[str, Tuple[int, ...]]) -> float:
+    def _compute_frequency_penalty(self, move_desc: Tuple[str, Any]) -> float:
         """
         Compute penalty based on move frequency to encourage diversification.
 
@@ -412,7 +412,6 @@ class TSSolver:
                     self.dist_matrix,
                     self.wastes,
                     self.capacity,
-                    self.R,
                     mandatory_nodes=self.mandatory_nodes,
                     expand_pool=self.params.vrpp,
                 )
@@ -498,7 +497,6 @@ class TSSolver:
                 self.dist_matrix,
                 self.wastes,
                 self.capacity,
-                self.R,
                 mandatory_nodes=self.mandatory_nodes,
                 expand_pool=self.params.vrpp,
             )
@@ -507,18 +505,16 @@ class TSSolver:
     # Neighborhood Generation
     # ========================================================================
 
-    def _generate_candidates(
-        self, routes: List[List[int]]
-    ) -> List[Tuple[List[List[int]], Tuple[str, Tuple[int, ...]]]]:
+    def _generate_candidates(self, routes: List[List[int]]) -> Sequence[Tuple[List[List[int]], Tuple[str, Any]]]:
         """
         Generate candidate neighborhood moves.
 
         Returns list of (new_routes, move_description) tuples.
         """
-        candidates = []
+        candidates: List[Tuple[List[List[int]], Tuple[str, Any]]] = []
 
         # Use candidate list if enabled
-        max_candidates = self.params.candidate_list_size if self.params.candidate_list_enabled else float("inf")
+        max_candidates: float = self.params.candidate_list_size if self.params.candidate_list_enabled else float("inf")
 
         # Destroy-repair based neighborhoods
         if self.params.use_insertion:
@@ -550,9 +546,9 @@ class TSSolver:
 
     def _generate_swap_moves(
         self, routes: List[List[int]], max_new: int = 5
-    ) -> List[Tuple[List[List[int]], Tuple[str, Tuple[int, ...]]]]:
+    ) -> Sequence[Tuple[List[List[int]], Tuple[str, Any]]]:
         """Generate swap-based neighborhood moves."""
-        candidates = []
+        candidates: List[Tuple[List[List[int]], Tuple[str, Any]]] = []
 
         for _ in range(max_new):
             new_routes = copy.deepcopy(routes)
@@ -598,9 +594,9 @@ class TSSolver:
 
     def _generate_relocate_moves(
         self, routes: List[List[int]], max_new: int = 5
-    ) -> List[Tuple[List[List[int]], Tuple[str, Tuple[int, ...]]]]:
+    ) -> Sequence[Tuple[List[List[int]], Tuple[str, Any]]]:
         """Generate relocate-based neighborhood moves."""
-        candidates = []
+        candidates: List[Tuple[List[List[int]], Tuple[str, Any]]] = []
 
         for _ in range(max_new):
             new_routes = copy.deepcopy(routes)
@@ -654,9 +650,9 @@ class TSSolver:
 
     def _generate_2opt_moves(
         self, routes: List[List[int]], max_new: int = 3
-    ) -> List[Tuple[List[List[int]], Tuple[str, Tuple[int, ...]]]]:
+    ) -> Sequence[Tuple[List[List[int]], Tuple[str, Any]]]:
         """Generate 2-opt neighborhood moves."""
-        candidates = []
+        candidates: List[Tuple[List[List[int]], Tuple[str, Any]]] = []
 
         for _ in range(max_new):
             new_routes = copy.deepcopy(routes)
