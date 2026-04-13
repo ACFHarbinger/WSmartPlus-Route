@@ -1,0 +1,6 @@
+strategy: dispatcher_portfolio
+dispatcher_mode: union
+dispatcher_candidate_strategies:
+  - deadline
+  - cvar
+  - mip_knapsack

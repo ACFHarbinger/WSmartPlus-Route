@@ -1,0 +1,3 @@
+strategy: submodular_greedy
+modular_alpha: 1.0
+modular_budget: 0

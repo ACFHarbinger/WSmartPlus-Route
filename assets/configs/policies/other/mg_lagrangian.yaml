@@ -1,0 +1,7 @@
+strategy: lagrangian
+n_vehicles: 1
+cost_per_km: 0.5
+vehicle_capacity: 1000.0
+revenue_kg: 1.0
+bin_volume: 2.5
+bin_density: 400.0

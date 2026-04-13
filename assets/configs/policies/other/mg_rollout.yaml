@@ -1,0 +1,7 @@
+strategy: rollout
+rollout_horizon: 5
+rollout_base_policy: last_minute
+rollout_n_scenarios: 10
+rollout_discount: 0.95
+cost_per_km: 0.5
+threshold: 90.0

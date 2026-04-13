@@ -33,17 +33,29 @@ class MustGoSelectionFactory:
         """
         # Lazy imports to avoid circular dependencies and keep strategies separated
         from ..selection_combined import CombinedSelection
+        from ..selection_cvar import CVaRSelection
         from ..selection_deadline import DeadlineDrivenSelection
+        from ..selection_dispatcher_portfolio import PortfolioDispatcher
+        from ..selection_dispatcher_thompson import ThompsonDispatcher
+        from ..selection_lagrangian import LagrangianSelection
         from ..selection_last_minute import LastMinuteSelection
+        from ..selection_learned import LearnedSelection
         from ..selection_lookahead import LookaheadSelection
         from ..selection_multi_day_prob import MultiDayOverflowSelection
         from ..selection_pareto import ParetoFrontSelection
         from ..selection_profit_per_km import ProfitPerKmSelection
         from ..selection_regular import RegularSelection
         from ..selection_revenue import RevenueThresholdSelection
+        from ..selection_rollout import RolloutSelection
+        from ..selection_savings import SavingsSelection
         from ..selection_service_level import ServiceLevelSelection
+        from ..selection_set_cover import SetCoverSelection
         from ..selection_spatial_synergy import SpatialSynergySelection
         from ..selection_stochastic_regret import StochasticRegretSelection
+        from ..selection_submodular_greedy import SubmodularGreedySelection
+        from ..selection_supermodular_greedy import SupermodularGreedySelection
+        from ..selection_wasserstein import WassersteinRobustSelection
+        from ..selection_whittle import WhittleIndexSelection
 
         default_map = {
             "service_level": ServiceLevelSelection,
@@ -59,6 +71,19 @@ class MustGoSelectionFactory:
             "profit_per_km": ProfitPerKmSelection,
             "spatial_synergy": SpatialSynergySelection,
             "stochastic_regret": StochasticRegretSelection,
+            "lagrangian": LagrangianSelection,
+            "rollout": RolloutSelection,
+            "whittle": WhittleIndexSelection,
+            "cvar": CVaRSelection,
+            "savings": SavingsSelection,
+            "set_cover": SetCoverSelection,
+            "submodular_greedy": SubmodularGreedySelection,
+            "supermodular_greedy": SupermodularGreedySelection,
+            "greedy_routing_heuristic": SupermodularGreedySelection,
+            "learned": LearnedSelection,
+            "wasserstein_robust": WassersteinRobustSelection,
+            "dispatcher_thompson": ThompsonDispatcher,
+            "dispatcher_portfolio": PortfolioDispatcher,
         }
 
         # Check explicit registry first
@@ -83,7 +108,7 @@ class MustGoSelectionFactory:
         raise ValueError(f"Unknown selection strategy: {name}")
 
     @classmethod
-    def create_from_config(cls, config: Any) -> IMustGoSelectionStrategy:
+    def create_from_config(cls, config: Any) -> IMustGoSelectionStrategy:  # noqa: C901
         """
         Create a selection strategy from a MustGoConfig object.
 
@@ -100,6 +125,11 @@ class MustGoSelectionFactory:
         # Based on current implementation, many use 'threshold' from Context,
         # but some might take params in __init__.
         params = config.params.copy()
+
+        # Forward EOQ parameters if present
+        for eoq_key in ("use_eoq_threshold", "holding_cost_per_kg_day", "ordering_cost_per_visit"):
+            if hasattr(config, eoq_key):
+                params[eoq_key] = getattr(config, eoq_key)
 
         if config.strategy == "last_minute":
             params["threshold"] = config.threshold
@@ -138,5 +168,65 @@ class MustGoSelectionFactory:
             )
         elif config.strategy == "stochastic_regret":
             params["threshold"] = config.threshold
+        elif config.strategy == "lagrangian":
+            params.update({"n_vehicles": config.n_vehicles, "cost_per_km": config.cost_per_km})
+        elif config.strategy == "rollout":
+            params.update(
+                {
+                    "rollout_horizon": config.rollout_horizon,
+                    "rollout_base_policy": config.rollout_base_policy,
+                    "rollout_n_scenarios": config.rollout_n_scenarios,
+                }
+            )
+        elif config.strategy == "whittle":
+            params.update(
+                {
+                    "whittle_discount": config.whittle_discount,
+                    "whittle_grid_size": config.whittle_grid_size,
+                    "n_vehicles": config.n_vehicles,
+                }
+            )
+        elif config.strategy == "cvar":
+            params.update({"cvar_alpha": config.cvar_alpha, "threshold": config.threshold})
+        elif config.strategy == "savings":
+            params["savings_min_fill_ratio"] = config.savings_min_fill_ratio
+        elif config.strategy == "set_cover":
+            params.update(
+                {
+                    "service_radius": config.service_radius,
+                    "critical_threshold": config.critical_threshold,
+                }
+            )
+        elif config.strategy == "submodular_greedy":
+            params.update(
+                {
+                    "submodular_alpha": config.submodular_alpha,
+                    "submodular_budget": config.submodular_budget,
+                }
+            )
+        elif config.strategy == "learned":
+            params.update(
+                {
+                    "learned_model_path": config.learned_model_path,
+                    "learned_threshold": config.learned_threshold,
+                }
+            )
+        elif config.strategy == "wasserstein_robust":
+            params.update(
+                {
+                    "wasserstein_radius": config.wasserstein_radius,
+                    "wasserstein_p": config.wasserstein_p,
+                    "threshold": config.threshold,
+                }
+            )
+        elif config.strategy in ("dispatcher_thompson", "dispatcher_portfolio"):
+            params.update(
+                {
+                    "dispatcher_state_path": config.dispatcher_state_path,
+                    "dispatcher_candidate_strategies": config.dispatcher_candidate_strategies,
+                    "dispatcher_exploration": config.dispatcher_exploration,
+                    "dispatcher_mode": config.dispatcher_mode,
+                }
+            )
 
         return cls.create_strategy(config.strategy, **params)

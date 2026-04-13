@@ -47,3 +47,47 @@ class SelectionContext:
     critical_threshold: float = 0.90
     synergy_threshold: float = 0.60
     radius: float = 10.0
+
+    # --- Knapsack / economic coupling ---
+    n_vehicles: int = 1
+    cost_per_km: float = 0.0
+    use_eoq_threshold: bool = False
+    holding_cost_per_kg_day: float = 0.0
+    ordering_cost_per_visit: float = 0.0
+
+    # --- Rollout strategy ---
+    rollout_horizon: int = 5
+    rollout_base_policy: str = "last_minute"
+    rollout_n_scenarios: int = 1  # 1 = deterministic rollout; >1 = Monte Carlo
+    rollout_discount: float = 0.95
+
+    # --- Whittle index ---
+    whittle_discount: float = 0.95
+    whittle_grid_size: int = 21  # number of subsidy values probed for index computation
+
+    # --- CVaR ---
+    cvar_alpha: float = 0.95  # tail level; strategy compares CVaR to context.threshold
+
+    # --- Savings / Clarke-Wright ---
+    savings_min_fill_ratio: float = 0.5
+
+    # --- Set-cover ---
+    service_radius: float = 5.0
+
+    # --- (Super/Sub-)Modular greedy ---
+    modular_alpha: float = 1.0  # trade-off between revenue and route length
+    modular_budget: int = 0  # 0 = unbounded; otherwise cardinality cap
+
+    # --- Learned / imitation selection ---
+    learned_model_path: Optional[str] = None
+    learned_threshold: float = 0.5  # classification cutoff
+
+    # --- Contextual Thompson sampling dispatcher ---
+    dispatcher_state_path: Optional[str] = None  # pickle of posterior params
+    dispatcher_candidate_strategies: Optional[List[str]] = None
+    dispatcher_exploration: float = 1.0  # posterior-sample temperature
+    dispatcher_mode: str = "union"
+
+    # --- Distributionally robust ---
+    wasserstein_radius: float = 0.1
+    wasserstein_p: int = 1  # only p=1 is implemented
