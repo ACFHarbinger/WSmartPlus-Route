@@ -17,9 +17,9 @@ from typing import List
 
 import numpy as np
 
-from logic.src.constants import MAX_CAPACITY_PERCENT
 from logic.src.interfaces.must_go import IMustGoSelectionStrategy
 
+from .base.eoq import resolve_trigger_threshold
 from .base.selection_context import SelectionContext
 from .base.selection_registry import MustGoSelectionRegistry
 
@@ -41,7 +41,15 @@ class RevenueThresholdSelection(IMustGoSelectionStrategy):
             List[int]: List of bin IDs (1-based index).
         """
         bin_cap = context.bin_volume * context.bin_density
-        expected_revenue = (context.current_fill / MAX_CAPACITY_PERCENT) * bin_cap * context.revenue_kg
+        fill_ratios = context.current_fill / context.max_fill
+        expected_revenue = fill_ratios * bin_cap * context.revenue_kg
 
-        must_go = np.nonzero(expected_revenue > context.threshold)[0] + 1
-        return must_go.tolist()
+        if getattr(context, "use_eoq_threshold", False):
+            # When EOQ is active, the trigger is the fill-level, but we still
+            # check revenue-positivity as a secondary guard.
+            must_go_mask = resolve_trigger_threshold(context, fill_ratios)
+            must_go_indices = np.nonzero(must_go_mask & (expected_revenue > 0))[0]
+        else:
+            must_go_indices = np.nonzero(expected_revenue > context.threshold)[0]
+
+        return (must_go_indices + 1).tolist()

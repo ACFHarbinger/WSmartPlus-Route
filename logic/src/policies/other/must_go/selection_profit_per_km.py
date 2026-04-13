@@ -18,8 +18,10 @@ from typing import List
 import numpy as np
 
 from logic.src.interfaces.must_go import IMustGoSelectionStrategy
-from logic.src.policies.other.must_go.base.selection_context import SelectionContext
-from logic.src.policies.other.must_go.base.selection_registry import MustGoSelectionRegistry
+
+from .base.eoq import resolve_trigger_threshold
+from .base.selection_context import SelectionContext
+from .base.selection_registry import MustGoSelectionRegistry
 
 
 @MustGoSelectionRegistry.register("profit_per_km")
@@ -53,19 +55,22 @@ class ProfitPerKmSelection(IMustGoSelectionStrategy):
         bin_cap = context.bin_volume * context.bin_density
 
         # Calculate expected revenue based on current fill ratio
-        revenue = (context.current_fill / context.max_fill) * bin_cap * context.revenue_kg
+        fill_ratios = context.current_fill / context.max_fill
+        revenue = fill_ratios * bin_cap * context.revenue_kg
 
-        # distance_matrix[0] is the depot. Index 1: end are the bins.
-        dist_to_depot = context.distance_matrix[0, 1:]
-
-        # Prevent division by zero for bins that might be co-located with the depot
-        safe_dist = np.where(dist_to_depot == 0, 1e-9, dist_to_depot)
-
-        # Proxy for detour cost: Round trip distance to depot (2 * distance)
-        profit_per_km = revenue / (2 * safe_dist)
-
-        # Select bins that pass the required economic threshold
-        # (e.g., must generate at least $0.50 per km traveled)
-        must_go_indices = np.nonzero(profit_per_km > context.threshold)[0]
+        if getattr(context, "use_eoq_threshold", False):
+            # When EOQ is active, the trigger is the fill-level, but we still
+            # check revenue-positivity as a secondary guard.
+            must_go_mask = resolve_trigger_threshold(context, fill_ratios)
+            must_go_indices = np.nonzero(must_go_mask & (revenue > 0))[0]
+        else:
+            # distance_matrix[0] is the depot. Index 1: end are the bins.
+            dist_to_depot = context.distance_matrix[0, 1:]
+            # Prevent division by zero for bins that might be co-located with the depot
+            safe_dist = np.where(dist_to_depot == 0, 1e-9, dist_to_depot)
+            # Proxy for detour cost: Round trip distance to depot (2 * distance)
+            profit_per_km = revenue / (2 * safe_dist)
+            # Select bins that pass the required economic threshold
+            must_go_indices = np.nonzero(profit_per_km > context.threshold)[0]
 
         return (must_go_indices + 1).tolist()

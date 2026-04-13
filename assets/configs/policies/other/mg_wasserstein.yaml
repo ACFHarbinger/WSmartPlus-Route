@@ -1,0 +1,4 @@
+strategy: wasserstein_robust
+wasserstein_radius: 0.1
+wasserstein_p: 1
+threshold: 5.0

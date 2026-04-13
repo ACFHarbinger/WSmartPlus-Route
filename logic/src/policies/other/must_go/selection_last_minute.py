@@ -18,8 +18,10 @@ from typing import List
 import numpy as np
 
 from logic.src.interfaces.must_go import IMustGoSelectionStrategy
-from logic.src.policies.other.must_go.base.selection_context import SelectionContext
-from logic.src.policies.other.must_go.base.selection_registry import MustGoSelectionRegistry
+
+from .base.eoq import resolve_trigger_threshold
+from .base.selection_context import SelectionContext
+from .base.selection_registry import MustGoSelectionRegistry
 
 
 @MustGoSelectionRegistry.register("last_minute")
@@ -40,5 +42,7 @@ class LastMinuteSelection(IMustGoSelectionStrategy):
         Returns:
             List[int]: List of bin IDs (1-based index).
         """
-        must_go = np.nonzero(context.current_fill > context.threshold)[0] + 1
-        return must_go.tolist()
+        fill_ratios = context.current_fill / context.max_fill
+        must_go_mask = resolve_trigger_threshold(context, fill_ratios)
+        must_go_indices = np.nonzero(must_go_mask)[0]
+        return (must_go_indices + 1).tolist()

@@ -1,0 +1,5 @@
+strategy: whittle
+whittle_discount: 0.95
+whittle_grid_size: 21
+n_vehicles: 1
+vehicle_capacity: 1000.0

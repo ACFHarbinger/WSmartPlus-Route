@@ -6,7 +6,7 @@ to determine which bins must be collected.
 """
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 
 @dataclass
@@ -101,3 +101,47 @@ class MustGoConfig:
 
     # Additional parameters
     params: Dict[str, Any] = field(default_factory=dict)
+
+    # --- Knapsack / economic coupling ---
+    n_vehicles: int = 1
+    cost_per_km: float = 0.0
+    use_eoq_threshold: bool = False
+    holding_cost_per_kg_day: float = 0.0
+    ordering_cost_per_visit: float = 0.0
+
+    # --- Rollout strategy ---
+    rollout_horizon: int = 5
+    rollout_base_policy: str = "last_minute"
+    rollout_n_scenarios: int = 1
+    rollout_discount: float = 0.95
+
+    # --- Whittle index ---
+    whittle_discount: float = 0.95
+    whittle_grid_size: int = 21
+
+    # --- CVaR ---
+    cvar_alpha: float = 0.95
+
+    # --- Savings / Clarke-Wright ---
+    savings_min_fill_ratio: float = 0.5
+
+    # --- Set-cover ---
+    service_radius: float = 5.0
+
+    # --- (Super/Sub-)Modular greedy ---
+    modular_alpha: float = 1.0
+    modular_budget: int = 0
+
+    # --- Learned / imitation selection ---
+    learned_model_path: Optional[str] = None
+    learned_threshold: float = 0.5
+
+    # --- Contextual Thompson sampling dispatcher ---
+    dispatcher_state_path: Optional[str] = None
+    dispatcher_candidate_strategies: Optional[List[str]] = None
+    dispatcher_exploration: float = 1.0
+    dispatcher_mode: str = "union"
+
+    # --- Distributionally robust ---
+    wasserstein_radius: float = 0.1
+    wasserstein_p: int = 1

@@ -119,6 +119,33 @@ class MustGoSelectionAction(SimulationAction):
                 critical_threshold=_pf("critical_threshold", 0.90),
                 synergy_threshold=_pf("synergy_threshold", 0.60),
                 radius=_pf("radius", 10.0),
+                n_vehicles=_pi("n_vehicles", 1),
+                cost_per_km=_pf("cost_per_km", 0.0),
+                use_eoq_threshold=bool(_p.get("use_eoq_threshold", False)) if hasattr(_p, "get") else False,
+                holding_cost_per_kg_day=_pf("holding_cost_per_kg_day", 0.0),
+                ordering_cost_per_visit=_pf("ordering_cost_per_visit", 0.0),
+                rollout_horizon=_pi("rollout_horizon", 5),
+                rollout_base_policy=_p.get("rollout_base_policy", "last_minute")
+                if hasattr(_p, "get")
+                else "last_minute",
+                rollout_n_scenarios=_pi("rollout_n_scenarios", 1),
+                whittle_discount=_pf("whittle_discount", 0.95),
+                whittle_grid_size=_pi("whittle_grid_size", 21),
+                cvar_alpha=_pf("cvar_alpha", 0.95),
+                savings_min_fill_ratio=_pf("savings_min_fill_ratio", 0.5),
+                service_radius=_pf("service_radius", 5.0),
+                modular_alpha=_pf("modular_alpha", 1.0),
+                modular_budget=_pi("modular_budget", 0),
+                learned_model_path=_p.get("learned_model_path") if hasattr(_p, "get") else None,
+                learned_threshold=_pf("learned_threshold", 0.5),
+                dispatcher_state_path=_p.get("dispatcher_state_path") if hasattr(_p, "get") else None,
+                dispatcher_candidate_strategies=_p.get("dispatcher_candidate_strategies")
+                if hasattr(_p, "get")
+                else None,
+                dispatcher_exploration=_pf("dispatcher_exploration", 1.0),
+                dispatcher_mode=_p.get("dispatcher_mode", "union") if hasattr(_p, "get") else "union",
+                wasserstein_radius=_pf("wasserstein_radius", 0.1),
+                wasserstein_p=_pi("wasserstein_p", 1),
             )
 
             if "config" in strat_info:
