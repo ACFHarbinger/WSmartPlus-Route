@@ -28,6 +28,12 @@ Example (N=5 original nodes, M=3 vehicles):
 
 This avoids NumPy negative-indexing bugs and provides O(1) array access.
 
+**Lagrangian Relaxation (Subgradient & α-measures)**:
+To drive the search towards high-quality solutions, node penalties (π) are
+found via Held-Karp subgradient optimization, maximizing the lower bound
+of the Minimum 1-Tree. α-measures are then computed using MST sensitivity
+to focus the k-opt search on the most promising edges.
+
 Public API
 ----------
 calculate_penalty(tour, waste, capacity) -> float
@@ -42,11 +48,25 @@ is_better(p1, c1, p2, c2) -> bool
 split_tour_at_dummies(tour) -> List[List[int]]
     Extract multi-route representation from a dummy-depot-encoded tour.
 
+solve_subgradient(distance_matrix, max_iterations, ...) -> np.ndarray
+    Held-Karp subgradient ascent to optimize node penalties π.
+
+compute_alpha_measures(distance_matrix, pi=None) -> np.ndarray
+    Compute α-nearness for every edge using MST sensitivity.
+
+get_candidate_set(distance_matrix, alpha_measures, ...) -> Dict[int, List[int]]
+    Build sorted candidate list per node restricted to small α-measures.
+
 Typical usage
 -------------
 >>> from logic.src.policies.lin_kernighan_helsgaun_three.objective import (
-...     get_score, is_better, split_tour_at_dummies
+...     get_score, is_better, split_tour_at_dummies, solve_subgradient
 ... )
+>>> # 1. Optimize penalties and compute candidates
+>>> pi = solve_subgradient(distance_matrix)
+>>> alpha = compute_alpha_measures(distance_matrix, pi)
+>>> candidates = get_candidate_set(distance_matrix, alpha)
+>>> # 2. Evaluate solution
 >>> pen, cost = get_score(tour, dist, demands, capacity)
 >>> if is_better(pen, cost, best_pen, best_cost):
 ...     routes = split_tour_at_dummies(tour)
@@ -54,25 +74,25 @@ Typical usage
 
 from __future__ import annotations
 
-from typing import List, Optional, Tuple
+from collections import deque
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
+from scipy.sparse.csgraph import minimum_spanning_tree
 
 # ---------------------------------------------------------------------------
-# Dummy Depot Constants
+# Dummy Depot Constants & Utilities
 # ---------------------------------------------------------------------------
 
-# Current standard: Augmented dummy depots at indices [N, N+1, ..., N+M-2]
-DEPOT_NODE = 0  # Main depot (always index 0)
-
-# ---------------------------------------------------------------------------
-# Dummy Depot Utility Functions
-# ---------------------------------------------------------------------------
+DEPOT_NODE = 0  # Main depot index (always 0)
 
 
 def is_dummy_depot(node: int, n_original: Optional[int] = None) -> bool:
     """
-    Check if a node is a dummy depot.
+    Check if a node represents a secondary vehicle (dummy depot).
+
+    In augmented graph mode (VRPP/CVRP), dummy depots are placed after
+    original nodes. In legacy mode, they are represented by negative indices.
     """
     if n_original is not None:
         return node >= n_original
@@ -80,28 +100,16 @@ def is_dummy_depot(node: int, n_original: Optional[int] = None) -> bool:
 
 
 def is_any_depot(node: int, n_original: Optional[int] = None) -> bool:
-    """
-    Check if a node is either the main depot (0) or a dummy depot.
-    """
+    """Check if node is either the main depot or an augmented dummy depot."""
     return node == DEPOT_NODE or is_dummy_depot(node, n_original)
 
 
 def split_tour_at_dummies(tour: List[int], n_original: Optional[int] = None) -> List[List[int]]:
     """
-    Extract multi-route representation from a dummy-depot-encoded tour.
+    Split an augmented Hamiltonian circuit into discrete vehicle routes.
 
-    Splits the tour at every occurrence of a real depot (0) or dummy depot.
-    Each sub-route contains only customer nodes.
-
-    Args:
-        tour: Closed tour with dummy depot markers.
-              Augmented example: [0, 3, 5, 6, 7, 2, 7, 9, 0] (n_original=6)
-        n_original: Original graph size (for augmented mode). If None,
-                    uses legacy negative-index detection.
-
-    Returns:
-        List of routes (no depot nodes).
-        Example: [[3, 5], [7, 2], [9]]
+    Segments are delimited by any node identified as a depot or dummy depot.
+    Resulting routes contain only customer node indices.
     """
     routes: List[List[int]] = []
     current: List[int] = []
@@ -121,7 +129,7 @@ def split_tour_at_dummies(tour: List[int], n_original: Optional[int] = None) -> 
 
 
 # ---------------------------------------------------------------------------
-# Penalty / objective helpers (LKH-3 lexicographic objective)
+# Lexicographic Objective (Penalty/Cost)
 # ---------------------------------------------------------------------------
 
 
@@ -132,25 +140,11 @@ def calculate_penalty(
     n_original: Optional[int] = None,
 ) -> float:
     """
-    Compute total capacity-violation penalty for a VRP tour with dummy depots.
+    Compute total capacity violation over all routes in the tour.
 
-    The penalty is computed at the ROUTE level: for each route segment
-    (delimited by depot/dummy depot nodes), the total demand is summed,
-    and any excess over capacity is added to the penalty.  This avoids
-    the double-counting bug where per-node penalty accumulation inflates
-    the result for multi-node overloads.
-
-    Args:
-        tour: Node sequence with possible dummy depot markers.
-              Augmented: [0, 3, 5, 6, 7, 2, 0] (n_original=6)
-        waste: 1-D array of node demands (index 0 = depot demand, usually 0).
-               For augmented mode, includes zero demands for dummy depots.
-        capacity: Vehicle capacity.
-        n_original: Original graph size (for augmented mode). If None,
-                    uses legacy negative-index detection.
-
-    Returns:
-        Total excess demand summed over all route segments.  Zero for TSP.
+    Penalty calculation is performed at the route level to avoid double-counting.
+    A route only contributes to the penalty if its cumulative load exceeds
+    the vehicle capacity.
     """
     if waste is None or capacity is None:
         return 0.0
@@ -160,11 +154,11 @@ def calculate_penalty(
 
     for node in tour:
         if is_any_depot(node, n_original):
-            # Route boundary: evaluate route-level overload
+            # Evaluate current segment and reset
             penalty += max(0.0, current_load - capacity)
             current_load = 0.0
         else:
-            # Accumulate demand for customer nodes
+            # Accumulate customer demand
             if 0 <= node < len(waste):
                 current_load += waste[node]
 
@@ -179,22 +173,10 @@ def get_score(
     n_original: Optional[int] = None,
 ) -> Tuple[float, float]:
     """
-    Evaluate a tour's (penalty, cost) under the LKH-3 lexicographic objective.
+    Evaluate tour under the LKH-3 lexicographic (penalty, cost) objective.
 
-    Handles tours with dummy depots. In augmented mode, dummy depot distances
-    are directly available in the distance matrix. In legacy mode, they map to
-    the main depot.
-
-    Args:
-        tour: Closed or open node sequence, possibly with dummy depot markers.
-        distance_matrix: (n × n) cost matrix.
-        waste: Node demands (or None for pure TSP).
-        capacity: Vehicle capacity (or None for pure TSP).
-        n_original: Original graph size (for augmented mode). If None,
-                    uses legacy mapping to depot.
-
-    Returns:
-        (penalty, cost) tuple.
+    Penalty represents feasibility (sum of overloads), while cost represents
+    optimality (total edge weight). Feasibility is always prioritized.
     """
     n = len(tour) - 1
     c = 0.0
@@ -202,14 +184,13 @@ def get_score(
         curr_node = tour[i]
         next_node = tour[i + 1]
 
-        # Legacy mode: Map dummy depots to main depot for distance calculation
+        # Legacy handling (mapping negatives to depot)
         if n_original is None:
             if is_dummy_depot(curr_node, None):
                 curr_node = DEPOT_NODE
             if is_dummy_depot(next_node, None):
                 next_node = DEPOT_NODE
 
-        # Add edge cost (augmented mode uses direct indices)
         if 0 <= curr_node < len(distance_matrix) and 0 <= next_node < len(distance_matrix):
             c += distance_matrix[curr_node, next_node]
 
@@ -219,9 +200,10 @@ def get_score(
 
 def is_better(p1: float, c1: float, p2: float, c2: float) -> bool:
     """
-    Lexicographic comparison: penalty first, then cost.
+    Lexicographic dominance check.
 
-    Returns True iff (p1, c1) strictly dominates (p2, c2).
+    (p1, c1) beats (p2, c2) if p1 < p2 OR (p1 == p2 AND c1 < c2).
+    Uses a small epsilon (1e-6) for float stability.
     """
     if abs(p1 - p2) > 1e-6:
         return p1 < p2
@@ -235,27 +217,162 @@ def penalty_delta(
     capacity: Optional[float],
     n_original: Optional[int] = None,
 ) -> float:
-    """
-    Compute the change in penalty: ΔP = P(new) − P(old).
-
-    A negative value means the new tour is *less* infeasible.  This is
-    used by the LKH-3 lexicographic objective to allow moves that reduce
-    constraint violation even if they increase routing cost.
-
-    For pure TSP instances (waste/capacity is None) the delta is always 0.
-
-    Args:
-        old_tour: Current tour (closed or open).
-        new_tour: Proposed tour (closed or open).
-        waste: 1-D demand array.
-        capacity: Vehicle capacity.
-        n_original: Original graph size (for augmented mode).
-
-    Returns:
-        P(new_tour) − P(old_tour).
-    """
+    """Compute ΔP = P(new) - P(old). Used for pre-screening k-opt moves."""
     if waste is None or capacity is None:
         return 0.0
     return calculate_penalty(new_tour, waste, capacity, n_original) - calculate_penalty(
         old_tour, waste, capacity, n_original
     )
+
+
+# ---------------------------------------------------------------------------
+# Held-Karp Penalties (Subgradient Optimization)
+# ---------------------------------------------------------------------------
+
+
+def compute_min_1_tree(distance_matrix: np.ndarray, pi: np.ndarray) -> Tuple[float, np.ndarray, np.ndarray]:
+    """
+    Compute the Minimum 1-Tree for the penalized graph.
+
+    The 1-tree consists of a MST of nodes {1..N-1} plus the two cheapest edges
+    connected to the depot (node 0). The sum of node penalties (π) drives
+    the MST nodes toward degree 2.
+    """
+    n = len(distance_matrix)
+    if n < 3:
+        if n == 2:
+            return float(distance_matrix[0, 1] + pi[0] + pi[1]), np.array([1, 1]), np.array([[0, 1]])
+        return 0.0, np.zeros(n, dtype=int), np.empty((0, 2), dtype=int)
+
+    sub_dist = distance_matrix[1:, 1:]
+    sub_pi = pi[1:]
+    D = sub_dist + sub_pi[:, np.newaxis] + sub_pi[np.newaxis, :]
+
+    mst_sparse = minimum_spanning_tree(D)
+    mst_edges_coo = mst_sparse.tocoo()
+
+    d0 = distance_matrix[0, 1:] + pi[0] + pi[1:]
+    nearest = np.argsort(d0)[:2]
+    e1, e2 = nearest[0] + 1, nearest[1] + 1
+
+    total_length = float(mst_sparse.sum() + d0[nearest[0]] + d0[nearest[1]])
+    degrees = np.zeros(n, dtype=int)
+    degrees[0], degrees[e1], degrees[e2] = 2, 1, 1
+
+    edges = [(0, e1), (0, e2)]
+    for u, v in zip(mst_edges_coo.row, mst_edges_coo.col):
+        u_g, v_g = u + 1, v + 1
+        edges.append((u_g, v_g))
+        degrees[u_g] += 1
+        degrees[v_g] += 1
+
+    return total_length, degrees, np.array(edges)
+
+
+def solve_subgradient(
+    distance_matrix: np.ndarray,
+    max_iterations: int = 200,
+    n_original: Optional[int] = None,
+    initial_pi: Optional[np.ndarray] = None,
+    initial_step: Optional[float] = None,
+) -> np.ndarray:
+    """
+    Optimize node penalties π via Held-Karp Lagrangian relaxation.
+
+    The penalties π_i are added to edges incident to node i to 'encourage'
+    the MST to resemble a Hamiltonian circuit (all degrees = 2).
+    """
+    n = len(distance_matrix)
+    if n < 3:
+        return np.zeros(n)
+
+    pi = initial_pi if initial_pi is not None else np.zeros(n)
+    best_lb = -np.inf
+    t = initial_step if initial_step is not None else 1.0 / n
+    halving_interval = max(1, max_iterations // 5)
+
+    for i in range(max_iterations):
+        lb_pi, degrees, _ = compute_min_1_tree(distance_matrix, pi)
+        current_lb = lb_pi - 2 * np.sum(pi)
+        best_lb = max(best_lb, current_lb)  # type: ignore[assignment]
+
+        G = degrees - 2
+        norm_sq = np.sum(G**2)
+        if norm_sq == 0:
+            break
+
+        step = t * (1.05 * best_lb - current_lb + 1e-4) / norm_sq
+        pi += step * G
+        pi[0] = 0.0
+        if n_original is not None:
+            pi[n_original:] = 0.0
+
+        # Held-Karp schedule: halve step every max_iterations // 5 iterations
+        if i > 0 and i % halving_interval == 0:
+            t *= 0.5
+
+    return pi
+
+
+# ---------------------------------------------------------------------------
+# α-Nearness & Candidate Generation
+# ---------------------------------------------------------------------------
+
+
+def _compute_all_pairs_max_edge(mst_adj: np.ndarray, n: int) -> np.ndarray:
+    """O(N²) BFS pass to find heaviest edge on MST paths between all pairs."""
+    max_edge = np.zeros((n, n))
+    adj: Dict[int, List[Tuple[int, float]]] = {i: [] for i in range(n)}
+    for i in range(n):
+        for j in range(n):
+            if mst_adj[i, j] > 0:
+                adj[i].append((j, mst_adj[i, j]))
+                adj[j].append((i, mst_adj[i, j]))
+
+    for start in range(n):
+        visited, queue = np.zeros(n, bool), deque([(start, 0.0)])
+        visited[start] = True
+        while queue:
+            curr, p_max = queue.popleft()
+            max_edge[start, curr] = p_max
+            for nb, w in adj[curr]:
+                if not visited[nb]:
+                    visited[nb] = True
+                    queue.append((nb, max(p_max, w)))
+    return max_edge
+
+
+def compute_alpha_measures(distance_matrix: np.ndarray, pi: Optional[np.ndarray] = None) -> np.ndarray:
+    """
+    Compute α-measures using MST sensitivity.
+
+    α(i,j) measures the 'distance' of edge (i,j) from the MST. Edges with
+    low α are likely constituents of the optimal tour.
+    """
+    n = len(distance_matrix)
+    pi = pi if pi is not None else np.zeros(n)
+    d_pen = distance_matrix + pi[:, np.newaxis] + pi[np.newaxis, :]
+
+    mst_sparse = minimum_spanning_tree(d_pen)
+    beta = _compute_all_pairs_max_edge(mst_sparse.toarray(), n)
+
+    alpha = np.maximum(d_pen - beta, 0.0)
+    np.fill_diagonal(alpha, 0.0)
+    return alpha
+
+
+def get_candidate_set(
+    distance_matrix: np.ndarray,
+    alpha_measures: np.ndarray,
+    max_candidates: int = 5,
+) -> Dict[int, List[int]]:
+    """Build per-node candidate lists restricted to small α-measures."""
+    n = len(distance_matrix)
+    candidates: Dict[int, List[int]] = {}
+    for i in range(n):
+        indices = sorted(
+            [j for j in range(n) if j != i],
+            key=lambda j: (alpha_measures[i, j], distance_matrix[i, j]),
+        )
+        candidates[i] = indices[:max_candidates]
+    return candidates

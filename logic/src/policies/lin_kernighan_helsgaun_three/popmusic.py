@@ -16,7 +16,7 @@ Algorithm outline (Taillard & Voss 2002, adapted for LKH-3):
    to form a sparse candidate graph.
 
 The resulting candidate dict has the same interface as
-:func:`get_candidate_set` from the main LKH module but is computed in
+:func:`get_candidate_set` from the .objective module but is computed in
 O(K · n · r²) instead of O(n²).
 
 **Performance Optimization (Task 4)**:

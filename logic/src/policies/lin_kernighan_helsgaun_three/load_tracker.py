@@ -47,11 +47,9 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.policies.lin_kernighan_helsgaun_three.graph_augmentation import (
-    is_any_depot,
-)
 from logic.src.policies.lin_kernighan_helsgaun_three.objective import (
     calculate_penalty,
+    is_any_depot,
 )
 
 
@@ -237,7 +235,7 @@ def get_exact_penalty_delta(  # noqa: C901
     state: LoadState,
     waste: np.ndarray,
     capacity: float,
-    n_original: int,
+    n_original: Optional[int] = None,
 ) -> float:
     """
     Compute exact penalty delta for a k-opt move in O(L) time.
@@ -302,14 +300,15 @@ def get_exact_penalty_delta(  # noqa: C901
     for i in range(n):
         u = tour[i]
         v = tour[(i + 1) % n]
-        if (u, v) not in broken_set:
+        if (u, v) not in broken_set and u in adj and v in adj:
             adj[u].append(v)
             adj[v].append(u)
 
     for u, v in added_edges:
+        if u not in adj or v not in adj:
+            return float("inf")
         adj[u].append(v)
         adj[v].append(u)
-
     visited = set()
     new_penalty = 0.0
     current_load = 0.0
