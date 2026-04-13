@@ -37,18 +37,27 @@ def shaw_removal(  # noqa: C901
     """
     Shaw Removal: Remove related customers based on multi-criteria similarity.
 
+    Implements Algorithm 2 from Ropke & Pisinger (2006) exactly:
+    1. Pick a random seed from the current solution and add it to D.
+    2. Repeat until |D| = q:
+       a. Pick a random node **r** from D (the already-removed set).
+       b. Compute relatedness R(r, c) for every candidate c not in D.
+       c. Sort candidates ascending by R (lower R = more related).
+       d. Draw y ~ U(0,1) and select the node at index floor(y^p * |L|).
+    3. Remove all nodes in D.
+
     Efficiency: O(n) selection using np.partition instead of O(n log n) sorting.
-    Implements Ropke & Pisinger (2005) relatedness measure:
-        R(i,j) = φ * d(i,j) + χ * |T_i - T_j| + ψ * |q_i - q_j|
 
-    **VRPP Adaptation Note**: While the Ropke & Pisinger (2005) measure includes
+    Relatedness measure (Ropke & Pisinger 2006, Eq. 17):
+        R(i,j) = φ * d(i,j)/d_max + χ * |tw_i - tw_j|/tw_max + ψ * |q_i - q_j|/q_max
+
+    **VRPP Adaptation Note**: While the Ropke & Pisinger (2006) measure includes
     temporal components (T_ij), the VRPP-specific relatedness primarily relies
-    on spatial distance and profit difference. This implementation drops the
-    vehicle compatibility term (ω) and emphasizes profit attributes.
+    on spatial distance and waste/profit difference.  Time windows are used when
+    supplied via ``time_windows``.
 
-    **Note on ω (omega) term**: The vehicle compatibility component (ω) is intentionally
-    omitted from this implementation. Theoretical justification: The target domain is
-    CVRP/VRPP with a homogeneous fleet.
+    **Note on ω (omega) term**: The vehicle compatibility component (ω) is
+    intentionally omitted.  Rationale: the target domain uses a homogeneous fleet.
 
     Args:
         routes: Current routes.
@@ -56,7 +65,10 @@ def shaw_removal(  # noqa: C901
         dist_matrix: Distance matrix.
         wastes: Waste/profit values for each node.
         time_windows: Time window dict {node: (earliest, latest)} (optional).
-        randomization_factor: Power for randomized selection (higher = more random).
+        randomization_factor: Determinism parameter *p* (Ropke & Pisinger 2006).
+            High p → near-deterministic selection of the most related node
+            (index 0).  p = 1 → fully uniform random selection across all
+            candidates.  Must satisfy p ≥ 1.
         phi: Distance weight in relatedness (φ).
         chi: Time window weight in relatedness (χ).
         psi: Waste/demand weight in relatedness (ψ).
@@ -106,29 +118,31 @@ def shaw_removal(  # noqa: C901
         max_tw = float(max(tw_spans)) if tw_spans else 1.0
 
     while len(removed) < n_remove and len(removed) < len(all_nodes):
-        relatedness_scores: List[Tuple[int, float]] = []
+        # Algorithm 2, line 5: pick ONE random request from D as the pivot
+        # (Ropke & Pisinger 2006).  This is the key structural distinction from
+        # an average-relatedness approach: each iteration evaluates relatedness
+        # to a *single* randomly chosen already-removed node, which preserves
+        # the probabilistic chain of related request selection described in the
+        # paper.
+        pivot: int = rng.choice(removed)
 
+        relatedness_scores: List[Tuple[int, float]] = []
         for node in all_nodes:
             if node in removed or node not in node_map:
                 continue
 
-            total_rel: float = 0.0
-            for rem_node in removed:
-                dist_rel = float(dist_matrix[node, rem_node]) / max_dist if max_dist > 0 else 0.0
-                waste_rel = 0.0
-                if waste:
-                    waste_rel = float(abs(waste.get(node, 0.0) - waste.get(rem_node, 0.0))) / max_waste
-                tw_rel = 0.0
-                if time_windows:
-                    tw_node = time_windows.get(node, (0.0, max_tw))
-                    tw_rem = time_windows.get(rem_node, (0.0, max_tw))
-                    tw_rel = float(abs(tw_node[0] - tw_rem[0])) / max_tw
+            dist_rel = float(dist_matrix[node, pivot]) / max_dist if max_dist > 0 else 0.0
+            waste_rel = 0.0
+            if waste:
+                waste_rel = float(abs(waste.get(node, 0.0) - waste.get(pivot, 0.0))) / max_waste
+            tw_rel = 0.0
+            if time_windows:
+                tw_node = time_windows.get(node, (0.0, max_tw))
+                tw_pivot = time_windows.get(pivot, (0.0, max_tw))
+                tw_rel = float(abs(tw_node[0] - tw_pivot[0])) / max_tw
 
-                rel = phi * dist_rel + chi * tw_rel + psi * waste_rel
-                total_rel += rel
-
-            avg_rel = total_rel / len(removed)
-            relatedness_scores.append((node, avg_rel))
+            rel = phi * dist_rel + chi * tw_rel + psi * waste_rel
+            relatedness_scores.append((node, rel))
 
         if not relatedness_scores:
             break
@@ -181,14 +195,20 @@ def shaw_profit_removal(  # noqa: C901
     Profit-based Shaw Removal (VRPP).
 
     Efficiency: O(n) selection using np.partition instead of O(n log n) sorting.
-    Implements profit-aware relatedness for VRPP problems:
-        R(i,j) = φ * d(i,j)/d_max + ψ * |profit_i - profit_j|/profit_max
 
-    Calculates relatedness purely based on spatial distance and profit difference,
-    dropping the temporal components (T_ij) of standard PDPTW Shaw Removal.
+    Applies Algorithm 2 from Ropke & Pisinger (2006) adapted for profit-maximisation
+    objectives.  Relatedness is measured purely by spatial distance and marginal
+    profit difference, replacing the temporal component (T_ij) of the PDPTW
+    formulation:
 
-    **Note on ω (omega) term**: The vehicle compatibility component (ω) is intentionally
-    omitted as the fleet is homogeneous.
+        R(i,j) = φ * d(i,j)/d_max + ψ * |profit_i - profit_j|/profit_range
+
+    In each iteration a **single** random node is drawn from the already-removed
+    set D (Algorithm 2, step 5) and used as the pivot for computing relatedness,
+    exactly as specified in the paper.
+
+    **Note on ω (omega) term**: The vehicle compatibility component (ω) is
+    intentionally omitted.  Rationale: the target domain uses a homogeneous fleet.
 
     Args:
         routes: Current routes.
@@ -197,7 +217,10 @@ def shaw_profit_removal(  # noqa: C901
         wastes: Waste/profit values for each node.
         R: Revenue per unit waste.
         C: Cost per unit distance.
-        randomization_factor: Power for randomized selection (higher = more random).
+        randomization_factor: Determinism parameter *p* (Ropke & Pisinger 2006).
+            High p → near-deterministic selection of the most related node
+            (index 0).  p = 1 → fully uniform random selection across all
+            candidates.  Must satisfy p ≥ 1.
         phi: Distance weight in relatedness (φ).
         psi: Profit weight in relatedness (ψ).
         rng: Random number generator.
@@ -248,22 +271,19 @@ def shaw_profit_removal(  # noqa: C901
         profit_range = 1.0
 
     while len(removed) < n_remove and len(removed) < len(all_nodes):
-        relatedness_scores: List[Tuple[int, float]] = []
+        # Algorithm 2, line 5: pick ONE random request from D as pivot
+        pivot: int = rng.choice(removed)
 
+        relatedness_scores: List[Tuple[int, float]] = []
         for node in all_nodes:
             if node in removed or node not in node_map:
                 continue
 
-            total_rel: float = 0.0
-            for rem_node in removed:
-                dist_rel = float(dist_matrix[node, rem_node]) / max_dist if max_dist > 0 else 0.0
-                profit_rel = float(abs(node_profits[node] - node_profits[rem_node])) / profit_range
+            dist_rel = float(dist_matrix[node, pivot]) / max_dist if max_dist > 0 else 0.0
+            profit_rel = float(abs(node_profits[node] - node_profits[pivot])) / profit_range
 
-                rel = phi * dist_rel + psi * profit_rel
-                total_rel += rel
-
-            avg_rel = total_rel / len(removed)
-            relatedness_scores.append((node, avg_rel))
+            rel = phi * dist_rel + psi * profit_rel
+            relatedness_scores.append((node, rel))
 
         if not relatedness_scores:
             break

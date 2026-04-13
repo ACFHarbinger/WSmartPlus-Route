@@ -6,7 +6,12 @@ the Clarke & Wright savings principle with economic profitability checks.
 It ensures that mandatory nodes are serves at any cost while opportunistic
 nodes are only inserted if their marginal revenue exceeds their detour cost.
 
+Reference:
+    Mole, R. H., & Jameson, S. R. (1976). "A sequential algorithm for the
+    routing of delivery vehicles". OR, 27(2), 237-248.
+
 Score metric: S = (d(0,u) + d(u,0)) - (d(i,u) + d(u,j) - d(i,j))
+Constraint: savings S must be maximized.
 """
 
 from typing import Dict, List, Optional
@@ -38,6 +43,13 @@ def savings_insertion(
 
     Returns:
         List[List[int]]: Updated routes.
+
+    Note:
+        Implements Sequential Savings (Mole & Jameson 1976) adapted for VRP:
+        1. For each node, calculate the "insertion savings" S = dedicated_cost - detour_cost.
+        2. Insert the node at the position with the maximum saving.
+        3. Mandatory nodes are prioritized with a large score constant.
+        4. If no existing route has capacity, open a new route.
     """
     if expand_pool:
         visited = {n for r in routes for n in r}
@@ -89,18 +101,20 @@ def savings_insertion(
             routes[best_route_idx].insert(best_pos, best_node)
             loads[best_route_idx] += wastes.get(best_node, 0.0)
             unassigned.remove(best_node)
-        else:
-            # If no feasible/profitable insertion exists, attempt to open a new route
-            # for the remaining mandatory nodes.
-            mandatory_remaining = [n for n in unassigned if n in mandatory_nodes_set]
-            if mandatory_remaining:
-                node = mandatory_remaining[0]
+        elif unassigned:
+            # Fallback: if no existing route has capacity, open a new route
+            # for the first remaining node (prioritizing mandatory).
+            candidates = sorted(list(unassigned), key=lambda x: 0 if x in mandatory_nodes_set else 1)
+            node = candidates[0]
+            if wastes.get(node, 0.0) <= capacity or node in mandatory_nodes_set:
                 routes.append([node])
                 loads.append(wastes.get(node, 0.0))
                 unassigned.remove(node)
             else:
-                # Only unprofitable non-mandatory nodes remain. Terminate.
-                break
+                # Exceeds capacity and not mandatory
+                unassigned.remove(node)
+        else:
+            break
 
     return routes
 

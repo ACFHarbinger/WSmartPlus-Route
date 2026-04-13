@@ -12,7 +12,9 @@ Score formula:
 where ``residual_capacity_utility = (capacity - load - node_demand) / capacity``.
 
 A lower ``alpha`` behaves like standard greedy; higher ``alpha`` biases
-toward more balanced solutions.
+toward more balanced solutions. This balancing utility is inspired by the
+load-balancing variants in Archetti, Speranza, and Vigo (2014), adapted as
+an intensive ("deep") repair operator for ALNS.
 
 Attributes:
     None
@@ -54,6 +56,13 @@ def deep_insertion(
 
     Returns:
         Updated routes with nodes inserted.
+
+    Note:
+        Deep Insertion (Archetti et al. 2014 adaptation):
+        1. Select node *v* by greedy order (prioritizing mandatory).
+        2. Score each position *p* by its marginal cost *d(p)* adjusted by
+           the route's residual capacity utility *U(r)*.
+        3. Insert *v* at the position that minimizes ``d(p) - alpha * U(r)``.
     """
     mandatory_set = set(mandatory_nodes) if mandatory_nodes else set()
     loads = [sum(wastes.get(n, 0) for n in r) for r in routes]

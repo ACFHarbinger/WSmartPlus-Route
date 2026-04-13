@@ -33,20 +33,26 @@ def worst_removal(
     """
     Remove nodes that contribute most to the current routing cost with randomization.
 
-    Implements Ropke & Pisinger (2005) randomized worst removal:
-    - Sort nodes by cost savings (detour cost) in descending order
-    - For each removal, select node at index: floor(y^p * |L|)
-      where y ~ U(0,1) is a random number and L is the sorted candidate list
-    - Parameter p >= 1 controls randomness:
-      * p = 1: uniform random selection
-      * p > 1: biases toward worst nodes (higher p = more deterministic)
+    Implements Algorithm 3 from Ropke & Pisinger (2006) randomized worst removal:
+    - Compute ``cost(i, s) = f(s) - f_{-i}(s)`` for each node i, where
+      ``f_{-i}(s)`` is the objective with node i removed entirely (detour saving).
+    - Sort nodes by cost savings in **descending** order (highest savings = worst).
+    - For each removal, select node at index: ``floor(y^p * |L|)``
+      where ``y ~ U(0, 1)`` is a random number and L is the sorted candidate list.
+    - Randomization parameter *p* (must satisfy p ≥ 1):
+        - p large (e.g. 100) → ``y^p → 0`` → index → 0 → **always selects the
+          worst node** (near-deterministic).
+        - p = 1 → ``y^1 = y ~ U(0,1)`` → index is **uniformly random** across
+          all candidates.
+        - Values between 1 and ~10 provide a smooth interpolation.
 
     Args:
         routes: Current routes.
         n_remove: Number of nodes to remove.
         dist_matrix: Distance matrix.
-        p: Randomness parameter (p >= 1). Default 1.0 is fully deterministic.
-        rng: Random number generator. If None, uses deterministic selection.
+        p: Determinism parameter p ≥ 1 (Ropke & Pisinger 2006).  Larger values
+           bias selection toward the worst node; p = 1 is fully uniform random.
+        rng: Random number generator.
 
     Returns:
         Tuple[List[List[int]], List[int]]: Partial routes and list of removed node IDs.
@@ -77,6 +83,8 @@ def worst_removal(
         costs.sort(key=lambda x: x[3], reverse=True)
 
         # Randomized selection: index = floor(y^p * |L|)
+        # Large p → y^p → 0 → index 0 → always picks the worst node.
+        # p = 1 → y^1 = y ~ U(0,1) → uniform random index.
         L = len(costs)
         y = rng.random()  # U(0,1)
         idx = min(int(y**p * L), L - 1)
@@ -105,10 +113,17 @@ def worst_profit_removal(
     """
     Remove nodes with the worst marginal profit contribution with randomization (VRPP).
 
-    Implements Ropke & Pisinger (2005) randomized worst removal for profit maximization:
-    - Calculates Profit_i = (waste_i * R) - (detour_cost_i * C) for each node i
-    - Sorts nodes by profit (lowest first, i.e., worst nodes)
-    - For each removal, select node at index: floor(y^p * |L|)
+    Applies Algorithm 3 from Ropke & Pisinger (2006) to a profit-maximisation
+    objective by replacing the cost savings criterion with marginal profit:
+
+        profit_i = waste_i * R - detour_cost_i * C
+
+    Nodes are sorted **ascending** by profit (lowest profit = worst contribution)
+    and the same randomized index formula ``floor(y^p * |L|)`` is applied.
+
+    Randomization parameter *p* semantics (identical to ``worst_removal``):
+        - p large → always selects the node with lowest profit (deterministic).
+        - p = 1 → uniformly random selection across all candidates.
 
     Args:
         routes: Current routes.
@@ -117,7 +132,8 @@ def worst_profit_removal(
         wastes: Waste/profit values for each node.
         R: Revenue per unit waste.
         C: Cost per unit distance.
-        p: Randomness parameter (p >= 1).
+        p: Determinism parameter p ≥ 1.  Larger values bias selection toward the
+           worst-profit node; p = 1 is fully uniform random.
         rng: Random number generator.
 
     Returns:
