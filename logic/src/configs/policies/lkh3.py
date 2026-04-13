@@ -25,6 +25,8 @@ class LKH3Config:
         time_limit: Wall-clock time limit in seconds.
         seed: Random seed for reproducibility.
         vrpp: If True, solver operates in full VRPP mode.
+        dynamic_topology_discovery: If True, solver performs dynamic topology discovery.
+        native_prize_collecting: If True, solver uses native prize collecting.
         must_go: Must-go selection strategy config list.
         post_processing: Post-processing operation config list.
     """
@@ -40,12 +42,14 @@ class LKH3Config:
     max_pool_size: int = 5
     subgradient_iterations: int = 50  # Held-Karp ascent iterations for alpha-measure
     profit_aware_operators: bool = False
-    lns_iterations: int = 100
+    alns_iterations: int = 100
     plateau_limit: int = 10
     deep_plateau_limit: int = 30
     perturb_operator_weights: List[float] = field(default_factory=lambda: [0.6, 0.4])
     time_limit: float = 60.0
     vrpp: bool = True
+    dynamic_topology_discovery: bool = False
+    native_prize_collecting: bool = False
     seed: Optional[int] = None
 
     must_go: Optional[List[Any]] = field(default_factory=list)

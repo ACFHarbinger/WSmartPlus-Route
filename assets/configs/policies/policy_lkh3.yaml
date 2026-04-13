@@ -72,11 +72,23 @@ lkh3:
       # Maximum number of tours to keep in the pool for merging
       # Range: 2-20
 
+    - subgradient_iterations: 50
+      # Number of iterations for Lagrangian subgradient optimization
+      # Range: 10-100
+
+    - dynamic_topology_discovery: false
+      # Whether to perform dynamic topology discovery
+      # Range: true/false
+
+    - native_prize_collecting: false
+      # Whether to use native prize collecting
+      # Range: true/false
+
     # ---------------------------------------------------------------------
-    # Large Neighborhood Search (LNS) Settings
+    # Adaptive Large Neighborhood Search (ALNS) Settings
     # ---------------------------------------------------------------------
-    - lns_iterations: 100
-      # Number of LNS iterations
+    - alns_iterations: 100
+      # Number of ALNS iterations
       # Range: 10-1000
 
     - plateau_limit: 10

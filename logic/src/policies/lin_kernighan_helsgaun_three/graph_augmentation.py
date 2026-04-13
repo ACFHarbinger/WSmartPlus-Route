@@ -161,6 +161,90 @@ def augment_graph(
     return augmented_dist, augmented_waste, n_original
 
 
+def augment_prize_collecting_graph(
+    distance_matrix: np.ndarray,
+    wastes: Dict[int, float],
+) -> Tuple[np.ndarray, np.ndarray, int]:
+    """
+    Apply Jonker-Volgenant ATSP transformation for native prize-collecting.
+
+    Size: (2N+1) x (2N+1)
+    - Node 0: Depot
+    - Nodes 1..N: Real customer nodes (Exits)
+    - Nodes N+1..2N: Dummy dummy nodes (Entries)
+
+    Transformation Rules:
+    1. Prize Collection: D(i', i) = -P_i
+    2. Real Spatial Travel: D(i, j') = c_ij
+    3. Skip Bypass: D(i, i') = 0
+    4. Chaining Skipped Nodes: D(i', j) = 0
+    5. Depot Connections:
+       - Start Skip Chain: D(0, i) = 0
+       - Transition to Real Route: D(i', j') = c_0j
+       - Direct to Real Route: D(0, j') = c_0j
+       - Return to Depot: D(i, 0) = c_i0
+       - Return to Depot (ALL skipped): D(i', 0) = 0
+    """
+    n_original = len(distance_matrix)
+    n_customers = n_original - 1
+    n_augmented = 2 * n_customers + 1
+
+    # Initialize with infinity
+    aug_dist = np.full((n_augmented, n_augmented), float("inf"))
+
+    def get_dummy(i: int) -> int:
+        return n_original + i - 1
+
+    for i in range(1, n_original):
+        p_i = wastes.get(i, 0.0)
+        i_exit = i
+        i_entry = get_dummy(i)
+
+        # 1. Prize Collection (i' -> i)
+        aug_dist[i_entry, i_exit] = -p_i
+
+        # 3. Skip Bypass (i -> i')
+        aug_dist[i_exit, i_entry] = 0.0
+
+        # 4. Chaining Skipped Nodes (i' -> j)
+        for j in range(1, n_original):
+            if i != j:
+                aug_dist[i_entry, j] = 0.0
+
+        # 5. Depot Connections
+        # Start Skip Chain (0 -> i)
+        aug_dist[0, i_exit] = 0.0
+
+        # Return to Depot from Exit (i -> 0)
+        aug_dist[i_exit, 0] = distance_matrix[i, 0]
+
+        # Return to Depot from Entry (i' -> 0)
+        aug_dist[i_entry, 0] = 0.0
+
+        # Direct/Transition to Real Route (0 -> j' or i' -> j')
+        for j in range(1, n_original):
+            j_entry = get_dummy(j)
+            c_0j = distance_matrix[0, j]
+
+            # Direct to Real Route (0 -> j')
+            aug_dist[0, j_entry] = c_0j
+
+            # Transition to Real Route (i' -> j')
+            aug_dist[i_entry, j_entry] = c_0j
+
+        # 2. Real Spatial Travel (i -> j')
+        for j in range(1, n_original):
+            if i != j:
+                j_entry = get_dummy(j)
+                aug_dist[i_exit, j_entry] = distance_matrix[i, j]
+
+    # Diagonal remains inf
+    np.fill_diagonal(aug_dist, float("inf"))
+
+    aug_waste = np.zeros(n_augmented)
+    return aug_dist, aug_waste, n_original
+
+
 def decode_augmented_tour(tour: List[int], n_original: int) -> List[List[int]]:
     """
     Decode a tour from the augmented graph into multi-route representation.
@@ -183,22 +267,42 @@ def decode_augmented_tour(tour: List[int], n_original: int) -> List[List[int]]:
         >>> # Splits at: 0, 7 (>=6), 8 (>=6), 0
         >>> routes
         [[3, 5], [2, 4], [9, 1]]
+
+    Handles both:
+    1. Multi-vehicle dummy depot augmentation (indices >= n_original).
+    2. Prize-collecting ATSP transformation (indices >= n_original).
     """
+    max_node = max(tour)
+    n_customers = n_original - 1
+    # Check if this is likely an ATSP tour (doubled nodes)
+    is_atsp = max_node == 2 * n_customers
+
+    if is_atsp:
+        visited_nodes: List[int] = []
+
+        # In ATSP tour, we look for entry -> exit transitions
+        def get_entry(i_exit: int) -> int:
+            return n_original + i_exit - 1
+
+        for idx in range(len(tour) - 1):
+            u, v = tour[idx], tour[idx + 1]
+            # v is a real exit node. Check if it was entered via its dummy.
+            if 1 <= v < n_original and u == get_entry(v):
+                visited_nodes.append(v)
+
+        return [visited_nodes] if visited_nodes else [[]]
+
+    # Standard multi-vehicle decoding
     routes: List[List[int]] = []
     current_route: List[int] = []
     for node in tour:
-        # Split conditions:
-        # 1. Main depot (node 0)
-        # 2. Dummy depot (node >= n_original)
         if node == 0 or node >= n_original:
             if current_route:
                 routes.append(current_route)
                 current_route = []
         else:
-            # Customer node: add to current route
             current_route.append(node)
 
-    # Handle trailing nodes (if tour doesn't end with depot)
     if current_route:
         routes.append(current_route)
 

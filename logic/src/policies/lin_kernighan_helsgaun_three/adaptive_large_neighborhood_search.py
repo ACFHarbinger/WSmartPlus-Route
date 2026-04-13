@@ -1,9 +1,9 @@
 """
-LKH-3 Large Neighborhood Search (LNS) Matheuristic.
+LKH-3 Adaptive Large Neighborhood Search (ALNS) Matheuristic.
 
 Wraps the LKH-3 k-opt core in an outer ruin-and-recreate loop to handle
 VRPP subset selection. The LKH-3 engine optimizes routing for the current
-active subset, while LNS operators manage node inclusion/exclusion based
+active subset, while ALNS operators manage node inclusion/exclusion based
 on profitability.
 
 Architecture
@@ -21,8 +21,8 @@ Operator Dispatch
 
 Example
 -------
->>> from logic.src.policies.lin_kernighan_helsgaun_three.large_neighborhood_search import LKH3_LNS
->>> solver = LKH3_LNS(
+>>> from logic.src.policies.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search import LKH3_ALNS
+>>> solver = LKH3_ALNS(
 ...     distance_matrix=dist,
 ...     wastes={1: 10, 2: 20, 3: 30},
 ...     capacity=100.0,
@@ -42,11 +42,6 @@ from random import Random
 from typing import Callable, Dict, List, Optional, Tuple
 
 import numpy as np
-
-from logic.src.policies.lin_kernighan_helsgaun_three.candidate_set import (
-    compute_alpha_measures,
-    get_candidate_set,
-)
 
 # solve_lkh3 imported locally in _optimize_routes or solve() to break circularity
 from logic.src.policies.other.operators.destroy.historical import (
@@ -96,12 +91,12 @@ from logic.src.tracking.viz_mixin import PolicyStateRecorder
 logger = logging.getLogger(__name__)
 
 
-class LKH3_LNS:
+class LKH3_ALNS:
     """
-    LKH-3 + Large Neighborhood Search matheuristic for VRPP.
+    LKH-3 + Adaptive Large Neighborhood Search matheuristic for VRPP.
 
     Implements a two-level optimization architecture where the LKH-3 core
-    handles routing optimization for a given subset of nodes, while the LNS
+    handles routing optimization for a given subset of nodes, while the ALNS
     outer loop manages subset selection via adaptive destroy-repair operators.
 
     Attributes:
@@ -146,7 +141,7 @@ class LKH3_LNS:
         C: float = 1.0,
         perturb_operator_weights: Optional[List[float]] = None,
     ):
-        """Initialize LKH-3 LNS matheuristic solver.
+        """Initialize LKH-3 ALNS matheuristic solver.
 
         Args:
             distance_matrix: (N×N) symmetric distance matrix.
@@ -186,12 +181,25 @@ class LKH3_LNS:
         # Historical memory for adaptive operator selection
         self.history: Dict[int, float] = {}
 
+        # ALNS: Adaptive operator selection weights
+        self.destroy_weights = np.ones(3)  # [hist, neighbor, sector]
+        self.repair_weights = np.ones(3)  # [savings, deep, nearest]
+        self.destroy_scores = np.zeros(3)
+        self.repair_scores = np.zeros(3)
+        self.destroy_calls = np.zeros(3)
+        self.repair_calls = np.zeros(3)
+        self.last_destroy_idx = -1
+        self.last_repair_idx = -1
+
+        # Global alpha-measures (Phase 4: Optimization)
+        # Computed once in solve() and filtered in O(1) in _route_nodes
+        self.global_alpha: Optional[np.ndarray] = None
+
         # Elite solution pool for perturbation
         self.elite_pool: List[List[List[int]]] = []
         self.max_pool_size = max_pool_size
 
-        # Cached candidates for warm-starting (Phase 2: Fix LNS Cold Start Amnesia)
-        # Generated once during first solve() call and reused across all LKH-3 invocations
+        # Cached candidates for warm-starting
         self.cached_candidates: Optional[Dict[int, List[int]]] = None
 
         # Recorder for output visualization
@@ -210,21 +218,19 @@ class LKH3_LNS:
         max_k_opt: int = 5,
         use_ip_merging: bool = True,
         subgradient_iterations: int = 50,
+        dynamic_topology_discovery: bool = False,
+        native_prize_collecting: bool = False,
     ) -> Tuple[List[List[int]], float, float]:
         """
-        Main LNS+LKH-3 matheuristic loop.
+        Main ALNS+LKH-3 matheuristic loop.
 
         Algorithm outline:
-        1. Initialize with greedy profitable subset (VRPP) or all nodes (CVRP)
-        2. For each iteration:
-           a. Optimize current subset with LKH-3 k-opt
-           b. If improved, update best solution and elite pool
-           c. If plateau reached, apply Destroy-Repair
-           d. If deep plateau, apply Perturbation against elite
-        3. Return best solution found
+        1. If native_prize_collecting is True, bypass ALNS and solve directly
+           using the Jonker-Volgenant ATSP transformation.
+        2. Else, run the standard LNS loop with ALNS weight adaptation.
 
         Args:
-            max_iterations: Total LNS iterations.
+            max_iterations: Total ALNS iterations.
             lkh_trials: Max k-opt iterations per LKH-3 run.
             n_vehicles: Number of available vehicles.
             plateau_limit: Iterations without improvement before Destroy-Repair.
@@ -234,14 +240,53 @@ class LKH3_LNS:
             popmusic_max_candidates: Maximum number of candidates for POPMUSIC.
             max_k_opt: Maximum k for k-opt moves (2-5).
             use_ip_merging: If True, use IP-based tour recombination.
+            subgradient_iterations: Iterations for subgradient optimization.
+            dynamic_topology_discovery: Toggle recursive B&B search.
+            native_prize_collecting: Toggle Jonker-Volgenant ATSP.
 
         Returns:
             Tuple of (best_routes, best_objective, best_penalty) where:
             - best_routes: List of routes (each route is list of node IDs)
             - best_objective: Profit (VRPP) or negative cost (CVRP)
-            - best_penalty: Penalty for infeasible solutions
+            - best_penalty: Final penalty (should be 0 for feasible solutions)
         """
+        if native_prize_collecting:
+            from logic.src.policies.lin_kernighan_helsgaun_three.graph_augmentation import (
+                augment_prize_collecting_graph,
+            )
+            from logic.src.policies.lin_kernighan_helsgaun_three.lkh3 import solve_lkh3
+
+            # ATSP Transformation
+            aug_dist, _, n_original = augment_prize_collecting_graph(
+                self.distance_matrix,
+                self.wastes,
+            )
+
+            # Solve directly with LKH-3 engine
+            routes, cost, penalty = solve_lkh3(
+                distance_matrix=aug_dist,
+                max_trials=lkh_trials,
+                max_k_opt=max_k_opt,
+                use_ip_merging=use_ip_merging,
+                subgradient_iterations=subgradient_iterations,
+                np_rng=self.np_rng,
+                rng=self.rng,
+                seed=self.seed,
+                dynamic_topology_discovery=dynamic_topology_discovery,
+                # Mandatory nodes are handled structurally in ATSP
+            )
+
+            # Recalculate objective on global scale
+            objective = self._compute_objective(routes)
+            return routes, objective, penalty
+
+        # --- Standard ALNS Loop ---
         # 1. Initialize with greedy solution
+        # Pre-compute global alpha-measures once (Phase 4 optimization)
+        from logic.src.policies.lin_kernighan_helsgaun_three.lkh3 import compute_alpha_measures
+
+        self.global_alpha = compute_alpha_measures(self.distance_matrix)
+
         best_routes, best_obj, best_penalty = self._initialize_solution(
             lkh_trials,
             n_vehicles,
@@ -251,13 +296,17 @@ class LKH3_LNS:
             max_k_opt,
             use_ip_merging,
             subgradient_iterations,
+            dynamic_topology_discovery=dynamic_topology_discovery,
         )
         current_routes = [r[:] for r in best_routes]
 
         iterations_since_improvement = 0
         iterations_since_last_deep_perturb = 0
 
-        # 2. Main LNS loop
+        # ALNS parameters
+        r_ema = 0.1  # Adaptation rate
+
+        # 2. Main ALNS loop
         for _iteration in range(max_iterations):
             # 2a. Optimize current subset with LKH-3
             optimized_routes, obj, penalty = self._optimize_routes(
@@ -270,19 +319,48 @@ class LKH3_LNS:
                 max_k_opt,
                 use_ip_merging,
                 subgradient_iterations,
+                dynamic_topology_discovery=dynamic_topology_discovery,
             )
 
-            # 2b. Update best solution (lexicographic: minimize penalty, maximize obj)
-            if penalty < best_penalty - 1e-6 and obj > best_obj + 1e-6:
+            # 2b. Update best solution and ALNS scoring
+            score = 0
+            if penalty < best_penalty - 1e-6 or (abs(penalty - best_penalty) < 1e-6 and obj > best_obj + 1e-6):
+                # Update global best score
+                score = 3
                 best_routes = [r[:] for r in optimized_routes]
                 best_obj = obj
                 best_penalty = penalty
                 iterations_since_improvement = 0
                 iterations_since_last_deep_perturb = 0
                 self._update_elite_pool(best_routes)
-            else:
+            elif abs(penalty - best_penalty) < 1e-6 and obj > self._compute_objective(current_routes):
+                # Local improvement score
+                score = 1
                 iterations_since_improvement += 1
                 iterations_since_last_deep_perturb += 1
+            else:
+                # Rejected score
+                score = 0
+                iterations_since_improvement += 1
+                iterations_since_last_deep_perturb += 1
+
+            # Update scores for the last used operators
+            if self.last_destroy_idx != -1:
+                self.destroy_scores[self.last_destroy_idx] += score
+            if self.last_repair_idx != -1:
+                self.repair_scores[self.last_repair_idx] += score
+
+            # Periodically update weights (e.g., every iteration or block)
+            # Using EMA update for weights
+            if self.last_destroy_idx != -1:
+                idx = self.last_destroy_idx
+                perf = self.destroy_scores[idx] / max(1, self.destroy_calls[idx])
+                self.destroy_weights[idx] = (1 - r_ema) * self.destroy_weights[idx] + r_ema * perf
+
+            if self.last_repair_idx != -1:
+                idx = self.last_repair_idx
+                perf = self.repair_scores[idx] / max(1, self.repair_calls[idx])
+                self.repair_weights[idx] = (1 - r_ema) * self.repair_weights[idx] + r_ema * perf
 
             # Record state for visualization
             if self._viz:
@@ -317,6 +395,7 @@ class LKH3_LNS:
         max_k_opt: int,
         use_ip_merging: bool,
         subgradient_iterations: int,
+        dynamic_topology_discovery: bool = False,
     ) -> Tuple[List[List[int]], float, float]:
         """
         Build initial feasible solution:
@@ -412,6 +491,7 @@ class LKH3_LNS:
             max_k_opt,
             use_ip_merging,
             subgradient_iterations,
+            dynamic_topology_discovery=dynamic_topology_discovery,
         )
 
     def _route_nodes(  # noqa: C901
@@ -426,6 +506,7 @@ class LKH3_LNS:
         use_ip_merging: bool,
         subgradient_iterations: int = 0,
         initial_routes: Optional[List[List[int]]] = None,
+        dynamic_topology_discovery: bool = False,
     ) -> Tuple[List[List[int]], float, float]:
         """
         Route a given set of nodes with LKH-3.
@@ -519,31 +600,26 @@ class LKH3_LNS:
                         initial_tour_local.append(dummy_idx)
                 initial_tour_local.append(0)
 
-        # Phase 2: Generate and cache OR remap candidate sets
-        if self.cached_candidates is None:
-            # First pass: generate local candidates and cache as global IDs
-            alpha = compute_alpha_measures(sub_dist)
-            local_candidates_raw = get_candidate_set(
-                sub_dist,
-                alpha,
-                max_candidates=popmusic_max_candidates,
-            )
-            self.cached_candidates = {}
-            for loc_node, loc_cands in local_candidates_raw.items():
-                glob_node = local_to_global[loc_node]
-                self.cached_candidates[glob_node] = [local_to_global[c] for c in loc_cands]
-            local_candidates = local_candidates_raw
-        else:
-            # Remap cached global candidates to local subproblem indices
-            local_candidates = {}
+        # Phase 4: Filter global alpha-measures in O(1) for this subset
+        local_candidates = {}
+        if self.global_alpha is not None:
             for local_idx in range(n_sub):
                 global_node = local_to_global[local_idx]
-                if global_node in self.cached_candidates:
-                    local_candidates[local_idx] = [
-                        global_to_local[g] for g in self.cached_candidates[global_node] if g in global_to_local
-                    ]
-                else:
-                    local_candidates[local_idx] = []
+                row = self.global_alpha[global_node]
+
+                # Get alpha measures for ALL active nodes relative to this one
+                active_alphas = []
+                for other_local_idx in range(n_sub):
+                    if other_local_idx != local_idx:
+                        other_global = local_to_global[other_local_idx]
+                        active_alphas.append((row[other_global], other_local_idx))
+
+                # Sort by alpha measure and take top K
+                active_alphas.sort()
+                local_candidates[local_idx] = [idx for _, idx in active_alphas[:popmusic_max_candidates]]
+        else:
+            # Fallback (should not happen with regular solve entry)
+            local_candidates = {i: [] for i in range(n_sub)}
 
         from logic.src.policies.lin_kernighan_helsgaun_three.lkh3 import (
             solve_lkh3,
@@ -554,7 +630,7 @@ class LKH3_LNS:
             initial_tour=initial_tour_local,  # Phase 2: Pass warm-start tour
             waste=sub_waste,
             capacity=self.capacity,
-            max_iterations=lkh_trials,
+            max_trials=lkh_trials,
             popmusic_subpath_size=popmusic_subpath_size,
             popmusic_trials=popmusic_trials,
             popmusic_max_candidates=popmusic_max_candidates,
@@ -569,6 +645,7 @@ class LKH3_LNS:
             rng=self.rng,
             seed=self.seed,
             n_original=0,  # Use sub-problem size for augmentation
+            dynamic_topology_discovery=dynamic_topology_discovery,
         )
 
         # Extract routes and map back to original indices
@@ -596,6 +673,7 @@ class LKH3_LNS:
         max_k_opt: int,
         use_ip_merging: bool,
         subgradient_iterations: int,
+        dynamic_topology_discovery: bool = False,
     ) -> Tuple[List[List[int]], float, float]:
         """
         Re-optimize current routes with LKH-3 using warm-start.
@@ -629,6 +707,7 @@ class LKH3_LNS:
             use_ip_merging,
             subgradient_iterations=subgradient_iterations,
             initial_routes=routes,  # Phase 2: Warm-start from repaired routes
+            dynamic_topology_discovery=dynamic_topology_discovery,
         )
 
     def _destroy_repair(self, routes: List[List[int]]) -> List[List[int]]:
@@ -660,16 +739,17 @@ class LKH3_LNS:
 
         return repaired_routes
 
+    def _compute_objective(self, routes: List[List[int]]) -> float:
+        """Helper to compute current objective (profit or negative cost)."""
+        routing_cost = self._compute_routing_cost(routes)
+        if self.profit_aware_operators:
+            collected_fill = sum(self.wastes.get(n, 0.0) for route in routes for n in route)
+            return self.revenue * collected_fill - self.cost_unit * routing_cost
+        else:
+            return -float(routing_cost)
+
     def _select_destroy_operator(self) -> Callable[[List[List[int]], int], Tuple[List[List[int]], List[int]]]:
-        """
-        Roulette-wheel selection of destroy operator.
-
-        Returns a callable that takes (routes, n_remove) and returns
-        (modified_routes, removed_nodes).
-
-        Returns:
-            Destroy operator function.
-        """
+        """Weighted selection of destroy operator."""
         if self.profit_aware_operators:
             operators = [
                 self._wrap_historical_profit_removal,
@@ -683,18 +763,14 @@ class LKH3_LNS:
                 self._wrap_sector_removal,
             ]
 
-        return self.rng.choice(operators)
+        # ALNS selection
+        idx = self.rng.choices(range(len(operators)), weights=self.destroy_weights.tolist(), k=1)[0]
+        self.last_destroy_idx = idx
+        self.destroy_calls[idx] += 1
+        return operators[idx]
 
     def _select_repair_operator(self) -> Callable[[List[List[int]], List[int]], List[List[int]]]:
-        """
-        Roulette-wheel selection of repair operator.
-
-        Returns a callable that takes (routes, removed_nodes) and returns
-        updated routes.
-
-        Returns:
-            Repair operator function.
-        """
+        """Weighted selection of repair operator."""
         if self.profit_aware_operators:
             operators = [
                 self._wrap_savings_profit_insertion,
@@ -708,7 +784,11 @@ class LKH3_LNS:
                 self._wrap_nearest_insertion,
             ]
 
-        return self.rng.choice(operators)
+        # ALNS selection
+        idx = self.rng.choices(range(len(operators)), weights=self.repair_weights.tolist(), k=1)[0]
+        self.last_repair_idx = idx
+        self.repair_calls[idx] += 1
+        return operators[idx]
 
     # -----------------------------------------------------------------------
     # Operator Wrappers (Standard CVRP)

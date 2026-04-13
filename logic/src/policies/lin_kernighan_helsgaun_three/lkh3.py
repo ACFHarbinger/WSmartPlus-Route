@@ -68,10 +68,6 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.policies.lin_kernighan_helsgaun_three.candidate_set import (
-    compute_alpha_measures,
-    get_candidate_set,
-)
 from logic.src.policies.lin_kernighan_helsgaun_three.graph_augmentation import (
     augment_graph,
     decode_augmented_tour,
@@ -81,14 +77,14 @@ from logic.src.policies.lin_kernighan_helsgaun_three.load_tracker import (
     update_load_state_after_move,
 )
 from logic.src.policies.lin_kernighan_helsgaun_three.objective import (
+    compute_alpha_measures,
+    get_candidate_set,
     get_score,
     is_better,
+    solve_subgradient,
 )
 from logic.src.policies.lin_kernighan_helsgaun_three.popmusic import (
     popmusic_candidates,
-)
-from logic.src.policies.lin_kernighan_helsgaun_three.subgradient import (
-    solve_subgradient,
 )
 from logic.src.policies.lin_kernighan_helsgaun_three.tour_construction import (
     _double_bridge_kick,
@@ -96,10 +92,12 @@ from logic.src.policies.lin_kernighan_helsgaun_three.tour_construction import (
     merge_tours_best,
 )
 from logic.src.policies.lin_kernighan_helsgaun_three.tour_improvement import (
+    _dynamic_kopt_search,
     _try_2opt_move,
     _try_3opt_move,
     _try_4opt_move,
     _try_5opt_move,
+    _try_oropt_move,
 )
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
@@ -120,6 +118,7 @@ def _improve_tour(  # noqa: C901
     dont_look_bits: Optional[np.ndarray] = None,
     max_k_opt: int = 5,
     n_original: Optional[int] = None,
+    dynamic_topology_discovery: bool = False,
 ) -> Tuple[List[int], float, float, bool, Optional[np.ndarray]]:
     """
     Execute one complete pass of sequential k-opt local search (k = 2..5).
@@ -127,7 +126,8 @@ def _improve_tour(  # noqa: C901
     For each node t1 (not masked by a don't-look bit) and its successor t2
     in the current tour, the following hierarchy is attempted in order:
 
-    1. **2-opt** — exact gain pre-screen over α-nearest neighbours of t2;
+    1. **Dynamic Search** — if dynamic_topology_discovery is True, uses recursive B&B.
+    2. **Exhaustive Hierarchy** — 2-opt, 3-opt, 4-opt, 5-opt patterns.
        move applied via _try_2opt_move with lazy lexicographic gate.
     2. **3-opt** — exact gain pre-screen for all seven patterns; move applied
        via :func:`move_kopt_intra` (k=3).  Restricted to n < 500.
@@ -176,6 +176,12 @@ def _improve_tour(  # noqa: C901
     if waste is not None and capacity is not None and n_original is not None:
         load_state = build_load_state(curr_tour, waste, capacity, n_original)
 
+    # Feature 1: Position lookup array (O(1) lookups instead of list.index)
+    # Size to distance_matrix to handle augmented dummy depots safely.
+    pos = np.full(len(distance_matrix), -1, dtype=np.int32)
+    for idx, node in enumerate(curr_tour[:-1]):
+        pos[node] = idx
+
     improved_overall = False
     for i in range(nodes_count):
         t1 = curr_tour[i]
@@ -187,7 +193,63 @@ def _improve_tour(  # noqa: C901
         t2 = curr_tour[i + 1]
         found_improvement_for_t1 = False
 
-        # ---- 2-opt (via _try_2opt_move with lazy evaluation) ----
+        # ---- Dynamic Discovery (Recursive B&B) ----
+        if dynamic_topology_discovery:
+            res_dyn, rp_dyn, rc_dyn, improved_dyn = _dynamic_kopt_search(
+                curr_tour,
+                i,
+                t1,
+                t2,
+                candidates,
+                d,
+                waste,
+                capacity,
+                rng,
+                n_original=n_original,
+                load_state=load_state,
+                max_k=max_k_opt,
+                pos=pos,
+            )
+            if improved_dyn and res_dyn is not None:
+                curr_tour, curr_pen, curr_cost = res_dyn, rp_dyn, rc_dyn
+                improved_overall = True
+                found_improvement_for_t1 = True
+                # Rebuild pos after accepted move
+                for idx, node in enumerate(curr_tour[:-1]):
+                    pos[node] = idx
+                return curr_tour, curr_pen, curr_cost, True, dont_look_bits
+
+            # If not improved in dynamic mode, set dont-look bit and skip exhaustive k-opt
+            if t1 < len(dont_look_bits):
+                dont_look_bits[t1] = True
+            continue
+
+        # ---- Or-opt (Segment Relocation 1, 2, 3 nodes) ----
+        res_or, rp_or, rc_or, imp_or = _try_oropt_move(
+            curr_tour,
+            t1,
+            i,
+            candidates,
+            d,
+            waste,
+            capacity,
+            rng,
+            n_original=n_original,
+            load_state=load_state,
+            pos=pos,
+        )
+        if imp_or and res_or is not None:
+            curr_tour, curr_pen, curr_cost = res_or, rp_or, rc_or
+            improved_overall = True
+            found_improvement_for_t1 = True
+            if t1 < len(dont_look_bits):
+                dont_look_bits[t1] = False
+            # Rebuild pos after accepted move
+            for idx, node in enumerate(curr_tour[:-1]):
+                pos[node] = idx
+            return curr_tour, curr_pen, curr_cost, True, dont_look_bits
+
+        # ---- Exhaustive 2-opt ----
         res_tour, res_p, res_c, res_imp, j = _try_2opt_move(
             curr_tour,
             i,
@@ -200,14 +262,12 @@ def _improve_tour(  # noqa: C901
             rng,
             n_original=n_original,
             load_state=load_state,
+            pos=pos,
         )
         if res_imp and res_tour is not None:
             curr_tour, curr_pen, curr_cost = res_tour, res_p, res_c
             improved_overall = True
             found_improvement_for_t1 = True
-            # Don't-look bits: only reset nodes whose adjacency changed.
-            # 2-opt creates edges (t1,t3) and (t2,t4) — only t1 and t3
-            # sit at the endpoints of the newly created edges.
             t3 = curr_tour[j] if j >= 0 else t1
             if t1 < len(dont_look_bits):
                 dont_look_bits[t1] = False
@@ -222,17 +282,17 @@ def _improve_tour(  # noqa: C901
                     capacity,  # type: ignore[arg-type]
                     n_original,  # type: ignore[arg-type]
                 )
+            # Rebuild pos after accepted move
+            for idx, node in enumerate(curr_tour[:-1]):
+                pos[node] = idx
             return curr_tour, curr_pen, curr_cost, True, dont_look_bits
 
         # ---- 3-opt ----
         if nodes_count < 500 and max_k_opt >= 3:
             for t3_cand in candidates[t2]:
-                if t3_cand == t1 or t3_cand == curr_tour[(i + 2) % nodes_count]:
+                if t3_cand == t1 or (t2 < len(distance_matrix) and pos[t3_cand] < 0):
                     continue
-                try:
-                    j = curr_tour.index(t3_cand)
-                except ValueError:
-                    continue
+                j = int(pos[t3_cand])
                 if j <= i + 1:
                     continue
                 t4 = curr_tour[j + 1]
@@ -251,6 +311,7 @@ def _improve_tour(  # noqa: C901
                     rng,
                     n_original=n_original,
                     load_state=load_state,
+                    pos=pos,
                 )
                 if res_imp and res_tour is not None and is_better(res_p, res_c, curr_pen, curr_cost):
                     curr_tour, curr_pen, curr_cost = res_tour, res_p, res_c
@@ -268,13 +329,16 @@ def _improve_tour(  # noqa: C901
                             capacity,  # type: ignore[arg-type]
                             n_original,  # type: ignore[arg-type]
                         )
+                    # Rebuild pos after accepted move
+                    for idx, node in enumerate(curr_tour[:-1]):
+                        pos[node] = idx
                     return curr_tour, curr_pen, curr_cost, True, dont_look_bits
 
                 # ---- 4-opt ----
                 if nodes_count < 300 and max_k_opt >= 4:
                     for k_idx in range(j + 2, nodes_count):
                         t5 = curr_tour[k_idx]
-                        t6 = curr_tour[k_idx + 1]
+                        t6 = curr_tour[(k_idx + 1) % nodes_count]
 
                         res4, rp4, rc4, ri4 = _try_4opt_move(
                             curr_tour,
@@ -293,6 +357,7 @@ def _improve_tour(  # noqa: C901
                             rng,
                             n_original=n_original,
                             load_state=load_state,
+                            pos=pos,
                         )
                         if ri4 and res4 is not None and is_better(rp4, rc4, curr_pen, curr_cost):
                             curr_tour, curr_pen, curr_cost = res4, rp4, rc4
@@ -309,13 +374,16 @@ def _improve_tour(  # noqa: C901
                                     capacity,  # type: ignore[arg-type]
                                     n_original,  # type: ignore[arg-type]
                                 )
+                            # Rebuild pos after accepted move
+                            for idx, node in enumerate(curr_tour[:-1]):
+                                pos[node] = idx
                             return curr_tour, curr_pen, curr_cost, True, dont_look_bits
 
                         # ---- 5-opt ----
                         if nodes_count < 200 and max_k_opt >= 5:
                             for l_idx in range(k_idx + 2, nodes_count):
                                 t7 = curr_tour[l_idx]
-                                t8 = curr_tour[l_idx + 1]
+                                t8 = curr_tour[(l_idx + 1) % nodes_count]
                                 res5, rp5, rc5, ri5 = _try_5opt_move(
                                     curr_tour,
                                     i,
@@ -336,6 +404,7 @@ def _improve_tour(  # noqa: C901
                                     rng,
                                     n_original=n_original,
                                     load_state=load_state,
+                                    pos=pos,
                                 )
                                 if ri5 and res5 is not None and is_better(rp5, rc5, curr_pen, curr_cost):
                                     curr_tour, curr_pen, curr_cost = res5, rp5, rc5
@@ -352,6 +421,9 @@ def _improve_tour(  # noqa: C901
                                             capacity,  # type: ignore[arg-type]
                                             n_original,  # type: ignore[arg-type]
                                         )
+                                    # Rebuild pos after accepted move
+                                    for idx, node in enumerate(curr_tour[:-1]):
+                                        pos[node] = idx
                                     return curr_tour, curr_pen, curr_cost, True, dont_look_bits
 
         if not found_improvement_for_t1 and t1 < len(dont_look_bits):
@@ -374,7 +446,7 @@ def solve_lkh3(  # noqa: C901
     mandatory_nodes: Optional[List[int]] = None,
     coords: Optional[np.ndarray] = None,
     # LKH-3 parameters
-    max_iterations: int = 100,
+    max_trials: int = 100,
     popmusic_subpath_size: int = 50,
     popmusic_trials: int = 50,
     popmusic_max_candidates: int = 5,
@@ -384,7 +456,7 @@ def solve_lkh3(  # noqa: C901
     subgradient_iterations: int = 50,
     # LNS parameters
     profit_aware_operators: bool = False,
-    lns_iterations: int = 100,
+    alns_iterations: int = 10,
     plateau_limit: int = 10,
     deep_plateau_limit: int = 30,
     perturb_operator_weights: Optional[List[float]] = None,
@@ -397,6 +469,8 @@ def solve_lkh3(  # noqa: C901
     np_rng: Optional[np.random.Generator] = None,
     rng: Optional[Random] = None,
     seed: int = 42,
+    dynamic_topology_discovery: bool = False,
+    native_prize_collecting: bool = False,
 ) -> Tuple[List[List[int]], float, float]:
     """
     Solve a TSP or CVRP instance using the LKH-3 iterated local-search scheme.
@@ -418,14 +492,13 @@ def solve_lkh3(  # noqa: C901
         distance_matrix: (n × n) symmetric cost matrix.
         initial_tour: Optional starting tour (closed).  Nearest-neighbour
             construction is used when not provided.
-        max_iterations: Maximum number of kicks / restarts.
         waste: 1-D demand array for VRP.
         capacity: Vehicle capacity constraint.
         revenue: Revenue per unit collected (VRPP parameter).
         cost_unit: Cost per distance unit.
         mandatory_nodes: Nodes that must be visited.
         coords: Node coordinates (N×2) for geometric operators.
-        max_iterations: Max LKH-3 iterations per routing optimization.
+        max_trials: Maximum number of kicks / restarts.
         popmusic_subpath_size: POPMUSIC sub-path size.
         popmusic_trials: Number of POPMUSIC runs.
         popmusic_max_candidates: Maximum number of candidates for POPMUSIC.
@@ -433,7 +506,7 @@ def solve_lkh3(  # noqa: C901
         use_ip_merging: If True, use IP-based tour recombination.
         max_pool_size: Maximum number of elite solutions to retain.
         profit_aware_operators: Toggle VRPP mode (subset selection).
-        lns_iterations: Number of LNS iterations (VRPP mode only).
+        alns_iterations: Number of ALNS iterations (VRPP mode only).
         plateau_limit: Iterations before destroy-repair.
         deep_plateau_limit: Iterations before perturbation.
         perturb_operator_weights: Weights for perturbation operators.
@@ -550,7 +623,7 @@ def solve_lkh3(  # noqa: C901
     tour_pool: List[List[int]] = [best_tour[:]]
 
     # 3. Main iterated local-search loop
-    for restart in range(max_iterations):
+    for restart in range(max_trials):
         # Inner local-search until no improving k-opt move exists
         while True:
             curr_tour, curr_pen, curr_cost, improved_local, dont_look_bits = _improve_tour(
@@ -565,6 +638,7 @@ def solve_lkh3(  # noqa: C901
                 dont_look_bits,
                 max_k_opt,
                 n_original,
+                dynamic_topology_discovery=dynamic_topology_discovery,
             )
             if not improved_local:
                 break
@@ -612,11 +686,11 @@ def solve_lkh3(  # noqa: C901
 
 
 # ---------------------------------------------------------------------------
-# LNS-Integrated Solver (Phase 2)
+# ALNS-Integrated Solver (Phase 2)
 # ---------------------------------------------------------------------------
 
 
-def solve_lkh3_with_lns(
+def solve_lkh3_with_alns(
     distance_matrix: np.ndarray,
     initial_tour: Optional[List[int]] = None,
     waste: Optional[np.ndarray] = None,
@@ -626,7 +700,7 @@ def solve_lkh3_with_lns(
     mandatory_nodes: Optional[List[int]] = None,
     coords: Optional[np.ndarray] = None,
     # LKH-3 parameters
-    max_iterations: int = 100,
+    max_trials: int = 100,
     popmusic_subpath_size: int = 50,
     popmusic_trials: int = 50,
     popmusic_max_candidates: int = 5,
@@ -634,9 +708,9 @@ def solve_lkh3_with_lns(
     use_ip_merging: bool = True,
     max_pool_size: int = 5,
     subgradient_iterations: int = 50,
-    # LNS parameters
+    # ALNS parameters
     profit_aware_operators: bool = False,
-    lns_iterations: int = 100,
+    alns_iterations: int = 100,
     plateau_limit: int = 10,
     deep_plateau_limit: int = 30,
     perturb_operator_weights: Optional[List[float]] = None,
@@ -649,16 +723,18 @@ def solve_lkh3_with_lns(
     np_rng: Optional[np.random.Generator] = None,
     rng: Optional[Random] = None,
     seed: int = 42,
+    dynamic_topology_discovery: bool = False,
+    native_prize_collecting: bool = False,
 ) -> Tuple[List[List[int]], float, float]:
     """
-    Solve VRP/VRPP using LKH-3 + Large Neighborhood Search matheuristic.
+    Solve VRP/VRPP using LKH-3 + Adaptive Large Neighborhood Search matheuristic.
 
     This function provides a unified interface that automatically dispatches to:
-    - **VRPP mode** (``profit_aware_operators=True``): LNS + LKH-3 for subset selection
+    - **VRPP mode** (``profit_aware_operators=True``): ALNS + LKH-3 for subset selection
 
     Algorithm (VRPP mode):
     1. Initialize with greedy profitable subset
-    2. For each LNS iteration:
+    2. For each ALNS iteration:
        a. Optimize routes with LKH-3 k-opt
        b. If improved, update best and elite pool
        c. If plateau, apply destroy-repair operators
@@ -675,7 +751,7 @@ def solve_lkh3_with_lns(
         cost_unit: Cost per distance unit.
         mandatory_nodes: Nodes that must be visited.
         coords: Node coordinates (N×2) for geometric operators.
-        max_iterations: Max LKH-3 iterations per routing optimization.
+        max_trials: Max LKH-3 trials per routing optimization.
         popmusic_subpath_size: POPMUSIC sub-path size.
         popmusic_trials: Number of POPMUSIC runs.
         popmusic_max_candidates: Maximum number of candidates for POPMUSIC.
@@ -683,7 +759,7 @@ def solve_lkh3_with_lns(
         use_ip_merging: If True, use IP-based tour recombination.
         max_pool_size: Maximum number of elite solutions to retain.
         profit_aware_operators: Toggle VRPP mode (subset selection).
-        lns_iterations: Number of LNS iterations (VRPP mode only).
+        alns_iterations: Number of ALNS iterations (VRPP mode only).
         plateau_limit: Iterations before destroy-repair.
         deep_plateau_limit: Iterations before perturbation.
         perturb_operator_weights: Weights for perturbation operators.
@@ -705,7 +781,7 @@ def solve_lkh3_with_lns(
 
     Example:
         >>> # VRPP mode
-        >>> routes, profit = solve_lkh3_with_lns(
+        >>> routes, profit = solve_lkh3_with_alns(
         ...     distance_matrix=dist,
         ...     wastes={1: 10, 2: 20, 3: 30},
         ...     capacity=100,
@@ -727,11 +803,11 @@ def solve_lkh3_with_lns(
     if rng is None:
         rng = Random(seed)
 
-    from logic.src.policies.lin_kernighan_helsgaun_three.large_neighborhood_search import (
-        LKH3_LNS,
+    from logic.src.policies.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search import (
+        LKH3_ALNS,
     )
 
-    solver = LKH3_LNS(
+    solver = LKH3_ALNS(
         distance_matrix=distance_matrix,
         wastes=wastes,
         capacity=capacity,
@@ -752,8 +828,8 @@ def solve_lkh3_with_lns(
     )
 
     routes, objective, penalty = solver.solve(
-        max_iterations=lns_iterations,
-        lkh_trials=max_iterations,
+        max_iterations=alns_iterations,
+        lkh_trials=max_trials,
         n_vehicles=n_vehicles,
         plateau_limit=plateau_limit,
         deep_plateau_limit=deep_plateau_limit,
@@ -763,6 +839,8 @@ def solve_lkh3_with_lns(
         max_k_opt=max_k_opt,
         use_ip_merging=use_ip_merging,
         subgradient_iterations=subgradient_iterations,
+        dynamic_topology_discovery=dynamic_topology_discovery,
+        native_prize_collecting=native_prize_collecting,
     )
 
     return routes, objective, penalty

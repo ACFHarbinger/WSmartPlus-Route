@@ -23,7 +23,7 @@ from logic.src.policies.lin_kernighan_helsgaun_three.graph_augmentation import (
 )
 from logic.src.policies.lin_kernighan_helsgaun_three.lkh3 import (
     solve_lkh3,
-    solve_lkh3_with_lns,
+    solve_lkh3_with_alns,
 )
 
 from .params import LKH3Params
@@ -117,19 +117,29 @@ class LKH3Policy(BaseRoutingPolicy):
         np_rng = np.random.default_rng(seed if seed is not None else 42)
 
         # --- Phase 1: Graph Augmentation ---
-        augmented_dist, augmented_waste, n_original = augment_graph(
-            distance_matrix=sub_dist_matrix,
-            wastes=sub_wastes,
-            n_vehicles=n_vehicles,
-            capacity=capacity,
-        )
+        # If native prize-collecting is enabled, we skip standard CVRP augmentation
+        # as the solver will perform Jonker-Volgenant ATSP transformation internally.
+        # Select LKH-3 variant (with or without Adaptive Large Neighborhood Search)
+        policy_function = solve_lkh3_with_alns if params.vrpp or params.native_prize_collecting else solve_lkh3
 
-        # Convert to Optional types for solve_lkh3 API
-        waste_arr: Optional[np.ndarray] = augmented_waste if capacity > 0 else None
+        # Type-safe demand representation
+        waste_arr: Optional[np.ndarray] = None
+        if params.native_prize_collecting:
+            augmented_dist = sub_dist_matrix
+            waste_arr = np.zeros(len(sub_dist_matrix))
+            for i, w in sub_wastes.items():
+                waste_arr[i] = w
+            n_original = len(sub_dist_matrix)
+        else:
+            augmented_dist, augmented_waste, n_original = augment_graph(
+                distance_matrix=sub_dist_matrix,
+                wastes=sub_wastes,
+                n_vehicles=n_vehicles,
+                capacity=capacity,
+            )
+            waste_arr = augmented_waste if capacity > 0 else None
+
         cap: float = capacity if capacity > 0 else 100.0
-
-        # Select LKH-3 variant (with or without Large Neighborhood Search)
-        policy_function = solve_lkh3_with_lns if params.vrpp else solve_lkh3
 
         # --- Run the LKH-3 engine on augmented graph ---
         best_routes: Optional[List[List[int]]] = None
@@ -149,7 +159,7 @@ class LKH3Policy(BaseRoutingPolicy):
                 cost_unit=cost_unit,
                 mandatory_nodes=mandatory_nodes,
                 coords=sub_dist_matrix,
-                max_iterations=params.max_trials,
+                max_trials=params.max_trials,
                 popmusic_subpath_size=params.popmusic_subpath_size,
                 popmusic_trials=params.popmusic_trials,
                 popmusic_max_candidates=params.popmusic_max_candidates,
@@ -158,7 +168,7 @@ class LKH3Policy(BaseRoutingPolicy):
                 max_pool_size=params.max_pool_size,
                 subgradient_iterations=params.subgradient_iterations,
                 profit_aware_operators=params.profit_aware_operators,
-                lns_iterations=params.lns_iterations,
+                alns_iterations=params.alns_iterations,
                 plateau_limit=params.plateau_limit,
                 deep_plateau_limit=params.deep_plateau_limit,
                 perturb_operator_weights=params.perturb_operator_weights,
@@ -168,6 +178,8 @@ class LKH3Policy(BaseRoutingPolicy):
                 np_rng=np_rng,
                 rng=rng,
                 seed=seed,
+                dynamic_topology_discovery=params.dynamic_topology_discovery,
+                native_prize_collecting=params.native_prize_collecting,
             )
             if cost < best_cost:
                 best_cost = cost

@@ -94,11 +94,6 @@ from logic.src.policies.lin_kernighan_helsgaun_three.tour_construction import (
 # ---------------------------------------------------------------------------
 
 
-# ---------------------------------------------------------------------------
-# Inner search routines with gain pre-screening
-# ---------------------------------------------------------------------------
-
-
 def _try_2opt_move(
     curr_tour: List[int],
     i: int,
@@ -111,6 +106,7 @@ def _try_2opt_move(
     rng: Random,
     n_original: Optional[int] = None,
     load_state: Optional[LoadState] = None,
+    pos: Optional[np.ndarray] = None,
 ) -> Tuple[Optional[List[int]], float, float, bool, int]:
     """
     Search for an improving 2-opt move starting from edge (t1, t2).
@@ -156,30 +152,33 @@ def _try_2opt_move(
     assert len(EXHAUSTIVE_2OPT_CASES) == 1, "2-opt must have exactly 1 topology"
     topology_2opt = EXHAUSTIVE_2OPT_CASES[0]
 
-    for t3 in candidates[t2]:
-        if t3 == t1:
-            continue
-        if t3 == curr_tour[(i + 2) % nodes_count]:
+    for t3_cand in candidates[t2]:
+        if t3_cand == t1 or t3_cand == curr_tour[(i + 2) % nodes_count]:
             continue
 
-        try:
-            j = curr_tour.index(t3)
-        except ValueError:
-            continue
+        if pos is not None:
+            if t3_cand >= len(pos) or pos[t3_cand] < 0:
+                continue
+            j = int(pos[t3_cand])
+        else:
+            try:
+                j = curr_tour.index(t3_cand)
+            except ValueError:
+                continue
 
         if j <= i + 1:
             continue
 
-        t4 = curr_tour[j + 1]
+        t4 = curr_tour[(j + 1) % nodes_count]
 
         # The 4 endpoints of the 2 broken edges (indexed 0..3 in cached topology)
-        broken_nodes = [t1, t2, t3, t4]
-        broken_edges = [(t1, t2), (t3, t4)]
+        broken_nodes = [t1, t2, t3_cand, t4]
+        broken_edges = [(t1, t2), (t3_cand, t4)]
 
         # Phase 1: Compute distance gain using cached topology
         # topology_2opt = [(0, 2), (1, 3)] maps to [(t1, t3), (t2, t4)]
         added_edges = [(broken_nodes[u], broken_nodes[v]) for u, v in topology_2opt]
-        base_cost = d[t1, t2] + d[t3, t4]
+        base_cost = d[t1, t2] + d[t3_cand, t4]
         added_cost = sum(d[u, v] for u, v in added_edges)
         delta_c = base_cost - added_cost
 
@@ -234,6 +233,7 @@ def _try_3opt_move(
     rng: Random,
     n_original: Optional[int] = None,
     load_state: Optional[LoadState] = None,
+    pos: Optional[np.ndarray] = None,
 ) -> Tuple[Optional[List[int]], float, float, bool]:
     """
     Search for an improving 3-opt move with exhaustive topology enumeration.
@@ -287,7 +287,7 @@ def _try_3opt_move(
     # Iterate over all valid third cut positions
     for k_pos in range(j + 2, nodes_count):
         t5 = curr_tour[k_pos]
-        t6 = curr_tour[k_pos + 1]
+        t6 = curr_tour[(k_pos + 1) % nodes_count]
 
         # The 6 endpoints of the 3 broken edges (indexed 0..5 in cached topologies)
         broken_nodes = [t1, t2, t3, t4, t5, t6]
@@ -348,8 +348,8 @@ def _try_3opt_move(
 
         # Phase 4: Construct tour array (O(N) complexity)
         # ONLY executed when lexicographic gate passes
-        pos = [i, i + 1, j, j + 1, k_pos, k_pos + 1 if k_pos + 1 < nodes_count else 0]
-        new_tour = build_tour_from_segments(curr_tour, pos, best_topology, k=3)
+        target_pos = [i, i + 1, j, j + 1, k_pos, k_pos + 1 if k_pos + 1 < nodes_count else 0]
+        new_tour = build_tour_from_segments(curr_tour, target_pos, best_topology, k=3)
 
         # Phase 5: Full verification
         p3, c3 = get_score(new_tour, d, waste, capacity, n_original)
@@ -376,6 +376,7 @@ def _try_4opt_move(
     rng: Random,
     n_original: Optional[int] = None,
     load_state: Optional[LoadState] = None,
+    pos: Optional[np.ndarray] = None,
 ) -> Tuple[Optional[List[int]], float, float, bool]:
     """
     Search for an improving 4-opt move with exhaustive topology enumeration.
@@ -424,7 +425,7 @@ def _try_4opt_move(
     # Iterate over all valid fourth cut positions
     for l in range(k + 2, nodes_count):
         t7 = curr_tour[l]
-        t8 = curr_tour[l + 1]
+        t8 = curr_tour[(l + 1) % nodes_count]
 
         # The 8 endpoints of the 4 broken edges (indexed 0..7 in cached topologies)
         broken_nodes = [t1, t2, t3, t4, t5, t6, t7, t8]
@@ -485,8 +486,8 @@ def _try_4opt_move(
 
         # Phase 4: Construct tour array (O(N) complexity)
         # ONLY executed when lexicographic gate passes
-        pos = [i, i + 1, j, j + 1, k, k + 1, l, l + 1 if l + 1 < nodes_count else 0]
-        new_tour = build_tour_from_segments(curr_tour, pos, best_topology, k=4)
+        pos_indices = [i, i + 1, j, j + 1, k, k + 1, l, l + 1 if l + 1 < nodes_count else 0]
+        new_tour = build_tour_from_segments(curr_tour, pos_indices, best_topology, k=4)
 
         # Phase 5: Full verification
         p4, c4 = get_score(new_tour, d, waste, capacity, n_original)
@@ -516,6 +517,7 @@ def _try_5opt_move(
     rng: Random,
     n_original: Optional[int] = None,
     load_state: Optional[LoadState] = None,
+    pos: Optional[np.ndarray] = None,
 ) -> Tuple[Optional[List[int]], float, float, bool]:
     """
     Search for an improving 5-opt move with exhaustive topology enumeration.
@@ -572,7 +574,7 @@ def _try_5opt_move(
     # Iterate over all valid fifth cut positions
     for m in range(l + 2, nodes_count):
         t9 = curr_tour[m]
-        t10 = curr_tour[m + 1]
+        t10 = curr_tour[(m + 1) % nodes_count]
 
         # The 10 endpoints of the 5 broken edges (indexed 0..9 in cached topologies)
         broken_nodes = [t1, t2, t3, t4, t5, t6, t7, t8, t9, t10]
@@ -633,12 +635,315 @@ def _try_5opt_move(
 
         # Phase 4: Construct tour array (O(N) complexity)
         # ONLY executed when lexicographic gate passes
-        pos = [i, i + 1, j, j + 1, k, k + 1, l, l + 1, m, m + 1 if m + 1 < nodes_count else 0]
-        new_tour = build_tour_from_segments(curr_tour, pos, best_topology, k=5)
+        pos_indices = [i, i + 1, j, j + 1, k, k + 1, l, l + 1, m, m + 1 if m + 1 < nodes_count else 0]
+        new_tour = build_tour_from_segments(curr_tour, pos_indices, best_topology, k=5)
 
         # Phase 5: Full verification
         p5, c5 = get_score(new_tour, d, waste, capacity, n_original)
         if is_better(p5, c5, curr_p, curr_c):
             return new_tour, p5, c5, True
 
+    return None, 0.0, 0.0, False
+
+
+def __or_opt_relocation(
+    seg_len,
+    t1,
+    t_first,
+    t_after,
+    t_last,
+    t_dest,
+    t_dest_after,
+    d,
+    load_state,
+    waste,
+    capacity,
+    curr_tour,
+    n_original,
+    i,
+    nodes_count,
+    curr_p,
+    curr_c,
+):
+    orientations = [True, False] if seg_len > 1 else [True]
+    for forward in orientations:
+        # Broken: (t1, t_first), (t_last, t_after), (t_dest, t_dest_after)
+        # Added (Forward): (t1, t_after), (t_dest, t_first), (t_last, t_dest_after)
+        # Added (Reverse): (t1, t_after), (t_dest, t_last), (t_first, t_dest_after)
+
+        broken_edges = [(t1, t_first), (t_last, t_after), (t_dest, t_dest_after)]
+        if forward:
+            added_edges = [(t1, t_after), (t_dest, t_first), (t_last, t_dest_after)]
+        else:
+            added_edges = [(t1, t_after), (t_dest, t_last), (t_first, t_dest_after)]
+
+        delta_c = (d[t1, t_first] + d[t_last, t_after] + d[t_dest, t_dest_after]) - (
+            d[t1, t_after] + d[t_dest, added_edges[1][1]] + d[added_edges[2][0], t_dest_after]
+        )
+
+        if delta_c <= 1e-6:
+            continue
+
+        delta_p = 0.0
+        if load_state is not None and waste is not None and capacity is not None:
+            delta_p = get_exact_penalty_delta(
+                curr_tour, broken_edges, added_edges, load_state, waste, capacity, n_original
+            )
+
+        if not _should_accept_kopt_move(delta_p, delta_c):
+            continue
+
+        # Construct new tour
+        # Segment nodes: [(i+1)%nodes_count ... (i+seg_len)%nodes_count]
+        seg = []
+        for idx_s in range(i + 1, i + seg_len + 1):
+            seg.append(curr_tour[idx_s % nodes_count])
+
+        if not forward:
+            seg.reverse()
+
+        # Build the tour by removing the segment and re-inserting it
+        # 1. Remove segment from original tour
+        tour_no_seg = []
+        # Segment indices to skip
+        skip_indices = set((idx_s % nodes_count) for idx_s in range(i + 1, i + seg_len + 1))
+        for idx_n in range(nodes_count):
+            if idx_n not in skip_indices:
+                tour_no_seg.append(curr_tour[idx_n])
+
+        # 2. Re-insert after t_dest (which is now in tour_no_seg)
+        try:
+            insert_pos = tour_no_seg.index(t_dest)
+            new_tour_open = tour_no_seg[: insert_pos + 1] + seg + tour_no_seg[insert_pos + 1 :]
+            new_tour = new_tour_open + [new_tour_open[0]]
+        except ValueError:
+            continue  # Should not happen
+
+        p_new, c_new = get_score(new_tour, d, waste, capacity, n_original)
+        if is_better(p_new, c_new, curr_p, curr_c):
+            return new_tour, p_new, c_new, True
+
+
+def _try_oropt_move(
+    curr_tour: List[int],
+    t1: int,
+    i: int,
+    candidates: Dict[int, List[int]],
+    distance_matrix: np.ndarray,
+    waste: Optional[np.ndarray],
+    capacity: Optional[float],
+    rng: Random,
+    n_original: Optional[int] = None,
+    load_state: Optional[LoadState] = None,
+    pos: Optional[np.ndarray] = None,
+) -> Tuple[Optional[List[int]], float, float, bool]:
+    """
+    Or-opt move: Relocate a segment of 1, 2, or 3 nodes.
+    Relocates the segment [tour[i+1]...tour[i+len]] to follow node t_dest.
+    """
+    nodes_count = len(curr_tour) - 1
+    d = distance_matrix
+    curr_p, curr_c = get_score(curr_tour, d, waste, capacity, n_original)
+
+    # Segment lengths for Or-opt (standard LKH-3 uses 1, 2, 3)
+    for seg_len in [3, 2, 1]:
+        if nodes_count < seg_len + 3:
+            continue
+
+        # Segment nodes: [t_first, ..., t_last]
+        # Current edges to break: (t1, t_first) and (t_last, t_after)
+        t_first = curr_tour[(i + 1) % nodes_count]
+        t_last = curr_tour[(i + seg_len) % nodes_count]
+        t_after = curr_tour[(i + seg_len + 1) % nodes_count]
+
+        # Try inserting this segment after each possible destination t_dest
+        # We use candidates of t_first and t_last to find promising t_dest
+        potential_dest_nodes = set()
+        for cand in candidates[t_first]:
+            potential_dest_nodes.add(cand)
+        for cand in candidates[t_last]:
+            potential_dest_nodes.add(cand)
+
+        for t_dest in potential_dest_nodes:
+            if t_dest in curr_tour[i + 1 : i + seg_len + 1]:
+                continue
+
+            # Find position of t_dest
+            if pos is not None:
+                if t_dest >= len(pos) or pos[t_dest] < 0:
+                    continue
+                dest_idx = int(pos[t_dest])
+            else:
+                try:
+                    dest_idx = curr_tour.index(t_dest)
+                except ValueError:
+                    continue
+
+            t_dest_after = curr_tour[(dest_idx + 1) % nodes_count]
+            if t_dest_after == t_first:
+                continue
+
+            # Or-opt relocation can happen in two orientations (if seg_len > 1)
+            # 1. Forward: ... t_dest, t_first ... t_last, t_dest_after ...
+            # 2. Reverse: ... t_dest, t_last ... t_first, t_dest_after ...
+            __or_opt_relocation(
+                seg_len,
+                t1,
+                t_first,
+                t_after,
+                t_last,
+                t_dest,
+                t_dest_after,
+                d,
+                load_state,
+                waste,
+                capacity,
+                curr_tour,
+                n_original,
+                i,
+                nodes_count,
+                curr_p,
+                curr_c,
+            )
+    return None, 0.0, 0.0, False
+
+
+def _dynamic_kopt_search(
+    curr_tour: List[int],
+    i: int,
+    t1: int,
+    t2: int,
+    candidates: Dict[int, List[int]],
+    distance_matrix: np.ndarray,
+    waste: Optional[np.ndarray],
+    capacity: Optional[float],
+    rng: Random,
+    n_original: Optional[int] = None,
+    load_state: Optional[LoadState] = None,
+    max_k: int = 5,
+    pos: Optional[np.ndarray] = None,
+) -> Tuple[Optional[List[int]], float, float, bool]:
+    """
+    Dynamic, recursive k-opt search following true sequential LKH-3 principles.
+
+    Refined Logic:
+    1. Positive-G Pruning: Prunes if G_partial - cost(added_edge) <= 0.
+    2. Sequential branching: t_{2k+2} is the unique non-backtracking neighbor of t_{2k+1}.
+    3. Efficiency: Uses the O(1) pos lookup array passed from the driver.
+    """
+    nodes_count = len(curr_tour) - 1
+    d = distance_matrix
+    curr_p, curr_c = get_score(curr_tour, d, waste, capacity, n_original)
+
+    # pos array is required for O(1) lookups
+    if pos is None:
+        pos = np.full(len(distance_matrix), -1, dtype=np.int32)
+        for idx, node in enumerate(curr_tour[:-1]):
+            pos[node] = idx
+
+    def backtrack(
+        k: int,
+        t_list: List[int],
+        gain_c: float,
+    ) -> Tuple[Optional[List[int]], float, float, bool]:
+        """
+        Recursive core of the sequential LK search.
+        k: current level (from 1 to max_k)
+        t_list: points [t1, t2, ..., t_{2k}]
+        gain_c: cumulative distance gain
+        """
+        if k > max_k:
+            return None, 0.0, 0.0, False
+
+        t_prev = t_list[-1]  # t_{2k}
+
+        # Select t_{2k+1} from candidate list of t_{2k}
+        for t_next in candidates[t_prev]:
+            if t_next in t_list:
+                continue
+
+            # Step 1: Add edge (t_{2k}, t_{2k+1})
+            added_c = d[t_prev, t_next]
+
+            # Step 2: Positive-G Criterion (Prune if extension cannot help)
+            # True LKH prunes when gain_c - added_c <= 0
+            G_after_add = gain_c - added_c
+            if G_after_add <= 0:
+                continue
+
+            # Step 3: Select t_{2k+2} - must keep the move sequential and non-backtracking
+            idx_next = int(pos[t_next])  # type: ignore[index]
+            pred = curr_tour[(idx_next - 1) % nodes_count]
+            succ = curr_tour[(idx_next + 1) % nodes_count]
+            t_neighbor = succ if pred == t_prev else pred
+
+            if t_neighbor in t_list:
+                continue
+
+            # Step 4: Break edge (t_{2k+1}, t_{2k+2})
+            broken_c = d[t_next, t_neighbor]
+            new_gain_c = G_after_add + broken_c
+
+            # Step 5: Try closure with (t_{2k+2}, t1)
+            final_added_c = d[t_neighbor, t1]
+            final_delta_c = new_gain_c - final_added_c
+
+            if final_delta_c > 1e-6:
+                # Validate closure and check penalty/score
+                t_all = t_list + [t_next, t_neighbor]
+                new_t, p_new, c_new, improved = _verify_and_construct(
+                    curr_tour, t_all, d, waste, capacity, n_original, curr_p, curr_c, pos
+                )
+                if improved:
+                    return new_t, p_new, c_new, True
+
+            # Step 6: Recurse to depth k+1
+            res_tour, res_p, res_c, res_imp = backtrack(k + 1, t_list + [t_next, t_neighbor], new_gain_c)
+            if res_imp:
+                return res_tour, res_p, res_c, True
+
+        return None, 0.0, 0.0, False
+
+    # Start recursion from k=1: existing broken edge (t1, t2)
+    return backtrack(1, [t1, t2], d[t1, t2])
+
+
+def _verify_and_construct(
+    curr_tour: List[int],
+    t_list: List[int],
+    d: np.ndarray,
+    waste: Optional[np.ndarray],
+    capacity: Optional[float],
+    n_original: Optional[int],
+    curr_p: float,
+    curr_c: float,
+    pos: Optional[np.ndarray] = None,
+) -> Tuple[Optional[List[int]], float, float, bool]:
+    """Helper to verify k-opt closure and build resulting tour."""
+    k = len(t_list) // 2
+    if k < 2:
+        return None, 0.0, 0.0, False
+
+    # Get positions of t_i in current tour
+    try:
+        if pos is None:
+            return None, 0.0, 0.0, False
+        _pos = pos
+        pos_list = [int(_pos[node]) for node in t_list]
+    except (KeyError, IndexError, TypeError):
+        return None, 0.0, 0.0, False
+
+    # Sequential k-opt added edges (in t_list indexing): (1,2), (3,4) ... (2k-1, 0)
+    added_edges_indices = []
+    for i in range(k):
+        added_edges_indices.append((2 * i + 1, (2 * i + 2) % (2 * k)))
+
+    try:
+        new_tour = build_tour_from_segments(curr_tour, pos_list, added_edges_indices, k=k)
+        p, c = get_score(new_tour, d, waste, capacity, n_original)
+        if is_better(p, c, curr_p, curr_c):
+            return new_tour, p, c, True
+    except (ValueError, IndexError):
+        # build_tour_from_segments may fail if t_list doesn't form a Hamiltonian cycle
+        pass
     return None, 0.0, 0.0, False
