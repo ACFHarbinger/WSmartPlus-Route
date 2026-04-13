@@ -26,7 +26,7 @@ class LKH3Params:
         max_pool_size: Size of the solution pool for tour merging.
         subgradient_iterations: Iterations for Lagrangian subgradient optimization.
         profit_aware_operators: Whether to use VRPP-specific operators.
-        lns_iterations: Iterations for Large Neighborhood Search (VRPP mode).
+        alns_iterations: Iterations for Adaptive Large Neighborhood Search (VRPP mode).
         plateau_limit: Iterations without improvement before triggering perturbation.
         deep_plateau_limit: Iterations for deeper search before restart.
         perturb_operator_weights: Probability distribution for perturbation operators.
@@ -45,12 +45,14 @@ class LKH3Params:
     max_pool_size: int = 5
     subgradient_iterations: int = 50
     profit_aware_operators: bool = False
-    lns_iterations: int = 100
+    alns_iterations: int = 100
     plateau_limit: int = 10
     deep_plateau_limit: int = 30
     perturb_operator_weights: List[float] = dataclasses.field(default_factory=lambda: [0.6, 0.4])
     seed: int = 42
     vrpp: bool = True
+    dynamic_topology_discovery: bool = False
+    native_prize_collecting: bool = False
 
     @classmethod
     def from_config(cls, config: Any) -> LKH3Params:
@@ -70,12 +72,14 @@ class LKH3Params:
             max_pool_size=getattr(config, "max_pool_size", 5),
             subgradient_iterations=getattr(config, "subgradient_iterations", 50),
             profit_aware_operators=getattr(config, "profit_aware_operators", False),
-            lns_iterations=getattr(config, "lns_iterations", 100),
+            alns_iterations=getattr(config, "alns_iterations", 100),
             plateau_limit=getattr(config, "plateau_limit", 10),
             deep_plateau_limit=getattr(config, "deep_plateau_limit", 30),
             perturb_operator_weights=getattr(config, "perturb_operator_weights", [0.6, 0.4]),
             seed=getattr(config, "seed", 42),
             vrpp=getattr(config, "vrpp", True),
+            dynamic_topology_discovery=getattr(config, "dynamic_topology_discovery", False),
+            native_prize_collecting=getattr(config, "native_prize_collecting", False),
         )
 
     def to_dict(self) -> Dict[str, Any]:

@@ -2,7 +2,7 @@
 Unit tests for LKH-3 Large Neighborhood Search matheuristic.
 
 Tests the Phase 2 implementation including:
-- LNS solver initialization
+- ALNS solver initialization
 - Destroy-repair operator dispatch
 - Profit-aware vs. standard mode
 - Elite pool management
@@ -12,8 +12,8 @@ Tests the Phase 2 implementation including:
 import numpy as np
 import pytest
 
-from logic.src.policies.lin_kernighan_helsgaun_three.large_neighborhood_search import (
-    LKH3_LNS,
+from logic.src.policies.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search import (
+    LKH3_ALNS,
 )
 
 
@@ -44,11 +44,11 @@ def small_instance():
     return dist, wastes, coords
 
 
-def test_lns_initialization(small_instance):
-    """Test LNS solver initialization."""
+def test_alns_initialization(small_instance):
+    """Test ALNS solver initialization."""
     dist, wastes, coords = small_instance
 
-    solver = LKH3_LNS(
+    solver = LKH3_ALNS(
         distance_matrix=dist,
         wastes=wastes,
         capacity=60,
@@ -68,11 +68,11 @@ def test_lns_initialization(small_instance):
     assert len(solver.elite_pool) == 0
 
 
-def test_lns_cvrp_solve(small_instance):
-    """Test LNS in CVRP mode (all nodes must be visited)."""
+def test_alns_cvrp_solve(small_instance):
+    """Test ALNS in CVRP mode (all nodes must be visited)."""
     dist, wastes, coords = small_instance
 
-    solver = LKH3_LNS(
+    solver = LKH3_ALNS(
         distance_matrix=dist,
         wastes=wastes,
         capacity=60,
@@ -104,11 +104,11 @@ def test_lns_cvrp_solve(small_instance):
         assert load <= 60 + 1e-6
 
 
-def test_lns_vrpp_solve(small_instance):
-    """Test LNS in VRPP mode (subset selection)."""
+def test_alns_vrpp_solve(small_instance):
+    """Test ALNS in VRPP mode (subset selection)."""
     dist, wastes, coords = small_instance
 
-    solver = LKH3_LNS(
+    solver = LKH3_ALNS(
         distance_matrix=dist,
         wastes=wastes,
         capacity=60,
@@ -146,7 +146,7 @@ def test_elite_pool_management(small_instance):
     """Test that elite pool is maintained correctly."""
     dist, wastes, coords = small_instance
 
-    solver = LKH3_LNS(
+    solver = LKH3_ALNS(
         distance_matrix=dist,
         wastes=wastes,
         capacity=60,
@@ -176,7 +176,7 @@ def test_historical_tracking(small_instance):
     """Test that historical scores are tracked correctly."""
     dist, wastes, coords = small_instance
 
-    solver = LKH3_LNS(
+    solver = LKH3_ALNS(
         distance_matrix=dist,
         wastes=wastes,
         capacity=60,
@@ -211,7 +211,7 @@ def test_routing_cost_calculation(small_instance):
     """Test routing cost computation."""
     dist, wastes, coords = small_instance
 
-    solver = LKH3_LNS(
+    solver = LKH3_ALNS(
         distance_matrix=dist,
         wastes=wastes,
         capacity=60,
@@ -232,7 +232,7 @@ def test_destroy_repair_cycle(small_instance):
     """Test that destroy-repair modifies the solution."""
     dist, wastes, coords = small_instance
 
-    solver = LKH3_LNS(
+    solver = LKH3_ALNS(
         distance_matrix=dist,
         wastes=wastes,
         capacity=60,
@@ -263,7 +263,7 @@ def test_perturbation_with_elite(small_instance):
     """Test perturbation operator with elite pool."""
     dist, wastes, coords = small_instance
 
-    solver = LKH3_LNS(
+    solver = LKH3_ALNS(
         distance_matrix=dist,
         wastes=wastes,
         capacity=60,
@@ -290,7 +290,7 @@ def test_operator_selection_dispatch(small_instance):
     dist, wastes, coords = small_instance
 
     # CVRP mode
-    solver_cvrp = LKH3_LNS(
+    solver_cvrp = LKH3_ALNS(
         distance_matrix=dist,
         wastes=wastes,
         capacity=60,
@@ -305,7 +305,7 @@ def test_operator_selection_dispatch(small_instance):
     assert callable(repair_op)
 
     # VRPP mode
-    solver_vrpp = LKH3_LNS(
+    solver_vrpp = LKH3_ALNS(
         distance_matrix=dist,
         wastes=wastes,
         capacity=60,
@@ -325,7 +325,7 @@ def test_mandatory_nodes_enforcement(small_instance):
     """Test that mandatory nodes are always included."""
     dist, wastes, coords = small_instance
 
-    solver = LKH3_LNS(
+    solver = LKH3_ALNS(
         distance_matrix=dist,
         wastes=wastes,
         capacity=60,
