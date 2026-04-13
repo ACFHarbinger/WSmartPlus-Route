@@ -42,12 +42,27 @@ from logic.src.models.policies.selection import (
 )
 
 from .base import MustGoSelectionFactory, MustGoSelectionRegistry, SelectionContext
+from .selection_combined import CombinedSelection
+from .selection_cvar import CVaRSelection
 from .selection_deadline import DeadlineDrivenSelection
+from .selection_dispatcher_portfolio import PortfolioDispatcher
+from .selection_dispatcher_thompson import ThompsonDispatcher
+from .selection_lagrangian import LagrangianSelection
+from .selection_last_minute import LastMinuteSelection
+from .selection_learned import LearnedSelection
 from .selection_multi_day_prob import MultiDayOverflowSelection
 from .selection_pareto import ParetoFrontSelection
 from .selection_profit_per_km import ProfitPerKmSelection
+from .selection_revenue import RevenueThresholdSelection
+from .selection_rollout import RolloutSelection
+from .selection_savings import SavingsSelection
+from .selection_set_cover import SetCoverSelection
 from .selection_spatial_synergy import SpatialSynergySelection
 from .selection_stochastic_regret import StochasticRegretSelection
+from .selection_submodular_greedy import SubmodularGreedySelection
+from .selection_supermodular_greedy import SupermodularGreedySelection
+from .selection_wasserstein import WassersteinRobustSelection
+from .selection_whittle import WhittleIndexSelection
 
 __all__ = [
     # Vectorized selectors for training
@@ -72,4 +87,16 @@ __all__ = [
     "ProfitPerKmSelection",
     "SpatialSynergySelection",
     "StochasticRegretSelection",
+    "LagrangianSelection",
+    "RolloutSelection",
+    "WhittleIndexSelection",
+    "CVaRSelection",
+    "SavingsSelection",
+    "SetCoverSelection",
+    "SubmodularGreedySelection",
+    "SupermodularGreedySelection",
+    "LearnedSelection",
+    "WassersteinRobustSelection",
+    "ThompsonDispatcher",
+    "PortfolioDispatcher",
 ]
