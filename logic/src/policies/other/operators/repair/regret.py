@@ -77,6 +77,19 @@ def regret_k_insertion(  # noqa: C901
     """
     Insert removed nodes using the regret-k heuristic.
 
+    Implements Algorithm 1 of Pisinger & Ropke (2007), *A general heuristic for
+    vehicle routing problems*, §3.2.2 (Regret-k insertion):
+
+    1. Compute for each unassigned request *i* its *k* cheapest insertion costs
+       across all current routes: ``c_i^1 \u2264 c_i^2 \u2264 ... \u2264 c_i^k``.
+    2. Compute regret: ``regret(i) = \u03a3_{h=2}^{k} (c_i^h - c_i^1)``.
+       If fewer than *k* routes can accept *i*, the missing differences are set
+       to ``max_observed_cost + large_constant`` so that hard-to-place requests
+       are strongly prioritised.
+    3. Insert the request with the **maximum** regret.
+    4. Tie-breaking (paper, §3.2.2): if two nodes share the same regret, insert
+       the one with the **minimum** best insertion cost ``c_i^1``.
+
     Efficiency: O(U * N * L_avg) incremental evaluation using a RoutingCache.
     Only re-evaluates the modified route after each insertion instead of recalculating
     all possible options (O(U^2 * N * L_avg)).
@@ -89,6 +102,7 @@ def regret_k_insertion(  # noqa: C901
         capacity: Vehicle capacity.
         k: Regret degree (2, 3, etc.).
         mandatory_nodes: Optional list of mandatory node indices.
+        expand_pool: If True, all unvisited nodes are candidates.
         noise: Random noise level for cost calculation.
 
     Returns:
@@ -206,9 +220,11 @@ def regret_k_insertion(  # noqa: C901
             else:
                 break
 
-        # Pick node with max regret
-        # Sort by: regret descending, then best insertion cost ascending (paper §3.2.2)
-        all_candidates.sort(key=lambda x: (x[0], -x[2][0]), reverse=True)
+        # Pick node with max regret.
+        # Tie-breaking (Pisinger & Ropke 2007, §3.2.2): if two nodes have equal
+        # regret, choose the one with the MINIMUM best insertion cost c_i^1.
+        # Sort key: primary = regret descending, secondary = best_cost ascending.
+        all_candidates.sort(key=lambda x: (-x[0], x[2][0]))
         _, best_node, (best_cost, r_idx, pos) = all_candidates[0]
 
         # Apply insertion

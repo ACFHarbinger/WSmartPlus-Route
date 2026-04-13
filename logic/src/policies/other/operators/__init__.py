@@ -13,8 +13,11 @@ organized by category:
   ejection, lambda, cyclic, relocate (2,0)/(2,1)).
 - Perturbation: Kick, perturb, double-bridge, genetic transformation, evolutionary.
 - Heuristics: Complex local search heuristics (initialization, LKH).
+- Intensification: Steepest-descent local search loops, Held-Karp DP route
+  re-optimisation, Fix-and-Optimize sub-MIP, and Set-Partitioning Polish.
 """
 
+# Intensification operators
 # Crossover operators
 from .crossover import (
     CROSSOVER_NAMES,
@@ -55,6 +58,22 @@ from .heuristics import (
     apply_lns,
     build_greedy_routes,
     build_nn_routes,
+)
+from .intensification import (
+    INTENSIFICATION_NAMES,
+    INTENSIFICATION_OPERATORS,
+    dp_route_reopt,
+    dp_route_reopt_profit,
+    fix_and_optimize,
+    fix_and_optimize_profit,
+    node_exchange_steepest,
+    node_exchange_steepest_profit,
+    or_opt_steepest,
+    or_opt_steepest_profit,
+    set_partitioning_polish,
+    set_partitioning_polish_profit,
+    two_opt_steepest,
+    two_opt_steepest_profit,
 )
 
 # Inter-route operators
@@ -150,6 +169,21 @@ from .unstringing_stringing import (
 )
 
 __all__ = [
+    # Intensification
+    "INTENSIFICATION_NAMES",
+    "INTENSIFICATION_OPERATORS",
+    "two_opt_steepest",
+    "two_opt_steepest_profit",
+    "or_opt_steepest",
+    "or_opt_steepest_profit",
+    "node_exchange_steepest",
+    "node_exchange_steepest_profit",
+    "dp_route_reopt",
+    "dp_route_reopt_profit",
+    "fix_and_optimize",
+    "fix_and_optimize_profit",
+    "set_partitioning_polish",
+    "set_partitioning_polish_profit",
     # Crossover
     "CROSSOVER_NAMES",
     "CROSSOVER_OPERATORS",

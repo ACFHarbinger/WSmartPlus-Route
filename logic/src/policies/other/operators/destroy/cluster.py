@@ -29,7 +29,23 @@ def cluster_removal(
     rng: Optional[Random] = None,
 ) -> Tuple[List[List[int]], List[int]]:
     """
-    Remove a cluster of nodes based on spatial proximity (Shaw Removal variant).
+    Remove a geographic cluster of nodes based on spatial proximity.
+
+    **Paper Reference**: Pisinger & Ropke (2007), §5.1.4 — *Cluster Removal*.
+
+    **Relationship to the Paper**: The cluster removal heuristic in the paper
+    runs Kruskal's MST algorithm on the relatedness graph (using edge weight
+    ``r_{ij}``) and terminates when two connected components remain.  One
+    component is chosen at random and its nodes are removed.  If fewer than
+    ``q`` nodes have been selected, the process is repeated on a different
+    route.
+
+    **This implementation** is a geographic-proximity simplification: it picks
+    a random seed node and removes the ``n_remove - 1`` spatially closest
+    nodes.  This is equivalent to the single-cluster phase of the paper but
+    omits the iterative multi-route extension and the explicit MST computation.
+    The simplification is appropriate for VRPP instances with a homogeneous
+    fleet, where inter-request distance is the dominant relatedness component.
 
     Args:
         routes (List[List[int]]): Current routes.
