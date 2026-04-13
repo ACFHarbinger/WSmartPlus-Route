@@ -152,8 +152,11 @@ def farthest_insertion(
         List[List[int]]: Updated routes after farthest insertion.
 
     Note:
-        - If a node cannot be feasibly inserted into any route (capacity violation),
-          a new route is created for mandatory nodes.
+        Implements Farthest Insertion (Rosenkrantz et al. 1977) adapted for VRP:
+        1. Find node *u* in *unassigned* farthest from any node already in a route.
+        2. Find cheapest insertion position for *u* across all current routes.
+        3. Insert *u* in the best position found, or open a new route if no
+           feasible insertion exists or the new route is cheaper.
     """
     mandatory_set = set(mandatory_nodes) if mandatory_nodes else set()
     loads = [sum(wastes.get(node, 0.0) for node in route) for route in routes]
@@ -173,18 +176,30 @@ def farthest_insertion(
         node_waste = wastes.get(farthest_node, 0.0)
         is_mandatory = farthest_node in mandatory_set
 
-        best_route_idx, best_pos, _ = _find_nearest_insertion(
+        best_route_idx, best_pos, best_cost = _find_nearest_insertion(
             farthest_node, routes, loads, dist_matrix, capacity, node_waste
         )
 
-        if best_route_idx != -1:
+        new_route_cost = dist_matrix[0, farthest_node] + dist_matrix[farthest_node, 0]
+
+        # Decision logic: Compare Existing vs New (Rosenkrantz et al. 1977 adaptation for VRP)
+        if best_route_idx != -1 and best_cost <= new_route_cost:
             routes[best_route_idx].insert(best_pos, farthest_node)
             loads[best_route_idx] += node_waste
-        elif is_mandatory:
+            unassigned.remove(farthest_node)
+        elif node_waste <= capacity:
+            # Open new route if no existing route has capacity or dedicated is cheaper
             routes.append([farthest_node])
             loads.append(node_waste)
-
-        unassigned.remove(farthest_node)
+            unassigned.remove(farthest_node)
+        elif is_mandatory:
+            # Fallback for mandatory nodes
+            routes.append([farthest_node])
+            loads.append(node_waste)
+            unassigned.remove(farthest_node)
+        else:
+            # Node is uninsertable and not mandatory
+            unassigned.remove(farthest_node)
 
     return routes
 

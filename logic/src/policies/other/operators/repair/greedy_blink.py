@@ -40,13 +40,25 @@ def greedy_insertion_with_blinks(
     Standard Greedy insertion with randomized skips ('blinks').
     Optimizes strictly for minimum distance/cost.
 
+    Implements the *Greedy with Blinks* repair operator from Christiaens &
+    Vanden Berghe (2020), *Slack Induction by String Removals for Vehicle
+    Routing Problems* (SISR), §3.2 (Insertion with blinks):
+
+    For each unassigned node, the sorted list of candidate positions is scanned
+    from best to worst.  Each position is **skipped** ("blinked") independently
+    with probability ``blink_rate``.  The first non-blinked position is selected.
+    If **all** positions are blinked, the algorithm reverts to the **globally
+    best** (lowest-cost) position to guarantee that every node is eventually
+    inserted.
+
     Args:
         routes: Partial routes.
         removed_nodes: Nodes to reinsert.
         dist_matrix: Distance matrix.
         wastes: Node demands.
         capacity: Vehicle capacity.
-        blink_rate: Probability of skipping the current best option.
+        blink_rate: Probability of skipping a candidate position (\u03b2 in the
+            paper).
         mandatory_nodes: List of nodes that must be inserted.
         rng: Random number generator.
         expand_pool: If True, reconstructs the unassigned pool from all unvisited nodes.
@@ -99,8 +111,11 @@ def greedy_insertion_with_blinks(
         # Sort options by Cost (Ascending - Lowest cost is best)
         options.sort(key=lambda x: x[0])
 
-        # True Option Blink Logic
-        best_selection = options[-1]  # Fallback to worst
+        # True Option Blink Logic (Christiaens & Vanden Berghe 2020, §3.2)
+        # Scan sorted options; accept the first non-blinked position.
+        # If ALL positions are blinked, fall back to the best option (options[0])
+        # so that the node is never left unassigned.
+        best_selection = options[0]  # guaranteed fallback = best option
         for opt in options:
             if rng.random() >= blink_rate:
                 best_selection = opt
@@ -135,6 +150,18 @@ def greedy_profit_insertion_with_blinks(
     Greedy profit-driven insertion with randomized skips ('blinks').
     Includes Speculative Seeding and Economic Pruning for VRPP.
 
+    Implements the *Greedy with Blinks* repair operator from Christiaens &
+    Vanden Berghe (2020) adapted for profit-maximisation (VRPP):
+    - Candidates are sorted descending by marginal profit.
+    - Each candidate is skipped with probability ``blink_rate``.
+    - If **all** candidates are blinked, the algorithm falls back to the
+      **best** (highest-profit) option, not the worst, to ensure the node
+      is always placed.
+    - A new route is opened (Speculative Seeding) when the node's standalone
+      profit passes the seed hurdle: ``profit ≥ -0.5 * round_trip_cost * C``.
+    - Economic Pruning (`prune_unprofitable_routes`) removes any seeded routes
+      that remain unprofitable at the end.
+
     Args:
         routes: List of routes.
         removed_nodes: List of unassigned node indices.
@@ -143,7 +170,7 @@ def greedy_profit_insertion_with_blinks(
         capacity: Vehicle capacity.
         R: Revenue multiplier (per waste unit).
         C: Cost multiplier (per distance unit).
-        blink_rate: Probability of skipping a valid insertion check.
+        blink_rate: Probability \u03b2 of skipping a candidate position.
         mandatory_nodes: List of mandatory node indices.
         rng: Random number generator.
         expand_pool: If True, reconstructs the unassigned pool from all unvisited nodes.
@@ -208,8 +235,10 @@ def greedy_profit_insertion_with_blinks(
         # Sort candidates by Profit (Descending - Highest profit is best)
         candidates.sort(key=lambda x: x[0], reverse=True)
 
-        # True Option Blink Logic
-        selected = candidates[-1]  # Fallback to worst valid option
+        # True Option Blink Logic (Christiaens & Vanden Berghe 2020, §3.2)
+        # Scan sorted candidates (best first); accept first non-blinked position.
+        # If ALL are blinked, fall back to candidates[0] (the best option).
+        selected = candidates[0]  # guaranteed fallback = best option
         for cand in candidates:
             if rng.random() >= blink_rate:
                 selected = cand

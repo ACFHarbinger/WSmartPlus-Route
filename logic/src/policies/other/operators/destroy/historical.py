@@ -35,6 +35,25 @@ def historical_removal(
     """
     Remove nodes with the worst historical cost scores.
 
+    **Paper Reference**: Pisinger & Ropke (2007), §5.1.6 — *Historical
+    Node-Pair Removal* (named *neighbor graph removal* in the earlier 2006
+    paper).
+
+    **Paper mechanics**: A weight ``f*(u,v)`` is associated with each directed
+    arc ``(u, v)``.  It records the best objective value seen so far in any
+    solution that used arc ``(u, v)`` — initially set to ``+inf``.  Whenever
+    a new solution is found, all arc weights are updated with
+    ``f*(u,v) = min(f*(u,v), f(solution))``.  A node's score is the sum of
+    weights of its incident arcs in the current solution.  **High score ⟹
+    incident arcs tend to appear in costly solutions ⟹ node is a good
+    removal candidate.**
+
+    **Expected ``history`` dict semantics**: map each node ``i`` to a
+    non-negative penalty representing how costly its incident arc has been
+    historically.  Higher values indicate that the node is more likely to be
+    misplaced.  The caller is responsible for maintaining and updating these
+    scores after each ALNS iteration using the paper's update rule above.
+
     Scores each node by its historical penalty (higher = worse).  A small
     random noise term breaks ties and introduces diversity.
 
@@ -42,7 +61,8 @@ def historical_removal(
         routes: Current solution (list of routes).
         n_remove: Number of nodes to remove.
         history: Dictionary mapping node IDs to their historical cost scores
-                 (moving averages across iterations).
+                 (higher = worse placement; maintained by the caller across
+                 ALNS iterations per §5.1.6 of Pisinger & Ropke 2007).
         rng: Random number generator.
         noise: Noise amplitude (fraction of max score) added for diversity.
 

@@ -12,6 +12,12 @@ The operator re-inserts a set of removed visits into a partial plan via a
 depth-first **Branch-and-Bound tree search** augmented with **Limited
 Discrepancy Search** (LDS, Harvey & Ginsberg 1995).
 
+LDS Logic:
+    The first choice made by the heuristic (cheapest insertion) at each level
+    costs 0 discrepancy. The k-th alternative costs (k-1) discrepancy units.
+    The search terminates once the max discrepancy budget is reached. This
+    effectively explores the "neighborhood" of the greedy heuristic path.
+
 Algorithm (Section 2.2):
     Variable Selection  — Farthest Insertion (Section 2.2.1):
         Choose the unrouted visit v whose cheapest feasible insertion cost
@@ -602,6 +608,12 @@ def bb_insertion(
     Returns:
         List[List[int]]: Updated routes after inserting the removed visits.
             Empty routes are stripped from the result.
+
+    Note:
+        Implements Reinsert (Shaw 1998 §2.2):
+        1. Uses Farthest-Insertion variable selection.
+        2. Uses Limited Discrepancy Search (LDS) for tree management.
+        3. Branches match the greedy path at zero discrepancy.
 
     Raises:
         ValueError: If *max_discrepancy* is negative.

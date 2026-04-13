@@ -11,6 +11,17 @@ It contains:
 2. `geni_profit_insertion`: A profit-aware VRPP variant utilizing speculative
    seeding and economic pruning.
 
+Algorithm:
+    The Generalized Insertion (GENI) procedure (Gendreau et al. 1992) selects
+    insertion positions based on two complex structural move types:
+    * **Type I**: A 3-edge exchange that deletes (v_i, v_{i+1}), (v_j, v_{j+1}),
+      (v_k, v_{k+1}) and reconnects segments to insert node *u*.
+    * **Type II**: A 4-edge exchange that deletes (v_i, v_{i+1}), (v_{l-1}, v_l),
+      (v_j, v_{j+1}), (v_{k-1}, v_k) and reverses intermediate paths to optimally
+      place *u*.
+    The p-neighborhood search facilitates efficient evaluation of high-quality
+    insertion positions.
+
 Attributes:
     None
 
@@ -269,6 +280,16 @@ def geni_insertion(
 
     Returns:
         List[List[int]]: Updated routes.
+
+    Note:
+        Implements Generalized Insertion (Gendreau et al. 1992):
+        1. For each node *u*, evaluate all Type I and Type II moves across
+           candidate routes.
+        2. Type I (GHL 1992 Fig 1): 3-edge swap inserting *u* between v_i and v_j.
+        3. Type II (GHL 1992 Fig 2): 4-edge swap inserting *u* between v_i and v_j
+           with path reversals.
+        4. Complexity is controlled via a p-neighborhood restricting candidates
+           in each route to the *p* nodes closest to *u*.
     """
     mandatory_set = set(mandatory_nodes) if mandatory_nodes else set()
     loads = [sum(wastes.get(n, 0) for n in r) for r in routes]
