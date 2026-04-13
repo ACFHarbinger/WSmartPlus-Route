@@ -101,7 +101,13 @@ class LinearSplit:
             node = giant_tour[i - 1]
             dem = wastes.get(node, 0)
 
-            load_curr += dem
+            # Fix 6: Demand counted toward route capacity (mandatory + non-skippable nodes only)
+            # This ensures the capacity feasibility window is only constrained by nodes
+            # actually included in a route.
+            is_skip_candidate = self.vrpp and node not in self.mandatory_nodes
+            cap_demand = 0.0 if is_skip_candidate else dem
+
+            load_curr += cap_demand
             rev_curr += dem * R_val
 
             if i > 1:
@@ -127,6 +133,7 @@ class LinearSplit:
         return res
 
     def _fallback_split(self, giant_tour: List[int]) -> Tuple[List[List[int]], float]:
+        """Greedy fallback partition for cases where Split DP fails."""
         routes = []
         current_route = []
         current_load = 0.0
@@ -145,8 +152,21 @@ class LinearSplit:
         if current_route:
             routes.append(current_route)
 
+        # Fix 7: Verify mandatory nodes are not silently dropped.
+        if self.mandatory_nodes:
+            visited = {node for route in routes for node in route}
+            missing = self.mandatory_nodes - visited
+            if missing:
+                import warnings
+
+                warnings.warn(
+                    f"_fallback_split: mandatory nodes {missing} could not be "
+                    f"included in any feasible route. Check capacity constraints.",
+                    stacklevel=2,
+                )
+
         rev = sum(self.wastes.get(n, 0) for r in routes for n in r) * self.R
-        cost = 0
+        cost = 0.0
         for r in routes:
             d = self.dist_matrix[0, r[0]]
             for k in range(len(r) - 1):
@@ -293,27 +313,28 @@ class LinearSplit:
         k_opt: int,
         total_profit: float,
     ) -> Tuple[List[List[int]], float]:
+        """Reconstruct routes from limited-vehicle DP table."""
+        # Fix 7: Follow the exact DP path for k_opt vehicles.
         routes = []
         curr = n
         k = k_opt
 
-        while curr > 0 and k > 0:
-            prev = P[k][curr]
+        while curr > 0:
+            # k exhausted — remaining positions must all be leading skips
+            # recorded in layer 1 (the last active layer)
+            prev = P[k][curr] if k > 0 else P[1][curr]
+
             if prev == -1:
                 return [], -float("inf")
             if prev == -2:
                 # Skip current node
                 curr -= 1
                 continue
+
             segment = nodes[prev:curr]
             routes.append(segment)
             curr = prev
             k -= 1
-
-        if curr != 0:
-            # Handle remaining skipped nodes if any
-            while curr > 0 and P[k][curr] == -2:
-                curr -= 1
 
         if curr != 0:
             return [], -float("inf")

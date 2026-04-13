@@ -26,6 +26,7 @@ class HGSParams:
         nb_granular: Granular search parameter for local search moves.
         target_feasible: Target proportion of feasible solutions (e.g., 0.2 = 20%).
         n_iterations_no_improvement: Max iterations without improvement before stopping.
+        restart_timer: Iterations without improvement before restarting (used only when time_limit > 0). Set to 0 to disable restarts.
         mutation_rate: Probability of applying local search (education) to offspring.
         repair_probability: Probability of repairing infeasible offspring (default 0.5).
         crossover_rate: Probability of applying crossover.

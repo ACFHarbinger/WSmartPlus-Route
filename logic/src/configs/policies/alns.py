@@ -37,5 +37,6 @@ class ALNSConfig:
     engine: str = "custom"
     vrpp: bool = True
     profit_aware_operators: bool = False
+    extended_operators: bool = False
     must_go: Optional[List[MustGoConfig]] = None
     post_processing: Optional[List[PostProcessingConfig]] = None

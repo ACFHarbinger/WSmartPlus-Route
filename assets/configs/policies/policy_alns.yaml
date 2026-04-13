@@ -69,6 +69,10 @@ alns:
       # Range: 0.1-0.5 (0.1 = small perturbations, 0.5 = radical changes)
       # Example: 0.3 on 100-node instance → remove up to 30 nodes
 
+    - extended_operators: false
+      # If True, add string, cluster, and neighbor removal operators
+      # to the destroy pool in addition to random/worst/shaw
+
     # Destroy operators used (automatically selected):
     #   - Random Removal: Remove k random nodes
     #   - Worst Removal: Remove nodes with highest cost contribution

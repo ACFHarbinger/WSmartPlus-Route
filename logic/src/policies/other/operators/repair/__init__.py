@@ -2,13 +2,17 @@
 Repair Operators Package.
 
 This package contains operator implementations for repairing (re-inserting nodes into)
-partial solutions. Includes greedy, regret-based, savings-based, and deep heuristics.
+partial solutions. Includes greedy, regret-based, savings-based, deep, and
+branch-and-bound heuristics.
 
 Example:
     >>> from logic.src.policies.other.operators.repair import greedy_insertion
     >>> routes = greedy_insertion(routes, removed, dist_matrix, wastes, capacity)
+    >>> from logic.src.policies.other.operators.repair import bb_insertion
+    >>> routes = bb_insertion(routes, removed, dist_matrix, wastes, capacity)
 """
 
+from .branch_bound import bb_insertion, bb_profit_insertion
 from .deep import deep_insertion, deep_profit_insertion
 from .farthest import farthest_insertion, farthest_profit_insertion
 from .geni import geni_insertion, geni_profit_insertion
@@ -28,6 +32,8 @@ from .regret import (
 from .savings import savings_insertion, savings_profit_insertion
 
 __all__ = [
+    "bb_insertion",
+    "bb_profit_insertion",
     "greedy_insertion",
     "greedy_profit_insertion",
     "farthest_insertion",

@@ -85,7 +85,7 @@ def worst_removal(
 
         # Remove the selected node
         if n_idx < len(routes[r_idx]) and routes[r_idx][n_idx] == node:
-            routes[r_idx].pop(n_idx)
+            routes[r_idx] = [n for n in routes[r_idx] if n != node]
             removed.append(node)
 
     routes = [r for r in routes if r]
@@ -158,7 +158,7 @@ def worst_profit_removal(
 
         # Remove the selected node
         if n_idx < len(routes[r_idx]) and routes[r_idx][n_idx] == node:
-            routes[r_idx].pop(n_idx)
+            routes[r_idx] = [n for n in routes[r_idx] if n != node]
             removed.append(node)
 
     routes = [r for r in routes if r]

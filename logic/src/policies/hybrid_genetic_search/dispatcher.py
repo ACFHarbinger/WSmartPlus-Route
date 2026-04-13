@@ -36,10 +36,12 @@ def run_hgs(dist_matrix, wastes, capacity, R, C, values, mandatory_nodes=None, x
     if len(dist_matrix) == 2:
         d = wastes.get(1, 0)
         if d <= capacity:
-            # Calculate simple profit/cost
+            # Fix 5: Calculate simple profit = revenue - cost
             cost = dist_matrix[0][1] + dist_matrix[1][0]
-            profit = d * R
-            return [[1]], profit, C * cost
+            revenue = d * R
+            total_cost = C * cost
+            profit = revenue - total_cost
+            return [[1]], profit, total_cost
         else:
             return [], 0.0, 0.0
 

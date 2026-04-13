@@ -17,7 +17,7 @@ Example:
 """
 
 from random import Random
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 
 import numpy as np
 
@@ -40,37 +40,35 @@ def random_removal(
         Tuple[List[List[int]], List[int]]: A tuple containing the
         modified routes (with nodes removed) and a list of removed node IDs.
     """
-    removed = []
-
     # Flatten
-    all_nodes = []
-    for r_idx, r in enumerate(routes):
-        for n_idx, node in enumerate(r):
-            all_nodes.append((r_idx, n_idx, node))
+    all_nodes = [n for r in routes for n in r]
 
     if not all_nodes:
         return routes, []
 
     if n_remove >= len(all_nodes):
-        # Remove all nodes
-        removed = [n for _, _, n in all_nodes]
-        return [[] for _ in routes], removed
+        return [[] for _ in routes], all_nodes
 
     if rng is None:
         rng = Random(42)
 
-    targets = rng.sample(all_nodes, n_remove)
+    removed = rng.sample(all_nodes, n_remove)
+    removed_set: Set[int] = set(removed)
 
-    # Sort targets by r_idx, n_idx desc to pop safely
-    targets.sort(key=lambda x: (x[0], x[1]), reverse=True)
+    # Efficient route modification: filter out removed nodes in a single pass
+    final_removed = []
+    modified_routes = []
+    for r in routes:
+        new_route = []
+        for node in r:
+            if node in removed_set:
+                final_removed.append(node)
+            else:
+                new_route.append(node)
+        if new_route:
+            modified_routes.append(new_route)
 
-    for r_idx, n_idx, node in targets:
-        routes[r_idx].pop(n_idx)
-        removed.append(node)
-
-    # Clean empty routes
-    routes = [r for r in routes if r]
-    return routes, removed
+    return modified_routes, final_removed
 
 
 def random_profit_removal(
@@ -83,12 +81,11 @@ def random_profit_removal(
     bias_strength: float = 3.0,
     rng: Optional[Random] = None,
 ) -> Tuple[List[List[int]], List[int]]:
-    """
+    r"""
     Remove nodes with biased-random selection favoring low-profit nodes (VRPP).
 
-    Uses marginal profit-weighted sampling where nodes with lower profit contribution
-    have higher probability of removal. This is softer than deterministic worst-profit
-    removal, introducing diversity while still targeting unprofitable nodes.
+    Uses marginal profit-weighted sampling with NumPy vectorization ($O(N \log N)$).
+    Nodes with lower profit contribution have higher probability of removal.
 
     Args:
         routes: The current solution (list of routes).
@@ -98,79 +95,64 @@ def random_profit_removal(
         R: Revenue per unit waste.
         C: Cost per unit distance.
         bias_strength: Controls bias toward low-profit nodes (default 3.0).
-                       Use 0.0 for uniform random, >0 for profit-biased sampling.
         rng: Random number generator.
 
     Returns:
         Tuple[List[List[int]], List[int]]: Modified routes and removed node IDs.
     """
-    if rng is None:
-        rng = Random(42)
-
-    # Flatten and calculate marginal profits
+    # 1. Flatten and calculate marginal profits
     all_nodes = []
     node_profits = []
-    for r_idx, route in enumerate(routes):
+    for route in routes:
         for n_idx, node in enumerate(route):
-            # Marginal profit formula
             revenue = wastes.get(node, 0.0) * R
             prev = 0 if n_idx == 0 else route[n_idx - 1]
             nex = 0 if n_idx == len(route) - 1 else route[n_idx + 1]
             detour_cost = float(dist_matrix[prev, node] + dist_matrix[node, nex] - dist_matrix[prev, nex])
             profit = revenue - (detour_cost * C)
 
-            all_nodes.append((r_idx, n_idx, node, profit))
+            all_nodes.append(node)
             node_profits.append(profit)
 
     if not all_nodes:
         return routes, []
 
     if n_remove >= len(all_nodes):
-        removed = [n for _, _, n, _ in all_nodes]
-        return [[] for _ in routes], removed
+        return [[] for _ in routes], all_nodes
 
-    # Profit-biased sampling
-    min_p, max_p = min(node_profits), max(node_profits)
+    # 2. Vectorized profit-biased sampling
+    node_profits_arr = np.array(node_profits)
+    min_p, max_p = node_profits_arr.min(), node_profits_arr.max()
     p_range = max_p - min_p if max_p != min_p else 1.0
 
     # Weights: lower profit -> higher weight
-    weights = []
-    for _, _, _, p in all_nodes:
-        norm_low_profit = (max_p - p) / p_range
-        weight = (norm_low_profit + 0.1) ** bias_strength
-        weights.append(weight)
+    norm_low_profit = (max_p - node_profits_arr) / p_range
+    weights = (norm_low_profit + 0.1) ** bias_strength
+    total_w = weights.sum()
 
-    # Weighted sampling without replacement
-    targets = []
-    available_indices = list(range(len(all_nodes)))
-    available_weights = weights[:]
+    # np.random.choice defaults to uniform if p is None
+    probs = None if total_w == 0 else weights / total_w
 
-    for _ in range(n_remove):
-        if not available_indices:
-            break
-        total_w = sum(available_weights)
-        if total_w == 0:
-            idx = rng.choice(range(len(available_indices)))
-        else:
-            probs = [w / total_w for w in available_weights]
-            cumsum, rand_val = 0.0, rng.random()
-            idx = 0
-            for i, p in enumerate(probs):
-                cumsum += p
-                if rand_val <= cumsum:
-                    idx = i
-                    break
+    # Use a high-quality entropy seed derived from the input rng to maintain reproducibility
+    # np.random.default_rng expects an int or sequence of ints, not a bound method
+    entropy_seed = rng.randint(0, 2**31 - 1) if rng else 42
+    np_rng = np.random.default_rng(entropy_seed)
 
-        sel_idx = available_indices.pop(idx)
-        available_weights.pop(idx)
-        targets.append(all_nodes[sel_idx])
+    selected_indices = np_rng.choice(len(all_nodes), size=n_remove, replace=False, p=probs)
+    removed = [all_nodes[i] for i in selected_indices]
+    removed_set: Set[int] = set(removed)
 
-    # Sort and remove
-    targets.sort(key=lambda x: (x[0], x[1]), reverse=True)
-    removed = []
-    for r_idx, n_idx, node, _ in targets:
-        routes[r_idx].pop(n_idx)
-        removed.append(node)
+    # 3. Efficient route modification
+    final_removed = []
+    modified_routes = []
+    for r in routes:
+        new_route = []
+        for node in r:
+            if node in removed_set:
+                final_removed.append(node)
+            else:
+                new_route.append(node)
+        if new_route:
+            modified_routes.append(new_route)
 
-    routes = [r for r in routes if r]
-    return routes, removed
+    return modified_routes, final_removed
