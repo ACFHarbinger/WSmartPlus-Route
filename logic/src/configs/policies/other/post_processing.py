@@ -6,7 +6,7 @@ mirroring the reinforcement learning configuration pattern.
 """
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 
 @dataclass
@@ -92,6 +92,108 @@ class RandomLocalSearchPostConfig:
 
 
 @dataclass
+class OrOptPostConfig:
+    """Configuration for Or-opt refinement."""
+
+    chain_len: int = 2
+    iterations: int = 500
+    seed: int = 42
+
+
+@dataclass
+class CrossExchangePostConfig:
+    """Configuration for Cross-exchange refinement."""
+
+    cross_exchange_max_segment_len: int = 3
+    iterations: int = 500
+    seed: int = 42
+
+
+@dataclass
+class GuidedLocalSearchPostConfig:
+    """Configuration for Guided Local Search."""
+
+    gls_iterations: int = 20
+    gls_inner_iterations: int = 50
+    gls_lambda_factor: float = 0.1
+    gls_base_operator: str = "or_opt"
+    seed: int = 42
+
+
+@dataclass
+class SimulatedAnnealingPostConfig:
+    """Configuration for Simulated Annealing."""
+
+    sa_iterations: int = 2000
+    sa_t_init: float = 1.0
+    sa_t_min: float = 0.01
+    sa_cooling: float = 0.995
+    params: Dict[str, float] = field(
+        default_factory=lambda: {
+            "two_opt": 0.2,
+            "two_opt_star": 0.15,
+            "swap": 0.15,
+            "swap_star": 0.15,
+            "relocate": 0.15,
+            "three_opt": 0.1,
+            "or_opt": 0.05,
+            "cross_exchange": 0.05,
+        }
+    )
+    seed: int = 42
+
+
+@dataclass
+class InsertionPostConfig:
+    """Configuration for insertion-based augmentation strategies."""
+
+    cost_per_km: float = 0.0
+    revenue_kg: float = 0.0
+    regret_k: int = 2
+    detour_epsilon: float = 0.2
+    n_bins: Optional[int] = None
+    seed: int = 42
+
+
+@dataclass
+class RuinRecreatePostConfig:
+    """Configuration for Ruin and Recreate (LNS)."""
+
+    lns_iterations: int = 100
+    ruin_fraction: float = 0.2
+    lns_acceptance: str = "best"  # "best" or "sa"
+    lns_sa_temperature: float = 1.0
+    repair_k: int = 2
+    cost_per_km: float = 0.0
+    revenue_kg: float = 0.0
+    seed: int = 42
+
+
+@dataclass
+class AdaptiveLNSPostConfig:
+    """Configuration for Adaptive LNS."""
+
+    alns_iterations: int = 200
+    ruin_fraction: float = 0.2
+    alns_bandit_warm_start_path: Optional[str] = None
+    alns_ruin_ops: List[str] = field(default_factory=lambda: ["random", "worst", "shaw", "cluster"])
+    alns_repair_ops: List[str] = field(default_factory=lambda: ["greedy", "regret"])
+    repair_k: int = 2
+    cost_per_km: float = 0.0
+    revenue_kg: float = 0.0
+    seed: int = 42
+
+
+@dataclass
+class TwoPhasePostConfig:
+    """Configuration for Two-phase composition."""
+
+    phase_one: str = "cheapest_insertion"
+    phase_two: str = "lkh"
+    seed: int = 42
+
+
+@dataclass
 class PostProcessingConfig:
     """Unified configuration for route refinement and post-processing strategies.
 
@@ -99,12 +201,23 @@ class PostProcessingConfig:
 
     Attributes:
         methods: List of post-processing methods to apply in sequence.
-            Supported: 'fast_tsp', 'lkh', 'classical_local_search', 'random_local_search', 'path'.
+            Supported: 'fast_tsp', 'lkh', 'classical_local_search', 'random_local_search', 'path',
+                       'or_opt', 'cross_exchange', 'guided_local_search', 'simulated_annealing',
+                       'cheapest_insertion', 'regret_k_insertion', 'profitable_detour',
+                       'ruin_recreate', 'adaptive_lns', 'two_phase'.
         fast_tsp: Configuration for Fast TSP solver.
         lkh: Configuration for Lin-Kernighan-Helsgaun solver.
         local_search: Configuration for classical local search.
         random_local_search: Configuration for random local search.
         path: Configuration for path-based refinement.
+        or_opt: Configuration for Or-opt strategy.
+        cross_exchange: Configuration for Cross-exchange strategy.
+        guided_local_search: Configuration for GLS strategy.
+        simulated_annealing: Configuration for SA strategy.
+        insertion: Shared configuration for insertion/augmentation strategies.
+        ruin_recreate: Configuration for LNS.
+        adaptive_lns: Configuration for ALNS.
+        two_phase: Configuration for Two-phase composition.
         time_limit: Soft global time limit for post-processing operations.
         params: Additional strategy-specific parameters as a dictionary.
     """
@@ -117,6 +230,16 @@ class PostProcessingConfig:
     local_search: LocalSearchPostConfig = field(default_factory=LocalSearchPostConfig)
     random_local_search: RandomLocalSearchPostConfig = field(default_factory=RandomLocalSearchPostConfig)
     path: PathPostConfig = field(default_factory=PathPostConfig)
+
+    # New sub-configs
+    or_opt: OrOptPostConfig = field(default_factory=OrOptPostConfig)
+    cross_exchange: CrossExchangePostConfig = field(default_factory=CrossExchangePostConfig)
+    guided_local_search: GuidedLocalSearchPostConfig = field(default_factory=GuidedLocalSearchPostConfig)
+    simulated_annealing: SimulatedAnnealingPostConfig = field(default_factory=SimulatedAnnealingPostConfig)
+    insertion: InsertionPostConfig = field(default_factory=InsertionPostConfig)
+    ruin_recreate: RuinRecreatePostConfig = field(default_factory=RuinRecreatePostConfig)
+    adaptive_lns: AdaptiveLNSPostConfig = field(default_factory=AdaptiveLNSPostConfig)
+    two_phase: TwoPhasePostConfig = field(default_factory=TwoPhasePostConfig)
 
     # Additional parameters
     params: Dict[str, Any] = field(default_factory=dict)

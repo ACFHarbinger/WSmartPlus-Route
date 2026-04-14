@@ -52,6 +52,42 @@ class TestClassicalLocalSearchPostProcessor:
         assert refined_tour[0] == 0
         assert refined_tour[-1] == 0
 
+    def test_multi_route_refinement(self):
+        # 5 customer nodes + depot 0
+        dist_matrix = np.zeros((6, 6))
+        for i in range(6):
+            for j in range(6):
+                dist_matrix[i, j] = abs(i - j)
+
+        # Inefficient multi-route tour: [0, 2, 1, 0, 4, 3, 5, 0]
+        # Route 1: 0-2-1-0 (length 2+1+1=4). Optimal: 0-1-2-0 (length 1+1+2=4) wait.
+        # Actually with distance = |i-j|:
+        # 0-2-1-0: d(0,2)=2, d(2,1)=1, d(1,0)=1. Total=4.
+        # 0-4-3-5-0: d(0,4)=4, d(4,3)=1, d(3,5)=2, d(5,0)=5. Total=12.
+        # Optimized 0-3-4-5-0: d(0,3)=3, d(3,4)=1, d(4,5)=1, d(5,0)=5. Total=10.
+
+        tour = [0, 2, 1, 0, 4, 3, 5, 0]
+        processor = ClassicalLocalSearchPostProcessor()
+        refined_tour = processor.process(tour, distance_matrix=dist_matrix, operator_name="2opt")
+
+        assert refined_tour[0] == 0
+        assert refined_tour[-1] == 0
+        assert 0 in refined_tour[1:-1] # Ensure it remains multi-route
+
+class TestRandomLocalSearchPostProcessor:
+    def test_random_ls_refinement(self, sample_route_data):
+        dist_matrix, tour = sample_route_data
+        processor = RandomLocalSearchPostProcessor()
+        refined_tour = processor.process(
+            tour,
+            distance_matrix=dist_matrix,
+            iterations=10,
+            op_probs={"two_opt": 1.0}
+        )
+        assert len(refined_tour) == len(tour)
+        assert refined_tour[0] == 0
+        assert refined_tour[-1] == 0
+
 class TestPathPostProcessor:
     def test_path_refinement_fills_gap(self):
         # Scenario: Tour 0 -> 1 -> 3 -> 0
