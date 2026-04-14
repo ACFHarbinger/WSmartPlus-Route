@@ -1,5 +1,5 @@
 """
-HGS Local Search operators package.
+Local Search operators package.
 
 This package provides a comprehensive suite of local search operators for VRP,
 organized by category:

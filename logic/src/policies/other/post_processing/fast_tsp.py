@@ -5,12 +5,12 @@ Fast TSP Refinement Post-Processor.
 from typing import Any, List
 
 import numpy as np
-import torch
 
 from logic.src.interfaces import IPostProcessor
 from logic.src.policies.travelling_salesman_problem.tsp import find_route
 
 from .base import PostProcessorRegistry
+from .common.helpers import assemble_tour, split_tour, to_numpy
 
 
 @PostProcessorRegistry.register("fast_tsp")
@@ -31,43 +31,28 @@ class FastTSPPostProcessor(IPostProcessor):
         Returns:
             List[int]: The optimized tour with reduced total distance.
         """
-        distance_matrix = kwargs.get("distance_matrix")
-        if distance_matrix is None:
+        distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
+        dm = to_numpy(distance_matrix)
+
+        routes = split_tour(tour)
+        if not routes:
             return tour
 
-        if isinstance(distance_matrix, torch.Tensor):
-            distance_matrix = distance_matrix.cpu().numpy()
-
-        # Split tour into sub-tours (trips)
-        trips = []
-        current_trip: List[int] = []
-        for node in tour:
-            if node == 0:
-                if current_trip:
-                    trips.append(current_trip)
-                    current_trip = []
-            else:
-                current_trip.append(node)
-
-        if not trips:
-            return tour
-
-        refined_tour = [0]
-        for trip in trips:
+        refined_routes = []
+        for trip in routes:
             if len(trip) > 1:
                 # Re-optimize with fast_tsp
                 time_limit = kwargs.get("time_limit", self.config.get("time_limit", 2.0))
                 seed = kwargs.get("seed", self.config.get("seed", 42))
                 refined_trip = find_route(
-                    distance_matrix,
+                    dm,
                     np.array(trip),
                     time_limit=time_limit,
                     seed=seed,
                 )
                 # strip depot 0s from the constructed route to avoid doubles
-                refined_tour.extend([n for n in refined_trip if n != 0])
+                refined_routes.append([n for n in refined_trip if n != 0])
             else:
-                refined_tour.extend(trip)
-            refined_tour.append(0)
+                refined_routes.append(trip)
 
-        return refined_tour
+        return assemble_tour(refined_routes)

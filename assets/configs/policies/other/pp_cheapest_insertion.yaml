@@ -1,0 +1,8 @@
+# Post-Processing: Cheapest Insertion
+methods:
+  - "cheapest_insertion"
+
+insertion:
+  cost_per_km: 0.5
+  revenue_kg: 1.0
+  seed: 42

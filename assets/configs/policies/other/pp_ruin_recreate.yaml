@@ -1,0 +1,12 @@
+# Post-Processing: Ruin and Recreate (LNS)
+methods:
+  - "ruin_recreate"
+
+ruin_recreate:
+  lns_iterations: 100
+  ruin_fraction: 0.2
+  lns_acceptance: best
+  cost_per_km: 0.5
+  revenue_kg: 1.0
+  repair_k: 2
+  seed: 42

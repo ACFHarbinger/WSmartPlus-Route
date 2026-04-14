@@ -1,0 +1,19 @@
+# Post-Processing: Simulated Annealing (SA)
+methods:
+  - "simulated_annealing"
+
+simulated_annealing:
+  sa_iterations: 2000
+  sa_t_init: 1.0
+  sa_t_min: 0.01
+  sa_cooling: 0.995
+  params:
+    two_opt: 0.2
+    two_opt_star: 0.15
+    swap: 0.15
+    swap_star: 0.15
+    relocate: 0.15
+    three_opt: 0.1
+    or_opt: 0.05
+    cross_exchange: 0.05
+  seed: 42

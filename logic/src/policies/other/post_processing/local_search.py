@@ -4,36 +4,29 @@ Classical Local Search Post-Processor.
 
 from typing import Any, List
 
-import numpy as np
-import torch
-
 from logic.src.interfaces import IPostProcessor
-from logic.src.models.policies.local_search import (
-    vectorized_relocate,
-    vectorized_swap,
-    vectorized_swap_star,
-    vectorized_three_opt,
-    vectorized_two_opt,
-    vectorized_two_opt_star,
-)
+from logic.src.policies.other.operators.intensification import INTENSIFICATION_OPERATORS
 
 from .base import PostProcessorRegistry
+from .common.helpers import assemble_tour, split_tour, to_numpy
 
 
 @PostProcessorRegistry.register("classical_local_search")
 class ClassicalLocalSearchPostProcessor(IPostProcessor):
     """
-    Wrapper for vectorized local search operators from
-    logic/src/models/policies/classical/local_search.py
+    Wrapper for classical local search operators from the metaheuristic sub-package.
+    Drives a multi-route tour to a local minimum using steepest descent or
+    iterative improvement.
     """
 
     def process(self, tour: List[int], **kwargs: Any) -> List[int]:
         """
-        Apply vectorized local search to the tour.
+        Apply classical local search to the tour.
 
         Args:
-            tour: The initial tour to refine.
-            **kwargs: Context containing 'distance_matrix', 'iterations', 'ls_operator', 'seed'.
+            tour: The initial tour to refine (includes depot 0s).
+            **kwargs: Context containing 'distance_matrix', 'iterations', 'ls_operator',
+                     'wastes', 'capacity', 'R', 'C'.
 
         Returns:
             List[int]: The refined tour after applying the local search operator.
@@ -44,38 +37,79 @@ class ClassicalLocalSearchPostProcessor(IPostProcessor):
             return tour
 
         # Get parameters from config (via kwargs) with fallbacks
-        max_iter = kwargs.get("iterations", kwargs.get("n_iterations", self.config.get("iterations", 1000)))
+        max_iter = kwargs.get("iterations", kwargs.get("n_iterations", self.config.get("iterations", 500)))
         operator_name = kwargs.get("ls_operator", kwargs.get("operator_name", self.config.get("ls_operator", "2opt")))
         seed = kwargs.get("seed", self.config.get("seed", 42))
 
-        # Ensure Tensors
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        if not isinstance(distance_matrix, torch.Tensor):
-            dm_tensor = torch.from_numpy(np.array(distance_matrix)).float().to(device)
-        else:
-            dm_tensor = distance_matrix.to(device)
+        # Problem parameters
+        wastes = kwargs.get("wastes", self.config.get("wastes", {}))
+        capacity = kwargs.get("capacity", self.config.get("capacity", float("inf")))
+        R = kwargs.get("R", self.config.get("R", 1.0))
+        C = kwargs.get("C", self.config.get("C", 1.0))
 
-        if len(tour) < 4:
+        dist_matrix = to_numpy(distance_matrix)
+
+        if len(tour) < 3:
             return tour
 
-        tour_tensor = torch.tensor(tour, device=device).unsqueeze(0)  # (1, N)
+        routes = split_tour(tour)
+        if not routes:
+            return tour
 
-        ops = {
-            "2opt": vectorized_two_opt,
-            "swap": vectorized_swap,
-            "relocate": vectorized_relocate,
-            "2opt*": vectorized_two_opt_star,
-            "swap_star": vectorized_swap_star,
-            "3opt": vectorized_three_opt,
-            "two_opt": vectorized_two_opt,
-            "two_opt_star": vectorized_two_opt_star,
-            "three_opt": vectorized_three_opt,
+        # Case 1: Steepest-descent intensification operators
+        Mapping = {
+            "2opt": "2OPT_PROFIT",
+            "two_opt": "2OPT_PROFIT",
+            "swap": "NODE_SWAP_PROFIT",
+            "relocate": "OR_OPT_PROFIT",
+            "or_opt": "OR_OPT_PROFIT",
+            "dp_reopt": "DP_REOPT_PROFIT",
+            "fix_opt": "FIX_OPT_PROFIT",
+            "sp_polish": "SP_POLISH_PROFIT",
         }
 
-        op_fn = ops.get(operator_name, vectorized_two_opt)
-        generator = torch.Generator(device=device).manual_seed(seed)
-        try:
-            refined_tensor = op_fn(tour_tensor, dm_tensor, max_iterations=max_iter, generator=generator)
-            return refined_tensor.squeeze(0).cpu().tolist()
-        except Exception:
-            return tour
+        op_key = Mapping.get(operator_name.lower())
+        if op_key and op_key in INTENSIFICATION_OPERATORS:
+            op_fn = INTENSIFICATION_OPERATORS[op_key]
+            try:
+                refined_routes = op_fn(routes, dist_matrix, wastes, capacity, R=R, C=C, max_iter=max_iter)
+                return assemble_tour(refined_routes)
+            except Exception:
+                return tour
+
+        # Case 2: Multi-move or iterative operators via LocalSearchManager
+        from logic.src.policies.other.local_search.local_search_manager import LocalSearchManager
+
+        manager = LocalSearchManager(
+            dist_matrix=dist_matrix,
+            wastes=wastes,
+            capacity=capacity,
+            R=R,
+            C=C,
+            improvement_threshold=1e-6,
+            seed=seed,
+        )
+        manager.set_routes(routes)
+
+        # Mapping for Manager methods
+        Manager_Mapping = {
+            "3opt": manager.three_opt_intra,
+            "three_opt": manager.three_opt_intra,
+            "2opt*": manager.two_opt_star,
+            "two_opt_star": manager.two_opt_star,
+            "swap_star": manager.swap_star,
+            "4opt": manager.four_opt_intra,
+            "four_opt": manager.four_opt_intra,
+        }
+
+        op_meth = Manager_Mapping.get(operator_name.lower())
+        if op_meth:
+            try:
+                for _ in range(max_iter):
+                    if not op_meth():
+                        break
+                return assemble_tour(manager.get_routes())
+            except Exception:
+                return tour
+
+        return tour

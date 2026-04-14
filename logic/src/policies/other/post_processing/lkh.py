@@ -5,12 +5,12 @@ LKH (Lin-Kernighan-Helsgaun) Post-Processor.
 from typing import Any, List
 
 import numpy as np
-import torch
 
 from logic.src.interfaces import IPostProcessor
 from logic.src.policies.other.operators.heuristics.lin_kernighan_helsgaun import solve_lkh
 
 from .base import PostProcessorRegistry
+from .common.helpers import assemble_tour, split_tour, to_numpy
 
 
 @PostProcessorRegistry.register("lkh")
@@ -45,59 +45,53 @@ class LinKernighanHelsgaunPostProcessor(IPostProcessor):
         if distance_matrix is None:
             return tour
 
-        if isinstance(distance_matrix, torch.Tensor):
-            distance_matrix = distance_matrix.cpu().numpy()
-        elif not isinstance(distance_matrix, np.ndarray):
-            distance_matrix = np.array(distance_matrix)
+        dm = to_numpy(distance_matrix)
 
         if not tour:
             return tour
 
-        # 2. Ensure Closed Tour Format
-        if tour[0] != 0:
-            tour = [0] + tour
-        if tour[-1] != 0:
-            tour = tour + [0]
-
-        # Early exit for trivially small routes (3 or fewer unique nodes)
-        # These cannot be improved by k-opt moves
-        unique_count = len(set(tour))
-        if unique_count <= 3:
+        # 2. Split tour into trips (sub-problems)
+        routes = split_tour(tour)
+        if not routes:
             return tour
 
-        # 3. Node Mapping (Core Fix for VRPP Subset Routes)
-        # Extract unique nodes, ensuring depot (0) is first
-        unique_nodes_set = set(tour)
-        unique_nodes = [0] + sorted([n for n in unique_nodes_set if n != 0])
+        refined_routes = []
+        for trip in routes:
+            if len(trip) < 2:
+                refined_routes.append(trip)
+                continue
 
-        # Create bidirectional mappings between original IDs and dense indices
-        node_to_idx = {node: idx for idx, node in enumerate(unique_nodes)}
+            # 3. Node Mapping for this Trip
+            # Ensure depot (0) is included even if not explicitly in the trip list (split_tour excludes 0s)
+            unique_nodes = [0] + sorted(list(set(trip)))
+            node_to_idx = {node: idx for idx, node in enumerate(unique_nodes)}
 
-        # 4. Extract the Sub-Matrix
-        # Use NumPy advanced indexing to create a dense distance matrix
-        # containing only the rows and columns for visited nodes
-        sub_matrix = distance_matrix[np.ix_(unique_nodes, unique_nodes)]
+            # 4. Extract Sub-Matrix for this Trip
+            sub_matrix = dm[np.ix_(unique_nodes, unique_nodes)]
 
-        # 5. Translate the Initial Tour to Dense Indices
-        # Map each original node ID in the tour to its dense index
-        sub_tour = [node_to_idx[node] for node in tour]
+            # 5. Translate Trip to Dense Indices
+            # LKH expects a cycle. For a trip [n1, n2, ..., nk], we form [0, n1, n2, ..., nk, 0]
+            # but in dense indices it's [node_to_idx[0], node_to_idx[n1], ...]
+            sub_tour_indices = [node_to_idx[0]] + [node_to_idx[node] for node in trip] + [node_to_idx[0]]
 
-        # 6. Execute LKH on the Sub-Problem
-        # Default max_k=3 for VRPP subsets to prevent massive slowdowns
-        max_iterations = kwargs.get("max_iterations", self.config.get("max_iterations", 1000))
-        max_k = kwargs.get("max_k", self.config.get("max_k", 3))
-        seed = kwargs.get("seed", self.config.get("seed", 42))
+            # 6. Execute LKH
+            max_iterations = kwargs.get("max_iterations", self.config.get("max_iterations", 1000))
+            max_k = kwargs.get("max_k", self.config.get("max_k", 3))
+            seed = kwargs.get("seed", self.config.get("seed", 42))
 
-        optimized_sub_tour, _ = solve_lkh(
-            sub_matrix,
-            initial_tour=sub_tour,
-            max_iterations=max_iterations,
-            max_k=max_k,
-            seed=seed,
-        )
+            try:
+                optimized_indices, _ = solve_lkh(
+                    sub_matrix,
+                    initial_tour=sub_tour_indices,
+                    max_iterations=max_iterations,
+                    max_k=max_k,
+                    seed=seed,
+                )
+                # Map back and strip depot 0s (assemble_tour will re-add them)
+                refined_trip = [unique_nodes[idx] for idx in optimized_indices if unique_nodes[idx] != 0]
+                refined_routes.append(refined_trip)
+            except Exception:
+                # If LKH fails for one trip, keep original trip
+                refined_routes.append(trip)
 
-        # 7. Reverse Map the Optimized Tour
-        # Convert dense indices back to original VRPP node IDs
-        optimized_tour = [unique_nodes[idx] for idx in optimized_sub_tour]
-
-        return optimized_tour
+        return assemble_tour(refined_routes)
