@@ -13,10 +13,10 @@ import numpy as np
 from logic.src.configs.policies import BCConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.other.branching_solvers.vrpp_model import VRPPModel
 
 from .bc import BranchAndCutSolver
 from .params import BCParams
-from .vrpp_model import VRPPModel
 
 
 @PolicyRegistry.register("bc")
