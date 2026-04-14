@@ -14,6 +14,6 @@ aiming to maximize profit (waste collected) minus travel cost.
 
 from logic.src.policies.branch_and_cut.bc import BranchAndCutSolver
 from logic.src.policies.branch_and_cut.policy_bc import BranchAndCutPolicy
-from logic.src.policies.branch_and_cut.vrpp_model import VRPPModel
+from logic.src.policies.other.branching_solvers.vrpp_model import VRPPModel
 
 __all__ = ["VRPPModel", "BranchAndCutSolver", "BranchAndCutPolicy"]

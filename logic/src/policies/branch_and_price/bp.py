@@ -20,15 +20,17 @@ from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import numpy as np
 
-from .branching import (
+from logic.src.policies.other.branching_solvers import (
     AnyBranchingConstraint,
     BranchAndBoundTree,
     BranchNode,
+    RCSPPSolver,
+    Route,
+    VRPPMasterProblem,
 )
-from .master_problem import Route, VRPPMasterProblem
+
 from .params import BPParams
 from .pricing_subproblem import PricingSubproblem
-from .rcspp_dp import RCSPPSolver
 
 
 class BranchAndPriceSolver:
@@ -152,7 +154,7 @@ class BranchAndPriceSolver:
         # Precompute ng-neighborhoods once for reuse across all B&B nodes.
         self._ng_neighborhoods: Optional[Dict[int, Set[int]]] = None
         if self.params.use_exact_pricing:
-            from .rcspp_dp import RCSPPSolver as _R
+            from logic.src.policies.other.branching_solvers import RCSPPSolver as _R
 
             _tmp = _R(
                 n_nodes=self.n_nodes,
@@ -249,9 +251,9 @@ class BranchAndPriceSolver:
     def _solve_with_branching(self) -> Tuple[List[int], Optional[float], Dict[str, Any]]:
         """Solve using the configured branching strategy in a B&B tree."""
         self.tree = BranchAndBoundTree(
+            v_model=None,
             strategy=self.params.branching_strategy,
             search_strategy=self.params.tree_search_strategy,
-            v_model=None,
         )
 
         root_lp, root_values, root_routes = self._solve_node(self.tree.root)
@@ -405,7 +407,7 @@ class BranchAndPriceSolver:
             self.num_iterations += 1
 
             if last_basis is not None:
-                master.restore_basis(last_basis)
+                master.restore_basis(*last_basis)
 
             lp_obj, route_values = master.solve_lp_relaxation()
             last_basis = master.save_basis()
@@ -439,10 +441,10 @@ class BranchAndPriceSolver:
 
             # Task 3: Column Pool Management
             if (i + 1) % self.params.cleanup_frequency == 0:
-                master.remove_unpromising_columns(self.params.cleanup_threshold)
+                master.purge_useless_columns(self.params.cleanup_threshold)
 
         if last_basis is not None:
-            master.restore_basis(last_basis)
+            master.restore_basis(*last_basis)
         return master.solve_lp_relaxation()
 
     def _column_generation_with_constraints(
@@ -460,7 +462,7 @@ class BranchAndPriceSolver:
         for i in range(self.params.max_iterations):
             self.num_iterations += 1
             if last_basis is not None:
-                master.restore_basis(last_basis)
+                master.restore_basis(*last_basis)
 
             lp_obj, route_values = master.solve_lp_relaxation()
             last_basis = master.save_basis()
@@ -501,22 +503,22 @@ class BranchAndPriceSolver:
 
             # Task 4: Basis Restoration
             # Basis is reset to None if the variable count changes significantly,
-            # but Gurobi handles basis extension efficiently after add_route_as_column.
+            # but Gurobi handles basis extension efficiently after add_route.
             # We explicitly save AFTER solving and Restore BEFORE solving.
             if abs(lp_obj - lagrangian_bound) < self.params.early_termination_gap:
                 break
 
             for route, _ in feasible:
-                master.add_route_as_column(route)
+                master.add_route(route)
             self.num_columns_generated += len(feasible)
 
             # Task 3: Column Pool Management
             if (i + 1) % self.params.cleanup_frequency == 0:
-                master.remove_unpromising_columns(self.params.cleanup_threshold)
+                master.purge_useless_columns(self.params.cleanup_threshold)
 
         # Final solve for clean duals/solution
         if last_basis is not None:
-            master.restore_basis(last_basis)
+            master.restore_basis(*last_basis)
         lp_obj, route_values = master.solve_lp_relaxation()
         return lp_obj, route_values, best_lagrangian
 
@@ -536,7 +538,7 @@ class BranchAndPriceSolver:
         RCSPPSolver uses ``branching_constraints``; PricingSubproblem uses
         ``active_constraints``.
         """
-        from .rcspp_dp import RCSPPSolver
+        from logic.src.policies.other.branching_solvers import RCSPPSolver
 
         if isinstance(pricing, RCSPPSolver):
             routes = pricing.solve(

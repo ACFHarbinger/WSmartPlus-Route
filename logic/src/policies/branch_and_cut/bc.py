@@ -23,12 +23,12 @@ from logic.src.policies.branch_and_cut.heuristics import (
     construct_nn_solution,
     farthest_insertion,
 )
-from logic.src.policies.branch_and_cut.separation import (
+from logic.src.policies.other.branching_solvers import (
     CapacityCut,
     PCSubtourEliminationCut,
     SeparationEngine,
 )
-from logic.src.policies.branch_and_cut.vrpp_model import VRPPModel
+from logic.src.policies.other.branching_solvers.vrpp_model import VRPPModel
 
 from .params import BCParams
 
@@ -96,8 +96,8 @@ class BranchAndCutSolver:
             self.params.enable_fractional_capacity_cuts = False
 
         self.separator = SeparationEngine(
-            model,
-            enable_fractional_capacity_cuts=self.params.enable_fractional_capacity_cuts,
+            model=self.model,
+            enable_heuristic_rcc_separation=self.params.enable_heuristic_rcc_separation,
             enable_comb_cuts=getattr(self.params, "enable_comb_cuts", False),
         )
 

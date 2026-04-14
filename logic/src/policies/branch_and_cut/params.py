@@ -14,6 +14,8 @@ class BCParams:
     profit_aware_operators: bool = False
     vrpp: bool = False
     enable_fractional_capacity_cuts: bool = True
+    enable_heuristic_rcc_separation: bool = True
+    enable_exact_rcc_separation: bool = False
     use_comb_cuts: bool = False
 
     @classmethod
@@ -28,6 +30,8 @@ class BCParams:
             profit_aware_operators=config.get("profit_aware_operators", False),
             vrpp=config.get("vrpp", False),
             enable_fractional_capacity_cuts=config.get("enable_fractional_capacity_cuts", True),
+            enable_heuristic_rcc_separation=config.get("enable_heuristic_rcc_separation", True),
+            enable_exact_rcc_separation=config.get("enable_exact_rcc_separation", False),
             use_comb_cuts=config.get("use_comb_cuts", False),
         )
 
@@ -42,5 +46,7 @@ class BCParams:
             "profit_aware_operators": self.profit_aware_operators,
             "vrpp": self.vrpp,
             "enable_fractional_capacity_cuts": self.enable_fractional_capacity_cuts,
+            "enable_heuristic_rcc_separation": self.enable_heuristic_rcc_separation,
+            "enable_exact_rcc_separation": self.enable_exact_rcc_separation,
             "use_comb_cuts": self.use_comb_cuts,
         }
