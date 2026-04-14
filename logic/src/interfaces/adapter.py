@@ -8,7 +8,7 @@ Example:
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, List, Tuple
+from typing import Any, List, Tuple, Union
 
 
 class IPolicyAdapter(ABC):
@@ -19,7 +19,7 @@ class IPolicyAdapter(ABC):
     """
 
     @abstractmethod
-    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
+    def execute(self, **kwargs: Any) -> Tuple[Union[List[int], List[List[int]]], float, Any]:
         """
         Execute the policy to generate a route.
 
@@ -27,6 +27,6 @@ class IPolicyAdapter(ABC):
             **kwargs: Context dictionary containing simulation state.
 
         Returns:
-            Tuple[List[int], float, Any]: (tour, cost, additional_output)
+            Tuple[Union[List[int], List[List[int]]], float, Any]: (tour, cost, additional_output)
         """
         pass

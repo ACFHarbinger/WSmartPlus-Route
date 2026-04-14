@@ -2,9 +2,8 @@
 Policy Wrapper for Exact Stochastic Dynamic Programming.
 """
 
-from typing import Any, List
-
-import numpy as np
+from dataclasses import asdict
+from typing import Any, Dict, List, Tuple
 
 from logic.src.configs.policies.esdp import ExactSDPConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
@@ -28,30 +27,25 @@ class ExactSDPPolicy(BaseRoutingPolicy):
     def _get_config_key(self) -> str:
         return "exact_sdp"
 
-    def _run_solver(self, sub_dist: np.ndarray, must_go_sub: List[int], total_nodes: int, **kwargs) -> List[int]:
+    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Dict[str, Any]]:
         """
         Retrieves the exact SDP sequence.
         """
-        from dataclasses import asdict, is_dataclass
+        sub_dist_matrix = kwargs["sub_dist_matrix"]
+        sub_wastes = kwargs["sub_wastes"]
+        capacity = kwargs["capacity"]
+        mandatory_nodes = kwargs["mandatory_nodes"]
 
-        cfg = self.params
-        if is_dataclass(cfg):
-            cfg_dict = asdict(cfg)
-        elif isinstance(cfg, dict):
-            cfg_dict = cfg
-        else:
-            cfg_dict = {}
-
+        cfg_dict = asdict(self._config or kwargs.get("config", {}).get("esdp", {}))
         params = SDPParams.from_config(cfg_dict)
 
-        N = sub_dist.shape[0]
+        N = sub_dist_matrix.shape[0]
         if params.max_nodes + 1 < N:  # +1 for depot
             # Fallback for overly large graphs
-            return list(range(N)) + [0]
+            return ([0] + list(range(1, N)) + [0], 0.0, {"profit": 0.0})
 
-        capacity = kwargs.get("capacity", 1.0)
         day = kwargs.get("day", 1)
-        wastes = kwargs.get("sub_wastes", {})
+        wastes = sub_wastes
 
         state_lst = []
         for i in range(1, N):
@@ -65,7 +59,7 @@ class ExactSDPPolicy(BaseRoutingPolicy):
         cache_key = (N, params.num_days, params.discrete_levels, params.max_fill_rate)
         if cache_key not in _SDP_CACHE:
             print(f"INITIALIZING EXACT SDP ENGINE for N={N} (Offline Precomputation)...")
-            engine = ExactSDPEngine(params, sub_dist, capacity)
+            engine = ExactSDPEngine(params, sub_dist_matrix, capacity)
             engine.solve()
             _SDP_CACHE[cache_key] = engine
 
@@ -75,12 +69,12 @@ class ExactSDPPolicy(BaseRoutingPolicy):
 
         # Enforce must_go elements into subset just in case
         route_set = set(optimal_subset)
-        for mg in must_go_sub:
+        for mg in mandatory_nodes:
             route_set.add(mg)
 
         route = list(route_set)
         if not route:
-            return [0, 0]
+            return ([0, 0], 0.0, {"profit": 0.0})
 
         import itertools
 
@@ -90,14 +84,9 @@ class ExactSDPPolicy(BaseRoutingPolicy):
             tour = [0] + list(perm) + [0]
             cost = 0
             for i in range(len(tour) - 1):
-                cost += sub_dist[tour[i], tour[i + 1]]
+                cost += sub_dist_matrix[tour[i], tour[i + 1]]
             if cost < best_cost:
                 best_cost = cost
                 best_tour = tour
 
-        return best_tour
-
-
-def exact_sdp_solve(*args, **kwargs) -> Any:
-    policy = ExactSDPPolicy()
-    return policy(*args, **kwargs)
+        return best_tour, float(best_cost), {"profit": 0.0}

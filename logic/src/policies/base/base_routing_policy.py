@@ -9,7 +9,7 @@ This eliminates code duplication across policy_*.py files.
 
 from abc import abstractmethod
 from dataclasses import asdict, fields, is_dataclass
-from typing import Any, Dict, List, Optional, Tuple, Type
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
 
@@ -393,7 +393,7 @@ class BaseRoutingPolicy(PolicyVizMixin, IPolicyAdapter):
         if params:
             run.log_params(params)
 
-    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
+    def execute(self, **kwargs: Any) -> Tuple[Union[List[int], List[List[int]]], float, Any]:
         """
         Execute the routing policy using template method pattern.
 
