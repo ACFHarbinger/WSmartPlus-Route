@@ -44,6 +44,7 @@ from .ks import KernelSearchConfig
 from .lahc import LAHCConfig
 from .lb import LocalBranchingConfig
 from .lb_vns import LocalBranchingVNSConfig
+from .lbbd import LBBDConfig
 from .lca import LCAConfig
 from .lkh3 import LKH3Config
 from .ma import MAConfig
@@ -165,4 +166,5 @@ __all__ = [
     "ExactSDPConfig",
     "PHConfig",
     "ScenarioTreeExtensiveFormConfig",
+    "LBBDConfig",
 ]
