@@ -36,6 +36,8 @@ class PolicyFactory:
         import logic.src.policies.branch_and_cut.policy_bc as policy_bc  # noqa
         import logic.src.policies.branch_and_price.policy_bp as policy_bp  # noqa
         import logic.src.policies.branch_and_price_and_cut.policy_bpc as policy_bpc  # noqa
+        import logic.src.policies.integer_l_shaped_benders_decomposition.policy_ils_bd as policy_ils_bd  # noqa
+        import logic.src.policies.exact_stochastic_dynamic_programming.policy_esdp as policy_esdp  # noqa
         import logic.src.policies.smart_waste_collection_two_commodity_flow.policy_swc_tcf as policy_swc_tcf  # noqa
 
         # Meta-Heuristics
