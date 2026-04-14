@@ -19,6 +19,7 @@ from .ema import EMAConfig
 from .es_mcl import MuCommaLambdaESConfig
 from .es_mkl import MuKappaLambdaESConfig
 from .es_mpl import MuPlusLambdaESConfig
+from .esdp import ExactSDPConfig
 from .fa import FAConfig
 from .filo import FILOConfig
 from .ga import GAConfig
@@ -159,4 +160,5 @@ __all__ = [
     "GLSConfig",
     "ILSConfig",
     "RTSConfig",
+    "ExactSDPConfig",
 ]
