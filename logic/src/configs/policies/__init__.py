@@ -74,6 +74,7 @@ from .schc import SCHCConfig
 from .sisr import SISRConfig
 from .slc import SLCConfig
 from .ss_hh import SSHHConfig
+from .st_ef import ScenarioTreeExtensiveFormConfig
 from .swc_tcf import SWCTCFConfig
 from .ta import TAConfig
 from .ts import TSConfig
@@ -163,4 +164,5 @@ __all__ = [
     "RTSConfig",
     "ExactSDPConfig",
     "PHConfig",
+    "ScenarioTreeExtensiveFormConfig",
 ]

@@ -1,0 +1,21 @@
+# @package _global_
+
+# Extensive Form policy: Solves a multi-day scenario tree MILP
+# This policy builds a deterministic equivalent of the stochastic problem.
+# Performance is exponential in num_days and num_realizations.
+
+policies:
+  st_ef:
+    _target_: logic.src.policies.scenario_tree_extensive_form.policy_st_ef.ScenarioTreeExtensiveFormPolicy
+    config:
+      num_days: 2
+      num_realizations: 3
+      mean_increment: 0.2
+      time_limit: 60.0
+      mip_gap: 0.05
+      waste_weight: 1.0
+      cost_weight: 1.0
+      overflow_penalty: 20.0
+      discount_factor: 0.95
+      use_mtz: true
+      seed: 42
