@@ -40,6 +40,7 @@ class PolicyFactory:
         import logic.src.policies.exact_stochastic_dynamic_programming.policy_esdp as policy_esdp  # noqa
         import logic.src.policies.progressive_hedging.policy_ph as policy_ph  # noqa
         import logic.src.policies.scenario_tree_extensive_form.policy_st_ef as policy_st_ef  # noqa
+        import logic.src.policies.logic_based_benders_decomposition.policy_lbbd as policy_lbbd  # noqa
         import logic.src.policies.smart_waste_collection_two_commodity_flow.policy_swc_tcf as policy_swc_tcf  # noqa
 
         # Meta-Heuristics
