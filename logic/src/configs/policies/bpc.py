@@ -83,3 +83,6 @@ class BPCConfig:
     use_swc_tcf_initialization: bool = False
     use_swc_tcf_heuristic_pricing: bool = False
     use_swc_tcf_primal_heuristic: bool = False
+    multi_day_mode: bool = False
+    adp_model_path: str = ""
+    adp_model_type: str = "sklearn"

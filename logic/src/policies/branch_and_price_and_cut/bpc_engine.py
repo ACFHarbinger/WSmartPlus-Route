@@ -1057,6 +1057,7 @@ def run_bpc(  # noqa: C901
     env: Optional[Any] = None,
     node_coords: Optional[np.ndarray] = None,
     recorder: Optional[PolicyStateRecorder] = None,
+    **kwargs: Any,
 ) -> Tuple[List[List[int]], float]:
     """
     Solve Waste-Collecting CVRP using exact Branch-and-Price-and-Cut.
@@ -1186,6 +1187,7 @@ def run_bpc(  # noqa: C901
         m_set,
         use_ng_routes=params.use_ng_routes,
         ng_neighborhood_size=params.ng_neighborhood_size,
+        node_prizes=kwargs.get("node_prizes"),
     )
 
     if getattr(params, "use_swc_tcf_initialization", False):

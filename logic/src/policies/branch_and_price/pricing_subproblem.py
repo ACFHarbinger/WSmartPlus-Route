@@ -99,6 +99,7 @@ class PricingSubproblem:
         active_constraints: Optional[List[Any]] = None,
         capacity_cut_duals: Optional[Dict[Any, float]] = None,
         assert_not_exact: bool = False,
+        **kwargs: Any,
     ) -> List[Tuple[List[int], float]]:
         """
         Generate routes with positive reduced cost.
@@ -173,6 +174,7 @@ class PricingSubproblem:
                 rf_separate_pairs=rf_separate_pairs,
                 rf_together_pairs=rf_together_pairs,
                 capacity_cut_duals=capacity_cut_duals,
+                node_prizes=kwargs.get("node_prizes"),
             )
 
             if rc > 1e-4:
@@ -251,6 +253,7 @@ class PricingSubproblem:
         req_predecessors: Dict[int, int],
         rf_separate_pairs: Set[Tuple[int, int]],
         visited: Set[int],
+        node_prizes: Optional[Dict[int, float]] = None,
     ) -> Tuple[Optional[int], float]:
         """Evaluate candidate v and find best insertion position and profit."""
         # Rule 4: Ryan-Foster separation.
@@ -282,7 +285,10 @@ class PricingSubproblem:
                 continue
 
             detour = self.cost_matrix[prev, v] + self.cost_matrix[v, nxt] - self.cost_matrix[prev, nxt]
-            marginal = v_waste * self.R - detour * self.C - dual_values.get(v, 0.0)
+
+            revenue_component = node_prizes.get(v, 0.0) if node_prizes is not None else v_waste * self.R
+
+            marginal = revenue_component - detour * self.C - dual_values.get(v, 0.0)
 
             if marginal > best_marginal:
                 best_marginal = marginal
@@ -300,6 +306,7 @@ class PricingSubproblem:
         rf_separate_pairs: Set[Tuple[int, int]],
         rf_together_pairs: Set[Tuple[int, int]],
         capacity_cut_duals: Optional[Dict[Any, float]] = None,
+        node_prizes: Optional[Dict[int, float]] = None,
     ) -> Tuple[List[int], float]:
         """
         Build a single route greedily from *start_node*.
@@ -394,6 +401,7 @@ class PricingSubproblem:
                     req_predecessors,
                     rf_separate_pairs,
                     visited,
+                    node_prizes,
                 )
 
                 if pos is not None and marginal > best_profit:
@@ -417,7 +425,7 @@ class PricingSubproblem:
                 # Together constraint violated at route completion.
                 return route, -float("inf")
 
-        reduced_cost = self._compute_reduced_cost(route, dual_values, capacity_cut_duals)
+        reduced_cost = self._compute_reduced_cost(route, dual_values, capacity_cut_duals, node_prizes)
         return route, reduced_cost
 
     # ------------------------------------------------------------------
@@ -460,19 +468,20 @@ class PricingSubproblem:
         route: List[int],
         dual_values: Dict[int, float],
         capacity_cut_duals: Optional[Dict[Any, float]] = None,
+        node_prizes: Optional[Dict[int, float]] = None,
     ) -> float:
         """
         Compute the reduced cost of a completed route.
 
         reduced_cost = profit − Σ_i dual_i − dual_vehicle_limit − crossing_penalty
-        profit       = revenue − cost
-        revenue      = Σ_i waste_i × R
+        profit       = (if node_prizes given) Σ_i node_prizes_i else Σ_i waste_i × R
         cost         = total_distance × C
 
         Args:
             route: Ordered list of customer nodes (depot excluded).
             dual_values: Node-coverage duals and optional vehicle-limit dual.
             capacity_cut_duals: Optional mapping of node-sets to dual values for active capacity cuts.
+            node_prizes: Optional fixed prizes per node replacing standard volumetric revenue.
 
         Returns:
             Scalar reduced cost.
@@ -484,8 +493,12 @@ class PricingSubproblem:
             prev = node
         total_distance += self.cost_matrix[prev, self.depot]
 
-        total_waste = sum(self.wastes.get(n, 0.0) for n in route)
-        revenue = total_waste * self.R
+        if node_prizes is not None:
+            revenue = sum(node_prizes.get(n, 0.0) for n in route)
+        else:
+            total_waste = sum(self.wastes.get(n, 0.0) for n in route)
+            revenue = total_waste * self.R
+
         cost = total_distance * self.C
         profit = revenue - cost
 

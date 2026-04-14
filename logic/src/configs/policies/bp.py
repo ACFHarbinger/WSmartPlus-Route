@@ -43,6 +43,7 @@ class BPConfig:
     max_routes_per_iteration: int = 10
     optimality_gap: float = 1e-4
     use_ryan_foster_branching: bool = False
+    multi_day_mode: bool = False
     must_go: Optional[List[MustGoConfig]] = None
     post_processing: Optional[List[PostProcessingConfig]] = None
     seed: Optional[int] = None

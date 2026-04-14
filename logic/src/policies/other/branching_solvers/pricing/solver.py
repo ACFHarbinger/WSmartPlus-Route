@@ -37,6 +37,7 @@ class RCSPPSolver:
         use_ng_routes: bool = True,
         ng_neighborhood_size: int = 8,
         ng_neighborhoods: Optional[Dict[int, Set[int]]] = None,
+        node_prizes: Optional[Dict[int, float]] = None,
     ) -> None:
         self.n_nodes = n_nodes
         self.cost_matrix = cost_matrix
@@ -44,6 +45,7 @@ class RCSPPSolver:
         self.capacity = capacity
         self.R = revenue_per_kg
         self.C = cost_per_km
+        self.node_prizes = node_prizes
         self.mandatory_nodes: Set[int] = mandatory_nodes or set()
         self.depot = 0
         self.use_ng_routes = use_ng_routes
@@ -158,9 +160,10 @@ class RCSPPSolver:
 
         # Precompute reduced costs
         if not self.is_farkas:
-            self.node_reduced_costs = {
-                n: self.wastes.get(n, 0.0) * self.R - node_duals.get(n, 0.0) for n in range(1, self.n_nodes + 1)
-            }
+            self.node_reduced_costs = {}
+            for n in range(1, self.n_nodes + 1):
+                rev = self.node_prizes.get(n, 0.0) if self.node_prizes is not None else self.wastes.get(n, 0.0) * self.R
+                self.node_reduced_costs[n] = rev - node_duals.get(n, 0.0)
         else:
             self.node_reduced_costs = {n: node_duals.get(n, 0.0) for n in range(1, self.n_nodes + 1)}
 
@@ -191,7 +194,7 @@ class RCSPPSolver:
         routes.sort(key=lambda x: x.reduced_cost, reverse=True)
         return routes[:max_routes]
 
-    def _compute_completion_bounds(self):
+    def _compute_completion_bounds(self):  # noqa: C901
         self.bounds_to = np.zeros(self.n_nodes + 1)
         self.bounds_from = np.zeros(self.n_nodes + 1)
         rcc_duals = getattr(self, "_rcc_duals_for_bounds", {})
@@ -205,7 +208,12 @@ class RCSPPSolver:
                         continue
 
                     edge_cost = 0.0 if self.is_farkas else (self.cost_matrix[i, j] * self.C)
-                    node_rev = 0.0 if self.is_farkas else (self.wastes.get(j, 0.0) * self.R)
+                    if self.is_farkas:
+                        node_rev = 0.0
+                    elif self.node_prizes is not None:
+                        node_rev = self.node_prizes.get(j, 0.0)
+                    else:
+                        node_rev = self.wastes.get(j, 0.0) * self.R
                     node_dual = self.dual_values.get(j, 0.0)
 
                     rcc_penalty = sum(mu for S, mu in rcc_duals.items() if j in S and i not in S)
@@ -225,7 +233,12 @@ class RCSPPSolver:
                         continue
 
                     edge_cost = 0.0 if self.is_farkas else (self.cost_matrix[j, i] * self.C)
-                    node_rev = 0.0 if self.is_farkas else (self.wastes.get(i, 0.0) * self.R)
+                    if self.is_farkas:
+                        node_rev = 0.0
+                    elif self.node_prizes is not None:
+                        node_rev = self.node_prizes.get(i, 0.0)
+                    else:
+                        node_rev = self.wastes.get(i, 0.0) * self.R
                     node_dual = self.dual_values.get(i, 0.0)
 
                     rcc_penalty = sum(mu for S, mu in rcc_duals.items() if i in S and j not in S)
@@ -392,8 +405,13 @@ class RCSPPSolver:
             cost += self.cost_matrix[prev, n] * self.C
             prev = n
         cost += self.cost_matrix[prev, self.depot] * self.C
+        if self.node_prizes is not None:
+            revenue = sum(self.node_prizes.get(n, 0.0) for n in nodes)
+        else:
+            revenue = sum(self.wastes.get(n, 0.0) for n in nodes) * self.R
+
         waste = sum(self.wastes.get(n, 0.0) for n in nodes)
-        return Route(nodes, cost, waste * self.R, waste, set(nodes))
+        return Route(nodes, cost, revenue, waste, set(nodes))
 
     def _extend_label(
         self,
@@ -415,7 +433,12 @@ class RCSPPSolver:
 
         dist = self.cost_matrix[label.node, next_node]
         cost = (dist * self.C) if not self.is_farkas else 0.0
-        rev = (self.wastes.get(next_node, 0.0) * self.R) if not self.is_farkas else 0.0
+
+        if self.node_prizes is not None:
+            rev = self.node_prizes.get(next_node, 0.0) if not self.is_farkas else 0.0
+        else:
+            rev = (self.wastes.get(next_node, 0.0) * self.R) if not self.is_farkas else 0.0
+
         rc_delta = (
             (rev - cost - self.dual_values.get(next_node, 0.0))
             if not self.is_farkas
