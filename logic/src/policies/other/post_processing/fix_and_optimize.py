@@ -7,6 +7,7 @@ routes, solves them exactly via a Gurobi sub-MIP, and recombines with
 the unchanged fixed routes.
 """
 
+import logging
 from typing import Any, List
 
 from logic.src.interfaces.post_processing import IPostProcessor
@@ -23,6 +24,26 @@ from .common.helpers import (
     to_numpy,
 )
 
+logger = logging.getLogger(__name__)
+
+try:
+    import gurobipy as gp
+
+    _HAS_GUROBI = True
+    # Quick license ping
+    try:
+        _test = gp.Model()
+        _test.dispose()
+    except gp.GurobiError as e:
+        _HAS_GUROBI = False
+        logger.warning(
+            "fix_and_optimize: Gurobi license check failed (%s); post-processor will no-op.",
+            e,
+        )
+except ImportError:
+    _HAS_GUROBI = False
+    logger.warning("fix_and_optimize: gurobipy not installed; post-processor will no-op.")
+
 
 @PostProcessorRegistry.register("fix_and_optimize")
 class FixAndOptimizePostProcessor(IPostProcessor):
@@ -38,6 +59,9 @@ class FixAndOptimizePostProcessor(IPostProcessor):
     def process(self, tour: List[int], **kwargs: Any) -> List[int]:
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:
+            return tour
+
+        if not _HAS_GUROBI:
             return tour
 
         # Sub-MIP parameters
