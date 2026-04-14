@@ -17,6 +17,8 @@ class BCParams:
     enable_heuristic_rcc_separation: bool = True
     enable_exact_rcc_separation: bool = False
     use_comb_cuts: bool = False
+    use_saa: bool = False
+    num_scenarios: int = 10
 
     @classmethod
     def from_config(cls, config: Dict[str, Any]) -> "BCParams":
@@ -33,6 +35,8 @@ class BCParams:
             enable_heuristic_rcc_separation=config.get("enable_heuristic_rcc_separation", True),
             enable_exact_rcc_separation=config.get("enable_exact_rcc_separation", False),
             use_comb_cuts=config.get("use_comb_cuts", False),
+            use_saa=config.get("use_saa", False),
+            num_scenarios=config.get("num_scenarios", 10),
         )
 
     def to_dict(self) -> Dict[str, Any]:
@@ -49,4 +53,6 @@ class BCParams:
             "enable_heuristic_rcc_separation": self.enable_heuristic_rcc_separation,
             "enable_exact_rcc_separation": self.enable_exact_rcc_separation,
             "use_comb_cuts": self.use_comb_cuts,
+            "use_saa": self.use_saa,
+            "num_scenarios": self.num_scenarios,
         }

@@ -131,6 +131,21 @@ bc:
       # false = Set expand_pool=false (consider only unassigned)
 
     # ---------------------------------------------------------------------
+    # Stochastic Integer Routing Problem (SIRP) Settings
+    # ---------------------------------------------------------------------
+    - use_saa: false
+      # Enable Sample Average Approximation (SAA) for Branch-and-Cut
+      # true = Constructs a massive deterministic equivalent MILP.
+      #        Warning: LP relaxations for SAA compact formulations are notoriously
+      #                 weak and the solver may choke on scenario symmetry.
+      #                 Included primarily for structural scaffolding and
+      #                 Lot-Sizing separation stubs.
+      # false = Solve standard deterministic routing problem.
+
+    - num_scenarios: 10
+      # Number of scenarios |Xi| for SAA sampling when use_saa=true.
+
+    # ---------------------------------------------------------------------
     # Advanced Solver Parameters (Implicit)
     # ---------------------------------------------------------------------
     # Gurobi parameters configured in:
