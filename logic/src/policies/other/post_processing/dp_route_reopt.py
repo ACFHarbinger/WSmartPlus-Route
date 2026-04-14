@@ -44,6 +44,8 @@ class DPRouteReoptPostProcessor(IPostProcessor):
             if not routes:
                 return tour
 
+            # DP is exact per-route; additional passes yield no improvement.
+            # We deliberately do not expose max_iter as a kwarg.
             if revenue_kg > 0 or cost_per_km > 0:
                 refined = dp_route_reopt_profit(
                     routes=routes,

@@ -31,9 +31,9 @@ import gurobipy as gp
 import numpy as np
 from gurobipy import GRB, quicksum
 
+from logic.src.policies.other.branching_solvers.common.node import Node
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
-from .node import Node
 from .params import BBParams
 
 

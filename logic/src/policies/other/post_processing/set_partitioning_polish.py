@@ -7,6 +7,7 @@ self.config["route_pool"]. For automatic pool construction see
 SetPartitioningPostProcessor.
 """
 
+import logging
 from typing import Any, List
 
 from logic.src.interfaces.post_processing import IPostProcessor
@@ -23,6 +24,26 @@ from .common.helpers import (
     to_numpy,
 )
 
+logger = logging.getLogger(__name__)
+
+try:
+    import gurobipy as gp
+
+    _HAS_GUROBI = True
+    # Quick license ping
+    try:
+        _test = gp.Model()
+        _test.dispose()
+    except gp.GurobiError as e:
+        _HAS_GUROBI = False
+        logger.warning(
+            "set_partitioning_polish: Gurobi license check failed (%s); post-processor will no-op.",
+            e,
+        )
+except ImportError:
+    _HAS_GUROBI = False
+    logger.warning("set_partitioning_polish: gurobipy not installed; post-processor will no-op.")
+
 
 @PostProcessorRegistry.register("set_partitioning_polish")
 class SetPartitioningPolishPostProcessor(IPostProcessor):
@@ -35,6 +56,9 @@ class SetPartitioningPolishPostProcessor(IPostProcessor):
     def process(self, tour: List[int], **kwargs: Any) -> List[int]:
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:
+            return tour
+
+        if not _HAS_GUROBI:
             return tour
 
         route_pool = kwargs.get("route_pool", self.config.get("route_pool", []))
