@@ -59,6 +59,7 @@ class BranchAndCutSolver:
         self,
         model: VRPPModel,
         params: Optional[BCParams] = None,
+        scenarios: Optional[List[Dict[int, float]]] = None,
         **kwargs: Any,
     ):
         """
@@ -67,6 +68,7 @@ class BranchAndCutSolver:
         Args:
             model: VRPPModel instance defining the problem.
             params: Standardized BC configuration.
+            scenarios: Optional list of mappings from node index to stochastic demand for SAA scenarios.
             **kwargs: Legacy configuration parameters (for backward compatibility).
         """
         if not GUROBI_AVAILABLE:
@@ -87,6 +89,26 @@ class BranchAndCutSolver:
 
         self.model = model
         self.params = params
+
+        # SAA Scenario Handling Scaffold
+        self.scenarios = scenarios
+        if self.params.use_saa:
+            if self.params.verbose:
+                print("============================================================")
+                print("⚠ WARNING: Solving massive deterministic equivalent MILP   ")
+                print("  for SAA. LP relaxations for compact stochastic models ")
+                print("  are notoriously weak and solver may choke on symmetry.")
+                print("============================================================")
+            if not self.scenarios:
+                if self.params.verbose:
+                    print(f"Generating {self.params.num_scenarios} mock scenarios for SAA scaffold.")
+                self.scenarios = []
+                for _ in range(self.params.num_scenarios):
+                    scen = {}
+                    for idx in self.model.customers:
+                        base_demand = self.model.get_node_demand(idx)
+                        scen[idx] = max(0.0, np.random.normal(base_demand, max(0.01, 0.2 * base_demand)))
+                    self.scenarios.append(scen)
 
         # Separation engine with adaptive capacity cut toggling
         # Auto-disable for large instances (n > 75) to prevent O(V⁴) bottleneck
@@ -228,7 +250,30 @@ class BranchAndCutSolver:
 
         travel_cost = gp.quicksum(self.model.get_edge_cost(i, j) * self.x_vars[(i, j)] for i, j in self.model.edges)
 
-        self.gurobi_model.setObjective(travel_cost - waste_collected, GRB.MINIMIZE)
+        if self.params.use_saa and self.scenarios:
+            self.q_vars = {}
+            num_s = len(self.scenarios)
+            recourse_cost_expr = 0.0
+
+            # SIRP Scaffold: Recourse cost is penalized excess capacity per scenario.
+            # In a full recourse formulation, this might measure failure returns to depot.
+            for s_idx, scenario_demands in enumerate(self.scenarios):
+                q_s = self.gurobi_model.addVar(lb=0.0, vtype=GRB.CONTINUOUS, name=f"q_recourse_{s_idx}")
+                self.q_vars[s_idx] = q_s
+
+                # Link recourse to routing baseline decisions
+                scenario_load = gp.quicksum(scenario_demands[i] * self.y_vars[i] for i in self.model.customers)
+                self.gurobi_model.addConstr(
+                    q_s >= scenario_load - (self.model.num_vehicles * self.model.capacity), name=f"recourse_def_{s_idx}"
+                )
+
+                # High penalty for capacity violation in scenario (e.g. 10 units of cost)
+                recourse_cost_expr += 10.0 * self.model.C * q_s
+
+            expected_recourse = recourse_cost_expr / num_s
+            self.gurobi_model.setObjective(travel_cost - waste_collected + expected_recourse, GRB.MINIMIZE)
+        else:
+            self.gurobi_model.setObjective(travel_cost - waste_collected, GRB.MINIMIZE)
 
         # Constraints
         # 1. Degree constraints: sum of edges incident to i equals 2*y[i]
@@ -413,6 +458,12 @@ class BranchAndCutSolver:
                 self._cut_pool.append(cut)
                 self._cut_signatures.add(sig)
 
+        # SAA SIRP separation scaffolds for integer feasibility
+        if self.params.use_saa and self.scenarios:
+            self._separate_stochastic_capacity_cuts(model, x_vals, y_vals_array, is_integer=True)
+            self._separate_multi_star_inequalities(model, x_vals, y_vals_array, is_integer=True)
+            self._separate_lot_sizing_inequalities(model, x_vals, y_vals_array, is_integer=True)
+
         self.stats["lp_iterations"] += 1
 
     def _add_fractional_cuts(self, model):
@@ -490,6 +541,12 @@ class BranchAndCutSolver:
 
             self.stats["total_cuts"] += 1
 
+        # SAA SIRP separation scaffolds for fractional LP tightening
+        if self.params.use_saa and self.scenarios:
+            self._separate_stochastic_capacity_cuts(model, x_vals, y_vals_array, is_integer=False)
+            self._separate_multi_star_inequalities(model, x_vals, y_vals_array, is_integer=False)
+            self._separate_lot_sizing_inequalities(model, x_vals, y_vals_array, is_integer=False)
+
     def _add_pcsec_lazy(self, model, cut: PCSubtourEliminationCut):
         """
         Add a prize-collecting subtour elimination cut (PC-SEC) as a lazy constraint.
@@ -559,6 +616,172 @@ class BranchAndCutSolver:
 
         if edge_vars:
             model.cbCut(gp.quicksum(edge_vars) >= cut.rhs)
+
+    def _separate_stochastic_capacity_cuts(self, model, x_vals: np.ndarray, y_vals: np.ndarray, is_integer: bool):
+        """
+        Separate Stochastic Capacity Inequalities (SIRP).
+
+        Evaluates scenarios to find subsets where expected demand frequently exceeds capacity,
+        adding cuts that force additional vehicles or node shedding.
+        """
+        if not hasattr(self, "scenarios") or not self.scenarios:
+            return
+
+        # Find connected components of fractional support graph (edges > 0.1)
+        support_edges = [(u, v) for (u, v), val in zip(self.model.edges, x_vals) if val > 0.1]
+        try:
+            import networkx as nx
+
+            G = nx.Graph()
+            G.add_nodes_from(range(self.model.n_nodes))
+            G.add_edges_from(support_edges)
+            components = list(nx.connected_components(G))
+        except ImportError:
+            return  # Requires networkx
+
+        num_s = len(self.scenarios)
+        avg_demands = {i: sum(scen.get(i, 0.0) for scen in self.scenarios) / num_s for i in self.model.customers}
+        y_val_dict = {i: y_vals[idx] for idx, i in enumerate(self.model.customers)}
+        edges_list = list(self.model.edges)
+
+        for comp in components:
+            if self.model.depot in comp:
+                continue
+
+            S = list(comp)
+            if len(S) <= 1:
+                continue
+
+            expected_demand = sum(avg_demands.get(i, 0.0) * y_val_dict.get(i, 0.0) for i in S)
+
+            if expected_demand > 0:
+                req_capacity = (2.0 * expected_demand) / self.model.capacity
+
+                delta_S_edges = [(u, v) for u, v in self.model.edges if (u in S) != (v in S)]
+                delta_S_val = sum(x_vals[edges_list.index((u, v))] for u, v in delta_S_edges)
+
+                if delta_S_val < req_capacity - 1e-4:
+                    edge_vars = [
+                        self.x_vars[tuple(sorted(e))] for e in delta_S_edges if tuple(sorted(e)) in self.x_vars
+                    ]
+                    y_vars_S = [self.y_vars[i] for i in S if i in self.y_vars]
+                    demand_S = [avg_demands.get(i, 0.0) for i in S if i in self.y_vars]
+
+                    if edge_vars and y_vars_S:
+                        cut_expr = gp.quicksum(edge_vars) >= (2.0 / self.model.capacity) * gp.quicksum(
+                            d * y for d, y in zip(demand_S, y_vars_S)
+                        )
+                        if is_integer:
+                            model.cbLazy(cut_expr)
+                        else:
+                            model.cbCut(cut_expr)
+                        self.stats["total_cuts"] += 1
+
+    def _separate_multi_star_inequalities(self, model, x_vals: np.ndarray, y_vals: np.ndarray, is_integer: bool):
+        """
+        Separate Multi-star Inequalities (SIRP).
+
+        Strengthens the routing structure around subsets of correlated high-demand nodes
+        across multiple stochastic scenarios.
+        """
+        if not hasattr(self, "scenarios") or not self.scenarios:
+            return
+
+        num_s = len(self.scenarios)
+        avg_demands = {i: sum(scen.get(i, 0.0) for scen in self.scenarios) / num_s for i in self.model.customers}
+        y_val_dict = {i: y_vals[idx] for idx, i in enumerate(self.model.customers)}
+        edges_list = list(self.model.edges)
+
+        # Identify "nucleus" nodes: heavily visited with significant demand
+        for _idx, i in enumerate(self.model.customers):
+            if y_val_dict[i] > 0.5 and avg_demands.get(i, 0.0) > self.model.capacity / 3.0:
+                star_edges = []
+                star_nodes = {i}
+                for j in self.model.customers:
+                    if i != j:
+                        edge = (min(i, j), max(i, j))
+                        if edge in self.model.edges:
+                            e_idx = edges_list.index(edge)
+                            if x_vals[e_idx] > 0.1:
+                                star_edges.append(edge)
+                                star_nodes.add(j)
+
+                if len(star_nodes) >= 3:
+                    expected_hub_demand = sum(avg_demands.get(k, 0.0) * y_val_dict.get(k, 0.0) for k in star_nodes)
+                    if expected_hub_demand > self.model.capacity:
+                        edge_vars = [self.x_vars[e] for e in star_edges if e in self.x_vars]
+                        y_vars_hub = [self.y_vars[k] for k in star_nodes if k in self.y_vars]
+                        demand_hub = [avg_demands.get(k, 0.0) for k in star_nodes if k in self.y_vars]
+
+                        if edge_vars and y_vars_hub:
+                            bound = gp.quicksum(y for y in y_vars_hub) - (1.0 / self.model.capacity) * gp.quicksum(
+                                d * y for d, y in zip(demand_hub, y_vars_hub)
+                            )
+                            cut_expr = gp.quicksum(edge_vars) <= bound
+                            if is_integer:
+                                model.cbLazy(cut_expr)
+                            else:
+                                model.cbCut(cut_expr)
+                            self.stats["total_cuts"] += 1
+
+    def _separate_lot_sizing_inequalities(self, model, x_vals: np.ndarray, y_vals: np.ndarray, is_integer: bool):
+        """
+        Separate inequalities derived from Deterministic Lot-Sizing problems.
+
+        Limits combinations of disjoint routes that consistently produce capacity failures
+        in extreme scenarios by linking fractional routing capacity to continuous recourse.
+        """
+        if not hasattr(self, "q_vars") or not self.q_vars or not self.scenarios:
+            return
+
+        support_edges = [(u, v) for (u, v), val in zip(self.model.edges, x_vals) if val > 0.1]
+        try:
+            import networkx as nx
+
+            G = nx.Graph()
+            G.add_nodes_from(range(self.model.n_nodes))
+            G.add_edges_from(support_edges)
+            components = list(nx.connected_components(G))
+        except ImportError:
+            return
+
+        y_val_dict = {i: y_vals[idx] for idx, i in enumerate(self.model.customers)}
+        edges_list = list(self.model.edges)
+
+        for s_idx, q_var in self.q_vars.items():
+            scenario_demands = self.scenarios[s_idx]
+            q_val = model.cbGetSolution(q_var) if is_integer else model.cbGetNodeRel(q_var)
+
+            for comp in components:
+                if self.model.depot in comp:
+                    continue
+
+                S = list(comp)
+                if len(S) <= 1:
+                    continue
+
+                scenario_load = sum(scenario_demands.get(i, 0.0) * y_val_dict.get(i, 0.0) for i in S)
+
+                delta_S_edges = [(u, v) for u, v in self.model.edges if (u in S) != (v in S)]
+                delta_S_val = sum(x_vals[edges_list.index((u, v))] for u, v in delta_S_edges)
+                provided_capacity = (delta_S_val / 2.0) * self.model.capacity
+
+                if scenario_load - provided_capacity > q_val + 1e-4:
+                    edge_vars = [
+                        self.x_vars[tuple(sorted(e))] for e in delta_S_edges if tuple(sorted(e)) in self.x_vars
+                    ]
+                    y_vars_S = [self.y_vars[i] for i in S if i in self.y_vars]
+                    demand_S = [scenario_demands.get(i, 0.0) for i in S if i in self.y_vars]
+
+                    if edge_vars and y_vars_S:
+                        cut_expr = q_var >= gp.quicksum(d * y for d, y in zip(demand_S, y_vars_S)) - (
+                            self.model.capacity / 2.0
+                        ) * gp.quicksum(edge_vars)
+                        if is_integer:
+                            model.cbLazy(cut_expr)
+                        else:
+                            model.cbCut(cut_expr)
+                        self.stats["total_cuts"] += 1
 
     def _set_start_solution(self, tour: List[int]):
         """Provide a warm start solution to Gurobi."""

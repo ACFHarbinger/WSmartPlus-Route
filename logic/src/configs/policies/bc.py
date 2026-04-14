@@ -42,6 +42,8 @@ class BCConfig:
         must_go: List of must-go strategy config files.
         post_processing: List of post-processing operations to apply.
         seed: Random seed for reproducibility.
+        use_saa: Whether to use Sample Average Approximation (SAA) for SIRP.
+        num_scenarios: Number of scenarios to generate for SAA.
     """
 
     time_limit: float = 300.0
@@ -52,6 +54,8 @@ class BCConfig:
     enable_fractional_capacity_cuts: bool = True
     profit_aware_operators: bool = False
     vrpp: bool = False
+    use_saa: bool = False
+    num_scenarios: int = 10
     must_go: Optional[List[MustGoConfig]] = None
     post_processing: Optional[List[PostProcessingConfig]] = None
     seed: Optional[int] = None

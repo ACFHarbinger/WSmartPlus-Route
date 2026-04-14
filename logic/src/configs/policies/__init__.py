@@ -36,6 +36,7 @@ from .hulk import HULKConfig
 from .hvpl import HVPLConfig
 from .ie import IEConfig
 from .ils import ILSConfig
+from .ils_bd import IntegerLShapedBendersConfig
 from .ils_rvnd_sp import ILSRVNDSPConfig
 from .kgls import KGLSConfig
 from .ks import KernelSearchConfig
@@ -97,6 +98,7 @@ __all__ = [
     "HGSALNSConfig",
     "HGSRRConfig",
     "ILSRVNDSPConfig",
+    "IntegerLShapedBendersConfig",
     "HVPLConfig",
     "KGLSConfig",
     "LKHConfig",
