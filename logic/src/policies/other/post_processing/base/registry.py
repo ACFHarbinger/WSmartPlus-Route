@@ -10,7 +10,7 @@ Attributes:
 Example:
     >>> from logic.src.policies.other.post_processing.base.registry import PostProcessorRegistry
     >>> PostProcessorRegistry.register("my_processor", MyProcessorClass)
-    >>> cls = PostProcessorRegistry.get("my_processor")
+    >>> cls = PostProcessorRegistry.get_post_processor_class("my_processor")
 """
 
 from typing import Callable, Dict, Optional, Type
@@ -35,6 +35,6 @@ class PostProcessorRegistry:
         return wrapper
 
     @classmethod
-    def get(cls, name: str) -> Optional[Type[IPostProcessor]]:
+    def get_post_processor_class(cls, name: str) -> Optional[Type[IPostProcessor]]:
         """Retrieve a post-processor by name."""
         return cls._strategies.get(name.lower())

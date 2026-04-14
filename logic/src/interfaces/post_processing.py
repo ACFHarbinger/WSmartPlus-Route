@@ -18,7 +18,11 @@ class IPostProcessor(ABC):
 
     def __init__(self, **kwargs: Any):
         """Initialize post-processor with config."""
-        self.config = kwargs
+        # Support both direct kwargs and passing a 'config' dict (for composability).
+        if "config" in kwargs and len(kwargs) == 1:
+            self.config = kwargs["config"]
+        else:
+            self.config = kwargs
 
     @abstractmethod
     def process(self, tour: List[int], **kwargs: Any) -> List[int]:

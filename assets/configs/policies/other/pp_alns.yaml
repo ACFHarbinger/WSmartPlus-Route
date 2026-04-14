@@ -1,0 +1,12 @@
+# Post-Processing: Adaptive LNS (ALNS)
+methods:
+  - "adaptive_large_neighborhood_search"
+
+adaptive_large_neighborhood_search:
+  alns_iterations: 200
+  ruin_fraction: 0.2
+  alns_bandit_warm_start_path: null
+  cost_per_km: 0.5
+  revenue_kg: 1.0
+  repair_k: 2
+  seed: 42
