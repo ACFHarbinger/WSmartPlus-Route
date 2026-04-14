@@ -100,7 +100,6 @@ def _run_gurobi_optimizer(  # noqa: C901
     MAX_TRUCKS = number_vehicles
     mdl.addConstr(k_var <= MAX_TRUCKS)
 
-    mdl.addConstr(k_var == quicksum(x[idx_deposito, j] for j in nodes_real if (idx_deposito, j) in x))
     mdl.addConstr(quicksum(x[idx_deposito, j] for j in nodes_real if (idx_deposito, j) in x) == k_var)
     mdl.addConstr(quicksum(x[j, idx_deposito] for j in nodes_real if (j, idx_deposito) in x) == k_var)
 
