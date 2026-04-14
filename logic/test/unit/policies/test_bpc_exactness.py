@@ -4,8 +4,8 @@ import gurobipy as gp
 from gurobipy import GRB
 from typing import Set, Dict
 
-from logic.src.policies.branch_and_price.master_problem import VRPPMasterProblem, Route
-from logic.src.policies.branch_and_price.rcspp_dp import RCSPPSolver
+from logic.src.policies.other.branching_solvers import VRPPMasterProblem, Route
+from logic.src.policies.other.branching_solvers import RCSPPSolver
 from logic.src.policies.branch_and_price_and_cut.bpc_engine import _column_generation_loop, BPCPruningException
 from logic.src.policies.branch_and_price_and_cut.cutting_planes import CuttingPlaneEngine
 

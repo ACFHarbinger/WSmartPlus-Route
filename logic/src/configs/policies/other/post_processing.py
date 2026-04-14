@@ -185,6 +185,45 @@ class AdaptiveLNSPostConfig:
 
 
 @dataclass
+class FixAndOptimizePostConfig:
+    """Configuration for Fix-and-Optimize refinement."""
+
+    fo_n_free: Optional[int] = None
+    fo_free_fraction: float = 0.30
+    fo_time_limit: float = 30.0
+    seed: int = 42
+
+
+@dataclass
+class SetPartitioningPostConfig:
+    """Configuration for Set-partitioning (with pool construction)."""
+
+    sp_n_perturbations: int = 20
+    sp_include_dp: bool = True
+    sp_time_limit: float = 60.0
+    ruin_fraction: float = 0.2
+    seed: int = 42
+
+
+@dataclass
+class SetPartitioningPolishPostConfig:
+    """Configuration for Set-partitioning polish (bare wrapper)."""
+
+    route_pool: Optional[List[List[int]]] = None
+    sp_time_limit: float = 60.0
+    seed: int = 42
+
+
+@dataclass
+class BranchAndPricePostConfig:
+    """Configuration for Branch-and-price."""
+
+    bp_time_limit: float = 120.0
+    bp_use_cspy: bool = True
+    seed: int = 42
+
+
+@dataclass
 class TwoPhasePostConfig:
     """Configuration for Two-phase composition."""
 
@@ -204,7 +243,10 @@ class PostProcessingConfig:
             Supported: 'fast_tsp', 'lkh', 'classical_local_search', 'random_local_search', 'path',
                        'or_opt', 'cross_exchange', 'guided_local_search', 'simulated_annealing',
                        'cheapest_insertion', 'regret_k_insertion', 'profitable_detour',
-                       'ruin_recreate', 'adaptive_lns', 'two_phase'.
+                       'ruin_recreate', 'adaptive_lns', 'two_phase', 'steepest_two_opt',
+                       'or_opt_steepest', 'node_exchange_steepest', 'dp_route_reopt',
+                       'fix_and_optimize', 'set_partitioning_polish', 'set_partitioning',
+                       'branch_and_price'.
         fast_tsp: Configuration for Fast TSP solver.
         lkh: Configuration for Lin-Kernighan-Helsgaun solver.
         local_search: Configuration for classical local search.
@@ -240,6 +282,17 @@ class PostProcessingConfig:
     ruin_recreate: RuinRecreatePostConfig = field(default_factory=RuinRecreatePostConfig)
     adaptive_lns: AdaptiveLNSPostConfig = field(default_factory=AdaptiveLNSPostConfig)
     two_phase: TwoPhasePostConfig = field(default_factory=TwoPhasePostConfig)
+
+    # Added strategies
+    fix_and_optimize: FixAndOptimizePostConfig = field(default_factory=FixAndOptimizePostConfig)
+    set_partitioning: SetPartitioningPostConfig = field(default_factory=SetPartitioningPostConfig)
+    set_partitioning_polish: SetPartitioningPolishPostConfig = field(default_factory=SetPartitioningPolishPostConfig)
+    branch_and_price: BranchAndPricePostConfig = field(default_factory=BranchAndPricePostConfig)
+
+    # Generic operator parameters
+    max_iter: int = 500
+    dp_max_nodes: int = 20
+    chain_lengths: List[int] = field(default_factory=lambda: [1, 2, 3])
 
     # Additional parameters
     params: Dict[str, Any] = field(default_factory=dict)

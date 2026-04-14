@@ -1,0 +1,19 @@
+# =============================================================================
+# Post-Processing: Set-Partitioning (Pool-Restricted)
+# =============================================================================
+# PURPOSE:
+#   Construct route pool via perturbations and solve IP exactly.
+# =============================================================================
+
+methods:
+  - "set_partitioning"
+
+sp_n_perturbations: 20
+sp_include_dp: true
+sp_time_limit: 60.0
+ruin_fraction: 0.2
+destroy_op: random
+repair_op: greedy
+cost_per_km: 0.5
+revenue_kg: 1.0
+seed: 42

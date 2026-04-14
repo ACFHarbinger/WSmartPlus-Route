@@ -113,22 +113,23 @@ import gurobipy as gp
 import numpy as np
 from gurobipy import GRB
 
+from logic.src.policies.other.branching_solvers import (
+    AnyBranchingConstraint,
+    BranchAndBoundTree,
+    BranchNode,
+    RCSPPSolver,
+    Route,
+    SeparationEngine,
+    VRPPMasterProblem,
+)
+from logic.src.policies.other.branching_solvers.vrpp_model import VRPPModel
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
 from ..base.factory import PolicyFactory
 from ..other.operators.repair.greedy import greedy_insertion, greedy_profit_insertion
-from .branching import (
-    AnyBranchingConstraint,
-    BranchAndBoundTree,
-    BranchNode,
-)
 from .cutting_planes import CuttingPlaneEngine, create_cutting_plane_engine
-from .master_problem import Route, VRPPMasterProblem
 from .params import BPCParams
-from .rcspp_dp import RCSPPSolver
 from .search_strategy import create_search_strategy
-from .separation import SeparationEngine
-from .vrpp_model import VRPPModel
 
 logger = logging.getLogger(__name__)
 
@@ -282,7 +283,7 @@ def _apply_branching_to_master(
     forced_nodes: Set[int] = set()
 
     # Define child-local constraints
-    from .branching import (
+    from logic.src.policies.other.branching_solvers.branching import (
         FleetSizeBranchingConstraint,
         NodeVisitationBranchingConstraint,
     )
@@ -347,7 +348,10 @@ def _solve_farkas_pricing_step(
     forced_nodes: Set[int] = set()
     rf_conflicts: Dict[int, Set[int]] = {}
 
-    from .branching import NodeVisitationBranchingConstraint, RyanFosterBranchingConstraint
+    from logic.src.policies.other.branching_solvers.branching import (
+        NodeVisitationBranchingConstraint,
+        RyanFosterBranchingConstraint,
+    )
 
     for bc in branching_constraints or []:
         if isinstance(bc, NodeVisitationBranchingConstraint) and bc.forced:
@@ -374,7 +378,7 @@ def _solve_farkas_pricing_step(
         # for columns with POSITIVE reduced cost to resolve infeasibility.
         rc = r.reduced_cost if r.reduced_cost is not None else r.profit
         if rc > _FARKAS_TOL:
-            master.add_route_as_column(r)
+            master.add_route(r)
             added += 1
     # Proper exhausting flag for Lagrangian bound validity (Phase I).
     # If last_max_rc <= 0, no improving column exists regardless of return count.
@@ -447,7 +451,10 @@ def _solve_pricing_step(
     forced_nodes: Set[int] = set()
     rf_conflicts: Dict[int, Set[int]] = {}
 
-    from .branching import NodeVisitationBranchingConstraint, RyanFosterBranchingConstraint
+    from logic.src.policies.other.branching_solvers.branching import (
+        NodeVisitationBranchingConstraint,
+        RyanFosterBranchingConstraint,
+    )
 
     for bc in branching_constraints or []:
         if isinstance(bc, NodeVisitationBranchingConstraint) and bc.forced:
@@ -756,7 +763,10 @@ def _column_generation_loop(  # noqa: C901
     elementary_nodes: Set[int] = set()
 
     # Extract nodes from Ryan-Foster branches
-    from .branching import NodeVisitationBranchingConstraint, RyanFosterBranchingConstraint
+    from logic.src.policies.other.branching_solvers.branching import (
+        NodeVisitationBranchingConstraint,
+        RyanFosterBranchingConstraint,
+    )
 
     for bc in branching_constraints or []:
         if isinstance(bc, RyanFosterBranchingConstraint):
@@ -781,7 +791,7 @@ def _column_generation_loop(  # noqa: C901
     # Task 5: Arc Conflict Pre-check (Exactness Rule)
     # Scan branching constraints for conflicting must_use arcs.
     # At most one must_use arc can exit node u, and at most one can enter node v.
-    from .branching import EdgeBranchingConstraint
+    from logic.src.policies.other.branching_solvers.branching import EdgeBranchingConstraint
 
     out_arcs: Dict[int, int] = {}
     in_arcs: Dict[int, int] = {}
@@ -1384,7 +1394,7 @@ def run_bpc(  # noqa: C901
             if swc_tcf is not None:
                 # Extract forced nodes from branching constraints to guide heuristic
                 forced_nodes_heuristic = set()
-                from .branching import NodeVisitationBranchingConstraint
+                from logic.src.policies.other.branching_solvers.branching import NodeVisitationBranchingConstraint
 
                 for bc in branching_constraints or []:
                     if isinstance(bc, NodeVisitationBranchingConstraint) and bc.forced:
@@ -1484,7 +1494,7 @@ def run_bpc(  # noqa: C901
                 f"Primary branching strategy '{branching_strategy_name}' returned no "
                 "branching candidate at a fractional node. Falling back to edge branching."
             )
-            from .branching import EdgeBranching
+            from logic.src.policies.other.branching_solvers.branching import EdgeBranching
 
             res = EdgeBranching.find_branching_arc(master.routes, route_values)
             if res is None:
