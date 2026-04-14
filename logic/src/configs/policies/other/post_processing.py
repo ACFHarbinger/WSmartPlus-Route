@@ -215,11 +215,36 @@ class SetPartitioningPolishPostConfig:
 
 
 @dataclass
-class BranchAndPricePostConfig:
-    """Configuration for Branch-and-price."""
+class LearnedPostConfig:
+    """Configuration for the learned post-processor."""
 
+    learned_weights_path: Optional[str] = None
+    learned_max_iter: int = 100
+    learned_min_improvement: float = 1e-4
+    learned_neighborhood_size: int = 20
+    seed: int = 42
+
+
+@dataclass
+class BranchAndPricePostConfig:
+    """Configuration for Branch-and-price (Consolidated)."""
+
+    bp_max_iterations: int = 100
+    bp_max_routes_per_iteration: int = 10
+    bp_optimality_gap: float = 1e-4
+    bp_branching_strategy: str = "edge"
+    bp_max_branch_nodes: int = 1000
+    bp_use_exact_pricing: bool = True  # post-processor default
+    bp_use_ng_routes: bool = True
+    bp_ng_neighborhood_size: int = 8
+    bp_tree_search_strategy: str = "best_first"
+    bp_vehicle_limit: Optional[int] = None
+    bp_cleanup_frequency: int = 20
+    bp_cleanup_threshold: float = -100.0
+    bp_early_termination_gap: float = 1e-3
+    bp_allow_heuristic_ryan_foster: bool = False
     bp_time_limit: float = 120.0
-    bp_use_cspy: bool = True
+    bp_use_cspy: bool = True  # only used by vrpy fallback
     seed: int = 42
 
 
@@ -288,6 +313,7 @@ class PostProcessingConfig:
     set_partitioning: SetPartitioningPostConfig = field(default_factory=SetPartitioningPostConfig)
     set_partitioning_polish: SetPartitioningPolishPostConfig = field(default_factory=SetPartitioningPolishPostConfig)
     branch_and_price: BranchAndPricePostConfig = field(default_factory=BranchAndPricePostConfig)
+    learned: LearnedPostConfig = field(default_factory=LearnedPostConfig)
 
     # Generic operator parameters
     max_iter: int = 500

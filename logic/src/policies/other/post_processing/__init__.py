@@ -14,6 +14,7 @@ from .dp_route_reopt import DPRouteReoptPostProcessor
 from .fast_tsp import FastTSPPostProcessor
 from .fix_and_optimize import FixAndOptimizePostProcessor
 from .guided_local_search import GuidedLocalSearchPostProcessor
+from .learned import LearnedPostProcessor
 from .lkh import LinKernighanHelsgaunPostProcessor
 from .local_search import ClassicalLocalSearchPostProcessor
 from .node_exchange_steepest import NodeExchangeSteepestPostProcessor
@@ -57,4 +58,5 @@ __all__ = [
     "SetPartitioningPolishPostProcessor",
     "SetPartitioningPostProcessor",
     "BranchAndPricePostProcessor",
+    "LearnedPostProcessor",
 ]

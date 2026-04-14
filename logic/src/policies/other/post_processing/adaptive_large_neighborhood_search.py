@@ -124,6 +124,8 @@ class AdaptiveLargeNeighborhoodSearchPostProcessor(IPostProcessor):
                 )
 
                 # 3. Success Check & Update
+                # TODO: If SA acceptance is added, split RNG streams:
+                # lns_rng = random.Random(seed), sa_rng = random.Random(seed + 1)
                 trial_cost = tour_distance(trial_routes, dm)
                 success = 0
                 if trial_cost < best_cost - 1e-6:

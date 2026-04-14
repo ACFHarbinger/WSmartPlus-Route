@@ -16,6 +16,7 @@ Routes are deduplicated by canonical form (min of tuple and reversed tuple)
 so that symmetric duplicates do not inflate the IP.
 """
 
+import logging
 import random
 from typing import Any, List, Set, Tuple
 
@@ -36,6 +37,26 @@ from .common.helpers import (
     tour_distance,
     upgrade_repair_op_to_profit,
 )
+
+logger = logging.getLogger(__name__)
+
+try:
+    import gurobipy as gp
+
+    _HAS_GUROBI = True
+    # Quick license ping
+    try:
+        _test = gp.Model()
+        _test.dispose()
+    except gp.GurobiError as e:
+        _HAS_GUROBI = False
+        logger.warning(
+            "set_partitioning: Gurobi license check failed (%s); post-processor will no-op.",
+            e,
+        )
+except ImportError:
+    _HAS_GUROBI = False
+    logger.warning("set_partitioning: gurobipy not installed; post-processor will no-op.")
 
 
 def _canonical(route: List[int]) -> Tuple[int, ...]:
@@ -63,6 +84,9 @@ class SetPartitioningPostProcessor(IPostProcessor):
     def process(self, tour: List[int], **kwargs: Any) -> List[int]:  # noqa: C901
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:
+            return tour
+
+        if not _HAS_GUROBI:
             return tour
 
         # Pool-construction parameters
@@ -111,7 +135,7 @@ class SetPartitioningPostProcessor(IPostProcessor):
 
             # Source 2: perturbations via apply_lns
             base_rng = random.Random(seed)
-            for _ in range(n_perturbations):
+            for i in range(n_perturbations):
                 perturb_rng = random.Random(base_rng.randint(0, 2**31 - 1))
                 try:
                     perturbed = apply_lns(
@@ -129,7 +153,8 @@ class SetPartitioningPostProcessor(IPostProcessor):
                     )
                     for r in perturbed:
                         add(r)
-                except Exception:
+                except Exception as e:
+                    logger.debug("set_partitioning: perturbation %d failed: %s", i, e)
                     continue  # one bad perturbation should not kill pool construction
 
             # Source 3: Held-Karp DP variants
@@ -144,7 +169,8 @@ class SetPartitioningPostProcessor(IPostProcessor):
                     )
                     for r in dp_routes:
                         add(r)
-                except Exception:
+                except Exception as e:
+                    logger.debug("set_partitioning: dp_route_reopt failed: %s", e)
                     pass
 
             # Source 4: mandatory singletons
