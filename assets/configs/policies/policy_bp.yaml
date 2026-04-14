@@ -115,6 +115,11 @@ bp:
       # false = Use greedy heuristic for pricing (current behavior)
       # Note: Exact pricing is NP-hard and may be slow for large problems
 
+    - multi_day_mode: false
+      # Whether to operate in multi-period stochastic mode.
+      # If true, the policy evaluates single stages of a larger scenario tree or SDP.
+      # If false, it functions as a standard single-day deterministic solver.
+
     # ---------------------------------------------------------------------
     # Must-Go Strategy
     # ---------------------------------------------------------------------

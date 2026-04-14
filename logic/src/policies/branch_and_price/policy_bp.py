@@ -85,6 +85,58 @@ class BranchAndPricePolicy(BaseRoutingPolicy):
         """Return the unique identification key for this policy's configuration."""
         return "bp"
 
+    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
+        """
+        Execute Exact Branch-and-Price.
+        If multi_day_mode is True, evaluates for a single stage of the multi-period
+        problem without standard BaseRoutingPolicy subset extraction.
+        """
+        config_dict = kwargs.get("config", {}).get(self._get_config_key(), {})
+        multi_day_mode = config_dict.get("multi_day_mode", False)
+
+        if not multi_day_mode:
+            # Standard single-day mode
+            return super().execute(**kwargs)
+
+        # Multi-day mode (Exact SDP inner deterministic optimizer)
+        dist_matrix = kwargs["model_ls"][1]
+        bins = kwargs["bins"]
+        profit_vars = kwargs["model_ls"][2]
+
+        R = profit_vars.get("revenue_kg", 1.0)
+        C = profit_vars.get("cost_km", 1.0)
+        vehicle_limit = profit_vars.get("number_vehicles", None)
+
+        wastes = {i: float(bins.c[i - 1]) for i in range(1, len(bins.c) + 1)}
+        capacity = float(profit_vars.get("bin_capacity", 100.0))
+        must_go = kwargs.get("must_go", [])
+
+        params = BPParams.from_config(config_dict)
+
+        solver = BranchAndPriceSolver(
+            n_nodes=len(dist_matrix) - 1,
+            cost_matrix=dist_matrix,
+            wastes=wastes,
+            capacity=capacity,
+            revenue_per_kg=R,
+            cost_per_km=C,
+            mandatory_nodes=set(must_go),
+            params=params,
+            number_vehicles=vehicle_limit,
+        )
+
+        routes, _ = solver.solve()
+
+        global_route = []
+        if routes:
+            for r in routes:
+                global_route.extend([n for n in r if n != 0])
+                global_route.append(0)
+
+        cost = kwargs.get("model_env").compute_route_cost(global_route) if kwargs.get("model_env") else 0.0
+
+        return global_route, cost, {"policy_type": "bp", "multi_day_mode": True}
+
     def _run_solver(
         self,
         sub_dist_matrix: np.ndarray,
