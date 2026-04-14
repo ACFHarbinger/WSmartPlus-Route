@@ -105,6 +105,7 @@ class SWCTCFPolicy(BaseRoutingPolicy):
             must_go=must_go,
             number_vehicles=kwargs.get("number_vehicles", 1),
             time_limit=int(params.time_limit),
+            framework=params.framework,
             optimizer=params.engine,
             seed=int(seed) if seed is not None else 42,
             dual_values=dual_values,
