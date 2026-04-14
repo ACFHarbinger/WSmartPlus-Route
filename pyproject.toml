@@ -34,7 +34,28 @@ dependencies = [
     "torch-sparse>=0.6.18",
 ]
 
-[project.optional-dependencies]
+# Corrected 'dev' dependencies
+[dependency-groups]
+dev = [
+    "black>=25.9.0",
+    "expecttest>=0.3.0",
+    "git-filter-repo>=2.47.0",
+    "mypy>=1.18.2",
+    "mypy-protobuf>=5.0.0",
+    "pyinstaller>=6.16.0",
+    "pyinstaller-hooks-contrib>=2026.0",
+    "pytest>=8.4.2",
+    "pytest-mock>=3.15.1",
+    "hypothesis>=6.141.1",
+    "ruff>=0.14.3",
+    "pip-audit>=2.7.3",
+    "pytest-cov>=6.0.0",
+    "pre-commit>=3.5.0",
+    "tabulate>=0.9.0",
+    "types-pyyaml>=6.0.12.20250915",
+    "mutmut>=2.5.0",
+    "rich>=14.1.0",
+]
 gpu = [
     "triton>=2.2.0 ; sys_platform != 'win32'",
     "torch-tb-profiler>=0.4.3",
@@ -58,6 +79,7 @@ solvers = [
     "vrpy>=0.5.1",
     "alns>=7.0.0",
     "fast-tsp>=0.1.4",
+    "pyomo>=6.9.5",
 ]
 gui = [
     "pyside6>=6.9.0",
@@ -94,29 +116,6 @@ docs = [
     "sphinx-hoverxref>=1.4.2",
     "sphinx-rtd-theme>=2.0.0",
     "sphinxcontrib-mermaid>=1.2.3",
-]
-
-# Corrected 'dev' dependencies
-[dependency-groups]
-dev = [
-    "black>=25.9.0",
-    "expecttest>=0.3.0",
-    "git-filter-repo>=2.47.0",
-    "mypy>=1.18.2",
-    "mypy-protobuf>=5.0.0",
-    "pyinstaller>=6.16.0",
-    "pyinstaller-hooks-contrib>=2026.0",
-    "pytest>=8.4.2",
-    "pytest-mock>=3.15.1",
-    "hypothesis>=6.141.1",
-    "ruff>=0.14.3",
-    "pip-audit>=2.7.3",
-    "pytest-cov>=6.0.0",
-    "pre-commit>=3.5.0",
-    "tabulate>=0.9.0",
-    "types-pyyaml>=6.0.12.20250915",
-    "mutmut>=2.5.0",
-    "rich>=14.1.0",
 ]
 
 # Note: project.optional-dependencies.docs is for users building docs.
