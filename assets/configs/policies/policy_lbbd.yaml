@@ -1,0 +1,18 @@
+# @package _global_
+
+policy:
+  target: logic.src.policies.logic_based_benders_decomposition.policy_lbbd.LBBDPolicy
+  params:
+    num_days: 3
+    num_scenarios: 5
+    max_iterations: 20
+    benders_gap: 0.01
+    time_limit: 300.0
+    subproblem_timeout: 20.0
+    mip_gap: 0.05
+    waste_weight: 1.0
+    cost_weight: 1.0
+    overflow_penalty: 10.0
+    use_nogood_cuts: true
+    use_optimality_cuts: true
+    seed: 42
