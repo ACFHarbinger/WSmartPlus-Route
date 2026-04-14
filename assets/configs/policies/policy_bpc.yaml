@@ -135,6 +135,14 @@ bpc:
     - use_swc_tcf_primal_heuristic: false
       # Whether to execute SWC-TCF at intermediate B&B nodes to update upper bound
 
+    - multi_day_mode: false
+      # Whether to operate in multi-period stochastic mode.
+      # If true, enables ADP-based value function approximation (BPC-ADP).
+    - adp_model_path: ""
+      # Path to the pre-trained XGBoost (.pkl) or Torch (.pt) model for state evaluation.
+    - adp_model_type: "sklearn"
+      # Type of the ADP model: "sklearn" or "torch". (default: "sklearn")
+
     # ---------------------------------------------------------------------
     # RCSPP Pricing Relaxation
     # ---------------------------------------------------------------------
