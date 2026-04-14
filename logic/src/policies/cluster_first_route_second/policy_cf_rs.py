@@ -9,14 +9,12 @@ mapping, data extraction, and result formatting.
 
 from typing import Any, Dict, List, Optional, Tuple, Type
 
-import pandas as pd
-
 from logic.src.configs.policies.cf_rs import CFRSConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
 
 from .params import CFRSParams
-from .policy_cf_rs_vfj import run_cf_rs
+from .solver import run_cf_rs
 
 
 @PolicyRegistry.register("cf_rs")
@@ -80,31 +78,20 @@ class ClusterFirstRouteSecondPolicy(BaseRoutingPolicy):
         sub_coords = kwargs.get("coords", [])
         seed = params.seed if params.seed is not None else kwargs.get("seed", 42)
 
-        # 3. Handle bins/wastes
-        bins = kwargs.get("bins")
-        amounts = bins.c if bins is not None and hasattr(bins, "c") else [wastes[k] for k in sorted(wastes.keys())]
-        if amounts:
-            amounts_df = pd.Series(amounts).to_frame("amounts")
-            amounts_df["idx"] = list(range(1, len(amounts) + 1))
-            amounts_df = amounts_df.set_index("idx")
-        else:
-            amounts_df = pd.DataFrame()
-
         num_clusters = int(params.num_clusters or 1)
 
         # 4. Run CFRS
         routes, solver_cost, extra_data = run_cf_rs(
-            dist_matrix=distance_matrix,
-            amounts=amounts_df,
+            coords=sub_coords,
+            must_go=mandatory_nodes,
+            distance_matrix=distance_matrix,
+            wastes=wastes,
             capacity=capacity,
-            num_clusters=num_clusters,
+            R=revenue,
             C=cost_unit,
             n_vehicles=n_vehicles,
             seed=seed,
-            coords=sub_coords,
-            must_go=mandatory_nodes,
-            wastes=wastes,
-            R=revenue,
+            num_clusters=num_clusters,
             time_limit=params.time_limit,
             assignment_method=params.assignment_method,
             route_optimizer=params.route_optimizer,
