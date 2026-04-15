@@ -49,7 +49,7 @@
 ```
 ````
 
-````{py:function} update_biased_fitness(population: typing.List[src.policies.hybrid_genetic_search.individual.Individual], nb_elite: int, neighbor_size: int = 5)
+````{py:function} update_biased_fitness(population: typing.List[src.policies.hybrid_genetic_search.individual.Individual], nb_elite: int, neighbor_size: int = 5, distance_cache: typing.Optional[dict] = None)
 :canonical: src.policies.hybrid_genetic_search.evolution.update_biased_fitness
 
 ```{autodoc2-docstring} src.policies.hybrid_genetic_search.evolution.update_biased_fitness

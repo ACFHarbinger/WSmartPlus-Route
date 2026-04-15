@@ -19,6 +19,10 @@
   - ```{autodoc2-docstring} src.policies.lin_kernighan_helsgaun_three.graph_augmentation.augment_graph
     :summary:
     ```
+* - {py:obj}`augment_prize_collecting_graph <src.policies.lin_kernighan_helsgaun_three.graph_augmentation.augment_prize_collecting_graph>`
+  - ```{autodoc2-docstring} src.policies.lin_kernighan_helsgaun_three.graph_augmentation.augment_prize_collecting_graph
+    :summary:
+    ```
 * - {py:obj}`decode_augmented_tour <src.policies.lin_kernighan_helsgaun_three.graph_augmentation.decode_augmented_tour>`
   - ```{autodoc2-docstring} src.policies.lin_kernighan_helsgaun_three.graph_augmentation.decode_augmented_tour
     :summary:
@@ -47,6 +51,13 @@
 :canonical: src.policies.lin_kernighan_helsgaun_three.graph_augmentation.augment_graph
 
 ```{autodoc2-docstring} src.policies.lin_kernighan_helsgaun_three.graph_augmentation.augment_graph
+```
+````
+
+````{py:function} augment_prize_collecting_graph(distance_matrix: numpy.ndarray, wastes: typing.Dict[int, float]) -> typing.Tuple[numpy.ndarray, numpy.ndarray, int]
+:canonical: src.policies.lin_kernighan_helsgaun_three.graph_augmentation.augment_prize_collecting_graph
+
+```{autodoc2-docstring} src.policies.lin_kernighan_helsgaun_three.graph_augmentation.augment_prize_collecting_graph
 ```
 ````
 

@@ -121,9 +121,20 @@
 :canonical: src.configs.policies.ks.KernelSearchConfig.engine
 :type: str
 :value: >
-   'custom'
+   'gurobi'
 
 ```{autodoc2-docstring} src.configs.policies.ks.KernelSearchConfig.engine
+```
+
+````
+
+````{py:attribute} framework
+:canonical: src.configs.policies.ks.KernelSearchConfig.framework
+:type: str
+:value: >
+   'ortools'
+
+```{autodoc2-docstring} src.configs.policies.ks.KernelSearchConfig.framework
 ```
 
 ````

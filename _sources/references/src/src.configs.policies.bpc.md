@@ -381,4 +381,36 @@
 
 ````
 
+````{py:attribute} multi_day_mode
+:canonical: src.configs.policies.bpc.BPCConfig.multi_day_mode
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.multi_day_mode
+```
+
+````
+
+````{py:attribute} adp_model_path
+:canonical: src.configs.policies.bpc.BPCConfig.adp_model_path
+:type: str
+:value: <Multiline-String>
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.adp_model_path
+```
+
+````
+
+````{py:attribute} adp_model_type
+:canonical: src.configs.policies.bpc.BPCConfig.adp_model_type
+:type: str
+:value: >
+   'sklearn'
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.adp_model_type
+```
+
+````
+
 `````

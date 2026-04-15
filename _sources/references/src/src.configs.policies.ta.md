@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.policies.ta.TAConfig
 ```
 
-````{py:attribute} engine
-:canonical: src.configs.policies.ta.TAConfig.engine
-:type: str
-:value: >
-   'ta'
-
-```{autodoc2-docstring} src.configs.policies.ta.TAConfig.engine
-```
-
-````
-
 ````{py:attribute} max_iterations
 :canonical: src.configs.policies.ta.TAConfig.max_iterations
 :type: int

@@ -227,4 +227,268 @@
 
 ````
 
+````{py:attribute} n_vehicles
+:canonical: src.policies.other.must_go.base.selection_context.SelectionContext.n_vehicles
+:type: int
+:value: >
+   1
+
+```{autodoc2-docstring} src.policies.other.must_go.base.selection_context.SelectionContext.n_vehicles
+```
+
+````
+
+````{py:attribute} cost_per_km
+:canonical: src.policies.other.must_go.base.selection_context.SelectionContext.cost_per_km
+:type: float
+:value: >
+   0.0
+
+```{autodoc2-docstring} src.policies.other.must_go.base.selection_context.SelectionContext.cost_per_km
+```
+
+````
+
+````{py:attribute} use_eoq_threshold
+:canonical: src.policies.other.must_go.base.selection_context.SelectionContext.use_eoq_threshold
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.other.must_go.base.selection_context.SelectionContext.use_eoq_threshold
+```
+
+````
+
+````{py:attribute} holding_cost_per_kg_day
+:canonical: src.policies.other.must_go.base.selection_context.SelectionContext.holding_cost_per_kg_day
+:type: float
+:value: >
+   0.0
+
+```{autodoc2-docstring} src.policies.other.must_go.base.selection_context.SelectionContext.holding_cost_per_kg_day
+```
+
+````
+
+````{py:attribute} ordering_cost_per_visit
+:canonical: src.policies.other.must_go.base.selection_context.SelectionContext.ordering_cost_per_visit
+:type: float
+:value: >
+   0.0
+
+```{autodoc2-docstring} src.policies.other.must_go.base.selection_context.SelectionContext.ordering_cost_per_visit
+```
+
+````
+
+````{py:attribute} rollout_horizon
+:canonical: src.policies.other.must_go.base.selection_context.SelectionContext.rollout_horizon
+:type: int
+:value: >
+   5
+
+```{autodoc2-docstring} src.policies.other.must_go.base.selection_context.SelectionContext.rollout_horizon
+```
+
+````
+
+````{py:attribute} rollout_base_policy
+:canonical: src.policies.other.must_go.base.selection_context.SelectionContext.rollout_base_policy
+:type: str
+:value: >
+   'last_minute'
+
+```{autodoc2-docstring} src.policies.other.must_go.base.selection_context.SelectionContext.rollout_base_policy
+```
+
+````
+
+````{py:attribute} rollout_n_scenarios
+:canonical: src.policies.other.must_go.base.selection_context.SelectionContext.rollout_n_scenarios
+:type: int
+:value: >
+   1
+
+```{autodoc2-docstring} src.policies.other.must_go.base.selection_context.SelectionContext.rollout_n_scenarios
+```
+
+````
+
+````{py:attribute} rollout_discount
+:canonical: src.policies.other.must_go.base.selection_context.SelectionContext.rollout_discount
+:type: float
+:value: >
+   0.95
+
+```{autodoc2-docstring} src.policies.other.must_go.base.selection_context.SelectionContext.rollout_discount
+```
+
+````
+
+````{py:attribute} whittle_discount
+:canonical: src.policies.other.must_go.base.selection_context.SelectionContext.whittle_discount
+:type: float
+:value: >
+   0.95
+
+```{autodoc2-docstring} src.policies.other.must_go.base.selection_context.SelectionContext.whittle_discount
+```
+
+````
+
+````{py:attribute} whittle_grid_size
+:canonical: src.policies.other.must_go.base.selection_context.SelectionContext.whittle_grid_size
+:type: int
+:value: >
+   21
+
+```{autodoc2-docstring} src.policies.other.must_go.base.selection_context.SelectionContext.whittle_grid_size
+```
+
+````
+
+````{py:attribute} cvar_alpha
+:canonical: src.policies.other.must_go.base.selection_context.SelectionContext.cvar_alpha
+:type: float
+:value: >
+   0.95
+
+```{autodoc2-docstring} src.policies.other.must_go.base.selection_context.SelectionContext.cvar_alpha
+```
+
+````
+
+````{py:attribute} savings_min_fill_ratio
+:canonical: src.policies.other.must_go.base.selection_context.SelectionContext.savings_min_fill_ratio
+:type: float
+:value: >
+   0.5
+
+```{autodoc2-docstring} src.policies.other.must_go.base.selection_context.SelectionContext.savings_min_fill_ratio
+```
+
+````
+
+````{py:attribute} service_radius
+:canonical: src.policies.other.must_go.base.selection_context.SelectionContext.service_radius
+:type: float
+:value: >
+   5.0
+
+```{autodoc2-docstring} src.policies.other.must_go.base.selection_context.SelectionContext.service_radius
+```
+
+````
+
+````{py:attribute} modular_alpha
+:canonical: src.policies.other.must_go.base.selection_context.SelectionContext.modular_alpha
+:type: float
+:value: >
+   1.0
+
+```{autodoc2-docstring} src.policies.other.must_go.base.selection_context.SelectionContext.modular_alpha
+```
+
+````
+
+````{py:attribute} modular_budget
+:canonical: src.policies.other.must_go.base.selection_context.SelectionContext.modular_budget
+:type: int
+:value: >
+   0
+
+```{autodoc2-docstring} src.policies.other.must_go.base.selection_context.SelectionContext.modular_budget
+```
+
+````
+
+````{py:attribute} learned_model_path
+:canonical: src.policies.other.must_go.base.selection_context.SelectionContext.learned_model_path
+:type: typing.Optional[str]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.other.must_go.base.selection_context.SelectionContext.learned_model_path
+```
+
+````
+
+````{py:attribute} learned_threshold
+:canonical: src.policies.other.must_go.base.selection_context.SelectionContext.learned_threshold
+:type: float
+:value: >
+   0.5
+
+```{autodoc2-docstring} src.policies.other.must_go.base.selection_context.SelectionContext.learned_threshold
+```
+
+````
+
+````{py:attribute} dispatcher_state_path
+:canonical: src.policies.other.must_go.base.selection_context.SelectionContext.dispatcher_state_path
+:type: typing.Optional[str]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.other.must_go.base.selection_context.SelectionContext.dispatcher_state_path
+```
+
+````
+
+````{py:attribute} dispatcher_candidate_strategies
+:canonical: src.policies.other.must_go.base.selection_context.SelectionContext.dispatcher_candidate_strategies
+:type: typing.Optional[typing.List[str]]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.other.must_go.base.selection_context.SelectionContext.dispatcher_candidate_strategies
+```
+
+````
+
+````{py:attribute} dispatcher_exploration
+:canonical: src.policies.other.must_go.base.selection_context.SelectionContext.dispatcher_exploration
+:type: float
+:value: >
+   1.0
+
+```{autodoc2-docstring} src.policies.other.must_go.base.selection_context.SelectionContext.dispatcher_exploration
+```
+
+````
+
+````{py:attribute} dispatcher_mode
+:canonical: src.policies.other.must_go.base.selection_context.SelectionContext.dispatcher_mode
+:type: str
+:value: >
+   'union'
+
+```{autodoc2-docstring} src.policies.other.must_go.base.selection_context.SelectionContext.dispatcher_mode
+```
+
+````
+
+````{py:attribute} wasserstein_radius
+:canonical: src.policies.other.must_go.base.selection_context.SelectionContext.wasserstein_radius
+:type: float
+:value: >
+   0.1
+
+```{autodoc2-docstring} src.policies.other.must_go.base.selection_context.SelectionContext.wasserstein_radius
+```
+
+````
+
+````{py:attribute} wasserstein_p
+:canonical: src.policies.other.must_go.base.selection_context.SelectionContext.wasserstein_p
+:type: int
+:value: >
+   1
+
+```{autodoc2-docstring} src.policies.other.must_go.base.selection_context.SelectionContext.wasserstein_p
+```
+
+````
+
 `````

@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.policies.hs.HSConfig
 ```
 
-````{py:attribute} engine
-:canonical: src.configs.policies.hs.HSConfig.engine
-:type: str
-:value: >
-   'hs'
-
-```{autodoc2-docstring} src.configs.policies.hs.HSConfig.engine
-```
-
-````
-
 ````{py:attribute} hm_size
 :canonical: src.configs.policies.hs.HSConfig.hm_size
 :type: int

@@ -121,9 +121,20 @@
 :canonical: src.configs.policies.lb.LocalBranchingConfig.engine
 :type: str
 :value: >
-   'custom'
+   'gurobi'
 
 ```{autodoc2-docstring} src.configs.policies.lb.LocalBranchingConfig.engine
+```
+
+````
+
+````{py:attribute} framework
+:canonical: src.configs.policies.lb.LocalBranchingConfig.framework
+:type: str
+:value: >
+   'ortools'
+
+```{autodoc2-docstring} src.configs.policies.lb.LocalBranchingConfig.framework
 ```
 
 ````

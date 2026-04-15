@@ -54,6 +54,14 @@ Bases: {py:obj}`logic.src.policies.base.base_routing_policy.BaseRoutingPolicy`
 
 ````
 
+````{py:method} execute(**kwargs: typing.Any) -> typing.Tuple[typing.Union[typing.List[int], typing.List[typing.List[int]]], float, typing.Any]
+:canonical: src.policies.branch_and_price.policy_bp.BranchAndPricePolicy.execute
+
+```{autodoc2-docstring} src.policies.branch_and_price.policy_bp.BranchAndPricePolicy.execute
+```
+
+````
+
 ````{py:method} _run_solver(sub_dist_matrix: numpy.ndarray, sub_wastes: typing.Dict[int, float], capacity: float, revenue: float, cost_unit: float, values: typing.Dict[str, typing.Any], mandatory_nodes: typing.List[int], **kwargs: typing.Any) -> typing.Tuple[typing.List[typing.List[int]], float, float]
 :canonical: src.policies.branch_and_price.policy_bp.BranchAndPricePolicy._run_solver
 

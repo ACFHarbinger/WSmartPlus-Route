@@ -64,7 +64,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.policies.branch_and_bound.params';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.policies.branch_and_bound.node" href="src.policies.branch_and_bound.node.html" />
+    <link rel="next" title="src.policies.branch_and_bound.lr_uop" href="src.policies.branch_and_bound.lr_uop.html" />
     <link rel="prev" title="src.policies.branch_and_bound.mtz" href="src.policies.branch_and_bound.mtz.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -262,15 +262,20 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.memetic_algorithm_tolerance_based_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_tolerance_based_selection</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.artificial_bee_colony.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.artificial_bee_colony</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.exact_stochastic_dynamic_programming.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.exact_stochastic_dynamic_programming</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.particle_swarm_optimization.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.particle_swarm_optimization</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.knowledge_guided_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.knowledge_guided_local_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search_ruin_and_recreate.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_ruin_and_recreate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.constraint_programming_with_boolean_satisfiability.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.constraint_programming_with_boolean_satisfiability</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_price_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.partial_optimization_metaheuristic_under_special_intensification_conditions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.partial_optimization_metaheuristic_under_special_intensification_conditions</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.harmony_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.harmony_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.smart_waste_collection_two_commodity_flow.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.smart_waste_collection_two_commodity_flow</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.variable_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.particle_swarm_optimization_memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.particle_swarm_optimization_memetic_algorithm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.integer_l_shaped_benders_decomposition.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.integer_l_shaped_benders_decomposition</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.progressive_hedging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.progressive_hedging</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.travelling_salesman_problem.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.travelling_salesman_problem</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization_k_sparse.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization_k_sparse</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.sine_cosine_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.sine_cosine_algorithm</span></code></a></li>
@@ -288,7 +293,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.old_bachelor_acceptance.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.old_bachelor_acceptance</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.great_deluge.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.great_deluge</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.local_branching.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.popmusic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.popmusic</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.ant_colony_optimization_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization_hyper_heuristic</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.hybrid_genetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.branch_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_cut</span></code></a></li>
@@ -309,6 +313,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.kernel_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.kernel_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.sequence_based_selection_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.sequence_based_selection_hyper_heuristic</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.evolution_strategy_mu_comma_lambda.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.evolution_strategy_mu_comma_lambda</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.scenario_tree_extensive_form.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.scenario_tree_extensive_form</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.relaxation_enforced_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.relaxation_enforced_neighborhood_search</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.genius.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.genius</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.iterated_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.iterated_local_search</span></code></a></li>
@@ -539,6 +544,13 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_bound.params.BBParams.branching_strategy"><code class="docutils literal notranslate"><span class="pre">BBParams.branching_strategy</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_bound.params.BBParams.strong_branching_limit"><code class="docutils literal notranslate"><span class="pre">BBParams.strong_branching_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_bound.params.BBParams.formulation"><code class="docutils literal notranslate"><span class="pre">BBParams.formulation</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_bound.params.BBParams.lr_lambda_init"><code class="docutils literal notranslate"><span class="pre">BBParams.lr_lambda_init</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_bound.params.BBParams.lr_max_subgradient_iters"><code class="docutils literal notranslate"><span class="pre">BBParams.lr_max_subgradient_iters</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_bound.params.BBParams.lr_subgradient_theta"><code class="docutils literal notranslate"><span class="pre">BBParams.lr_subgradient_theta</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_bound.params.BBParams.lr_subgradient_time_fraction"><code class="docutils literal notranslate"><span class="pre">BBParams.lr_subgradient_time_fraction</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_bound.params.BBParams.lr_op_time_limit"><code class="docutils literal notranslate"><span class="pre">BBParams.lr_op_time_limit</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_bound.params.BBParams.lr_branching_strategy"><code class="docutils literal notranslate"><span class="pre">BBParams.lr_branching_strategy</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_bound.params.BBParams.lr_max_bb_nodes"><code class="docutils literal notranslate"><span class="pre">BBParams.lr_max_bb_nodes</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_bound.params.BBParams.from_config"><code class="docutils literal notranslate"><span class="pre">BBParams.from_config()</span></code></a></li>
 </ul>
 </li>
@@ -567,7 +579,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.branch_and_bound.params.BBParams" title="src.policies.branch_and_bound.params.BBParams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BBParams</span></code></a></p></td>
-<td><p>Standardized parameters for Branch-and-Bound solvers (MTZ and DFJ).</p></td>
+<td><p>Standardized parameters for Branch-and-Bound solvers (MTZ, DFJ, and LR-UOP).</p></td>
 </tr>
 </tbody>
 </table>
@@ -578,7 +590,9 @@ document.write(`
 <dl class="py class">
 <dt class="sig sig-object py" id="src.policies.branch_and_bound.params.BBParams">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.branch_and_bound.params.</span></span><span class="sig-name descname"><span class="pre">BBParams</span></span><a class="headerlink" href="#src.policies.branch_and_bound.params.BBParams" title="Link to this definition">#</a></dt>
-<dd><p>Standardized parameters for Branch-and-Bound solvers (MTZ and DFJ).</p>
+<dd><p>Standardized parameters for Branch-and-Bound solvers (MTZ, DFJ, and LR-UOP).</p>
+<p>Shared parameters apply to all three formulations. Parameters prefixed with
+<code class="docutils literal notranslate"><span class="pre">lr_</span></code> are only used when <code class="docutils literal notranslate"><span class="pre">formulation</span> <span class="pre">=</span> <span class="pre">&quot;lr_uop&quot;</span></code>.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.branch_and_bound.params.BBParams.time_limit">
 <span class="sig-name descname"><span class="pre">time_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.branch_and_bound.params.BBParams.time_limit" title="Link to this definition">#</a></dt>
@@ -613,6 +627,48 @@ document.write(`
 <dt class="sig sig-object py" id="src.policies.branch_and_bound.params.BBParams.formulation">
 <span class="sig-name descname"><span class="pre">formulation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.policies.branch_and_bound.params.BBParams.formulation" title="Link to this definition">#</a></dt>
 <dd><p>‘dfj’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.branch_and_bound.params.BBParams.lr_lambda_init">
+<span class="sig-name descname"><span class="pre">lr_lambda_init</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.branch_and_bound.params.BBParams.lr_lambda_init" title="Link to this definition">#</a></dt>
+<dd><p>0.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.branch_and_bound.params.BBParams.lr_max_subgradient_iters">
+<span class="sig-name descname"><span class="pre">lr_max_subgradient_iters</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.branch_and_bound.params.BBParams.lr_max_subgradient_iters" title="Link to this definition">#</a></dt>
+<dd><p>100</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.branch_and_bound.params.BBParams.lr_subgradient_theta">
+<span class="sig-name descname"><span class="pre">lr_subgradient_theta</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.branch_and_bound.params.BBParams.lr_subgradient_theta" title="Link to this definition">#</a></dt>
+<dd><p>1.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.branch_and_bound.params.BBParams.lr_subgradient_time_fraction">
+<span class="sig-name descname"><span class="pre">lr_subgradient_time_fraction</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.branch_and_bound.params.BBParams.lr_subgradient_time_fraction" title="Link to this definition">#</a></dt>
+<dd><p>0.4</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.branch_and_bound.params.BBParams.lr_op_time_limit">
+<span class="sig-name descname"><span class="pre">lr_op_time_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.branch_and_bound.params.BBParams.lr_op_time_limit" title="Link to this definition">#</a></dt>
+<dd><p>10.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.branch_and_bound.params.BBParams.lr_branching_strategy">
+<span class="sig-name descname"><span class="pre">lr_branching_strategy</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.policies.branch_and_bound.params.BBParams.lr_branching_strategy" title="Link to this definition">#</a></dt>
+<dd><p>‘max_waste’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.branch_and_bound.params.BBParams.lr_max_bb_nodes">
+<span class="sig-name descname"><span class="pre">lr_max_bb_nodes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.branch_and_bound.params.BBParams.lr_max_bb_nodes" title="Link to this definition">#</a></dt>
+<dd><p>5000</p>
 </dd></dl>
 
 <dl class="py method">
@@ -652,11 +708,11 @@ A BBParams instance with values mapped from the config.</p>
       </div>
     </a>
     <a class="right-next"
-       href="src.policies.branch_and_bound.node.html"
+       href="src.policies.branch_and_bound.lr_uop.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_bound.node</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_bound.lr_uop</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -686,6 +742,13 @@ A BBParams instance with values mapped from the config.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_bound.params.BBParams.branching_strategy"><code class="docutils literal notranslate"><span class="pre">BBParams.branching_strategy</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_bound.params.BBParams.strong_branching_limit"><code class="docutils literal notranslate"><span class="pre">BBParams.strong_branching_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_bound.params.BBParams.formulation"><code class="docutils literal notranslate"><span class="pre">BBParams.formulation</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_bound.params.BBParams.lr_lambda_init"><code class="docutils literal notranslate"><span class="pre">BBParams.lr_lambda_init</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_bound.params.BBParams.lr_max_subgradient_iters"><code class="docutils literal notranslate"><span class="pre">BBParams.lr_max_subgradient_iters</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_bound.params.BBParams.lr_subgradient_theta"><code class="docutils literal notranslate"><span class="pre">BBParams.lr_subgradient_theta</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_bound.params.BBParams.lr_subgradient_time_fraction"><code class="docutils literal notranslate"><span class="pre">BBParams.lr_subgradient_time_fraction</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_bound.params.BBParams.lr_op_time_limit"><code class="docutils literal notranslate"><span class="pre">BBParams.lr_op_time_limit</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_bound.params.BBParams.lr_branching_strategy"><code class="docutils literal notranslate"><span class="pre">BBParams.lr_branching_strategy</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_bound.params.BBParams.lr_max_bb_nodes"><code class="docutils literal notranslate"><span class="pre">BBParams.lr_max_bb_nodes</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.branch_and_bound.params.BBParams.from_config"><code class="docutils literal notranslate"><span class="pre">BBParams.from_config()</span></code></a></li>
 </ul>
 </li>

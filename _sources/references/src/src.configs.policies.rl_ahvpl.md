@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.policies.rl_ahvpl.RLAHVPLConfig
 ```
 
-````{py:attribute} engine
-:canonical: src.configs.policies.rl_ahvpl.RLAHVPLConfig.engine
-:type: str
-:value: >
-   'rl_ahvpl'
-
-```{autodoc2-docstring} src.configs.policies.rl_ahvpl.RLAHVPLConfig.engine
-```
-
-````
-
 ````{py:attribute} n_teams
 :canonical: src.configs.policies.rl_ahvpl.RLAHVPLConfig.n_teams
 :type: int

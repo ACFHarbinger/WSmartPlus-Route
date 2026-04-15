@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.policies.gd.GDConfig
 ```
 
-````{py:attribute} engine
-:canonical: src.configs.policies.gd.GDConfig.engine
-:type: str
-:value: >
-   'gd'
-
-```{autodoc2-docstring} src.configs.policies.gd.GDConfig.engine
-```
-
-````
-
 ````{py:attribute} max_iterations
 :canonical: src.configs.policies.gd.GDConfig.max_iterations
 :type: int

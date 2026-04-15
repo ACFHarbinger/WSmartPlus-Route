@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.policies.vns.VNSConfig
 ```
 
-````{py:attribute} engine
-:canonical: src.configs.policies.vns.VNSConfig.engine
-:type: str
-:value: >
-   'vns'
-
-```{autodoc2-docstring} src.configs.policies.vns.VNSConfig.engine
-```
-
-````
-
 ````{py:attribute} k_max
 :canonical: src.configs.policies.vns.VNSConfig.k_max
 :type: int

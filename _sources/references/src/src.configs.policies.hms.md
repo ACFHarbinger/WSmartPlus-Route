@@ -29,13 +29,13 @@
 ```{autodoc2-docstring} src.configs.policies.hms.HybridMemeticSearchConfig
 ```
 
-````{py:attribute} engine
-:canonical: src.configs.policies.hms.HybridMemeticSearchConfig.engine
-:type: str
+````{py:attribute} n_removal
+:canonical: src.configs.policies.hms.HybridMemeticSearchConfig.n_removal
+:type: int
 :value: >
-   'hms'
+   3
 
-```{autodoc2-docstring} src.configs.policies.hms.HybridMemeticSearchConfig.engine
+```{autodoc2-docstring} src.configs.policies.hms.HybridMemeticSearchConfig.n_removal
 ```
 
 ````

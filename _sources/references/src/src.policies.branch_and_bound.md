@@ -16,8 +16,10 @@
 src.policies.branch_and_bound.policy_bb
 src.policies.branch_and_bound.mtz
 src.policies.branch_and_bound.params
-src.policies.branch_and_bound.node
+src.policies.branch_and_bound.lr_uop
+src.policies.branch_and_bound.lr_orienteering
 src.policies.branch_and_bound.dispatcher
+src.policies.branch_and_bound.lr_subgradient
 src.policies.branch_and_bound.dfj
 ```
 
@@ -40,7 +42,7 @@ src.policies.branch_and_bound.dfj
 ````{py:data} __all__
 :canonical: src.policies.branch_and_bound.__all__
 :value: >
-   ['BranchAndBoundPolicy', 'run_bb_optimizer', 'run_bb_mtz', 'run_bb_dfj']
+   ['BranchAndBoundPolicy', 'run_bb_optimizer', 'run_bb_mtz', 'run_bb_dfj', 'run_bb_lr_uop']
 
 ```{autodoc2-docstring} src.policies.branch_and_bound.__all__
 ```

@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.policies.lca.LCAConfig
 ```
 
-````{py:attribute} engine
-:canonical: src.configs.policies.lca.LCAConfig.engine
-:type: str
-:value: >
-   'lca'
-
-```{autodoc2-docstring} src.configs.policies.lca.LCAConfig.engine
-```
-
-````
-
 ````{py:attribute} n_teams
 :canonical: src.configs.policies.lca.LCAConfig.n_teams
 :type: int

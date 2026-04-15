@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.policies.ts.TSConfig
 ```
 
-````{py:attribute} engine
-:canonical: src.configs.policies.ts.TSConfig.engine
-:type: str
-:value: >
-   'ts'
-
-```{autodoc2-docstring} src.configs.policies.ts.TSConfig.engine
-```
-
-````
-
 ````{py:attribute} tabu_tenure
 :canonical: src.configs.policies.ts.TSConfig.tabu_tenure
 :type: int

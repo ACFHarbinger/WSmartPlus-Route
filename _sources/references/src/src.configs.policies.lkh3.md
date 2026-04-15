@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.policies.lkh3.LKH3Config
 ```
 
-````{py:attribute} engine
-:canonical: src.configs.policies.lkh3.LKH3Config.engine
-:type: str
-:value: >
-   'lkh3'
-
-```{autodoc2-docstring} src.configs.policies.lkh3.LKH3Config.engine
-```
-
-````
-
 ````{py:attribute} runs
 :canonical: src.configs.policies.lkh3.LKH3Config.runs
 :type: int
@@ -150,13 +139,13 @@
 
 ````
 
-````{py:attribute} lns_iterations
-:canonical: src.configs.policies.lkh3.LKH3Config.lns_iterations
+````{py:attribute} alns_iterations
+:canonical: src.configs.policies.lkh3.LKH3Config.alns_iterations
 :type: int
 :value: >
    100
 
-```{autodoc2-docstring} src.configs.policies.lkh3.LKH3Config.lns_iterations
+```{autodoc2-docstring} src.configs.policies.lkh3.LKH3Config.alns_iterations
 ```
 
 ````
@@ -212,6 +201,28 @@
    True
 
 ```{autodoc2-docstring} src.configs.policies.lkh3.LKH3Config.vrpp
+```
+
+````
+
+````{py:attribute} dynamic_topology_discovery
+:canonical: src.configs.policies.lkh3.LKH3Config.dynamic_topology_discovery
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.lkh3.LKH3Config.dynamic_topology_discovery
+```
+
+````
+
+````{py:attribute} native_prize_collecting
+:canonical: src.configs.policies.lkh3.LKH3Config.native_prize_collecting
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.lkh3.LKH3Config.native_prize_collecting
 ```
 
 ````

@@ -14,9 +14,10 @@
 :maxdepth: 1
 
 src.policies.smart_waste_collection_two_commodity_flow.gurobi
+src.policies.smart_waste_collection_two_commodity_flow.pyomo_wrapper
 src.policies.smart_waste_collection_two_commodity_flow.params
-src.policies.smart_waste_collection_two_commodity_flow.hexaly
 src.policies.smart_waste_collection_two_commodity_flow.dispatcher
+src.policies.smart_waste_collection_two_commodity_flow.ortools_wrapper
 src.policies.smart_waste_collection_two_commodity_flow.policy_swc_tcf
 ```
 

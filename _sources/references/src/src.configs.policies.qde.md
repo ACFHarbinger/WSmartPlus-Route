@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.policies.qde.QDEConfig
 ```
 
-````{py:attribute} engine
-:canonical: src.configs.policies.qde.QDEConfig.engine
-:type: str
-:value: >
-   'qde'
-
-```{autodoc2-docstring} src.configs.policies.qde.QDEConfig.engine
-```
-
-````
-
 ````{py:attribute} pop_size
 :canonical: src.configs.policies.qde.QDEConfig.pop_size
 :type: int

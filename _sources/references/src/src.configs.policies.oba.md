@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.policies.oba.OBAConfig
 ```
 
-````{py:attribute} engine
-:canonical: src.configs.policies.oba.OBAConfig.engine
-:type: str
-:value: >
-   'oba'
-
-```{autodoc2-docstring} src.configs.policies.oba.OBAConfig.engine
-```
-
-````
-
 ````{py:attribute} dilation
 :canonical: src.configs.policies.oba.OBAConfig.dilation
 :type: float

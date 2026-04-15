@@ -205,17 +205,6 @@
 
 ````
 
-````{py:attribute} engine
-:canonical: src.configs.policies.aco_hh.HyperHeuristicACOConfig.engine
-:type: str
-:value: >
-   'custom'
-
-```{autodoc2-docstring} src.configs.policies.aco_hh.HyperHeuristicACOConfig.engine
-```
-
-````
-
 ````{py:attribute} vrpp
 :canonical: src.configs.policies.aco_hh.HyperHeuristicACOConfig.vrpp
 :type: bool

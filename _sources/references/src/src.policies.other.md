@@ -15,6 +15,7 @@
 
 src.policies.other.local_search
 src.policies.other.reinforcement_learning
+src.policies.other.branching_solvers
 src.policies.other.must_go
 src.policies.other.operators
 src.policies.other.post_processing

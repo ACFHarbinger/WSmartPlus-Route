@@ -131,7 +131,7 @@ Bases: {py:obj}`src.policies.other.reinforcement_learning.agents.td_learning.TDA
 
 `````
 
-`````{py:class} SarsaAgent(*args, **kwargs)
+`````{py:class} SarsaAgent(*args: typing.Any, **kwargs: typing.Any)
 :canonical: src.policies.other.reinforcement_learning.agents.td_learning.SarsaAgent
 
 Bases: {py:obj}`src.policies.other.reinforcement_learning.agents.td_learning.TDAgent`

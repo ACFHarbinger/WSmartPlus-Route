@@ -55,7 +55,7 @@
 
 ````
 
-````{py:method} get(device: torch.device) -> typing.Dict[str, torch.Tensor]
+````{py:method} get(device: torch.device) -> typing.Dict[str, typing.Any]
 :canonical: src.models.core.dr_alns.ppo_trainer.PPOBuffer.get
 
 ```{autodoc2-docstring} src.models.core.dr_alns.ppo_trainer.PPOBuffer.get

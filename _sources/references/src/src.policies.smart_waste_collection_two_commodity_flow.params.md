@@ -29,6 +29,17 @@
 ```{autodoc2-docstring} src.policies.smart_waste_collection_two_commodity_flow.params.SWCTCFParams
 ```
 
+````{py:attribute} framework
+:canonical: src.policies.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.framework
+:type: str
+:value: >
+   'ortools'
+
+```{autodoc2-docstring} src.policies.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.framework
+```
+
+````
+
 ````{py:attribute} engine
 :canonical: src.policies.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.engine
 :type: str

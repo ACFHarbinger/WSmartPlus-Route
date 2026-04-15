@@ -117,6 +117,28 @@
 
 ````
 
+````{py:attribute} engine
+:canonical: src.policies.local_branching_variable_neighborhood_search.params.LBVNSParams.engine
+:type: str
+:value: >
+   'gurobi'
+
+```{autodoc2-docstring} src.policies.local_branching_variable_neighborhood_search.params.LBVNSParams.engine
+```
+
+````
+
+````{py:attribute} framework
+:canonical: src.policies.local_branching_variable_neighborhood_search.params.LBVNSParams.framework
+:type: str
+:value: >
+   'ortools'
+
+```{autodoc2-docstring} src.policies.local_branching_variable_neighborhood_search.params.LBVNSParams.framework
+```
+
+````
+
 ````{py:method} from_config(config: typing.Any) -> src.policies.local_branching_variable_neighborhood_search.params.LBVNSParams
 :canonical: src.policies.local_branching_variable_neighborhood_search.params.LBVNSParams.from_config
 :classmethod:

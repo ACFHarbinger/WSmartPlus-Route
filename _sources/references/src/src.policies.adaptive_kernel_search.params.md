@@ -128,6 +128,28 @@
 
 ````
 
+````{py:attribute} engine
+:canonical: src.policies.adaptive_kernel_search.params.AKSParams.engine
+:type: str
+:value: >
+   'gurobi'
+
+```{autodoc2-docstring} src.policies.adaptive_kernel_search.params.AKSParams.engine
+```
+
+````
+
+````{py:attribute} framework
+:canonical: src.policies.adaptive_kernel_search.params.AKSParams.framework
+:type: str
+:value: >
+   'ortools'
+
+```{autodoc2-docstring} src.policies.adaptive_kernel_search.params.AKSParams.framework
+```
+
+````
+
 ````{py:method} from_config(config: typing.Any) -> src.policies.adaptive_kernel_search.params.AKSParams
 :canonical: src.policies.adaptive_kernel_search.params.AKSParams.from_config
 :classmethod:

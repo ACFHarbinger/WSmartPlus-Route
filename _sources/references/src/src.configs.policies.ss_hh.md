@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.policies.ss_hh.SSHHConfig
 ```
 
-````{py:attribute} engine
-:canonical: src.configs.policies.ss_hh.SSHHConfig.engine
-:type: str
-:value: >
-   'ss_hh'
-
-```{autodoc2-docstring} src.configs.policies.ss_hh.SSHHConfig.engine
-```
-
-````
-
 ````{py:attribute} max_iterations
 :canonical: src.configs.policies.ss_hh.SSHHConfig.max_iterations
 :type: int

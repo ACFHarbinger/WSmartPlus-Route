@@ -227,6 +227,17 @@
 
 ````
 
+````{py:attribute} extended_operators
+:canonical: src.policies.adaptive_large_neighborhood_search.params.ALNSParams.extended_operators
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.params.ALNSParams.extended_operators
+```
+
+````
+
 ````{py:attribute} seed
 :canonical: src.policies.adaptive_large_neighborhood_search.params.ALNSParams.seed
 :type: typing.Optional[int]
@@ -234,6 +245,17 @@
    None
 
 ```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.params.ALNSParams.seed
+```
+
+````
+
+````{py:attribute} engine
+:canonical: src.policies.adaptive_large_neighborhood_search.params.ALNSParams.engine
+:type: str
+:value: >
+   'custom'
+
+```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.params.ALNSParams.engine
 ```
 
 ````

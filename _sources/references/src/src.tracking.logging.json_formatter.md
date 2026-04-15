@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} JsonFormatter(fmt=None, datefmt=None, style='%', validate=True)
+`````{py:class} JsonFormatter(fmt=None, datefmt=None, style='%', validate=True, *, defaults=None)
 :canonical: src.tracking.logging.json_formatter.JsonFormatter
 
 Bases: {py:obj}`logging.Formatter`

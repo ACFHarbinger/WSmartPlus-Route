@@ -117,6 +117,28 @@
 
 ````
 
+````{py:attribute} enable_heuristic_rcc_separation
+:canonical: src.policies.branch_and_cut.params.BCParams.enable_heuristic_rcc_separation
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.branch_and_cut.params.BCParams.enable_heuristic_rcc_separation
+```
+
+````
+
+````{py:attribute} enable_exact_rcc_separation
+:canonical: src.policies.branch_and_cut.params.BCParams.enable_exact_rcc_separation
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.branch_and_cut.params.BCParams.enable_exact_rcc_separation
+```
+
+````
+
 ````{py:attribute} use_comb_cuts
 :canonical: src.policies.branch_and_cut.params.BCParams.use_comb_cuts
 :type: bool
@@ -124,6 +146,28 @@
    False
 
 ```{autodoc2-docstring} src.policies.branch_and_cut.params.BCParams.use_comb_cuts
+```
+
+````
+
+````{py:attribute} use_saa
+:canonical: src.policies.branch_and_cut.params.BCParams.use_saa
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.branch_and_cut.params.BCParams.use_saa
+```
+
+````
+
+````{py:attribute} num_scenarios
+:canonical: src.policies.branch_and_cut.params.BCParams.num_scenarios
+:type: int
+:value: >
+   10
+
+```{autodoc2-docstring} src.policies.branch_and_cut.params.BCParams.num_scenarios
 ```
 
 ````

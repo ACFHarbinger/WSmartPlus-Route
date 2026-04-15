@@ -99,13 +99,4 @@ Bases: {py:obj}`pytorch_lightning.LightningModule`
 
 ````
 
-````{py:property} automatic_optimization
-:canonical: src.pipeline.rl.core.dr_alns.DRALNSLitModule.automatic_optimization
-:type: bool
-
-```{autodoc2-docstring} src.pipeline.rl.core.dr_alns.DRALNSLitModule.automatic_optimization
-```
-
-````
-
 `````

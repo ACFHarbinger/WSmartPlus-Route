@@ -205,6 +205,17 @@
 
 ````
 
+````{py:attribute} multi_day_mode
+:canonical: src.policies.branch_and_price.params.BPParams.multi_day_mode
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.branch_and_price.params.BPParams.multi_day_mode
+```
+
+````
+
 ````{py:method} from_config(config: typing.Any) -> src.policies.branch_and_price.params.BPParams
 :canonical: src.policies.branch_and_price.params.BPParams.from_config
 :classmethod:

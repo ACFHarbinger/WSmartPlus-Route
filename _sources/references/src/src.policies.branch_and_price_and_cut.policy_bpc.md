@@ -51,6 +51,30 @@ Bases: {py:obj}`logic.src.policies.base.base_routing_policy.BaseRoutingPolicy`
 
 ````
 
+````{py:method} _load_model(path: str, model_type: str) -> None
+:canonical: src.policies.branch_and_price_and_cut.policy_bpc.BPCPolicy._load_model
+
+```{autodoc2-docstring} src.policies.branch_and_price_and_cut.policy_bpc.BPCPolicy._load_model
+```
+
+````
+
+````{py:method} _predict_V(features: numpy.ndarray, model_type: str) -> numpy.ndarray
+:canonical: src.policies.branch_and_price_and_cut.policy_bpc.BPCPolicy._predict_V
+
+```{autodoc2-docstring} src.policies.branch_and_price_and_cut.policy_bpc.BPCPolicy._predict_V
+```
+
+````
+
+````{py:method} execute(**kwargs: typing.Any) -> typing.Tuple[typing.Union[typing.List[int], typing.List[typing.List[int]]], float, typing.Any]
+:canonical: src.policies.branch_and_price_and_cut.policy_bpc.BPCPolicy.execute
+
+```{autodoc2-docstring} src.policies.branch_and_price_and_cut.policy_bpc.BPCPolicy.execute
+```
+
+````
+
 ````{py:method} _run_solver(sub_dist_matrix: numpy.ndarray, sub_wastes: typing.Dict[int, float], capacity: float, revenue: float, cost_unit: float, values: typing.Dict[str, typing.Any], mandatory_nodes: typing.List[int], **kwargs: typing.Any) -> typing.Tuple[typing.List[typing.List[int]], float, float]
 :canonical: src.policies.branch_and_price_and_cut.policy_bpc.BPCPolicy._run_solver
 

@@ -29,6 +29,17 @@
 ```{autodoc2-docstring} src.configs.policies.hgs_rr.HGSRRConfig
 ```
 
+````{py:attribute} restart_timer
+:canonical: src.configs.policies.hgs_rr.HGSRRConfig.restart_timer
+:type: float
+:value: >
+   0.0
+
+```{autodoc2-docstring} src.configs.policies.hgs_rr.HGSRRConfig.restart_timer
+```
+
+````
+
 ````{py:attribute} time_limit
 :canonical: src.configs.policies.hgs_rr.HGSRRConfig.time_limit
 :type: float

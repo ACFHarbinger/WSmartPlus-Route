@@ -55,7 +55,7 @@
 
 ````
 
-````{py:method} _evaluate_node(node: src.policies.branch_and_bound.node.Node) -> float
+````{py:method} _evaluate_node(node: logic.src.policies.other.branching_solvers.common.node.Node) -> float
 :canonical: src.policies.branch_and_bound.mtz.BBSolver._evaluate_node
 
 ```{autodoc2-docstring} src.policies.branch_and_bound.mtz.BBSolver._evaluate_node

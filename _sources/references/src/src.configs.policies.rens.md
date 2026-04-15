@@ -95,11 +95,22 @@
 
 ````
 
+````{py:attribute} framework
+:canonical: src.configs.policies.rens.RENSConfig.framework
+:type: str
+:value: >
+   'ortools'
+
+```{autodoc2-docstring} src.configs.policies.rens.RENSConfig.framework
+```
+
+````
+
 ````{py:attribute} engine
 :canonical: src.configs.policies.rens.RENSConfig.engine
 :type: str
 :value: >
-   'custom'
+   'gurobi'
 
 ```{autodoc2-docstring} src.configs.policies.rens.RENSConfig.engine
 ```

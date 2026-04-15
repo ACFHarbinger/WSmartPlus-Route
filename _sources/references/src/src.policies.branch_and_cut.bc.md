@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} BranchAndCutSolver(model: logic.src.policies.branch_and_cut.vrpp_model.VRPPModel, params: typing.Optional[src.policies.branch_and_cut.params.BCParams] = None, **kwargs: typing.Any)
+`````{py:class} BranchAndCutSolver(model: logic.src.policies.other.branching_solvers.vrpp_model.VRPPModel, params: typing.Optional[src.policies.branch_and_cut.params.BCParams] = None, scenarios: typing.Optional[typing.List[typing.Dict[int, float]]] = None, **kwargs: typing.Any)
 :canonical: src.policies.branch_and_cut.bc.BranchAndCutSolver
 
 ```{autodoc2-docstring} src.policies.branch_and_cut.bc.BranchAndCutSolver
@@ -91,7 +91,7 @@
 
 ````
 
-````{py:method} _add_pcsec_lazy(model, cut: logic.src.policies.branch_and_cut.separation.PCSubtourEliminationCut)
+````{py:method} _add_pcsec_lazy(model, cut: logic.src.policies.other.branching_solvers.PCSubtourEliminationCut)
 :canonical: src.policies.branch_and_cut.bc.BranchAndCutSolver._add_pcsec_lazy
 
 ```{autodoc2-docstring} src.policies.branch_and_cut.bc.BranchAndCutSolver._add_pcsec_lazy
@@ -99,7 +99,7 @@
 
 ````
 
-````{py:method} _add_capacity_cut_lazy(model, cut: logic.src.policies.branch_and_cut.separation.CapacityCut)
+````{py:method} _add_capacity_cut_lazy(model, cut: logic.src.policies.other.branching_solvers.CapacityCut)
 :canonical: src.policies.branch_and_cut.bc.BranchAndCutSolver._add_capacity_cut_lazy
 
 ```{autodoc2-docstring} src.policies.branch_and_cut.bc.BranchAndCutSolver._add_capacity_cut_lazy
@@ -107,7 +107,7 @@
 
 ````
 
-````{py:method} _add_pcsec_user(model, cut: logic.src.policies.branch_and_cut.separation.PCSubtourEliminationCut)
+````{py:method} _add_pcsec_user(model, cut: logic.src.policies.other.branching_solvers.PCSubtourEliminationCut)
 :canonical: src.policies.branch_and_cut.bc.BranchAndCutSolver._add_pcsec_user
 
 ```{autodoc2-docstring} src.policies.branch_and_cut.bc.BranchAndCutSolver._add_pcsec_user
@@ -115,10 +115,34 @@
 
 ````
 
-````{py:method} _add_capacity_cut_user(model, cut: logic.src.policies.branch_and_cut.separation.CapacityCut)
+````{py:method} _add_capacity_cut_user(model, cut: logic.src.policies.other.branching_solvers.CapacityCut)
 :canonical: src.policies.branch_and_cut.bc.BranchAndCutSolver._add_capacity_cut_user
 
 ```{autodoc2-docstring} src.policies.branch_and_cut.bc.BranchAndCutSolver._add_capacity_cut_user
+```
+
+````
+
+````{py:method} _separate_stochastic_capacity_cuts(model, x_vals: numpy.ndarray, y_vals: numpy.ndarray, is_integer: bool)
+:canonical: src.policies.branch_and_cut.bc.BranchAndCutSolver._separate_stochastic_capacity_cuts
+
+```{autodoc2-docstring} src.policies.branch_and_cut.bc.BranchAndCutSolver._separate_stochastic_capacity_cuts
+```
+
+````
+
+````{py:method} _separate_multi_star_inequalities(model, x_vals: numpy.ndarray, y_vals: numpy.ndarray, is_integer: bool)
+:canonical: src.policies.branch_and_cut.bc.BranchAndCutSolver._separate_multi_star_inequalities
+
+```{autodoc2-docstring} src.policies.branch_and_cut.bc.BranchAndCutSolver._separate_multi_star_inequalities
+```
+
+````
+
+````{py:method} _separate_lot_sizing_inequalities(model, x_vals: numpy.ndarray, y_vals: numpy.ndarray, is_integer: bool)
+:canonical: src.policies.branch_and_cut.bc.BranchAndCutSolver._separate_lot_sizing_inequalities
+
+```{autodoc2-docstring} src.policies.branch_and_cut.bc.BranchAndCutSolver._separate_lot_sizing_inequalities
 ```
 
 ````

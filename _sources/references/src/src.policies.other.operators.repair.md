@@ -15,6 +15,7 @@
 
 src.policies.other.operators.repair.deep
 src.policies.other.operators.repair.savings
+src.policies.other.operators.repair.branch_bound
 src.policies.other.operators.repair.geni
 src.policies.other.operators.repair.nearest
 src.policies.other.operators.repair.greedy_blink
@@ -43,7 +44,7 @@ src.policies.other.operators.repair.regret
 ````{py:data} __all__
 :canonical: src.policies.other.operators.repair.__all__
 :value: >
-   ['greedy_insertion', 'greedy_profit_insertion', 'farthest_insertion', 'farthest_profit_insertion', '...
+   ['bb_insertion', 'bb_profit_insertion', 'greedy_insertion', 'greedy_profit_insertion', 'farthest_ins...
 
 ```{autodoc2-docstring} src.policies.other.operators.repair.__all__
 ```

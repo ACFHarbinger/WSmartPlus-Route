@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.policies.ma_ts.MemeticAlgorithmToleranceBasedSelectionConfig
 ```
 
-````{py:attribute} engine
-:canonical: src.configs.policies.ma_ts.MemeticAlgorithmToleranceBasedSelectionConfig.engine
-:type: str
-:value: >
-   'ma_ts'
-
-```{autodoc2-docstring} src.configs.policies.ma_ts.MemeticAlgorithmToleranceBasedSelectionConfig.engine
-```
-
-````
-
 ````{py:attribute} population_size
 :canonical: src.configs.policies.ma_ts.MemeticAlgorithmToleranceBasedSelectionConfig.population_size
 :type: int

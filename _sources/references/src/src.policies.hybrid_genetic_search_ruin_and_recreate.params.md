@@ -29,6 +29,17 @@
 ```{autodoc2-docstring} src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams
 ```
 
+````{py:attribute} restart_timer
+:canonical: src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.restart_timer
+:type: float
+:value: >
+   0.0
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.restart_timer
+```
+
+````
+
 ````{py:attribute} time_limit
 :canonical: src.policies.hybrid_genetic_search_ruin_and_recreate.params.HGSRRParams.time_limit
 :type: float

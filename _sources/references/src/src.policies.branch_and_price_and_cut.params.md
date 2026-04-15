@@ -348,6 +348,38 @@
 
 ````
 
+````{py:attribute} multi_day_mode
+:canonical: src.policies.branch_and_price_and_cut.params.BPCParams.multi_day_mode
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.branch_and_price_and_cut.params.BPCParams.multi_day_mode
+```
+
+````
+
+````{py:attribute} adp_model_path
+:canonical: src.policies.branch_and_price_and_cut.params.BPCParams.adp_model_path
+:type: str
+:value: <Multiline-String>
+
+```{autodoc2-docstring} src.policies.branch_and_price_and_cut.params.BPCParams.adp_model_path
+```
+
+````
+
+````{py:attribute} adp_model_type
+:canonical: src.policies.branch_and_price_and_cut.params.BPCParams.adp_model_type
+:type: str
+:value: >
+   'sklearn'
+
+```{autodoc2-docstring} src.policies.branch_and_price_and_cut.params.BPCParams.adp_model_type
+```
+
+````
+
 ````{py:method} from_config(config: typing.Any) -> src.policies.branch_and_price_and_cut.params.BPCParams
 :canonical: src.policies.branch_and_price_and_cut.params.BPCParams.from_config
 :classmethod:

@@ -49,11 +49,11 @@
 
 ````
 
-````{py:method} get(name: str) -> typing.Optional[typing.Type[logic.src.interfaces.post_processing.IPostProcessor]]
-:canonical: src.policies.other.post_processing.base.registry.PostProcessorRegistry.get
+````{py:method} get_post_processor_class(name: str) -> typing.Optional[typing.Type[logic.src.interfaces.post_processing.IPostProcessor]]
+:canonical: src.policies.other.post_processing.base.registry.PostProcessorRegistry.get_post_processor_class
 :classmethod:
 
-```{autodoc2-docstring} src.policies.other.post_processing.base.registry.PostProcessorRegistry.get
+```{autodoc2-docstring} src.policies.other.post_processing.base.registry.PostProcessorRegistry.get_post_processor_class
 ```
 
 ````

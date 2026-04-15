@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.policies.rl_gd_hh.RLGDHHConfig
 ```
 
-````{py:attribute} engine
-:canonical: src.configs.policies.rl_gd_hh.RLGDHHConfig.engine
-:type: str
-:value: >
-   'rl_gd_hh'
-
-```{autodoc2-docstring} src.configs.policies.rl_gd_hh.RLGDHHConfig.engine
-```
-
-````
-
 ````{py:attribute} max_iterations
 :canonical: src.configs.policies.rl_gd_hh.RLGDHHConfig.max_iterations
 :type: int

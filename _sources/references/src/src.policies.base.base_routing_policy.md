@@ -156,7 +156,7 @@ Bases: {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`, {py:obj}`logic.src
 
 ````
 
-````{py:method} execute(**kwargs: typing.Any) -> typing.Tuple[typing.List[int], float, typing.Any]
+````{py:method} execute(**kwargs: typing.Any) -> typing.Tuple[typing.Union[typing.List[int], typing.List[typing.List[int]]], float, typing.Any]
 :canonical: src.policies.base.base_routing_policy.BaseRoutingPolicy.execute
 
 ```{autodoc2-docstring} src.policies.base.base_routing_policy.BaseRoutingPolicy.execute

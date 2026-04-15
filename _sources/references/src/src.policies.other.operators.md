@@ -21,6 +21,7 @@ src.policies.other.operators.crossover
 src.policies.other.operators.repair
 src.policies.other.operators.unstringing_stringing
 src.policies.other.operators.perturbation
+src.policies.other.operators.intensification
 ```
 
 ## Submodules
@@ -51,7 +52,7 @@ src.policies.other.operators.neighborhood
 ````{py:data} __all__
 :canonical: src.policies.other.operators.__all__
 :value: >
-   ['CROSSOVER_NAMES', 'CROSSOVER_OPERATORS', 'edge_recombination_crossover', 'generalized_partition_cr...
+   ['INTENSIFICATION_NAMES', 'INTENSIFICATION_OPERATORS', 'two_opt_steepest', 'two_opt_steepest_profit'...
 
 ```{autodoc2-docstring} src.policies.other.operators.__all__
 ```

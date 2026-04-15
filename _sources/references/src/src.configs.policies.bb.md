@@ -128,4 +128,81 @@
 
 ````
 
+````{py:attribute} lr_lambda_init
+:canonical: src.configs.policies.bb.BBConfig.lr_lambda_init
+:type: float
+:value: >
+   0.0
+
+```{autodoc2-docstring} src.configs.policies.bb.BBConfig.lr_lambda_init
+```
+
+````
+
+````{py:attribute} lr_max_subgradient_iters
+:canonical: src.configs.policies.bb.BBConfig.lr_max_subgradient_iters
+:type: int
+:value: >
+   100
+
+```{autodoc2-docstring} src.configs.policies.bb.BBConfig.lr_max_subgradient_iters
+```
+
+````
+
+````{py:attribute} lr_subgradient_theta
+:canonical: src.configs.policies.bb.BBConfig.lr_subgradient_theta
+:type: float
+:value: >
+   1.0
+
+```{autodoc2-docstring} src.configs.policies.bb.BBConfig.lr_subgradient_theta
+```
+
+````
+
+````{py:attribute} lr_subgradient_time_fraction
+:canonical: src.configs.policies.bb.BBConfig.lr_subgradient_time_fraction
+:type: float
+:value: >
+   0.4
+
+```{autodoc2-docstring} src.configs.policies.bb.BBConfig.lr_subgradient_time_fraction
+```
+
+````
+
+````{py:attribute} lr_op_time_limit
+:canonical: src.configs.policies.bb.BBConfig.lr_op_time_limit
+:type: float
+:value: >
+   10.0
+
+```{autodoc2-docstring} src.configs.policies.bb.BBConfig.lr_op_time_limit
+```
+
+````
+
+````{py:attribute} lr_branching_strategy
+:canonical: src.configs.policies.bb.BBConfig.lr_branching_strategy
+:type: str
+:value: >
+   'max_waste'
+
+```{autodoc2-docstring} src.configs.policies.bb.BBConfig.lr_branching_strategy
+```
+
+````
+
+````{py:attribute} lr_max_bb_nodes
+:canonical: src.configs.policies.bb.BBConfig.lr_max_bb_nodes
+:type: int
+:value: >
+   5000
+
+```{autodoc2-docstring} src.configs.policies.bb.BBConfig.lr_max_bb_nodes
+```
+
+````
+
 `````

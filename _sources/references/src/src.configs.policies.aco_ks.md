@@ -194,17 +194,6 @@
 
 ````
 
-````{py:attribute} engine
-:canonical: src.configs.policies.aco_ks.KSparseACOConfig.engine
-:type: str
-:value: >
-   'custom'
-
-```{autodoc2-docstring} src.configs.policies.aco_ks.KSparseACOConfig.engine
-```
-
-````
-
 ````{py:attribute} vrpp
 :canonical: src.configs.policies.aco_ks.KSparseACOConfig.vrpp
 :type: bool

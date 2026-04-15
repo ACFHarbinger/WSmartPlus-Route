@@ -95,6 +95,17 @@
 
 ````
 
+````{py:attribute} framework
+:canonical: src.configs.policies.swc_tcf.SWCTCFConfig.framework
+:type: str
+:value: >
+   'ortools'
+
+```{autodoc2-docstring} src.configs.policies.swc_tcf.SWCTCFConfig.framework
+```
+
+````
+
 ````{py:attribute} must_go
 :canonical: src.configs.policies.swc_tcf.SWCTCFConfig.must_go
 :type: typing.Optional[typing.List[src.configs.policies.other.must_go.MustGoConfig]]

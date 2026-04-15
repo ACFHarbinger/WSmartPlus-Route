@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.policies.rrt.RRTConfig
 ```
 
-````{py:attribute} engine
-:canonical: src.configs.policies.rrt.RRTConfig.engine
-:type: str
-:value: >
-   'rr'
-
-```{autodoc2-docstring} src.configs.policies.rrt.RRTConfig.engine
-```
-
-````
-
 ````{py:attribute} tolerance
 :canonical: src.configs.policies.rrt.RRTConfig.tolerance
 :type: float

@@ -35,6 +35,22 @@
 ```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver.__init__
 ```
 
+````{py:method} _build_destroy_ops() -> typing.Tuple[typing.List[typing.Callable], typing.List[str]]
+:canonical: src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._build_destroy_ops
+
+```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._build_destroy_ops
+```
+
+````
+
+````{py:method} _build_repair_ops() -> typing.Tuple[typing.List[typing.Callable], typing.List[str], typing.List[bool]]
+:canonical: src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._build_repair_ops
+
+```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._build_repair_ops
+```
+
+````
+
 ````{py:method} _get_noise() -> float
 :canonical: src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._get_noise
 
@@ -59,7 +75,7 @@
 
 ````
 
-````{py:method} _select_and_apply_operators(current_routes)
+````{py:method} _select_and_apply_operators(current_routes: typing.List[typing.List[int]]) -> typing.Tuple[typing.List[typing.List[int]], int, int]
 :canonical: src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._select_and_apply_operators
 
 ```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._select_and_apply_operators
@@ -67,7 +83,7 @@
 
 ````
 
-````{py:method} _accept_solution(current_profit, new_profit, T)
+````{py:method} _accept_solution(current_profit: float, new_profit: float, T: float) -> bool
 :canonical: src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._accept_solution
 
 ```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._accept_solution
@@ -75,7 +91,7 @@
 
 ````
 
-````{py:method} _update_weights(d_idx, r_idx, score)
+````{py:method} _update_weights(d_idx: int, r_idx: int, score: float) -> None
 :canonical: src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._update_weights
 
 ```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._update_weights
@@ -83,7 +99,7 @@
 
 ````
 
-````{py:method} _end_segment()
+````{py:method} _end_segment() -> None
 :canonical: src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._end_segment
 
 ```{autodoc2-docstring} src.policies.adaptive_large_neighborhood_search.alns.ALNSSolver._end_segment

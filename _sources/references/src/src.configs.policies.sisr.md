@@ -128,17 +128,6 @@
 
 ````
 
-````{py:attribute} engine
-:canonical: src.configs.policies.sisr.SISRConfig.engine
-:type: str
-:value: >
-   'custom'
-
-```{autodoc2-docstring} src.configs.policies.sisr.SISRConfig.engine
-```
-
-````
-
 ````{py:attribute} vrpp
 :canonical: src.configs.policies.sisr.SISRConfig.vrpp
 :type: bool

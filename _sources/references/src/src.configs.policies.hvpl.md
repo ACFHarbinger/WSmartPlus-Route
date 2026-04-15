@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.policies.hvpl.HVPLConfig
 ```
 
-````{py:attribute} engine
-:canonical: src.configs.policies.hvpl.HVPLConfig.engine
-:type: str
-:value: >
-   'hvpl'
-
-```{autodoc2-docstring} src.configs.policies.hvpl.HVPLConfig.engine
-```
-
-````
-
 ````{py:attribute} n_teams
 :canonical: src.configs.policies.hvpl.HVPLConfig.n_teams
 :type: int

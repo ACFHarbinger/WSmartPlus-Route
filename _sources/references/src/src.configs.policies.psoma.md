@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.policies.psoma.PSOMAConfig
 ```
 
-````{py:attribute} engine
-:canonical: src.configs.policies.psoma.PSOMAConfig.engine
-:type: str
-:value: >
-   'psoma'
-
-```{autodoc2-docstring} src.configs.policies.psoma.PSOMAConfig.engine
-```
-
-````
-
 ````{py:attribute} pop_size
 :canonical: src.configs.policies.psoma.PSOMAConfig.pop_size
 :type: int

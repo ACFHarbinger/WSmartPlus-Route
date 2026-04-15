@@ -40,6 +40,17 @@
 
 ````
 
+````{py:attribute} engine
+:canonical: src.configs.policies.tsp.TSPConfig.engine
+:type: str
+:value: >
+   'fast_tsp'
+
+```{autodoc2-docstring} src.configs.policies.tsp.TSPConfig.engine
+```
+
+````
+
 ````{py:attribute} time_limit
 :canonical: src.configs.policies.tsp.TSPConfig.time_limit
 :type: float

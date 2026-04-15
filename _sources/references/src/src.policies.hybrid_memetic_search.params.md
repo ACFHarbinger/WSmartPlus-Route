@@ -95,6 +95,17 @@
 
 ````
 
+````{py:attribute} n_removal
+:canonical: src.policies.hybrid_memetic_search.params.HybridMemeticSearchParams.n_removal
+:type: int
+:value: >
+   3
+
+```{autodoc2-docstring} src.policies.hybrid_memetic_search.params.HybridMemeticSearchParams.n_removal
+```
+
+````
+
 ````{py:attribute} aco_init_iterations
 :canonical: src.policies.hybrid_memetic_search.params.HybridMemeticSearchParams.aco_init_iterations
 :type: int

@@ -13,15 +13,10 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.branch_and_price_and_cut.branching
-src.policies.branch_and_price_and_cut.rcspp_dp
-src.policies.branch_and_price_and_cut.master_problem
 src.policies.branch_and_price_and_cut.params
 src.policies.branch_and_price_and_cut.cutting_planes
 src.policies.branch_and_price_and_cut.bpc_engine
 src.policies.branch_and_price_and_cut.policy_bpc
-src.policies.branch_and_price_and_cut.separation
-src.policies.branch_and_price_and_cut.vrpp_model
 src.policies.branch_and_price_and_cut.search_strategy
 ```
 

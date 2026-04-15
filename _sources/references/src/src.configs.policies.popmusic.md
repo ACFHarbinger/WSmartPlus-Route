@@ -33,13 +33,13 @@
 ```{autodoc2-docstring} src.configs.policies.popmusic.POPMUSICSubSolverConfig
 ```
 
-````{py:attribute} fast_tsp
-:canonical: src.configs.policies.popmusic.POPMUSICSubSolverConfig.fast_tsp
+````{py:attribute} tsp
+:canonical: src.configs.policies.popmusic.POPMUSICSubSolverConfig.tsp
 :type: typing.Optional[src.configs.policies.tsp.TSPConfig]
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.popmusic.POPMUSICSubSolverConfig.fast_tsp
+```{autodoc2-docstring} src.configs.policies.popmusic.POPMUSICSubSolverConfig.tsp
 ```
 
 ````

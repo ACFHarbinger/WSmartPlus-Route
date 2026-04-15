@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.policies.vpl.VPLConfig
 ```
 
-````{py:attribute} engine
-:canonical: src.configs.policies.vpl.VPLConfig.engine
-:type: str
-:value: >
-   'vpl'
-
-```{autodoc2-docstring} src.configs.policies.vpl.VPLConfig.engine
-```
-
-````
-
 ````{py:attribute} n_teams
 :canonical: src.configs.policies.vpl.VPLConfig.n_teams
 :type: int

@@ -95,6 +95,83 @@
 
 ````
 
+````{py:attribute} lr_lambda_init
+:canonical: src.policies.branch_and_bound.params.BBParams.lr_lambda_init
+:type: float
+:value: >
+   0.0
+
+```{autodoc2-docstring} src.policies.branch_and_bound.params.BBParams.lr_lambda_init
+```
+
+````
+
+````{py:attribute} lr_max_subgradient_iters
+:canonical: src.policies.branch_and_bound.params.BBParams.lr_max_subgradient_iters
+:type: int
+:value: >
+   100
+
+```{autodoc2-docstring} src.policies.branch_and_bound.params.BBParams.lr_max_subgradient_iters
+```
+
+````
+
+````{py:attribute} lr_subgradient_theta
+:canonical: src.policies.branch_and_bound.params.BBParams.lr_subgradient_theta
+:type: float
+:value: >
+   1.0
+
+```{autodoc2-docstring} src.policies.branch_and_bound.params.BBParams.lr_subgradient_theta
+```
+
+````
+
+````{py:attribute} lr_subgradient_time_fraction
+:canonical: src.policies.branch_and_bound.params.BBParams.lr_subgradient_time_fraction
+:type: float
+:value: >
+   0.4
+
+```{autodoc2-docstring} src.policies.branch_and_bound.params.BBParams.lr_subgradient_time_fraction
+```
+
+````
+
+````{py:attribute} lr_op_time_limit
+:canonical: src.policies.branch_and_bound.params.BBParams.lr_op_time_limit
+:type: float
+:value: >
+   10.0
+
+```{autodoc2-docstring} src.policies.branch_and_bound.params.BBParams.lr_op_time_limit
+```
+
+````
+
+````{py:attribute} lr_branching_strategy
+:canonical: src.policies.branch_and_bound.params.BBParams.lr_branching_strategy
+:type: str
+:value: >
+   'max_waste'
+
+```{autodoc2-docstring} src.policies.branch_and_bound.params.BBParams.lr_branching_strategy
+```
+
+````
+
+````{py:attribute} lr_max_bb_nodes
+:canonical: src.policies.branch_and_bound.params.BBParams.lr_max_bb_nodes
+:type: int
+:value: >
+   5000
+
+```{autodoc2-docstring} src.policies.branch_and_bound.params.BBParams.lr_max_bb_nodes
+```
+
+````
+
 ````{py:method} from_config(config: typing.Dict[str, typing.Any]) -> src.policies.branch_and_bound.params.BBParams
 :canonical: src.policies.branch_and_bound.params.BBParams.from_config
 :classmethod:

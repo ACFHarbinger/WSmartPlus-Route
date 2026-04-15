@@ -75,7 +75,7 @@ Bases: {py:obj}`abc.ABC`
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine
 ```
 
-````{py:method} separate_and_add_cuts(master: src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem, max_cuts: int, **kwargs) -> int
+````{py:method} separate_and_add_cuts(master: logic.src.policies.other.branching_solvers.VRPPMasterProblem, max_cuts: int, **kwargs) -> int
 :canonical: src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine.separate_and_add_cuts
 :abstractmethod:
 
@@ -103,7 +103,7 @@ Bases: {py:obj}`abc.ABC`
 
 `````
 
-`````{py:class} RoundedCapacityCutEngine(v_model: src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel, sep_engine: src.policies.branch_and_price_and_cut.separation.SeparationEngine)
+`````{py:class} RoundedCapacityCutEngine(v_model: logic.src.policies.other.branching_solvers.vrpp_model.VRPPModel, sep_engine: logic.src.policies.other.branching_solvers.SeparationEngine)
 :canonical: src.policies.branch_and_price_and_cut.cutting_planes.RoundedCapacityCutEngine
 
 Bases: {py:obj}`src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine`
@@ -117,7 +117,7 @@ Bases: {py:obj}`src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlan
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.cutting_planes.RoundedCapacityCutEngine.__init__
 ```
 
-````{py:method} separate_and_add_cuts(master: src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem, max_cuts: int, **kwargs) -> int
+````{py:method} separate_and_add_cuts(master: logic.src.policies.other.branching_solvers.VRPPMasterProblem, max_cuts: int, **kwargs) -> int
 :canonical: src.policies.branch_and_price_and_cut.cutting_planes.RoundedCapacityCutEngine.separate_and_add_cuts
 
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.cutting_planes.RoundedCapacityCutEngine.separate_and_add_cuts
@@ -132,7 +132,7 @@ Bases: {py:obj}`src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlan
 
 `````
 
-`````{py:class} SubsetRowCutEngine(v_model: src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel)
+`````{py:class} SubsetRowCutEngine(v_model: logic.src.policies.other.branching_solvers.vrpp_model.VRPPModel)
 :canonical: src.policies.branch_and_price_and_cut.cutting_planes.SubsetRowCutEngine
 
 Bases: {py:obj}`src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine`
@@ -146,12 +146,12 @@ Bases: {py:obj}`src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlan
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.cutting_planes.SubsetRowCutEngine.__init__
 ```
 
-````{py:method} separate_and_add_cuts(master: src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem, max_cuts: int, **kwargs) -> int
+````{py:method} separate_and_add_cuts(master: logic.src.policies.other.branching_solvers.VRPPMasterProblem, max_cuts: int, **kwargs) -> int
 :canonical: src.policies.branch_and_price_and_cut.cutting_planes.SubsetRowCutEngine.separate_and_add_cuts
 
 ````
 
-````{py:method} _evaluate_and_add_sri(master: src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem, node_set: typing.Set[int], **kwargs) -> bool
+````{py:method} _evaluate_and_add_sri(master: logic.src.policies.other.branching_solvers.VRPPMasterProblem, node_set: typing.Set[int], **kwargs) -> bool
 :canonical: src.policies.branch_and_price_and_cut.cutting_planes.SubsetRowCutEngine._evaluate_and_add_sri
 
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.cutting_planes.SubsetRowCutEngine._evaluate_and_add_sri
@@ -174,7 +174,7 @@ Bases: {py:obj}`src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlan
 
 `````
 
-`````{py:class} EdgeCliqueCutEngine(v_model: src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel, capacity: float = 1.0, epsilon: float = 0.01)
+`````{py:class} EdgeCliqueCutEngine(v_model: logic.src.policies.other.branching_solvers.vrpp_model.VRPPModel, capacity: float = 1.0, epsilon: float = 0.01)
 :canonical: src.policies.branch_and_price_and_cut.cutting_planes.EdgeCliqueCutEngine
 
 Bases: {py:obj}`src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine`
@@ -188,7 +188,7 @@ Bases: {py:obj}`src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlan
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.cutting_planes.EdgeCliqueCutEngine.__init__
 ```
 
-````{py:method} separate_and_add_cuts(master: src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem, max_cuts: int, **kwargs) -> int
+````{py:method} separate_and_add_cuts(master: logic.src.policies.other.branching_solvers.VRPPMasterProblem, max_cuts: int, **kwargs) -> int
 :canonical: src.policies.branch_and_price_and_cut.cutting_planes.EdgeCliqueCutEngine.separate_and_add_cuts
 
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.cutting_planes.EdgeCliqueCutEngine.separate_and_add_cuts
@@ -203,7 +203,7 @@ Bases: {py:obj}`src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlan
 
 `````
 
-`````{py:class} KnapsackCoverEngine(v_model: src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel, sep_engine: src.policies.branch_and_price_and_cut.separation.SeparationEngine)
+`````{py:class} KnapsackCoverEngine(v_model: logic.src.policies.other.branching_solvers.vrpp_model.VRPPModel, sep_engine: logic.src.policies.other.branching_solvers.SeparationEngine)
 :canonical: src.policies.branch_and_price_and_cut.cutting_planes.KnapsackCoverEngine
 
 Bases: {py:obj}`src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine`
@@ -217,7 +217,7 @@ Bases: {py:obj}`src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlan
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.cutting_planes.KnapsackCoverEngine.__init__
 ```
 
-````{py:method} separate_and_add_cuts(master: src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem, max_cuts: int, **kwargs) -> int
+````{py:method} separate_and_add_cuts(master: logic.src.policies.other.branching_solvers.VRPPMasterProblem, max_cuts: int, **kwargs) -> int
 :canonical: src.policies.branch_and_price_and_cut.cutting_planes.KnapsackCoverEngine.separate_and_add_cuts
 
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.cutting_planes.KnapsackCoverEngine.separate_and_add_cuts
@@ -246,7 +246,7 @@ Bases: {py:obj}`src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlan
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.cutting_planes.CompositeCuttingPlaneEngine.__init__
 ```
 
-````{py:method} separate_and_add_cuts(master: src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem, max_cuts: int, **kwargs) -> int
+````{py:method} separate_and_add_cuts(master: logic.src.policies.other.branching_solvers.VRPPMasterProblem, max_cuts: int, **kwargs) -> int
 :canonical: src.policies.branch_and_price_and_cut.cutting_planes.CompositeCuttingPlaneEngine.separate_and_add_cuts
 
 ````
@@ -258,7 +258,7 @@ Bases: {py:obj}`src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlan
 
 `````
 
-`````{py:class} BasicFleetCoverEngine(v_model: src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel, epsilon: float = 0.01)
+`````{py:class} BasicFleetCoverEngine(v_model: logic.src.policies.other.branching_solvers.vrpp_model.VRPPModel, epsilon: float = 0.01)
 :canonical: src.policies.branch_and_price_and_cut.cutting_planes.BasicFleetCoverEngine
 
 Bases: {py:obj}`src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine`
@@ -272,7 +272,7 @@ Bases: {py:obj}`src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlan
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.cutting_planes.BasicFleetCoverEngine.__init__
 ```
 
-````{py:method} separate_and_add_cuts(master: src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem, max_cuts: int, **kwargs) -> int
+````{py:method} separate_and_add_cuts(master: logic.src.policies.other.branching_solvers.VRPPMasterProblem, max_cuts: int, **kwargs) -> int
 :canonical: src.policies.branch_and_price_and_cut.cutting_planes.BasicFleetCoverEngine.separate_and_add_cuts
 
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.cutting_planes.BasicFleetCoverEngine.separate_and_add_cuts
@@ -287,7 +287,7 @@ Bases: {py:obj}`src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlan
 
 `````
 
-`````{py:class} PhysicalCapacityLCIEngine(v_model: src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel, epsilon: float = 0.01)
+`````{py:class} PhysicalCapacityLCIEngine(v_model: logic.src.policies.other.branching_solvers.vrpp_model.VRPPModel, epsilon: float = 0.01)
 :canonical: src.policies.branch_and_price_and_cut.cutting_planes.PhysicalCapacityLCIEngine
 
 Bases: {py:obj}`src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine`
@@ -301,7 +301,7 @@ Bases: {py:obj}`src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlan
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.cutting_planes.PhysicalCapacityLCIEngine.__init__
 ```
 
-````{py:method} separate_and_add_cuts(master: src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem, max_cuts: int, **kwargs) -> int
+````{py:method} separate_and_add_cuts(master: logic.src.policies.other.branching_solvers.VRPPMasterProblem, max_cuts: int, **kwargs) -> int
 :canonical: src.policies.branch_and_price_and_cut.cutting_planes.PhysicalCapacityLCIEngine.separate_and_add_cuts
 
 ````
@@ -313,7 +313,7 @@ Bases: {py:obj}`src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlan
 
 `````
 
-`````{py:class} SaturatedArcLCIEngine(v_model: src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel, epsilon: float = 0.01)
+`````{py:class} SaturatedArcLCIEngine(v_model: logic.src.policies.other.branching_solvers.vrpp_model.VRPPModel, epsilon: float = 0.01)
 :canonical: src.policies.branch_and_price_and_cut.cutting_planes.SaturatedArcLCIEngine
 
 Bases: {py:obj}`src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine`
@@ -327,7 +327,7 @@ Bases: {py:obj}`src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlan
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.cutting_planes.SaturatedArcLCIEngine.__init__
 ```
 
-````{py:method} separate_and_add_cuts(master: src.policies.branch_and_price_and_cut.master_problem.VRPPMasterProblem, max_cuts: int, **kwargs) -> int
+````{py:method} separate_and_add_cuts(master: logic.src.policies.other.branching_solvers.VRPPMasterProblem, max_cuts: int, **kwargs) -> int
 :canonical: src.policies.branch_and_price_and_cut.cutting_planes.SaturatedArcLCIEngine.separate_and_add_cuts
 
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.cutting_planes.SaturatedArcLCIEngine.separate_and_add_cuts
@@ -342,7 +342,7 @@ Bases: {py:obj}`src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlan
 
 `````
 
-````{py:function} create_cutting_plane_engine(engine_name: str, v_model: src.policies.branch_and_price_and_cut.vrpp_model.VRPPModel, sep_engine: typing.Optional[src.policies.branch_and_price_and_cut.separation.SeparationEngine] = None) -> src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine
+````{py:function} create_cutting_plane_engine(engine_name: str, v_model: logic.src.policies.other.branching_solvers.vrpp_model.VRPPModel, sep_engine: typing.Optional[logic.src.policies.other.branching_solvers.SeparationEngine] = None) -> src.policies.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine
 :canonical: src.policies.branch_and_price_and_cut.cutting_planes.create_cutting_plane_engine
 
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.cutting_planes.create_cutting_plane_engine

@@ -47,7 +47,7 @@
 
 ````
 
-````{py:method} _select_best_candidate(candidates: typing.List[typing.Tuple[typing.List[typing.List[int]], typing.Tuple[str, typing.Tuple[int, ...]]]], best_profit: float) -> typing.Tuple[typing.Optional[typing.List[typing.List[int]]], float, typing.Optional[typing.Tuple[str, typing.Tuple[int, ...]]]]
+````{py:method} _select_best_candidate(candidates: typing.Sequence[typing.Tuple[typing.List[typing.List[int]], typing.Tuple[str, typing.Any]]], best_profit: float) -> typing.Tuple[typing.Optional[typing.List[typing.List[int]]], float, typing.Optional[typing.Tuple[str, typing.Any]]]
 :canonical: src.policies.tabu_search.solver.TSSolver._select_best_candidate
 
 ```{autodoc2-docstring} src.policies.tabu_search.solver.TSSolver._select_best_candidate
@@ -55,7 +55,7 @@
 
 ````
 
-````{py:method} _is_tabu(move_desc: typing.Tuple[str, typing.Tuple[int, ...]]) -> bool
+````{py:method} _is_tabu(move_desc: typing.Tuple[str, typing.Any]) -> bool
 :canonical: src.policies.tabu_search.solver.TSSolver._is_tabu
 
 ```{autodoc2-docstring} src.policies.tabu_search.solver.TSSolver._is_tabu
@@ -63,7 +63,7 @@
 
 ````
 
-````{py:method} _add_to_tabu_list(move_desc: typing.Tuple[str, typing.Tuple[int, ...]])
+````{py:method} _add_to_tabu_list(move_desc: typing.Tuple[str, typing.Any])
 :canonical: src.policies.tabu_search.solver.TSSolver._add_to_tabu_list
 
 ```{autodoc2-docstring} src.policies.tabu_search.solver.TSSolver._add_to_tabu_list
@@ -95,7 +95,7 @@
 
 ````
 
-````{py:method} _update_move_frequency(move_desc: typing.Tuple[str, typing.Tuple[int, ...]])
+````{py:method} _update_move_frequency(move_desc: typing.Tuple[str, typing.Any])
 :canonical: src.policies.tabu_search.solver.TSSolver._update_move_frequency
 
 ```{autodoc2-docstring} src.policies.tabu_search.solver.TSSolver._update_move_frequency
@@ -103,7 +103,7 @@
 
 ````
 
-````{py:method} _compute_frequency_penalty(move_desc: typing.Tuple[str, typing.Tuple[int, ...]]) -> float
+````{py:method} _compute_frequency_penalty(move_desc: typing.Tuple[str, typing.Any]) -> float
 :canonical: src.policies.tabu_search.solver.TSSolver._compute_frequency_penalty
 
 ```{autodoc2-docstring} src.policies.tabu_search.solver.TSSolver._compute_frequency_penalty
@@ -159,7 +159,7 @@
 
 ````
 
-````{py:method} _generate_candidates(routes: typing.List[typing.List[int]]) -> typing.List[typing.Tuple[typing.List[typing.List[int]], typing.Tuple[str, typing.Tuple[int, ...]]]]
+````{py:method} _generate_candidates(routes: typing.List[typing.List[int]]) -> typing.Sequence[typing.Tuple[typing.List[typing.List[int]], typing.Tuple[str, typing.Any]]]
 :canonical: src.policies.tabu_search.solver.TSSolver._generate_candidates
 
 ```{autodoc2-docstring} src.policies.tabu_search.solver.TSSolver._generate_candidates
@@ -167,7 +167,7 @@
 
 ````
 
-````{py:method} _generate_swap_moves(routes: typing.List[typing.List[int]], max_new: int = 5) -> typing.List[typing.Tuple[typing.List[typing.List[int]], typing.Tuple[str, typing.Tuple[int, ...]]]]
+````{py:method} _generate_swap_moves(routes: typing.List[typing.List[int]], max_new: int = 5) -> typing.Sequence[typing.Tuple[typing.List[typing.List[int]], typing.Tuple[str, typing.Any]]]
 :canonical: src.policies.tabu_search.solver.TSSolver._generate_swap_moves
 
 ```{autodoc2-docstring} src.policies.tabu_search.solver.TSSolver._generate_swap_moves
@@ -175,7 +175,7 @@
 
 ````
 
-````{py:method} _generate_relocate_moves(routes: typing.List[typing.List[int]], max_new: int = 5) -> typing.List[typing.Tuple[typing.List[typing.List[int]], typing.Tuple[str, typing.Tuple[int, ...]]]]
+````{py:method} _generate_relocate_moves(routes: typing.List[typing.List[int]], max_new: int = 5) -> typing.Sequence[typing.Tuple[typing.List[typing.List[int]], typing.Tuple[str, typing.Any]]]
 :canonical: src.policies.tabu_search.solver.TSSolver._generate_relocate_moves
 
 ```{autodoc2-docstring} src.policies.tabu_search.solver.TSSolver._generate_relocate_moves
@@ -183,7 +183,7 @@
 
 ````
 
-````{py:method} _generate_2opt_moves(routes: typing.List[typing.List[int]], max_new: int = 3) -> typing.List[typing.Tuple[typing.List[typing.List[int]], typing.Tuple[str, typing.Tuple[int, ...]]]]
+````{py:method} _generate_2opt_moves(routes: typing.List[typing.List[int]], max_new: int = 3) -> typing.Sequence[typing.Tuple[typing.List[typing.List[int]], typing.Tuple[str, typing.Any]]]
 :canonical: src.policies.tabu_search.solver.TSSolver._generate_2opt_moves
 
 ```{autodoc2-docstring} src.policies.tabu_search.solver.TSSolver._generate_2opt_moves

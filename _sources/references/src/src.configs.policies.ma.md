@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.policies.ma.MAConfig
 ```
 
-````{py:attribute} engine
-:canonical: src.configs.policies.ma.MAConfig.engine
-:type: str
-:value: >
-   'ma'
-
-```{autodoc2-docstring} src.configs.policies.ma.MAConfig.engine
-```
-
-````
-
 ````{py:attribute} pop_size
 :canonical: src.configs.policies.ma.MAConfig.pop_size
 :type: int

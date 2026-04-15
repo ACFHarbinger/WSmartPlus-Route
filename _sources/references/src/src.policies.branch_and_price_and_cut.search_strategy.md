@@ -77,7 +77,7 @@ Bases: {py:obj}`abc.ABC`
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.search_strategy.NodeSelectionStrategy
 ```
 
-````{py:method} select_node(open_nodes: typing.List[logic.src.policies.branch_and_price_and_cut.branching.BranchNode]) -> typing.Optional[logic.src.policies.branch_and_price_and_cut.branching.BranchNode]
+````{py:method} select_node(open_nodes: typing.List[logic.src.policies.other.branching_solvers.BranchNode]) -> typing.Optional[logic.src.policies.other.branching_solvers.BranchNode]
 :canonical: src.policies.branch_and_price_and_cut.search_strategy.NodeSelectionStrategy.select_node
 :abstractmethod:
 
@@ -105,7 +105,7 @@ Bases: {py:obj}`src.policies.branch_and_price_and_cut.search_strategy.NodeSelect
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.search_strategy.BestFirstSearch
 ```
 
-````{py:method} select_node(open_nodes: typing.List[logic.src.policies.branch_and_price_and_cut.branching.BranchNode]) -> typing.Optional[logic.src.policies.branch_and_price_and_cut.branching.BranchNode]
+````{py:method} select_node(open_nodes: typing.List[logic.src.policies.other.branching_solvers.BranchNode]) -> typing.Optional[logic.src.policies.other.branching_solvers.BranchNode]
 :canonical: src.policies.branch_and_price_and_cut.search_strategy.BestFirstSearch.select_node
 
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.search_strategy.BestFirstSearch.select_node
@@ -128,7 +128,7 @@ Bases: {py:obj}`src.policies.branch_and_price_and_cut.search_strategy.NodeSelect
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.search_strategy.DepthFirstSearch
 ```
 
-````{py:method} select_node(open_nodes: typing.List[logic.src.policies.branch_and_price_and_cut.branching.BranchNode]) -> typing.Optional[logic.src.policies.branch_and_price_and_cut.branching.BranchNode]
+````{py:method} select_node(open_nodes: typing.List[logic.src.policies.other.branching_solvers.BranchNode]) -> typing.Optional[logic.src.policies.other.branching_solvers.BranchNode]
 :canonical: src.policies.branch_and_price_and_cut.search_strategy.DepthFirstSearch.select_node
 
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.search_strategy.DepthFirstSearch.select_node
@@ -143,7 +143,7 @@ Bases: {py:obj}`src.policies.branch_and_price_and_cut.search_strategy.NodeSelect
 
 `````
 
-`````{py:class} HybridSearchStrategy(bb_tree: logic.src.policies.branch_and_price_and_cut.branching.BranchAndBoundTree)
+`````{py:class} HybridSearchStrategy(bb_tree: logic.src.policies.other.branching_solvers.BranchAndBoundTree)
 :canonical: src.policies.branch_and_price_and_cut.search_strategy.HybridSearchStrategy
 
 Bases: {py:obj}`src.policies.branch_and_price_and_cut.search_strategy.NodeSelectionStrategy`
@@ -157,7 +157,7 @@ Bases: {py:obj}`src.policies.branch_and_price_and_cut.search_strategy.NodeSelect
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.search_strategy.HybridSearchStrategy.__init__
 ```
 
-````{py:method} select_node(open_nodes: typing.List[logic.src.policies.branch_and_price_and_cut.branching.BranchNode]) -> typing.Optional[logic.src.policies.branch_and_price_and_cut.branching.BranchNode]
+````{py:method} select_node(open_nodes: typing.List[logic.src.policies.other.branching_solvers.BranchNode]) -> typing.Optional[logic.src.policies.other.branching_solvers.BranchNode]
 :canonical: src.policies.branch_and_price_and_cut.search_strategy.HybridSearchStrategy.select_node
 
 ```{autodoc2-docstring} src.policies.branch_and_price_and_cut.search_strategy.HybridSearchStrategy.select_node

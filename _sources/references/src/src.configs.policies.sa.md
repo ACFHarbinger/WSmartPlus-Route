@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.policies.sa.SAConfig
 ```
 
-````{py:attribute} engine
-:canonical: src.configs.policies.sa.SAConfig.engine
-:type: str
-:value: >
-   'sa'
-
-```{autodoc2-docstring} src.configs.policies.sa.SAConfig.engine
-```
-
-````
-
 ````{py:attribute} initial_temp
 :canonical: src.configs.policies.sa.SAConfig.initial_temp
 :type: float

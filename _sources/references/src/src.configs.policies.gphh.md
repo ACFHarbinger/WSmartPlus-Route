@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.policies.gphh.GPHHConfig
 ```
 
-````{py:attribute} engine
-:canonical: src.configs.policies.gphh.GPHHConfig.engine
-:type: str
-:value: >
-   'gphh'
-
-```{autodoc2-docstring} src.configs.policies.gphh.GPHHConfig.engine
-```
-
-````
-
 ````{py:attribute} gp_pop_size
 :canonical: src.configs.policies.gphh.GPHHConfig.gp_pop_size
 :type: int

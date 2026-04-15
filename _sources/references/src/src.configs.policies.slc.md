@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.policies.slc.SLCConfig
 ```
 
-````{py:attribute} engine
-:canonical: src.configs.policies.slc.SLCConfig.engine
-:type: str
-:value: >
-   'slc'
-
-```{autodoc2-docstring} src.configs.policies.slc.SLCConfig.engine
-```
-
-````
-
 ````{py:attribute} n_teams
 :canonical: src.configs.policies.slc.SLCConfig.n_teams
 :type: int

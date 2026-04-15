@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.policies.ie.IEConfig
 ```
 
-````{py:attribute} engine
-:canonical: src.configs.policies.ie.IEConfig.engine
-:type: str
-:value: >
-   'ie'
-
-```{autodoc2-docstring} src.configs.policies.ie.IEConfig.engine
-```
-
-````
-
 ````{py:attribute} max_iterations
 :canonical: src.configs.policies.ie.IEConfig.max_iterations
 :type: int

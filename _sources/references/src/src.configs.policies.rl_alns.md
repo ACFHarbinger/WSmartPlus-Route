@@ -53,13 +53,13 @@ Bases: {py:obj}`src.configs.policies.alns.ALNSConfig`
 
 ````
 
-````{py:attribute} engine
-:canonical: src.configs.policies.rl_alns.RLALNSConfig.engine
-:type: str
+````{py:attribute} profit_aware_operators
+:canonical: src.configs.policies.rl_alns.RLALNSConfig.profit_aware_operators
+:type: bool
 :value: >
-   'rl_alns'
+   False
 
-```{autodoc2-docstring} src.configs.policies.rl_alns.RLALNSConfig.engine
+```{autodoc2-docstring} src.configs.policies.rl_alns.RLALNSConfig.profit_aware_operators
 ```
 
 ````

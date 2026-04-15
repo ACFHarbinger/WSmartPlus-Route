@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.policies.oi.OIConfig
 ```
 
-````{py:attribute} engine
-:canonical: src.configs.policies.oi.OIConfig.engine
-:type: str
-:value: >
-   'oi'
-
-```{autodoc2-docstring} src.configs.policies.oi.OIConfig.engine
-```
-
-````
-
 ````{py:attribute} max_iterations
 :canonical: src.configs.policies.oi.OIConfig.max_iterations
 :type: int

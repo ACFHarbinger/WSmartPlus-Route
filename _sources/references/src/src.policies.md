@@ -36,15 +36,20 @@ src.policies.other
 src.policies.memetic_algorithm_tolerance_based_selection
 src.policies.slack_induction_by_string_removal
 src.policies.artificial_bee_colony
+src.policies.exact_stochastic_dynamic_programming
 src.policies.particle_swarm_optimization
 src.policies.knowledge_guided_local_search
 src.policies.hybrid_genetic_search_ruin_and_recreate
+src.policies.constraint_programming_with_boolean_satisfiability
 src.policies.branch_and_price_and_cut
+src.policies.partial_optimization_metaheuristic_under_special_intensification_conditions
 src.policies.harmony_search
 src.policies.branch_and_price
 src.policies.smart_waste_collection_two_commodity_flow
 src.policies.variable_neighborhood_search
 src.policies.particle_swarm_optimization_memetic_algorithm
+src.policies.integer_l_shaped_benders_decomposition
+src.policies.progressive_hedging
 src.policies.travelling_salesman_problem
 src.policies.ant_colony_optimization_k_sparse
 src.policies.sine_cosine_algorithm
@@ -62,7 +67,6 @@ src.policies.quantum_differential_evolution
 src.policies.old_bachelor_acceptance
 src.policies.great_deluge
 src.policies.local_branching
-src.policies.popmusic
 src.policies.ant_colony_optimization_hyper_heuristic
 src.policies.hybrid_genetic_search
 src.policies.branch_and_cut
@@ -83,6 +87,7 @@ src.policies.reinforcement_learning_adaptive_large_neighborhood_search
 src.policies.kernel_search
 src.policies.sequence_based_selection_hyper_heuristic
 src.policies.evolution_strategy_mu_comma_lambda
+src.policies.scenario_tree_extensive_form
 src.policies.relaxation_enforced_neighborhood_search
 src.policies.genius
 src.policies.iterated_local_search

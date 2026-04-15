@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.policies.schc.SCHCConfig
 ```
 
-````{py:attribute} engine
-:canonical: src.configs.policies.schc.SCHCConfig.engine
-:type: str
-:value: >
-   'schc'
-
-```{autodoc2-docstring} src.configs.policies.schc.SCHCConfig.engine
-```
-
-````
-
 ````{py:attribute} max_iterations
 :canonical: src.configs.policies.schc.SCHCConfig.max_iterations
 :type: int

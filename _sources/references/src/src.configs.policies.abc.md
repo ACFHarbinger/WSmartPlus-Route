@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.policies.abc.ABCConfig
 ```
 
-````{py:attribute} engine
-:canonical: src.configs.policies.abc.ABCConfig.engine
-:type: str
-:value: >
-   'abc'
-
-```{autodoc2-docstring} src.configs.policies.abc.ABCConfig.engine
-```
-
-````
-
 ````{py:attribute} n_sources
 :canonical: src.configs.policies.abc.ABCConfig.n_sources
 :type: int

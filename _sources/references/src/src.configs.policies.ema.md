@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.policies.ema.EMAConfig
 ```
 
-````{py:attribute} engine
-:canonical: src.configs.policies.ema.EMAConfig.engine
-:type: str
-:value: >
-   'ema'
-
-```{autodoc2-docstring} src.configs.policies.ema.EMAConfig.engine
-```
-
-````
-
 ````{py:attribute} max_iterations
 :canonical: src.configs.policies.ema.EMAConfig.max_iterations
 :type: int

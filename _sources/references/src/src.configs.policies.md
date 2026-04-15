@@ -38,6 +38,7 @@ src.configs.policies.kgls
 src.configs.policies.hmm_gd_hh
 src.configs.policies.es_mpl
 src.configs.policies.fa
+src.configs.policies.cp_sat
 src.configs.policies.psoda
 src.configs.policies.qde
 src.configs.policies.gphh
@@ -53,9 +54,12 @@ src.configs.policies.cf_rs
 src.configs.policies.aks
 src.configs.policies.gd
 src.configs.policies.abc
+src.configs.policies.ils_bd
 src.configs.policies.pso
 src.configs.policies.ma_ts
+src.configs.policies.ph
 src.configs.policies.gihh
+src.configs.policies.lbbd
 src.configs.policies.hms
 src.configs.policies.es_mcl
 src.configs.policies.lca
@@ -72,6 +76,7 @@ src.configs.policies.swc_tcf
 src.configs.policies.lkh3
 src.configs.policies.popmusic
 src.configs.policies.ta
+src.configs.policies.esdp
 src.configs.policies.rens
 src.configs.policies.rl_alns
 src.configs.policies.rts
@@ -87,6 +92,7 @@ src.configs.policies.gls
 src.configs.policies.rl_hvpl
 src.configs.policies.filo
 src.configs.policies.oba
+src.configs.policies.st_ef
 src.configs.policies.bp
 src.configs.policies.ma
 src.configs.policies.hgs_alns

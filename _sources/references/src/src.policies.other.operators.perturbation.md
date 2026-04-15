@@ -15,6 +15,7 @@
 
 src.policies.other.operators.perturbation.evolutionary
 src.policies.other.operators.perturbation.perturb
+src.policies.other.operators.perturbation.branch_bound
 src.policies.other.operators.perturbation.double_bridge
 src.policies.other.operators.perturbation.genetic_transformation
 src.policies.other.operators.perturbation.kick
@@ -39,7 +40,7 @@ src.policies.other.operators.perturbation.kick
 ````{py:data} __all__
 :canonical: src.policies.other.operators.perturbation.__all__
 :value: >
-   ['perturb', 'perturb_profit', 'kick', 'kick_profit', 'double_bridge', 'genetic_transformation', 'gen...
+   ['bb_perturbation', 'bb_profit_perturbation', 'perturb', 'perturb_profit', 'kick', 'kick_profit', 'd...
 
 ```{autodoc2-docstring} src.policies.other.operators.perturbation.__all__
 ```

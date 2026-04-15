@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.policies.ga.GAConfig
 ```
 
-````{py:attribute} engine
-:canonical: src.configs.policies.ga.GAConfig.engine
-:type: str
-:value: >
-   'ga'
-
-```{autodoc2-docstring} src.configs.policies.ga.GAConfig.engine
-```
-
-````
-
 ````{py:attribute} pop_size
 :canonical: src.configs.policies.ga.GAConfig.pop_size
 :type: int

@@ -106,6 +106,28 @@
 
 ````
 
+````{py:attribute} engine
+:canonical: src.policies.kernel_search.params.KSParams.engine
+:type: str
+:value: >
+   'gurobi'
+
+```{autodoc2-docstring} src.policies.kernel_search.params.KSParams.engine
+```
+
+````
+
+````{py:attribute} framework
+:canonical: src.policies.kernel_search.params.KSParams.framework
+:type: str
+:value: >
+   'ortools'
+
+```{autodoc2-docstring} src.policies.kernel_search.params.KSParams.framework
+```
+
+````
+
 ````{py:method} from_config(config: typing.Any) -> src.policies.kernel_search.params.KSParams
 :canonical: src.policies.kernel_search.params.KSParams.from_config
 :classmethod:

@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} WCVRPGenerator(num_loc: int = 50, min_loc: float = 0.0, max_loc: float = 1.0, loc_distribution: typing.Union[str, typing.Callable] = 'uniform', min_fill: float = 0.0, max_fill: float = 1.0, fill_distribution: str = 'uniform', capacity: float = 100.0, cost_km: float = 1.0, revenue_kg: float = 0.1625, depot_type: str = 'corner', device: typing.Union[str, torch.device] = 'cpu', area: typing.Optional[str] = None, data_dir: typing.Optional[str] = None, indices: typing.Optional[list[int]] = None, generator: typing.Optional[torch.Generator] = None, **kwargs: typing.Any)
+`````{py:class} WCVRPGenerator(num_loc: int = 50, min_loc: float = 0.0, max_loc: float = 1.0, loc_distribution: typing.Union[str, typing.Callable] = 'uniform', min_fill: float = 0.0, max_fill: float = 1.0, fill_distribution: str = 'uniform', capacity: float = 100.0, cost_km: float = 1.0, revenue_kg: float = 0.1625, depot_type: str = 'corner', device: typing.Union[str, torch.device] = 'cpu', area: typing.Optional[str] = None, data_dir: typing.Optional[str] = None, indices: typing.Optional[list[int]] = None, generator: typing.Optional[numpy.random.Generator] = None, **kwargs: typing.Any)
 :canonical: src.envs.generators.wcvrp.WCVRPGenerator
 
 Bases: {py:obj}`src.envs.generators.base.Generator`

@@ -117,6 +117,28 @@
 
 ````
 
+````{py:attribute} use_saa
+:canonical: src.configs.policies.bc.BCConfig.use_saa
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.bc.BCConfig.use_saa
+```
+
+````
+
+````{py:attribute} num_scenarios
+:canonical: src.configs.policies.bc.BCConfig.num_scenarios
+:type: int
+:value: >
+   10
+
+```{autodoc2-docstring} src.configs.policies.bc.BCConfig.num_scenarios
+```
+
+````
+
 ````{py:attribute} must_go
 :canonical: src.configs.policies.bc.BCConfig.must_go
 :type: typing.Optional[typing.List[src.configs.policies.other.must_go.MustGoConfig]]

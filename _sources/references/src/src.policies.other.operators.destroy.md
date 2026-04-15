@@ -16,6 +16,7 @@
 src.policies.other.operators.destroy.guided
 src.policies.other.operators.destroy.string
 src.policies.other.operators.destroy.random
+src.policies.other.operators.destroy.branch_bound
 src.policies.other.operators.destroy.cluster
 src.policies.other.operators.destroy.neighbor
 src.policies.other.operators.destroy.worst
@@ -44,7 +45,7 @@ src.policies.other.operators.destroy.historical
 ````{py:data} __all__
 :canonical: src.policies.other.operators.destroy.__all__
 :value: >
-   ['random_removal', 'worst_removal', 'cluster_removal', 'shaw_removal', 'string_removal', 'route_remo...
+   ['bb_removal', 'bb_profit_removal', 'random_removal', 'worst_removal', 'cluster_removal', 'shaw_remo...
 
 ```{autodoc2-docstring} src.policies.other.operators.destroy.__all__
 ```

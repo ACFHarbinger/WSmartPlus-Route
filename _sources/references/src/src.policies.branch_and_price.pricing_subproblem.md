@@ -45,7 +45,7 @@
 
 ````
 
-````{py:method} solve(dual_values: typing.Dict[typing.Any, typing.Any], max_routes: int = 10, active_constraints: typing.Optional[typing.List[typing.Any]] = None, capacity_cut_duals: typing.Optional[typing.Dict[typing.Any, float]] = None, assert_not_exact: bool = False) -> typing.List[typing.Tuple[typing.List[int], float]]
+````{py:method} solve(dual_values: typing.Dict[typing.Any, typing.Any], max_routes: int = 10, active_constraints: typing.Optional[typing.List[typing.Any]] = None, capacity_cut_duals: typing.Optional[typing.Dict[typing.Any, float]] = None, assert_not_exact: bool = False, **kwargs: typing.Any) -> typing.List[typing.Tuple[typing.List[int], float]]
 :canonical: src.policies.branch_and_price.pricing_subproblem.PricingSubproblem.solve
 
 ```{autodoc2-docstring} src.policies.branch_and_price.pricing_subproblem.PricingSubproblem.solve
@@ -61,7 +61,7 @@
 
 ````
 
-````{py:method} _evaluate_candidate_insertion(v: int, v_waste: float, route: typing.List[int], dual_values: typing.Dict[typing.Any, float], forbidden_arcs: typing.Set[typing.Tuple[int, int]], req_successors: typing.Dict[int, int], req_predecessors: typing.Dict[int, int], rf_separate_pairs: typing.Set[typing.Tuple[int, int]], visited: typing.Set[int]) -> typing.Tuple[typing.Optional[int], float]
+````{py:method} _evaluate_candidate_insertion(v: int, v_waste: float, route: typing.List[int], dual_values: typing.Dict[typing.Any, float], forbidden_arcs: typing.Set[typing.Tuple[int, int]], req_successors: typing.Dict[int, int], req_predecessors: typing.Dict[int, int], rf_separate_pairs: typing.Set[typing.Tuple[int, int]], visited: typing.Set[int], node_prizes: typing.Optional[typing.Dict[int, float]] = None) -> typing.Tuple[typing.Optional[int], float]
 :canonical: src.policies.branch_and_price.pricing_subproblem.PricingSubproblem._evaluate_candidate_insertion
 
 ```{autodoc2-docstring} src.policies.branch_and_price.pricing_subproblem.PricingSubproblem._evaluate_candidate_insertion
@@ -69,7 +69,7 @@
 
 ````
 
-````{py:method} _greedy_route_construction(start_node: int, dual_values: typing.Dict[typing.Any, float], forbidden_arcs: typing.Set[typing.Tuple[int, int]], req_successors: typing.Dict[int, int], req_predecessors: typing.Dict[int, int], rf_separate_pairs: typing.Set[typing.Tuple[int, int]], rf_together_pairs: typing.Set[typing.Tuple[int, int]], capacity_cut_duals: typing.Optional[typing.Dict[typing.Any, float]] = None) -> typing.Tuple[typing.List[int], float]
+````{py:method} _greedy_route_construction(start_node: int, dual_values: typing.Dict[typing.Any, float], forbidden_arcs: typing.Set[typing.Tuple[int, int]], req_successors: typing.Dict[int, int], req_predecessors: typing.Dict[int, int], rf_separate_pairs: typing.Set[typing.Tuple[int, int]], rf_together_pairs: typing.Set[typing.Tuple[int, int]], capacity_cut_duals: typing.Optional[typing.Dict[typing.Any, float]] = None, node_prizes: typing.Optional[typing.Dict[int, float]] = None) -> typing.Tuple[typing.List[int], float]
 :canonical: src.policies.branch_and_price.pricing_subproblem.PricingSubproblem._greedy_route_construction
 
 ```{autodoc2-docstring} src.policies.branch_and_price.pricing_subproblem.PricingSubproblem._greedy_route_construction
@@ -86,7 +86,7 @@
 
 ````
 
-````{py:method} _compute_reduced_cost(route: typing.List[int], dual_values: typing.Dict[int, float], capacity_cut_duals: typing.Optional[typing.Dict[typing.Any, float]] = None) -> float
+````{py:method} _compute_reduced_cost(route: typing.List[int], dual_values: typing.Dict[int, float], capacity_cut_duals: typing.Optional[typing.Dict[typing.Any, float]] = None, node_prizes: typing.Optional[typing.Dict[int, float]] = None) -> float
 :canonical: src.policies.branch_and_price.pricing_subproblem.PricingSubproblem._compute_reduced_cost
 
 ```{autodoc2-docstring} src.policies.branch_and_price.pricing_subproblem.PricingSubproblem._compute_reduced_cost

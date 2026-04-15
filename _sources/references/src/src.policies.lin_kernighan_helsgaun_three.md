@@ -13,20 +13,18 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.lin_kernighan_helsgaun_three.large_neighborhood_search
 src.policies.lin_kernighan_helsgaun_three.tour_adapter
 src.policies.lin_kernighan_helsgaun_three.graph_augmentation
 src.policies.lin_kernighan_helsgaun_three.params
 src.policies.lin_kernighan_helsgaun_three.kopt_topologies
+src.policies.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search
 src.policies.lin_kernighan_helsgaun_three.load_tracker
-src.policies.lin_kernighan_helsgaun_three.candidate_set
 src.policies.lin_kernighan_helsgaun_three.tour_construction
 src.policies.lin_kernighan_helsgaun_three.tour_improvement
 src.policies.lin_kernighan_helsgaun_three.lkh3
 src.policies.lin_kernighan_helsgaun_three.popmusic
 src.policies.lin_kernighan_helsgaun_three.policy_lkh3
 src.policies.lin_kernighan_helsgaun_three.objective
-src.policies.lin_kernighan_helsgaun_three.subgradient
 ```
 
 ## Package Contents

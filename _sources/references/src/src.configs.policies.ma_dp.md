@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.policies.ma_dp.MemeticAlgorithmDualPopulationConfig
 ```
 
-````{py:attribute} engine
-:canonical: src.configs.policies.ma_dp.MemeticAlgorithmDualPopulationConfig.engine
-:type: str
-:value: >
-   'ma_dp'
-
-```{autodoc2-docstring} src.configs.policies.ma_dp.MemeticAlgorithmDualPopulationConfig.engine
-```
-
-````
-
 ````{py:attribute} population_size
 :canonical: src.configs.policies.ma_dp.MemeticAlgorithmDualPopulationConfig.population_size
 :type: int

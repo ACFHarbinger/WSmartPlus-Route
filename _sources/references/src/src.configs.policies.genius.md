@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.policies.genius.GENIUSConfig
 ```
 
-````{py:attribute} engine
-:canonical: src.configs.policies.genius.GENIUSConfig.engine
-:type: str
-:value: >
-   'genius'
-
-```{autodoc2-docstring} src.configs.policies.genius.GENIUSConfig.engine
-```
-
-````
-
 ````{py:attribute} neighborhood_size
 :canonical: src.configs.policies.genius.GENIUSConfig.neighborhood_size
 :type: int

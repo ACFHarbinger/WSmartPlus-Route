@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.policies.hgs_alns.HGSALNSConfig
 ```
 
-````{py:attribute} engine
-:canonical: src.configs.policies.hgs_alns.HGSALNSConfig.engine
-:type: str
-:value: >
-   'hgs_alns'
-
-```{autodoc2-docstring} src.configs.policies.hgs_alns.HGSALNSConfig.engine
-```
-
-````
-
 ````{py:attribute} vrpp
 :canonical: src.configs.policies.hgs_alns.HGSALNSConfig.vrpp
 :type: bool

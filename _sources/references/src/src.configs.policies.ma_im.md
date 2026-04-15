@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.policies.ma_im.MemeticAlgorithmIslandModelConfig
 ```
 
-````{py:attribute} engine
-:canonical: src.configs.policies.ma_im.MemeticAlgorithmIslandModelConfig.engine
-:type: str
-:value: >
-   'ma_im'
-
-```{autodoc2-docstring} src.configs.policies.ma_im.MemeticAlgorithmIslandModelConfig.engine
-```
-
-````
-
 ````{py:attribute} n_islands
 :canonical: src.configs.policies.ma_im.MemeticAlgorithmIslandModelConfig.n_islands
 :type: int

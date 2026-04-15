@@ -218,6 +218,28 @@ Bases: {py:obj}`src.configs.policies.abc.ABCConfig`
 
 ````
 
+````{py:attribute} engine
+:canonical: src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.engine
+:type: str
+:value: >
+   'gurobi'
+
+```{autodoc2-docstring} src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.engine
+```
+
+````
+
+````{py:attribute} framework
+:canonical: src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.framework
+:type: str
+:value: >
+   'ortools'
+
+```{autodoc2-docstring} src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.framework
+```
+
+````
+
 ````{py:attribute} local_search_iterations
 :canonical: src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.local_search_iterations
 :type: int

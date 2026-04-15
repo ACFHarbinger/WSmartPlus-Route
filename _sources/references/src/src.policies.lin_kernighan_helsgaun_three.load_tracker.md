@@ -118,7 +118,7 @@
 ```
 ````
 
-````{py:function} get_exact_penalty_delta(curr_tour: typing.List[int], broken_edges: typing.List[typing.Tuple[int, int]], added_edges: typing.List[typing.Tuple[int, int]], state: src.policies.lin_kernighan_helsgaun_three.load_tracker.LoadState, waste: numpy.ndarray, capacity: float, n_original: int) -> float
+````{py:function} get_exact_penalty_delta(curr_tour: typing.List[int], broken_edges: typing.List[typing.Tuple[int, int]], added_edges: typing.List[typing.Tuple[int, int]], state: src.policies.lin_kernighan_helsgaun_three.load_tracker.LoadState, waste: numpy.ndarray, capacity: float, n_original: typing.Optional[int] = None) -> float
 :canonical: src.policies.lin_kernighan_helsgaun_three.load_tracker.get_exact_penalty_delta
 
 ```{autodoc2-docstring} src.policies.lin_kernighan_helsgaun_three.load_tracker.get_exact_penalty_delta

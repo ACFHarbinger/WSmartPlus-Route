@@ -43,15 +43,7 @@
 
 ````
 
-````{py:method} _trim_populations(pop_feasible: typing.List[src.policies.hybrid_genetic_search.individual.Individual], pop_infeasible: typing.List[src.policies.hybrid_genetic_search.individual.Individual]) -> None
-:canonical: src.policies.hybrid_genetic_search.hgs.HGSSolver._trim_populations
-
-```{autodoc2-docstring} src.policies.hybrid_genetic_search.hgs.HGSSolver._trim_populations
-```
-
-````
-
-````{py:method} _trim_one(pop: typing.List[src.policies.hybrid_genetic_search.individual.Individual]) -> None
+````{py:method} _trim_one(pop: typing.List[src.policies.hybrid_genetic_search.individual.Individual], distance_cache: typing.Optional[dict] = None) -> None
 :canonical: src.policies.hybrid_genetic_search.hgs.HGSSolver._trim_one
 
 ```{autodoc2-docstring} src.policies.hybrid_genetic_search.hgs.HGSSolver._trim_one
@@ -67,6 +59,14 @@
 
 ````
 
+````{py:method} _get_diversity_distance(ind_a: src.policies.hybrid_genetic_search.individual.Individual, ind_b: src.policies.hybrid_genetic_search.individual.Individual, cache: dict) -> float
+:canonical: src.policies.hybrid_genetic_search.hgs.HGSSolver._get_diversity_distance
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search.hgs.HGSSolver._get_diversity_distance
+```
+
+````
+
 ````{py:method} solve() -> typing.Tuple[typing.List[typing.List[int]], float, float]
 :canonical: src.policies.hybrid_genetic_search.hgs.HGSSolver.solve
 
@@ -75,7 +75,7 @@
 
 ````
 
-````{py:method} _generate_offspring(population: typing.List[src.policies.hybrid_genetic_search.individual.Individual], penalty_capacity: float) -> src.policies.hybrid_genetic_search.individual.Individual
+````{py:method} _generate_offspring(pop_feasible: typing.List[src.policies.hybrid_genetic_search.individual.Individual], pop_infeasible: typing.List[src.policies.hybrid_genetic_search.individual.Individual], penalty_capacity: float, diversity_cache: typing.Optional[dict] = None) -> src.policies.hybrid_genetic_search.individual.Individual
 :canonical: src.policies.hybrid_genetic_search.hgs.HGSSolver._generate_offspring
 
 ```{autodoc2-docstring} src.policies.hybrid_genetic_search.hgs.HGSSolver._generate_offspring

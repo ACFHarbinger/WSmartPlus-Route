@@ -40,6 +40,17 @@
 
 ````
 
+````{py:attribute} restart_timer
+:canonical: src.configs.policies.hgs.HGSConfig.restart_timer
+:type: float
+:value: >
+   0.0
+
+```{autodoc2-docstring} src.configs.policies.hgs.HGSConfig.restart_timer
+```
+
+````
+
 ````{py:attribute} seed
 :canonical: src.configs.policies.hgs.HGSConfig.seed
 :type: typing.Optional[int]

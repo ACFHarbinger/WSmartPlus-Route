@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.policies.sca.SCAConfig
 ```
 
-````{py:attribute} engine
-:canonical: src.configs.policies.sca.SCAConfig.engine
-:type: str
-:value: >
-   'sca'
-
-```{autodoc2-docstring} src.configs.policies.sca.SCAConfig.engine
-```
-
-````
-
 ````{py:attribute} pop_size
 :canonical: src.configs.policies.sca.SCAConfig.pop_size
 :type: int

@@ -106,6 +106,28 @@
 
 ````
 
+````{py:attribute} engine
+:canonical: src.policies.local_branching.params.LBParams.engine
+:type: str
+:value: >
+   'gurobi'
+
+```{autodoc2-docstring} src.policies.local_branching.params.LBParams.engine
+```
+
+````
+
+````{py:attribute} framework
+:canonical: src.policies.local_branching.params.LBParams.framework
+:type: str
+:value: >
+   'ortools'
+
+```{autodoc2-docstring} src.policies.local_branching.params.LBParams.framework
+```
+
+````
+
 ````{py:method} from_config(config: typing.Any) -> src.policies.local_branching.params.LBParams
 :canonical: src.policies.local_branching.params.LBParams.from_config
 :classmethod:

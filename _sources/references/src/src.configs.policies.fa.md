@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.policies.fa.FAConfig
 ```
 
-````{py:attribute} engine
-:canonical: src.configs.policies.fa.FAConfig.engine
-:type: str
-:value: >
-   'fa'
-
-```{autodoc2-docstring} src.configs.policies.fa.FAConfig.engine
-```
-
-````
-
 ````{py:attribute} pop_size
 :canonical: src.configs.policies.fa.FAConfig.pop_size
 :type: int

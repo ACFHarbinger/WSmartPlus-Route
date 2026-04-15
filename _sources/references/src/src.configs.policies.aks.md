@@ -154,9 +154,20 @@
 :canonical: src.configs.policies.aks.AdaptiveKernelSearchConfig.engine
 :type: str
 :value: >
-   'custom'
+   'gurobi'
 
 ```{autodoc2-docstring} src.configs.policies.aks.AdaptiveKernelSearchConfig.engine
+```
+
+````
+
+````{py:attribute} framework
+:canonical: src.configs.policies.aks.AdaptiveKernelSearchConfig.framework
+:type: str
+:value: >
+   'ortools'
+
+```{autodoc2-docstring} src.configs.policies.aks.AdaptiveKernelSearchConfig.framework
 ```
 
 ````

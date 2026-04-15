@@ -14,6 +14,7 @@
 :maxdepth: 1
 
 src.policies.other.must_go.base.selection_factory
+src.policies.other.must_go.base.eoq
 src.policies.other.must_go.base.selection_registry
 src.policies.other.must_go.base.selection_context
 ```

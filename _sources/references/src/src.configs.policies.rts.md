@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.policies.rts.RTSConfig
 ```
 
-````{py:attribute} engine
-:canonical: src.configs.policies.rts.RTSConfig.engine
-:type: str
-:value: >
-   'rts'
-
-```{autodoc2-docstring} src.configs.policies.rts.RTSConfig.engine
-```
-
-````
-
 ````{py:attribute} initial_tenure
 :canonical: src.configs.policies.rts.RTSConfig.initial_tenure
 :type: int

@@ -31,7 +31,7 @@ Bases: {py:obj}`abc.ABC`
 ```{autodoc2-docstring} src.interfaces.adapter.IPolicyAdapter
 ```
 
-````{py:method} execute(**kwargs: typing.Any) -> typing.Tuple[typing.List[int], float, typing.Any]
+````{py:method} execute(**kwargs: typing.Any) -> typing.Tuple[typing.Union[typing.List[int], typing.List[typing.List[int]]], float, typing.Any]
 :canonical: src.interfaces.adapter.IPolicyAdapter.execute
 :abstractmethod:
 

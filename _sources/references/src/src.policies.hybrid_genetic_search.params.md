@@ -29,6 +29,17 @@
 ```{autodoc2-docstring} src.policies.hybrid_genetic_search.params.HGSParams
 ```
 
+````{py:attribute} restart_timer
+:canonical: src.policies.hybrid_genetic_search.params.HGSParams.restart_timer
+:type: float
+:value: >
+   0.0
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search.params.HGSParams.restart_timer
+```
+
+````
+
 ````{py:attribute} time_limit
 :canonical: src.policies.hybrid_genetic_search.params.HGSParams.time_limit
 :type: float
@@ -278,6 +289,17 @@
    True
 
 ```{autodoc2-docstring} src.policies.hybrid_genetic_search.params.HGSParams.vrpp
+```
+
+````
+
+````{py:attribute} engine
+:canonical: src.policies.hybrid_genetic_search.params.HGSParams.engine
+:type: str
+:value: >
+   'custom'
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search.params.HGSParams.engine
 ```
 
 ````

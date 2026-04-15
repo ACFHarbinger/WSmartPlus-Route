@@ -23,7 +23,7 @@
 
 ### API
 
-````{py:function} ordered_crossover(p1: logic.src.policies.hybrid_genetic_search.individual.Individual, p2: logic.src.policies.hybrid_genetic_search.individual.Individual, rng: typing.Optional[random.Random] = None) -> logic.src.policies.hybrid_genetic_search.individual.Individual
+````{py:function} ordered_crossover(p1: logic.src.policies.hybrid_genetic_search.individual.Individual, p2: logic.src.policies.hybrid_genetic_search.individual.Individual, rng: typing.Optional[random.Random] = None, mandatory_nodes: typing.Optional[typing.List[int]] = None) -> logic.src.policies.hybrid_genetic_search.individual.Individual
 :canonical: src.policies.other.operators.crossover.ordered.ordered_crossover
 
 ```{autodoc2-docstring} src.policies.other.operators.crossover.ordered.ordered_crossover

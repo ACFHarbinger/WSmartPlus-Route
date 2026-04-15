@@ -132,9 +132,20 @@
 :canonical: src.configs.policies.lb_vns.LocalBranchingVNSConfig.engine
 :type: str
 :value: >
-   'custom'
+   'gurobi'
 
 ```{autodoc2-docstring} src.configs.policies.lb_vns.LocalBranchingVNSConfig.engine
+```
+
+````
+
+````{py:attribute} framework
+:canonical: src.configs.policies.lb_vns.LocalBranchingVNSConfig.framework
+:type: str
+:value: >
+   'ortools'
+
+```{autodoc2-docstring} src.configs.policies.lb_vns.LocalBranchingVNSConfig.framework
 ```
 
 ````

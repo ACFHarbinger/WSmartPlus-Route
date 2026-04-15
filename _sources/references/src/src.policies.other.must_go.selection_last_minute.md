@@ -31,7 +31,7 @@ Bases: {py:obj}`logic.src.interfaces.must_go.IMustGoSelectionStrategy`
 ```{autodoc2-docstring} src.policies.other.must_go.selection_last_minute.LastMinuteSelection
 ```
 
-````{py:method} select_bins(context: logic.src.policies.other.must_go.base.selection_context.SelectionContext) -> typing.List[int]
+````{py:method} select_bins(context: src.policies.other.must_go.base.selection_context.SelectionContext) -> typing.List[int]
 :canonical: src.policies.other.must_go.selection_last_minute.LastMinuteSelection.select_bins
 
 ```{autodoc2-docstring} src.policies.other.must_go.selection_last_minute.LastMinuteSelection.select_bins

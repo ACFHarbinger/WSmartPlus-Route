@@ -59,7 +59,7 @@
 
 ````
 
-````{py:method} _solve_node(node: src.policies.branch_and_price.branching.BranchNode, parent_routes: typing.Optional[typing.List[src.policies.branch_and_price.master_problem.Route]] = None) -> typing.Tuple[typing.Optional[float], typing.Dict[int, float], typing.List[src.policies.branch_and_price.master_problem.Route]]
+````{py:method} _solve_node(node: logic.src.policies.other.branching_solvers.BranchNode, parent_routes: typing.Optional[typing.List[logic.src.policies.other.branching_solvers.Route]] = None) -> typing.Tuple[typing.Optional[float], typing.Dict[int, float], typing.List[logic.src.policies.other.branching_solvers.Route]]
 :canonical: src.policies.branch_and_price.bp.BranchAndPriceSolver._solve_node
 
 ```{autodoc2-docstring} src.policies.branch_and_price.bp.BranchAndPriceSolver._solve_node
@@ -67,7 +67,7 @@
 
 ````
 
-````{py:method} _column_generation(master: src.policies.branch_and_price.master_problem.VRPPMasterProblem, pricing: typing.Tuple[src.policies.branch_and_price.pricing_subproblem.PricingSubproblem, typing.Optional[src.policies.branch_and_price.rcspp_dp.RCSPPSolver]]) -> typing.Tuple[float, typing.Dict[int, float]]
+````{py:method} _column_generation(master: logic.src.policies.other.branching_solvers.VRPPMasterProblem, pricing: typing.Tuple[src.policies.branch_and_price.pricing_subproblem.PricingSubproblem, typing.Optional[logic.src.policies.other.branching_solvers.RCSPPSolver]]) -> typing.Tuple[float, typing.Dict[int, float]]
 :canonical: src.policies.branch_and_price.bp.BranchAndPriceSolver._column_generation
 
 ```{autodoc2-docstring} src.policies.branch_and_price.bp.BranchAndPriceSolver._column_generation
@@ -75,7 +75,7 @@
 
 ````
 
-````{py:method} _column_generation_with_constraints(master: src.policies.branch_and_price.master_problem.VRPPMasterProblem, pricing: typing.Tuple[src.policies.branch_and_price.pricing_subproblem.PricingSubproblem, typing.Optional[src.policies.branch_and_price.rcspp_dp.RCSPPSolver]], node: src.policies.branch_and_price.branching.BranchNode, constraints: typing.List[src.policies.branch_and_price.branching.AnyBranchingConstraint]) -> typing.Tuple[float, typing.Dict[int, float], float]
+````{py:method} _column_generation_with_constraints(master: logic.src.policies.other.branching_solvers.VRPPMasterProblem, pricing: typing.Tuple[src.policies.branch_and_price.pricing_subproblem.PricingSubproblem, typing.Optional[logic.src.policies.other.branching_solvers.RCSPPSolver]], node: logic.src.policies.other.branching_solvers.BranchNode, constraints: typing.List[logic.src.policies.other.branching_solvers.AnyBranchingConstraint]) -> typing.Tuple[float, typing.Dict[int, float], float]
 :canonical: src.policies.branch_and_price.bp.BranchAndPriceSolver._column_generation_with_constraints
 
 ```{autodoc2-docstring} src.policies.branch_and_price.bp.BranchAndPriceSolver._column_generation_with_constraints
@@ -83,7 +83,7 @@
 
 ````
 
-````{py:method} _call_pricing(pricing: typing.Union[src.policies.branch_and_price.pricing_subproblem.PricingSubproblem, src.policies.branch_and_price.rcspp_dp.RCSPPSolver], dual_values: typing.Dict[typing.Union[int, frozenset[int], str, typing.Tuple[int, int]], float], constraints: typing.Optional[typing.List[src.policies.branch_and_price.branching.AnyBranchingConstraint]]) -> typing.List[typing.Tuple[typing.List[int], float]]
+````{py:method} _call_pricing(pricing: typing.Union[src.policies.branch_and_price.pricing_subproblem.PricingSubproblem, logic.src.policies.other.branching_solvers.RCSPPSolver], dual_values: typing.Dict[typing.Union[int, frozenset[int], str, typing.Tuple[int, int]], float], constraints: typing.Optional[typing.List[logic.src.policies.other.branching_solvers.AnyBranchingConstraint]]) -> typing.List[typing.Tuple[typing.List[int], float]]
 :canonical: src.policies.branch_and_price.bp.BranchAndPriceSolver._call_pricing
 
 ```{autodoc2-docstring} src.policies.branch_and_price.bp.BranchAndPriceSolver._call_pricing
@@ -91,7 +91,7 @@
 
 ````
 
-````{py:method} _generate_initial_routes(pricing: typing.Any) -> typing.List[src.policies.branch_and_price.master_problem.Route]
+````{py:method} _generate_initial_routes(pricing: typing.Any) -> typing.List[logic.src.policies.other.branching_solvers.Route]
 :canonical: src.policies.branch_and_price.bp.BranchAndPriceSolver._generate_initial_routes
 
 ```{autodoc2-docstring} src.policies.branch_and_price.bp.BranchAndPriceSolver._generate_initial_routes
@@ -99,7 +99,7 @@
 
 ````
 
-````{py:method} _add_routes_to_master(master: src.policies.branch_and_price.master_problem.VRPPMasterProblem, pricing: typing.Any, new_routes: typing.List[typing.Tuple[typing.List[int], float]]) -> None
+````{py:method} _add_routes_to_master(master: logic.src.policies.other.branching_solvers.VRPPMasterProblem, pricing: typing.Any, new_routes: typing.List[typing.Tuple[typing.List[int], float]]) -> None
 :canonical: src.policies.branch_and_price.bp.BranchAndPriceSolver._add_routes_to_master
 
 ```{autodoc2-docstring} src.policies.branch_and_price.bp.BranchAndPriceSolver._add_routes_to_master
@@ -107,7 +107,7 @@
 
 ````
 
-````{py:method} _routes_to_tour(routes: typing.List[src.policies.branch_and_price.master_problem.Route]) -> typing.List[int]
+````{py:method} _routes_to_tour(routes: typing.List[logic.src.policies.other.branching_solvers.Route]) -> typing.List[int]
 :canonical: src.policies.branch_and_price.bp.BranchAndPriceSolver._routes_to_tour
 
 ```{autodoc2-docstring} src.policies.branch_and_price.bp.BranchAndPriceSolver._routes_to_tour
@@ -115,7 +115,7 @@
 
 ````
 
-````{py:method} _make_master() -> src.policies.branch_and_price.master_problem.VRPPMasterProblem
+````{py:method} _make_master() -> logic.src.policies.other.branching_solvers.VRPPMasterProblem
 :canonical: src.policies.branch_and_price.bp.BranchAndPriceSolver._make_master
 
 ```{autodoc2-docstring} src.policies.branch_and_price.bp.BranchAndPriceSolver._make_master
@@ -123,7 +123,7 @@
 
 ````
 
-````{py:method} _make_pricing() -> typing.Tuple[src.policies.branch_and_price.pricing_subproblem.PricingSubproblem, typing.Optional[src.policies.branch_and_price.rcspp_dp.RCSPPSolver]]
+````{py:method} _make_pricing() -> typing.Tuple[src.policies.branch_and_price.pricing_subproblem.PricingSubproblem, typing.Optional[logic.src.policies.other.branching_solvers.RCSPPSolver]]
 :canonical: src.policies.branch_and_price.bp.BranchAndPriceSolver._make_pricing
 
 ```{autodoc2-docstring} src.policies.branch_and_price.bp.BranchAndPriceSolver._make_pricing
@@ -131,7 +131,7 @@
 
 ````
 
-````{py:method} _build_master_for_node(node: src.policies.branch_and_price.branching.BranchNode, routes: typing.List[src.policies.branch_and_price.master_problem.Route]) -> src.policies.branch_and_price.master_problem.VRPPMasterProblem
+````{py:method} _build_master_for_node(node: logic.src.policies.other.branching_solvers.BranchNode, routes: typing.List[logic.src.policies.other.branching_solvers.Route]) -> logic.src.policies.other.branching_solvers.VRPPMasterProblem
 :canonical: src.policies.branch_and_price.bp.BranchAndPriceSolver._build_master_for_node
 
 ```{autodoc2-docstring} src.policies.branch_and_price.bp.BranchAndPriceSolver._build_master_for_node

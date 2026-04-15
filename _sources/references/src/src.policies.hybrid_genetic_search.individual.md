@@ -35,7 +35,25 @@
 ```{autodoc2-docstring} src.policies.hybrid_genetic_search.individual.Individual.__init__
 ```
 
-````{py:method} get_visited_nodes() -> set
+````{py:property} routes
+:canonical: src.policies.hybrid_genetic_search.individual.Individual.routes
+:type: typing.List[typing.List[int]]
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search.individual.Individual.routes
+```
+
+````
+
+````{py:property} penalized_profit
+:canonical: src.policies.hybrid_genetic_search.individual.Individual.penalized_profit
+:type: float
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search.individual.Individual.penalized_profit
+```
+
+````
+
+````{py:method} get_visited_nodes() -> typing.Set[int]
 :canonical: src.policies.hybrid_genetic_search.individual.Individual.get_visited_nodes
 
 ```{autodoc2-docstring} src.policies.hybrid_genetic_search.individual.Individual.get_visited_nodes
@@ -47,6 +65,14 @@
 :canonical: src.policies.hybrid_genetic_search.individual.Individual.get_unvisited_nodes
 
 ```{autodoc2-docstring} src.policies.hybrid_genetic_search.individual.Individual.get_unvisited_nodes
+```
+
+````
+
+````{py:method} assert_invariants(expected_nodes: typing.Optional[typing.Set[int]] = None) -> None
+:canonical: src.policies.hybrid_genetic_search.individual.Individual.assert_invariants
+
+```{autodoc2-docstring} src.policies.hybrid_genetic_search.individual.Individual.assert_invariants
 ```
 
 ````

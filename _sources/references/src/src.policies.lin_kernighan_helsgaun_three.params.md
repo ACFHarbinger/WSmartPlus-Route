@@ -150,13 +150,13 @@
 
 ````
 
-````{py:attribute} lns_iterations
-:canonical: src.policies.lin_kernighan_helsgaun_three.params.LKH3Params.lns_iterations
+````{py:attribute} alns_iterations
+:canonical: src.policies.lin_kernighan_helsgaun_three.params.LKH3Params.alns_iterations
 :type: int
 :value: >
    100
 
-```{autodoc2-docstring} src.policies.lin_kernighan_helsgaun_three.params.LKH3Params.lns_iterations
+```{autodoc2-docstring} src.policies.lin_kernighan_helsgaun_three.params.LKH3Params.alns_iterations
 ```
 
 ````
@@ -212,6 +212,28 @@
    True
 
 ```{autodoc2-docstring} src.policies.lin_kernighan_helsgaun_three.params.LKH3Params.vrpp
+```
+
+````
+
+````{py:attribute} dynamic_topology_discovery
+:canonical: src.policies.lin_kernighan_helsgaun_three.params.LKH3Params.dynamic_topology_discovery
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.lin_kernighan_helsgaun_three.params.LKH3Params.dynamic_topology_discovery
+```
+
+````
+
+````{py:attribute} native_prize_collecting
+:canonical: src.policies.lin_kernighan_helsgaun_three.params.LKH3Params.native_prize_collecting
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.lin_kernighan_helsgaun_three.params.LKH3Params.native_prize_collecting
 ```
 
 ````

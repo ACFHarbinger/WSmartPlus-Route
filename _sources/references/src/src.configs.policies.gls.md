@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.policies.gls.GLSConfig
 ```
 
-````{py:attribute} engine
-:canonical: src.configs.policies.gls.GLSConfig.engine
-:type: str
-:value: >
-   'gls'
-
-```{autodoc2-docstring} src.configs.policies.gls.GLSConfig.engine
-```
-
-````
-
 ````{py:attribute} lambda_param
 :canonical: src.configs.policies.gls.GLSConfig.lambda_param
 :type: float
