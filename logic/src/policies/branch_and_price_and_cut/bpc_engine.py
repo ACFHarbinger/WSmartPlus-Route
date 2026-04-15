@@ -122,6 +122,12 @@ from logic.src.policies.other.branching_solvers import (
     SeparationEngine,
     VRPPMasterProblem,
 )
+from logic.src.policies.other.branching_solvers.lagrangian_relaxation.subgradient_optimization import (
+    run_subgradient,
+)
+from logic.src.policies.other.branching_solvers.lagrangian_relaxation.uncapacitated_orienteering_problem import (
+    solve_uncapacitated_op,
+)
 from logic.src.policies.other.branching_solvers.vrpp_model import VRPPModel
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
@@ -700,6 +706,140 @@ def _perform_strong_branching(  # noqa: C901
             return eval_candidates[0]  # safe fallback
 
     return best_candidate
+
+
+def _compute_lr_bound_at_node(
+    dist_matrix: np.ndarray,
+    wastes: Dict[int, float],
+    capacity: float,
+    R: float,
+    C: float,
+    must_go: Set[int],
+    forced_out: Set[int],
+    params: "BPCParams",
+    time_budget: float,
+    env: Optional[Any],
+    recorder: Optional[PolicyStateRecorder],
+) -> Tuple[float, float, Set[int]]:
+    """
+    Compute a fast Lagrangian upper bound at a BPC B&B node.
+
+    Runs a lightweight subgradient pass over the *effective* customer set
+    (excluding customers already forced out by branching), then returns the
+    tightest Lagrangian bound found and λ* for optional CG warm-starting.
+
+    The forced_out set comes from the active branching constraints at this node.
+    Customers in forced_out are pre-excluded from the subproblem, making the
+    bound tighter and the UOP solve faster as the tree deepens.
+
+    Args:
+        dist_matrix:  Full distance matrix (n × n), index 0 = depot.
+        wastes:       {customer_id → fill_level}.
+        capacity:     Vehicle capacity Q.
+        R:            Revenue coefficient.
+        C:            Distance cost coefficient.
+        must_go:      Customers forced in by branching (forced_in for the UOP).
+        forced_out:   Customers forced out by branching (excluded from UOP).
+        params:       BPCParams carrying the lr_* fields.
+        time_budget:  Wall-clock seconds available for the subgradient phase.
+        env:          Optional shared Gurobi environment.
+        recorder:     Optional telemetry recorder.
+
+    Returns:
+        (lr_upper_bound, lam_star, op_visited_set) where:
+            lr_upper_bound – Tightest Lagrangian bound found: min_k L(λ_k).
+            lam_star       – λ that achieved lr_upper_bound.
+            op_visited_set – Customer set from the UOP solve at λ*; used for
+                             optional column seeding (lr_warm_start_cg).
+    """
+    # Build a trimmed wastes dict that excludes forced-out customers.
+    # run_subgradient internally calls solve_uncapacitated_op, which already
+    # accepts forced_in and forced_out. We pass forced_out through the
+    # must_go_indices mechanism by manipulating the wastes dict instead, so
+    # that the a-priori elimination step inside solve_uncapacitated_op skips them.
+    # The cleaner path is to pass forced_out explicitly. run_subgradient does
+    # not currently accept forced_out, so we filter wastes here.
+    trimmed_wastes = {k: v for k, v in wastes.items() if k not in forced_out}
+
+    # Create a temporary BBParams-compatible object to call run_subgradient.
+    # run_subgradient accepts a params object with these specific fields; we
+    # use a SimpleNamespace to avoid a hard dependency on BBParams in bpc_engine.
+    from types import SimpleNamespace
+
+    lr_params = SimpleNamespace(
+        lr_lambda_init=params.lr_lambda_init,
+        lr_max_subgradient_iters=params.lr_max_subgradient_iters,
+        lr_subgradient_theta=params.lr_subgradient_theta,
+        lr_op_time_limit=params.lr_op_time_limit,
+        mip_gap=params.optimality_gap,
+        seed=params.seed if hasattr(params, "seed") else 42,
+    )
+
+    lam_star, ub_best, _lb, _history = run_subgradient(
+        dist_matrix=dist_matrix,
+        wastes=trimmed_wastes,
+        capacity=capacity,
+        R=R,
+        C=C,
+        must_go_indices=must_go,
+        params=lr_params,
+        time_budget=time_budget,
+        env=env,
+        recorder=recorder,
+    )
+
+    # Resolve UOP at λ* to get the visited set for CG warm-starting.
+    # This is a single additional solve (cheap, reuses λ*).
+    op_visited: Set[int] = set()
+    if params.lr_warm_start_cg:
+        op_visited, _, _ = solve_uncapacitated_op(
+            dist_matrix=dist_matrix,
+            wastes=trimmed_wastes,
+            lam=lam_star,
+            R=R,
+            C=C,
+            forced_in=must_go,
+            forced_out=forced_out,
+            time_limit=params.lr_op_time_limit,
+            seed=lr_params.seed,
+            env=env,
+            recorder=recorder,
+        )
+
+    return ub_best, lam_star, op_visited
+
+
+def _extract_forced_sets_from_constraints(
+    branching_constraints: Optional[List[AnyBranchingConstraint]],
+) -> Tuple[Set[int], Set[int]]:
+    """
+    Extract forced-in and forced-out customer sets from the active branching path.
+
+    Only `NodeVisitationBranchingConstraint` instances carry hard node-level
+    fixings. Edge and Ryan-Foster constraints fix arcs, not nodes directly,
+    so they are not reflected here (the LR subproblem is node-selection based).
+
+    Args:
+        branching_constraints: Active constraints from root to current node.
+
+    Returns:
+        (forced_in, forced_out) sets of customer indices.
+    """
+    from logic.src.policies.other.branching_solvers.branching import (
+        NodeVisitationBranchingConstraint,
+    )
+
+    forced_in: Set[int] = set()
+    forced_out: Set[int] = set()
+
+    for bc in branching_constraints or []:
+        if isinstance(bc, NodeVisitationBranchingConstraint):
+            if bc.forced:
+                forced_in.add(bc.node)
+            else:
+                forced_out.add(bc.node)
+
+    return forced_in, forced_out
 
 
 def _column_generation_loop(  # noqa: C901
@@ -1283,6 +1423,97 @@ def run_bpc(  # noqa: C901
             master.model.update()
 
         # Run Column Generation at this node with corrected sequencing
+        # ---------------------------------------------------------------
+        # Lagrangian Pre-Pruning (optional, params.lr_pre_pruning)
+        # ---------------------------------------------------------------
+        # Run a fast subgradient pass before expensive column generation.
+        # If the Lagrangian bound is dominated by the current incumbent,
+        # the node is pruned without ever calling _column_generation_loop.
+        # ---------------------------------------------------------------
+        if (
+            params.lr_pre_pruning
+            and bb_tree.best_integer_solution is not None
+            and (params.lr_pre_pruning_depth_limit < 0 or current_node.depth <= params.lr_pre_pruning_depth_limit)
+        ):
+            # Build forced sets from branching constraints accumulated at this node.
+            _lr_forced_in, _lr_forced_out = _extract_forced_sets_from_constraints(current_node.constraints)
+            # Union with global must_go for the forced_in set.
+            _lr_forced_in |= m_set
+
+            # Time budget: a small fraction of remaining solve time, capped hard.
+            _remaining = time_limit - (time.monotonic() - start_time) if time_limit else 60.0
+            _lr_budget = min(
+                _remaining * 0.05,  # at most 5% of remaining wall time
+                params.lr_op_time_limit * params.lr_max_subgradient_iters,
+            )
+
+            if _lr_budget > 0.5:  # skip if < 0.5 s available
+                _lr_ub, _lam_star, _lr_op_visited = _compute_lr_bound_at_node(
+                    dist_matrix=dist_matrix,
+                    wastes=wastes,
+                    capacity=capacity,
+                    R=R,
+                    C=C,
+                    must_go=_lr_forced_in,
+                    forced_out=_lr_forced_out,
+                    params=params,
+                    time_budget=_lr_budget,
+                    env=env,
+                    recorder=recorder,
+                )
+
+                _gap_threshold = bb_tree.best_integer_solution * (1.0 + params.optimality_gap)
+
+                if _lr_ub <= _gap_threshold:
+                    # LR bound is dominated — prune without CG.
+                    logger.debug(
+                        f"[LR Pre-Pruning] Node depth={current_node.depth} pruned. "
+                        f"LR bound={_lr_ub:.4f} <= incumbent={bb_tree.best_integer_solution:.4f}."
+                    )
+                    if recorder:
+                        recorder.record(
+                            engine="bpc_lr_pre_pruning",
+                            node_depth=current_node.depth,
+                            lr_upper_bound=_lr_ub,
+                            lam_star=_lam_star,
+                            incumbent=bb_tree.best_integer_solution,
+                            pruned=True,
+                        )
+                    bb_tree.prune_by_bound()
+                    continue
+
+                if recorder:
+                    recorder.record(
+                        engine="bpc_lr_pre_pruning",
+                        node_depth=current_node.depth,
+                        lr_upper_bound=_lr_ub,
+                        lam_star=_lam_star,
+                        incumbent=bb_tree.best_integer_solution,
+                        pruned=False,
+                    )
+
+                # LR did not prune. Optionally seed a warm-start column into the pool.
+                if params.lr_warm_start_cg and _lr_op_visited:
+                    _seed_nodes = sorted(_lr_op_visited - _lr_forced_out)
+                    if _seed_nodes:
+                        try:
+                            _seed_route = pricing_solver._compute_route_details(_seed_nodes)
+                            _seed_rc = master.calculate_reduced_cost(
+                                _seed_route,
+                                master.get_reduced_cost_coefficients(),
+                            )
+                            if _seed_rc > params.rc_tolerance:
+                                master.add_route(_seed_route)
+                                logger.debug(
+                                    f"[LR Warm-Start] Seeded column from UOP at λ*={_lam_star:.4f}, "
+                                    f"rc={_seed_rc:.4f}, nodes={_seed_nodes}."
+                                )
+                        except Exception as _e:
+                            logger.debug(f"[LR Warm-Start] Column seeding failed: {_e}. Continuing.")
+        # ---------------------------------------------------------------
+        # End of LR Pre-Pruning block
+        # ---------------------------------------------------------------
+
         try:
             # Fix 12: Snapshot-and-restore ng-neighborhoods
             ng_snapshot = pricing_solver.save_ng_snapshot()

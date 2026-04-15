@@ -1,0 +1,22 @@
+# Policy Configuration
+# =============================================================================
+# BMC (Boltzmann-Metropolis Criterion) Policy Configuration
+# =============================================================================
+# PURPOSE:
+#   Classic Boltzmann acceptance with geometric cooling schedule.
+#   High temperature = random walk; low temperature = greedy descent.
+# =============================================================================
+
+bmc:
+  custom:
+    - initial_temp: 200.0
+    - alpha: 0.998
+    - min_temp: 0.01
+    - n_removal: 3
+    - n_llh: 5
+    - max_iterations: 45000
+    - time_limit: 60.0
+    - profit_aware_operators: true
+    - vrpp: true
+    - must_go: ["other/mg_lookahead.yaml"]
+    - post_processing: []
