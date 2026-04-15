@@ -252,7 +252,7 @@ def _render_hgs(data: Dict[str, List[Any]], height: int, smooth: int) -> None:
         no_improv = data.get("no_improv", [])
         if no_improv:
             restarted = data.get("restarted", [False] * len(generations))
-            restart_gens = [g for g, r in zip(generations, restarted) if r]
+            restart_gens = [g for g, r in zip(generations, restarted, strict=False) if r]
 
             fig = go.Figure()
             fig.add_trace(

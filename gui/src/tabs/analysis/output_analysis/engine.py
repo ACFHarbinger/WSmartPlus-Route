@@ -129,7 +129,7 @@ def calculate_pareto_front(x_values: List[float], y_values: List[float]) -> List
         list: List of indices for points on the Pareto front.
     """
     points = []
-    for i, (xv, yv) in enumerate(zip(x_values, y_values)):
+    for i, (xv, yv) in enumerate(zip(x_values, y_values, strict=False)):
         points.append({"idx": i, "x": xv, "y": yv})
 
     pareto_indices = []

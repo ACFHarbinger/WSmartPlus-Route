@@ -238,7 +238,7 @@ def _build_tour_from_successor(
     """
     # The assignment gives a perfect matching; chain it into a tour
     successor: Dict[int, int] = {}
-    for r, c in zip(row_ind, col_ind):
+    for r, c in zip(row_ind, col_ind, strict=False):
         if restricted_cost[r, c] < big_m:
             successor[r] = c
 

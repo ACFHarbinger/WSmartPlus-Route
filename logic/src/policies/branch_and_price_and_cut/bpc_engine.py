@@ -177,7 +177,7 @@ def _reset_master_constraints(master: VRPPMasterProblem) -> None:
 
 def _apply_route_level_branching_filters(master: VRPPMasterProblem, bc: AnyBranchingConstraint) -> None:
     """Apply route-level feasibility filters based on branching constraints."""
-    for route, var in zip(master.routes, master.lambda_vars):
+    for route, var in zip(master.routes, master.lambda_vars, strict=False):
         if var.UB > 0.5 and not bc.is_route_feasible(route):
             var.UB = 0.0
 

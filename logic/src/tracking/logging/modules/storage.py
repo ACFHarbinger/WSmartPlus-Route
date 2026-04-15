@@ -126,7 +126,7 @@ def log_to_json(
 
         for key, val in dit.items():
             values = val.values() if hasattr(val, "values") else val
-            new[key] = dict(zip(keys, values))
+            new[key] = dict(zip(keys, values, strict=False))
 
         if sort_log_flag:
             new = _sort_log(new)
@@ -188,7 +188,7 @@ def log_to_json2(
             old = [] if sample_id is not None else {}
         for key, val in dit.items():
             values = val.values() if hasattr(val, "values") else val
-            new[key] = dict(zip(keys, values))
+            new[key] = dict(zip(keys, values, strict=False))
         if sort_log_flag:
             new = _sort_log(new)
         if sample_id is not None:

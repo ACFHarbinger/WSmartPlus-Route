@@ -60,7 +60,7 @@ def plot_linechart(
             markers: Markers.
         """
         points_by_nbins = {}  # type: ignore[var-annotated]
-        for id, lg in enumerate(zip(*graph_log)):
+        for id, lg in enumerate(zip(*graph_log, strict=False)):
             to_plot = (*lg,) if x_values is None else (x_values, *lg)
 
             line = linestyles[id % len(linestyles)] if linestyles is not None else False
@@ -76,7 +76,9 @@ def plot_linechart(
             else:
                 plot_func(*to_plot, linestyle=line, marker=mark)
 
-            for id, (x, y) in enumerate(zip(list(zip(*lg))[0], list(zip(*lg))[5])):
+            for id, (x, y) in enumerate(
+                zip(list(zip(*lg, strict=False))[0], list(zip(*lg, strict=False))[5], strict=False)
+            ):
                 if id not in points_by_nbins:
                     points_by_nbins[id] = []
                 points_by_nbins[id].append((x, y))
@@ -125,8 +127,10 @@ def _plot_2d_graph(plot_func, graph_log, markers) -> Dict[int, List[Tuple[float,
 
 def _annotate_plot(graph_log) -> None:
     """Helper to annotate plot points."""
-    for lg in zip(*graph_log):
-        for id_val, xy in enumerate(zip(list(zip(*lg))[0], list(zip(*lg))[5])):
+    for lg in zip(*graph_log, strict=False):
+        for id_val, xy in enumerate(
+            zip(list(zip(*lg, strict=False))[0], list(zip(*lg, strict=False))[5], strict=False)
+        ):
             if id_val == graph_log.shape[0] - 1:
                 _add_scatter_marker(xy)
 

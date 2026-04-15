@@ -44,7 +44,7 @@ def load_state_dict(self, state_dict):
 
     param_lens = (len(g["params"]) for g in groups)
     saved_lens = (len(g["params"]) for g in saved_groups)
-    if any(p_len != s_len for p_len, s_len in zip(param_lens, saved_lens)):
+    if any(p_len != s_len for p_len, s_len in zip(param_lens, saved_lens, strict=False)):
         raise ValueError(
             "loaded state dict contains a parameter group that doesn't match the size of optimizer's group"
         )
@@ -55,6 +55,7 @@ def load_state_dict(self, state_dict):
         for old_id, p in zip(
             chain(*(g["params"] for g in saved_groups)),
             chain(*(g["params"] for g in groups)),
+            strict=False,
         )
     }
 
@@ -100,7 +101,7 @@ def load_state_dict(self, state_dict):
         new_group["params"] = group["params"]
         return new_group
 
-    param_groups = [update_group(g, ng) for g, ng in zip(groups, saved_groups)]
+    param_groups = [update_group(g, ng) for g, ng in zip(groups, saved_groups, strict=False)]
     self.__setstate__({"state": state, "param_groups": param_groups})
 
 

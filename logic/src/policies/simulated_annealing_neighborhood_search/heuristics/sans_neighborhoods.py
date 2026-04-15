@@ -158,7 +158,7 @@ def move_between_routes(routes: list, data, vehicle_capacity: float, id_to_index
     moves = []
     # Import locally to avoid circularity if any
     try:
-        stocks = dict(zip(data["#bin"], data["Stock"]))
+        stocks = dict(zip(data["#bin"], data["Stock"], strict=False))
     except (KeyError, TypeError):
         # Fallback if data format is different
         return []

@@ -307,7 +307,7 @@ def create_pareto_scatter_chart(
             [(x_arr[i], y_arr[i]) for i in pareto_indices],
             key=lambda p: p[0],
         )
-        px_vals, py_vals = zip(*pts)
+        px_vals, py_vals = zip(*pts, strict=False)
         fig.add_trace(
             go.Scatter(
                 x=px_vals,

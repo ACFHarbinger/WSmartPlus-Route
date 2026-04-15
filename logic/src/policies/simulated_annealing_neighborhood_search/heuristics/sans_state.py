@@ -19,7 +19,7 @@ def compute_profit(
     Profit = Revenue - Cost - Penalty
     """
     if stocks is None:
-        stocks = dict(zip(data["#bin"], data["Stock"]))
+        stocks = dict(zip(data["#bin"], data["Stock"], strict=False))
 
     current_cost = compute_total_cost(solution, distance_matrix, id_to_index)
 

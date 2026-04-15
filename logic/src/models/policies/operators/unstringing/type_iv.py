@@ -86,7 +86,7 @@ def _find_best_type_iv_move(
         else:
             continue
 
-        for js, ls, ks in zip(j_s, l_s, k_s):
+        for js, ls, ks in zip(j_s, l_s, k_s, strict=False):
             j, l, k = valid_indices[js].item(), valid_indices[ls].item(), valid_indices[ks].item()
             delta = _evaluate_type_iv_move(tour, dist, i, j, l, k, N)
             if delta < best_delta - IMPROVEMENT_EPSILON:

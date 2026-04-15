@@ -24,7 +24,7 @@ def load_log_dict(
 ) -> Dict[str, str]:
     """Load log file paths from directories keyed by graph size."""
     logs: Dict[str, str] = {}
-    for path, ns in zip(dir_paths, nsamples):
+    for path, ns in zip(dir_paths, nsamples, strict=False):
         gsize = int(os.path.basename(path).split("_")[1])
         logs[f"{gsize}"] = os.path.join(path, f"log_mean_{ns}N.json")
         if show_incomplete and ns > 1:
@@ -63,9 +63,13 @@ def output_stats(
         data = cast(List[Dict[str, Any]], read_json(os.path.join(dir_path, f"log_full_{nsamples}N.json"), lock=None))
         for pol in policies:
             tmp = [list(data[n_id][pol].values()) for n_id in range(nsamples)]
-            mean_dit[pol] = {key: val for key, val in zip(keys, [*map(statistics.mean, zip(*tmp))])}
+            mean_dit[pol] = {
+                key: val for key, val in zip(keys, [*map(statistics.mean, zip(*tmp, strict=False))], strict=False)
+            }
             if nsamples > 1:
-                std_dit[pol] = {key: val for key, val in zip(keys, [*map(statistics.stdev, zip(*tmp))])}
+                std_dit[pol] = {
+                    key: val for key, val in zip(keys, [*map(statistics.stdev, zip(*tmp, strict=False))], strict=False)
+                }
             else:
                 std_dit[pol] = {key: 0.0 for key in keys}
 
@@ -80,7 +84,7 @@ def output_stats(
                 logm = lg_obj.values() if hasattr(lg_obj, "values") else lg_obj
                 logs = lg_std_obj.values() if hasattr(lg_std_obj, "values") else lg_std_obj
                 print(f"{pol}:")
-                for key, m, s in zip(keys, logm, logs):
+                for key, m, s in zip(keys, logm, logs, strict=False):
                     print(f"- {key}: {m:.2f} +- {s:.4f}")
         with open(mean_filename, "w") as fp:
             json.dump(mean_dit, fp, indent=True)
@@ -102,7 +106,7 @@ def runs_per_policy(
 ) -> List[Dict[str, List[int]]]:
     """Count runs per policy from full log files."""
     runs_ls = []
-    for path, ns in zip(dir_paths, nsamples):
+    for path, ns in zip(dir_paths, nsamples, strict=False):
         dit: Dict[str, List[int]] = {pol: [] for pol in policies}
         full_log_path = os.path.join(path, f"log_full_{ns}N.json")
         if not os.path.exists(full_log_path):

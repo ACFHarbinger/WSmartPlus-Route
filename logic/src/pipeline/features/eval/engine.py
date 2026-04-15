@@ -162,7 +162,7 @@ def _eval_dataset(
     duration_per_batch = eval_results["duration"] / len(dataloader)
 
     results: List[Dict[str, Any]] = []
-    for i, (seq, cost) in enumerate(zip(sequences_best, costs_best)):
+    for i, (seq, cost) in enumerate(zip(sequences_best, costs_best, strict=False)):
         if seq is not None:
             if model.problem.NAME in ("cvrpp", "cwcvrp", "sdwcvrp"):
                 seq = np.trim_zeros(seq).tolist() + [0]
@@ -178,7 +178,7 @@ def _eval_dataset(
             instance_obj: object = instance
             batch_i: Any
             if isinstance(instance_obj, (list, tuple)):
-                batch_i = {k: v.unsqueeze(0).to(device) for k, v in zip(["locs"], instance_obj)}
+                batch_i = {k: v.unsqueeze(0).to(device) for k, v in zip(["locs"], instance_obj, strict=False)}
             elif isinstance(instance_obj, ITraversable):
                 batch_i = {}
                 for k, v in instance_obj.items():

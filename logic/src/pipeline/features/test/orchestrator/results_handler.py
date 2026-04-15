@@ -21,13 +21,13 @@ def _log_sim_metrics(log: Dict[str, Any], log_std: Optional[Dict[str, Any]] = No
     for pol_name_k, metrics in log.items():
         metrics_obj: object = metrics
         if isinstance(metrics_obj, (list, tuple)):
-            for metric_name, val in zip(udef.SIM_METRICS, metrics_obj):
+            for metric_name, val in zip(udef.SIM_METRICS, metrics_obj, strict=False):
                 run.log_metric(f"sim/{pol_name_k}/{metric_name}", float(val))
     if log_std is not None:
         for pol_name_k, std_metrics in log_std.items():
             std_metrics_obj: object = std_metrics
             if isinstance(std_metrics_obj, (list, tuple)):
-                for metric_name, val in zip(udef.SIM_METRICS, std_metrics_obj):
+                for metric_name, val in zip(udef.SIM_METRICS, std_metrics_obj, strict=False):
                     run.log_metric(f"sim/{pol_name_k}/{metric_name}_std", float(val))
 
 
@@ -71,9 +71,10 @@ def aggregate_final_results(log_tmp: Any, cfg: Config, lock: Any) -> Tuple[Dict[
 
             for pol_name in policy_names:
                 if log_full[pol_name]:
-                    log[pol_name] = [statistics.mean(v) for v in zip(*log_full[pol_name])]
+                    log[pol_name] = [statistics.mean(v) for v in zip(*log_full[pol_name], strict=False)]
                     log_std[pol_name] = [
-                        statistics.stdev(v) if len(log_full[pol_name]) > 1 else 0.0 for v in zip(*log_full[pol_name])
+                        statistics.stdev(v) if len(log_full[pol_name]) > 1 else 0.0
+                        for v in zip(*log_full[pol_name], strict=False)
                     ]
                 else:
                     log[pol_name] = [0.0] * len(udef.SIM_METRICS)

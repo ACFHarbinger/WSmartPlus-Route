@@ -118,24 +118,27 @@ def _inherit_components(
                 continue
 
         # Fix 8: Prefer physical route order; fall back to giant tour order.
-        if rng.random() < 0.5 and p1.routes:
-            source_routes = p1.routes
-            fallback_tour = p1.giant_tour
+        if rng.random() < 0.5:
+            source_routes, fallback_tour = p1.routes, p1.giant_tour
         else:
-            source_routes = p2.routes if hasattr(p2, "routes") and p2.routes else None
-            fallback_tour = p2.giant_tour
+            source_routes, fallback_tour = p2.routes, p2.giant_tour
 
         comp_set = set(component)
-        ordered_comp = []
+        ordered_comp: List[int] = []
+        ordered_comp_set: Set[int] = set()
+
         if source_routes:
             for route in source_routes:
                 for n in route:
-                    if n in comp_set and n not in set(ordered_comp):
+                    if n in comp_set and n not in ordered_comp_set:
                         ordered_comp.append(n)
+                        ordered_comp_set.add(n)
+
         # Catch any component nodes not in any route
         for n in fallback_tour:
-            if n in comp_set and n not in set(ordered_comp):
+            if n in comp_set and n not in ordered_comp_set:
                 ordered_comp.append(n)
+                ordered_comp_set.add(n)
 
         if ordered_comp:
             child_routes.append(ordered_comp)

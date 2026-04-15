@@ -478,12 +478,12 @@ class HVPLSolver:
             if not route:
                 continue
             # Depot to first node
-            self.aco_solver.pheromone.update_edge(0, route[0], delta, evaporate=False)
+            self.aco_solver.pheromone.deposit_edge(0, route[0], delta)
             # Inter-node edges
             for k in range(len(route) - 1):
-                self.aco_solver.pheromone.update_edge(route[k], route[k + 1], delta, evaporate=False)
+                self.aco_solver.pheromone.deposit_edge(route[k], route[k + 1], delta)
             # Last node back to depot
-            self.aco_solver.pheromone.update_edge(route[-1], 0, delta, evaporate=False)
+            self.aco_solver.pheromone.deposit_edge(route[-1], 0, delta)
 
     # ------------------------------------------------------------------
     # Private: Evaluation

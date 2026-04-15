@@ -86,7 +86,7 @@ def _find_best_type_iii_move(
             # Let's use a simpler loop for demonstration if exhaustive
             continue
 
-        for ks, js, ls in zip(k_s, j_s, l_s):
+        for ks, js, ls in zip(k_s, j_s, l_s, strict=False):
             k, j, l = valid_indices[ks].item(), valid_indices[js].item(), valid_indices[ls].item()
             delta = _evaluate_type_iii_move(tour, dist, i, k, j, l, N)
             if delta < best_delta - IMPROVEMENT_EPSILON:

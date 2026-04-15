@@ -106,7 +106,6 @@ __all__ = [
     "IntegerLShapedBendersConfig",
     "HVPLConfig",
     "KGLSConfig",
-    "LKHConfig",
     "LKH3Config",
     "NeuralConfig",
     "RLAHVPLConfig",

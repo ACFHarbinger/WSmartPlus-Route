@@ -17,6 +17,7 @@ import numpy as np
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
 from .dfj import run_bb_dfj
+from .lr_uop import run_bb_lr_uop
 from .mtz import run_bb_mtz
 from .params import BBParams
 
@@ -122,9 +123,22 @@ def run_bb_optimizer(
             env=env,
             recorder=recorder,
         )
+    elif formulation == "lr_uop":
+        return run_bb_lr_uop(
+            dist_matrix=dist_matrix,
+            wastes=wastes,
+            capacity=capacity,
+            R=R,
+            C=C,
+            params=params,
+            must_go_indices=must_go_indices,
+            env=env,
+            recorder=recorder,
+        )
     else:
         raise ValueError(
             f"Unknown B&B formulation: '{formulation}'. "
-            f"Supported formulations: 'mtz', 'dfj'. "
-            f"Use 'mtz' for compact MTZ formulation or 'dfj' for lazy DFJ cuts."
+            f"Supported formulations: 'mtz', 'dfj', 'lr_uop'. "
+            f"Use 'mtz' for compact MTZ formulation, 'dfj' for lazy DFJ cuts, "
+            f"or 'lr_uop' for Lagrangian Relaxation with uncapacitated OP bounding."
         )

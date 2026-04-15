@@ -628,7 +628,7 @@ class BranchAndCutSolver:
             return
 
         # Find connected components of fractional support graph (edges > 0.1)
-        support_edges = [(u, v) for (u, v), val in zip(self.model.edges, x_vals) if val > 0.1]
+        support_edges = [(u, v) for (u, v), val in zip(self.model.edges, x_vals, strict=False) if val > 0.1]
         try:
             import networkx as nx
 
@@ -669,7 +669,7 @@ class BranchAndCutSolver:
 
                     if edge_vars and y_vars_S:
                         cut_expr = gp.quicksum(edge_vars) >= (2.0 / self.model.capacity) * gp.quicksum(
-                            d * y for d, y in zip(demand_S, y_vars_S)
+                            d * y for d, y in zip(demand_S, y_vars_S, strict=False)
                         )
                         if is_integer:
                             model.cbLazy(cut_expr)
@@ -715,7 +715,7 @@ class BranchAndCutSolver:
 
                         if edge_vars and y_vars_hub:
                             bound = gp.quicksum(y for y in y_vars_hub) - (1.0 / self.model.capacity) * gp.quicksum(
-                                d * y for d, y in zip(demand_hub, y_vars_hub)
+                                d * y for d, y in zip(demand_hub, y_vars_hub, strict=False)
                             )
                             cut_expr = gp.quicksum(edge_vars) <= bound
                             if is_integer:
@@ -734,7 +734,7 @@ class BranchAndCutSolver:
         if not hasattr(self, "q_vars") or not self.q_vars or not self.scenarios:
             return
 
-        support_edges = [(u, v) for (u, v), val in zip(self.model.edges, x_vals) if val > 0.1]
+        support_edges = [(u, v) for (u, v), val in zip(self.model.edges, x_vals, strict=False) if val > 0.1]
         try:
             import networkx as nx
 
@@ -774,7 +774,7 @@ class BranchAndCutSolver:
                     demand_S = [scenario_demands.get(i, 0.0) for i in S if i in self.y_vars]
 
                     if edge_vars and y_vars_S:
-                        cut_expr = q_var >= gp.quicksum(d * y for d, y in zip(demand_S, y_vars_S)) - (
+                        cut_expr = q_var >= gp.quicksum(d * y for d, y in zip(demand_S, y_vars_S, strict=False)) - (
                             self.model.capacity / 2.0
                         ) * gp.quicksum(edge_vars)
                         if is_integer:

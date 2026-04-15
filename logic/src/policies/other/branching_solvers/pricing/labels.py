@@ -75,11 +75,11 @@ class Label:
 
         total_potential_penalty = 0.0
         if sri_dual_values is not None:
-            for s, o, dual in zip(self.sri_state, other.sri_state, sri_dual_values):
+            for s, o, dual in zip(self.sri_state, other.sri_state, sri_dual_values, strict=False):
                 if s == 1 and o in (0, 2):
                     total_potential_penalty += dual
         else:
-            if any(s > o for s, o in zip(self.sri_state, other.sri_state)):
+            if any(s > o for s, o in zip(self.sri_state, other.sri_state, strict=False)):
                 return False
 
         if self.reduced_cost - total_potential_penalty < other.reduced_cost - epsilon:

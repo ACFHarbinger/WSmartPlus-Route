@@ -100,7 +100,7 @@ def process_dict_two_inputs(
 
     if has_k1 and has_k2:
         if isinstance(val1, (list, tuple)) and isinstance(val2, (list, tuple)) and len(val1) == len(val2):
-            data_any[output_key] = type(val1)([process_func(v1, v2) for v1, v2 in zip(val1, val2)])
+            data_any[output_key] = type(val1)([process_func(v1, v2) for v1, v2 in zip(val1, val2, strict=False)])
         else:
             data_any[output_key] = process_func(val1, val2)
         modified = True

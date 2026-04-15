@@ -402,7 +402,7 @@ def _get_partitioned_vars(
     model.optimize(_root_node_callback)
 
     # 3. Extract relaxation values
-    var_values = {var: val for var, val in zip(all_vars_list, model._node_rel)}
+    var_values = {var: val for var, val in zip(all_vars_list, model._node_rel, strict=False)}
 
     # 4. Compute a totally feasible heuristic route for robustness
     rng = random.Random()
