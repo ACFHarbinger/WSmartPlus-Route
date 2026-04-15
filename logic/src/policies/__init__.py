@@ -30,28 +30,35 @@ Example:
     >>> routes = find_routes(distance_matrix, wastes, capacity)
 """
 
-from .adaptive_large_neighborhood_search.params import ALNSParams
-from .adaptive_large_neighborhood_search.policy_alns import run_alns
 from .base import IPolicy, PolicyFactory, PolicyRegistry
-from .capacitated_vehicle_routing_problem.cvrp import find_routes, find_routes_ortools
-from .differential_evolution.params import DEParams
-from .differential_evolution.solver import DESolver
-from .evolution_strategy_mu_comma_lambda.solver import MuCommaLambdaESParams, MuCommaLambdaESSolver
-from .evolution_strategy_mu_plus_lambda.solver import MuPlusLambdaESParams, MuPlusLambdaESSolver
-from .guided_indicators_hyper_heuristic.policy_gihh import GIHHParams, GIHHSolver
-from .hybrid_genetic_search.policy_hgs import run_hgs
-from .hybrid_genetic_search_ruin_and_recreate.policy_hgs_rr import HGSRRParams, HGSRRSolver
-from .hybrid_memetic_search.params import HybridMemeticSearchParams
-from .hybrid_memetic_search.solver import HybridMemeticSearchSolver
-from .memetic_algorithm_dual_population.params import MemeticAlgorithmDualPopulationParams
-from .memetic_algorithm_dual_population.solver import MemeticAlgorithmDualPopulationSolver
-from .memetic_algorithm_island_model.params import MemeticAlgorithmIslandModelParams
-from .memetic_algorithm_island_model.solver import MemeticAlgorithmIslandModelSolver
-from .memetic_algorithm_tolerance_based_selection.params import MemeticAlgorithmToleranceBasedSelectionParams
-from .memetic_algorithm_tolerance_based_selection.solver import MemeticAlgorithmToleranceBasedSelectionSolver
-from .neural_agent.policy_neural import NeuralAgent
-from .particle_swarm_optimization_distance_based_algorithm.solver import DistancePSOParams, DistancePSOSolver
-from .travelling_salesman_problem.tsp import find_route
+from .hyper_heuristics.guided_indicators_hyper_heuristic.policy_gihh import GIHHParams, GIHHSolver
+from .learning_algorithms.neural_agent.policy_neural import NeuralAgent
+from .meta_heuristics.adaptive_large_neighborhood_search.params import ALNSParams
+from .meta_heuristics.adaptive_large_neighborhood_search.policy_alns import run_alns
+from .meta_heuristics.differential_evolution.params import DEParams
+from .meta_heuristics.differential_evolution.solver import DESolver
+from .meta_heuristics.evolution_strategy_mu_comma_lambda.solver import MuCommaLambdaESParams, MuCommaLambdaESSolver
+from .meta_heuristics.evolution_strategy_mu_plus_lambda.solver import MuPlusLambdaESParams, MuPlusLambdaESSolver
+from .meta_heuristics.hybrid_genetic_search.policy_hgs import run_hgs
+from .meta_heuristics.hybrid_genetic_search_ruin_and_recreate.policy_hgs_rr import HGSRRParams, HGSRRSolver
+from .meta_heuristics.hybrid_memetic_search.params import HybridMemeticSearchParams
+from .meta_heuristics.hybrid_memetic_search.solver import HybridMemeticSearchSolver
+from .meta_heuristics.memetic_algorithm_dual_population.params import MemeticAlgorithmDualPopulationParams
+from .meta_heuristics.memetic_algorithm_dual_population.solver import MemeticAlgorithmDualPopulationSolver
+from .meta_heuristics.memetic_algorithm_island_model.params import MemeticAlgorithmIslandModelParams
+from .meta_heuristics.memetic_algorithm_island_model.solver import MemeticAlgorithmIslandModelSolver
+from .meta_heuristics.memetic_algorithm_tolerance_based_selection.params import (
+    MemeticAlgorithmToleranceBasedSelectionParams,
+)
+from .meta_heuristics.memetic_algorithm_tolerance_based_selection.solver import (
+    MemeticAlgorithmToleranceBasedSelectionSolver,
+)
+from .meta_heuristics.particle_swarm_optimization_distance_based_algorithm.solver import (
+    DistancePSOParams,
+    DistancePSOSolver,
+)
+from .other_algorithms.capacitated_vehicle_routing_problem.cvrp import find_routes, find_routes_ortools
+from .other_algorithms.travelling_salesman_problem.tsp import find_route
 
 __all__ = [
     "ALNSParams",
