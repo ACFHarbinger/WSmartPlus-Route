@@ -97,7 +97,7 @@ class DRALNSLitModule(pl.LightningModule):
         self.reset_buffer()
         self.automatic_optimization = False
 
-    def reset_buffer(self):
+    def reset_buffer(self) -> None:
         """Reset the experience buffer."""
         self.buffer_states: List[torch.Tensor] = []
         self.buffer_actions: List[Dict[str, int]] = []

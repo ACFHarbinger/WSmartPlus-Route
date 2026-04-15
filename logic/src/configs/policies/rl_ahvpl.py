@@ -7,8 +7,8 @@ from typing import Any, List, Optional
 
 from .aco_ks import KSparseACOConfig
 from .alns import ALNSConfig
-from .hgs import HGSConfig
 from .helpers import RLConfig
+from .hgs import HGSConfig
 from .rts import RTSConfig
 
 

@@ -12,7 +12,7 @@ import torch
 class OptimizationMixin:
     """Mixin for optimizer and scheduler configuration."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize Class.
 
         Args:

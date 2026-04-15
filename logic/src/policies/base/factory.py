@@ -53,7 +53,7 @@ class PolicyFactory:
         import logic.src.policies.route_construction.acceptance_criteria as acceptance_criteria  # noqa
 
         # Other Algorithms
-        import logic.src.policies.route_construction.helpers_algorithms as other_algorithms  # noqa
+        import logic.src.policies.route_construction.other_algorithms as other_algorithms  # noqa
 
         cls._registered = True
 

@@ -18,7 +18,7 @@ from logic.src.interfaces import ITraversable
 
 
 # Attention, Learn to Solve Routing Problems
-def load_state_dict(self, state_dict):
+def load_state_dict(self: torch.optim.Optimizer, state_dict: Dict[str, Any]) -> None:
     """
     Loads the optimizer state.
 
@@ -87,7 +87,7 @@ def load_state_dict(self, state_dict):
             state[k] = v
 
     # Update parameter groups, setting their 'params' value
-    def update_group(group, new_group):
+    def update_group(group: Dict[str, Any], new_group: Dict[str, Any]) -> Dict[str, Any]:
         """
         Updates an optimizer parameter group.
 

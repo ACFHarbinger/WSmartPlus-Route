@@ -18,7 +18,7 @@ from logic.src.utils.functions.rl import ensure_tensordict
 if TYPE_CHECKING:
     from logic.src.interfaces.env import IEnv
     from logic.src.interfaces.policy import IPolicy
-    from logic.src.policies.helpers.mandatory import VectorizedSelector
+    from logic.src.policies.mandatory_selection import VectorizedSelector
 
 logger = get_pylogger(__name__)
 
@@ -26,7 +26,7 @@ logger = get_pylogger(__name__)
 class StepMixin:
     """Mixin for training, validation, and test steps."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize Class.
 
         Args:
