@@ -91,7 +91,7 @@ def apply_lns(  # noqa: C901
         raise ValueError(f"Unknown destroy_op: {destroy_op!r}")
 
     destroy_fn = _DESTROY_OPS[destroy_op]
-    destroy_kwargs = {"rng": rng}
+    destroy_kwargs: Dict[str, Any] = {"rng": rng}
 
     if destroy_op == "worst":
         destroy_kwargs["dist_matrix"] = dist_matrix
@@ -105,7 +105,7 @@ def apply_lns(  # noqa: C901
         n_bins = dist_matrix.shape[0] - 1
         destroy_kwargs["nodes"] = list(range(1, n_bins + 1))
 
-    new_routes, removed_nodes = destroy_fn(copy.deepcopy(routes), effective_q, **destroy_kwargs)
+    new_routes, removed_nodes = destroy_fn(copy.deepcopy(routes), effective_q, **destroy_kwargs)  # type: ignore[operator]
 
     # Dispatch repair
     if repair_op not in _REPAIR_OPS:
@@ -131,4 +131,4 @@ def apply_lns(  # noqa: C901
     if "noise" in kwargs:
         repair_kwargs["noise"] = kwargs["noise"]
 
-    return repair_fn(**repair_kwargs)
+    return repair_fn(**repair_kwargs)  # type: ignore[call-arg,operator]

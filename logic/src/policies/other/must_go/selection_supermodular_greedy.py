@@ -13,7 +13,7 @@ We use a greedy algorithm with a max-priority queue to select bins effectively.
 """
 
 import heapq
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 
@@ -49,7 +49,7 @@ class SupermodularGreedySelection(IMustGoSelectionStrategy):
 
         # 3. Greedy Selection
         # Initial set S = {0} (depot)
-        selected_set = []
+        selected_set: List[int] = []
         current_s = {0}  # indices into distance_matrix
 
         # Marginal gain g(i | S) = revenue_i - 2 * alpha * min_{j in S} dist(i, j)
@@ -58,7 +58,7 @@ class SupermodularGreedySelection(IMustGoSelectionStrategy):
             return revenue[idx] - (alpha * 2.0 * d_to_S)
 
         # Heap elements: (-gain, bin_index, version)
-        priority_queue = []
+        priority_queue: List[Tuple[float, int, int]] = []
         for i in range(n_bins):
             # Initial evaluation vs depot.
             # (Note: we use the exact depot-to-bin distance for initialization).

@@ -42,6 +42,8 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.policies.other.local_search.local_search_aco import ACOLocalSearch
+
 from ..adaptive_large_neighborhood_search.alns import ALNSSolver
 from ..ant_colony_optimization_k_sparse.solver import KSparseACOSolver
 from ..other.operators import (
@@ -101,7 +103,7 @@ class HybridMemeticSearchSolver:
             capacity=capacity,
             R=R,
             C=C,
-            params=params.aco_params,
+            params=params.aco_params,  # type: ignore[arg-type]
             mandatory_nodes=mandatory_nodes,
         )
 
@@ -112,8 +114,18 @@ class HybridMemeticSearchSolver:
             capacity=capacity,
             R=R,
             C=C,
-            params=params.alns_params,
+            params=params.alns_params,  # type: ignore[arg-type]
             mandatory_nodes=mandatory_nodes,
+        )
+
+        # Initialize Local Search
+        self.ls = ACOLocalSearch(
+            dist_matrix,
+            wastes,
+            capacity,
+            R,
+            C,
+            params,
         )
 
     # ------------------------------------------------------------------
@@ -412,6 +424,7 @@ class HybridMemeticSearchSolver:
                     self.wastes,
                     self.capacity,
                     self.R,
+                    self.C,
                     mandatory_nodes=self.mandatory_nodes,
                     expand_pool=expand_pool,
                 )
@@ -423,7 +436,6 @@ class HybridMemeticSearchSolver:
                     self.dist_matrix,
                     self.wastes,
                     self.capacity,
-                    R=self.R,
                     mandatory_nodes=self.mandatory_nodes,
                     expand_pool=expand_pool,
                 )
@@ -520,7 +532,7 @@ class HybridMemeticSearchSolver:
             return
 
         # Evaporate
-        self.aco_solver.pheromone.evaporate_all(self.params.aco_params.rho)
+        self.aco_solver.pheromone.evaporate_all(self.params.aco_params.rho)  # type: ignore[union-attr]
 
         # Deposit on best solution edges
         delta = 1.0 / cost
@@ -528,12 +540,12 @@ class HybridMemeticSearchSolver:
             if not route:
                 continue
             # Depot to first node
-            self.aco_solver.pheromone.update_edge(0, route[0], delta, evaporate=False)
+            self.aco_solver.pheromone.deposit_edge(0, route[0], delta)
             # Inter-node edges
             for k in range(len(route) - 1):
-                self.aco_solver.pheromone.update_edge(route[k], route[k + 1], delta, evaporate=False)
+                self.aco_solver.pheromone.deposit_edge(route[k], route[k + 1], delta)
             # Last node back to depot
-            self.aco_solver.pheromone.update_edge(route[-1], 0, delta, evaporate=False)
+            self.aco_solver.pheromone.deposit_edge(route[-1], 0, delta)
 
     # ------------------------------------------------------------------
     # Private: Evaluation

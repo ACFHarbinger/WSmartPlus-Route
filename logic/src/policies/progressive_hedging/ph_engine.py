@@ -27,7 +27,7 @@ The augmented cost for node $i$ in scenario $\omega$ is:
 """
 
 import logging
-from typing import Any, Dict, List, Set, Tuple
+from typing import Any, Dict, List, Set, Tuple, Union
 
 import numpy as np
 
@@ -57,6 +57,21 @@ class ProgressiveHedgingEngine:
         self.y_consensus: Dict[int, float] = {}
         self.w_duals: List[Dict[int, float]] = []  # List[ScenarioIdx] -> {NodeIdx: Dual}
         self.history: List[Dict[str, float]] = []
+
+    @staticmethod
+    def ensure_route_list(routes: Union[List[int], List[List[int]]]) -> List[List[int]]:
+        # 1. Check if already a list of lists
+        if routes and isinstance(routes[0], list):
+            return routes  # type: ignore[return-value]
+
+        # 2. Handle flattened list [0, 1, 3, 0, 4, 0...]
+        # Find all indices where the value is 0
+        depot_indices = [i for i, val in enumerate(routes) if val == 0]
+
+        # Create pairs of indices: (0, 3), (3, 5), (5, 7)
+        # This ensures the 0 is both the end of one route and start of the next
+        nested_routes = [routes[depot_indices[i] : depot_indices[i + 1] + 1] for i in range(len(depot_indices) - 1)]
+        return nested_routes  # type: ignore[return-value]
 
     def solve(  # noqa: C901
         self,
@@ -145,6 +160,7 @@ class ProgressiveHedgingEngine:
 
                 # Extract y_hat (binary visit decisions) from routes
                 y_hat = {i: 0.0 for i in node_ids}
+                routes = self.ensure_route_list(routes)
                 for route in routes:
                     for node in route:
                         if node in y_hat:

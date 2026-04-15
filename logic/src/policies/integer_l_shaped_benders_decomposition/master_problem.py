@@ -58,8 +58,8 @@ try:
     GUROBI_AVAILABLE = True
 except ImportError:
     GUROBI_AVAILABLE = False
-    gp = None  # type: ignore[assignment]
-    GRB = None  # type: ignore[assignment,misc]
+    gp: Any = None  # type: ignore[assignment,no-redef]
+    GRB = None  # type: ignore[assignment,misc,no-redef]
 
 
 class MasterProblem:
@@ -317,7 +317,7 @@ class MasterProblem:
         for cut in cuts:
             if isinstance(cut, PCSubtourEliminationCut):
                 cut_edges = self.model.delta(cut.node_set)
-                edge_vars = [self._x_vars[tuple(sorted(e))] for e in cut_edges if tuple(sorted(e)) in self._x_vars]
+                edge_vars = [self._x_vars[tuple(sorted(e))] for e in cut_edges if tuple(sorted(e)) in self._x_vars]  # type: ignore[bad-index,index]
                 if edge_vars:
                     if cut.facet_form == "2.1":
                         model.cbLazy(gp.quicksum(edge_vars) >= 2.0)
@@ -332,7 +332,7 @@ class MasterProblem:
 
             elif isinstance(cut, CapacityCut):
                 cut_edges = self.model.delta(cut.node_set)
-                edge_vars = [self._x_vars[tuple(sorted(e))] for e in cut_edges if tuple(sorted(e)) in self._x_vars]
+                edge_vars = [self._x_vars[tuple(sorted(e))] for e in cut_edges if tuple(sorted(e)) in self._x_vars]  # type: ignore[bad-index,index]
                 if edge_vars:
                     model.cbLazy(gp.quicksum(edge_vars) >= cut.rhs)
                 self.stats["capacity_cuts"] += 1
@@ -363,7 +363,7 @@ class MasterProblem:
         for cut in cuts:
             if isinstance(cut, PCSubtourEliminationCut):
                 cut_edges = self.model.delta(cut.node_set)
-                edge_vars = [self._x_vars[tuple(sorted(e))] for e in cut_edges if tuple(sorted(e)) in self._x_vars]
+                edge_vars = [self._x_vars[tuple(sorted(e))] for e in cut_edges if tuple(sorted(e)) in self._x_vars]  # type: ignore[bad-index,index]
                 if edge_vars:
                     if cut.facet_form == "2.1":
                         model.cbCut(gp.quicksum(edge_vars) >= 2.0)
@@ -377,7 +377,7 @@ class MasterProblem:
 
             elif isinstance(cut, CapacityCut):
                 cut_edges = self.model.delta(cut.node_set)
-                edge_vars = [self._x_vars[tuple(sorted(e))] for e in cut_edges if tuple(sorted(e)) in self._x_vars]
+                edge_vars = [self._x_vars[tuple(sorted(e))] for e in cut_edges if tuple(sorted(e)) in self._x_vars]  # type: ignore[bad-index,index]
                 if edge_vars:
                     model.cbCut(gp.quicksum(edge_vars) >= cut.rhs)
 

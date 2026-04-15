@@ -146,6 +146,7 @@ class HybridMemeticSearchPolicy(BaseRoutingPolicy):
             elitism_count=values.get("elitism_count", 3),
             aco_init_iterations=values.get("aco_init_iterations", 50),
             time_limit=values.get("time_limit", 300.0),
+            n_removal=values.get("n_removal", 3),
             aco_params=aco_params,
             alns_params=alns_params,
             seed=seed,

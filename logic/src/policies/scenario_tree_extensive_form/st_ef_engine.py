@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List, Tuple
 
 import numpy as np
 
@@ -11,8 +11,8 @@ try:
     GUROBI_AVAILABLE = True
 except ImportError:
     GUROBI_AVAILABLE = False
-    gp = None  # type: ignore
-    GRB = None  # type: ignore
+    gp: Any = None  # type: ignore
+    GRB: Any = None  # type: ignore
 
 
 class ScenarioTreeExtensiveFormEngine:

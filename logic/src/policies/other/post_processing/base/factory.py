@@ -111,6 +111,7 @@ class PostProcessorFactory:
 
         for method in config.methods:
             method_lower = method.lower()
+            processor: IPostProcessor
 
             # Create post-processor with method-specific config parameters
             if method_lower in ["fast_tsp", "tsp"]:

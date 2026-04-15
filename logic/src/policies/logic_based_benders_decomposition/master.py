@@ -9,8 +9,8 @@ try:
     GUROBI_AVAILABLE = True
 except ImportError:
     GUROBI_AVAILABLE = False
-    gp = None  # type: ignore[assignment]
-    GRB = None  # type: ignore[assignment,misc]
+    gp: Any = None  # type: ignore[assignment,no-redef]
+    GRB: Any = None  # type: ignore[assignment,misc,no-redef]
 
 from logic.src.configs.policies.lbbd import LBBDConfig
 

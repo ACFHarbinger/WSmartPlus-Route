@@ -262,23 +262,35 @@ class ABCSolver:
                         noise=0.0,
                     )
             else:
-                removal_op = self.rng.choice([random_removal, worst_removal])
-                reinsert_op = self.rng.choice([greedy_insertion, regret_2_insertion])
-                if removal_op == random_removal:
+                removal_op_name = self.rng.choice(["random", "worst"])
+                reinsert_op_name = self.rng.choice(["greedy", "regret"])
+                if removal_op_name == "random":
                     partial, removed = random_removal(current_copy, n, rng=self.rng)
                 else:
                     partial, removed = worst_removal(current_copy, n, self.dist_matrix)
 
                 to_insert = sorted(list(set(selected_peer_nodes + removed)))
-                repaired = reinsert_op(
-                    partial,
-                    to_insert,
-                    self.dist_matrix,
-                    self.wastes,
-                    self.capacity,
-                    mandatory_nodes=self.mandatory_nodes,
-                    expand_pool=expand_pool,
-                )
+                if reinsert_op_name == "greedy":
+                    repaired = greedy_insertion(
+                        partial,
+                        to_insert,
+                        self.dist_matrix,
+                        self.wastes,
+                        self.capacity,
+                        mandatory_nodes=self.mandatory_nodes,
+                        expand_pool=expand_pool,
+                    )
+                else:
+                    repaired = regret_2_insertion(
+                        partial,
+                        to_insert,
+                        self.dist_matrix,
+                        self.wastes,
+                        self.capacity,
+                        mandatory_nodes=self.mandatory_nodes,
+                        expand_pool=expand_pool,
+                        noise=0.0,
+                    )
 
             # Apply comprehensive local search (reusing instance)
             return self.ls.optimize(repaired)

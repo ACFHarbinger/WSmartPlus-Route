@@ -16,6 +16,8 @@ from pathlib import Path
 from typing import Any, List, Optional, Tuple
 
 import numpy as np
+import torch
+import torch.nn as nn
 
 from logic.src.interfaces.post_processing import IPostProcessor
 from logic.src.policies.other.operators.intensification import (
@@ -34,17 +36,8 @@ from .common.helpers import (
 
 logger = logging.getLogger(__name__)
 
-try:
-    import torch
-    import torch.nn as nn
 
-    _HAS_TORCH = True
-except ImportError:
-    _HAS_TORCH = False
-    logger.warning("learned: PyTorch not installed; will fall back to two_opt_steepest.")
-
-
-class MoveScorer(nn.Module if _HAS_TORCH else object):
+class MoveScorer(nn.Module):
     """
     Small GNN that scores candidate moves by predicted improvement delta.
 
@@ -58,8 +51,6 @@ class MoveScorer(nn.Module if _HAS_TORCH else object):
     """
 
     def __init__(self, node_dim: int = 5, edge_dim: int = 2, hidden_dim: int = 64) -> None:
-        if not _HAS_TORCH:
-            return
         super().__init__()
         self.node_encoder = nn.Sequential(
             nn.Linear(node_dim, hidden_dim),
@@ -117,7 +108,7 @@ class LearnedPostProcessor(IPostProcessor):
 
     def _lazy_load_model(self, weights_path: Path) -> None:
         """Load the model once on first use."""
-        if self._model_loaded or not _HAS_TORCH:
+        if self._model_loaded:
             return
         self._model_loaded = True
 
@@ -171,7 +162,7 @@ class LearnedPostProcessor(IPostProcessor):
             local_kwargs.pop(key, None)
 
         self._lazy_load_model(weights_path)
-        if not _HAS_TORCH or self._model is None:
+        if self._model is None:
             return self._fallback(tour, dm, wastes, capacity, cost_per_km, revenue_kg, **local_kwargs)
 
         try:
@@ -225,6 +216,7 @@ class LearnedPostProcessor(IPostProcessor):
         4. Verify the actual delta matches the prediction's sign; if not,
            terminate (model is making spurious predictions on this instance).
         """
+        assert self._model is not None
         current = [list(r) for r in routes]
 
         for _iteration in range(max_iterations):

@@ -17,6 +17,7 @@ class Inequality:
         self.type = inequality_type
         self.violation = degree_of_violation
         self.rhs = 0.0  # Right-hand side of inequality
+        self.node_set: Set[int] = set()  # Set of nodes involved in the inequality
 
     def __lt__(self, other):
         """Sort by violation (descending)."""
@@ -78,4 +79,5 @@ class CombInequality(Inequality):
         super().__init__("COMB", violation)
         self.handle = handle
         self.teeth = teeth
+        self.node_set = set(handle).union(*(set(t) for t in teeth))
         self.rhs = len(handle) + sum(len(t) for t in teeth) - (len(teeth) + 1) / 2.0

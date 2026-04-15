@@ -74,7 +74,7 @@ class COPEvaluator:
         Since we operate in discretized fill levels, actual_weight approx = (level / (L-1)).
         """
         customers = list(range(1, self.num_nodes))
-        valid_actions = [frozenset()]  # doing nothing is always valid
+        valid_actions: List[FrozenSet[int]] = [frozenset()]  # doing nothing is always valid
 
         # The weight of a bin i (1-indexed) is given by discrete_state[i-1] / (L-1)
         # assuming the 'capacity' is normalized or the fill level represents percentage
