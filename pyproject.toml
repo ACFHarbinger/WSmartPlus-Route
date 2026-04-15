@@ -56,6 +56,8 @@ dev = [
     "mutmut>=2.5.0",
     "rich>=14.1.0",
 ]
+
+[project.optional-dependencies]
 gpu = [
     "triton>=2.2.0 ; sys_platform != 'win32'",
     "torch-tb-profiler>=0.4.3",
@@ -126,7 +128,7 @@ docs = [
 # Optional dependencies are now in [project.optional-dependencies]
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.10"
 warn_return_any = false
 warn_unused_configs = true
 ignore_missing_imports = true
@@ -173,19 +175,19 @@ ignore = ["**/__init__.py"]
 
 [tool.pyrefly.errors]
 "implicit-import" = false
-"optional-subscript" = false
-"optional-member-access" = false
-"optional-call" = false
-"optional-iterable" = false
-"attribute-access-issue" = false
-"general-type-issues" = false
-"operator-issue" = false
-"argument-type" = false
-"call-issue" = false
+"untyped-import" = false
+#"optional-member-access" = false
+#"optional-call" = false
+#"optional-iterable" = false
+#"attribute-access-issue" = false
+#"general-type-issues" = false
+#"operator-issue" = false
+#"argument-type" = false
+#"call-issue" = false
 
 # Enable semantic features that were missing in your greyed-out view
-indexing = true
-diagnostic_mode = "workspace"
+#indexing = true
+#diagnostic_mode = "workspace"
 
 # =================================================================
 # RUFF CONFIGURATION (from ruff.toml)
@@ -193,7 +195,7 @@ diagnostic_mode = "workspace"
 [tool.ruff]
 src = ["logic/src", "gui/src"]
 line-length = 120
-target-version = "py39"
+target-version = "py310"
 exclude = [
     "notebooks/",
     "logic/test/",

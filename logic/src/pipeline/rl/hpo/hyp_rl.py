@@ -154,7 +154,7 @@ class HypRLHPO(BaseHPO):
         # Compute policy loss
         policy_losses = []
 
-        for log_probs_dict, G in zip(self.episode_log_probs, returns):
+        for log_probs_dict, G in zip(self.episode_log_probs, returns, strict=False):
             # Sum log probs across all parameters
             total_log_prob = sum(log_probs_dict.values())
 

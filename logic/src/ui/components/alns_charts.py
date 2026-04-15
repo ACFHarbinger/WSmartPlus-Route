@@ -381,12 +381,12 @@ def _render_prob_table(
 
     if destroy_data:
         final_d = _softmax_probs(destroy_data[-1])
-        for name, prob in zip(d_names, final_d):
+        for name, prob in zip(d_names, final_d, strict=False):
             rows.append({"Type": "Destroy", "Operator": name, "P(select)": f"{prob:.4f}"})
 
     if repair_data:
         final_r = _softmax_probs(repair_data[-1])
-        for name, prob in zip(r_names, final_r):
+        for name, prob in zip(r_names, final_r, strict=False):
             rows.append({"Type": "Repair", "Operator": name, "P(select)": f"{prob:.4f}"})
 
     if rows:

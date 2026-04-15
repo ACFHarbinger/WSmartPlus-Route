@@ -315,7 +315,7 @@ def _render_day_kpis(record: Dict[str, Any]) -> None:
         ("overflows", "Overflows", "d"),
     ]
     cols = st.columns(len(kpi_defs))
-    for col, (key, label, fmt) in zip(cols, kpi_defs):
+    for col, (key, label, fmt) in zip(cols, kpi_defs, strict=False):
         val = record.get(key, "N/A")
         display = f"{val:{fmt}}" if isinstance(val, (int, float)) else str(val)
         col.metric(label, display)

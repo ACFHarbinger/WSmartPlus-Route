@@ -59,7 +59,7 @@ def _process_val_pair(path: str, v1: Any, v2: Any, results: List[Tuple[str, Any,
     """Process a pair of values, handling list/tuple combinations."""
     if isinstance(v1, (list, tuple)):
         if isinstance(v2, (list, tuple)) and len(v1) == len(v2):
-            for i, (item1, item2) in enumerate(zip(v1, v2)):
+            for i, (item1, item2) in enumerate(zip(v1, v2, strict=False)):
                 results.append((f"{path}[{i}]" if path else f"[{i}]", item1, item2))
         else:
             for i, item1 in enumerate(v1):

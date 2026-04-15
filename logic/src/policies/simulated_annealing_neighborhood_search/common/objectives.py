@@ -101,7 +101,7 @@ def compute_total_profit(routes, distance_matrix, id_to_index, data, R, V, densi
     """
     total_kg = 0
     total_km = 0
-    stocks = dict(zip(data["#bin"], data["Stock"]))
+    stocks = dict(zip(data["#bin"], data["Stock"], strict=False))
     for route in routes:
         if len(route) <= 2:
             continue

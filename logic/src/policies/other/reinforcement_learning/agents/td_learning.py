@@ -210,7 +210,7 @@ class SarsaAgent(TDAgent):
     Formula: Q(s,a) = Q(s,a) + alpha * [r + gamma * Q(s',a') - Q(s,a)]
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Initialize SARSA agent with next-action buffer."""
         super().__init__(*args, **kwargs)
         self.next_action: Optional[int] = None

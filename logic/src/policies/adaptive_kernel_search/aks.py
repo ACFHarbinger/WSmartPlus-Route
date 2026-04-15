@@ -56,7 +56,7 @@ def _get_partitioned_vars_aks(
     model.optimize(_root_node_callback)
 
     # 3. Extract relaxation values
-    var_values = {var: val for var, val in zip(model._all_vars_list, model._node_rel)}
+    var_values = {var: val for var, val in zip(model._all_vars_list, model._node_rel, strict=False)}
 
     # 1.5 Compute a totally feasible heuristic route
     rng = random.Random()
@@ -143,7 +143,7 @@ def _assess_difficulty(model, t_mip_k, t_easy, epsilon):
 
     # Behavior for HARD: Fix binary variables with high root relaxation values
     if classification == "HARD":
-        for v, rel_val in zip(model._all_vars_list, model._node_rel):
+        for v, rel_val in zip(model._all_vars_list, model._node_rel, strict=False):
             if rel_val > 1.0 - epsilon:
                 v.LB = 1.0  # Permanently fix to 1
     return classification

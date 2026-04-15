@@ -68,7 +68,7 @@ class SimulationRunTracker:
             metric_values: Corresponding numeric values.
         """
         prefix = f"{self._prefix}/final"
-        for key, val in zip(metric_keys, metric_values):
+        for key, val in zip(metric_keys, metric_values, strict=False):
             with contextlib.suppress(TypeError, ValueError):
                 self._run.log_metric(f"{prefix}/{key}", float(val), step=self.sample_id)
 

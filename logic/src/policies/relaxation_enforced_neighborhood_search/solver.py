@@ -112,22 +112,22 @@ def _apply_restrictions(model: gp.Model, x: Dict[Tuple[int, int], gp.Var], y: Di
     for var in x.values():
         val = var.X
         if val < 1e-6:
-            var.lb, var.ub = 0, 0
+            var.LB, var.UB = 0, 0
         elif val > 1.0 - 1e-6:
-            var.lb, var.ub = 1, 1
+            var.LB, var.UB = 1, 1
         else:
             fractional.append(var)
-        var.vtype = GRB.BINARY
+        var.VType = GRB.BINARY
 
     for var in y.values():
         val = var.X
         if val < 1e-6:
-            var.lb, var.ub = 0, 0
+            var.LB, var.UB = 0, 0
         elif val > 1.0 - 1e-6:
-            var.lb, var.ub = 1, 1
+            var.LB, var.UB = 1, 1
         else:
             fractional.append(var)
-        var.vtype = GRB.BINARY
+        var.VType = GRB.BINARY
 
     # RENS property: if no fractional variables, sub-MIP is trivial
 
@@ -172,7 +172,7 @@ def run_rens_gurobi(
     _apply_restrictions(model, x, y)
 
     # Check if any binary variables are still unfixed (fractional in LP)
-    unfixed = [v for v in model.getVars() if v.vtype == GRB.BINARY and v.lb < v.ub]
+    unfixed = [v for v in model.getVars() if v.VType == GRB.BINARY and v.LB < v.UB]
 
     if not unfixed:
         # LP solution was already integer! No need for sub-MIP.

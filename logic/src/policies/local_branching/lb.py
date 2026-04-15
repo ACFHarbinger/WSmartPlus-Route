@@ -6,7 +6,7 @@ Reference:
     Mathematical Programming.
 """
 
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
@@ -16,7 +16,7 @@ try:
     GUROBI_AVAILABLE = True
 except ImportError:
     GUROBI_AVAILABLE = False
-    gp = None  # type: ignore[assignment]
+    gp: Any = None  # type: ignore[assignment,no-redef]
 
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
@@ -120,7 +120,7 @@ def run_local_branching_gurobi(
     start_time = model.Runtime
     iterations = 0
     k_current = k
-
+    lb_cut: Optional[gp.Constr] = None
     while iterations < max_iterations:
         elapsed = model.Runtime - start_time
         if elapsed > time_limit:

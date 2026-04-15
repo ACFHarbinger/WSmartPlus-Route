@@ -6847,32 +6847,11 @@ dependencies = [
     { name = "wandb" },
 ]
 
-[package.dev-dependencies]
+[package.optional-dependencies]
 analysis = [
     { name = "loss-landscapes" },
     { name = "plotext" },
     { name = "statsmodels" },
-]
-dev = [
-    { name = "black" },
-    { name = "expecttest" },
-    { name = "git-filter-repo" },
-    { name = "hypothesis", version = "6.141.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "hypothesis", version = "6.151.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
-    { name = "mutmut" },
-    { name = "mypy" },
-    { name = "mypy-protobuf" },
-    { name = "pip-audit" },
-    { name = "pre-commit" },
-    { name = "pyinstaller" },
-    { name = "pyinstaller-hooks-contrib" },
-    { name = "pytest" },
-    { name = "pytest-cov" },
-    { name = "pytest-mock" },
-    { name = "rich" },
-    { name = "ruff" },
-    { name = "tabulate" },
-    { name = "types-pyyaml" },
 ]
 docs = [
     { name = "myst-nb" },
@@ -6937,43 +6916,109 @@ tracking = [
     { name = "zenml", version = "0.93.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "black" },
+    { name = "expecttest" },
+    { name = "git-filter-repo" },
+    { name = "hypothesis", version = "6.141.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "hypothesis", version = "6.151.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "mutmut" },
+    { name = "mypy" },
+    { name = "mypy-protobuf" },
+    { name = "pip-audit" },
+    { name = "pre-commit" },
+    { name = "pyinstaller" },
+    { name = "pyinstaller-hooks-contrib" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "pytest-mock" },
+    { name = "rich" },
+    { name = "ruff" },
+    { name = "tabulate" },
+    { name = "types-pyyaml" },
+]
+
 [package.metadata]
 requires-dist = [
+    { name = "alns", marker = "extra == 'solvers'", specifier = ">=7.0.0" },
     { name = "cryptography", specifier = ">=45.0.6" },
+    { name = "dehb", marker = "extra == 'hpo'", specifier = ">=0.1.2" },
     { name = "einops", specifier = ">=0.8.0" },
+    { name = "fast-tsp", marker = "extra == 'solvers'", specifier = ">=0.1.4" },
+    { name = "folium", marker = "extra == 'gui'", specifier = ">=0.20.0" },
+    { name = "geopandas", marker = "extra == 'geo'", specifier = ">=1.0.1" },
+    { name = "geopy", marker = "extra == 'geo'", specifier = ">=2.4.1" },
+    { name = "googlemaps", marker = "extra == 'geo'", specifier = ">=4.10.0" },
+    { name = "gurobipy", marker = "extra == 'solvers'", specifier = ">=11.0.3" },
+    { name = "gymnasium", marker = "extra == 'gpu'", specifier = ">=1.1.1" },
+    { name = "hexaly", marker = "extra == 'solvers'", specifier = ">=14.0.20251008", index = "https://pip.hexaly.com/" },
     { name = "hydra-colorlog", specifier = ">=1.2.0" },
     { name = "hydra-core", specifier = ">=1.3.0" },
     { name = "joblib", specifier = ">=1.5.1" },
     { name = "loguru", specifier = ">=0.7.3" },
+    { name = "loss-landscapes", marker = "extra == 'analysis'", specifier = ">=3.0.6" },
+    { name = "matplotlib", marker = "extra == 'gui'", specifier = ">=3.9.4" },
+    { name = "mlflow", marker = "extra == 'tracking'", specifier = ">=2.10.0" },
+    { name = "myst-nb", marker = "extra == 'docs'", specifier = ">=1.3.0" },
     { name = "networkx", specifier = ">=3.2.1" },
     { name = "numpy", specifier = ">=1.26.4" },
+    { name = "nvidia-ml-py", marker = "extra == 'gpu'", specifier = ">=13.580.65" },
     { name = "omegaconf", specifier = ">=2.3.0" },
+    { name = "onnx", marker = "extra == 'gpu'", specifier = ">=1.19.0" },
+    { name = "onnxsim", marker = "extra == 'gpu'", specifier = ">=0.6.2" },
     { name = "openpyxl", specifier = ">=3.1.5" },
+    { name = "openrouteservice", marker = "extra == 'geo'", specifier = ">=2.3.3" },
+    { name = "optuna", marker = "extra == 'hpo'", specifier = ">=4.5.0" },
+    { name = "optuna-integration", extras = ["pytorch-lightning"], marker = "extra == 'hpo'", specifier = ">=4.7.0" },
+    { name = "ortools", marker = "extra == 'solvers'", specifier = ">=9.4.1874" },
+    { name = "osmnx", marker = "extra == 'geo'", specifier = ">=2.0.6" },
     { name = "pandas", specifier = ">=2.1.4" },
+    { name = "plotext", marker = "extra == 'analysis'", specifier = ">=5.3.2" },
+    { name = "plotly", marker = "extra == 'gui'", specifier = ">=6.3.0" },
     { name = "pydantic", specifier = ">=2.11.7" },
+    { name = "pyomo", marker = "extra == 'solvers'", specifier = ">=6.9.5" },
+    { name = "pyproj", marker = "extra == 'geo'", specifier = ">=3.6.1" },
+    { name = "pyside6", marker = "extra == 'gui'", specifier = ">=6.9.0" },
     { name = "python-dotenv", specifier = ">=1.1.1" },
     { name = "pytorch-lightning", specifier = ">=2.0.0" },
+    { name = "pyvrp", marker = "extra == 'solvers'", specifier = ">=0.9.1" },
     { name = "pyyaml", specifier = ">=6.0.2" },
+    { name = "ray", extras = ["tune"], marker = "extra == 'tracking'", specifier = ">=2.7.0,<2.11.0" },
     { name = "requests", specifier = ">=2.32.5" },
     { name = "rich", specifier = ">=14.1.0" },
     { name = "scikit-learn", specifier = ">=1.6.1" },
     { name = "scipy", specifier = ">=1.13.1" },
+    { name = "seaborn", marker = "extra == 'gui'", specifier = ">=0.13.2" },
+    { name = "shapely", marker = "extra == 'geo'", specifier = ">=2.0.7" },
+    { name = "shiboken6", marker = "extra == 'gui'", specifier = ">=6.9.0" },
+    { name = "sphinx", marker = "extra == 'docs'", specifier = ">=7.4.7" },
+    { name = "sphinx-autodoc2", marker = "extra == 'docs'", specifier = ">=0.5.0" },
+    { name = "sphinx-book-theme", marker = "extra == 'docs'", specifier = ">=1.1.4" },
+    { name = "sphinx-copybutton", marker = "extra == 'docs'", specifier = ">=0.5.2" },
+    { name = "sphinx-design", marker = "extra == 'docs'", specifier = ">=0.6.1" },
+    { name = "sphinx-hoverxref", marker = "extra == 'docs'", specifier = ">=1.4.2" },
+    { name = "sphinx-rtd-theme", marker = "extra == 'docs'", specifier = ">=2.0.0" },
+    { name = "sphinxcontrib-mermaid", marker = "extra == 'docs'", specifier = ">=1.2.3" },
+    { name = "statsmodels", marker = "extra == 'analysis'", specifier = ">=0.14.6" },
+    { name = "streamlit", marker = "extra == 'gui'", specifier = ">=1.50.0" },
+    { name = "streamlit-folium", marker = "extra == 'gui'", specifier = ">=0.25.3" },
     { name = "tensordict", specifier = "==0.3.1" },
     { name = "torch", specifier = ">=2.2.2" },
     { name = "torch-geometric", specifier = ">=2.3.1" },
     { name = "torch-scatter", specifier = ">=2.1.2", index = "https://data.pyg.org/whl/torch-2.2.2+cu121.html" },
     { name = "torch-sparse", specifier = ">=0.6.18" },
+    { name = "torch-tb-profiler", marker = "extra == 'gpu'", specifier = ">=0.4.3" },
     { name = "torchrl", specifier = "==0.3.1" },
     { name = "tqdm", specifier = ">=4.67.1" },
+    { name = "triton", marker = "sys_platform != 'win32' and extra == 'gpu'", specifier = ">=2.2.0" },
+    { name = "vrpy", marker = "extra == 'solvers'", specifier = ">=0.5.1" },
     { name = "wandb", specifier = ">=0.16.0" },
+    { name = "zenml", marker = "extra == 'tracking'", specifier = ">=0.60.0" },
 ]
+provides-extras = ["gpu", "geo", "solvers", "gui", "hpo", "tracking", "analysis", "docs"]
 
 [package.metadata.requires-dev]
-analysis = [
-    { name = "loss-landscapes", specifier = ">=3.0.6" },
-    { name = "plotext", specifier = ">=5.3.2" },
-    { name = "statsmodels", specifier = ">=0.14.6" },
-]
 dev = [
     { name = "black", specifier = ">=25.9.0" },
     { name = "expecttest", specifier = ">=0.3.0" },
@@ -6993,64 +7038,6 @@ dev = [
     { name = "ruff", specifier = ">=0.14.3" },
     { name = "tabulate", specifier = ">=0.9.0" },
     { name = "types-pyyaml", specifier = ">=6.0.12.20250915" },
-]
-docs = [
-    { name = "myst-nb", specifier = ">=1.3.0" },
-    { name = "sphinx", specifier = ">=7.4.7" },
-    { name = "sphinx-autodoc2", specifier = ">=0.5.0" },
-    { name = "sphinx-book-theme", specifier = ">=1.1.4" },
-    { name = "sphinx-copybutton", specifier = ">=0.5.2" },
-    { name = "sphinx-design", specifier = ">=0.6.1" },
-    { name = "sphinx-hoverxref", specifier = ">=1.4.2" },
-    { name = "sphinx-rtd-theme", specifier = ">=2.0.0" },
-    { name = "sphinxcontrib-mermaid", specifier = ">=1.2.3" },
-]
-geo = [
-    { name = "geopandas", specifier = ">=1.0.1" },
-    { name = "geopy", specifier = ">=2.4.1" },
-    { name = "googlemaps", specifier = ">=4.10.0" },
-    { name = "openrouteservice", specifier = ">=2.3.3" },
-    { name = "osmnx", specifier = ">=2.0.6" },
-    { name = "pyproj", specifier = ">=3.6.1" },
-    { name = "shapely", specifier = ">=2.0.7" },
-]
-gpu = [
-    { name = "gymnasium", specifier = ">=1.1.1" },
-    { name = "nvidia-ml-py", specifier = ">=13.580.65" },
-    { name = "onnx", specifier = ">=1.19.0" },
-    { name = "onnxsim", specifier = ">=0.6.2" },
-    { name = "torch-tb-profiler", specifier = ">=0.4.3" },
-    { name = "triton", marker = "sys_platform != 'win32'", specifier = ">=2.2.0" },
-]
-gui = [
-    { name = "folium", specifier = ">=0.20.0" },
-    { name = "matplotlib", specifier = ">=3.9.4" },
-    { name = "plotly", specifier = ">=6.3.0" },
-    { name = "pyside6", specifier = ">=6.9.0" },
-    { name = "seaborn", specifier = ">=0.13.2" },
-    { name = "shiboken6", specifier = ">=6.9.0" },
-    { name = "streamlit", specifier = ">=1.50.0" },
-    { name = "streamlit-folium", specifier = ">=0.25.3" },
-]
-hpo = [
-    { name = "dehb", specifier = ">=0.1.2" },
-    { name = "optuna", specifier = ">=4.5.0" },
-    { name = "optuna-integration", extras = ["pytorch-lightning"], specifier = ">=4.7.0" },
-]
-solvers = [
-    { name = "alns", specifier = ">=7.0.0" },
-    { name = "fast-tsp", specifier = ">=0.1.4" },
-    { name = "gurobipy", specifier = ">=11.0.3" },
-    { name = "hexaly", specifier = ">=14.0.20251008", index = "https://pip.hexaly.com/" },
-    { name = "ortools", specifier = ">=9.4.1874" },
-    { name = "pyomo", specifier = ">=6.9.5" },
-    { name = "pyvrp", specifier = ">=0.9.1" },
-    { name = "vrpy", specifier = ">=0.5.1" },
-]
-tracking = [
-    { name = "mlflow", specifier = ">=2.10.0" },
-    { name = "ray", extras = ["tune"], specifier = ">=2.7.0,<2.11.0" },
-    { name = "zenml", specifier = ">=0.60.0" },
 ]
 
 [[package]]
