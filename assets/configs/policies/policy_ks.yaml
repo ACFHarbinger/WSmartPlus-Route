@@ -68,8 +68,12 @@ ks:
     # VRPP Settings
     - vrpp: true
 
-    - engine: "custom"
-    # Specifies the use of the project's internal KernelSearchSolver engine.
+    - framework: "ortools"
+    # Execution framework: logic/src/policies/smart_waste_collection_two_commodity_flow/ortools.py
+    # Requires: ortools Python package
+
+    - engine: "gurobi"
+    # Specifies the use of the project's gurobi Kernel Search engine.
 
     - must_go: ["other/mg_lookahead.yaml"]
     # Selection strategy for mandatory collections. Kernel Search will

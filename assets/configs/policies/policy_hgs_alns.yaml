@@ -105,6 +105,12 @@ hgs_alns:
       # Multiplier for decreasing penalty
       # Range: 0.5-0.95 (Vidal 2022 default: 0.85)
 
+    - hgs_engine: "custom"
+      # Execution backend: logic/src/policies/hybrid_genetic_search.py
+      # Automatically coordinates HGS and ALNS phases
+
+    - hgs_restart_timer: 60
+
     # ---------------------------------------------------------------------
     # ALNS Parameters (Coaching & Deep Local Search)
     # ---------------------------------------------------------------------
@@ -136,16 +142,16 @@ hgs_alns:
       # Maximum wall-clock seconds for the full algorithm
       # Range: 30-300 (60s = production, 120s = thorough)
 
+    - alns_engine: "custom"
+      # Execution backend: logic/src/policies/adaptive_large_neighborhood_search.py
+      # Automatically coordinates HGS and ALNS phases
+
     # ---------------------------------------------------------------------
     # Infrastructure Settings
     # ---------------------------------------------------------------------
     # VRPP Settings
     - profit_aware_operators: false
     - vrpp: true
-
-    - engine: "hgs_alns"
-      # Execution backend: logic/src/policies/hybrid_genetic_search.py
-      # Automatically coordinates HGS and ALNS phases
 
     - must_go: ["other/mg_lookahead.yaml"]
       # Node selection strategy for waste collection problems

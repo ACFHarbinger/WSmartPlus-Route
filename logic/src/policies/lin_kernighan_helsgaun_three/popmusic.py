@@ -260,7 +260,7 @@ def popmusic_candidates(
     """
     n = len(distance_matrix)
     if np_rng is None:
-        np_rng = np.random.default_rng(42)
+        np_rng = np.random.default_rng()
 
     # --- Collect edges from K independent POPMUSIC runs ---
     all_edges: Set[Tuple[int, int]] = set()

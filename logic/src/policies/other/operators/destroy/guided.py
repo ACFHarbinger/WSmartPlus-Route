@@ -48,7 +48,7 @@ def penalized_removal(
         Tuple[List[List[int]], List[int]]: Partial routes and list of removed node IDs.
     """
     if rng is None:
-        rng = Random(42)
+        rng = Random()
 
     removed = []
     for _ in range(n_remove):

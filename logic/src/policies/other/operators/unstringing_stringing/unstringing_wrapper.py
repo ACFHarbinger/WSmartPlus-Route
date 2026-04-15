@@ -258,7 +258,7 @@ def unstringing_removal_wrapper(  # noqa: C901
     Fallback to worst removal if unstringing fails (e.g., route too short).
     """
     if rng is None:
-        rng = random.Random(42)
+        rng = random.Random()
 
     from logic.src.policies.other.operators.destroy.worst import (
         worst_profit_removal,

@@ -17,12 +17,12 @@ class POPMUSICSubSolverConfig:
     """Nested configuration for sub-solvers within POPMUSIC.
 
     Attributes:
-        fast_tsp: Configuration for Fast TSP solver.
+        tsp: Configuration for TSP solver.
         alns: Configuration for ALNS solver.
         hgs: Configuration for HGS solver.
     """
 
-    fast_tsp: Optional[TSPConfig] = field(default_factory=TSPConfig)
+    tsp: Optional[TSPConfig] = field(default_factory=TSPConfig)
     alns: Optional[ALNSConfig] = field(default_factory=ALNSConfig)
     hgs: Optional[HGSConfig] = field(default_factory=HGSConfig)
 

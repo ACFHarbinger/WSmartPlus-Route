@@ -10,7 +10,6 @@ from typing import Any, Dict, List, Optional
 class EMAConfig:
     """Configuration for the Ensemble Move Acceptance policy."""
 
-    engine: str = "ema"
     max_iterations: int = 1000
     rule: str = "G-VOT"
     criteria: List[str] = field(default_factory=lambda: ["sa", "gd", "ie"])

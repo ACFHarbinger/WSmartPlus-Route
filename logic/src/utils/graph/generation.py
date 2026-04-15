@@ -30,7 +30,7 @@ def generate_adj_matrix(
     Generates a random adjacency matrix.
     """
     if np_rng is None:
-        np_rng = np.random.default_rng(42)
+        np_rng = np.random.default_rng()
 
     # If `num_edges` is a percentage, convert to int
     if isinstance(num_edges, float):

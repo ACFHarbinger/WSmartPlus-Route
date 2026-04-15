@@ -68,8 +68,8 @@ class ILSRVNDSPSolver:
         self.C = C
         self.params = params
         self.mandatory_nodes = mandatory_nodes or []
-        self.rng = np.random.default_rng(params.seed) if params.seed is not None else np.random.default_rng(42)
-        self.random = Random(params.seed) if params.seed is not None else Random(42)
+        self.rng = np.random.default_rng(params.seed) if params.seed is not None else np.random.default_rng()
+        self.random = Random(params.seed) if params.seed is not None else Random()
 
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))

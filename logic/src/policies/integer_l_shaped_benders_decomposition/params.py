@@ -85,6 +85,8 @@ class ILSBDParams:
     max_cuts_per_round: int = 50
     enable_heuristic_rcc_separation: bool = True
     enable_comb_cuts: bool = False
+    engine: str = "gurobi"
+    framework: str = "ortools"
 
     @classmethod
     def from_config(cls, config: Any) -> ILSBDParams:

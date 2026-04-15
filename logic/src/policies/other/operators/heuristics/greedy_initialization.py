@@ -139,7 +139,7 @@ def build_greedy_routes(
         List[List[int]]: Initial routing solution.
     """
     if rng is None:
-        rng = random.Random(42)
+        rng = random.Random()
 
     n_nodes = len(dist_matrix) - 1
     # Nodes are assumed to be 1-indexed (0 is depot)

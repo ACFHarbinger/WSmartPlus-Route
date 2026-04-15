@@ -14,7 +14,7 @@ from logic.src.models.core.dr_alns import DRALNSPPOAgent, DRALNSSolver
 def mock_vrpp_instance():
     """Create a small mock VRPP instance."""
     n_nodes = 5
-    rng = np.random.RandomState(42)
+    rng = np.random.RandomState()
     locations = rng.rand(n_nodes + 1, 2) * 100
     dist_matrix = np.zeros((n_nodes + 1, n_nodes + 1))
     for i in range(n_nodes + 1):

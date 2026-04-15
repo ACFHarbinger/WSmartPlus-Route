@@ -19,8 +19,6 @@ class RLHVPLConfig:
     and ALNS local search with SARSA for adaptive operator selection.
     """
 
-    engine: str = "rl_hvpl"
-
     # General parameters
     n_teams: int = 10
     time_limit: float = 60.0

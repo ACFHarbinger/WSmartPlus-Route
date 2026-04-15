@@ -62,7 +62,7 @@ class HGSRRSolver:
         self.C = C
         self.params = params
         self.mandatory_nodes = mandatory_nodes
-        self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
+        self.random = random.Random(params.seed) if params.seed is not None else random.Random()
 
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))

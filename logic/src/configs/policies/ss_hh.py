@@ -26,7 +26,6 @@ class SSHHConfig:
         post_processing: Post-processing operation config list.
     """
 
-    engine: str = "ss_hh"
     max_iterations: int = 500
     n_removal: int = 2
     n_llh: int = 5

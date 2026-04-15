@@ -81,8 +81,8 @@ class MuKappaLambdaESSolver:
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
 
-        self.rng = random.Random(params.seed) if params.seed is not None else random.Random(42)
-        self.np_rng = np.random.default_rng(params.seed) if params.seed is not None else np.random.default_rng(42)
+        self.rng = random.Random(params.seed) if params.seed is not None else random.Random()
+        self.np_rng = np.random.default_rng(params.seed) if params.seed is not None else np.random.default_rng()
 
         # Pre-instantiate local search for memetic refinement
         aco_params = KSACOParams(

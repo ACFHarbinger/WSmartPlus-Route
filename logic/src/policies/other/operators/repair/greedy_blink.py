@@ -70,7 +70,7 @@ def greedy_insertion_with_blinks(
     loads = [sum(wastes.get(n, 0) for n in r) for r in routes]
 
     if rng is None:
-        rng = Random(42)
+        rng = Random()
 
     if expand_pool:
         visited = {n for r in routes for n in r}
@@ -182,7 +182,7 @@ def greedy_profit_insertion_with_blinks(
     loads = [sum(wastes.get(n, 0) for n in r) for r in routes]
 
     if rng is None:
-        rng = Random(42)
+        rng = Random()
 
     if expand_pool:
         visited = {n for r in routes for n in r}

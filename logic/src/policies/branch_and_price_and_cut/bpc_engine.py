@@ -107,7 +107,7 @@ References:
 import logging
 import time
 import warnings
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Dict, List, Optional, Set, Tuple, Union, cast
 
 import gurobipy as gp
 import numpy as np
@@ -129,7 +129,6 @@ from ..base.factory import PolicyFactory
 from ..other.operators.repair.greedy import greedy_insertion, greedy_profit_insertion
 from .cutting_planes import CuttingPlaneEngine, create_cutting_plane_engine
 from .params import BPCParams
-from .search_strategy import create_search_strategy
 
 logger = logging.getLogger(__name__)
 
@@ -492,7 +491,7 @@ def _solve_pricing_step(
                 clean_nodes = [n for n in active_route if n != 0]
 
                 if clean_nodes:
-                    route_obj = pricing_solver.compute_route_details(clean_nodes)
+                    route_obj = pricing_solver._compute_route_details(clean_nodes)
                     rc = master.calculate_reduced_cost(route_obj, dual_values)
 
                     if rc > rc_tolerance:
@@ -824,7 +823,7 @@ def _column_generation_loop(  # noqa: C901
             # Only sift the pool after at least one LP solve has occurred at this node,
             # so the duals reflect the current node's constraint set.
             if _inner_iter > 0 and hasattr(master, "sift_global_column_pool"):
-                duals = master.get_dual_values()
+                duals = master.get_reduced_cost_coefficients()
                 if duals:
                     # Pass all composite duals including LCI to sift_global_column_pool.
                     # This ensures columns re-activated from the global pool are evaluated
@@ -1125,7 +1124,7 @@ def run_bpc(  # noqa: C901
     cutting_planes_name = params.cutting_planes
     branching_strategy_name = params.branching_strategy
 
-    # Fix 10: Numerical Safety Warning
+    # Numerical Safety Warning
     if params.rc_tolerance > params.optimality_gap:
         warnings.warn(
             f"Optimality Risk: rc_tolerance ({params.rc_tolerance}) is coarser than "
@@ -1209,7 +1208,7 @@ def run_bpc(  # noqa: C901
                             initial_routes_nodes.append(clean_nodes)
 
     for r_nodes in initial_routes_nodes:
-        route_obj = pricing_solver.compute_route_details(r_nodes)
+        route_obj = pricing_solver._compute_route_details(r_nodes)
         initial_columns.append(route_obj)
 
     master.build_model(initial_columns)
@@ -1242,20 +1241,17 @@ def run_bpc(  # noqa: C901
         enable_comb_cuts=params.enable_comb_cuts,
     )
 
-    # 4. Initialize Branch-and-Bound Tree
+    # 4. Initialize Branch-and-Bound Tree with search strategy
     bb_tree = BranchAndBoundTree(
-        v_model=v_model,
-        params=params,
+        v_model=v_model, params=params, search_strategy=search_strategy_name, strategy=branching_strategy_name
     )
 
-    # 5. Initialize search and cutting strategies
-    search_strategy = create_search_strategy(search_strategy_name, bb_tree=bb_tree)
+    # 5. Initialize cutting engine
     cut_engine = create_cutting_plane_engine(
         cutting_planes_name,
         v_model,
         sep_engine,
     )
-    # bb_tree.get_next_node() is NOT used; always call search_strategy.select_node().
     nodes_explored = 0
 
     # 6. Branch-and-Bound Loop
@@ -1263,8 +1259,9 @@ def run_bpc(  # noqa: C901
         if time_limit and (time.monotonic() - start_time) > time_limit:
             break
 
-        # Get next node using configured search strategy
-        current_node = search_strategy.select_node(bb_tree.open_nodes)
+        # The BBTree now internally manages the frontier priority queues (tuples vs lists).
+        # We natively extract the correct node using the tree's integrated logic.
+        current_node = bb_tree.get_next_node()
         if current_node is None:
             break
 
@@ -1340,12 +1337,15 @@ def run_bpc(  # noqa: C901
         current_node.lp_bound = lp_obj
         current_node.route_values = route_values
 
-        # Global optimality gap check — Task 12: denominator and inclusion fix
+        # Global optimality gap check
         if bb_tree.best_integer_solution is not None:
-            best_open_lp_bound = max(
-                (n.lp_bound for n in bb_tree.open_nodes if n.lp_bound is not None),
-                default=lp_obj,
-            )
+            # Safely retrieve the best bound via the tree's statistics method,
+            # which internally handles tuple unpacking and priority inversions.
+            stats = bb_tree.get_statistics()
+            best_open_lp_bound = stats.get("best_bound")
+            if best_open_lp_bound is None:
+                best_open_lp_bound = lp_obj
+
             # Always include the current node's LP value in the upper bound.
             global_upper_bound = max(best_open_lp_bound, lp_obj)
             # Use a stable denominator: at least 1.0, anchored to problem scale.
@@ -1360,7 +1360,7 @@ def run_bpc(  # noqa: C901
                 logger.info(f"Global optimality gap reached: {global_gap:.6f} <= {params.optimality_gap}")
                 break
 
-            # Task 5: Reduced Cost Edge Fixing (Globally valid at every node)
+            # Reduced Cost Edge Fixing (Globally valid at every node)
             # We use the global_upper_bound (max of all open node bounds and current)
             # to ensure arc fixing is mathematically sound for all sibling branches.
             _apply_reduced_cost_edge_fixing(
@@ -1413,17 +1413,17 @@ def run_bpc(  # noqa: C901
                 if h_routes:
                     # Calculate exact profit to see if it beats the incumbent
                     swc_profit = 0.0
-                    # swc_tcf.execute returns a single route (List[int]).
-                    # Wrap it in a list to maintain loop compatibility.
-                    iterable_h_routes: List[List[int]] = (
-                        h_routes if isinstance(h_routes[0], list) else [h_routes]  # type: ignore[list-item]
-                    )
+                    iterable_h_routes: List[List[int]] = []
+                    if isinstance(h_routes[0], list):
+                        iterable_h_routes = cast(List[List[int]], h_routes)
+                    else:
+                        iterable_h_routes = [cast(List[int], h_routes)]
+
                     for r_nodes in iterable_h_routes:
-                        if isinstance(r_nodes, list):
-                            clean_nodes = [n for n in r_nodes if n != 0]
-                            if clean_nodes:
-                                robj = pricing_solver.compute_route_details(clean_nodes)
-                                swc_profit += robj.profit
+                        clean_nodes = [n for n in r_nodes if n != 0]
+                        if clean_nodes:
+                            robj = pricing_solver._compute_route_details(clean_nodes)
+                            swc_profit += robj.profit
 
                     if bb_tree.best_integer_solution is None or swc_profit > bb_tree.best_integer_solution:
                         logger.info(f"SWC-TCF Primal Heuristic found new incumbent: {swc_profit:.4f}")
@@ -1438,7 +1438,7 @@ def run_bpc(  # noqa: C901
                             if isinstance(r_nodes, list):
                                 clean_nodes = [n for n in r_nodes if n != 0]
                                 if clean_nodes:
-                                    route_obj = pricing_solver.compute_route_details(clean_nodes)
+                                    route_obj = pricing_solver._compute_route_details(clean_nodes)
                                     master.add_route(route_obj)
                                     pseudo_route_vals[len(master.routes) - 1] = 1.0
                         pseudo_node.route_values = pseudo_route_vals
@@ -1535,7 +1535,7 @@ def run_bpc(  # noqa: C901
         # No integer solution found - use initial greedy
         fallback_routes_profit = 0.0
         for r_nodes in initial_routes_nodes:
-            route_obj = pricing_solver.compute_route_details(r_nodes)
+            route_obj = pricing_solver._compute_route_details(r_nodes)
             fallback_routes_profit += route_obj.profit
         return initial_routes_nodes, fallback_routes_profit
 

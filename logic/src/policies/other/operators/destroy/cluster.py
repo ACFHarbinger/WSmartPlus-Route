@@ -61,7 +61,7 @@ def cluster_removal(
         return routes, []
 
     if rng is None:
-        rng = Random(42)
+        rng = Random()
 
     # Pick seed
     all_visited = [n for r in routes for n in r]
@@ -134,7 +134,7 @@ def cluster_profit_removal(
         return routes, []
 
     if rng is None:
-        rng = Random(42)
+        rng = Random()
 
     # 1. Pre-calculate marginal profits
     all_nodes_data = []

@@ -65,8 +65,12 @@ lb_vns:
     # VRPP Settings
     - vrpp: true
 
-    - engine: "custom"
-    # The solver abstraction name.
+    - framework: "ortools"
+      # Execution framework: logic/src/policies/smart_waste_collection_two_commodity_flow/ortools.py
+      # Requires: ortools Python package
+
+    - engine: "gurobi"
+      # Specifies the use of the project's gurobi Local Branching with Variable Neighborhood Search engine.
 
     - must_go: ["other/mg_lookahead.yaml"]
     # Selection logic for mandatory nodes.

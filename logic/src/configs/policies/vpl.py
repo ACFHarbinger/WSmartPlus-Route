@@ -21,8 +21,6 @@ class VPLConfig:
     Substitution, and Coaching & Learning.
     """
 
-    engine: str = "vpl"
-
     # VPL Population Parameters
     n_teams: int = 30  # Number of active teams (total = 2 * n_teams)
     max_iterations: int = 200

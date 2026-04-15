@@ -64,8 +64,12 @@ aks:
     # VRPP Settings
     - vrpp: true
 
-    - engine: "custom"
-      # Identifier for the standalone AKS solver implementation.
+    - framework: "ortools"
+      # Execution framework: logic/src/policies/smart_waste_collection_two_commodity_flow/ortools.py
+      # Requires: ortools Python package
+
+    - engine: "gurobi"
+      # Specifies the use of the project's gurobi Adaptive Kernel Search engine.
 
     - must_go: ["other/mg_lookahead.yaml"]
       # Points to the YAML defining the lookahead-based node selection strategy.

@@ -19,4 +19,4 @@ class RLALNSConfig(ALNSConfig):
 
     rl_config: RLConfig = field(default_factory=RLConfig)
     vrpp: bool = True
-    engine: str = "rl_alns"
+    profit_aware_operators: bool = False

@@ -23,7 +23,6 @@ class QDEConfig:
         post_processing: Post-processing operation config list.
     """
 
-    engine: str = "qde"
     pop_size: int = 20
     F: float = 0.5
     CR: float = 0.7

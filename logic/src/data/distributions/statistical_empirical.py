@@ -68,7 +68,7 @@ class Empirical(BaseDistribution):
             torch.Tensor: Sampled values
         """
         if generator is None:
-            generator = torch.Generator().manual_seed(42)
+            generator = torch.Generator().manual_seed()
         batch_size = size[0]
         if self.dataset is not None:
             if isinstance(self.dataset, pandas.DataFrame):

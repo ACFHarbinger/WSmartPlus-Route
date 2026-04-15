@@ -50,7 +50,7 @@ def random_removal(
         return [[] for _ in routes], all_nodes
 
     if rng is None:
-        rng = Random(42)
+        rng = Random()
 
     removed = rng.sample(all_nodes, n_remove)
     removed_set: Set[int] = set(removed)

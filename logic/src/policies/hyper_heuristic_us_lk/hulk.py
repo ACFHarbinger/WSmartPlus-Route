@@ -66,7 +66,7 @@ class HULKSolver:
         self.params = params
         self.mandatory_nodes = mandatory_nodes or []
         self.evaluator = evaluator
-        self.rng = random.Random(params.seed) if params.seed is not None else random.Random(42)
+        self.rng = random.Random(params.seed) if params.seed is not None else random.Random()
 
         self.n_nodes = len(dist_matrix) - 1
 

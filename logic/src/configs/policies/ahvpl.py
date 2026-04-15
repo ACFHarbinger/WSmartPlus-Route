@@ -19,8 +19,6 @@ class AHVPLConfig:
     crossover and bi-criteria fitness evaluation.
     """
 
-    engine: str = "ahvpl"
-
     # VPL League Parameters
     n_teams: int = 10
     max_iterations: int = 50

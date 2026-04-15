@@ -54,8 +54,16 @@ rens:
     # VRPP Settings
     - vrpp: true
 
-    - engine: "custom"
-    # Indicates the internal Python-Gurobi integration (solver.py).
+    # ---------------------------------------------------------------------
+    # Solver Backend
+    # ---------------------------------------------------------------------
+    - engine: "gurobi"
+    # Execution backend: logic/src/policies/smart_waste_collection_two_commodity_flow/gurobi.py
+    # Requires: gurobipy Python package + valid Gurobi license
+
+    - framework: "ortools"
+    # Execution framework: logic/src/policies/smart_waste_collection_two_commodity_flow/ortools.py
+    # Requires: ortools Python package
 
     - must_go: ["other/mg_lookahead.yaml"]
     # Selection strategy for nodes that MUST be visited (e.g., overflow risk).

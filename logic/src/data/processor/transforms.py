@@ -93,7 +93,7 @@ def symmetric_augmentation(
 ):
     """Augment xy data by `num_augment` times via symmetric transform."""
     if generator is None:
-        generator = torch.Generator(device=xy.device).manual_seed(42)
+        generator = torch.Generator(device=xy.device)
     total_batch = xy.shape[0]
     phi = torch.rand(total_batch, device=xy.device, generator=generator) * 4 * math.pi
     if first_augment:

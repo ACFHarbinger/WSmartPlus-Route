@@ -112,8 +112,6 @@ lkh3:
     - profit_aware_operators: true
     - vrpp: true
 
-    - engine: "custom"
-
     - must_go: ["other/mg_lookahead.yaml"]
     - post_processing: []
 # =============================================================================

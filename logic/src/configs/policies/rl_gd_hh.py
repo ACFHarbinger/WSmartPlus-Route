@@ -25,9 +25,6 @@ class RLGDHHConfig:
     from Ozcan et al. (2010) unless otherwise noted.
     """
 
-    # Primary engine identifier used by the policy registry
-    engine: str = "rl_gd_hh"
-
     # --- Search Control ---
     max_iterations: int = 5000
     time_limit: float = 60.0

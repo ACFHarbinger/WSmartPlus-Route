@@ -21,7 +21,6 @@ class SCAConfig:
         post_processing: Post-processing operation config list.
     """
 
-    engine: str = "sca"
     pop_size: int = 20
     a_max: float = 2.0
     max_iterations: int = 200

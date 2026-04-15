@@ -24,7 +24,6 @@ class LCAConfig:
         post_processing: Post-processing operation config list.
     """
 
-    engine: str = "lca"
     n_teams: int = 10
     max_iterations: int = 100
     tolerance_pct: float = 0.05

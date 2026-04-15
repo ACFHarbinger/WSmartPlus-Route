@@ -14,6 +14,7 @@ class HGSRRConfig:
     """Configuration for Hybrid Genetic Search with Ruin-and-Recreate (HGS-RR) policy.
 
     Attributes:
+    restart_timer: Maximum wall-clock seconds for optimization, before restarting the algorithm (0 = unlimited)
         time_limit: Maximum time in seconds for the solver.
         seed: Random seed for reproducibility.
         population_size: Size of the genetic population.
@@ -48,6 +49,7 @@ class HGSRRConfig:
         post_processing: List of post-processing operations to apply.
     """
 
+    restart_timer: float = 0.0
     time_limit: float = 60.0
     seed: Optional[int] = None
     population_size: int = 50

@@ -10,7 +10,6 @@ from typing import Any, List, Optional
 class TAConfig:
     """Configuration for the Threshold Accepting policy."""
 
-    engine: str = "ta"
     max_iterations: int = 1000
     initial_threshold: float = 100.0
     n_removal: int = 2

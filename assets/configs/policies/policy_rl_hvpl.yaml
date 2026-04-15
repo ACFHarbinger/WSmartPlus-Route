@@ -2,8 +2,6 @@
 # Configuration for the RL-HVPL policy
 policies:
   policy_rl_hvpl:
-    engine: "rl_hvpl"
-
     # League Parameters
     n_teams: 10
     max_iterations: 100

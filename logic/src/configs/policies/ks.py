@@ -42,8 +42,10 @@ class KernelSearchConfig:
         seed (int): Random seed for Gurobi's internal heuristics and algorithmic
             variations to ensure deterministic behavior. Defaults to 42.
         vrpp (bool): Whether the problem is a VRP with Profits.
-        engine (str): Identifier for the optimization engine. Use "custom" for
-            the WSmart+ implementation.
+        engine (str): Identifier for the optimization engine. Use "gurobi" to
+            invoke the project's native Gurobi-based KS solver.
+        framework (str): Identifier for the optimization framework. Options
+            include "ortools" and "pyomon".
         must_go (Optional[MustGoConfig]): Logic for pre-selecting mandatory bins
             (e.g., those nearly full or overdue).
         post_processing (Optional[PostProcessingConfig]): Settings for applying
@@ -60,6 +62,7 @@ class KernelSearchConfig:
     vrpp: bool = True
 
     # Infrastructure
-    engine: str = "custom"
+    engine: str = "gurobi"
+    framework: str = "ortools"
     must_go: Optional[MustGoConfig] = None
     post_processing: Optional[PostProcessingConfig] = None

@@ -73,9 +73,9 @@ class CMABEvolution:
             **kwargs: Additional parameters like alpha (for LinUCB) or lambda_prior.
         """
         self.split_manager = split_manager
-        self.rng = rng if rng is not None else random.Random(42)
+        self.rng = rng if rng is not None else random.Random()
         # Seed for numpy generator used by new agents
-        self.np_rng = np.random.default_rng(42)
+        self.np_rng = np.random.default_rng()
 
         # Initialize feature extractor
         self.feature_extractor = ContextFeatureExtractor(

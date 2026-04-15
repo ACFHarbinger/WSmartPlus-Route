@@ -47,6 +47,5 @@ ma_dp:
     - profit_aware_operators: false
     - vrpp: true
 
-    - engine: "custom"
     - must_go: ["other/mg_lookahead.yaml"]
     - post_processing: []

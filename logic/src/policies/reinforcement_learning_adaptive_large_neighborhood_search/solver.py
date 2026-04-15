@@ -98,7 +98,7 @@ class RLALNSSolver:
         self.C = C
         self.params = params
         self.mandatory_nodes = mandatory_nodes if mandatory_nodes is not None else []
-        self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
+        self.random = random.Random(params.seed) if params.seed is not None else random.Random()
         self.np_random = np.random.default_rng(params.seed)
 
         self.n_nodes = len(dist_matrix) - 1

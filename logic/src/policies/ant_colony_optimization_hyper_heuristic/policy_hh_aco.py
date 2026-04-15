@@ -87,7 +87,7 @@ class HyperACOPolicy(BaseRoutingPolicy):
             R=revenue,
             C=cost_unit,
             mandatory_nodes=mandatory_nodes,
-            rng=random.Random(params.seed) if params.seed is not None else random.Random(42),
+            rng=random.Random(params.seed) if params.seed is not None else random.Random(),
         )
 
         solver = HyperHeuristicACO(

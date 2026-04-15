@@ -39,7 +39,7 @@ def build_nn_routes(
         List of generated routes.
     """
     if rng is None:
-        rng = Random(42)
+        rng = Random()
 
     mandatory_set = set(mandatory_nodes)
 

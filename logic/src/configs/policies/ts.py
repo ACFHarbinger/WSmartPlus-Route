@@ -10,8 +10,6 @@ from typing import Any, List, Optional
 class TSConfig:
     """Configuration for the Tabu Search policy."""
 
-    engine: str = "ts"
-
     # Short-term memory (Recency-based)
     tabu_tenure: int = 7
     dynamic_tenure: bool = True

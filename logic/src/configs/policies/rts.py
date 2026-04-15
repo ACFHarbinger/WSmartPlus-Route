@@ -10,7 +10,6 @@ from typing import Any, List, Optional
 class RTSConfig:
     """Configuration for the Reactive Tabu Search policy."""
 
-    engine: str = "rts"
     initial_tenure: int = 7
     min_tenure: int = 3
     max_tenure: int = 20

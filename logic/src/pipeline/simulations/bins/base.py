@@ -85,7 +85,7 @@ class Bins:
         self.n = n
         self.noise_mean = noise_mean
         self.noise_variance = noise_variance
-        self.rng = np.random.default_rng(seed) if seed is not None else np.random.default_rng(42)
+        self.rng = np.random.default_rng(seed) if seed is not None else np.random.default_rng()
         _, revenue, density, expenses, bin_volume = load_area_and_waste_type_params(area, waste_type)
         self.revenue = revenue
         self.density = density

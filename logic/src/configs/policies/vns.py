@@ -10,7 +10,6 @@ from typing import Any, List, Optional
 class VNSConfig:
     """Configuration for the Variable Neighborhood Search policy."""
 
-    engine: str = "vns"
     k_max: int = 5
     max_iterations: int = 200
     local_search_iterations: int = 500

@@ -52,7 +52,7 @@ class ImprovementPolicy(nn.Module, ABC):
         self.seed = seed
         self.device = torch.device(device)
         self.generator = torch.Generator(device=device).manual_seed(seed)
-        self.rng = random.Random(seed) if seed is not None else random.Random(42)
+        self.rng = random.Random(seed) if seed is not None else random.Random()
 
     def __getstate__(self):
         """Prepare state for pickling (handle non-picklable Generator)."""

@@ -84,7 +84,7 @@ class LocalSearch(ABC):
         self.C = C
         self.params = params
         self.penalty_capacity = penalty_capacity
-        self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
+        self.random = random.Random(params.seed) if params.seed is not None else random.Random()
 
         if neighbors is not None:
             self.neighbors = neighbors

@@ -23,7 +23,6 @@ class HSConfig:
         post_processing: Post-processing operation config list.
     """
 
-    engine: str = "hs"
     hm_size: int = 10
     HMCR: float = 0.9
     PAR: float = 0.3

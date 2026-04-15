@@ -386,7 +386,7 @@ def solve_lkh(
         return tour, float(cost)
 
     if np_rng is None:
-        np_rng = np.random.default_rng(seed) if seed is not None else np.random.default_rng(42)
+        np_rng = np.random.default_rng(seed) if seed is not None else np.random.default_rng()
 
     # Bridge numpy RNG (used for array ops) → stdlib Random (operator interfaces)
     stdlib_rng = Random(int(np_rng.integers(0, 2**31)))

@@ -21,6 +21,7 @@ class TSPConfig:
     """
 
     cache: bool = True
+    engine: str = "fast_tsp"
     time_limit: float = 60.0
     seed: Optional[int] = None
     must_go: Optional[List[MustGoConfig]] = None

@@ -89,7 +89,7 @@ class VectorizedHGS(PolicyVizMixin):
             self.generator = torch.Generator(device=gen_device)
             self.generator.set_state(gen_state)
         else:
-            self.generator = torch.Generator(device="cpu").manual_seed(42)
+            self.generator = torch.Generator(device="cpu")
 
     def solve(
         self,
