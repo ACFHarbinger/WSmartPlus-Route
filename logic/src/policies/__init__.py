@@ -83,11 +83,11 @@ from .route_construction.meta_heuristics.particle_swarm_optimization_distance_ba
     DistancePSOParams,
     DistancePSOSolver,
 )
-from .route_construction.helpers_algorithms.capacitated_vehicle_routing_problem.cvrp import (
+from .route_construction.other_algorithms.capacitated_vehicle_routing_problem.cvrp import (
     find_routes,
     find_routes_ortools,
 )
-from .route_construction.helpers_algorithms.travelling_salesman_problem.tsp import find_route
+from .route_construction.other_algorithms.travelling_salesman_problem.tsp import find_route
 
 __all__ = [
     "ALNSParams",

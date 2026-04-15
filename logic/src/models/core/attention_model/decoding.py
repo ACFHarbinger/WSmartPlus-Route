@@ -12,7 +12,7 @@ import torch
 class DecodingMixin:
     """Mixin for decoding strategies (Greedy, Sampling, Beam Search, POMO)."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize Class.
 
         Args:

@@ -6,9 +6,9 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 
 from .alns import ALNSConfig
-from .hgs import HGSConfig
 from .helpers.mandatory_selection import MandatorySelectionConfig
 from .helpers.route_improvement import RouteImprovingConfig
+from .hgs import HGSConfig
 from .tsp import TSPConfig
 
 

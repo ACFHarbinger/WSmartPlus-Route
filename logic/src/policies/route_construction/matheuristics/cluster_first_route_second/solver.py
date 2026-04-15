@@ -26,6 +26,10 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 
+from logic.src.policies.route_construction.helpers_algorithms.travelling_salesman_problem.tsp import (
+    calculate_tour_cost,
+    find_route,
+)
 from logic.src.policies.route_construction.matheuristics.cluster_first_route_second.greedy_assignment import (
     assign_greedy,
 )
@@ -36,10 +40,6 @@ from logic.src.policies.route_construction.matheuristics.cluster_first_route_sec
     find_route_aco,
     find_route_ga,
     find_route_pso,
-)
-from logic.src.policies.route_construction.helpers_algorithms.travelling_salesman_problem.tsp import (
-    calculate_tour_cost,
-    find_route,
 )
 
 
