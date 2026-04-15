@@ -19,8 +19,8 @@
 6. [Exact Optimization](#exact-optimization)
 7. [Neural Policies](#neural-policies)
 8. [Operators Library](#operators-library)
-9. [Must-Go Selection Strategies](#must-go-selection-strategies)
-10. [Post-Processing & Refinement](#post-processing--refinement)
+9. [mandatory Selection Strategies](#mandatory-selection-strategies)
+10. [route improvement & Refinement](#route improvement--refinement)
 11. [Local Search](#local-search)
 12. [Integration Examples](#integration-examples)
 13. [Best Practices](#best-practices)
@@ -30,7 +30,7 @@
 
 ## 1. Overview
 
-The `policies` module provides a comprehensive technical ecosystem of routing optimization algorithms designed to solve diverse variants of the Vehicle Routing Problem (VRP). It integrates **13 distinct policy implementations**, **26 specialized operators**, **6 must-go selection strategies**, and **5 post-processing methods** into a unified operational framework.
+The `policies` module provides a comprehensive technical ecosystem of routing optimization algorithms designed to solve diverse variants of the Vehicle Routing Problem (VRP). It integrates **13 distinct policy implementations**, **26 specialized operators**, **6 mandatory selection strategies**, and **5 route improvement methods** into a unified operational framework.
 
 ### Key Features
 
@@ -40,8 +40,8 @@ The `policies` module provides a comprehensive technical ecosystem of routing op
 - **Multi-Engine Integration**: Out-of-the-box support for Gurobi, OR-Tools, Hexaly, and PyVRP.
 - **Operator Composability**: Mix and match atomic operators to construct complex metaheuristics.
 - **Workflow Standardization**: Template-based execution logic that handles common preprocessing and mapping steps.
-- **Integrated Must-Go Selection**: Advanced strategies for identifying and prioritizing mandatory collection points.
-- **Post-Processing Pipeline**: Automated route refinement and local search improvement after main solver execution.
+- **Integrated mandatory Selection**: Advanced strategies for identifying and prioritizing mandatory collection points.
+- **route improvement Pipeline**: Automated route refinement and local search improvement after main solver execution.
 
 ### Supported Problems
 
@@ -79,7 +79,7 @@ The `policies` module utilizes established design patterns to maintain scalabili
 2.  **Factory Pattern** (`adapters/factory.py`): Centralizes the instantiation logic for all policy adapters.
 3.  **Registry Pattern** (`adapters/registry.py`): Facilitates dynamic discovery and decoupled registration of new optimization strategies.
 4.  **Template Method Pattern** (`adapters/base_routing_policy.py`): Defines a standardized skeleton for routing execution, ensuring consistent data preparation and result mapping.
-5.  **Strategy Pattern** (`other/must_go/`): Enables pluggable logic for customer selection and prioritization.
+5.  **Strategy Pattern** (`other/mandatory_selection/`): Enables pluggable logic for customer selection and prioritization.
 6.  **Command Pattern** (`operators/`): Encapsulates atomic neighborhood search actions to support composable heuristics.
 
 ### Core Interface Definitions
@@ -109,11 +109,11 @@ The internal workflow for a policy execution follow a strictly defined sequence 
 
 1.  **Discovery**: The `PolicyFactory` identifies the requested adapter by key.
 2.  **Initialization**: The adapter is instantiated and its specific hyperparameters are loaded.
-3.  **Selection**: If configured, a "Must-Go" strategy filters the target nodes.
+3.  **Selection**: If configured, a "mandatory" strategy filters the target nodes.
 4.  **Transformation**: The global distance matrix is subsetted and normalized for the local solver.
 5.  **Optimization**: The core engine (e.g., SISR solver, Gurobi) computes the solution.
 6.  **Mapping**: Local solver indices are projected back to global system IDs.
-7.  **Refinement**: Optional post-processing steps (e.g., path improvement) are applied.
+7.  **Refinement**: Optional route improvement steps (e.g., path improvement) are applied.
 8.  **Output**: The final tour, accurate cost, and diagnostic metadata are returned.
 
 ---
@@ -238,7 +238,7 @@ logic/src/policies/
 │       └── lambda_interchange.py            # λ-interchange
 │
 ├── other/                                   # Auxiliary Components
-│   ├── must_go/                             # Must-Go Selection (6 strategies)
+│   ├── mandatory_selection/                             # mandatory Selection (6 strategies)
 │   │   ├── base/                            # Selection framework
 │   │   │   ├── selection_context.py         # Context object
 │   │   │   ├── selection_factory.py         # Factory
@@ -249,7 +249,7 @@ logic/src/policies/
 │   │   ├── selection_revenue.py             # Profit-based selection
 │   │   ├── selection_service_level.py       # Statistical selection
 │   │   └── selection_combined.py            # Combined strategies
-│   └── post_processing/                     # Post-Processing (5 methods)
+│   └── route_improvement/                     # route improvement (5 methods)
 │       ├── factory.py                       # Factory
 │       ├── registry.py                      # Registry
 │       ├── fast_tsp.py                      # TSP improvement
@@ -286,7 +286,7 @@ logic/src/policies/
 - **Total Files**: 157 Python modules
 - **Policy Adapters**: 13 implementations
 - **Operators**: 26 specialized operators
-- **Must-Go Strategies**: 6 selection methods
+- **mandatory Strategies**: 6 selection methods
 - **Post-Processors**: 5 refinement methods
 - **Local Search Variants**: 3 implementations
 
@@ -311,7 +311,7 @@ policy = PolicyFactory.get_adapter("hgs")
 
 # Execute policy
 tour, cost, metadata = policy.execute(
-    must_go=[1, 5, 10, 15],
+    mandatory_selection=[1, 5, 10, 15],
     bins=bins_state,
     distance_matrix=dist_matrix,
     area="riomaior",
@@ -390,10 +390,10 @@ class MyPolicy(BaseRoutingPolicy):
 
 **Template Method Steps**:
 
-1. **Validate** must-go inputs
+1. **Validate** mandatory inputs
 2. **Extract** context (bins, distance matrix, config)
 3. **Load** area-specific parameters (Q, R, C)
-4. **Create** subset problem (distance matrix for must-go nodes)
+4. **Create** subset problem (distance matrix for mandatory nodes)
 5. **Run** solver (subclass-specific implementation)
 6. **Map** local indices back to global bin IDs
 7. **Compute** total tour cost
@@ -788,7 +788,7 @@ Comprehensive SA-based search with multiple neighborhoods.
 
 ```text
 Algorithm: Simulated Annealing Neighborhood Search (SANS)
-1. Initialize route and bin selection S ← GenerateInitialSolution(must_go_bins)
+1. Initialize route and bin selection S ← GenerateInitialSolution(mandatory_selection_bins)
 2. S_best ← S
 3. T ← T_initial
 4. While T > T_final:
@@ -816,7 +816,7 @@ Algorithm: Simulated Annealing Neighborhood Search (SANS)
 
 - **Multi-Neighborhood Exploration**: Fuses Simulated Annealing with Variable Neighborhood Search principles. It dynamically applies a suite of inter-route and intra-route operators (e.g., Relocate, Swap, 2-Opt) to thoroughly explore the structural landscape without getting trapped in a single operator's local minimum.
 
-- **Look-Ahead Integration Readiness**: Designed to naturally pair with look-ahead heuristics that flag must_go nodes, isolating the combinatorial routing logic from the predictive inventory management logic.
+- **Look-Ahead Integration Readiness**: Designed to naturally pair with look-ahead heuristics that flag mandatory_selection nodes, isolating the combinatorial routing logic from the predictive inventory management logic.
 
 #### Mathematical Formulation
 
@@ -867,7 +867,7 @@ sans_policy = PolicyFactory.get_adapter("sans")
 
 # Execute policy with geometric cooling and multi-neighborhood search
 tour, cost, _ = sans_policy.execute(
-    must_go=must_go_bins,
+    mandatory_selection=mandatory_selection_bins,
     bins=bins_state,
     distance_matrix=dist_matrix,
     config={
@@ -1152,7 +1152,7 @@ from logic.src.policies.adapters import PolicyFactory
 
 rl_hvpl_policy = PolicyFactory.get_adapter("rl_hvpl")
 tour, cost, _ = rl_hvpl_policy.execute(
-    must_go=must_go_bins,
+    mandatory_selection=mandatory_selection_bins,
     bins=bins_state,
     distance_matrix=dist_matrix,
     config={
@@ -2555,7 +2555,7 @@ routes, cost = run_bpc(
 ```python
 bpc_policy = PolicyFactory.get_adapter("bpc")
 tour, cost, _ = bpc_policy.execute(
-    must_go=must_go_bins,
+    mandatory_selection=mandatory_selection_bins,
     bins=bins_state,
     distance_matrix=dist_matrix,
     config={
@@ -2653,7 +2653,7 @@ neural_policy = PolicyFactory.get_adapter("neural")
 
 # Configure model path
 tour, cost, _ = neural_policy.execute(
-    must_go=must_go_bins,
+    mandatory_selection=mandatory_selection_bins,
     bins=bins_state,
     distance_matrix=dist_matrix,
     config={
@@ -3042,9 +3042,9 @@ new_routes, delta_cost = lambda_interchange(
 
 ---
 
-## 9. Must-Go Selection Strategies
+## 9. mandatory Selection Strategies
 
-**Directory**: `other/must_go/`
+**Directory**: `other/mandatory_selection/`
 **Purpose**: Pre-selection of mandatory collection nodes
 
 ### 9.1 Selection Framework
@@ -3068,23 +3068,23 @@ context = SelectionContext(
 )
 ```
 
-#### MustGoSelectionFactory
+#### MandatorySelectionSelectionFactory
 
 **File**: `base/selection_factory.py`
 
 Factory for creating selectors.
 
 ```python
-from logic.src.policies.other import MustGoSelectionFactory
+from logic.src.policies.other import MandatorySelectionSelectionFactory
 
 # Create selector
-selector = MustGoSelectionFactory.create_selector(
+selector = MandatorySelectionSelectionFactory.create_selector(
     strategy="last_minute",
     threshold=0.9
 )
 
 # Execute selection
-must_go_bins = selector.select(context)
+mandatory_selection_bins = selector.select(context)
 ```
 
 ### 9.2 Selection Strategies
@@ -3096,12 +3096,12 @@ must_go_bins = selector.select(context)
 Select bins exceeding fill threshold.
 
 ```python
-from logic.src.policies.other.must_go import LastMinuteSelector
+from logic.src.policies.other.mandatory_selection import LastMinuteSelector
 
 selector = LastMinuteSelector(threshold=0.9)
 
 # Select bins with fill ≥ 90%
-must_go = selector.select(context)
+mandatory_selection = selector.select(context)
 ```
 
 #### Regular Selector
@@ -3111,12 +3111,12 @@ must_go = selector.select(context)
 Select bins on fixed-frequency schedule.
 
 ```python
-from logic.src.policies.other.must_go import RegularSelector
+from logic.src.policies.other.mandatory_selection import RegularSelector
 
 # Collect every 3 days
 selector = RegularSelector(frequency=3)
 
-must_go = selector.select(context)
+mandatory_selection = selector.select(context)
 ```
 
 #### Lookahead Selector
@@ -3126,7 +3126,7 @@ must_go = selector.select(context)
 Select bins predicted to overflow within N days.
 
 ```python
-from logic.src.policies.other.must_go import LookaheadSelector
+from logic.src.policies.other.mandatory_selection import LookaheadSelector
 
 # Predict 7 days ahead
 selector = LookaheadSelector(
@@ -3134,7 +3134,7 @@ selector = LookaheadSelector(
     predictor=fill_predictor_model
 )
 
-must_go = selector.select(context)
+mandatory_selection = selector.select(context)
 ```
 
 #### Revenue Selector
@@ -3144,14 +3144,14 @@ must_go = selector.select(context)
 Select bins where profit exceeds cost.
 
 ```python
-from logic.src.policies.other.must_go import RevenueSelector
+from logic.src.policies.other.mandatory_selection import RevenueSelector
 
 selector = RevenueSelector(
     revenue_per_kg=1.0,
     cost_per_km=0.5
 )
 
-must_go = selector.select(context)
+mandatory_selection = selector.select(context)
 ```
 
 #### Service-Level Selector
@@ -3161,7 +3161,7 @@ must_go = selector.select(context)
 Statistical overflow prediction.
 
 ```python
-from logic.src.policies.other.must_go import ServiceLevelSelector
+from logic.src.policies.other.mandatory_selection import ServiceLevelSelector
 
 # 95% service level
 selector = ServiceLevelSelector(
@@ -3169,7 +3169,7 @@ selector = ServiceLevelSelector(
     fill_std_dev=0.1
 )
 
-must_go = selector.select(context)
+mandatory_selection = selector.select(context)
 ```
 
 #### Combined Selector
@@ -3179,7 +3179,7 @@ must_go = selector.select(context)
 Combine multiple strategies with AND/OR logic.
 
 ```python
-from logic.src.policies.other.must_go import CombinedSelector
+from logic.src.policies.other.mandatory_selection import CombinedSelector
 
 selector = CombinedSelector(
     logic="or",  # or "and"
@@ -3190,20 +3190,20 @@ selector = CombinedSelector(
 )
 
 # Select if last_minute OR regular triggers
-must_go = selector.select(context)
+mandatory_selection = selector.select(context)
 ```
 
 ### 9.3 Usage in Simulation
 
 ```python
 from logic.src.policies import create_policy
-from logic.src.policies.other import MustGoSelectionFactory
+from logic.src.policies.other import MandatorySelectionSelectionFactory
 
 # Create policy
 policy = create_policy("hgs")
 
-# Create must-go selector
-selector = MustGoSelectionFactory.create_selector(
+# Create mandatory selector
+selector = MandatorySelectionSelectionFactory.create_selector(
     strategy="combined",
     logic="or",
     strategies=[
@@ -3213,11 +3213,11 @@ selector = MustGoSelectionFactory.create_selector(
 )
 
 # Execute selection
-must_go = selector.select(context)
+mandatory_selection = selector.select(context)
 
 # Execute policy
 tour, cost, _ = policy.execute(
-    must_go=must_go,
+    mandatory_selection=mandatory_selection,
     bins=context.bins,
     distance_matrix=context.distance_matrix
 )
@@ -3225,20 +3225,20 @@ tour, cost, _ = policy.execute(
 
 ---
 
-## 10. Post-Processing & Refinement
+## 10. route improvement & Refinement
 
-**Directory**: `other/post_processing/`
+**Directory**: `other/route_improvement/`
 **Purpose**: Automatic route improvement after initial solution
 
-### 10.1 PostProcessorFactory
+### 10.1 RouteImproverFactory
 
 **File**: `factory.py`
 
 ```python
-from logic.src.policies.other import PostProcessorFactory
+from logic.src.policies.other import RouteImproverFactory
 
 # Create post-processor
-post_processor = PostProcessorFactory.create_processor("fast_tsp")
+post_processor = RouteImproverFactory.create_processor("fast_tsp")
 
 # Apply to tour
 improved_tour = post_processor.process(
@@ -3247,7 +3247,7 @@ improved_tour = post_processor.process(
 )
 ```
 
-### 10.2 Post-Processing Methods
+### 10.2 route improvement Methods
 
 #### Fast TSP
 
@@ -3256,9 +3256,9 @@ improved_tour = post_processor.process(
 Fast TSP heuristic using `fast_tsp` library.
 
 ```python
-from logic.src.policies.other.post_processing import FastTSPPostProcessor
+from logic.src.policies.other.route_improvement import FastTSPRouteImprover
 
-processor = FastTSPPostProcessor()
+processor = FastTSPRouteImprover()
 
 # Improve single-route tour
 improved_tour = processor.process(
@@ -3274,9 +3274,9 @@ improved_tour = processor.process(
 2-opt and 3-opt intra-route improvements.
 
 ```python
-from logic.src.policies.other.post_processing import ClassicalLocalSearchPostProcessor
+from logic.src.policies.other.route_improvement import ClassicalLocalSearchRouteImprover
 
-processor = ClassicalLocalSearchPostProcessor(
+processor = ClassicalLocalSearchRouteImprover(
     operators=["2opt", "3opt"],
     max_iterations=100
 )
@@ -3294,9 +3294,9 @@ improved_tour = processor.process(
 Randomized operator selection.
 
 ```python
-from logic.src.policies.other.post_processing import RandomLocalSearchPostProcessor
+from logic.src.policies.other.route_improvement import RandomLocalSearchRouteImprover
 
-processor = RandomLocalSearchPostProcessor(
+processor = RandomLocalSearchRouteImprover(
     operator_probs={
         "2opt": 0.4,
         "swap": 0.3,
@@ -3318,9 +3318,9 @@ improved_tour = processor.process(
 ILS with perturbation for escaping local minima.
 
 ```python
-from logic.src.policies.other.post_processing import IteratedLocalSearchPostProcessor
+from logic.src.policies.other.route_improvement import IteratedLocalSearchRouteImprover
 
-processor = IteratedLocalSearchPostProcessor(
+processor = IteratedLocalSearchRouteImprover(
     n_restarts=5,
     ls_iterations=50,
     perturbation_strength=0.2
@@ -3339,9 +3339,9 @@ improved_tour = processor.process(
 Specialized path optimization.
 
 ```python
-from logic.src.policies.other.post_processing import PathPostProcessor
+from logic.src.policies.other.route_improvement import PathRouteImprover
 
-processor = PathPostProcessor()
+processor = PathRouteImprover()
 
 improved_tour = processor.process(
     tour=[0, 1, 2, 3, 0],
@@ -3352,13 +3352,13 @@ improved_tour = processor.process(
 ### 10.3 Pipeline Configuration
 
 ```python
-from logic.src.policies.other import PostProcessorFactory
+from logic.src.policies.other import RouteImproverFactory
 
 # Multi-stage refinement pipeline
 processors = [
-    PostProcessorFactory.create_processor("fast_tsp"),
-    PostProcessorFactory.create_processor("classical_ls"),
-    PostProcessorFactory.create_processor("ils")
+    RouteImproverFactory.create_processor("fast_tsp"),
+    RouteImproverFactory.create_processor("classical_ls"),
+    RouteImproverFactory.create_processor("ils")
 ]
 
 tour = initial_tour
@@ -3443,13 +3443,13 @@ improved_routes = ls.search(
 ```python
 from logic.src.policies import create_policy
 from logic.src.policies.other import (
-    MustGoSelectionFactory,
-    PostProcessorFactory,
+    MandatorySelectionSelectionFactory,
+    RouteImproverFactory,
     SelectionContext
 )
 
-# 1. Create must-go selector
-selector = MustGoSelectionFactory.create_selector(
+# 1. Create mandatory selector
+selector = MandatorySelectionSelectionFactory.create_selector(
     strategy="combined",
     logic="or",
     strategies=[
@@ -3462,7 +3462,7 @@ selector = MustGoSelectionFactory.create_selector(
 policy = create_policy("hgs")
 
 # 3. Create post-processor
-post_processor = PostProcessorFactory.create_processor("fast_tsp")
+post_processor = RouteImproverFactory.create_processor("fast_tsp")
 
 # 4. Execute simulation day
 context = SelectionContext(
@@ -3473,12 +3473,12 @@ context = SelectionContext(
     day=5
 )
 
-# 5. Select must-go bins
-must_go = selector.select(context)
+# 5. Select mandatory bins
+mandatory_selection = selector.select(context)
 
 # 6. Generate tour with policy
 tour, cost, _ = policy.execute(
-    must_go=must_go,
+    mandatory_selection=mandatory_selection,
     bins=bins_state,
     distance_matrix=dist_matrix,
     config=config_dict
@@ -3505,7 +3505,7 @@ for policy_name in policies:
     policy = create_policy(policy_name)
 
     tour, cost, metadata = policy.execute(
-        must_go=must_go_bins,
+        mandatory_selection=mandatory_selection_bins,
         bins=bins_state,
         distance_matrix=dist_matrix,
         config=config
@@ -3575,7 +3575,7 @@ class MyCustomPolicy(BaseRoutingPolicy):
 # Usage
 policy = create_policy("my_custom_policy")
 tour, cost, _ = policy.execute(
-    must_go=must_go_bins,
+    mandatory_selection=mandatory_selection_bins,
     bins=bins_state,
     distance_matrix=dist_matrix
 )
@@ -3645,18 +3645,18 @@ class MyPolicy(IPolicyAdapter):
     ...
 ```
 
-**Use Must-Go Selectors**
+**Use mandatory Selectors**
 
 ```python
 # ✅ GOOD: Configurable selection strategy
-selector = MustGoSelectionFactory.create_selector("last_minute", threshold=0.9)
-must_go = selector.select(context)
+selector = MandatorySelectionSelectionFactory.create_selector("last_minute", threshold=0.9)
+mandatory_selection = selector.select(context)
 
 # ❌ BAD: Hardcoded selection logic
-must_go = [i for i, fill in enumerate(bins.c) if fill > 0.9]
+mandatory_selection = [i for i, fill in enumerate(bins.c) if fill > 0.9]
 ```
 
-**Apply Post-Processing**
+**Apply route improvement**
 
 ```python
 # ✅ GOOD: Refine solutions
@@ -3813,15 +3813,15 @@ from logic.src.policies.operators import (
     greedy_insertion, regret_k_insertion
 )
 
-# Must-go selection
+# mandatory selection
 from logic.src.policies.other import (
-    MustGoSelectionFactory, MustGoSelectionRegistry,
+    MandatorySelectionSelectionFactory, MandatorySelectionSelectionRegistry,
     SelectionContext
 )
 
-# Post-processing
+# route improvement
 from logic.src.policies.other import (
-    PostProcessorFactory, PostProcessorRegistry
+    RouteImproverFactory, RouteImproverRegistry
 )
 
 # TSP/CVRP
@@ -3905,8 +3905,8 @@ neural:
 | ----------------- | --------------------------------------------- |
 | Policy Adapters   | `adapters/policy_*.py` (13 files)             |
 | Operators         | `operators/` (26 implementations)             |
-| Must-Go Selectors | `other/must_go/selection_*.py` (6 strategies) |
-| Post-Processors   | `other/post_processing/*.py` (5 methods)      |
+| mandatory Selectors | `other/mandatory_selection/selection_*.py` (6 strategies) |
+| Post-Processors   | `other/route_improvement/*.py` (5 methods)      |
 | ALNS              | `adaptive_large_neighborhood_search/`         |
 | HGS               | `hybrid_genetic_search/`                      |
 | ACO               | `ant_colony_optimization/`                    |

@@ -185,7 +185,7 @@ Generates instances for the **Waste Collection VRP**.
 
 - **Bin Logic**: Tracks `current_waste` vs `max_waste`.
 - **Maps**: Supports generating nodes based on real-world city topologies via the `map_name` parameter (e.g., "Rio Maior").
-- **Must-Go**: Can flag certain nodes as mandatory vs optional.
+- **mandatory**: Can flag certain nodes as mandatory vs optional.
 - **Config**:
   - `fill_distribution`: How full are the bins? (e.g., Gamma distribution).
   - `depot_type`: "center", "corner", or "random".
@@ -301,7 +301,7 @@ A specialized waste collection VRP where bin waste overflows are part of the cos
 
 - **Capacity**: Vehicles have a `vehicle_cap` (e.g., 100.0).
 - **Overflow Penalty**: If a node is _not_ visited but has high waste (`> max_waste`), a heavy penalty is applied.
-- **Must-Go Nodes**: Some nodes may be flagged as mandatory.
+- **mandatory Nodes**: Some nodes may be flagged as mandatory.
 
 ### Logic Differences from VRPP
 
@@ -460,4 +460,4 @@ Defines the evaluation metrics for multi-day scenarios.
 | :----------- | :----------------------------------------------------- | :--------------------------------------------------- |
 | **Purpose**  | **RL Environment** (State machine, transitions, masks) | **Problem Definition** (Cost evaluation, validation) |
 | **State**    | Dynamic `TensorDict` (updates every step)              | Static `TensorDict` (dataset) + Complete Tour        |
-| **Use Case** | Training Loop (Agent interaction)                      | Evaluation / Baselines / Post-processing             |
+| **Use Case** | Training Loop (Agent interaction)                      | Evaluation / Baselines / route improvement             |

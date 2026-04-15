@@ -15,8 +15,8 @@
 4.  [**Model Interface**](#4-model-interface)
 5.  [**Policy Interface**](#5-policy-interface)
 6.  [**Policy Adapter Interface**](#6-policy-adapter-interface)
-7.  [**Must-Go Selection Interface**](#7-must-go-selection-interface)
-8.  [**Post-Processing Interface**](#8-post-processing-interface)
+7.  [**mandatory Selection Interface**](#7-mandatory-selection-interface)
+8.  [**route improvement Interface**](#8-route improvement-interface)
 9.  [**Infrastructure & Utility Protocols**](#9-infrastructure--utility-protocols)
 10. [**Integration Examples**](#10-integration-examples)
 11. [**Best Practices**](#11-best-practices)
@@ -56,8 +56,8 @@ from logic.src.interfaces import (
     IModel,
     IPolicy,
     IPolicyAdapter,
-    IMustGoSelection,
-    IPostProcessing
+    IMandatorySelectionSelection,
+    Iroute improvement
 )
 ```
 
@@ -72,8 +72,8 @@ logic/src/interfaces/
 ├── model.py                 # IModel protocol
 ├── policy.py                # IPolicy abstract base class
 ├── adapter.py               # IPolicyAdapter protocol
-├── must_go.py               # IMustGoSelection protocol
-└── post_processing.py       # IPostProcessing protocol
+├── mandatory_selection.py               # IMandatorySelectionSelection protocol
+└── route_improvement.py       # Iroute improvement protocol
 ```
 
 ### Interface Hierarchy
@@ -90,7 +90,7 @@ logic/src/interfaces/
 ┌─────────────────────────────────────────────────────┐
 │               Specialized Interfaces                 │
 ├─────────────────────────────────────────────────────┤
-│ IPolicyAdapter  │ IMustGoSelection │ IPostProcessing │
+│ IPolicyAdapter  │ IMandatorySelectionSelection │ Iroute improvement │
 │ (Bridge)        │ (Pre-selection)  │ (Refinement)    │
 └─────────────────────────────────────────────────────┘
 ```
@@ -291,7 +291,7 @@ class IPolicy(ABC):
 
         Args:
             **kwargs: Context-specific parameters (distance_matrix,
-                     must_go_bins, state, etc.)
+                     mandatory_selection_bins, state, etc.)
 
         Returns:
             Tuple of (tour, cost, metadata):
@@ -311,7 +311,7 @@ The primary execution entry point for all policies.
 **Common Inputs** (via `kwargs`):
 
 - `distance_matrix`: `np.ndarray` - Pairwise distances
-- `must_go_bins`: `List[int]` - Mandatory nodes
+- `mandatory_selection_bins`: `List[int]` - Mandatory nodes
 - `state`: `Dict` - Current environment state
 - `capacity`: `float` - Vehicle capacity
 - `depot`: `int` - Depot node index (usually 0)
@@ -337,7 +337,7 @@ policy: IPolicy = HGSPolicy(
 # Execute policy
 tour, cost, metadata = policy.run(
     distance_matrix=dist_matrix,
-    must_go_bins=[1, 5, 10],
+    mandatory_selection_bins=[1, 5, 10],
     capacity=100.0,
     depot=0
 )
@@ -405,11 +405,11 @@ tour, cost, _ = policy.run(state=environment_state)
 
 ---
 
-## 7. Must-Go Selection Interface
+## 7. mandatory Selection Interface
 
-**File**: `logic/src/interfaces/must_go.py`
+**File**: `logic/src/interfaces/mandatory_selection.py`
 
-The `IMustGoSelection` protocol standardizes logic for pre-selecting mandatory collection targets before routing begins.
+The `IMandatorySelectionSelection` protocol standardizes logic for pre-selecting mandatory collection targets before routing begins.
 
 ### Protocol Definition
 
@@ -419,15 +419,15 @@ from dataclasses import dataclass
 
 @dataclass
 class SelectionContext:
-    """Context for must-go selection."""
+    """Context for mandatory selection."""
     fill_rates: List[float]
     days_since_last_collection: List[int]
     revenue: List[float]
     capacity: float
     threshold: float
 
-class IMustGoSelection(Protocol):
-    """Protocol for must-go selection strategies."""
+class IMandatorySelectionSelection(Protocol):
+    """Protocol for mandatory selection strategies."""
 
     def select_bins(self, context: SelectionContext) -> List[int]:
         """
@@ -445,11 +445,11 @@ class IMustGoSelection(Protocol):
 ### Usage Example
 
 ```python
-from logic.src.interfaces import IMustGoSelection, SelectionContext
-from logic.src.policies.other.must_go import LastMinuteSelection
+from logic.src.interfaces import IMandatorySelectionSelection, SelectionContext
+from logic.src.policies.other.mandatory_selection import LastMinuteSelection
 
-# Selection strategy implements IMustGoSelection
-selector: IMustGoSelection = LastMinuteSelection(threshold=0.9)
+# Selection strategy implements IMandatorySelectionSelection
+selector: IMandatorySelectionSelection = LastMinuteSelection(threshold=0.9)
 
 # Create context
 context = SelectionContext(
@@ -461,25 +461,25 @@ context = SelectionContext(
 )
 
 # Select mandatory bins
-must_go_bins = selector.select_bins(context)
+mandatory_selection_bins = selector.select_bins(context)
 # Result: [1, 3] (bins with fill_rate >= 0.9)
 ```
 
 ---
 
-## 8. Post-Processing Interface
+## 8. route improvement Interface
 
-**File**: `logic/src/interfaces/post_processing.py`
+**File**: `logic/src/interfaces/route_improvement.py`
 
-The `IPostProcessing` protocol standardizes route refinement algorithms applied to complete tours.
+The `Iroute improvement` protocol standardizes route refinement algorithms applied to complete tours.
 
 ### Protocol Definition
 
 ```python
 from typing import Protocol, List, Any
 
-class IPostProcessing(Protocol):
-    """Protocol for post-processing refinement."""
+class Iroute improvement(Protocol):
+    """Protocol for route improvement refinement."""
 
     def process(self, tour: List[int], **kwargs: Any) -> List[int]:
         """
@@ -507,11 +507,11 @@ class IPostProcessing(Protocol):
 ### Usage Example
 
 ```python
-from logic.src.interfaces import IPostProcessing
-from logic.src.policies.other.post_processing import TwoOptProcessor
+from logic.src.interfaces import Iroute improvement
+from logic.src.policies.other.route_improvement import TwoOptProcessor
 
-# Post-processor implements IPostProcessing
-refiner: IPostProcessing = TwoOptProcessor(max_iterations=100)
+# Post-processor implements Iroute improvement
+refiner: Iroute improvement = TwoOptProcessor(max_iterations=100)
 
 # Original tour
 original_tour = [0, 5, 3, 8, 2, 7, 1, 4, 6, 0]
@@ -606,18 +606,18 @@ def check_policy_selection(bins: IBinContainer, mask: torch.Tensor):
 
 ```python
 from logic.src.interfaces import (
-    IEnv, IPolicy, IMustGoSelection, IPostProcessing
+    IEnv, IPolicy, IMandatorySelectionSelection, Iroute improvement
 )
 from logic.src.envs import WCVRPEnv
 from logic.src.policies import HGSPolicy
-from logic.src.policies.other.must_go import LastMinuteSelection
-from logic.src.policies.other.post_processing import TwoOptProcessor
+from logic.src.policies.other.mandatory_selection import LastMinuteSelection
+from logic.src.policies.other.route_improvement import TwoOptProcessor
 
 def run_routing_pipeline(
     env: IEnv,
     policy: IPolicy,
-    selector: IMustGoSelection,
-    refiner: IPostProcessing
+    selector: IMandatorySelectionSelection,
+    refiner: Iroute improvement
 ):
     """Complete routing pipeline using interfaces."""
 
@@ -626,12 +626,12 @@ def run_routing_pipeline(
 
     # 2. Select mandatory bins
     context = create_selection_context(state)
-    must_go_bins = selector.select_bins(context)
+    mandatory_selection_bins = selector.select_bins(context)
 
     # 3. Solve routing problem
     tour, cost, metadata = policy.run(
         state=state,
-        must_go_bins=must_go_bins,
+        mandatory_selection_bins=mandatory_selection_bins,
         distance_matrix=state["distance_matrix"]
     )
 
@@ -665,7 +665,7 @@ neural_policy = NeuralAdapter(
 ).get_policy(decode_type="greedy")
 
 # Use different selection strategy
-from logic.src.policies.other.must_go import RegularSelection
+from logic.src.policies.other.mandatory_selection import RegularSelection
 
 regular_selector = RegularSelection(frequency=3)
 
@@ -863,15 +863,15 @@ from logic.src.interfaces import IEnv, IModel, IPolicy
 # Specialized interfaces
 from logic.src.interfaces import (
     IPolicyAdapter,
-    IMustGoSelection,
-    IPostProcessing,
+    IMandatorySelectionSelection,
+    Iroute improvement,
     ITraversable,
     ITensorDictLike,
     IBinContainer
 )
 
 # Context classes
-from logic.src.interfaces.must_go import SelectionContext
+from logic.src.interfaces.mandatory_selection import SelectionContext
 ```
 
 ### Interface Summary
@@ -882,8 +882,8 @@ from logic.src.interfaces.must_go import SelectionContext
 | `IModel`           | Neural network standardization | `forward`, `to`, `train`, `eval` |
 | `IPolicy`          | Solver standardization         | `run`                            |
 | `IPolicyAdapter`   | Bridge neural/classical        | `get_policy`, `get_model`        |
-| `IMustGoSelection` | Pre-selection strategy         | `select_bins`                    |
-| `IPostProcessing`  | Tour refinement                | `process`                        |
+| `IMandatorySelectionSelection` | Pre-selection strategy         | `select_bins`                    |
+| `Iroute improvement`  | Tour refinement                | `process`                        |
 | `ITraversable`     | Configuration standardization  | `get`, `items`, `keys`           |
 | `ITensorDictLike`  | Tensor storage standardization | `batch_size`, `device`, `get`    |
 | `IBinContainer`    | Bin state standardization      | `fill_levels`, `wastes`          |
@@ -896,8 +896,8 @@ from logic.src.interfaces.must_go import SelectionContext
 | `model.py`            | ~30   | IModel protocol definition  |
 | `policy.py`           | ~25   | IPolicy abstract base class |
 | `adapter.py`          | ~20   | IPolicyAdapter protocol     |
-| `must_go.py`          | ~35   | IMustGoSelection protocol   |
-| `post_processing.py`  | ~20   | IPostProcessing protocol    |
+| `mandatory_selection.py`          | ~35   | IMandatorySelectionSelection protocol   |
+| `route_improvement.py`  | ~20   | Iroute improvement protocol    |
 | `traversable.py`      | ~50   | ITraversable protocol       |
 | `tensor_dict_like.py` | ~60   | ITensorDictLike protocol    |
 | `bin_container.py`    | ~45   | IBinContainer protocol      |

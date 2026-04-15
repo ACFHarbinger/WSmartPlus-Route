@@ -30,7 +30,7 @@ The `logic/src/configs` module provides a comprehensive, type-safe configuration
 - **Environment Physics**: Problem definitions, graph structure, data generation
 - **Model Architecture**: Neural network design, optimization, decoding strategies
 - **RL Algorithms**: Training objectives, baselines, policy updates
-- **Policy Behaviors**: Classical solvers, metaheuristics, pre/post-processing
+- **Policy Behaviors**: Classical solvers, metaheuristics, pre/route improvement
 - **Workflow Orchestration**: Training loops, simulations, evaluations, HPO
 
 ### Key Features
@@ -101,8 +101,8 @@ logic/src/configs/
 │   ├── bpc.py               # Branch-and-Price-and-Cut exact solver
 │   ├── neural.py            # Neural policy wrapper
 │   ├── other/               # Modular extensions
-│   │   ├── must_go.py       # Pre-selection strategies
-│   │   └── post_processing.py
+│   │   ├── mandatory_selection.py       # Pre-selection strategies
+│   │   └── route_improvement.py
 │   └── README.md
 │
 ├── rl/                      # Reinforcement learning configurations
@@ -146,7 +146,7 @@ from logic.src.configs import (
     TrainConfig, EvalConfig, SimConfig, MetaRLConfig, HPOConfig,
     # Policies
     ALNSConfig, HGSConfig, ACOConfig, BPCConfig, ILSConfig,
-    MustGoConfig, PostProcessingConfig,
+    MandatorySelectionConfig, route improvementConfig,
     # RL
     RLConfig, PPOConfig, POMOConfig, ImitationConfig,
 )
@@ -178,8 +178,8 @@ class Config:
         eval: Evaluation configuration.
         sim: Simulation configuration.
         data: Data generation configuration.
-        must_go: Must-go selection strategy configuration.
-        post_processing: Route refinement configuration.
+        mandatory_selection: mandatory selection strategy configuration.
+        route_improvement: Route refinement configuration.
         seed: Random seed for reproducibility.
         device: Device to use ('cpu', 'cuda', 'cuda:0').
         experiment_name: Optional name for the experiment.
@@ -200,8 +200,8 @@ class Config:
     eval: EvalConfig = field(default_factory=EvalConfig)
     sim: SimConfig = field(default_factory=SimConfig)
     data: DataConfig = field(default_factory=DataConfig)
-    must_go: MustGoConfig = field(default_factory=MustGoConfig)
-    post_processing: PostProcessingConfig = field(default_factory=PostProcessingConfig)
+    mandatory_selection: MandatorySelectionConfig = field(default_factory=MandatorySelectionConfig)
+    route_improvement: route improvementConfig = field(default_factory=route improvementConfig)
 
     seed: int = 42
     device: str = "cuda"
@@ -828,8 +828,8 @@ class ALNSConfig:
         min_removal: Minimum nodes to remove per destroy.
         max_removal_pct: Maximum % of nodes to remove.
         engine: Solver engine ('custom', 'alns' third-party).
-        must_go: Pre-selection strategies.
-        post_processing: Refinement steps.
+        mandatory_selection: Pre-selection strategies.
+        route_improvement: Refinement steps.
     """
 
     time_limit: float = 60.0
@@ -840,8 +840,8 @@ class ALNSConfig:
     min_removal: int = 1
     max_removal_pct: float = 0.3
     engine: str = "custom"
-    must_go: Optional[List[MustGoConfig]] = None
-    post_processing: Optional[List[PostProcessingConfig]] = None
+    mandatory_selection: Optional[List[MandatorySelectionConfig]] = None
+    route_improvement: Optional[List[route improvementConfig]] = None
 ```
 
 **Usage Examples**
@@ -860,13 +860,13 @@ alns_config = ALNSConfig(
     cooling_rate=0.99
 )
 
-# With pre-selection and post-processing
+# With pre-selection and route improvement
 alns_config = ALNSConfig(
-    must_go=[
-        MustGoConfig(strategy="last_minute", threshold=0.9)
+    mandatory_selection=[
+        MandatorySelectionConfig(strategy="last_minute", threshold=0.9)
     ],
-    post_processing=[
-        PostProcessingConfig(methods=["2opt", "relocate"])
+    route_improvement=[
+        route improvementConfig(methods=["2opt", "relocate"])
     ]
 )
 ```
@@ -957,16 +957,16 @@ class ILSConfig:
     })
 ```
 
-### MustGoConfig
+### MandatorySelectionConfig
 
-**File**: `policies/other/must_go.py`
+**File**: `policies/other/mandatory_selection.py`
 
 Pre-selection strategy for mandatory collections.
 
 ```python
 @dataclass
-class MustGoConfig:
-    """Must-go selection configuration.
+class MandatorySelectionConfig:
+    """mandatory selection configuration.
 
     Attributes:
         strategy: Selector logic ('last_minute', 'regular', 'manager',
@@ -1006,19 +1006,19 @@ class MustGoConfig:
 
 ```python
 # Last-minute collection at 90% fill
-must_go = MustGoConfig(
+mandatory_selection = MandatorySelectionConfig(
     strategy="last_minute",
     threshold=0.9
 )
 
 # Regular collection every 3 days
-must_go = MustGoConfig(
+mandatory_selection = MandatorySelectionConfig(
     strategy="regular",
     frequency=3
 )
 
 # Combined strategy
-must_go = MustGoConfig(
+mandatory_selection = MandatorySelectionConfig(
     strategy="combined",
     logic="or",
     combined_strategies=[
@@ -1028,23 +1028,23 @@ must_go = MustGoConfig(
 )
 
 # Neural manager
-must_go = MustGoConfig(
+mandatory_selection = MandatorySelectionConfig(
     strategy="manager",
     manager_weights="assets/manager_weights.pt",
     critical_threshold=0.85
 )
 ```
 
-### PostProcessingConfig
+### route improvementConfig
 
-**File**: `policies/other/post_processing.py`
+**File**: `policies/other/route_improvement.py`
 
 Solution refinement pipeline.
 
 ```python
 @dataclass
-class PostProcessingConfig:
-    """Post-processing configuration.
+class route improvementConfig:
+    """route improvement configuration.
 
     Attributes:
         methods: Sequence of methods ('2opt', 'ils', 'split', 'fast_tsp').
@@ -1069,10 +1069,10 @@ class PostProcessingConfig:
 
 ```python
 # Standard TSP improvement
-post_proc = PostProcessingConfig(methods=["fast_tsp"])
+post_proc = route improvementConfig(methods=["fast_tsp"])
 
 # Multi-stage refinement
-post_proc = PostProcessingConfig(
+post_proc = route improvementConfig(
     methods=["2opt", "relocate", "ils"],
     iterations=100,
     time_limit=30.0
@@ -1309,9 +1309,9 @@ class TrainConfig:
         train_time: Enable multi-day temporal training.
         eval_time_days: Days for temporal evaluation.
 
-        # Post-processing
-        post_processing_epochs: Epochs with refinement training.
-        lr_post_processing: Learning rate for refinement.
+        # route improvement
+        route_improvement_epochs: Epochs with refinement training.
+        lr_route_improvement: Learning rate for refinement.
         efficiency_weight: Priority for waste/length efficiency.
         overflow_weight: Priority for overflow prevention.
 
@@ -1339,8 +1339,8 @@ class TrainConfig:
     enable_scaler: bool = False
     checkpoint_epochs: int = 1
     shrink_size: Optional[int] = None
-    post_processing_epochs: int = 0
-    lr_post_processing: float = 0.001
+    route_improvement_epochs: int = 0
+    lr_route_improvement: float = 0.001
     efficiency_weight: float = 0.8
     overflow_weight: float = 0.2
     log_step: int = 50
@@ -1648,11 +1648,11 @@ from logic.src.pipeline.features.test import run_simulation
 results = run_simulation(config, policies=["gurobi", "hgs", "am"])
 ```
 
-### ALNS with Pre/Post Processing
+### ALNS with Pre/route improvement
 
 ```python
 from logic.src.configs import (
-    Config, ALNSConfig, MustGoConfig, PostProcessingConfig
+    Config, ALNSConfig, MandatorySelectionConfig, route improvementConfig
 )
 
 config = Config(
@@ -1663,8 +1663,8 @@ config = Config(
         max_iterations=10000,
         max_removal_pct=0.4,
 
-        must_go=[
-            MustGoConfig(
+        mandatory_selection=[
+            MandatorySelectionConfig(
                 strategy="combined",
                 logic="or",
                 combined_strategies=[
@@ -1674,8 +1674,8 @@ config = Config(
             )
         ],
 
-        post_processing=[
-            PostProcessingConfig(
+        route_improvement=[
+            route improvementConfig(
                 methods=["2opt", "relocate", "ils"],
                 iterations=100,
                 time_limit=30.0
@@ -1975,7 +1975,7 @@ from logic.src.configs.models import (
 # Policy configs
 from logic.src.configs.policies import (
     ALNSConfig, HGSConfig, ACOConfig, ILSConfig, BPCConfig,
-    MustGoConfig, PostProcessingConfig
+    MandatorySelectionConfig, route improvementConfig
 )
 
 # RL configs
@@ -2024,8 +2024,8 @@ Config
 ├── hpo: HPOConfig
 ├── data: DataConfig
 │   └── graph: GraphConfig
-├── must_go: MustGoConfig
-└── post_processing: PostProcessingConfig
+├── mandatory_selection: MandatorySelectionConfig
+└── route_improvement: route improvementConfig
 ```
 
 ### Default Values Reference
@@ -2047,8 +2047,8 @@ Config
 | **SimConfig**            | days=31, warmup_days=5, stochastic=True                     |
 | **ALNSConfig**           | time_limit=60.0, max_iterations=5000, cooling_rate=0.995    |
 | **HGSConfig**            | population_size=50, elite_size=10, mutation_rate=0.2        |
-| **MustGoConfig**         | strategy=None, threshold=0.7, frequency=3                   |
-| **PostProcessingConfig** | methods=["fast_tsp"], iterations=50                         |
+| **MandatorySelectionConfig**         | strategy=None, threshold=0.7, frequency=3                   |
+| **route improvementConfig** | methods=["fast_tsp"], iterations=50                         |
 
 ### File Size Reference
 
@@ -2068,7 +2068,7 @@ Config
 | `rl/core/ppo.py`            | 14    | PPOConfig         |
 | `rl/core/pomo.py`           | ~20   | POMOConfig        |
 | `policies/alns.py`          | 39    | ALNSConfig        |
-| `policies/other/must_go.py` | ~60   | MustGoConfig      |
+| `policies/other/mandatory_selection.py` | ~60   | MandatorySelectionConfig      |
 | `tasks/train.py`            | 75    | TrainConfig       |
 | `tasks/sim.py`              | ~20   | SimConfig         |
 

@@ -1534,7 +1534,7 @@ $$ A*{ij} = \text{Sigmoid}(\text{MLP}(e*{ij}^{(L)})) $$
 
 - **Output**: An $N \times N$ matrix. $A_{ij} \approx 1.0$ means the model is highly confident that edge $(i, j)$ is in the optimal tour.
 
-##### 3. Decoding (Post-Processing)
+##### 3. Decoding (route improvement)
 
 A Heatmap is not a tour; it may have disjoint components or invalid degrees.
 
@@ -2036,7 +2036,7 @@ The Manager solves the **Sub-Goal Selection** problem.
 The Manager doesn't see individual node coordinates; it sees the **Meta-State**:
 
 - Average fill rate of the city.
-- Distribution of "Must-Go" nodes (bins nearing overflow).
+- Distribution of "mandatory" nodes (bins nearing overflow).
 - Remaining fuel/budget for the month.
 - Weather/Traffic forecasts.
 
@@ -2044,7 +2044,7 @@ The Manager doesn't see individual node coordinates; it sees the **Meta-State**:
 
 The Manager output is multi-faceted:
 
-- **`Must-Go` Mask**: Selects a subset of $K$ nodes that are non-negotiable for today's route.
+- **`mandatory` Mask**: Selects a subset of $K$ nodes that are non-negotiable for today's route.
 - **`Gate` Value**: A threshold representing how "picky" the Worker should be (e.g., "Only visit nodes >70% full today").
 - **`Budget` Allocation**: Determines how many vehicles to deploy today vs. saving them for a projected storm tomorrow.
 
@@ -2093,7 +2093,7 @@ $$ \nabla\_{\theta_M} \mathcal{L} = \mathbb{E} [ \min(r_t(\theta) \hat{A}_t, \te
 
 | Parameter        | Default    | Description                                    |
 | :--------------- | :--------- | :--------------------------------------------- |
-| `selection_topk` | 50         | The Manager picks up to 50 "Must-Go" nodes.    |
+| `selection_topk` | 50         | The Manager picks up to 50 "mandatory" nodes.    |
 | `gate_range`     | [0.5, 0.9] | The dynamic range of the fill-level threshold. |
 
 ---
@@ -2142,7 +2142,7 @@ for day in range(30):
     daily_goals = manager(city_state)
 
     # 2. Worker executes based on those goals
-    route = worker(city_state, mask=daily_goals['must_go_mask'])
+    route = worker(city_state, mask=daily_goals['mandatory_selection_mask'])
 
     # 3. Environment advances
     city_state = env.step(route)
@@ -4344,7 +4344,7 @@ $$ \mathcal{L} = \sum*{i, j} w*{y} \cdot \text{BCE}(L*{ij}, Y*{ij}) $$
 | `hidden_dim` | 256      | 128 - 512        | Width of the edge-feature MLP.            |
 | `agg_type`   | "concat" | "concat", "diff" | How to combine node $i$ and $j$ features. |
 
-#### Post-Processing
+#### route improvement
 
 | Parameter          | Default | Description                                               |
 | :----------------- | :------ | :-------------------------------------------------------- |
@@ -5536,7 +5536,7 @@ Selection is the "Filter" that sits before the "Router."
 #### 2. Service-Level Selection (`service.py`)
 
 - **Logic**: Track how long a node has been "waiting" for service.
-- **Physics**: Crucial for waste collection where a full bin becomes an "emergency" (Must-Go).
+- **Physics**: Crucial for waste collection where a full bin becomes an "emergency" (mandatory).
 - **Signal**: $Score_i = \text{FillLevel}_i \cdot W_{urgency}$.
 
 #### 3. Lookahead Selection (`lookahead.py`)
@@ -5614,7 +5614,7 @@ from logic.src.models.policies.selection import RevenuePolicy
 ## Configure for 2x distance penalty
 select_logic = RevenuePolicy(profit_exponent=2.0)
 
-## Get the 'Must-Go' list for current state
+## Get the 'mandatory' list for current state
 ## returns a binary mask [1, 0, 1, ...]
 candidate_mask = select_logic.filter(td)
 
