@@ -3,6 +3,7 @@ Interfaces for WSmart-Route logic components.
 DEFINING PROTOCOLS TO DECOUPLE MODULES.
 """
 
+from .acceptance_criterion import IAcceptanceCriterion
 from .adapter import IPolicyAdapter
 from .bin_container import IBinContainer
 from .env import IEnv
@@ -14,6 +15,7 @@ from .tensor_dict_like import ITensorDictLike
 from .traversable import ITraversable
 
 __all__ = [
+    "IAcceptanceCriterion",
     "IPolicyAdapter",
     "IEnv",
     "IModel",
