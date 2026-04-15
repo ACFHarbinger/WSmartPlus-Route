@@ -95,6 +95,7 @@ class DRALNSLitModule(pl.LightningModule):
 
         # Experience buffer (reset each epoch)
         self.reset_buffer()
+        self.automatic_optimization = False
 
     def reset_buffer(self):
         """Reset the experience buffer."""
@@ -181,20 +182,19 @@ class DRALNSLitModule(pl.LightningModule):
                 n_updates += 1
 
         # Average losses
-        avg_policy_loss = total_policy_loss / n_updates if n_updates > 0 else 0.0
-        avg_value_loss = total_value_loss / n_updates if n_updates > 0 else 0.0
-        avg_entropy = total_entropy / n_updates if n_updates > 0 else 0.0
+        mean_policy_loss = total_policy_loss / n_updates if n_updates > 0 else 0.0
+        mean_value_loss = total_value_loss / n_updates if n_updates > 0 else 0.0
+        mean_entropy = total_entropy / n_updates if n_updates > 0 else 0.0
 
         # Log metrics
-        self.log("train/policy_loss", avg_policy_loss, prog_bar=True)
-        self.log("train/value_loss", avg_value_loss, prog_bar=True)
-        self.log("train/entropy", avg_entropy)
-
-        # Reset buffer for next epoch
-        self.reset_buffer()
+        self.log("train/policy_loss", mean_policy_loss, prog_bar=True)
+        self.log("train/value_loss", mean_value_loss, prog_bar=True)
+        self.log("train/entropy", mean_entropy)
 
         # Return total loss
-        return torch.tensor(avg_policy_loss + self.value_loss_coef * avg_value_loss - self.entropy_coef * avg_entropy)
+        return torch.tensor(
+            mean_policy_loss + self.value_loss_coef * mean_value_loss - self.entropy_coef * mean_entropy
+        )
 
     def collect_experience(self, n_steps: int):
         """
@@ -319,7 +319,7 @@ class DRALNSLitModule(pl.LightningModule):
         for t in reversed(range(len(rewards))):
             if t == len(rewards) - 1:
                 next_non_terminal = 1.0 - dones[t]
-                next_value = 0
+                next_value = torch.tensor(0.0, device=self.device)
             else:
                 next_non_terminal = 1.0 - dones[t]
                 next_value = values[t + 1]
@@ -338,13 +338,3 @@ class DRALNSLitModule(pl.LightningModule):
         """Configure optimizer for Lightning."""
         optimizer = Adam(self.agent.parameters(), lr=self.lr)
         return optimizer
-
-    @property
-    def automatic_optimization(self) -> bool:
-        """
-        Disable automatic optimization since we do manual backprop.
-
-        Returns:
-            False to indicate manual optimization.
-        """
-        return False

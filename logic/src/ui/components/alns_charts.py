@@ -41,12 +41,12 @@ import streamlit as st
 try:
     import plotly.graph_objects as go
 except ImportError:
-    go = None
+    go = None  # type: ignore[assignment]
 
 try:
     import torch
 except ImportError:
-    torch = None
+    torch = None  # type: ignore[assignment]
 
 from logic.src.models.policies.adaptive_large_neighborhood_search import VectorizedALNS
 

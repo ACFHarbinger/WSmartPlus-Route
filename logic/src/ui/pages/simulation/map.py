@@ -69,9 +69,14 @@ def reconstruct_tour(tour: List[Any], all_bin_coords: Optional[List[Dict[str, An
     if not all_bin_coords:
         return [{"id": int(ds_id)} for ds_id in tour]
 
-    points_by_ds_id = {
-        int(p.get("dataset_id") if p.get("dataset_id") is not None else p.get("id", -100)): p for p in all_bin_coords
-    }
+    points_by_ds_id = {}
+    for p in all_bin_coords:
+        try:
+            ds_id = p.get("dataset_id")
+            ds_id_int = int(ds_id) if ds_id is not None else int(p.get("id", -100))
+            points_by_ds_id[ds_id_int] = p
+        except (ValueError, TypeError):
+            continue
     return [points_by_ds_id.get(int(ds_id), {"id": int(ds_id)}) for ds_id in tour]
 
 

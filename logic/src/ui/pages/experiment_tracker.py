@@ -460,7 +460,7 @@ def _fmt_size(size_bytes: Any) -> str:
     if size_bytes is None:
         return "—"
     try:
-        b = int(size_bytes)
+        b = float(size_bytes)
     except (TypeError, ValueError):
         return "—"
     for unit in ("B", "KB", "MB", "GB"):

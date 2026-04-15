@@ -52,7 +52,7 @@ class MixMultiDistributions(BaseDistribution):
             torch.Tensor: Sampled values.
         """
         if generator is None:
-            generator = torch.Generator().manual_seed()
+            generator = torch.Generator()
 
         batch_size, num_loc, _ = size
         coords = torch.zeros(batch_size, num_loc, 2)

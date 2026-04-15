@@ -11,7 +11,7 @@ Reference:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Union, cast
 
 import numpy as np
 import torch
@@ -60,7 +60,7 @@ class PPOBuffer:
         self.dones.append(done)
         self.values.append(value)
 
-    def get(self, device: torch.device) -> Dict[str, torch.Tensor]:
+    def get(self, device: torch.device) -> Dict[str, Any]:
         """
         Get all experiences as tensors.
 
@@ -216,9 +216,9 @@ class PPOTrainer:
                 episode_best_profit = info.get("best_profit", 0.0)
 
         stats = {
-            "mean_episode_reward": np.mean(episode_rewards) if episode_rewards else 0.0,
-            "mean_best_profit": (np.mean(episode_best_profits) if episode_best_profits else 0.0),
-            "n_episodes": len(episode_rewards),
+            "mean_episode_reward": float(np.mean(episode_rewards)) if episode_rewards else 0.0,
+            "mean_best_profit": float(np.mean(episode_best_profits)) if episode_best_profits else 0.0,
+            "n_episodes": float(len(episode_rewards)),
         }
 
         return stats
@@ -240,8 +240,8 @@ class PPOTrainer:
         advantages = torch.zeros_like(rewards)
         returns = torch.zeros_like(rewards)
 
-        gae = 0
-        next_value = 0
+        gae: Union[float, torch.Tensor] = 0.0
+        next_value: Union[float, torch.Tensor] = 0.0
 
         for t in reversed(range(len(rewards))):
             if t == len(rewards) - 1:
@@ -294,8 +294,10 @@ class PPOTrainer:
 
                 # Get minibatch
                 mb_states = batch["states"][mb_indices]
-                mb_actions = {k: v[mb_indices] for k, v in batch["actions"].items()}
-                mb_old_log_probs = {k: v[mb_indices] for k, v in batch["log_probs"].items()}
+                actions_batch = cast(Dict[str, torch.Tensor], batch["actions"])
+                log_probs_batch = cast(Dict[str, torch.Tensor], batch["log_probs"])
+                mb_actions = {k: v[mb_indices] for k, v in actions_batch.items()}
+                mb_old_log_probs = {k: v[mb_indices] for k, v in log_probs_batch.items()}
                 mb_advantages = advantages[mb_indices]
                 mb_returns = returns[mb_indices]
 
@@ -362,7 +364,7 @@ class PPOTrainer:
         Returns:
             Dictionary with training history.
         """
-        history = {
+        history: Dict[str, List[float]] = {
             "mean_episode_reward": [],
             "mean_best_profit": [],
             "policy_loss": [],
