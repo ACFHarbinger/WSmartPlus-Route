@@ -97,7 +97,7 @@ def _find_best_type_ii_move(
             j_samples = torch.tensor(j_list, device=device)
 
         # Evaluate pairs
-        for k_s, j_s in zip(k_samples, j_samples):
+        for k_s, j_s in zip(k_samples, j_samples, strict=False):
             k, j = valid_indices[k_s].item(), valid_indices[j_s].item()
             delta = _evaluate_type_ii_move(tour, dist, i, j, k, N)
             if delta < best_delta - IMPROVEMENT_EPSILON:

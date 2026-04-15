@@ -345,7 +345,7 @@ def find_route_aco(
                 best_tour = list(tour)
 
         pheromones *= 1.0 - rho
-        for tour_indices, d in zip(all_tours, all_dists):
+        for tour_indices, d in zip(all_tours, all_dists, strict=False):
             deposit = q / (d + 1e-10)
             for i in range(len(tour_indices)):
                 n1, n2 = tour_indices[i], tour_indices[(i + 1) % len(tour_indices)]

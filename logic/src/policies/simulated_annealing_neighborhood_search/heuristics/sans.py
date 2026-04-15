@@ -131,7 +131,7 @@ def improved_simulated_annealing(  # noqa: C901
     current_solution, missing_bins = _initialize_solution_state(routes, id_to_index, distance_matrix, data)
     removed_bins.update(missing_bins)
 
-    stocks = dict(zip(data["#bin"], data["Stock"]))
+    stocks = dict(zip(data["#bin"], data["Stock"], strict=False))
 
     # Initial Evaluation
     current_profit, current_cost, current_revenue, real_kg = compute_profit(

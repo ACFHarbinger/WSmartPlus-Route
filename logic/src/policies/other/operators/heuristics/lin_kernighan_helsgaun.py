@@ -111,7 +111,7 @@ def compute_alpha_measures(distance_matrix: np.ndarray) -> np.ndarray:
     # Build explicit adjacency list for faster MST traversal (fixes O(V^3) bottleneck)
     adj: List[List[Tuple[int, float]]] = [[] for _ in range(n)]
     rows, cols = np.where(mst > 0)
-    for r, c in zip(rows, cols):
+    for r, c in zip(rows, cols, strict=False):
         adj[r].append((c, float(mst[r, c])))
 
     alpha = np.zeros((n, n), dtype=float)

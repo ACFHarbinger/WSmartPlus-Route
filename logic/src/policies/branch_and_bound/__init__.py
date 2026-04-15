@@ -18,6 +18,7 @@ tree exploration.
 
 from .dfj import run_bb_dfj
 from .dispatcher import run_bb_optimizer
+from .lr_uop import run_bb_lr_uop
 from .mtz import run_bb_mtz
 from .policy_bb import BranchAndBoundPolicy
 
@@ -26,4 +27,5 @@ __all__ = [
     "run_bb_optimizer",
     "run_bb_mtz",
     "run_bb_dfj",
+    "run_bb_lr_uop",
 ]

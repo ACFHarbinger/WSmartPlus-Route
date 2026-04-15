@@ -174,18 +174,18 @@ def display_log_metrics(
             sample_id=None,
             lock=lock,
         )
-        for lg, lg_std, pol in zip(log.values(), log_std.values(), log.keys()):
+        for lg, lg_std, pol in zip(log.values(), log_std.values(), log.keys(), strict=False):
             logm = lg.values() if isinstance(lg, dict) else lg
             logs = lg_std.values() if isinstance(lg_std, dict) else lg_std
-            tmp_lg = [(str(x), str(y)) for x, y in zip(logm, logs)]
+            tmp_lg = [(str(x), str(y)) for x, y in zip(logm, logs, strict=False)]
             print(f"\n{pol} log:")
-            for (x, y), key in zip(tmp_lg, SIM_METRICS):
+            for (x, y), key in zip(tmp_lg, SIM_METRICS, strict=False):
                 print(f"- {key} value: {x[: x.find('.') + 3]} +- {y[: y.find('.') + 5]}")
     else:
         for pol, lg in log.items():
             print(f"\n{pol} log:")
             lg_vals = lg.values() if isinstance(lg, dict) else lg
-            for key, val in zip(SIM_METRICS, lg_vals):
+            for key, val in zip(SIM_METRICS, lg_vals, strict=False):
                 print(f"- {key}: {val}")
 
 
@@ -404,10 +404,10 @@ def sequential_simulations(  # noqa: C901
                 if res_std and log_std is not None:
                     log_std.update(res_std)
             elif pol_name in log_full and log_full[pol_name]:
-                log[pol_name] = [*map(statistics.mean, zip(*log_full[pol_name]))]
+                log[pol_name] = [*map(statistics.mean, zip(*log_full[pol_name], strict=False))]
                 if len(log_full[pol_name]) > 1:
                     if log_std is not None:
-                        log_std[pol_name] = [*map(statistics.stdev, zip(*log_full[pol_name]))]
+                        log_std[pol_name] = [*map(statistics.stdev, zip(*log_full[pol_name], strict=False))]
                 elif log_std is not None:
                     log_std[pol_name] = [0.0] * len(log[pol_name])
 
@@ -431,12 +431,12 @@ def sequential_simulations(  # noqa: C901
             run.log_metric("sim/n_failed_runs", float(len(failed_log)))
             for pol_name_k, metrics in log.items():
                 if isinstance(metrics, (list, tuple)):
-                    for metric_name, val in zip(SIM_METRICS, metrics):
+                    for metric_name, val in zip(SIM_METRICS, metrics, strict=False):
                         run.log_metric(f"sim/{pol_name_k}/{metric_name}", float(val))
                 if log_std is not None and pol_name_k in log_std:
                     std_metrics = log_std[pol_name_k]
                     if isinstance(std_metrics, (list, tuple)):
-                        for metric_name, val in zip(SIM_METRICS, std_metrics):
+                        for metric_name, val in zip(SIM_METRICS, std_metrics, strict=False):
                             run.log_metric(f"sim/{pol_name_k}/{metric_name}_std", float(val))
 
     return log, log_std, failed_log

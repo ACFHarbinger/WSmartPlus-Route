@@ -50,7 +50,7 @@ def format_coordinates(coords: Any, method: str, col_names: Optional[List[str]] 
     if depot is None:
         if IS_PANDAS:
             depot = np.array([lng.iloc[0], lat.iloc[0]])
-            loc = np.array([[x, y] for x, y in zip(lng.iloc[1:], lat.iloc[1:])])
+            loc = np.array([[x, y] for x, y in zip(lng.iloc[1:], lat.iloc[1:], strict=False)])
         else:
             depot = coords[:, 0, :]
             loc = coords[:, 1:, :]
@@ -69,7 +69,7 @@ def _format_c3d(lat, lng, IS_PANDAS):
         y_axis = (y_axis - y_axis.min()) / (y_axis.max() - y_axis.min())
         z_axis = (z_axis - z_axis.min()) / (z_axis.max() - z_axis.min())
         depot = np.array([x_axis.iloc[0], y_axis.iloc[0], z_axis.iloc[0]])
-        loc = np.array([[x, y, z] for x, y, z in zip(x_axis.iloc[1:], y_axis.iloc[1:], z_axis.iloc[1:])])
+        loc = np.array([[x, y, z] for x, y, z in zip(x_axis.iloc[1:], y_axis.iloc[1:], z_axis.iloc[1:], strict=False)])
     else:
         coords_3d = np.stack((x_axis, y_axis, z_axis), axis=-1)
         min_arr = np.min(coords_3d, axis=1, keepdims=True)
@@ -91,7 +91,12 @@ def _format_s4d(lat, lng, IS_PANDAS):
         lngs = (lngs - lngs.min()) / (lngs.max() - lngs.min())
         lngc = (lngc - lngc.min()) / (lngc.max() - lngc.min())
         depot = np.array([lats.iloc[0], latc.iloc[0], lngs.iloc[0], lngc.iloc[0]])
-        loc = np.array([[x, y, z, w] for x, y, z, w in zip(lats.iloc[1:], latc.iloc[1:], lngs.iloc[1:], lngc.iloc[1:])])
+        loc = np.array(
+            [
+                [x, y, z, w]
+                for x, y, z, w in zip(lats.iloc[1:], latc.iloc[1:], lngs.iloc[1:], lngc.iloc[1:], strict=False)
+            ]
+        )
     else:
         coords4d = np.stack([lats, latc, lngs, lngc], axis=-1)
         min_arr = np.min(coords4d, axis=1, keepdims=True)

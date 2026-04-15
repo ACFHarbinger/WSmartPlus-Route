@@ -109,7 +109,7 @@ def _generate_2d_metric_plot(
             if pareto_indices:
                 all_pareto_found = True
                 pts = sorted([(g_xs[i], g_ys[i]) for i in pareto_indices], key=lambda p: p[0])
-                px, py = zip(*pts)
+                px, py = zip(*pts, strict=False)
                 ax.plot(px, py, "--", color="black", linewidth=1.5, zorder=1)
 
         if all_pareto_found:
@@ -127,7 +127,7 @@ def _generate_categorical_plot(
 ) -> None:
     """Generates a categorical plot (Policies on X-axis)."""
     x_indices = range(len(policy_names))
-    x_labels = [f"{n} [{d}]" for n, d in zip(policy_names, distributions)]
+    x_labels = [f"{n} [{d}]" for n, d in zip(policy_names, distributions, strict=False)]
 
     if chart_type == "Line Chart":
         ax.plot(x_indices, y_data, marker="o")

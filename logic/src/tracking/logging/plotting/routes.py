@@ -155,7 +155,7 @@ def plot_vehicle_routes(
         dist = 0
         x_prev, y_prev = x_dep, y_dep
         cum_waste = 0
-        for (x, y), d in zip(coords, route_waste):
+        for (x, y), d in zip(coords, route_waste, strict=False):
             dist += np.sqrt((x - x_prev) ** 2 + (y - y_prev) ** 2)
 
             cap_rects.append(Rectangle((x, y), 0.01, 0.1))

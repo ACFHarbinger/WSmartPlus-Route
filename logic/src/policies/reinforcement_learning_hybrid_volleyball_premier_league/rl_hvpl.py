@@ -296,14 +296,14 @@ class RLHVPLSolver:
                 continue
 
             # Depot to first node
-            self.pheromone.update_edge(0, route[0], delta, evaporate=False)
+            self.pheromone.deposit_edge(0, route[0], delta)
 
             # Between consecutive nodes
             for k in range(len(route) - 1):
-                self.pheromone.update_edge(route[k], route[k + 1], delta, evaporate=False)
+                self.pheromone.deposit_edge(route[k], route[k + 1], delta)
 
             # Last node back to depot
-            self.pheromone.update_edge(route[-1], 0, delta, evaporate=False)
+            self.pheromone.deposit_edge(route[-1], 0, delta)
 
     def _calculate_cost(self, routes: List[List[int]]) -> float:
         """

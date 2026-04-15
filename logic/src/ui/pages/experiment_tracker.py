@@ -276,7 +276,7 @@ def _render_run_comparison(runs: List[Dict[str, Any]]) -> None:
     fig = go.Figure()
     comparison_table: List[Dict[str, Any]] = []
 
-    for i, (label, rid) in enumerate(zip(selected_labels, selected_ids)):
+    for i, (label, rid) in enumerate(zip(selected_labels, selected_ids, strict=False)):
         df = load_run_metrics(rid, comparison_key)
         if df.empty:
             continue

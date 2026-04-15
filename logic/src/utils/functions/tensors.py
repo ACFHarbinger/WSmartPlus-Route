@@ -76,7 +76,7 @@ def compute_in_batches(
 
     # Depending on whether the function returned a tuple we need to concatenate each element or only the result
     if isinstance(all_res[0], tuple):
-        return tuple(safe_cat(list(res_chunks), 0) for res_chunks in zip(*all_res))
+        return tuple(safe_cat(list(res_chunks), 0) for res_chunks in zip(*all_res, strict=False))
     return safe_cat(all_res, 0)
 
 

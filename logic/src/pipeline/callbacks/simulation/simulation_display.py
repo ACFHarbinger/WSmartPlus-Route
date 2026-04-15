@@ -301,7 +301,7 @@ class SimulationDisplayCallback:
             # Map SIM_METRICS values to row
             # SIM_METRICS: overflows, kg, ncol, kg_lost, km, kg/km, cost, profit, days, time
             fmts = [".1f", ".0f", ".0f", ".1f", ".0f", ".2f", ".0f", ".0f", ".1f", ".0f"]
-            for key, fmt in zip(SIM_METRICS, fmts):
+            for key, fmt in zip(SIM_METRICS, fmts, strict=False):
                 stats_val = metrics.get(key, (0, 0))
                 if isinstance(stats_val, (list, tuple)):
                     avg, std = stats_val

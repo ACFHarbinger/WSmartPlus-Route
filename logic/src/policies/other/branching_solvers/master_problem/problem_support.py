@@ -37,7 +37,7 @@ class MasterProblemSupport(Protocol):
     global_cut_pool: GlobalCutPool
     BIG_M: float
 
-    model: Optional[gp.Model]
+    model: gp.Model
     routes: List[Route]
     lambda_vars: List[gp.Var]
     dual_node_coverage: Dict[int, float]

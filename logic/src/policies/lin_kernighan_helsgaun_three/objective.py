@@ -260,7 +260,7 @@ def compute_min_1_tree(distance_matrix: np.ndarray, pi: np.ndarray) -> Tuple[flo
     degrees[0], degrees[e1], degrees[e2] = 2, 1, 1
 
     edges = [(0, e1), (0, e2)]
-    for u, v in zip(mst_edges_coo.row, mst_edges_coo.col):
+    for u, v in zip(mst_edges_coo.row, mst_edges_coo.col, strict=False):
         u_g, v_g = u + 1, v + 1
         edges.append((u_g, v_g))
         degrees[u_g] += 1

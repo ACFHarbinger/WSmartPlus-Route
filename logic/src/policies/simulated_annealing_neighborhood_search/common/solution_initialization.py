@@ -178,7 +178,7 @@ def compute_initial_solution(data, bins_coordinates, distance_matrix, vehicle_ca
     depot = data["#bin"].iloc[0]
     all_bins = list(data["#bin"][1:])
     bins_coordinates = {b: coord for b, coord in bins_coordinates.items() if b in all_bins or b == depot}
-    stocks = dict(zip(data["#bin"], data["Stock"]))
+    stocks = dict(zip(data["#bin"], data["Stock"], strict=False))
 
     rotas = []
     bins_restantes = set(all_bins)
