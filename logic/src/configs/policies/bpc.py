@@ -83,6 +83,13 @@ class BPCConfig:
     use_swc_tcf_initialization: bool = False
     use_swc_tcf_heuristic_pricing: bool = False
     use_swc_tcf_primal_heuristic: bool = False
+    lr_pre_pruning: bool = False
+    lr_lambda_init: float = 0.0
+    lr_max_subgradient_iters: int = 30
+    lr_subgradient_theta: float = 1.0
+    lr_op_time_limit: float = 3.0
+    lr_pre_pruning_depth_limit: int = -1
+    lr_warm_start_cg: bool = False
     multi_day_mode: bool = False
     adp_model_path: str = ""
     adp_model_type: str = "sklearn"

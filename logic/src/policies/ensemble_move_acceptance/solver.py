@@ -23,8 +23,8 @@ class EMASolver(BaseAcceptanceSolver):
         self.wall_start = time.process_time()
         self.f0 = None
 
-        # SA state
-        self.temp = self.params.sub_params.get("sa", {}).get("initial_temp", 100.0)
+        # BMC state (Boltzmann-Metropolis Criterion)
+        self.temp = self.params.sub_params.get("bmc", {}).get("initial_temp", 100.0)
 
     def _accept(self, new_profit: float, current_profit: float, iteration: int) -> bool:
         if self.f0 is None:
@@ -37,8 +37,8 @@ class EMASolver(BaseAcceptanceSolver):
                 decisions.append(new_profit > current_profit)
             elif crit == "ie":
                 decisions.append(new_profit >= current_profit)
-            elif crit == "sa":
-                decisions.append(self._check_sa(new_profit, current_profit))
+            elif crit == "bmc":
+                decisions.append(self._check_bmc(new_profit, current_profit))
             elif crit == "gd":
                 decisions.append(self._check_gd(new_profit, current_profit, iteration))
             elif crit == "ta":
@@ -61,15 +61,16 @@ class EMASolver(BaseAcceptanceSolver):
         return any(decisions)
 
     def _update_state(self, iteration: int):
-        # Update SA temp
-        sa_p = self.params.sub_params.get("sa", {})
-        alpha = sa_p.get("alpha", 0.995)
-        min_temp = sa_p.get("min_temp", 0.01)
+        # Update BMC temp
+        bmc_p = self.params.sub_params.get("bmc", {})
+        alpha = bmc_p.get("alpha", 0.995)
+        min_temp = bmc_p.get("min_temp", 0.01)
         self.temp = max(min_temp, self.temp * alpha)
 
     # --- Sub-criteria checks ---
 
-    def _check_sa(self, new_profit, current_profit) -> bool:
+    def _check_bmc(self, new_profit, current_profit) -> bool:
+        """Boltzmann-Metropolis Criterion check."""
         delta = new_profit - current_profit
         if delta >= 0:
             return True

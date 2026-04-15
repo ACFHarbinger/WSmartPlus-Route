@@ -37,8 +37,7 @@ import numpy as np
 
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
-from .lr_orienteering import solve_uncapacitated_op
-from .params import BBParams
+from .uncapacitated_orienteering_problem import solve_uncapacitated_op
 
 
 def _nearest_neighbour_tour_cost(
@@ -91,7 +90,7 @@ def run_subgradient(
     R: float,
     C: float,
     must_go_indices: Optional[Set[int]] = None,
-    params: Optional[BBParams] = None,
+    params: Optional[Any] = None,
     time_budget: float = 60.0,
     env: Any = None,
     recorder: Optional[PolicyStateRecorder] = None,
@@ -109,7 +108,7 @@ def run_subgradient(
         R: Revenue coefficient (r_w).
         C: Cost coefficient (c_km).
         must_go_indices: Customers that must be visited in every feasible solution.
-        params: BBParams instance carrying LR-specific fields.
+        params: Any policy parameters instance carrying LR-specific fields.
         time_budget: Wall-clock seconds available for this phase.
         env: Optional shared Gurobi environment.
         recorder: Optional telemetry recorder.
@@ -122,7 +121,7 @@ def run_subgradient(
             history  – Per-iteration dicts with keys 'lam', 'ub', 'lb', 'g'.
     """
     if params is None:
-        params = BBParams()
+        raise ValueError("Policy parameters must be provided.")
 
     must_go = must_go_indices or set()
     lam = float(params.lr_lambda_init)

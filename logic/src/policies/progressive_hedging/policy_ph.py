@@ -18,7 +18,7 @@ from logic.src.policies.integer_l_shaped_benders_decomposition.scenario import S
 from .ph_engine import ProgressiveHedgingEngine
 
 
-@PolicyRegistry.register("progressive_hedging")
+@PolicyRegistry.register("ph")
 class ProgressiveHedgingPolicy(BaseRoutingPolicy):
     """Policy adapter for Progressive Hedging decomposition.
 
@@ -77,7 +77,9 @@ class ProgressiveHedgingPolicy(BaseRoutingPolicy):
             # If no scenarios provided (e.g. from simulation), generate them based on sub_wastes
             n_scenarios = values.get("num_scenarios", self.config.num_scenarios)
             scenarios = self.scenario_generator.generate(
-                sub_wastes=sub_wastes, n_scenarios=n_scenarios, seed=self.config.seed
+                sub_wastes=sub_wastes,
+                n_scenarios=n_scenarios,  # type: ignore[arg-type]
+                seed=self.config.seed,
             )
 
         # 2. Invoke PH Engine

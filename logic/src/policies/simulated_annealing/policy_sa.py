@@ -1,12 +1,13 @@
 """
-SA (Simulated Annealing) Policy Adapter.
+Simulated Annealing Policy Adapter.
+
+Wraps the core SA meta-heuristic into the standard BaseRoutingPolicy interface
+to permit unified execution by the factory manager.
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
-
-from logic.src.configs.policies.sa import SAConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
 from logic.src.policies.simulated_annealing.params import SAParams
@@ -15,17 +16,20 @@ from logic.src.policies.simulated_annealing.solver import SASolver
 
 @PolicyRegistry.register("sa")
 class SAPolicy(BaseRoutingPolicy):
-    """Simulated Annealing policy class."""
+    """
+    Simulated Annealing (SA) policy adapter.
 
-    def __init__(self, config: Optional[Union[SAConfig, Dict[str, Any]]] = None):
+    Instantiates the thermodynamic solver and executes the Markov chain
+    search over the specified routing graph.
+    """
+
+    def __init__(self, config: Optional[Union[Dict[str, Any], Any]] = None):
         super().__init__(config)
 
     @classmethod
     def _config_class(cls) -> Optional[Type]:
-        return SAConfig
-
-    def _get_config_key(self) -> str:
-        return "sa"
+        # Using dictionary configurations internally, avoiding external dataclass dependencies
+        return None
 
     def _run_solver(
         self,
@@ -38,27 +42,21 @@ class SAPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        params = SAParams(
-            initial_temp=float(values.get("initial_temp", 100.0)),
-            alpha=float(values.get("alpha", 0.995)),
-            min_temp=float(values.get("min_temp", 0.01)),
-            max_iterations=int(values.get("max_iterations", 500)),
-            n_removal=int(values.get("n_removal", 2)),
-            n_llh=int(values.get("n_llh", 5)),
-            time_limit=float(values.get("time_limit", 60.0)),
-            vrpp=values.get("vrpp", True),
-            profit_aware_operators=values.get("profit_aware_operators", False),
-            seed=values.get("seed", 42),
-        )
+        # 1. Parse parameters
+        params = SAParams.from_config(values)
 
+        # 2. Instantiate core solver
         solver = SASolver(
-            sub_dist_matrix,
-            sub_wastes,
-            capacity,
-            revenue,
-            cost_unit,
-            params,
-            mandatory_nodes,
+            dist_matrix=sub_dist_matrix,
+            wastes=sub_wastes,
+            capacity=capacity,
+            R=revenue,
+            C=cost_unit,
+            params=params,
+            mandatory_nodes=mandatory_nodes,
         )
 
-        return solver.solve()
+        # 3. Optimize and return
+        best_routes, best_profit, best_cost = solver.solve(initial_solution=None)
+
+        return best_routes, best_profit, best_cost

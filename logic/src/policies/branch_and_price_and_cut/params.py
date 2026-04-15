@@ -82,6 +82,45 @@ class BPCParams:
     adp_model_path: str = ""
     adp_model_type: str = "sklearn"
 
+    # ---------------------------------------------------------------------------
+    # Lagrangian Relaxation Pre-Pruning
+    # ---------------------------------------------------------------------------
+    # When enabled, a fast subgradient pass is run at each B&B node before column
+    # generation. If the Lagrangian bound is dominated by the incumbent, the node
+    # is pruned without touching the master LP.
+    #
+    # Theoretical basis: L(λ*) ≥ z* (VRPP optimum) for all λ ≥ 0. If the CG LP
+    # bound is the true Lagrangian dual (as proven by Dantzig-Wolfe equivalence),
+    # then for tightly converged nodes the LR bound adds nothing. However at early
+    # B&B nodes — especially in deep subtrees with heavy branching fixings — a
+    # fast LR pass over the reduced customer set can prune before CG starts.
+    # ---------------------------------------------------------------------------
+    lr_pre_pruning: bool = False
+    """Enable Lagrangian pre-pruning at B&B nodes before column generation."""
+
+    lr_lambda_init: float = 0.0
+    """Initial Lagrange multiplier λ₀ ≥ 0 for the capacity constraint."""
+
+    lr_max_subgradient_iters: int = 30
+    """Max Polyak iterations per node. Keep low (20–40) since this runs at every node."""
+
+    lr_subgradient_theta: float = 1.0
+    """Step-size multiplier θ ∈ (0, 2] for the Polyak rule."""
+
+    lr_op_time_limit: float = 3.0
+    """Per-solve wall-clock budget (seconds) for the uncapacitated OP inner solver."""
+
+    lr_pre_pruning_depth_limit: int = -1
+    """Maximum B&B tree depth at which to apply LR pruning.
+    -1 means apply at every depth. Set to 0 to restrict to root only.
+    Useful because LR bounds weaken at deep nodes due to many forced-in/out fixings."""
+
+    lr_warm_start_cg: bool = False
+    """If True, use λ* from subgradient to seed initial columns before CG starts.
+    Calls solve_uncapacitated_op at λ* and adds the resulting route to the column
+    pool. Provides a stronger starting point for CG at the cost of one extra OP solve.
+    Only meaningful when lr_pre_pruning is also True (shares the λ* already computed)."""
+
     @classmethod
     def from_config(cls, config: Any) -> BPCParams:
         """Create BPCParams from a configuration object or dictionary."""
@@ -89,14 +128,16 @@ class BPCParams:
 
         if isinstance(config, dict):
             valid_keys = {f.name for f in fields(cls)}
-            return cls(**{k: v for k, v in config.items() if k in valid_keys})
+            return cls(**{k: v for k, v in config.items() if k in valid_keys})  # type: ignore[arg-type]
 
-        kwargs = {f.name: getattr(config, f.name, f.default) for f in fields(cls) if f.default is not MISSING}
+        kwargs: Dict[str, Any] = {
+            f.name: getattr(config, f.name, f.default) for f in fields(cls) if f.default is not MISSING
+        }
         # Fields with default_factory
         for f in fields(cls):
             if f.name not in kwargs:
                 kwargs[f.name] = f.default_factory()  # type: ignore[misc]
-        return cls(**kwargs)
+        return cls(**kwargs)  # type: ignore[arg-type]
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert BPCParams to a dictionary for backend compatibility."""
