@@ -128,8 +128,8 @@ es_mkl:
     - profit_aware_operators: false
     - vrpp: true
 
-    - must_go: ["other/mg_lookahead.yaml"]
-    - post_processing: ["2opt_intra", "relocate"]
+    - mandatory_selection: ["other/ms_lookahead.yaml"]
+    - route_improvement: ["2opt_intra", "relocate"]
 
 # =============================================================================
 # ALGORITHM STRUCTURE

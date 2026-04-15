@@ -58,14 +58,14 @@ class ServiceLevelSelector(VectorizedSelector):
 
         if accumulation_rates is None or std_deviations is None:
             # Without statistics, fall back to threshold-based
-            must_go = fill_levels >= overflow_thresh
+            mandatory = fill_levels >= overflow_thresh
         else:
             # Statistical prediction: current + mean + confidence * std
             predicted_fill = fill_levels + accumulation_rates + (conf * std_deviations)
-            must_go = predicted_fill >= overflow_thresh
+            mandatory = predicted_fill >= overflow_thresh
 
-        # Depot is never a must-go
-        must_go = must_go.clone()
-        must_go[:, 0] = False
+        # Depot is never a mandatory
+        mandatory = mandatory.clone()
+        mandatory[:, 0] = False
 
-        return must_go
+        return mandatory

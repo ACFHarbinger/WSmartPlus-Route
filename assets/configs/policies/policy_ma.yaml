@@ -56,9 +56,9 @@ ma:
     - profit_aware_operators: false
     - vrpp: true
 
-    - must_go: ["other/mg_lookahead.yaml"]
+    - mandatory_selection: ["other/ms_lookahead.yaml"]
       # Selection strategy for waste collection (Mandatory node identification).
 
-    - post_processing: []
+    - route_improvement: []
       # Additional solvers to run on the MA output (e.g. local_search, tabu).
 # =============================================================================

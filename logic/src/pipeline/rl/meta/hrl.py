@@ -2,11 +2,11 @@
 Hierarchical Reinforcement Learning (HRL) module.
 
 Implements a Manager-Worker architecture:
-- Manager: MustGoManager (decides must-go bins and dispatch)
+- Manager: MandatoryManager (decides mandatory bins and dispatch)
 - Worker: ConstructivePolicy (decides the route)
 
 The manager outputs:
-- must_go_action: Which bins must be collected (boolean mask)
+- mandatory_action: Which bins must be collected (boolean mask)
 - gate_action: Whether to dispatch vehicles
 """
 
@@ -21,7 +21,7 @@ from tensordict import TensorDict
 
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.common.autoregressive.constructive import ConstructivePolicy
-from logic.src.models.meta.hrl_manager import MustGoManager
+from logic.src.models.meta.hrl_manager import MandatoryManager
 
 
 class HRLModule(pl.LightningModule):
@@ -33,7 +33,7 @@ class HRLModule(pl.LightningModule):
 
     def __init__(
         self,
-        manager: MustGoManager,
+        manager: MandatoryManager,
         worker: ConstructivePolicy,
         env: RL4COEnvBase,
         lr: float = 1e-4,
@@ -48,14 +48,14 @@ class HRLModule(pl.LightningModule):
         Initialize HRLModule.
 
         Args:
-            manager: High-level MustGoManager for must-go selection and dispatch.
+            manager: High-level MandatoryManager for mandatory selection and dispatch.
             worker: Low-level ConstructivePolicy for routing.
             env: RL environment.
             lr: Learning rate for manager optimizer.
             gamma: Discount factor for returns.
             clip_eps: PPO clipping parameter.
             ppo_epochs: Number of PPO optimization epochs.
-            lambda_mask_aux: Weight for auxiliary must-go loss (BCE with target).
+            lambda_mask_aux: Weight for auxiliary mandatory loss (BCE with target).
             entropy_coef: Entropy regularization coefficient.
             **kwargs: Additional keyword arguments.
         """
@@ -101,8 +101,8 @@ class HRLModule(pl.LightningModule):
         )
 
         # Manager Decision (Stores states/actions in manager memory)
-        # must_go_action: (B, N) where 1 = must collect, 0 = optional
-        must_go_action, gate_action, manager_value = self.manager.select_action(
+        # mandatory_action: (B, N) where 1 = must collect, 0 = optional
+        mandatory_action, gate_action, manager_value = self.manager.select_action(
             static, dynamic, global_features, deterministic=False
         )
 
@@ -112,12 +112,12 @@ class HRLModule(pl.LightningModule):
 
         if len(dispatch_indices) > 0:
             td_worker = td[dispatch_indices]
-            # Apply manager's must_go selection to the TensorDict
-            # must_go = True means bin must be collected
-            must_go_mask = must_go_action[dispatch_indices].bool()
-            # Depot (index 0) should never be must_go
-            must_go_mask[:, 0] = False
-            td_worker["must_go"] = must_go_mask
+            # Apply manager's mandatory selection to the TensorDict
+            # mandatory = True means bin must be collected
+            mandatory_mask = mandatory_action[dispatch_indices].bool()
+            # Depot (index 0) should never be mandatory
+            mandatory_mask[:, 0] = False
+            td_worker["mandatory"] = mandatory_mask
             out_worker = self.worker(td_worker, self.env)
             total_reward[dispatch_indices] = out_worker["reward"]
 
@@ -126,7 +126,7 @@ class HRLModule(pl.LightningModule):
 
         # Log metrics
         self.log("train/manager_gate_rate", gate_action.float().mean())
-        self.log("train/manager_must_go_rate", must_go_action.float().mean())
+        self.log("train/manager_mandatory_rate", mandatory_action.float().mean())
         self.log("train/reward", total_reward.mean(), prog_bar=True)
 
         # --- 2. PPO Optimization Phase ---
@@ -152,12 +152,12 @@ class HRLModule(pl.LightningModule):
         old_states_static = torch.cat(self.manager.states_static)
         old_states_dynamic = torch.cat(self.manager.states_dynamic)
         old_states_global = torch.cat(self.manager.states_global)
-        old_must_go_actions = torch.cat(self.manager.actions_must_go)
+        old_mandatory_actions = torch.cat(self.manager.actions_mandatory)
         old_gate_actions = torch.cat(self.manager.actions_gate)
-        old_log_probs_must_go = torch.cat(self.manager.log_probs_must_go)
+        old_log_probs_mandatory = torch.cat(self.manager.log_probs_mandatory)
         old_log_probs_gate = torch.cat(self.manager.log_probs_gate)
         old_values = torch.cat(self.manager.values).squeeze(-1)
-        old_target_must_go = torch.cat(self.manager.target_must_go) if self.manager.target_must_go else None
+        old_target_mandatory = torch.cat(self.manager.target_mandatory) if self.manager.target_mandatory else None
 
         # Calculate Advantages
         advantages = returns - old_values
@@ -178,18 +178,20 @@ class HRLModule(pl.LightningModule):
 
         for _ in range(int(self.ppo_epochs)):
             # Forward pass for current policy
-            must_go_logits, gate_logits, values = self.manager(old_states_static, old_states_dynamic, old_states_global)
+            mandatory_logits, gate_logits, values = self.manager(
+                old_states_static, old_states_dynamic, old_states_global
+            )
             values = values.squeeze(-1)
 
             # New Log Probs
-            must_go_dist = torch.distributions.Categorical(logits=must_go_logits)
+            mandatory_dist = torch.distributions.Categorical(logits=mandatory_logits)
             gate_dist = torch.distributions.Categorical(logits=gate_logits)
 
-            new_log_probs_must_go = must_go_dist.log_prob(old_must_go_actions).sum(dim=1)
+            new_log_probs_mandatory = mandatory_dist.log_prob(old_mandatory_actions).sum(dim=1)
             new_log_probs_gate = gate_dist.log_prob(old_gate_actions)
 
-            new_log_probs = new_log_probs_must_go + new_log_probs_gate
-            old_log_probs = old_log_probs_must_go + old_log_probs_gate
+            new_log_probs = new_log_probs_mandatory + new_log_probs_gate
+            old_log_probs = old_log_probs_mandatory + old_log_probs_gate
 
             ratio = torch.exp(new_log_probs - old_log_probs)
 
@@ -199,18 +201,18 @@ class HRLModule(pl.LightningModule):
             actor_loss = -torch.min(surr1, surr2).mean()
 
             value_loss = F.mse_loss(values, returns)
-            entropy = must_go_dist.entropy().mean() + gate_dist.entropy().mean()
+            entropy = mandatory_dist.entropy().mean() + gate_dist.entropy().mean()
 
             loss = actor_loss + 0.5 * value_loss - self.entropy_coef * entropy
 
-            # Aux Loss (if target must_go available - supervised signal)
-            if self.lambda_mask_aux > 0 and old_target_must_go is not None:
-                logits_diff = must_go_logits[:, :, 1] - must_go_logits[:, :, 0]
+            # Aux Loss (if target mandatory available - supervised signal)
+            if self.lambda_mask_aux > 0 and old_target_mandatory is not None:
+                logits_diff = mandatory_logits[:, :, 1] - mandatory_logits[:, :, 0]
                 pos_weight = torch.tensor([50.0], device=self.device)
-                loss_must_go_aux = F.binary_cross_entropy_with_logits(
-                    logits_diff, old_target_must_go, pos_weight=pos_weight
+                loss_mandatory_aux = F.binary_cross_entropy_with_logits(
+                    logits_diff, old_target_mandatory, pos_weight=pos_weight
                 )
-                loss += self.lambda_mask_aux * loss_must_go_aux
+                loss += self.lambda_mask_aux * loss_mandatory_aux
 
             opt.zero_grad()
             self.manual_backward(loss)

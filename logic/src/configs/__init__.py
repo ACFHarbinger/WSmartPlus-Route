@@ -7,7 +7,7 @@ from typing import Any, Dict, Optional
 
 from .envs import EnvConfig, GraphConfig, ObjectiveConfig
 from .models import DecoderConfig, DecodingConfig, EncoderConfig, ModelConfig, OptimConfig
-from .policies.other import MustGoConfig, PostProcessingConfig
+from .policies.other import MandatorySelectionConfig, RouteImprovingConfig
 from .rl import RLConfig
 from .tasks import DataConfig, EvalConfig, HPOConfig, MetaRLConfig, SimConfig, SimHPOConfig, TrainConfig
 from .tracking import TrackingConfig
@@ -29,8 +29,8 @@ class Config:
         sim: Simulation configuration.
         data: Data generation configuration.
         tracking: Tracking backend configuration (WSTracker + optional MLflow).
-        must_go: Must-go selection strategy configuration.
-        post_processing: Route refinement configuration.
+        mandatory_selection: Mandatory nodes selection strategy configuration.
+        route_improvement: Route refinement configuration.
         load_dataset: Optional path to a dataset file to load.
         seed: Random seed.
         device: Device to use ('cpu', 'cuda').
@@ -60,8 +60,8 @@ class Config:
     hpo_sim: SimHPOConfig = field(default_factory=SimHPOConfig)
     data: DataConfig = field(default_factory=DataConfig)
     tracking: TrackingConfig = field(default_factory=TrackingConfig)
-    must_go: MustGoConfig = field(default_factory=MustGoConfig)
-    post_processing: PostProcessingConfig = field(default_factory=PostProcessingConfig)
+    mandatory_selection: MandatorySelectionConfig = field(default_factory=MandatorySelectionConfig)
+    route_improvement: RouteImprovingConfig = field(default_factory=RouteImprovingConfig)
     load_dataset: Optional[str] = None
     seed: int = 42
     device: str = "cuda"
@@ -87,8 +87,8 @@ __all__ = [
     "SimHPOConfig",
     "DataConfig",
     "TrackingConfig",
-    "MustGoConfig",
-    "PostProcessingConfig",
+    "MandatorySelectionConfig",
+    "RouteImprovingConfig",
     "Config",
     "EncoderConfig",
     "DecoderConfig",

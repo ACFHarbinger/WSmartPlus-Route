@@ -94,11 +94,11 @@ sans:
     # -------------------------------------------------------------------------
     # Infrastructure Settings
     # -------------------------------------------------------------------------
-    must_go: ["other/mg_lookahead.yaml"]
+    mandatory_selection: ["other/ms_lookahead.yaml"]
     # VRPP Settings
     vrpp: true
 
-    post_processing: []
+    route_improvement: []
     # SA local search is comprehensive; no further refinement needed
 
   # ===========================================================================
@@ -118,11 +118,11 @@ sans:
     time_limit: 60
     # Maximum wall-clock seconds
 
-    must_go: ["other/mg_lookahead.yaml"]
+    mandatory_selection: ["other/ms_lookahead.yaml"]
     # VRPP Settings
     vrpp: true
 
-    post_processing: []
+    route_improvement: []
     # No post-processing
 
     # LAC-specific numeric parameters (legacy format)
@@ -152,11 +152,11 @@ sans:
     time_limit: 60
     # Maximum wall-clock seconds
 
-    must_go: ["other/mg_lookahead.yaml"]
+    mandatory_selection: ["other/ms_lookahead.yaml"]
     # VRPP Settings
     vrpp: true
 
-    post_processing: []
+    route_improvement: []
     # No post-processing
 
     # LAC-specific numeric parameters (legacy format)
@@ -180,11 +180,11 @@ lac:
     engine: og
     combination: a
     time_limit: 60
-    must_go: ["other/mg_lookahead.yaml"]
+    mandatory_selection: ["other/ms_lookahead.yaml"]
     # VRPP Settings
     vrpp: true
 
-    post_processing: []
+    route_improvement: []
     params:
       - 500
       - 75
@@ -198,11 +198,11 @@ lac:
     engine: og
     combination: b
     time_limit: 60
-    must_go: ["other/mg_lookahead.yaml"]
+    mandatory_selection: ["other/ms_lookahead.yaml"]
     # VRPP Settings
     vrpp: true
 
-    post_processing: []
+    route_improvement: []
     params:
       - 2000
       - 75

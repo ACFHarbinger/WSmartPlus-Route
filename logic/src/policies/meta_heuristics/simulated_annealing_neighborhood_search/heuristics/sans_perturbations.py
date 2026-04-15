@@ -293,7 +293,7 @@ def remove_n_bins_consecutive(
     r_idx = rng.choice(valid_routes)
     route = new_routes[r_idx]
 
-    # Try to find a segment without 'must-go' bins
+    # Try to find a segment without 'mandatory' bins
     start_indices = list(range(1, len(route) - n))
     rng.shuffle(start_indices)
 

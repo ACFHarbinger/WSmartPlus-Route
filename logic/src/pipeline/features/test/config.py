@@ -127,30 +127,30 @@ def _extract_variants(pol_name: str, cfg_path: str) -> Tuple[List[Tuple[str, str
             return [("", "", None)], None
 
         inner_cfg, variant_name = _find_inner_config(pol_cfg)
-        mg_list, pp_list, match_idx = _parse_inner_components(inner_cfg)
+        ms_list, pp_list, match_idx = _parse_inner_components(inner_cfg)
 
-        if mg_list and len(mg_list) > 1:
+        if ms_list and len(ms_list) > 1:
             variants: List[Tuple[str, str, Any]] = []
-            for mg_item in mg_list:
-                prefix = f"{_clean_id(mg_item, 'mg_')}_"
-                suffix = f"_{_clean_id(pp_list[0], 'pp_')}" if pp_list else ""
+            for ms_item in ms_list:
+                prefix = f"{_clean_id(ms_item, 'ms_')}_"
+                suffix = f"_{_clean_id(pp_list[0], 'ri_')}" if pp_list else ""
 
                 # If the policy name already contains the prefix, we are likely looking at an expanded name
                 # In that case, only yield the variant that matches this prefix
                 clean_prefix = prefix.rstrip("_")
                 if clean_prefix in pol_name:
                     var_cfg = copy.deepcopy(pol_cfg)
-                    _apply_mg_override(var_cfg, match_idx, mg_item)
+                    _apply_ms_override(var_cfg, match_idx, ms_item)
                     return [(prefix, suffix, var_cfg)], variant_name
 
                 var_cfg = copy.deepcopy(pol_cfg)
-                _apply_mg_override(var_cfg, match_idx, mg_item)
+                _apply_ms_override(var_cfg, match_idx, ms_item)
                 variants.append((prefix, suffix, var_cfg))
             return variants, variant_name
 
         # Single variant case
-        prefix = f"{_clean_id(mg_list[0], 'mg_')}_" if mg_list else ""
-        suffix = f"_{_clean_id(pp_list[0], 'pp_')}" if pp_list else ""
+        prefix = f"{_clean_id(ms_list[0], 'ms_')}_" if ms_list else ""
+        suffix = f"_{_clean_id(pp_list[0], 'ri_')}" if pp_list else ""
         return [(prefix, suffix, None)], variant_name
 
     except Exception as e:
@@ -170,7 +170,7 @@ def _find_inner_config(pol_cfg: Any) -> Tuple[Any, Any]:
             if isinstance(v_obj, ITraversable) or hasattr(v_obj, "items"):
                 v_dict = cast(Dict[str, Any], v_obj)
                 # If this dict itself contains components, it's an inner variant
-                if any(k in v_dict for k in ["must_go", "post_processing", "engine", "params"]):
+                if any(k in v_dict for k in ["mandatory", "route_improvement", "engine", "params"]):
                     return [v], _k
                 # Otherwise, look one level deeper
                 for sub_k, sub_v in v_dict.items():
@@ -179,7 +179,7 @@ def _find_inner_config(pol_cfg: Any) -> Tuple[Any, Any]:
                     sub_v_obj: object = sub_v
                     if isinstance(sub_v_obj, ITraversable) or hasattr(sub_v_obj, "items"):
                         sub_v_dict = cast(Dict[str, Any], sub_v_obj)
-                        if any(sk in sub_v_dict for sk in ["must_go", "post_processing", "engine", "params"]):
+                        if any(sk in sub_v_dict for sk in ["mandatory", "route_improvement", "engine", "params"]):
                             return [sub_v], sub_k
     return [], None
 
@@ -187,29 +187,29 @@ def _find_inner_config(pol_cfg: Any) -> Tuple[Any, Any]:
 def _parse_inner_components(
     inner_cfg: Any,
 ) -> Tuple[List[Any], List[Any], int]:
-    """Extract must-go and post-processing lists from inner config."""
-    mg_list: List[Any] = []
+    """Extract mandatory and route improvement lists from inner config."""
+    ms_list: List[Any] = []
     pp_list: List[Any] = []
     match_idx = -1
     for idx, item in enumerate(inner_cfg):
         item_obj: object = item
         if isinstance(item_obj, ITraversable):
-            if "must_go" in item_obj:
-                mg_list = item_obj["must_go"]
+            if "mandatory" in item_obj:
+                ms_list = item_obj["mandatory"]
                 match_idx = idx
-            if "post_processing" in item_obj:
-                pp_list = item_obj["post_processing"]
-    return mg_list, pp_list, match_idx
+            if "route_improvement" in item_obj:
+                pp_list = item_obj["route_improvement"]
+    return ms_list, pp_list, match_idx
 
 
-def _apply_mg_override(var_cfg: Any, match_idx: int, mg_item: str) -> None:
-    """Apply a must-go override to a deep-copied config."""
+def _apply_ms_override(var_cfg: Any, match_idx: int, ms_item: str) -> None:
+    """Apply a mandatory override to a deep-copied config."""
     var_inner, _ = _find_inner_config(var_cfg)
     if var_inner and 0 <= match_idx < len(var_inner):
         item = var_inner[match_idx]
         item_obj: object = item
         if isinstance(item_obj, (dict, ITraversable)):
-            cast(Any, item_obj)["must_go"] = [mg_item]
+            cast(Any, item_obj)["mandatory"] = [ms_item]
 
 
 def _clean_id(path_or_str: Any, prefix: str) -> str:

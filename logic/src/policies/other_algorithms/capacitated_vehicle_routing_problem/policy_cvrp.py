@@ -22,7 +22,7 @@ class CVRPPolicy(BaseRoutingPolicy):
     """
     Capacitated Vehicle Routing Policy (CVRP).
 
-    Visits provided 'must_go' bins using multiple vehicles.
+    Visits provided 'mandatory' bins using multiple vehicles.
     """
 
     def __init__(self, config: Optional[Union[CVRPConfig, Dict[str, Any]]] = None):
@@ -67,8 +67,8 @@ class CVRPPolicy(BaseRoutingPolicy):
         Overrides base execute because CVRP uses different solver interface
         and works with global indices directly.
         """
-        must_go = kwargs.get("must_go", [])
-        early_result = self._validate_must_go(must_go)
+        mandatory = kwargs.get("mandatory", [])
+        early_result = self._validate_mandatory(mandatory)
         if early_result is not None:
             return early_result
 
@@ -82,7 +82,7 @@ class CVRPPolicy(BaseRoutingPolicy):
         distancesC = kwargs.get("distancesC")
         distance_matrix = kwargs.get("distance_matrix", distancesC)
 
-        to_collect = list(must_go) if must_go else list(range(1, bins.n + 1))
+        to_collect = list(mandatory) if mandatory else list(range(1, bins.n + 1))
 
         # Load capacity and other area-specific constant params
         capacity, _, _, values = self._load_area_params(area, waste_type, config)
@@ -91,8 +91,8 @@ class CVRPPolicy(BaseRoutingPolicy):
         # Initialize type-safe Params
         params = CVRPParams.from_config(self._config or values)
 
-        # Use cached route if available and no specific must_go
-        if cached is not None and len(cached) > 1 and not must_go:
+        # Use cached route if available and no specific mandatory
+        if cached is not None and len(cached) > 1 and not mandatory:
             tour = cached
         else:
             seed = kwargs.get("seed") if kwargs.get("seed") is not None else params.seed

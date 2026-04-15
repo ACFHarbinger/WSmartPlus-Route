@@ -25,7 +25,7 @@ class AHVPLPolicy(BaseRoutingPolicy):
     """
     AHVPL policy class.
 
-    Visits pre-selected 'must_go' bins using the augmented HVPL metaheuristic
+    Visits pre-selected 'mandatory' bins using the augmented HVPL metaheuristic
     combining ACO, VPL, HGS, and ALNS.
     """
 

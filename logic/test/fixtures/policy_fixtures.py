@@ -86,7 +86,7 @@ def mock_vrpp_inputs(mock_policy_common_data):
         "distance_matrix": data["distance_matrix"],
         "media": media,
         "std": std,
-        "must_go_bins": [1, 3],
+        "mandatory_bins": [1, 3],
         "binsids": list(range(data["n_bins"])),
     }
 
@@ -120,7 +120,7 @@ def hgs_inputs():
     capacity = 100
     R = 1.0
     C = 1.0
-    global_must_go = {2, 4}
+    global_mandatory = {2, 4}
     local_to_global = {0: 1, 1: 2, 2: 3, 3: 4}
     vrpp_tour_global = [2, 4, 1, 3]
 
@@ -130,7 +130,7 @@ def hgs_inputs():
         capacity,
         R,
         C,
-        global_must_go,
+        global_mandatory,
         local_to_global,
         vrpp_tour_global,
     )

@@ -89,8 +89,8 @@ class PolicyExecutionAction(SimulationAction):
                 )
 
         # If no nodes to collect, skip policy and return to depot
-        must_go = context.get("must_go", [])
-        if not must_go:
+        mandatory = context.get("mandatory", [])
+        if not mandatory:
             context["tour"] = [0, 0]
             context["cost"] = 0.0
             context["extra_output"] = None

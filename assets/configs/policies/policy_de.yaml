@@ -170,8 +170,8 @@ de:
     - profit_aware_operators: false
     - vrpp: true
 
-    - must_go: ["other/mg_lookahead.yaml"]
-    - post_processing: []
+    - mandatory_selection: ["other/ms_lookahead.yaml"]
+    - route_improvement: []
       # Wall-clock time limit in seconds
       # Range: 30.0-300.0
       # Recommendation: 60.0 for quick experiments

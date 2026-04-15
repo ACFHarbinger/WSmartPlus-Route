@@ -29,7 +29,7 @@ def run_bb_optimizer(
     R: float,
     C: float,
     params: Optional[BBParams] = None,
-    must_go_indices: Optional[Set[int]] = None,
+    mandatory_indices: Optional[Set[int]] = None,
     env: Optional[gp.Env] = None,
     recorder: Optional[PolicyStateRecorder] = None,
     **kwargs: Any,
@@ -78,7 +78,7 @@ def run_bb_optimizer(
         R: Revenue coefficient per unit collected.
         C: Cost coefficient per unit distance.
         params: Standardized BB parameters.
-        must_go_indices: Set of mandatory customer nodes.
+        mandatory_indices: Set of mandatory customer nodes.
         env: Optional Gurobi environment for resource management.
         recorder: Optional telemetry recorder for state tracking.
 
@@ -107,7 +107,7 @@ def run_bb_optimizer(
             R=R,
             C=C,
             params=params,
-            must_go_indices=must_go_indices,
+            mandatory_indices=mandatory_indices,
             env=env,
             recorder=recorder,
         )
@@ -119,7 +119,7 @@ def run_bb_optimizer(
             R=R,
             C=C,
             params=params,
-            must_go_indices=must_go_indices,
+            mandatory_indices=mandatory_indices,
             env=env,
             recorder=recorder,
         )
@@ -131,7 +131,7 @@ def run_bb_optimizer(
             R=R,
             C=C,
             params=params,
-            must_go_indices=must_go_indices,
+            mandatory_indices=mandatory_indices,
             env=env,
             recorder=recorder,
         )

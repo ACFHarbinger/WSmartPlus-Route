@@ -85,9 +85,9 @@ ss_hh:
     # VRPP Settings
     - vrpp: true
 
-    - must_go: ["other/mg_lookahead.yaml"]
+    - mandatory_selection: ["other/ms_lookahead.yaml"]
     # Node selection strategy for waste collection problems
 
-    - post_processing: []
+    - route_improvement: []
     # Empty = use SS-HH output directly
 # =============================================================================

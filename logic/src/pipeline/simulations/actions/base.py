@@ -6,24 +6,24 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, Mapping
 
 
-def _find_must_go(d: Any) -> Any:
+def _find_mandatory(d: Any) -> Any:
     """
-    Recursively find the first occurrence of 'must_go' in a nested structure.
+    Recursively find the first occurrence of 'mandatory' in a nested structure.
     Handles dictionaries, ITraversable objects, and iterable sequences (lists, ListConfig, etc.).
     """
     if isinstance(d, dict) or hasattr(d, "items"):
         d_dict = dict(d) if hasattr(d, "items") else d
-        if "must_go" in d_dict:
-            return d_dict["must_go"]
+        if "mandatory" in d_dict:
+            return d_dict["mandatory"]
         for val in d_dict.values():
-            res = _find_must_go(val)
+            res = _find_mandatory(val)
             if res is not None:
                 return res
     elif isinstance(d, (list, tuple)) or (
         not isinstance(d, (str, dict)) and hasattr(d, "__iter__")
     ):  # Handle sequences including ListConfig
         for item in d:
-            res = _find_must_go(item)
+            res = _find_mandatory(item)
             if res is not None:
                 return res
     return None
@@ -43,7 +43,7 @@ def _flatten_config(cfg: Any) -> dict:
         # Safer key extraction
         key = next(iter(curr.keys()))
 
-        if key in ["must_go", "policy", "post_processing"]:
+        if key in ["mandatory", "policy", "route_improvement"]:
             break
         curr = curr[key]
 
@@ -70,10 +70,10 @@ def _flatten_config(cfg: Any) -> dict:
                 if primitive_list:
                     flat[_k] = primitive_list
 
-        if "must_go" not in flat:
-            mg = _find_must_go(curr)
+        if "mandatory" not in flat:
+            mg = _find_mandatory(curr)
             if mg:
-                flat["must_go"] = mg
+                flat["mandatory"] = mg
 
         return flat
 

@@ -93,12 +93,12 @@ alns:
     - engine: "custom"
       # Execution backend: logic/src/policies/adaptive_large_neighborhood_search.py
 
-    - must_go: ["other/mg_lookahead.yaml"]
+    - mandatory_selection: ["other/ms_lookahead.yaml"]
       # Node selection strategy for waste collection problems
-      # Options: mg_lookahead.yaml, mg_last_minute_*.yaml, mg_regular.yaml
+      # Options: ms_lookahead.yaml, ms_last_minute_*.yaml, ms_regular.yaml
       # See: docs/MUST_GO_STRATEGIES.md
 
-    - post_processing: []
+    - route_improvement: []
       # Route refinement heuristics applied after ALNS (e.g., 2-opt, relocate)
       # Empty list = use raw ALNS output
       # Options: ["2opt_intra", "relocate", "swap"]

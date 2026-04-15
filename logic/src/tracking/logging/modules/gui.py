@@ -25,7 +25,7 @@ def send_daily_output_to_gui(
     tour: Sequence[int],
     coordinates: Union[pd.DataFrame, List[Any]],
     lock: Optional[threading.Lock] = None,
-    must_go: Optional[Sequence[int]] = None,
+    mandatory: Optional[Sequence[int]] = None,
 ) -> None:
     """Write daily simulation output to a log file for GUI consumption."""
     # Preserve the entire daily_log, including its pre-mapped Dataset ID "tour" list
@@ -58,11 +58,11 @@ def send_daily_output_to_gui(
     tour_indices = [int(idx) - 1 for idx in tour if int(idx) > 0]
     full_payload["tour_indices"] = tour_indices
 
-    if must_go is not None:
+    if mandatory is not None:
         # Map 1-based bin IDs (logic) to 0-based GUI IDs (indices)
         # Bins are i=1..N, Depot is i=0 (skipped)
-        mapped_must_go = [int(i) - 1 for i in must_go if int(i) > 0]
-        full_payload.update({"must_go": mapped_must_go})
+        mapped_mandatory = [int(i) - 1 for i in mandatory if int(i) > 0]
+        full_payload.update({"mandatory": mapped_mandatory})
 
     full_payload = deep_sanitize(full_payload)
     full_payload = OmegaConf.to_container(OmegaConf.create(full_payload), resolve=True)

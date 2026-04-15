@@ -87,12 +87,12 @@ class CVRPPEnv(VRPPEnv):
 
     def _get_action_mask(self, tensordict: TensorDict) -> torch.Tensor:
         """
-        Mask nodes that would exceed capacity, respecting must-go constraints.
+        Mask nodes that would exceed capacity, respecting mandatory constraints.
 
         Applies capacity constraints on top of base VRPP mask, then
-        re-applies must-go logic to determine depot validity.
+        re-applies mandatory logic to determine depot validity.
         """
-        # Get base mask (without must-go depot logic applied yet)
+        # Get base mask (without mandatory depot logic applied yet)
         base_mask = ~tensordict["visited"].clone()
 
         # Mask nodes whose waste exceeds remaining capacity
@@ -102,23 +102,23 @@ class CVRPPEnv(VRPPEnv):
 
         mask = base_mask & ~exceeds_capacity
 
-        # Must-go routing logic (same as parent but considering capacity)
-        must_go = tensordict.get("must_go", None)
-        if must_go is not None:
-            # Handle dimension mismatch (if must_go excludes depot)
-            if must_go.size(-1) == mask.size(-1) - 1:
-                must_go = torch.cat([torch.zeros_like(must_go[:, :1], dtype=torch.bool), must_go], dim=1)
+        # Mandatory routing logic (same as parent but considering capacity)
+        mandatory = tensordict.get("mandatory", None)
+        if mandatory is not None:
+            # Handle dimension mismatch (if mandatory excludes depot)
+            if mandatory.size(-1) == mask.size(-1) - 1:
+                mandatory = torch.cat([torch.zeros_like(mandatory[:, :1], dtype=torch.bool), mandatory], dim=1)
 
-            # Pending must-go bins: must_go AND not yet visited AND within capacity
-            pending_must_go = must_go & mask
+            # Pending mandatory bins: mandatory AND not yet visited AND within capacity
+            pending_mandatory = mandatory & mask
 
-            # Check if any must-go bins remain (excluding depot at index 0)
-            has_pending_must_go = pending_must_go[:, 1:].any(dim=1)
+            # Check if any mandatory bins remain (excluding depot at index 0)
+            has_pending_mandatory = pending_mandatory[:, 1:].any(dim=1)
 
-            # Depot is valid only if no pending must-go bins remain
-            mask[:, 0] = ~has_pending_must_go
+            # Depot is valid only if no pending mandatory bins remain
+            mask[:, 0] = ~has_pending_mandatory
         else:
-            # No must-go constraint: depot always valid
+            # No mandatory constraint: depot always valid
             mask[:, 0] = True
 
         return mask

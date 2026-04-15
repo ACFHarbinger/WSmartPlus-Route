@@ -151,7 +151,7 @@ def run_bb_lr_uop(
     R: float,
     C: float,
     params: Optional[BBParams] = None,
-    must_go_indices: Optional[Set[int]] = None,
+    mandatory_indices: Optional[Set[int]] = None,
     env: Any = None,
     recorder: Optional[PolicyStateRecorder] = None,
     **kwargs: Any,
@@ -170,7 +170,7 @@ def run_bb_lr_uop(
         R:                Revenue coefficient (r_w).
         C:                Distance cost coefficient (c_km).
         params:           BBParams instance; LR-specific fields are prefixed lr_.
-        must_go_indices:  Customers that MUST appear in every feasible solution.
+        mandatory_indices:  Customers that MUST appear in every feasible solution.
         env:              Optional shared Gurobi environment.
         recorder:         Optional telemetry recorder.
 
@@ -182,7 +182,7 @@ def run_bb_lr_uop(
     if params is None:
         params = BBParams()
 
-    must_go = must_go_indices or set()
+    mandatory = mandatory_indices or set()
     start_time = time.perf_counter()
 
     # -------------------------------------------------------------------
@@ -196,7 +196,7 @@ def run_bb_lr_uop(
         capacity=capacity,
         R=R,
         C=C,
-        must_go_indices=must_go,
+        mandatory_indices=mandatory,
         params=params,
         time_budget=sg_budget,
         env=env,
@@ -219,7 +219,7 @@ def run_bb_lr_uop(
     incumbent_visited: Set[int] = set()
 
     counter = itertools.count()
-    root = _LRNode(bound=ub_star, forced_in=set(must_go), forced_out=set(), depth=0)
+    root = _LRNode(bound=ub_star, forced_in=set(mandatory), forced_out=set(), depth=0)
     queue: List[Tuple[float, int, _LRNode]] = [(-ub_star, next(counter), root)]
     nodes_explored = 0
     op_tl = params.lr_op_time_limit

@@ -27,16 +27,16 @@ class BatchMixin:
         Compute simulation step for a batch of problem instances.
 
         Used during training and batch evaluation. Optionally integrates with
-        HRL manager for gating (decide whether to dispatch) and must-go selection
+        HRL manager for gating (decide whether to dispatch) and mandatory selection
         (which bins must be collected).
 
         Args:
             input (dict): Batch of problem data with 'loc', 'waste', etc.
             dist_matrix (torch.Tensor): Distance matrix (B x N x N) or (N x N)
-            hrl_manager (optional): HRL manager network for dispatch and must-go decisions
+            hrl_manager (optional): HRL manager network for dispatch and mandatory decisions
             waste_history (torch.Tensor, optional): Historical waste levels (B x N x T)
             threshold (float): Gating probability threshold. Default: 0.5
-            mask_threshold (float): Must-go selection probability threshold. Default: 0.5
+            mask_threshold (float): Mandatory selection probability threshold. Default: 0.5
 
         Returns:
             Tuple[torch.Tensor, dict, dict]: Costs, result metrics, and attention data
@@ -75,20 +75,20 @@ class BatchMixin:
             )
 
             # Get Action (Deterministic)
-            # must_go_action: 1 = must collect, 0 = optional
-            must_go_action, gate_action, _ = hrl_manager.select_action(
+            # mandatory_action: 1 = must collect, 0 = optional
+            mandatory_action, gate_action, _ = hrl_manager.select_action(
                 static_feat,
                 dynamic_feat,
                 global_features,
                 deterministic=True,
                 threshold=threshold,
-                must_go_threshold=mask_threshold,
+                mandatory_threshold=mask_threshold,
             )
 
-            # Construct model mask from must_go_action
-            # must_go_action: 1=must collect, 0=optional
+            # Construct model mask from mandatory_action
+            # mandatory_action: 1=must collect, 0=optional
             # Model mask: True=masked(can skip), False=must visit
-            mask = must_go_action == 0
+            mask = mandatory_action == 0
 
             # Apply Gate: If Gate=0, Mask ALL (no routing)
             gate_mask = (gate_action == 0).unsqueeze(1).expand_as(mask)

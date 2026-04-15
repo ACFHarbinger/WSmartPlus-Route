@@ -43,10 +43,10 @@ class LastMinuteSelector(VectorizedSelector):
             Tensor: Boolean mask (batch_size, num_nodes).
         """
         thresh = threshold if threshold is not None else self.threshold
-        must_go = fill_levels > thresh
+        mandatory = fill_levels > thresh
 
-        # Depot (index 0) is never a must-go
-        must_go = must_go.clone()
-        must_go[:, 0] = False
+        # Depot (index 0) is never a mandatory
+        mandatory = mandatory.clone()
+        mandatory[:, 0] = False
 
-        return must_go
+        return mandatory

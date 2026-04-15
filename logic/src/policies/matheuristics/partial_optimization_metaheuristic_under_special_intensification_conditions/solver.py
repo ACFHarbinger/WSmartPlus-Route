@@ -34,7 +34,7 @@ from logic.src.policies.other_algorithms.travelling_salesman_problem.tsp import 
 
 def run_popmusic(  # noqa: C901
     coords: pd.DataFrame,
-    must_go: List[int],
+    mandatory: List[int],
     distance_matrix: np.ndarray,
     n_vehicles: int,
     subproblem_size: int = 3,
@@ -59,7 +59,7 @@ def run_popmusic(  # noqa: C901
 
     Args:
         coords: Node coordinates.
-        must_go: List of bin indices to collect.
+        mandatory: List of bin indices to collect.
         distance_matrix: Distances between nodes.
         n_vehicles: Number of vehicles available.
         subproblem_size: Total number of routes per subproblem, including the seed
@@ -82,7 +82,7 @@ def run_popmusic(  # noqa: C901
     Returns:
         Tuple of (routes, total_cost, total_profit, info_dict).
     """
-    if not must_go:
+    if not mandatory:
         return [[0, 0]], 0.0, 0.0, {}
 
     # 1. INITIAL SOLUTION
@@ -95,13 +95,13 @@ def run_popmusic(  # noqa: C901
             capacity=capacity,
             R=R,
             C=C,
-            mandatory_nodes=must_go,
+            mandatory_nodes=mandatory,
             rng=Random(seed),
         )
     elif initial_solver == "nearest_neighbor":
         initial_clusters = build_nn_routes(
             nodes=list(range(1, len(distance_matrix))),
-            mandatory_nodes=must_go,
+            mandatory_nodes=mandatory,
             wastes=wastes_dict,
             capacity=capacity,
             dist_matrix=distance_matrix,
@@ -130,7 +130,7 @@ def run_popmusic(  # noqa: C901
                     R=R,
                     C=C,
                     neighborhood_indices=[0],  # Dummy for initial
-                    must_go=must_go,
+                    mandatory=mandatory,
                     seed=seed,
                     vrpp=vrpp,
                     profit_aware_operators=profit_aware_operators,
@@ -247,7 +247,7 @@ def run_popmusic(  # noqa: C901
             R=R,
             C=C,
             neighborhood_indices=neighborhood_indices,
-            must_go=must_go,
+            mandatory=mandatory,
             seed=seed,
             vrpp=vrpp,
             profit_aware_operators=profit_aware_operators,
@@ -344,7 +344,7 @@ def _optimize_subproblem(
     R: float,
     C: float,
     neighborhood_indices: List[int],
-    must_go: List[int],
+    mandatory: List[int],
     seed: int,
     vrpp: bool = True,
     profit_aware_operators: bool = False,
@@ -375,7 +375,7 @@ def _optimize_subproblem(
             R,
             C,
             neighborhood_indices,
-            must_go,
+            mandatory,
             actual_config,
             time_limit,
             seed,
@@ -390,7 +390,7 @@ def _optimize_subproblem(
             capacity,
             R,
             C,
-            must_go,
+            mandatory,
             actual_config,
             time_limit,
             seed,
@@ -445,7 +445,7 @@ def _optimize_with_hgs(
     R: float,
     C: float,
     neighborhood_indices: List[int],
-    must_go: List[int],
+    mandatory: List[int],
     config: Optional[Any],
     time_limit: float,
     seed: int,
@@ -458,8 +458,8 @@ def _optimize_with_hgs(
     if subproblem_nodes is None:
         raise ValueError("subproblem_nodes must be provided for HGS optimization")
 
-    # Create local must_go: intersection of global must_go and subproblem_nodes
-    local_must_go = [n for n in must_go if n in subproblem_nodes]
+    # Create local mandatory: intersection of global mandatory and subproblem_nodes
+    local_mandatory = [n for n in mandatory if n in subproblem_nodes]
 
     # Build local distance matrix: depot (0) + subproblem_nodes
     local_nodes = [0] + subproblem_nodes
@@ -467,7 +467,7 @@ def _optimize_with_hgs(
 
     local_dist_matrix = distance_matrix[np.ix_(local_nodes, local_nodes)]
     local_wastes = {node_to_local_idx[n]: wastes_dict.get(n, 0.0) for n in subproblem_nodes}
-    local_must_go_indices = [node_to_local_idx[n] for n in local_must_go]
+    local_mandatory_indices = [node_to_local_idx[n] for n in local_mandatory]
 
     if isinstance(config, HGSConfig):
         params = HGSParams.from_config(config)
@@ -498,7 +498,7 @@ def _optimize_with_hgs(
         R=R,
         C=C,
         params=params,
-        mandatory_nodes=local_must_go_indices,
+        mandatory_nodes=local_mandatory_indices,
     )
     local_routes, profit, _ = solver.solve()
 
@@ -517,7 +517,7 @@ def _optimize_with_alns(
     capacity: float,
     R: float,
     C: float,
-    must_go: List[int],
+    mandatory: List[int],
     config: Optional[Any],
     time_limit: float,
     seed: int,
@@ -530,8 +530,8 @@ def _optimize_with_alns(
     if subproblem_nodes is None:
         raise ValueError("subproblem_nodes must be provided for ALNS optimization")
 
-    # Create local must_go: intersection of global must_go and subproblem_nodes
-    local_must_go = [n for n in must_go if n in subproblem_nodes]
+    # Create local mandatory: intersection of global mandatory and subproblem_nodes
+    local_mandatory = [n for n in mandatory if n in subproblem_nodes]
 
     # Build local distance matrix: depot (0) + subproblem_nodes
     local_nodes = [0] + subproblem_nodes
@@ -539,7 +539,7 @@ def _optimize_with_alns(
 
     local_dist_matrix = distance_matrix[np.ix_(local_nodes, local_nodes)]
     local_wastes = {node_to_local_idx[n]: wastes_dict.get(n, 0.0) for n in subproblem_nodes}
-    local_must_go_indices = [node_to_local_idx[n] for n in local_must_go]
+    local_mandatory_indices = [node_to_local_idx[n] for n in local_mandatory]
 
     if config:
         if isinstance(config, ALNSConfig):
@@ -576,7 +576,7 @@ def _optimize_with_alns(
         R=R,
         C=C,
         params=params,
-        mandatory_nodes=local_must_go_indices,
+        mandatory_nodes=local_mandatory_indices,
     )
     local_routes, profit, _ = solver.solve()
 

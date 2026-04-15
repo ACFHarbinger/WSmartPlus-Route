@@ -48,8 +48,8 @@ class NeuralPolicy(BaseRoutingPolicy):
         """
         Execute the neural policy.
 
-        Additional kwargs for must-go selection:
-            must_go (List[int] or torch.Tensor): Pre-computed list of must-go bin IDs or boolean mask.
+        Additional kwargs for mandatory selection:
+            mandatory (List[int] or torch.Tensor): Pre-computed list of mandatory bin IDs or boolean mask.
             selector_name (str): Name of vectorized selector ('last_minute', 'lookahead', etc.)
             selector_threshold (float): Threshold for the selector (meaning depends on selector type).
         """
@@ -82,8 +82,8 @@ class NeuralPolicy(BaseRoutingPolicy):
             model_data["current_fill"] = torch.as_tensor(fill, dtype=torch.float32).unsqueeze(0)
         daily_data = move_to(model_data, device)
 
-        # Handle must_go selection
-        must_go_mask = self._get_must_go_mask(kwargs, bins, profit_vars, device)
+        # Handle mandatory selection
+        mandatory_mask = self._get_mandatory_mask(kwargs, bins, profit_vars, device)
 
         tour, cost, output_dict = agent.compute_simulator_day(  # type: ignore[call-arg]
             daily_data,
@@ -93,7 +93,7 @@ class NeuralPolicy(BaseRoutingPolicy):
             hrl_manager=hrl_manager,
             waste_history=bins.get_level_history(device=device),
             cost_weights=cost_weights,
-            must_go=must_go_mask,
+            mandatory=mandatory_mask,
         )
 
         # Log parameters
@@ -121,7 +121,7 @@ class NeuralPolicy(BaseRoutingPolicy):
 
         run.log_params(params)
 
-    def _get_must_go_mask(
+    def _get_mandatory_mask(
         self,
         kwargs: dict,
         bins: Any,
@@ -129,10 +129,10 @@ class NeuralPolicy(BaseRoutingPolicy):
         device: torch.device,
     ) -> Optional[torch.Tensor]:
         """
-        Compute must_go mask from kwargs or selector.
+        Compute mandatory mask from kwargs or selector.
 
         Args:
-            kwargs: Execution kwargs containing must_go or selector config.
+            kwargs: Execution kwargs containing mandatory or selector config.
             bins: Bins object with current fill levels.
             profit_vars: Profit variables (revenue_kg, bin_capacity, etc.)
             device: Target device for tensors.
@@ -142,10 +142,10 @@ class NeuralPolicy(BaseRoutingPolicy):
                                      Includes depot at index 0 (always False).
                                      Returns None if no selection is configured.
         """
-        # Check for explicit must_go
-        must_go = kwargs.get("must_go")
-        if must_go is not None:
-            return self._convert_must_go_to_mask(must_go, bins, device)
+        # Check for explicit mandatory
+        mandatory = kwargs.get("mandatory")
+        if mandatory is not None:
+            return self._convert_mandatory_to_mask(mandatory, bins, device)
 
         # Check for selector-based selection
         selector_name = kwargs.get("selector_name")
@@ -163,7 +163,7 @@ class NeuralPolicy(BaseRoutingPolicy):
         depot_fill = torch.zeros(1, 1, dtype=torch.float32, device=device)
         fill_levels_with_depot = torch.cat([depot_fill, fill_levels], dim=1)  # (1, N+1)
 
-        # Get selector and compute must_go
+        # Get selector and compute mandatory
         try:
             selector = get_vectorized_selector(selector_name, threshold=selector_threshold)
         except ValueError:
@@ -187,20 +187,20 @@ class NeuralPolicy(BaseRoutingPolicy):
             selector_kwargs["revenue_kg"] = profit_vars.get("revenue_kg", 1.0)
             selector_kwargs["bin_capacity"] = profit_vars.get("bin_capacity", 1.0)
 
-        must_go_mask = selector.select(fill_levels_with_depot, **selector_kwargs)
-        return must_go_mask
+        mandatory_mask = selector.select(fill_levels_with_depot, **selector_kwargs)
+        return mandatory_mask
 
-    def _convert_must_go_to_mask(
+    def _convert_mandatory_to_mask(
         self,
-        must_go: Any,
+        mandatory: Any,
         bins: Any,
         device: torch.device,
     ) -> torch.Tensor:
         """
-        Convert must_go input to a boolean mask tensor.
+        Convert mandatory input to a boolean mask tensor.
 
         Args:
-            must_go: List of bin IDs (1-indexed) or boolean mask tensor.
+            mandatory: List of bin IDs (1-indexed) or boolean mask tensor.
             bins: Bins object to get size.
             device: Target device.
 
@@ -209,24 +209,24 @@ class NeuralPolicy(BaseRoutingPolicy):
         """
         num_bins = len(bins.c)
 
-        if isinstance(must_go, torch.Tensor):
-            if must_go.dtype == torch.bool:
+        if isinstance(mandatory, torch.Tensor):
+            if mandatory.dtype == torch.bool:
                 # Already a boolean mask
-                if must_go.dim() == 1:
-                    must_go = must_go.unsqueeze(0)
+                if mandatory.dim() == 1:
+                    mandatory = mandatory.unsqueeze(0)
                 # Ensure depot is included
-                if must_go.size(1) == num_bins:
+                if mandatory.size(1) == num_bins:
                     depot = torch.zeros(1, 1, dtype=torch.bool, device=device)
-                    must_go = torch.cat([depot, must_go.to(device)], dim=1)
-                return must_go.to(device)
+                    mandatory = torch.cat([depot, mandatory.to(device)], dim=1)
+                return mandatory.to(device)
             else:
                 # Assume list of indices
-                must_go = must_go.tolist()
+                mandatory = mandatory.tolist()
 
         # Convert list of bin IDs to mask
-        if isinstance(must_go, (list, tuple)):
+        if isinstance(mandatory, (list, tuple)):
             mask = torch.zeros(1, num_bins + 1, dtype=torch.bool, device=device)
-            for bin_id in must_go:
+            for bin_id in mandatory:
                 if 1 <= bin_id <= num_bins:
                     mask[0, bin_id] = True
             return mask

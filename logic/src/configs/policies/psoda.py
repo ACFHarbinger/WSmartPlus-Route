@@ -8,8 +8,8 @@ Replaces the deceptive "Firefly Algorithm" which lacked velocity momentum.
 from dataclasses import dataclass
 from typing import List, Optional
 
-from .other.must_go import MustGoConfig
-from .other.post_processing import PostProcessingConfig
+from .other.mandatory_selection import MandatorySelectionConfig
+from .other.route_improvement import RouteImprovingConfig
 
 
 @dataclass
@@ -57,5 +57,5 @@ class DistancePSOConfig:
     vrpp: bool = True
     profit_aware_operators: bool = False
     seed: Optional[int] = None
-    must_go: Optional[List[MustGoConfig]] = None
-    post_processing: Optional[List[PostProcessingConfig]] = None
+    mandatory_selection: Optional[List[MandatorySelectionConfig]] = None
+    route_improvement: Optional[List[RouteImprovingConfig]] = None

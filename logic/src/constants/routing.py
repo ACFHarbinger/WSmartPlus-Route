@@ -46,10 +46,10 @@ VEHICLE_SPEED_KMH = 40.0  # km/h (urban residential average)
 # ----------------------------------------------------
 # Used in: Penalty-based MIP formulations, constraint relaxation
 
-# Penalty for missing a must-go bin (bins flagged for mandatory collection)
-# Should be >> typical route cost to ensure must-go bins are prioritized.
-# Typical route cost: 50-200 units. Penalty ensures must-go bins are never skipped.
-PENALTY_MUST_GO_MISSED = 10000.0  # cost units (high penalty)
+# Penalty for missing a mandatory bin (bins flagged for mandatory collection)
+# Should be >> typical route cost to ensure mandatory bins are prioritized.
+# Typical route cost: 50-200 units. Penalty ensures mandatory bins are never skipped.
+PENALTY_MANDATORY_NODES_MISSED = 10000.0  # cost units (high penalty)
 
 # Capacity Constraints
 # --------------------

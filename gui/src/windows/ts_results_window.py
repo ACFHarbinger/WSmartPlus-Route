@@ -174,7 +174,7 @@ class SimulationResultsWindow(QWidget):
             self.historical_routes[key][record.get("day", 0)] = {
                 "routes": record["routes"],
                 "tour_indices": record.get("tour_indices"),
-                "must_go": record.get("must_go"),
+                "mandatory_nodes": record.get("mandatory_nodes"),
                 "bin_state_c": record.get("bin_state_c"),
                 "bin_state_collected": record.get("bin_state_collected"),
             }
@@ -215,7 +215,7 @@ class SimulationResultsWindow(QWidget):
         Generate a Folium-based HTML map for the selected route and open it in the web browser.
 
         Uses the loaded dataset for bin coordinates and the per-day cache
-        for tour indices, must-go selections, and bin states.
+        for tour indices, mandatory node selections, and bin states.
         """
         policy = self.dashboard_tab.policy_combo.currentText()
         sample = self.dashboard_tab.sample_combo.currentText()
@@ -234,7 +234,7 @@ class SimulationResultsWindow(QWidget):
             return
 
         tour_indices_set = set(day_cache.get("tour_indices") or [])
-        must_go_set = self._normalize_must_go(day_cache.get("must_go") or [], routes)
+        mandatory_nodes_set = self._normalize_mandatory_nodes(day_cache.get("mandatory_nodes") or [], routes)
         bin_states = day_cache.get("bin_state_c") or []
         collected = day_cache.get("bin_state_collected") or []
 
@@ -263,7 +263,7 @@ class SimulationResultsWindow(QWidget):
                 routes,
                 tour_indices_set,
                 collected_set,
-                must_go_set,
+                mandatory_nodes_set,
                 bin_states,
             )
 
@@ -278,8 +278,8 @@ class SimulationResultsWindow(QWidget):
         webbrowser.open(f"file://{os.path.abspath(temp_path)}")
 
     @staticmethod
-    def _normalize_must_go(must_go_raw, routes):
-        """Normalize must_go IDs to positional indices using the route coord mapping.
+    def _normalize_mandatory_nodes(mandatory_nodes_raw, routes):
+        """Normalize mandatory node IDs to positional indices using the route coord mapping.
 
         Logs may contain either positional indices or dataset IDs depending on when
         they were generated. This method adds both representations to the set so
@@ -293,15 +293,17 @@ class SimulationResultsWindow(QWidget):
                 ds_id_to_pos[int(ds_id)] = int(pos_id)
 
         result = set()
-        for mg in must_go_raw:
-            mg_int = int(mg)
-            result.add(mg_int)
-            if mg_int in ds_id_to_pos:
-                result.add(ds_id_to_pos[mg_int])
+        for mg in mandatory_nodes_raw:
+            ms_int = int(mg)
+            result.add(ms_int)
+            if ms_int in ds_id_to_pos:
+                result.add(ds_id_to_pos[ms_int])
         return result
 
     @staticmethod
-    def _add_bin_markers_to_map(m, sample_data, routes, tour_indices_set, collected_set, must_go_set, bin_states):
+    def _add_bin_markers_to_map(
+        m, sample_data, routes, tour_indices_set, collected_set, mandatory_nodes_set, bin_states
+    ):
         """Add bin CircleMarkers to the Folium map with appropriate styling."""
         locs = sample_data["locs"]
         depot = sample_data["depot"]
@@ -319,17 +321,17 @@ class SimulationResultsWindow(QWidget):
 
             is_toured = bin_id in tour_indices_set
             is_served = bin_id in collected_set
-            is_must_go = bin_id in must_go_set
+            is_mandatory = bin_id in mandatory_nodes_set
 
             fill = bin_states[bin_id] if 0 <= bin_id < len(bin_states) else 50.0
-            color = "#fd7e14" if is_must_go else "#28a745" if is_served else "#dc3545"
+            color = "#fd7e14" if is_mandatory else "#28a745" if is_served else "#dc3545"
             radius = (5 + (fill / 100.0) * 10) if is_toured else (4 + (fill / 100.0) * 4)
             opacity = 0.7 if is_toured else 0.35
-            weight = 4 if is_must_go else 2
+            weight = 4 if is_mandatory else 2
 
             popup = f"Bin {bin_id}<br>Lat: {lat:.4f}<br>Lng: {lng:.4f}<br>Fill: {fill:.1f}%"
-            if is_must_go:
-                popup += "<br><b style='color: #fd7e14;'>Must-Go</b>"
+            if is_mandatory:
+                popup += "<br><b style='color: #fd7e14;'>Mandatory</b>"
             if is_served:
                 popup += "<br><b style='color: #28a745;'>Served</b>"
             if not is_toured:
@@ -341,7 +343,7 @@ class SimulationResultsWindow(QWidget):
                 popup=popup,
                 color=color,
                 fill=True,
-                fillColor="#fd7e14" if is_must_go and is_served else color,
+                fillColor="#fd7e14" if is_mandatory and is_served else color,
                 fillOpacity=opacity,
                 weight=weight,
             ).add_to(m)

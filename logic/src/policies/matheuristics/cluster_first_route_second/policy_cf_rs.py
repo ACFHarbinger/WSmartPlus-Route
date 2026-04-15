@@ -71,7 +71,7 @@ class ClusterFirstRouteSecondPolicy(BaseRoutingPolicy):
         distance_matrix = kwargs["distance_matrix"]
         wastes = kwargs.get("wastes", {})
         capacity = kwargs.get("capacity", 1.0e9)
-        mandatory_nodes = kwargs.get("must_go", [])
+        mandatory_nodes = kwargs.get("mandatory", [])
         revenue = kwargs.get("R", 1.0)
         cost_unit = kwargs.get("C", 1.0)
         n_vehicles = kwargs.get("number_vehicles", 1)
@@ -83,7 +83,7 @@ class ClusterFirstRouteSecondPolicy(BaseRoutingPolicy):
         # 4. Run CFRS
         routes, solver_cost, extra_data = run_cf_rs(
             coords=sub_coords,
-            must_go=mandatory_nodes,
+            mandatory=mandatory_nodes,
             distance_matrix=distance_matrix,
             wastes=wastes,
             capacity=capacity,

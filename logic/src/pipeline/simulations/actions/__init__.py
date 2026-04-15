@@ -7,16 +7,16 @@ from .collection import CollectAction
 from .fill import FillAction
 from .logging import LogAction
 from .policy import PolicyExecutionAction
-from .post_process import PostProcessAction
-from .selection import MustGoSelectionAction
+from .route_improvement import RouteImprovementAction
+from .selection import MandatorySelectionAction
 
 __all__ = [
     "SimulationAction",
     "_flatten_config",
     "FillAction",
-    "MustGoSelectionAction",
+    "MandatorySelectionAction",
     "PolicyExecutionAction",
-    "PostProcessAction",
+    "RouteImprovementAction",
     "CollectAction",
     "LogAction",
 ]

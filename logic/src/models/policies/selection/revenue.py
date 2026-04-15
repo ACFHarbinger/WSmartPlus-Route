@@ -60,10 +60,10 @@ class RevenueSelector(VectorizedSelector):
 
         # Expected revenue = fill_level * bin_capacity * revenue_per_kg
         expected_revenue = fill_levels * cap * rev
-        must_go = expected_revenue > thresh
+        mandatory = expected_revenue > thresh
 
-        # Depot is never a must-go
-        must_go = must_go.clone()
-        must_go[:, 0] = False
+        # Depot is never a mandatory
+        mandatory = mandatory.clone()
+        mandatory[:, 0] = False
 
-        return must_go
+        return mandatory

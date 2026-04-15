@@ -48,11 +48,11 @@ class LookaheadSelector(VectorizedSelector):
         overflow_thresh = max_fill if max_fill is not None else self.max_fill
         if accumulation_rates is None:
             # Without rates, fall back to threshold-based selection
-            must_go = fill_levels >= overflow_thresh
+            mandatory = fill_levels >= overflow_thresh
         else:
             # 1. Identify bins overflowing today (initial selection)
             # current + rate >= max_fill
-            initial_must_go = (fill_levels + accumulation_rates) >= overflow_thresh
+            initial_mandatory = (fill_levels + accumulation_rates) >= overflow_thresh
 
             # 2. Simulate collection: collected bins become 0.
             # Calculate days until next overflow for these bins: ceil(max_fill / rate)
@@ -65,7 +65,7 @@ class LookaheadSelector(VectorizedSelector):
             # We use a large number for infinity
             LARGE_NUM = 1e6
             next_overflow_days = torch.where(
-                initial_must_go, days_to_overflow, torch.tensor(LARGE_NUM, device=fill_levels.device)
+                initial_mandatory, days_to_overflow, torch.tensor(LARGE_NUM, device=fill_levels.device)
             )
 
             # 3. Find the minimum next overflow day for each batch
@@ -83,9 +83,9 @@ class LookaheadSelector(VectorizedSelector):
 
             # Final check includes initial selection + new candidates
             predicted_fill = fill_levels + (check_days * accumulation_rates)
-            must_go = predicted_fill >= overflow_thresh
+            mandatory = predicted_fill >= overflow_thresh
 
-        # Depot is never a must-go
-        must_go = must_go.clone()
-        must_go[:, 0] = False
-        return must_go
+        # Depot is never a mandatory
+        mandatory = mandatory.clone()
+        mandatory[:, 0] = False
+        return mandatory

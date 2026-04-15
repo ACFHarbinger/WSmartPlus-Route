@@ -481,7 +481,7 @@ def _solve_pricing_step(
                 distance_matrix=pricing_solver.cost_matrix,
                 bins=pricing_solver.wastes,
                 number_vehicles=1,  # Generate one good column
-                must_go=[],  # We enforce branching later or via DP if needed
+                mandatory=[],  # We enforce branching later or via DP if needed
                 dual_values=dual_values,
                 config={"time_limit": 2},  # Keep it fast for pricing!
             )
@@ -714,7 +714,7 @@ def _compute_lr_bound_at_node(
     capacity: float,
     R: float,
     C: float,
-    must_go: Set[int],
+    mandatory: Set[int],
     forced_out: Set[int],
     params: "BPCParams",
     time_budget: float,
@@ -738,7 +738,7 @@ def _compute_lr_bound_at_node(
         capacity:     Vehicle capacity Q.
         R:            Revenue coefficient.
         C:            Distance cost coefficient.
-        must_go:      Customers forced in by branching (forced_in for the UOP).
+        mandatory:      Customers forced in by branching (forced_in for the UOP).
         forced_out:   Customers forced out by branching (excluded from UOP).
         params:       BPCParams carrying the lr_* fields.
         time_budget:  Wall-clock seconds available for the subgradient phase.
@@ -755,7 +755,7 @@ def _compute_lr_bound_at_node(
     # Build a trimmed wastes dict that excludes forced-out customers.
     # run_subgradient internally calls solve_uncapacitated_op, which already
     # accepts forced_in and forced_out. We pass forced_out through the
-    # must_go_indices mechanism by manipulating the wastes dict instead, so
+    # mandatory_indices mechanism by manipulating the wastes dict instead, so
     # that the a-priori elimination step inside solve_uncapacitated_op skips them.
     # The cleaner path is to pass forced_out explicitly. run_subgradient does
     # not currently accept forced_out, so we filter wastes here.
@@ -781,7 +781,7 @@ def _compute_lr_bound_at_node(
         capacity=capacity,
         R=R,
         C=C,
-        must_go_indices=must_go,
+        mandatory_indices=mandatory,
         params=lr_params,
         time_budget=time_budget,
         env=env,
@@ -798,7 +798,7 @@ def _compute_lr_bound_at_node(
             lam=lam_star,
             R=R,
             C=C,
-            forced_in=must_go,
+            forced_in=mandatory,
             forced_out=forced_out,
             time_limit=params.lr_op_time_limit,
             seed=lr_params.seed,
@@ -1191,7 +1191,7 @@ def run_bpc(  # noqa: C901
     R: float,
     C: float,
     params: Optional[Union[BPCParams, Dict[str, Any]]] = None,
-    must_go_indices: Optional[Set[int]] = None,
+    mandatory_indices: Optional[Set[int]] = None,
     vehicle_limit: Optional[int] = None,
     env: Optional[Any] = None,
     node_coords: Optional[np.ndarray] = None,
@@ -1235,7 +1235,7 @@ def run_bpc(  # noqa: C901
             - search_strategy: "best_first" or "depth_first" (default "depth_first")
             - cutting_planes: "rcc" (default "rcc")
             - branching_strategy: "ryan_foster", "edge", or "divergence" (default "divergence")
-        must_go_indices: Set of node indices that must be visited
+        mandatory_indices: Set of node indices that must be visited
         env: Gurobi environment (ignored, kept for compatibility)
         node_coords: Optional node coordinates for visualization
         recorder: Optional state recorder for tracking
@@ -1245,7 +1245,7 @@ def run_bpc(  # noqa: C901
     """
     start_time = time.monotonic()
     n_nodes = len(dist_matrix) - 1
-    m_set = must_go_indices if must_go_indices is not None else set()
+    m_set = mandatory_indices if mandatory_indices is not None else set()
 
     # Standardize params to BPCParams
     if params is None:
@@ -1335,7 +1335,7 @@ def run_bpc(  # noqa: C901
             swc_routes, _, _ = swc_tcf.execute(
                 distance_matrix=dist_matrix,
                 bins=wastes,
-                must_go=list(m_set),
+                mandatory=list(m_set),
                 number_vehicles=getattr(params, "number_vehicles", 1),
                 config={"time_limit": 5},
             )
@@ -1437,7 +1437,7 @@ def run_bpc(  # noqa: C901
         ):
             # Build forced sets from branching constraints accumulated at this node.
             _lr_forced_in, _lr_forced_out = _extract_forced_sets_from_constraints(current_node.constraints)
-            # Union with global must_go for the forced_in set.
+            # Union with global mandatory for the forced_in set.
             _lr_forced_in |= m_set
 
             # Time budget: a small fraction of remaining solve time, capped hard.
@@ -1454,7 +1454,7 @@ def run_bpc(  # noqa: C901
                     capacity=capacity,
                     R=R,
                     C=C,
-                    must_go=_lr_forced_in,
+                    mandatory=_lr_forced_in,
                     forced_out=_lr_forced_out,
                     params=params,
                     time_budget=_lr_budget,
@@ -1637,7 +1637,7 @@ def run_bpc(  # noqa: C901
                 h_routes, h_cost, h_metrics = swc_tcf.execute(
                     distance_matrix=dist_matrix,
                     bins=wastes,
-                    must_go=list(m_set.union(forced_nodes_heuristic)),
+                    mandatory=list(m_set.union(forced_nodes_heuristic)),
                     number_vehicles=getattr(params, "number_vehicles", 1),
                     config={"time_limit": 5},
                 )

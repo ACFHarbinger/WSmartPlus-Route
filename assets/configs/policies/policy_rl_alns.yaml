@@ -17,8 +17,8 @@ rl_alns:
     - vrpp: true
     - profit_aware_operators: false
 
-    - must_go: ["other/mg_lookahead.yaml"]
-    - post_processing: []
+    - mandatory_selection: ["other/ms_lookahead.yaml"]
+    - route_improvement: []
 
     # Centralized RL Configuration
     - rl_config:

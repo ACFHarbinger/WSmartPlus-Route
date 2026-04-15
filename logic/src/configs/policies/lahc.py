@@ -20,8 +20,8 @@ class LAHCConfig:
         time_limit: Wall-clock time limit in seconds.
         profit_aware_operators: If True, uses profit-aware destroy and repair operators.
         vrpp: If True, solver operates in full VRPP mode.
-        must_go: Must-go selection strategy config list.
-        post_processing: Post-processing operation config list.
+        mandatory_selection: Mandatory selection strategy config list.
+        route_improvement: Route improvement operation config list.
     """
 
     engine: str = "lahc"
@@ -33,5 +33,5 @@ class LAHCConfig:
     seed: Optional[int] = None
     profit_aware_operators: bool = True
     vrpp: bool = True
-    must_go: Optional[List[Any]] = field(default_factory=list)
-    post_processing: Optional[List[Any]] = field(default_factory=list)
+    mandatory_selection: Optional[List[Any]] = field(default_factory=list)
+    route_improvement: Optional[List[Any]] = field(default_factory=list)

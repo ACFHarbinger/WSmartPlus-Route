@@ -5,8 +5,8 @@ Configuration for Local Branching with Variable Neighborhood Search (LB-VNS).
 from dataclasses import dataclass
 from typing import Optional
 
-from .other.must_go import MustGoConfig
-from .other.post_processing import PostProcessingConfig
+from .other.mandatory_selection import MandatorySelectionConfig
+from .other.route_improvement import RouteImprovingConfig
 
 
 @dataclass
@@ -61,10 +61,10 @@ class LocalBranchingVNSConfig:
 
         framework (str): Solver framework to use ('ortools', 'pyomo').
 
-        must_go (Optional[MustGoConfig]): Configuration for identifying and enforcing
-            mandatory nodes in the routing problem.
+        mandatory_selection (Optional[MandatorySelectionConfig]): Configuration for identifying
+            and enforcing mandatory nodes in the routing problem.
 
-        post_processing (Optional[PostProcessingConfig]): Optional local search or
+        route_improvement (Optional[RouteImprovingConfig]): Optional local search or
             heuristics (e.g., node swaps, 2-opt) to be applied to solutions found
             by the matheuristic for further minor refinement.
     """
@@ -82,5 +82,5 @@ class LocalBranchingVNSConfig:
     # Infrastructure
     engine: str = "gurobi"
     framework: str = "ortools"
-    must_go: Optional[MustGoConfig] = None
-    post_processing: Optional[PostProcessingConfig] = None
+    mandatory_selection: Optional[MandatorySelectionConfig] = None
+    route_improvement: Optional[RouteImprovingConfig] = None

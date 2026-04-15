@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import List, Optional
 
-from .other.must_go import MustGoConfig
-from .other.post_processing import PostProcessingConfig
+from .other.mandatory_selection import MandatorySelectionConfig
+from .other.route_improvement import RouteImprovingConfig
 
 
 @dataclass
@@ -21,8 +21,8 @@ class CPSATConfig:
         overflow_penalty: Penalty per unit of overflow.
         mean_increment: Expected daily waste increment for bins.
         seed: Random seed for reproducibility.
-        must_go: Node selection strategy configuration.
-        post_processing: Post-processing operations.
+        mandatory_selection: Node selection strategy configuration.
+        route_improvement: Route improvement operations.
     """
 
     num_days: int = 3
@@ -38,5 +38,5 @@ class CPSATConfig:
 
     seed: Optional[int] = None
 
-    must_go: Optional[List[MustGoConfig]] = None
-    post_processing: Optional[List[PostProcessingConfig]] = None
+    mandatory_selection: Optional[List[MandatorySelectionConfig]] = None
+    route_improvement: Optional[List[RouteImprovingConfig]] = None

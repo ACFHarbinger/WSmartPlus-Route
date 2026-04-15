@@ -65,10 +65,10 @@ rens:
     # Execution framework: logic/src/policies/smart_waste_collection_two_commodity_flow/ortools.py
     # Requires: ortools Python package
 
-    - must_go: ["other/mg_lookahead.yaml"]
+    - mandatory_selection: ["other/ms_lookahead.yaml"]
     # Selection strategy for nodes that MUST be visited (e.g., overflow risk).
     # Composes with the RENS solver to ensure these nodes are collected.
 
-    - post_processing: []
+    - route_improvement: []
     # Optional local search or cleanup settings applied after RENS.
 # =============================================================================

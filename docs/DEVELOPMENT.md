@@ -551,7 +551,7 @@ Policies and selection strategies use a mix of YAML and XML configurations locat
 
 - **YAML (\*.yaml)**: Defines classical or neural policy adaptors (e.g., `policy_alns.yaml`).
   - Can reference sub-components like Selection Strategies via XML pointers.
-- **XML (\*.xml)**: Defines specific selection strategy behaviors (e.g., `mg_lookahead_days7.xml`).
+- **XML (\*.xml)**: Defines specific selection strategy behaviors (e.g., `ms_lookahead_days7.xml`).
   - Used for modular composition of strategies.
 
 **Example Usage:**

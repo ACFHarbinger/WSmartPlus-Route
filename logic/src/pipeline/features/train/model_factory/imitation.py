@@ -59,7 +59,7 @@ def _create_imitation(cfg: Config, policy, env, kw: Dict[str, Any]) -> pl.Lightn
         num_workers=kw.get("num_workers", 4),
         persistent_workers=kw.get("persistent_workers", True),
         pin_memory=kw.get("pin_memory", False),
-        must_go_selector=kw.get("must_go_selector"),
+        mandatory_selector=kw.get("mandatory_selector"),
     )
 
 
@@ -117,7 +117,7 @@ def _create_adaptive_imitation(cfg: Config, policy, env, kw: Dict[str, Any]) -> 
         num_workers=kw.get("num_workers", 4),
         persistent_workers=kw.get("persistent_workers", True),
         pin_memory=kw.get("pin_memory", False),
-        must_go_selector=kw.get("must_go_selector"),
+        mandatory_selector=kw.get("mandatory_selector"),
     )
 
 

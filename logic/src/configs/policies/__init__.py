@@ -55,7 +55,7 @@ from .ma_ts import MemeticAlgorithmToleranceBasedSelectionConfig
 from .neural import NeuralConfig
 from .oba import OBAConfig
 from .oi import OIConfig
-from .other import MustGoConfig, PostProcessingConfig
+from .other import MandatorySelectionConfig, RouteImprovingConfig
 from .ph import PHConfig
 from .popmusic import POPMUSICConfig
 from .pso import PSOConfig
@@ -118,8 +118,8 @@ __all__ = [
     "SWCTCFConfig",
     "OIConfig",
     "POPMUSICConfig",
-    "MustGoConfig",
-    "PostProcessingConfig",
+    "MandatorySelectionConfig",
+    "RouteImprovingConfig",
     "HULKConfig",
     "QDEConfig",
     "PSOMAConfig",

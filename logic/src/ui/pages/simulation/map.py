@@ -88,7 +88,7 @@ def render_map_view(display_entry: Any, controls: Dict[str, Any]) -> None:
     tour = data.get("tour", [])
     bin_states = data.get("bin_state_c", [])
     collected = data.get("bin_state_collected", [])
-    must_go = data.get("must_go")
+    mandatory = data.get("mandatory")
     tour_indices = data.get("tour_indices")
     all_bin_coords = data.get("all_bin_coords")
 
@@ -102,7 +102,7 @@ def render_map_view(display_entry: Any, controls: Dict[str, Any]) -> None:
         tour=tour,
         bin_states=bin_states,
         served_indices=tour_indices,
-        must_go=must_go,
+        mandatory=mandatory,
         all_bin_coords=all_bin_coords,
         collected=collected if collected else None,
         vehicle_id=0,
@@ -124,9 +124,9 @@ def render_map_view(display_entry: Any, controls: Dict[str, Any]) -> None:
         <b style="font-size: 14px;">Map Legend</b><br>
         <span style="color: #007bff;">&#9679;</span> Depot<br>
         <span style="color: #28a745;">&#9679;</span> Served (collected)<br>
-        <span style="color: #fd7e14;">&#9679;</span> Must-Go (selected)<br>
+        <span style="color: #fd7e14;">&#9679;</span> Mandatory (selected)<br>
         <span style="color: #dc3545;">&#9679;</span> Pending<br>
-        <span style="color: #fd7e14;">&#9901;</span> Must-Go + Served
+        <span style="color: #fd7e14;">&#9901;</span> Mandatory + Served
     </div>
     """
     sim_map.get_root().html.add_child(folium.Element(legend_html))  # type: ignore

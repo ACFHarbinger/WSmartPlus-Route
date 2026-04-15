@@ -202,12 +202,12 @@ hgs_rr:
       # Execution backend: logic/src/policies/hybrid_genetic_search.py
       # Uses PyVRP library (https://pyvrp.org/)
 
-    - must_go: ["other/mg_lookahead.yaml"]
+    - mandatory_selection: ["other/ms_lookahead.yaml"]
       # Node selection strategy for waste collection problems
-      # Options: mg_lookahead.yaml, mg_last_minute_*.yaml, mg_regular.yaml
+      # Options: ms_lookahead.yaml, ms_last_minute_*.yaml, ms_regular.yaml
       # See: docs/MUST_GO_STRATEGIES.md
 
-    - post_processing: []
+    - route_improvement: []
       # Optional post-processing operations
       # Empty = use HGS-RR output directly
       # HGS-RR local search is comprehensive; external post-processing redundant

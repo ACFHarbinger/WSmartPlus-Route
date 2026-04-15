@@ -48,7 +48,7 @@ class BaseRoutingPolicy(PolicyVizMixin, IPolicyAdapter):
     and `_config_class()`.
 
     The `execute()` method provides a template pattern handling:
-        1. Must-go validation
+        1. Mandatory validation
         2. Parameter loading
         3. Subset problem creation
         4. Solver invocation (delegated to subclass)
@@ -56,7 +56,7 @@ class BaseRoutingPolicy(PolicyVizMixin, IPolicyAdapter):
         6. Cost computation
 
     Context Inputs (from kwargs):
-        must_go: List of 1-based bin IDs to visit
+        mandatory: List of 1-based bin IDs to visit
         bins: Bins state object with `.c` fill levels
         distance_matrix: Full NxN distance matrix
         area: Geographic area name
@@ -166,17 +166,17 @@ class BaseRoutingPolicy(PolicyVizMixin, IPolicyAdapter):
             return config_cls(**filtered)
         return config
 
-    def _validate_must_go(self, must_go: Optional[List[int]]) -> Optional[Tuple[List[int], float, Any]]:
+    def _validate_mandatory(self, mandatory: Optional[List[int]]) -> Optional[Tuple[List[int], float, Any]]:
         """
-        Validate must_go input. Returns early result if empty.
+        Validate mandatory input. Returns early result if empty.
 
         Args:
-            must_go: List of bin IDs to visit.
+            mandatory: List of bin IDs to visit.
 
         Returns:
             Empty tour tuple if no targets, else None (continue processing).
         """
-        if not must_go:
+        if not mandatory:
             return [0, 0], 0.0, None
         return None
 
@@ -248,7 +248,7 @@ class BaseRoutingPolicy(PolicyVizMixin, IPolicyAdapter):
 
     def _create_subset_problem(
         self,
-        must_go: List[int],
+        mandatory: List[int],
         distance_matrix: Any,
         bins: Any,
         use_all_bins: bool = True,
@@ -257,7 +257,7 @@ class BaseRoutingPolicy(PolicyVizMixin, IPolicyAdapter):
         Create a subset distance matrix and wastes dict for the solver.
 
         Args:
-            must_go: List of 1-based global bin IDs to visit.
+            mandatory: List of 1-based global bin IDs to visit.
             distance_matrix: Full distance matrix (list or ndarray).
             bins: Bins object with `.c` attribute (0-indexed fill levels).
             use_all_bins: If True, include all bins in the problem (VRPP mode).
@@ -273,13 +273,13 @@ class BaseRoutingPolicy(PolicyVizMixin, IPolicyAdapter):
             # Include ALL bins in the solver problem (VRPP mode)
             n_bins = len(bins.c)
             subset_indices = [0] + list(range(1, n_bins + 1))
-            # In VRPP mode, mandatory nodes are those in the must_go list.
+            # In VRPP mode, mandatory nodes are those in the mandatory list.
             # Since subset_indices is [0, 1, 2, ..., N], global ID g maps to local index g.
-            mandatory_nodes = list(must_go)
+            mandatory_nodes = list(mandatory)
         else:
-            # Restrict solver ONLY to must_go bins
-            # subset_indices[0] = depot (0), subset_indices[1..M] = must_go bins
-            subset_indices = [0] + list(must_go)
+            # Restrict solver ONLY to mandatory bins
+            # subset_indices[0] = depot (0), subset_indices[1..M] = mandatory bins
+            subset_indices = [0] + list(mandatory)
             # All nodes in this restricted subset are mandatory
             mandatory_nodes = list(range(1, len(subset_indices)))
 
@@ -403,10 +403,10 @@ class BaseRoutingPolicy(PolicyVizMixin, IPolicyAdapter):
         Returns:
             Tuple of (tour, cost, extra_output)
         """
-        must_go = kwargs.get("must_go", [])
+        mandatory = kwargs.get("mandatory", [])
 
         # 1. Validate
-        early_result = self._validate_must_go(must_go)
+        early_result = self._validate_mandatory(mandatory)
         if early_result is not None:
             return early_result
 
@@ -422,9 +422,9 @@ class BaseRoutingPolicy(PolicyVizMixin, IPolicyAdapter):
         self._log_solver_params(values, kwargs)
         # 4. Create subset problem
         # use_all_bins=True (VRPP mode) allows the solver to CONSIDER all bins,
-        # but only forcefully visit the must_go list (mandatory_nodes).
+        # but only forcefully visit the mandatory list (mandatory_nodes).
         sub_dist_matrix, sub_wastes, subset_indices, mandatory_nodes = self._create_subset_problem(
-            must_go,
+            mandatory,
             distance_matrix,
             bins,
             use_all_bins=bool(values.get("vrpp", True)),

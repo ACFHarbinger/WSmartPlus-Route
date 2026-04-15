@@ -37,7 +37,7 @@ def bb_test_data():
         "waste_type": "plastic",
         "area": "riomaior",
         "config": {"bb": {"time_limit": 10, "vrpp": True}},
-        "must_go": [1],
+        "mandatory": [1],
     }
 
 

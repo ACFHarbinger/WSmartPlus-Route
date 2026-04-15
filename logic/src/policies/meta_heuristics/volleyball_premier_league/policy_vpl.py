@@ -25,7 +25,7 @@ class VPLPolicy(BaseRoutingPolicy):
     """
     VPL policy class.
 
-    Visits pre-selected 'must_go' bins using the population-based VPL metaheuristic
+    Visits pre-selected 'mandatory' bins using the population-based VPL metaheuristic
     with dual population structure (active and passive teams).
     """
 

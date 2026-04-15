@@ -20,7 +20,7 @@ def _run_gurobi_optimizer(  # noqa: C901
     env: Optional[gp.Env],
     values: Dict[str, float],
     binsids: List[int],
-    must_go: List[int],
+    mandatory: List[int],
     number_vehicles: int = 1,
     time_limit: int = 60,
     seed: int = 42,
@@ -44,7 +44,7 @@ def _run_gurobi_optimizer(  # noqa: C901
     pure_binsids = binsids[1:] if len(binsids) == n_bins + 1 else binsids
     criticos_dict = {0: False}
     for i, bin_id in enumerate(pure_binsids, 1):
-        criticos_dict[i] = bin_id in must_go
+        criticos_dict[i] = bin_id in mandatory
 
     max_dist = 6000
     pares_viaveis = [(i, j) for i in nodes for j in nodes if i != j and distance_matrix[i][j] <= max_dist]

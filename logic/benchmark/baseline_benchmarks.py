@@ -15,8 +15,8 @@ from logic.src.models.policies.random_local_search import (
     RandomLocalSearchPolicy,
 )
 from logic.src.tracking.logging.structured_logging import log_benchmark_metric
-from logic.src.policies.smart_waste_collection_two_commodity_flow import run_swc_tcf_optimizer
-from logic.src.policies.capacitated_vehicle_routing_problem.cvrp import find_routes, find_routes_ortools
+from logic.src.policies.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow import run_swc_tcf_optimizer
+from logic.src.policies.other_algorithms.capacitated_vehicle_routing_problem.cvrp import find_routes, find_routes_ortools
 
 
 def benchmark_random_local_search(
@@ -89,10 +89,10 @@ def benchmark_vrpp_solvers(num_nodes: int = 20, time_limit: int = 2, seed: int =
 
     # Generate random instance
     np_rng = np.random.default_rng(seed)
-    bins = np_rng.rand(num_nodes) * 100
-    dist_mat = np_rng.rand(num_nodes + 1, num_nodes + 1).tolist()
+    bins = np_rng.random(num_nodes) * 100
+    dist_mat = np_rng.random((num_nodes + 1, num_nodes + 1)).tolist()
     binsids = list(range(num_nodes + 1))
-    must_go = list(range(1, num_nodes // 5))  # 20% critical
+    mandatory_nodes = list(range(1, num_nodes // 5))  # 20% critical
 
     params = {
         "Q": 100.0, "R": 1.0, "B": 1.0, "C": 1.0, "V": 1.0,
@@ -107,12 +107,9 @@ def benchmark_vrpp_solvers(num_nodes: int = 20, time_limit: int = 2, seed: int =
             tour, profit, cost = run_swc_tcf_optimizer(
                 bins=bins,
                 distance_matrix=dist_mat,
-                param=1.0,
-                media=np.zeros(num_nodes),
-                desviopadrao=np.zeros(num_nodes),
                 values=params,
                 binsids=binsids,
-                must_go=must_go,
+                mandatory_nodes=mandatory_nodes,
                 number_vehicles=1,
                 time_limit=time_limit,
                 optimizer=solver

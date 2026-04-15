@@ -13,10 +13,10 @@ kgls:
     - width
     - length
     - width_length
-  must_go: ["other/mg_lookahead.yaml"]
+  mandatory_selection: ["other/ms_lookahead.yaml"]
 
   # VRPP Settings
   vrpp: true
   profit_aware_operators: false
 
-  post_processing: []
+  route_improvement: []

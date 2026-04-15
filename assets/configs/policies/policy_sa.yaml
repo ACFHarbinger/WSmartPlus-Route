@@ -61,8 +61,8 @@ sa:
   # Modular Sub-Policies
   # ---------------------------------------------------------------------------
   # List of mandatory collection filters executed prior to meta-heuristic search.
-  must_go:
-    - "other/mg_lookahead.yaml"
+  mandatory_selection:
+    - "other/ms_lookahead.yaml"
 
   # List of post-processing refinement operations.
-  post_processing: []
+  route_improvement: []

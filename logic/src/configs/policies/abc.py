@@ -19,8 +19,8 @@ class ABCConfig:
         local_search_iterations: Number of local search iterations.
         time_limit: Wall-clock time limit in seconds.
         vrpp: If True, solver operates in full VRPP mode.
-        must_go: Must-go selection strategy config list.
-        post_processing: Post-processing operation config list.
+        mandatory_selection: Mandatory selection strategy config list.
+        route_improvement: Route improvement operation config list.
     """
 
     n_sources: int = 20
@@ -32,5 +32,5 @@ class ABCConfig:
     seed: Optional[int] = None
     vrpp: bool = True
     profit_aware_operators: bool = False
-    must_go: Optional[List[Any]] = field(default_factory=list)
-    post_processing: Optional[List[Any]] = field(default_factory=list)
+    mandatory_selection: Optional[List[Any]] = field(default_factory=list)
+    route_improvement: Optional[List[Any]] = field(default_factory=list)

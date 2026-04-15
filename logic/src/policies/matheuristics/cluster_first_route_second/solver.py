@@ -41,7 +41,7 @@ from logic.src.policies.other_algorithms.travelling_salesman_problem.tsp import 
 
 def run_cf_rs(
     coords: pd.DataFrame,
-    must_go: List[int],
+    mandatory: List[int],
     distance_matrix: np.ndarray,
     wastes: Dict[int, float],
     capacity: float,
@@ -72,7 +72,7 @@ def run_cf_rs(
     Args:
         coords: DataFrame containing 'Lat' and 'Lng' for all nodes.
             The depot must be at index 0.
-        must_go: List of global indices of bins to be collected.
+        mandatory: List of global indices of bins to be collected.
         distance_matrix: Pre-computed all-pairs distance matrix.
         wastes: Dictionary mapping node indices to waste quantities.
         capacity: Maximum vehicle capacity.
@@ -105,7 +105,7 @@ def run_cf_rs(
         Sultana, T., Akhand, M. A. H., & Rahman, M. M. H. (2017).
         "A Variant Fisher and Jaikumar Algorithm to Solve Capacitated Vehicle Routing Problem"
     """
-    if not must_go:
+    if not mandatory:
         return [[0, 0]], 0.0, {}
 
     # Determine number of clusters (K)
@@ -113,18 +113,18 @@ def run_cf_rs(
         k = num_clusters
     else:
         # Dynamic calculation: as many clusters as necessary to fit total waste
-        total_waste = sum(wastes.get(node, 0) for node in must_go)
+        total_waste = sum(wastes.get(node, 0) for node in mandatory)
         # At least 1 cluster if nodes exist, and at least n_vehicles
         min_k = math.ceil(total_waste / capacity) if capacity > 0 else 1
         k = max(n_vehicles, min_k)
-        if k == 0 and must_go:
+        if k == 0 and mandatory:
             k = 1
 
     # STAGE 1: CLUSTERING (VFJ Methodology)
     # VFJ partitions by equal node count per sector (key contribution vs. SFJ 1981)
     clusters = fisher_jaikumar_clustering(
         coords,
-        must_go,
+        mandatory,
         k,
         wastes,
         capacity,
@@ -181,7 +181,7 @@ def run_cf_rs(
 
 def fisher_jaikumar_clustering(
     coords: pd.DataFrame,
-    must_go: List[int],
+    mandatory: List[int],
     k: int,
     wastes: Dict[int, float],
     capacity: float,
@@ -206,7 +206,7 @@ def fisher_jaikumar_clustering(
 
     Args:
         coords: DataFrame containing 'Lat' and 'Lng' for all nodes.
-        must_go: List of global indices of bins to be collected.
+        mandatory: List of global indices of bins to be collected.
         k: Number of clusters/seeds to create.
         wastes: Dictionary mapping node indices to waste quantities.
         capacity: Maximum vehicle capacity.
@@ -234,7 +234,7 @@ def fisher_jaikumar_clustering(
         Sultana, T., Akhand, M. A. H., & Rahman, M. M. H. (2017).
         Section 3.2: "each cone contains equal number of nodes"
     """
-    if not must_go:
+    if not mandatory:
         return []
 
     # Validate assignment method
@@ -243,7 +243,7 @@ def fisher_jaikumar_clustering(
 
     # 1. Depot and node feature extraction
     depot_lat, depot_lng = _get_depot_coords(coords)
-    df_nodes = _compute_node_features(coords, must_go, depot_lat, depot_lng, distance_matrix)
+    df_nodes = _compute_node_features(coords, mandatory, depot_lat, depot_lng, distance_matrix)
 
     # 2. Seed Selection (VFJ: equal node count per sector)
     seeds = _select_initial_seeds(df_nodes, k, wastes, seed_criterion)
@@ -252,12 +252,14 @@ def fisher_jaikumar_clustering(
 
     # 3. Assignment - Route to appropriate method
     if assignment_method == "greedy":
-        clusters = assign_greedy(seeds, must_go, wastes, capacity, distance_matrix, strict_fleet)
+        clusters = assign_greedy(seeds, mandatory, wastes, capacity, distance_matrix, strict_fleet)
     else:  # assignment_method == "exact"
-        clusters = assign_exact_mip(seeds, must_go, wastes, capacity, R, C, distance_matrix, time_limit, mip_objective)  # type: ignore[assignment]
+        clusters = assign_exact_mip(
+            seeds, mandatory, wastes, capacity, R, C, distance_matrix, time_limit, mip_objective
+        )  # type: ignore[assignment]
         # If MIP assignment fails or Gurobi unavailable, fall back to greedy
         if clusters is None:
-            clusters = assign_greedy(seeds, must_go, wastes, capacity, distance_matrix, strict_fleet)
+            clusters = assign_greedy(seeds, mandatory, wastes, capacity, distance_matrix, strict_fleet)
 
     # Filter out empty clusters
     return [c for c in clusters if c]
@@ -272,14 +274,14 @@ def _get_depot_coords(coords: Any) -> Tuple[float, float]:
 
 def _compute_node_features(
     coords: Any,
-    must_go: List[int],
+    mandatory: List[int],
     depot_lat: float,
     depot_lng: float,
     distance_matrix: np.ndarray,
 ) -> pd.DataFrame:
     """Compute angular positions and distances for all nodes relative to depot."""
     node_data = []
-    for idx in must_go:
+    for idx in mandatory:
         if isinstance(coords, pd.DataFrame):
             lat, lng = coords.iloc[idx]["Lat"], coords.iloc[idx]["Lng"]
         else:

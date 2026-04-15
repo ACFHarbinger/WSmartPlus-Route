@@ -17,5 +17,5 @@ rrt:
     - time_limit: 60.0
     - profit_aware_operators: true
     - vrpp: true
-    - must_go: ["other/mg_lookahead.yaml"]
-    - post_processing: []
+    - mandatory_selection: ["other/ms_lookahead.yaml"]
+    - route_improvement: []

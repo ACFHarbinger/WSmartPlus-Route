@@ -8,8 +8,8 @@ mapping YAML configuration values to typed Python attributes for use in the solv
 from dataclasses import dataclass
 from typing import List, Optional
 
-from .other.must_go import MustGoConfig
-from .other.post_processing import PostProcessingConfig
+from .other.mandatory_selection import MandatorySelectionConfig
+from .other.route_improvement import RouteImprovingConfig
 
 
 @dataclass
@@ -62,9 +62,9 @@ class BBConfig:
             Defaults to True.
         seed (Optional[int]): Random seed passed to the underlying Gurobi engine
             for deterministic results. Defaults to None.
-        must_go (Optional[List[MustGoConfig]]): List of strategies determining
-            mandatory nodes to visit. Defaults to None.
-        post_processing (Optional[List[PostProcessingConfig]]): List of operations
+        mandatory_selection (Optional[List[MandatorySelectionConfig]]): List of
+            strategies determining mandatory nodes to visit. Defaults to None.
+        route_improvement (Optional[List[RouteImprovingConfig]]): List of operations
             to refine the tour after the exact search completes. Defaults to None.
 
         # LR-UOP only
@@ -96,8 +96,8 @@ class BBConfig:
     strong_branching_limit: int = 5
     vrpp: bool = True
     seed: Optional[int] = None
-    must_go: Optional[List[MustGoConfig]] = None
-    post_processing: Optional[List[PostProcessingConfig]] = None
+    mandatory_selection: Optional[List[MandatorySelectionConfig]] = None
+    route_improvement: Optional[List[RouteImprovingConfig]] = None
 
     # LR-UOP: Subgradient phase
     lr_lambda_init: float = 0.0

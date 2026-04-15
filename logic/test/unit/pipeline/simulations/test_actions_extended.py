@@ -2,7 +2,7 @@
 import numpy as np
 import pytest
 from unittest.mock import MagicMock, patch
-from logic.src.pipeline.simulations.actions import MustGoSelectionAction, FillAction, CollectAction, PostProcessAction
+from logic.src.pipeline.simulations.actions import MandatorySelectionAction, FillAction, CollectAction, RouteImprovementAction
 
 class SimpleContext(dict):
     def __getattr__(self, name):
@@ -32,12 +32,12 @@ def base_context(mock_bins):
         'waste_type': 'plastic'
     })
 
-class TestMustGoSelectionActionDetailed:
+class TestMandatorySelectionActionDetailed:
     def test_regular_mapping(self, base_context):
-        action = MustGoSelectionAction()
+        action = MandatorySelectionAction()
         base_context['full_policy'] = 'regular7'
         action.execute(base_context)
-        assert 'must_go' in base_context
+        assert 'mandatory' in base_context
 
 class TestFillActionDetailed:
     def test_stochastic_fill(self, base_context, mock_bins):
@@ -55,17 +55,17 @@ class TestCollectActionDetailed:
         assert base_context['total_collected'] == 50.0
         assert base_context['ncol'] == 1
 
-class TestPostProcessActionDetailed:
-    @patch("logic.src.policies.other.post_processing.PostProcessorFactory.create")
-    def test_post_process_execution(self, mock_create, base_context):
+class TestRouteImprovementActionDetailed:
+    @patch("logic.src.policies.other.route_improvement.RouteImproverFactory.create")
+    def test_route_improvement_execution(self, mock_create, base_context):
         mock_proc = MagicMock()
         mock_proc.process.return_value = [0, 1, 2, 0]
         mock_create.return_value = mock_proc
 
-        base_context['post_process'] = 'fast_tsp'
+        base_context['route_improvement'] = 'fast_tsp'
         base_context['tour'] = [0, 2, 1, 0]
         base_context['distance_matrix'] = np.zeros((6,6))
 
-        action = PostProcessAction()
+        action = RouteImprovementAction()
         action.execute(base_context)
         assert base_context['tour'] == [0, 1, 2, 0]

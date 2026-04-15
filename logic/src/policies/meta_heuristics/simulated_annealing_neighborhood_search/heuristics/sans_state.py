@@ -4,7 +4,7 @@ State and Cost utilities for Simulated Annealing.
 
 from logic.src.constants import (
     MAX_CAPACITY_PERCENT,
-    PENALTY_MUST_GO_MISSED,
+    PENALTY_MANDATORY_NODES_MISSED,
 )
 from logic.src.policies.meta_heuristics.simulated_annealing_neighborhood_search.common.distance import (
     compute_total_cost,
@@ -12,7 +12,7 @@ from logic.src.policies.meta_heuristics.simulated_annealing_neighborhood_search.
 
 
 def compute_profit(
-    solution, distance_matrix, id_to_index, data, vehicle_capacity, R, V, density, must_go_bins, stocks=None
+    solution, distance_matrix, id_to_index, data, vehicle_capacity, R, V, density, mandatory_bins, stocks=None
 ):
     """
     Calculate the profit of a solution.
@@ -25,7 +25,7 @@ def compute_profit(
 
     # Calculate STRICT SIMULATOR PROFIT (Route 0 Only + Capacity Cutoff)
     real_kg = 0
-    collected_must_go = set()
+    collected_mandatory = set()
     if len(solution) > 0 and len(solution[0]) > 2:
         route0 = solution[0]
         current_load = 0
@@ -37,17 +37,17 @@ def compute_profit(
             if current_load + bin_kg <= vehicle_capacity:
                 current_load += bin_kg
                 real_kg += bin_kg
-                if must_go_bins and b in must_go_bins:
-                    collected_must_go.add(b)
+                if mandatory_bins and b in mandatory_bins:
+                    collected_mandatory.add(b)
             else:
                 break
 
     current_revenue = real_kg * R
 
-    # Must-Go Penalty: Force all must_go_bins into the valid trunk of Route 0
-    missed_must_go = len(must_go_bins) - len(collected_must_go) if must_go_bins else 0
-    penalty_must_go = missed_must_go * PENALTY_MUST_GO_MISSED
+    # Mandatory Penalty: Force all mandatory_bins into the valid trunk of Route 0
+    missed_mandatory = len(mandatory_bins) - len(collected_mandatory) if mandatory_bins else 0
+    penalty_mandatory = missed_mandatory * PENALTY_MANDATORY_NODES_MISSED
 
-    current_profit = current_revenue - current_cost - penalty_must_go
+    current_profit = current_revenue - current_cost - penalty_mandatory
 
     return current_profit, current_cost, current_revenue, real_kg

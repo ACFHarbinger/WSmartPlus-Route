@@ -27,8 +27,8 @@ class ACOConfig:
         elitist_weight: Weight for elitist pheromone update.
         operators: List of local search operators to use.
         engine: Solver engine to use.
-        must_go: List of must-go strategy config files.
-        post_processing: List of post-processing operations to apply.
+        mandatory_selection: List of mandatory strategy config files.
+        route_improvement: List of route improvement operations to apply.
     """
 
     n_ants: int = 20

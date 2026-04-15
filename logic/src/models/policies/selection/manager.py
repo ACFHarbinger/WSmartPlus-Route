@@ -7,16 +7,16 @@ from typing import Optional
 import torch
 from torch import Tensor
 
-from logic.src.models.meta.hrl_manager import MustGoManager
+from logic.src.models.meta.hrl_manager import MandatoryManager
 
 from .base import VectorizedSelector
 
 
 class ManagerSelector(VectorizedSelector):
     """
-    Neural network-based must-go selection using MustGoManager.
+    Neural network-based mandatory selection using MandatoryManager.
 
-    This selector wraps a trained HRL manager to make must-go decisions
+    This selector wraps a trained HRL manager to make mandatory decisions
     based on learned patterns from temporal waste data and spatial context.
     The manager learns to predict which bins require collection.
     """
@@ -32,9 +32,9 @@ class ManagerSelector(VectorizedSelector):
         Initialize ManagerSelector.
 
         Args:
-            manager: Pre-instantiated MustGoManager. If None, creates one from config.
+            manager: Pre-instantiated MandatoryManager. If None, creates one from config.
             manager_config: Configuration dict for creating manager if not provided.
-            threshold: Probability threshold for must_go decision.
+            threshold: Probability threshold for mandatory decision.
             device: Device for computation ('cpu' or 'cuda').
         """
         self.threshold = threshold
@@ -44,7 +44,7 @@ class ManagerSelector(VectorizedSelector):
             self.manager = manager
         else:
             config = manager_config or {}
-            self.manager = MustGoManager(
+            self.manager = MandatoryManager(
                 hidden_dim=config.get("hidden_dim", 128),
                 lstm_hidden=config.get("lstm_hidden", 64),
                 input_dim_dynamic=config.get("history_length", 10),
@@ -105,10 +105,10 @@ class ManagerSelector(VectorizedSelector):
         max_waste = current_waste.max(dim=1, keepdim=True)[0]
         global_features = torch.cat([critical_ratio, max_waste], dim=1)
 
-        # Get must_go mask from manager
-        must_go = self.manager.get_must_go_mask(locs, dynamic, global_features, threshold=thresh)
+        # Get mandatory mask from manager
+        mandatory = self.manager.get_mandatory_mask(locs, dynamic, global_features, threshold=thresh)
 
-        return must_go
+        return mandatory
 
     def load_weights(self, path: str):
         """Load manager weights from checkpoint."""

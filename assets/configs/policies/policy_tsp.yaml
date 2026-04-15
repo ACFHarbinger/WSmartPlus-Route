@@ -44,15 +44,15 @@ tsp:
     # ---------------------------------------------------------------------
     # Node Selection Strategy
     # ---------------------------------------------------------------------
-    - must_go: ["other/mg_last_minute_cf70.yaml"]
+    - mandatory_selection: ["other/ms_last_minute_cf70.yaml"]
     # VRPP Settings
     - vrpp: true
     # Pre-filter nodes before TSP solving
-    # mg_last_minute_cf70.xml: Collect bins when fill ≥70% capacity
-    # Alternative strategies: mg_lookahead.yaml (predictive), mg_regular.yaml
+    # ms_last_minute_cf70.xml: Collect bins when fill ≥70% capacity
+    # Alternative strategies: ms_lookahead.yaml (predictive), ms_regular.yaml
     # See: docs/MUST_GO_STRATEGIES.md
     #
-    # Note: Different from most policies which use mg_lookahead.yaml
+    # Note: Different from most policies which use ms_lookahead.yaml
     # Last-minute strategy is simpler and faster for uncapacitated TSP
 
     # ---------------------------------------------------------------------
@@ -67,7 +67,7 @@ tsp:
     # ---------------------------------------------------------------------
     # Post-Processing
     # ---------------------------------------------------------------------
-    - post_processing: []
+    - route_improvement: []
     # Optional local search refinement after TSP
     # Empty = use fast_tsp output directly (already includes 2-opt)
     # Options: ["2opt_intra"] (redundant, fast_tsp already applies 2-opt)

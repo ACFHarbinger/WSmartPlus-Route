@@ -28,7 +28,7 @@ class RLHVPLPolicy(BaseRoutingPolicy):
     """
     RL-HVPL policy class.
 
-    Visits pre-selected 'must_go' bins using the population-based RL-HVPL metaheuristic.
+    Visits pre-selected 'mandatory' bins using the population-based RL-HVPL metaheuristic.
     """
 
     def __init__(self, config: Optional[Union[RLHVPLConfig, Dict[str, Any]]] = None):

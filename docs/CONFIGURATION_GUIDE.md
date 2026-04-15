@@ -267,10 +267,10 @@ assets/configs/
     ├── policy_swc_tcf.yaml    # SWC-TCF policies
     ├── policy_cvrp.yaml       # CVRP-specific policies
     └── other/                 # Auxiliary configurations
-        ├── mg_lookahead.yaml       # Must-go: Lookahead strategy
-        ├── mg_last_minute_*.yaml   # Must-go: Threshold strategies
-        ├── mg_regular_*.yaml       # Must-go: Fixed-frequency
-        ├── mg_service_level*.yaml  # Must-go: Service level
+        ├── ms_lookahead.yaml       # Must-go: Lookahead strategy
+        ├── ms_last_minute_*.yaml   # Must-go: Threshold strategies
+        ├── ms_regular_*.yaml       # Must-go: Fixed-frequency
+        ├── ms_service_level*.yaml  # Must-go: Service level
         ├── pp_cls.yaml             # Post-processing: CLS
         ├── pp_ftsp.yaml            # Post-processing: Fast TSP
         └── pp_rds.yaml             # Post-processing: RDS
@@ -618,7 +618,7 @@ hgs:
     - elite_size: 10 # Elite preservation
     - mutation_rate: 0.2 # Mutation probability
     - engine: "custom" # PyVRP backend
-    - must_go: ["other/mg_lookahead.yaml"]
+    - must_go: ["other/ms_lookahead.yaml"]
     - post_processing: []
 ```
 
@@ -699,7 +699,7 @@ neural:
   custom:
     - model_path: "checkpoints/best_model.pt"
     - decoding_strategy: "greedy"
-    - must_go: ["other/mg_lookahead.yaml"]
+    - must_go: ["other/ms_lookahead.yaml"]
 ```
 
 ---
@@ -712,10 +712,10 @@ neural:
 
 | Strategy          | File                      | Description                                      |
 | ----------------- | ------------------------- | ------------------------------------------------ |
-| **Lookahead**     | `mg_lookahead.yaml`       | Predict future overflows with GRF                |
-| **Last Minute**   | `mg_last_minute_cf*.yaml` | Collect when fill ≥ threshold (70%, 90%)         |
-| **Regular**       | `mg_regular_lvl*.yaml`    | Fixed frequency (every 3, 4, 5 days)             |
-| **Service Level** | `mg_service_level*.yaml`  | Statistical overflow prediction (84% confidence) |
+| **Lookahead**     | `ms_lookahead.yaml`       | Predict future overflows with GRF                |
+| **Last Minute**   | `ms_last_minute_cf*.yaml` | Collect when fill ≥ threshold (70%, 90%)         |
+| **Regular**       | `ms_regular_lvl*.yaml`    | Fixed frequency (every 3, 4, 5 days)             |
+| **Service Level** | `ms_service_level*.yaml`  | Statistical overflow prediction (84% confidence) |
 
 **Example:**
 
@@ -723,7 +723,7 @@ neural:
 # Change must-go strategy for HGS
 python main.py test_sim \
   sim.policies=[hgs] \
-  +hgs.custom[0].must_go=["other/mg_last_minute_cf90.yaml"]
+  +hgs.custom[0].must_go=["other/ms_last_minute_cf90.yaml"]
 ```
 
 #### 6.2 Post-Processing

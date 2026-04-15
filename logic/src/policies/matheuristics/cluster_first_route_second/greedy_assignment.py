@@ -19,7 +19,7 @@ import numpy as np
 
 def assign_greedy(
     seeds: List[int],
-    must_go: List[int],
+    mandatory: List[int],
     wastes: Dict[int, float],
     capacity: float,
     distance_matrix: np.ndarray,
@@ -41,14 +41,14 @@ def assign_greedy(
 
     # Step 1: Pre-assign seeds to their own clusters
     for k_idx, k in enumerate(seeds):
-        if k in must_go:
+        if k in mandatory:
             clusters[k_idx].append(k)
             loads[k_idx] += wastes.get(k, 0.0)
             assigned.add(k)
 
     # Step 2: Calculate insertion costs for all (node, seed) pairs
     insertion_costs = []
-    for i in must_go:
+    for i in mandatory:
         if i in assigned:
             continue
         for k_idx, k in enumerate(seeds):
@@ -69,16 +69,18 @@ def assign_greedy(
                 assigned.add(node_i)
 
     # Step 5: Handle unassigned nodes
-    unassigned = [node for node in must_go if node not in assigned]
+    unassigned = [node for node in mandatory if node not in assigned]
     if unassigned:
-        _handle_unassigned_nodes(unassigned, must_go, seeds, clusters, loads, assigned, capacity, wastes, strict_fleet)
+        _handle_unassigned_nodes(
+            unassigned, mandatory, seeds, clusters, loads, assigned, capacity, wastes, strict_fleet
+        )
 
     return clusters
 
 
 def _handle_unassigned_nodes(
     unassigned: List[int],
-    must_go: List[int],
+    mandatory: List[int],
     seeds: List[int],
     clusters: List[List[int]],
     loads: List[float],
@@ -105,7 +107,7 @@ def _handle_unassigned_nodes(
             if strict_fleet:
                 # FALLBACK: Try a swap-based local search
                 if not _greedy_swap_fallback(node, waste, seeds, clusters, loads, assigned, capacity, wastes):
-                    unassigned_final = [n for n in must_go if n not in assigned]
+                    unassigned_final = [n for n in mandatory if n not in assigned]
                     raise ValueError(
                         f"Greedy assignment failed in strict fleet mode. "
                         f"Cannot assign {len(unassigned_final)} nodes to {len(seeds)} vehicles. "

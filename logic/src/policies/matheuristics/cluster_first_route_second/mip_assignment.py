@@ -32,7 +32,7 @@ except ImportError:
 
 def _add_variables_and_objective(
     model: "gp.Model",
-    must_go: List[int],
+    mandatory: List[int],
     seeds: List[int],
     costs: Dict[Tuple[int, int], float],
     wastes: Dict[int, float],
@@ -44,12 +44,12 @@ def _add_variables_and_objective(
     x = {}
     if objective == "minimize_cost":
         model.ModelSense = GRB.MINIMIZE
-        for i in must_go:
+        for i in mandatory:
             for k_idx in range(len(seeds)):
                 x[i, k_idx] = model.addVar(vtype=GRB.BINARY, obj=costs[i, k_idx], name=f"x_{i}_{k_idx}")
     else:  # objective == "maximize_profit"
         model.ModelSense = GRB.MAXIMIZE
-        for i in must_go:
+        for i in mandatory:
             for k_idx in range(len(seeds)):
                 profit = (wastes.get(i, 0.0) * R) - (costs[i, k_idx] * C)
                 x[i, k_idx] = model.addVar(vtype=GRB.BINARY, obj=profit, name=f"x_{i}_{k_idx}")
@@ -58,7 +58,7 @@ def _add_variables_and_objective(
 
 def assign_exact_mip(
     seeds: List[int],
-    must_go: List[int],
+    mandatory: List[int],
     wastes: Dict[int, float],
     capacity: float,
     R: float,
@@ -81,7 +81,7 @@ def assign_exact_mip(
     Mathematical Formulation (GAP):
         Minimize: Σ_i Σ_k (c_ik * x_ik)
         Subject to:
-            Σ_k x_ik <= 1                    ∀i ∈ must_go  (assignment)
+            Σ_k x_ik <= 1                    ∀i ∈ mandatory  (assignment)
             Σ_i w_i * x_ik <= capacity       ∀k ∈ seeds    (capacity)
             x_kk = 1                         ∀k ∈ seeds    (seed constraint)
             x_ik ∈ {0, 1}                    ∀i, k
@@ -99,7 +99,7 @@ def assign_exact_mip(
 
     Args:
         seeds: List of seed node indices (one per initial cluster).
-        must_go: List of all nodes that need to be assigned.
+        mandatory: List of all nodes that need to be assigned.
         wastes: Dictionary mapping node indices to waste quantities.
         capacity: Maximum vehicle capacity.
         R: Revenue per unit of waste (used only in maximize_profit mode).
@@ -125,18 +125,18 @@ def assign_exact_mip(
 
     Example (Benchmark Mode):
         >>> seeds = [5, 12, 20]
-        >>> must_go = list(range(1, 21))
-        >>> wastes = {i: 10.0 for i in must_go}
+        >>> mandatory = list(range(1, 21))
+        >>> wastes = {i: 10.0 for i in mandatory}
         >>> capacity = 100.0
         >>> R, C = 5.0, 1.0
         >>> distance_matrix = np.random.rand(21, 21)
         >>> # Minimize cost for benchmark comparison
-        >>> clusters = assign_exact_mip(seeds, must_go, wastes, capacity, R, C,
+        >>> clusters = assign_exact_mip(seeds, mandatory, wastes, capacity, R, C,
         ...                             distance_matrix, objective="minimize_cost")
 
     Example (Simulation Mode):
         >>> # Maximize profit for simulation
-        >>> clusters = assign_exact_mip(seeds, must_go, wastes, capacity, R, C,
+        >>> clusters = assign_exact_mip(seeds, mandatory, wastes, capacity, R, C,
         ...                             distance_matrix, objective="maximize_profit")
     """
     # Validate objective parameter
@@ -155,7 +155,7 @@ def assign_exact_mip(
 
         # 1. Precompute insertion costs: c_ik = D_Si + D_i0 - D_S
         costs = {}
-        for i in must_go:
+        for i in mandatory:
             for k_idx, k in enumerate(seeds):
                 if i == k:
                     # Seed insertion cost into its own cluster is exactly zero.
@@ -173,21 +173,21 @@ def assign_exact_mip(
         model = gp.Model("Fisher_Jaikumar_GAP", env=env)
 
         # 3. Decision Variables and Objective Function
-        x = _add_variables_and_objective(model, must_go, seeds, costs, wastes, R, C, objective)
+        x = _add_variables_and_objective(model, mandatory, seeds, costs, wastes, R, C, objective)
 
         # 4. Constraint: Assignment (Each node to AT MOST one cluster)
-        for i in must_go:
+        for i in mandatory:
             model.addConstr(gp.quicksum(x[i, k_idx] for k_idx in range(len(seeds))) <= 1, name=f"assign_{i}")
 
         # 5. Constraint: Vehicle Capacity
         for k_idx in range(len(seeds)):
             model.addConstr(
-                gp.quicksum(wastes.get(i, 0.0) * x[i, k_idx] for i in must_go) <= capacity, name=f"cap_{k_idx}"
+                gp.quicksum(wastes.get(i, 0.0) * x[i, k_idx] for i in mandatory) <= capacity, name=f"cap_{k_idx}"
             )
 
         # 6. Constraint: Seeds must be assigned to their own clusters
         for k_idx, k in enumerate(seeds):
-            if k in must_go:
+            if k in mandatory:
                 model.addConstr(x[k, k_idx] == 1, name=f"seed_{k}")
 
         # 7. Solve the GAP
@@ -198,7 +198,7 @@ def assign_exact_mip(
 
         # 8. Extract Solution
         if model.Status == GRB.OPTIMAL or model.Status == GRB.TIME_LIMIT:
-            for i in must_go:
+            for i in mandatory:
                 for k_idx in range(len(seeds)):
                     if x[i, k_idx].X > 0.5:
                         clusters[k_idx].append(i)

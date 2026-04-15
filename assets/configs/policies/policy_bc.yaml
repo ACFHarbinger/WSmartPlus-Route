@@ -102,18 +102,18 @@ bc:
     # ---------------------------------------------------------------------
     # Must-Go Strategy
     # ---------------------------------------------------------------------
-    - must_go: ["other/mg_lookahead.yaml"]
+    - mandatory_selection: ["other/ms_lookahead.yaml"]
       # Node selection strategy for waste collection problems
       # Options:
-      #   - mg_lookahead.yaml: Predict overflow within N days
-      #   - mg_last_minute_*.yaml: Collect when fill exceeds threshold
-      #   - mg_regular.yaml: Fixed-frequency collection
+      #   - ms_lookahead.yaml: Predict overflow within N days
+      #   - ms_last_minute_*.yaml: Collect when fill exceeds threshold
+      #   - ms_regular.yaml: Fixed-frequency collection
       # See: docs/MUST_GO_STRATEGIES.md
 
     # ---------------------------------------------------------------------
     # Post-Processing
     # ---------------------------------------------------------------------
-    - post_processing: []
+    - route_improvement: []
       # Route refinement heuristics (not needed for exact solutions)
       # Always empty for BC since solutions are already optimal
 

@@ -21,7 +21,7 @@ class FILOPolicy(BaseRoutingPolicy):
     """
     FILO policy class.
 
-    Visits pre-selected 'must_go' bins using Fast Iterative Localized Optimization.
+    Visits pre-selected 'mandatory' bins using Fast Iterative Localized Optimization.
     """
 
     def __init__(self, config: Optional[Union[FILOConfig, Dict[str, Any]]] = None):

@@ -19,7 +19,7 @@ class TestSWCTCFOptimizerContract:
             distance_matrix=data["dist_matrix"],
             values=data["values"],
             binsids=data["binsids"],
-            must_go=data["must_go"],
+            mandatory=data["mandatory"],
             optimizer=backend,
             time_limit=5,
         )
@@ -33,11 +33,11 @@ class TestSWCTCFOptimizerContract:
         assert isinstance(profit, float), "Profit must be a float"
         assert isinstance(cost, float), "Cost must be a float"
 
-        # 3. Constraint Check (Must-go)
-        # must_go contains ID 2 and 4. They MUST be in the routes.
+        # 3. Constraint Check (Mandatory)
+        # mandatory contains ID 2 and 4. They MUST be in the routes.
         # Note: ID 0 is depot. Bins are 1-5.
-        for mg_id in data["must_go"]:
-            assert mg_id in routes, f"Must-go bin {mg_id} was not collected by {backend}"
+        for ms_id in data["mandatory"]:
+            assert ms_id in routes, f"Mandatory bin {ms_id} was not collected by {backend}"
 
     @pytest.mark.integration
     @pytest.mark.parametrize("backend", ["gurobi", "hexaly"])
@@ -45,7 +45,7 @@ class TestSWCTCFOptimizerContract:
         """Case where no bins should be collected."""
         data = base_vrpp_data
         data["bins"] = np.zeros(len(data["bins"]))  # all empty
-        data["must_go"] = []
+        data["mandatory"] = []
         data["values"]["psi"] = 0.99
 
         routes, profit, cost = run_swc_tcf_optimizer(
@@ -53,7 +53,7 @@ class TestSWCTCFOptimizerContract:
             distance_matrix=data["dist_matrix"],
             values=data["values"],
             binsids=data["binsids"],
-            must_go=data["must_go"],
+            mandatory=data["mandatory"],
             optimizer=backend,
             time_limit=5,
         )

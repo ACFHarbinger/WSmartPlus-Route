@@ -5,8 +5,8 @@ Configuration for the Adaptive Kernel Search (AKS) matheuristic.
 from dataclasses import dataclass
 from typing import Optional
 
-from .other.must_go import MustGoConfig
-from .other.post_processing import PostProcessingConfig
+from .other.mandatory_selection import MandatorySelectionConfig
+from .other.route_improvement import RouteImprovingConfig
 
 
 @dataclass
@@ -64,9 +64,9 @@ class AdaptiveKernelSearchConfig:
             invoke the project's native Gurobi-based AKS solver.
         framework (str): Identifier for the optimization framework. Options
             include "ortools" and "pyomon".
-        must_go (Optional[MustGoConfig]): Configuration for mandatory node
-            selection policies (e.g., must collect full bins).
-        post_processing (Optional[PostProcessingConfig]): Optional configuration
+        mandatory_selection (Optional[MandatorySelectionConfig]): Configuration for
+            mandatory node selection policies (e.g., must collect full bins).
+        route_improvement (Optional[RouteImprovingConfig]): Optional configuration
             for local search refinement steps applied after the main AKS loop.
     """
 
@@ -87,5 +87,5 @@ class AdaptiveKernelSearchConfig:
     # Infrastructure
     engine: str = "gurobi"
     framework: str = "ortools"
-    must_go: Optional[MustGoConfig] = None
-    post_processing: Optional[PostProcessingConfig] = None
+    mandatory_selection: Optional[MandatorySelectionConfig] = None
+    route_improvement: Optional[RouteImprovingConfig] = None

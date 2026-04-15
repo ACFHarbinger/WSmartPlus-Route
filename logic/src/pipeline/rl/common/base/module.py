@@ -56,7 +56,7 @@ class RL4COLitModule(DataMixin, OptimizationMixin, StepMixin, pl.LightningModule
         num_workers: int = 4,
         persistent_workers: bool = True,
         pin_memory: bool = False,
-        must_go_selector: Optional[VectorizedSelector] = None,
+        mandatory_selector: Optional[VectorizedSelector] = None,
         **kwargs,
     ):
         """
@@ -76,7 +76,7 @@ class RL4COLitModule(DataMixin, OptimizationMixin, StepMixin, pl.LightningModule
             train_dataset_path: Optional path to a pre-saved training dataset.
             batch_size: Batch size for training and validation.
             num_workers: Number of workers for data loading.
-            must_go_selector: Optional vectorized selector for must-go bin selection.
+            mandatory_selector: Optional vectorized selector for mandatory bin selection.
             **kwargs: Additional keyword arguments.
         """
         pl.LightningModule.__init__(self)
@@ -88,7 +88,7 @@ class RL4COLitModule(DataMixin, OptimizationMixin, StepMixin, pl.LightningModule
         params_to_save = {
             k: v
             for k, v in locals().items()
-            if k not in ["self", "__class__", "env", "policy", "must_go_selector", "generator"]
+            if k not in ["self", "__class__", "env", "policy", "mandatory_selector", "generator"]
         }
         # Avoid shadowing self.baseline (the object) with baseline (the string)
         if "baseline" in params_to_save:
@@ -99,7 +99,7 @@ class RL4COLitModule(DataMixin, OptimizationMixin, StepMixin, pl.LightningModule
         self.policy = policy
         self.baseline_type = baseline
         self.train_dataset: Optional[Any] = None
-        self.must_go_selector = must_go_selector
+        self.mandatory_selector = mandatory_selector
 
         # Data params
         self.train_data_size = train_data_size

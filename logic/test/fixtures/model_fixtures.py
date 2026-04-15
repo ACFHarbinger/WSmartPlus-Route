@@ -7,7 +7,7 @@ from unittest.mock import MagicMock
 import pytest
 import torch
 from logic.src.models.core.attention_model import AttentionModel
-from logic.src.models.meta.hrl_manager import MustGoManager
+from logic.src.models.meta.hrl_manager import MandatoryManager
 from logic.src.models.subnets.factories.base import NeuralComponentFactory
 from logic.src.models.subnets.decoders.glimpse.decoder import GlimpseDecoder
 from logic.src.models.core.temporal_attention_model.model import TemporalAttentionModel
@@ -82,8 +82,8 @@ def am_setup(mocker):
 
 @pytest.fixture
 def gat_lstm_setup():
-    """Fixture for MustGoManager"""
-    manager = MustGoManager(
+    """Fixture for MandatoryManager"""
+    manager = MandatoryManager(
         input_dim_static=2,
         input_dim_dynamic=10,
         hidden_dim=32,

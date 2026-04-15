@@ -2,8 +2,7 @@
 Miscellaneous configuration dataclasses.
 """
 
-from .must_go import MustGoConfig
-from .post_processing import PostProcessingConfig
+from .mandatory_selection import MandatorySelectionConfig
 from .reinforcement_learning import (
     BanditConfig,
     ContextFeatureExtractorConfig,
@@ -15,6 +14,7 @@ from .reinforcement_learning import (
     RLConfig,
     TDLearningConfig,
 )
+from .route_improvement import RouteImprovingConfig
 
 __all__ = [
     "BanditConfig",
@@ -26,7 +26,6 @@ __all__ = [
     "FeatureExtractorConfig",
     "ContextFeatureExtractorConfig",
     "RLConfig",
-    "HPOConfig",
-    "SearchSpaceConfig",
-    "OptimizationTargetConfig",
+    "MandatorySelectionConfig",
+    "RouteImprovingConfig",
 ]
