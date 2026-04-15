@@ -1,9 +1,9 @@
 import pytest
 import torch
-from logic.src.pipeline.rl.common.post_processing import EfficiencyOptimizer, calculate_efficiency, decode_routes
+from logic.src.pipeline.rl.common.route_improvement import EfficiencyOptimizer, calculate_efficiency, decode_routes
 
 
-class TestPostProcessing:
+class TestRouteImproving:
     def test_decode_routes_simple(self):
         # [0, 1, 2, 0, 0] -> [1, 2]
         actions = torch.tensor([[0, 1, 2, 0, 0], [0, 3, 0, 0, 0]])

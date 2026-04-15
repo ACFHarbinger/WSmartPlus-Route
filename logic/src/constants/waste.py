@@ -31,7 +31,7 @@ Each type requires different:
 Critical Fill Threshold
 -----------------------
 CRITICAL_FILL_THRESHOLD defines the fill level that triggers priority collection.
-Used in: must-go bin selection, overflow prediction, service level agreements.
+Used in: mandatory bin selection, overflow prediction, service level agreements.
 """
 
 from typing import Dict
@@ -56,7 +56,7 @@ WASTE_TYPES: Dict[str, str] = {
 # Critical fill threshold (normalized, 0.0-1.0)
 # Bins at or above this level are prioritized for immediate collection.
 # Used in:
-# - Must-go bin selection (bins ≥ 0.9 are flagged as mandatory)
+# - Mandatory bin selection (bins ≥ 0.9 are flagged as mandatory)
 # - Service level agreement (SLA) compliance (overflow risk indicator)
 # - Look-ahead search (triggers preventive collection)
 # Industry standard: 0.8-0.9. WSmart+ uses 0.9 to balance cost vs overflow risk.

@@ -21,7 +21,7 @@ class BPCPolicy(BaseRoutingPolicy):
     """
     Branch-and-Price-and-Cut policy class.
 
-    Visits pre-selected 'must_go' bins using exact or heuristic BPC solvers.
+    Visits pre-selected 'mandatory' bins using exact or heuristic BPC solvers.
     """
 
     def __init__(self, config: Optional[Union[BPCConfig, Dict[str, Any]]] = None):
@@ -108,7 +108,7 @@ class BPCPolicy(BaseRoutingPolicy):
 
         wastes = {i: float(bins.c[i - 1]) for i in range(1, len(bins.c) + 1)}
         capacity = float(profit_vars.get("bin_capacity", 100.0))
-        must_go = set(kwargs.get("must_go", []))
+        mandatory = set(kwargs.get("mandatory", []))
 
         params = BPCParams.from_config(config_dict)
 
@@ -181,7 +181,7 @@ class BPCPolicy(BaseRoutingPolicy):
             R=R,
             C=C,
             params=params,
-            must_go_indices=must_go,
+            mandatory_indices=mandatory,
             vehicle_limit=vehicle_limit,
             node_prizes=node_prizes,
         )
@@ -211,7 +211,7 @@ class BPCPolicy(BaseRoutingPolicy):
         """
         Run BPC solver.
 
-        All nodes in mandatory_nodes are treated as must-go for the solver.
+        All nodes in mandatory_nodes are treated as mandatory for the solver.
         In VRPP mode, additional nodes from sub_wastes might be collected if profitable.
 
         Returns:
@@ -225,8 +225,8 @@ class BPCPolicy(BaseRoutingPolicy):
         #   routes          — list of customer-node lists (depot excluded)
         #   objective_value — net profit = Σ(revenue_i) - travel_cost, in monetary units.
         #                     May be a greedy-fallback value if BPC found no integer solution.
-        # Convert local mandatory indices to a set of must-go nodes for the solver
-        must_go_indices: Set[int] = set(mandatory_nodes)
+        # Convert local mandatory indices to a set of mandatory nodes for the solver
+        mandatory_indices: Set[int] = set(mandatory_nodes)
 
         # Initialize standardized params object (Phase 1 refactoring)
         params = BPCParams.from_config(values)
@@ -249,7 +249,7 @@ class BPCPolicy(BaseRoutingPolicy):
             revenue,
             cost_unit,
             params,
-            must_go_indices=must_go_indices,
+            mandatory_indices=mandatory_indices,
             vehicle_limit=vehicle_limit,
             env=kwargs.get("model_env"),
             node_coords=kwargs.get("node_coords"),

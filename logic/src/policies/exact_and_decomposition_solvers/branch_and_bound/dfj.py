@@ -58,7 +58,7 @@ def _dfj_callback(model, where):
 def _setup_bb_model(
     dist_matrix: np.ndarray,
     wastes: Dict[int, float],
-    must_go_indices: Set[int],
+    mandatory_indices: Set[int],
     time_limit: float = 60.0,
     mip_gap: float = 0.01,
     seed: int = 42,
@@ -123,7 +123,7 @@ def run_bb_dfj(
     R: float,
     C: float,
     params: Optional[BBParams] = None,
-    must_go_indices: Optional[Set[int]] = None,
+    mandatory_indices: Optional[Set[int]] = None,
     env: Optional[gp.Env] = None,
     recorder: Optional[PolicyStateRecorder] = None,
     **kwargs: Any,
@@ -142,7 +142,7 @@ def run_bb_dfj(
         R: Revenue coefficient per unit collected.
         C: Cost coefficient per unit distance.
         values: Configuration dictionary (time_limit, mip_gap, etc.).
-        must_go_indices: Set of mandatory customer nodes.
+        mandatory_indices: Set of mandatory customer nodes.
         env: Optional Gurobi environment for resource management.
         seed: Optional random seed.
         recorder: Optional telemetry recorder.
@@ -153,7 +153,7 @@ def run_bb_dfj(
     num_nodes = len(dist_matrix)
     nodes = range(num_nodes)
     customers = list(range(1, num_nodes))
-    must_go_indices = must_go_indices or set()
+    mandatory_indices = mandatory_indices or set()
 
     # Extract configuration
     if params is None:
@@ -163,7 +163,7 @@ def run_bb_dfj(
     model, x, y = _setup_bb_model(
         dist_matrix=dist_matrix,
         wastes=wastes,
-        must_go_indices=must_go_indices,
+        mandatory_indices=mandatory_indices,
         time_limit=params.time_limit,
         mip_gap=params.mip_gap,
         seed=params.seed,
@@ -185,9 +185,9 @@ def run_bb_dfj(
     model.addConstr(quicksum(x[j, 0] for j in customers) == quicksum(x[0, j] for j in customers), name="depot_balance")
 
     # Mandatory nodes
-    for i in must_go_indices:
+    for i in mandatory_indices:
         if i in y:
-            model.addConstr(y[i] == 1, name=f"must_go_{i}")
+            model.addConstr(y[i] == 1, name=f"mandatory_{i}")
 
     # Capacity constraint
     # The total waste collected on any route must not exceed vehicle capacity

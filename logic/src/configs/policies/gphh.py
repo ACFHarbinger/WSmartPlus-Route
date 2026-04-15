@@ -21,8 +21,8 @@ class GPHHConfig:
         n_training_instances: Sub-instances for fitness averaging.
         training_sample_ratio: Fraction of nodes sampled per training instance.
         vrpp: If True, solver operates in full VRPP mode (optional nodes).
-        must_go: Must-go selection strategy config list.
-        post_processing: Post-processing operation config list.
+        mandatory_selection: Mandatory selection strategy config list.
+        route_improvement: Route improvement operation config list.
     """
 
     gp_pop_size: int = 20
@@ -35,5 +35,5 @@ class GPHHConfig:
     training_sample_ratio: float = 0.5
     seed: Optional[int] = None
     vrpp: bool = True
-    must_go: Optional[List[Any]] = field(default_factory=list)
-    post_processing: Optional[List[Any]] = field(default_factory=list)
+    mandatory_selection: Optional[List[Any]] = field(default_factory=list)
+    route_improvement: Optional[List[Any]] = field(default_factory=list)

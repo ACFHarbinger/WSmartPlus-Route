@@ -58,7 +58,7 @@ class LogAction(SimulationAction):
             tour,
             coords,
             context["lock"],
-            must_go=context.get("must_go"),
+            mandatory=context.get("mandatory"),
         )
 
         # Forward day-level metrics to the centralised tracker (no-op if no run active)

@@ -18,7 +18,7 @@ from logic.src.utils.functions.rl import ensure_tensordict
 if TYPE_CHECKING:
     from logic.src.interfaces.env import IEnv
     from logic.src.interfaces.policy import IPolicy
-    from logic.src.policies.other.must_go import VectorizedSelector
+    from logic.src.policies.other.mandatory import VectorizedSelector
 
 logger = get_pylogger(__name__)
 
@@ -37,21 +37,21 @@ class StepMixin:
         self.policy: IPolicy
         self.baseline: Any
         self.device: torch.device
-        self.must_go_selector: Optional[VectorizedSelector]
+        self.mandatory_selector: Optional[VectorizedSelector]
         self._current_baseline_val: Any = None
         self.last_out: Any = None
 
-    def _apply_must_go_selection(self, td: TensorDict) -> TensorDict:
+    def _apply_mandatory_selection(self, td: TensorDict) -> TensorDict:
         """
-        Apply must-go selection to determine which bins must be collected.
+        Apply mandatory selection to determine which bins must be collected.
 
         Args:
             td: TensorDict with problem instance data.
 
         Returns:
-            TensorDict with 'must_go' mask added.
+            TensorDict with 'mandatory' mask added.
         """
-        if self.must_go_selector is None:
+        if self.mandatory_selector is None:
             return td
 
         # Get fill levels from the TensorDict
@@ -62,7 +62,7 @@ class StepMixin:
                 break
 
         if fill_levels is None:
-            logger.warning("No fill levels found in TensorDict for must-go selection")
+            logger.warning("No fill levels found in TensorDict for mandatory selection")
             return td
 
         # Ensure fill_levels is 2D (batch_size, num_nodes)
@@ -90,23 +90,23 @@ class StepMixin:
         elif "fill_history" in td.keys():
             selector_kwargs["waste_history"] = td["fill_history"]
 
-        # Apply selector to get must-go mask
-        must_go_mask = self.must_go_selector.select(fill_levels, **selector_kwargs)
+        # Apply selector to get mandatory mask
+        mandatory_mask = self.mandatory_selector.select(fill_levels, **selector_kwargs)
 
-        # Ensure must_go_mask matches the environment's node count (N+1)
+        # Ensure mandatory_mask matches the environment's node count (N+1)
         # Bins are typically customers-only in fill_levels, but mask needs depot (index 0)
         # Check num_loc in env or its generator
         num_loc = getattr(self.env, "num_loc", None)
         if num_loc is None and hasattr(self.env, "generator"):
             num_loc = getattr(self.env.generator, "num_loc", None)
 
-        if num_loc is not None and must_go_mask.shape[-1] == num_loc:
+        if num_loc is not None and mandatory_mask.shape[-1] == num_loc:
             # Prepend False for the depot (index 0)
-            depot_must_go = torch.zeros(*must_go_mask.shape[:-1], 1, dtype=torch.bool, device=must_go_mask.device)
-            must_go_mask = torch.cat([depot_must_go, must_go_mask], dim=-1)
+            depot_mandatory = torch.zeros(*mandatory_mask.shape[:-1], 1, dtype=torch.bool, device=mandatory_mask.device)
+            mandatory_mask = torch.cat([depot_mandatory, mandatory_mask], dim=-1)
 
         # Store in TensorDict
-        td["must_go"] = must_go_mask
+        td["mandatory"] = mandatory_mask
 
         return td
 
@@ -166,9 +166,9 @@ class StepMixin:
         # env.reset expects data on the environment's device.
         td = ensure_tensordict(batch, self.device)
 
-        # Apply must-go selector if configured
-        if self.must_go_selector is not None:
-            td = self._apply_must_go_selection(td)
+        # Apply mandatory selector if configured
+        if self.mandatory_selector is not None:
+            td = self._apply_mandatory_selection(td)
 
         td = self.env.reset(td)
 

@@ -20,7 +20,7 @@ class ALNSPolicy(BaseRoutingPolicy):
     """
     ALNS policy class.
 
-    Visits pre-selected 'must_go' bins using Adaptive Large Neighborhood Search.
+    Visits pre-selected 'mandatory' bins using Adaptive Large Neighborhood Search.
     """
 
     def __init__(self, config: Optional[Union[ALNSConfig, Dict[str, Any]]] = None):

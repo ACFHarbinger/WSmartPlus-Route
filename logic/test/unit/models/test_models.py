@@ -133,8 +133,8 @@ class TestAttentionModel:
         assert "kg" in ret_dict
 
 
-class TestMustGoManager:
-    """Tests for the MustGoManager architecture."""
+class TestMandatoryManager:
+    """Tests for the MandatoryManager architecture."""
 
     def test_forward(self, gat_lstm_setup):
         """Verifies forward flow logic."""
@@ -161,7 +161,7 @@ class TestMustGoManager:
 
     def test_shared_encoder(self, am_setup):
         """Verifies shared encoder initialization."""
-        from logic.src.models.meta.hrl_manager import MustGoManager
+        from logic.src.models.meta.hrl_manager import MandatoryManager
 
         worker_model = am_setup
         B, N = 1, 5
@@ -169,7 +169,7 @@ class TestMustGoManager:
         dynamic = torch.rand(B, N, 10)
         global_features = torch.rand(B, 2)
 
-        manager = MustGoManager(
+        manager = MandatoryManager(
             input_dim_static=2,
             input_dim_dynamic=10,
             hidden_dim=128,

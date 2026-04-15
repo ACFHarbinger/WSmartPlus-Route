@@ -23,7 +23,7 @@ class TestSolverParity:
                 distance_matrix=data["dist_matrix"],
                 values=data["values"],
                 binsids=data["binsids"],
-                must_go=data["must_go"],
+                mandatory=data["mandatory"],
                 optimizer="gurobi",
                 time_limit=5
             )
@@ -38,7 +38,7 @@ class TestSolverParity:
                 distance_matrix=data["dist_matrix"],
                 values=data["values"],
                 binsids=data["binsids"],
-                must_go=data["must_go"],
+                mandatory=data["mandatory"],
                 optimizer="hexaly",
                 time_limit=5
             )

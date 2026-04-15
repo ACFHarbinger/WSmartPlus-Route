@@ -5,8 +5,8 @@ TSP (Traveling Salesman Problem) policy configuration.
 from dataclasses import dataclass
 from typing import List, Optional
 
-from .other.must_go import MustGoConfig
-from .other.post_processing import PostProcessingConfig
+from .other.mandatory_selection import MandatorySelectionConfig
+from .other.route_improvement import RouteImprovingConfig
 
 
 @dataclass
@@ -16,13 +16,13 @@ class TSPConfig:
     Attributes:
         cache: Whether to cache solutions.
         time_limit: Maximum time in seconds for the solver.
-        must_go: List of must-go strategy config files.
-        post_processing: List of post-processing operations to apply.
+        mandatory_selection: List of mandatory strategy config files.
+        route_improvement: List of route improvement operations to apply.
     """
 
     cache: bool = True
     engine: str = "fast_tsp"
     time_limit: float = 60.0
     seed: Optional[int] = None
-    must_go: Optional[List[MustGoConfig]] = None
-    post_processing: Optional[List[PostProcessingConfig]] = None
+    mandatory_selection: Optional[List[MandatorySelectionConfig]] = None
+    route_improvement: Optional[List[RouteImprovingConfig]] = None

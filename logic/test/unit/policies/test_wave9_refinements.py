@@ -40,7 +40,7 @@ def test_cfrs_seed_selection():
         "Lat": [0.0, 10.0, -10.0, 0.0, 1.0],
         "Lng": [0.0, 0.0, 0.0, 10.0, -10.0]
     })
-    must_go = [1, 2, 3, 4]
+    mandatory = [1, 2, 3, 4]
     wastes = {1: 5, 2: 5, 3: 5, 4: 5}
     dist_matrix = np.zeros((5, 5))
     for i in range(5):
@@ -48,7 +48,7 @@ def test_cfrs_seed_selection():
             dist_matrix[i, j] = np.linalg.norm(coords.iloc[i].values - coords.iloc[j].values)
 
     clusters = fisher_jaikumar_clustering(
-        coords, must_go, k=2, wastes=wastes, capacity=20, R=10, C=1, distance_matrix=dist_matrix
+        coords, mandatory, k=2, wastes=wastes, capacity=20, R=10, C=1, distance_matrix=dist_matrix
     )
     assert len(clusters) > 0
 

@@ -77,7 +77,7 @@ class SimulationDataManager:
                 "routes",
                 "total_fill",
                 "tour_indices",
-                "must_go",
+                "mandatory_nodes",
                 "bin_state_c",
                 "bin_state_collected",
                 "bins_state_real_c_after",

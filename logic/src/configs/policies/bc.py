@@ -5,8 +5,8 @@ BC (Branch-and-Cut) configuration.
 from dataclasses import dataclass
 from typing import List, Optional
 
-from .other.must_go import MustGoConfig
-from .other.post_processing import PostProcessingConfig
+from .other.mandatory_selection import MandatorySelectionConfig
+from .other.route_improvement import RouteImprovingConfig
 
 
 @dataclass
@@ -39,8 +39,8 @@ class BCConfig:
             Note: Automatically disabled for instances with n > 75 regardless of setting.
         profit_aware_operators: Whether to use profit-aware operators.
         vrpp: Whether to use VRPP expand pool.
-        must_go: List of must-go strategy config files.
-        post_processing: List of post-processing operations to apply.
+        mandatory_selection: List of mandatory strategy config files.
+        route_improvement: List of route improvement operations to apply.
         seed: Random seed for reproducibility.
         use_saa: Whether to use Sample Average Approximation (SAA) for SIRP.
         num_scenarios: Number of scenarios to generate for SAA.
@@ -56,6 +56,6 @@ class BCConfig:
     vrpp: bool = False
     use_saa: bool = False
     num_scenarios: int = 10
-    must_go: Optional[List[MustGoConfig]] = None
-    post_processing: Optional[List[PostProcessingConfig]] = None
+    mandatory_selection: Optional[List[MandatorySelectionConfig]] = None
+    route_improvement: Optional[List[RouteImprovingConfig]] = None
     seed: Optional[int] = None

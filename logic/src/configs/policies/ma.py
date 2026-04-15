@@ -38,8 +38,8 @@ class MAConfig:
         time_limit: Max execution time in seconds.
         seed: Randomness seed for reproducibility.
         vrpp: Flag indicating if the full profits-based problem is active.
-        must_go: List of strategies for mandatory node selection.
-        post_processing: Optional solvers applied after the MA search.
+        mandatory_selection: List of strategies for mandatory node selection.
+        route_improvement: Optional solvers applied after the MA search.
     """
 
     # Core Evolutionary Hyper-parameters
@@ -62,5 +62,5 @@ class MAConfig:
     # Simulator Compatibility Flags
     vrpp: bool = True
     profit_aware_operators: bool = False
-    must_go: Optional[List[Any]] = field(default_factory=list)
-    post_processing: Optional[List[Any]] = field(default_factory=list)
+    mandatory_selection: Optional[List[Any]] = field(default_factory=list)
+    route_improvement: Optional[List[Any]] = field(default_factory=list)

@@ -27,7 +27,7 @@ def run_annealing_loop(
     initial_solution: List[List[int]],
     data: pd.DataFrame,
     distance_matrix: np.ndarray,
-    must_go_bins: List[int],
+    mandatory_bins: List[int],
     values: Dict,
     n_bins: int,
     chosen_combination: Tuple,
@@ -42,7 +42,7 @@ def run_annealing_loop(
         initial_solution: Seed solution.
         data: Bin data.
         distance_matrix: Distances.
-        must_go_bins: Mandatory nodes.
+        mandatory_bins: Mandatory nodes.
         values: parameters.
         n_bins: Problem size.
         chosen_combination: SA parameters.
@@ -89,7 +89,7 @@ def run_annealing_loop(
             bins_to_add_consecutive,
             bins_random,
             bins_consecutive,
-        ) = local_search(routes_list, removed_bins, distance_matrix, must_go_bins, rng, np_rng)
+        ) = local_search(routes_list, removed_bins, distance_matrix, mandatory_bins, rng, np_rng)
 
         # Compute profit
         current_sol_profit = compute_profit(

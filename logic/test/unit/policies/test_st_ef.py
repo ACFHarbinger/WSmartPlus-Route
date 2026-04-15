@@ -45,7 +45,7 @@ def test_st_ef_basic():
         "distance_matrix": dist_matrix,
         "wastes": wastes,
         "capacity": capacity,
-        "must_go": [],
+        "mandatory": [],
         "R": 1.0,
         "C": 0.1,
         "number_vehicles": 1,

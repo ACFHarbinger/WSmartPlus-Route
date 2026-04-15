@@ -18,8 +18,8 @@ class HGSALNSConfig:
         n_generations: Number of generations to evolve.
         max_vehicles: Maximum number of vehicles (0 for unlimited).
         engine: Solver engine to use.
-        must_go: List of must-go strategy config files.
-        post_processing: List of post-processing operations to apply.
+        mandatory_selection: List of mandatory strategy config files.
+        route_improvement: List of route improvement operations to apply.
     """
 
     time_limit: float = 60.0

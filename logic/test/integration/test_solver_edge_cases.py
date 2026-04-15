@@ -33,7 +33,7 @@ class TestSolverEdgeCases:
                 "psi": 0.0,
             },
             "binsids": [0],
-            "must_go": []
+            "mandatory": []
         }
 
     @pytest.mark.integration
@@ -51,7 +51,7 @@ class TestSolverEdgeCases:
                 distance_matrix=data["dist_matrix"],
                 values=data["values"],
                 binsids=data["binsids"],
-                must_go=[],
+                mandatory=[],
                 optimizer=backend,
                 time_limit=2
             )
@@ -122,7 +122,7 @@ class TestSolverEdgeCases:
                 distance_matrix=data["dist_matrix"],
                 values=data["values"],
                 binsids=data["binsids"],
-                must_go=[1],
+                mandatory=[1],
                 optimizer=backend,
                 time_limit=2
             )
@@ -189,7 +189,7 @@ class TestSolverEdgeCases:
                 distance_matrix=dist_matrix,
                 values={**values, "Q": 1000},
                 binsids=[1,2],
-                must_go=[1,2],
+                mandatory=[1,2],
                 optimizer="gurobi",
                 time_limit=10
             )

@@ -252,21 +252,21 @@ class WCVRPEnv(RL4COEnvBase):
 
     def _get_action_mask(self, tensordict: TensorDict) -> torch.Tensor:
         """
-        Compute action mask based on capacity, visited status, and must-go constraints.
+        Compute action mask based on capacity, visited status, and mandatory constraints.
 
         This method implements three-tier filtering to determine valid actions:
         1. **Visit filter**: Exclude already-visited nodes (except depot)
         2. **Capacity filter**: Exclude bins exceeding remaining vehicle capacity
-        3. **Must-go filter**: Enforce priority routing to critical bins
+        3. **Mandatory filter**: Enforce priority routing to critical bins
 
-        Must-Go Routing Logic:
-            - If must_go is None: Standard VRP behavior, depot always valid
-            - If must_go has True values: MUST visit those bins first; depot blocked until complete
-            - If must_go is all False: Episode complete; only depot is valid (return home)
+        Mandatory Routing Logic:
+            - If mandatory is None: Standard VRP behavior, depot always valid
+            - If mandatory has True values: MUST visit those bins first; depot blocked until complete
+            - If mandatory is all False: Episode complete; only depot is valid (return home)
 
         Edge Cases:
-            - **Vehicle full with must-go bins**: Depot becomes valid to allow emptying
-            - **All must-go bins visited**: Depot becomes valid for return
+            - **Vehicle full with mandatory bins**: Depot becomes valid to allow emptying
+            - **All mandatory bins visited**: Depot becomes valid for return
             - **No valid customer nodes**: Depot is always fallback to prevent deadlock
             - **Waste array mismatch**: Dynamically prepends depot zero if needed
 
@@ -276,7 +276,7 @@ class WCVRPEnv(RL4COEnvBase):
                 - waste (Tensor): Bin fill levels, shape (batch, num_nodes) or (batch, N)
                 - current_load (Tensor): Current vehicle load, shape (batch,)
                 - capacity (Tensor): Vehicle capacity, shape (batch,)
-                - must_go (BoolTensor, optional): Priority bins, shape (batch, num_nodes)
+                - mandatory (BoolTensor, optional): Priority bins, shape (batch, num_nodes)
 
         Returns:
             Tensor: Boolean action mask (batch, num_nodes) where True indicates a valid action.
@@ -299,25 +299,25 @@ class WCVRPEnv(RL4COEnvBase):
 
         mask = mask & ~exceeds_capacity
 
-        # Must-go routing logic
-        must_go = tensordict.get("must_go", None)
+        # Mandatory routing logic
+        mandatory = tensordict.get("mandatory", None)
 
-        if must_go is not None:
-            # must_go: (batch, num_nodes) boolean tensor
+        if mandatory is not None:
+            # mandatory: (batch, num_nodes) boolean tensor
             # True = must visit this bin, False = optional
 
-            # Pending must-go bins: must_go AND not yet visited AND within capacity
-            pending_must_go = must_go & mask
+            # Pending mandatory bins: mandatory AND not yet visited AND within capacity
+            pending_mandatory = mandatory & mask
 
-            # Check if any must-go bins remain (excluding depot at index 0)
-            has_pending_must_go = pending_must_go[:, 1:].any(dim=1)
+            # Check if any mandatory bins remain (excluding depot at index 0)
+            has_pending_mandatory = pending_mandatory[:, 1:].any(dim=1)
 
-            # Depot is valid only if no pending must-go bins remain
-            # If has_pending_must_go is True -> depot invalid (False)
-            # If has_pending_must_go is False -> depot valid (True)
-            mask[:, 0] = ~has_pending_must_go
+            # Depot is valid only if no pending mandatory bins remain
+            # If has_pending_mandatory is True -> depot invalid (False)
+            # If has_pending_mandatory is False -> depot valid (True)
+            mask[:, 0] = ~has_pending_mandatory
         else:
-            # No must-go constraint: depot always valid
+            # No mandatory constraint: depot always valid
             mask[:, 0] = True
 
         return mask

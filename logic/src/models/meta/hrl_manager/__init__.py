@@ -7,4 +7,4 @@ Example:
     >>> import __init__
 """
 
-from .model import MustGoManager as MustGoManager
+from .model import MandatoryManager as MandatoryManager

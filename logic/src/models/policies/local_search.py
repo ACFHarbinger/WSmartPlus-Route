@@ -3,7 +3,7 @@ Vectorized Local Search Operators for Vehicle Routing Problems.
 
 This module implements several local search heuristics optimized for parallel execution
 on GPU using PyTorch. These operators are used to improve routing solutions in both
-genetic algorithms (like HGS) and as post-processing steps for neural models.
+genetic algorithms (like HGS) and as route improvement steps for neural models.
 
 Implemented Operators:
 - vectorized_two_opt: Intra-route segment reversal.

@@ -169,7 +169,7 @@ class GenDataGeneralTab(QWidget):
         Extract general generation parameters from the UI.
 
         Returns:
-            dict: Dictionary containing mandatory and optional generation settings.
+            dict: Dictionary containing mandatory_nodes and optional generation settings.
         """
         params = {}
         # Mandatory fields

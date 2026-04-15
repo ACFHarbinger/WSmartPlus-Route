@@ -229,46 +229,46 @@ class VRPPEnv(RL4COEnvBase):
 
     def _get_action_mask(self, tensordict: TensorDict) -> torch.Tensor:
         """
-        Compute action mask for VRPP with must-go constraints.
+        Compute action mask for VRPP with mandatory constraints.
 
         Standard behavior:
         - Can visit any unvisited node
         - Can return to depot at any time
         - Cannot visit already visited nodes (except depot)
 
-        Must-go behavior:
-        - If must_go is None: Standard behavior (depot always valid)
-        - If must_go has True values: Must route to those bins; depot invalid until done
-        - If must_go is all False: No routing needed; depot is valid (stay)
+        Mandatory behavior:
+        - If mandatory is None: Standard behavior (depot always valid)
+        - If mandatory has True values: Must route to those bins; depot invalid until done
+        - If mandatory is all False: No routing needed; depot is valid (stay)
 
         Args:
             tensordict (TensorDict): Input tensor dictionary containing:
                 - visited (BoolTensor): Visit status for each node, shape (batch, num_nodes)
-                - must_go (BoolTensor, optional): Must-go constraints, shape (batch, num_nodes)
+                - mandatory (BoolTensor, optional): Mandatory constraints, shape (batch, num_nodes)
 
         Returns:
             Tensor: Boolean mask (batch, num_nodes) where True = valid action.
         """
         mask = ~tensordict["visited"].clone()
 
-        # Must-go routing logic
-        must_go = tensordict.get("must_go", None)
-        if must_go is not None:
-            # must_go: (batch, num_nodes) boolean tensor
+        # Mandatory routing logic
+        mandatory = tensordict.get("mandatory", None)
+        if mandatory is not None:
+            # mandatory: (batch, num_nodes) boolean tensor
             # True = must visit this bin, False = optional
 
-            # Pending must-go bins: must_go AND not yet visited
-            pending_must_go = must_go & mask
+            # Pending mandatory bins: mandatory AND not yet visited
+            pending_mandatory = mandatory & mask
 
-            # Check if any must-go bins remain (excluding depot at index 0)
-            has_pending_must_go = pending_must_go[:, 1:].any(dim=1)
+            # Check if any mandatory bins remain (excluding depot at index 0)
+            has_pending_mandatory = pending_mandatory[:, 1:].any(dim=1)
 
-            # Depot is valid only if no pending must-go bins remain
-            # If has_pending_must_go is True -> depot invalid (False)
-            # If has_pending_must_go is False -> depot valid (True)
-            mask[:, 0] = ~has_pending_must_go
+            # Depot is valid only if no pending mandatory bins remain
+            # If has_pending_mandatory is True -> depot invalid (False)
+            # If has_pending_mandatory is False -> depot valid (True)
+            mask[:, 0] = ~has_pending_mandatory
         else:
-            # No must-go constraint: depot always valid
+            # No mandatory constraint: depot always valid
             mask[:, 0] = True
 
         return mask

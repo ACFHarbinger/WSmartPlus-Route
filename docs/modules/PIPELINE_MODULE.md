@@ -2152,7 +2152,7 @@ streamlit run logic/src/pipeline/ui/app.py --server.port 8080
 Examples:
 - gurobi_empirical
 - hgs_empirical
-- mg_last_minute_cf70_empirical  (must-go last-minute, 70% capacity)
+- ms_last_minute_cf70_empirical  (must-go last-minute, 70% capacity)
 - am_greedy_empirical
 - tsp_empirical
 ```

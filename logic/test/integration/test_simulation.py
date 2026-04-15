@@ -91,15 +91,15 @@ def test_run_day_execution():
          patch("logic.src.pipeline.simulations.actions.PolicyExecutionAction") as MockPolicy, \
          patch("logic.src.pipeline.simulations.actions.CollectAction") as MockCollect, \
          patch("logic.src.pipeline.simulations.actions.LogAction") as MockLog, \
-         patch("logic.src.pipeline.simulations.actions.MustGoSelectionAction") as MockSelection, \
-         patch("logic.src.pipeline.simulations.actions.PostProcessAction") as MockPostProcess:
+         patch("logic.src.pipeline.simulations.actions.MandatorySelectionAction") as MockSelection, \
+         patch("logic.src.pipeline.simulations.actions.RouteImprovementAction") as MockRouteImprovement:
 
         run_day(mock_context)
 
         MockFill.return_value.execute.assert_called_with(mock_context)
         MockSelection.return_value.execute.assert_called_with(mock_context)
         MockPolicy.return_value.execute.assert_called_with(mock_context)
-        MockPostProcess.return_value.execute.assert_called_with(mock_context)
+        MockRouteImprovement.return_value.execute.assert_called_with(mock_context)
         MockCollect.return_value.execute.assert_called_with(mock_context)
         MockLog.return_value.execute.assert_called_with(mock_context)
 

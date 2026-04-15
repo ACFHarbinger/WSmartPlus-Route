@@ -28,7 +28,7 @@ class SANSPolicy(BaseRoutingPolicy):
     """
     Simulated Annealing Neighborhood Search policy class.
 
-    Uses SA optimization with custom initialization and must-go enforcement.
+    Uses SA optimization with custom initialization and mandatory enforcement.
     Supports two engines via the 'engine' parameter:
       - 'new': Improved simulated annealing with initial solution computation
       - 'og': Original look-ahead collection (LAC) algorithm

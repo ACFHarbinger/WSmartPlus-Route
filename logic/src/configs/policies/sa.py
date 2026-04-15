@@ -4,8 +4,8 @@ SANS (Simulated Annealing Neighborhood Search) configuration.
 
 from typing import List, Optional
 
-from .other.must_go import MustGoConfig
-from .other.post_processing import PostProcessingConfig
+from .other.mandatory_selection import MandatorySelectionConfig
+from .other.route_improvement import RouteImprovingConfig
 
 
 class SAConfig:
@@ -26,8 +26,8 @@ class SAConfig:
         seed (Optional[int]): Random seed for stochastic reproducibility.
         vrpp (bool): Flag to enable pool expansion for Vehicle Routing with Profits.
         profit_aware_operators (bool): Flag to bias ruin/recreate toward high-revenue nodes.
-        must_go: List of must-go strategy config files.
-        post_processing: List of post-processing operations to apply.
+        mandatory_selection: List of mandatory strategy config files.
+        route_improvement: List of route improvement operations to apply.
     """
 
     initial_temperature: float = 100.0
@@ -39,5 +39,5 @@ class SAConfig:
     seed: Optional[int] = 42
     vrpp: bool = True
     profit_aware_operators: bool = False
-    must_go: Optional[List[MustGoConfig]] = None
-    post_processing: Optional[List[PostProcessingConfig]] = None
+    mandatory_selection: Optional[List[MandatorySelectionConfig]] = None
+    route_improvement: Optional[List[RouteImprovingConfig]] = None

@@ -63,7 +63,7 @@ class POPMUSICPolicy(BaseRoutingPolicy):
         # 3. Call the core matheuristic solver with granular parameter extraction
         routes, total_routing_cost, profit, info = run_popmusic(
             coords=kwargs["coords"],
-            must_go=mandatory_nodes,
+            mandatory=mandatory_nodes,
             distance_matrix=sub_dist_matrix,
             n_vehicles=kwargs.get("n_vehicles", 1),
             subproblem_size=params.subproblem_size,

@@ -24,7 +24,7 @@ def find_solutions(
     bins_coordinates,
     distance_matrix,
     chosen_combination,
-    must_go_bins,
+    mandatory_bins,
     values,
     n_bins,
     points,
@@ -40,7 +40,7 @@ def find_solutions(
         bins_coordinates (List): Locations.
         distance_matrix (np.ndarray): distances.
         chosen_combination (Tuple): Parameter set (vehicle penalty, load penalty, etc).
-        must_go_bins (List[int]): Nodes that must be visited.
+        mandatory_bins (List[int]): Nodes that must be visited.
         values (Dict): Global constants.
         n_bins (int): Problem size.
         points (Dict): Coordinates map.
@@ -85,7 +85,7 @@ def find_solutions(
         initial_solution,
         data,
         distance_matrix,
-        must_go_bins,
+        mandatory_bins,
         values,
         n_bins,
         chosen_combination,
@@ -117,7 +117,7 @@ def find_solutions(
         p_route_difference,
         p_shift,
         data,
-        must_go_bins,
+        mandatory_bins,
         distance_matrix,
         values,
         iterations=p_iterations,

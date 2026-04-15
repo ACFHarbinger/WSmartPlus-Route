@@ -5,8 +5,8 @@ BP (Branch-and-Price) configuration.
 from dataclasses import dataclass
 from typing import List, Optional
 
-from .other.must_go import MustGoConfig
-from .other.post_processing import PostProcessingConfig
+from .other.mandatory_selection import MandatorySelectionConfig
+from .other.route_improvement import RouteImprovingConfig
 
 
 @dataclass
@@ -33,8 +33,8 @@ class BPConfig:
         max_routes_per_iteration: Maximum routes to generate per pricing call.
         optimality_gap: Convergence tolerance for column generation.
         use_ryan_foster_branching: Use Ryan-Foster branching (not yet implemented).
-        must_go: List of must-go strategy config files.
-        post_processing: List of post-processing operations to apply.
+        mandatory_selection: List of mandatory strategy config files.
+        route_improvement: List of route improvement operations to apply.
         seed: Random seed for reproducibility.
     """
 
@@ -44,6 +44,6 @@ class BPConfig:
     optimality_gap: float = 1e-4
     use_ryan_foster_branching: bool = False
     multi_day_mode: bool = False
-    must_go: Optional[List[MustGoConfig]] = None
-    post_processing: Optional[List[PostProcessingConfig]] = None
+    mandatory_selection: Optional[List[MandatorySelectionConfig]] = None
+    route_improvement: Optional[List[RouteImprovingConfig]] = None
     seed: Optional[int] = None

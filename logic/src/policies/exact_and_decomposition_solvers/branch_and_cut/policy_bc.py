@@ -65,7 +65,7 @@ class BranchAndCutPolicy(BaseRoutingPolicy):
         """
         Run Branch-and-Cut solver.
 
-        All nodes in mandatory_nodes are treated as must-go for the solver.
+        All nodes in mandatory_nodes are treated as mandatory for the solver.
         In VRPP mode, additional nodes from sub_wastes might be collected if profitable.
 
         Args:

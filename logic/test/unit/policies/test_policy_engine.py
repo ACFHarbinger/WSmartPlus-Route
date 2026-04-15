@@ -49,7 +49,7 @@ def mock_engine_data():
         "distancesC": dist_matrix.astype(np.int32),
         "waste_type": "plastic",
         "area": "riomaior",
-        "must_go": [1, 2, 3],  # Populate must_go to prevent early returns
+        "mandatory": [1, 2, 3],  # Populate mandatory to prevent early returns
         "new_data": new_data,
         "coords": coords,
         "config": {

@@ -26,8 +26,8 @@ class LKH3Config:
         vrpp: If True, solver operates in full VRPP mode.
         dynamic_topology_discovery: If True, solver performs dynamic topology discovery.
         native_prize_collecting: If True, solver uses native prize collecting.
-        must_go: Must-go selection strategy config list.
-        post_processing: Post-processing operation config list.
+        mandatory_selection: Mandatory selection strategy config list.
+        route_improvement: Route improvement operation config list.
     """
 
     runs: int = 10
@@ -50,5 +50,5 @@ class LKH3Config:
     native_prize_collecting: bool = False
     seed: Optional[int] = None
 
-    must_go: Optional[List[Any]] = field(default_factory=list)
-    post_processing: Optional[List[Any]] = field(default_factory=list)
+    mandatory_selection: Optional[List[Any]] = field(default_factory=list)
+    route_improvement: Optional[List[Any]] = field(default_factory=list)

@@ -92,7 +92,7 @@ class LocalBranchingPolicy(BaseRoutingPolicy):
 
         Args:
             **kwargs (Any): Simulation state including `distance_matrix`,
-                `wastes`, `capacity`, and `must_go` nodes.
+                `wastes`, `capacity`, and `mandatory` nodes.
 
         Returns:
             Tuple[List[int], float, Any]: (tour, total_cost, metadata)
@@ -104,7 +104,7 @@ class LocalBranchingPolicy(BaseRoutingPolicy):
         distance_matrix = kwargs["distance_matrix"]
         wastes = kwargs.get("wastes", {})
         capacity = kwargs.get("capacity", 1.0e9)
-        mandatory_nodes = kwargs.get("must_go", [])
+        mandatory_nodes = kwargs.get("mandatory", [])
         R = kwargs.get("R", 1.0)
         C = kwargs.get("C", 1.0)
         seed = params.seed if params.seed is not None else kwargs.get("seed", 42)

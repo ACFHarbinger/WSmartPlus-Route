@@ -89,7 +89,7 @@ def run_subgradient(
     capacity: float,
     R: float,
     C: float,
-    must_go_indices: Optional[Set[int]] = None,
+    mandatory_indices: Optional[Set[int]] = None,
     params: Optional[Any] = None,
     time_budget: float = 60.0,
     env: Any = None,
@@ -107,7 +107,7 @@ def run_subgradient(
         capacity: Vehicle capacity Q.
         R: Revenue coefficient (r_w).
         C: Cost coefficient (c_km).
-        must_go_indices: Customers that must be visited in every feasible solution.
+        mandatory_indices: Customers that must be visited in every feasible solution.
         params: Any policy parameters instance carrying LR-specific fields.
         time_budget: Wall-clock seconds available for this phase.
         env: Optional shared Gurobi environment.
@@ -123,7 +123,7 @@ def run_subgradient(
     if params is None:
         raise ValueError("Policy parameters must be provided.")
 
-    must_go = must_go_indices or set()
+    mandatory = mandatory_indices or set()
     lam = float(params.lr_lambda_init)
     theta = params.lr_subgradient_theta
     op_tl = params.lr_op_time_limit
@@ -146,7 +146,7 @@ def run_subgradient(
             lam=lam,
             R=R,
             C=C,
-            forced_in=must_go,
+            forced_in=mandatory,
             time_limit=op_tl,
             seed=params.seed,
             env=env,

@@ -102,7 +102,7 @@ class KernelSearchPolicy(BaseRoutingPolicy):
                 Optional keys:
                     - `wastes` (Dict[int, float]): Map of customer IDs to current waste levels.
                     - `capacity` (float): Maximum vehicle load.
-                    - `must_go` (List[int]): IDs of customers that MUST be visited.
+                    - `mandatory` (List[int]): IDs of customers that MUST be visited.
                     - `R` (float): Revenue multiplier for the objective function.
                     - `C` (float): Cost multiplier for the objective function.
                     - `seed` (int): Random seed for reproducibility.
@@ -120,7 +120,7 @@ class KernelSearchPolicy(BaseRoutingPolicy):
         distance_matrix = kwargs["distance_matrix"]
         wastes = kwargs.get("wastes", {})
         capacity = kwargs.get("capacity", 1.0e9)
-        mandatory_nodes = kwargs.get("must_go", [])
+        mandatory_nodes = kwargs.get("mandatory", [])
 
         # 3. Handle objective multipliers (Revenue and Cost weights)
         R = kwargs.get("R", 1.0)

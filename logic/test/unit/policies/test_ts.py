@@ -59,7 +59,7 @@ def test_ts_policy_execution(mocker):
 
     tour, cost, stats = policy.execute(
         coords=coords,
-        must_go=[2],
+        mandatory=[2],
         distance_matrix=dist_matrix,
         bins=bins,
         area="Figueira da Foz",

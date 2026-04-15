@@ -34,7 +34,7 @@ def test_cfrs_fisher_jaikumar():
         "Lat": [0, 1, -1, 0.1, -0.1],
         "Lng": [0, 0, 0, 1, 1]
     })
-    must_go = [1, 2, 3, 4]
+    mandatory = [1, 2, 3, 4]
     dist = np.zeros((5, 5))
     for i in range(5):
         for j in range(5):
@@ -44,7 +44,7 @@ def test_cfrs_fisher_jaikumar():
     capacity = 15
 
     routes, cost, metadata = run_cf_rs(
-        coords, must_go, dist, wastes, capacity, 1.0, 1.0, n_vehicles=2
+        coords, mandatory, dist, wastes, capacity, 1.0, 1.0, n_vehicles=2
     )
 
     assert len(metadata["clusters"]) >= 2

@@ -8,8 +8,8 @@ and solve VRPP instances.
 from dataclasses import dataclass
 from typing import Optional
 
-from .other.must_go import MustGoConfig
-from .other.post_processing import PostProcessingConfig
+from .other.mandatory_selection import MandatorySelectionConfig
+from .other.route_improvement import RouteImprovingConfig
 
 
 @dataclass
@@ -46,9 +46,9 @@ class KernelSearchConfig:
             invoke the project's native Gurobi-based KS solver.
         framework (str): Identifier for the optimization framework. Options
             include "ortools" and "pyomon".
-        must_go (Optional[MustGoConfig]): Logic for pre-selecting mandatory bins
-            (e.g., those nearly full or overdue).
-        post_processing (Optional[PostProcessingConfig]): Settings for applying
+        mandatory_selection (Optional[MandatorySelectionConfig]): Logic for pre-selecting
+            mandatory bins (e.g., those nearly full or overdue).
+        route_improvement (Optional[RouteImprovingConfig]): Settings for applying
             localized refinement (e.g., 2-opt, Or-opt) to the final matheuristic tour.
     """
 
@@ -64,5 +64,5 @@ class KernelSearchConfig:
     # Infrastructure
     engine: str = "gurobi"
     framework: str = "ortools"
-    must_go: Optional[MustGoConfig] = None
-    post_processing: Optional[PostProcessingConfig] = None
+    mandatory_selection: Optional[MandatorySelectionConfig] = None
+    route_improvement: Optional[RouteImprovingConfig] = None

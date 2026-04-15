@@ -19,8 +19,8 @@ class QDEConfig:
         time_limit: Wall-clock time limit in seconds.
         n_removal: Nodes removed per collapse-repair step.
         vrpp: If True, solver operates in full VRPP mode (consider all bins).
-        must_go: Must-go selection strategy config list.
-        post_processing: Post-processing operation config list.
+        mandatory_selection: Mandatory selection strategy config list.
+        route_improvement: Route improvement operation config list.
     """
 
     pop_size: int = 20
@@ -31,5 +31,5 @@ class QDEConfig:
     seed: Optional[int] = None
     n_removal: int = 2
     vrpp: bool = True
-    must_go: Optional[List[Any]] = field(default_factory=list)
-    post_processing: Optional[List[Any]] = field(default_factory=list)
+    mandatory_selection: Optional[List[Any]] = field(default_factory=list)
+    route_improvement: Optional[List[Any]] = field(default_factory=list)

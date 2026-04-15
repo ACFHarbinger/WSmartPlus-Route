@@ -75,7 +75,7 @@ class SWCTCFPolicy(BaseRoutingPolicy):
         waste_type = kwargs.get("waste_type", "plastic")
         bins = kwargs.get("bins")
         distance_matrix = kwargs.get("distance_matrix")
-        must_go = kwargs.get("must_go", [])
+        mandatory = kwargs.get("mandatory", [])
         config = kwargs.get("config", {})
 
         # 2. Load parameters and merge with config
@@ -102,7 +102,7 @@ class SWCTCFPolicy(BaseRoutingPolicy):
             distance_matrix=distance_matrix,  # type: ignore[arg-type]
             values=values,
             binsids=binsids,
-            must_go=must_go,
+            mandatory=mandatory,
             number_vehicles=kwargs.get("number_vehicles", 1),
             time_limit=int(params.time_limit),
             framework=params.framework,

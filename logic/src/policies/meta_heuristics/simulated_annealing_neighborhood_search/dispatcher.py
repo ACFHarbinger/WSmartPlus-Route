@@ -43,8 +43,8 @@ def execute_new(policy: Any, params: SANSParams, **kwargs: Any) -> Tuple[List[in
     Returns:
         Tuple[List[int], float, Any]: Tour, distance, and metadata.
     """
-    must_go = kwargs.get("must_go", [])
-    early_result = policy._validate_must_go(must_go)
+    mandatory = kwargs.get("mandatory", [])
+    early_result = policy._validate_mandatory(mandatory)
     if early_result is not None:
         return early_result
 
@@ -81,10 +81,10 @@ def execute_new(policy: Any, params: SANSParams, **kwargs: Any) -> Tuple[List[in
     initial_routes = compute_initial_solution(data, coords_dict, distance_matrix, Q, id_to_index)
     current_route = initial_routes[0] if initial_routes else [0, 0]
 
-    # Ensure must_go bins are in the route
-    must_go_1 = list(must_go)
+    # Ensure mandatory bins are in the route
+    mandatory_1 = list(mandatory)
     route_set = set(current_route)
-    for b in must_go_1:
+    for b in mandatory_1:
         if b not in route_set:
             current_route.insert(1, b)
 
@@ -106,7 +106,7 @@ def execute_new(policy: Any, params: SANSParams, **kwargs: Any) -> Tuple[List[in
         V,
         B,
         C,
-        must_go_1,
+        mandatory_1,
         perc_bins_can_overflow=params.perc_bins_can_overflow,
         volume=V,
         density_val=B,
@@ -129,8 +129,8 @@ def execute_og(policy: Any, params: SANSParams, **kwargs: Any) -> Tuple[List[int
     Returns:
         Tuple[List[int], float, Any]: Tour, distance, and metadata.
     """
-    must_go = kwargs.get("must_go", [])
-    early_result = policy._validate_must_go(must_go)
+    mandatory = kwargs.get("mandatory", [])
+    early_result = policy._validate_mandatory(mandatory)
     if early_result is not None:
         return early_result
 
@@ -156,8 +156,8 @@ def execute_og(policy: Any, params: SANSParams, **kwargs: Any) -> Tuple[List[int
         "perc_bins_can_overflow": params.perc_bins_can_overflow,
     }
 
-    # must_go bins are 0-based, find_solutions expects 1-based
-    must_go_1 = [b + 1 for b in must_go]
+    # mandatory bins are 0-based, find_solutions expects 1-based
+    mandatory_1 = [b + 1 for b in mandatory]
 
     # Handle case where new_data might not be passed
     if new_data is None:
@@ -183,7 +183,7 @@ def execute_og(policy: Any, params: SANSParams, **kwargs: Any) -> Tuple[List[int
             coords,
             distance_matrix,
             params.combination,
-            must_go_1,
+            mandatory_1,
             values,
             bins.n,
             points,

@@ -36,5 +36,5 @@ class AHVPLConfig:
     alns: ALNSConfig = field(default_factory=ALNSConfig)
 
     # Common policy fields
-    must_go: List[str] = field(default_factory=list)
-    post_processing: List[Any] = field(default_factory=list)
+    mandatory_selection: List[str] = field(default_factory=list)
+    route_improvement: List[Any] = field(default_factory=list)

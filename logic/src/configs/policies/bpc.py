@@ -5,8 +5,8 @@ BPC (Branch-and-Price-and-Cut) configuration.
 from dataclasses import dataclass
 from typing import List, Optional
 
-from .other.must_go import MustGoConfig
-from .other.post_processing import PostProcessingConfig
+from .other.mandatory_selection import MandatorySelectionConfig
+from .other.route_improvement import RouteImprovingConfig
 
 
 @dataclass
@@ -18,8 +18,8 @@ class BPCConfig:
         profit_aware_operators: Whether to use profit-aware operators.
         vrpp: Whether to use VRPP.
         seed: Random seed for reproducibility.
-        must_go: List of must-go strategy config files.
-        post_processing: List of post-processing operations to apply.
+        mandatory_selection: List of mandatory strategy config files.
+        route_improvement: List of route improvement operations to apply.
         search_strategy: B&B node selection strategy ('best_first' or 'depth_first').
         cutting_planes: Cutting plane family ('rcc', 'sri', 'lci', or 'all').
         branching_strategy: Branching rule ('ryan_foster', 'edge', or 'divergence').
@@ -55,8 +55,8 @@ class BPCConfig:
     profit_aware_operators: bool = False
     vrpp: bool = True
     seed: Optional[int] = None
-    must_go: Optional[List[MustGoConfig]] = None
-    post_processing: Optional[List[PostProcessingConfig]] = None
+    mandatory_selection: Optional[List[MandatorySelectionConfig]] = None
+    route_improvement: Optional[List[RouteImprovingConfig]] = None
     search_strategy: str = "depth_first"
     cutting_planes: str = "rcc"
     branching_strategy: str = "divergence"

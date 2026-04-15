@@ -75,7 +75,7 @@ class BBSolver:
         mip_gap: float = 0.01,
         branching_strategy: str = "strong",
         strong_branching_limit: int = 5,
-        must_go_indices: Optional[Set[int]] = None,
+        mandatory_indices: Optional[Set[int]] = None,
         env: Optional[gp.Env] = None,
         recorder: Optional[PolicyStateRecorder] = None,
     ):
@@ -89,7 +89,7 @@ class BBSolver:
             R: Revenue coefficient per unit of collected waste.
             C: Cost coefficient per unit of distance traveled.
             values: Merged configuration dictionary from hydra and adapter.
-            must_go_indices: Set of customer nodes that MUST be included in routes.
+            mandatory_indices: Set of customer nodes that MUST be included in routes.
             env: Optional Gurobi environment for resource management.
             seed: Optional random seed.
             recorder: Optional telemetry recorder for state tracking.
@@ -103,7 +103,7 @@ class BBSolver:
         self.mip_gap = mip_gap
         self.branching_strategy = branching_strategy
         self.strong_branching_limit = strong_branching_limit
-        self.must_go_indices = must_go_indices or set()
+        self.mandatory_indices = mandatory_indices or set()
         self.env = env
         self.recorder = recorder
 
@@ -153,7 +153,7 @@ class BBSolver:
 
         # y[i]: Node visit (CONTINUOUS [0,1] for LP relaxation)
         for i in self.customers:
-            lb = 1.0 if i in self.must_go_indices else 0.0
+            lb = 1.0 if i in self.mandatory_indices else 0.0
             self.y[i] = self.model.addVar(lb=lb, ub=1.0, vtype=GRB.CONTINUOUS, name=f"y_{i}")
 
         # u[i]: MTZ load variables for subtour elimination
@@ -225,7 +225,7 @@ class BBSolver:
             var.UB = 1.0
 
         for i, var in self.y.items():
-            lb = 1.0 if i in self.must_go_indices else 0.0
+            lb = 1.0 if i in self.mandatory_indices else 0.0
             var.LB = lb
             var.UB = 1.0
 
@@ -507,7 +507,7 @@ class BBSolver:
                 visited.add(node)
 
         # Check mandatory nodes
-        return all(node in visited for node in self.must_go_indices)
+        return all(node in visited for node in self.mandatory_indices)
 
     def _extract_routes(self) -> List[List[int]]:
         """
@@ -550,7 +550,7 @@ def run_bb_mtz(
     R: float,
     C: float,
     params: Optional[BBParams] = None,
-    must_go_indices: Optional[Set[int]] = None,
+    mandatory_indices: Optional[Set[int]] = None,
     env: Optional[gp.Env] = None,
     recorder: Optional[PolicyStateRecorder] = None,
     **kwargs: Any,
@@ -568,7 +568,7 @@ def run_bb_mtz(
         R: Revenue coefficient per unit collected.
         C: Cost coefficient per unit distance.
         params: Standardized BB parameters.
-        must_go_indices: Set of mandatory customer nodes.
+        mandatory_indices: Set of mandatory customer nodes.
         env: Optional Gurobi environment for resource management.
         recorder: Optional telemetry recorder.
 
@@ -588,7 +588,7 @@ def run_bb_mtz(
         mip_gap=params.mip_gap,
         branching_strategy=params.branching_strategy,
         strong_branching_limit=params.strong_branching_limit,
-        must_go_indices=must_go_indices,
+        mandatory_indices=mandatory_indices,
         env=env,
         recorder=recorder,
     )

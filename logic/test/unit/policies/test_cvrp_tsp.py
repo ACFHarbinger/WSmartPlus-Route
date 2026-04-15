@@ -28,7 +28,7 @@ def mock_params():
         "area": "riomaior",
         "n_vehicles": 2,
         "coords": MagicMock(),
-        "must_go": [1, 2, 3, 4, 5],
+        "mandatory": [1, 2, 3, 4, 5],
     }
 
 def test_tsp_policy(mock_params):

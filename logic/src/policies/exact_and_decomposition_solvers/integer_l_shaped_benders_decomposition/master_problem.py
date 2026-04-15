@@ -12,7 +12,7 @@ Objective:
 Base feasibility constraints (built once at model construction):
     1. Degree:    Σⱼ x_{ij} = 2 yᵢ               ∀i ∈ Customers
     2. Depot:     Σⱼ x_{0j} ≤ 2K                  (fleet size K)
-    3. Mandatory: yᵢ = 1                           ∀i ∈ must_go
+    3. Mandatory: yᵢ = 1                           ∀i ∈ mandatory
     4. Capacity:  Σᵢ wᵢ yᵢ ≤ K · Q               (aggregate knapsack)
 
 Dynamic constraints (added iteratively between outer iterations):
@@ -186,7 +186,7 @@ class MasterProblem:
             name="depot_degree",
         )
 
-        # 3. Mandatory nodes: yᵢ = 1  ∀i ∈ must_go
+        # 3. Mandatory nodes: yᵢ = 1  ∀i ∈ mandatory
         for i in self.model.mandatory_nodes:
             if i in self._y_vars:
                 m.addConstr(self._y_vars[i] == 1, name=f"mandatory_{i}")

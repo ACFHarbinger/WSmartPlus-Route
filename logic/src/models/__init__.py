@@ -70,7 +70,7 @@ from .core.neuopt import NeuOpt as NeuOpt
 from .core.pointer_network import PointerNetwork as PointerNetwork
 from .core.polynet import PolyNet as PolyNet
 from .core.temporal_attention_model import TemporalAttentionModel as TemporalAttentionModel
-from .meta.hrl_manager import MustGoManager as MustGoManager
+from .meta.hrl_manager import MandatoryManager as MandatoryManager
 from .meta.hypernet import (
     HyperNetwork as HyperNetwork,
 )
@@ -99,7 +99,7 @@ __all__ = [
     "AttentionModel",
     "TemporalAttentionModel",
     "CriticNetwork",
-    "MustGoManager",
+    "MandatoryManager",
     "WeightAdjustmentRNN",
     "HyperNetwork",
     "HyperNetworkOptimizer",

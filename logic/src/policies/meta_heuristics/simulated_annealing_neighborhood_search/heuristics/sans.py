@@ -28,14 +28,14 @@ def _initialize_solution_state(routes, id_to_index, distance_matrix, data):
     missing_bins = all_bins_ids - scheduled_bins
 
     initial_solution = copy.deepcopy(routes)
-    # Post-processing: Uncross arcs in the initial solution to start from a geometric optimum.
+    # Route improvement: Uncross arcs in the initial solution to start from a geometric optimum.
     current_solution = uncross_arcs_in_sans_routes(initial_solution, id_to_index, distance_matrix)
 
     return current_solution, missing_bins
 
 
 def _select_neighbor(
-    solution, removed_bins, data, vehicle_capacity, id_to_index, stocks, must_go_bins, distance_matrix, rng
+    solution, removed_bins, data, vehicle_capacity, id_to_index, stocks, mandatory_bins, distance_matrix, rng
 ):
     """Select and apply a neighbor operator."""
     route_ops = [
@@ -80,7 +80,7 @@ def _select_neighbor(
         vehicle_capacity,
         id_to_index,
         stocks,
-        must_go_bins,
+        mandatory_bins,
         distance_matrix,
         rng=rng,
     )
@@ -106,7 +106,7 @@ def improved_simulated_annealing(  # noqa: C901
     V=2.5,
     density=20,
     C=1.0,
-    must_go_bins=None,
+    mandatory_bins=None,
     removed_bins=None,
     verbose=False,
     perc_bins_can_overflow=0.0,
@@ -126,7 +126,7 @@ def improved_simulated_annealing(  # noqa: C901
 
     # --- 1. ROBUST INITIALIZATION ---
     removed_bins = set() if removed_bins is None else set(removed_bins)
-    must_go_bins = set() if must_go_bins is None else set(must_go_bins)
+    mandatory_bins = set() if mandatory_bins is None else set(mandatory_bins)
 
     current_solution, missing_bins = _initialize_solution_state(routes, id_to_index, distance_matrix, data)
     removed_bins.update(missing_bins)
@@ -143,7 +143,7 @@ def improved_simulated_annealing(  # noqa: C901
         R,
         V,
         density,
-        must_go_bins,
+        mandatory_bins,
         stocks,
     )
 
@@ -177,7 +177,7 @@ def improved_simulated_annealing(  # noqa: C901
                 vehicle_capacity,
                 id_to_index,
                 stocks,
-                must_go_bins,
+                mandatory_bins,
                 distance_matrix,
                 rng=rng,
             )
@@ -223,7 +223,7 @@ def improved_simulated_annealing(  # noqa: C901
                 vehicle_capacity,
                 id_to_index,
                 stocks,
-                must_go_bins,
+                mandatory_bins,
                 distance_matrix,
                 rng=rng,
             )
@@ -238,7 +238,7 @@ def improved_simulated_annealing(  # noqa: C901
                 R,
                 V,
                 density,
-                must_go_bins,
+                mandatory_bins,
                 stocks,
             )
 

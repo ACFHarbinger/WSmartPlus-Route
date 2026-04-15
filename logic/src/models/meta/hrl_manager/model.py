@@ -21,18 +21,18 @@ from logic.src.tracking.logging.pylogger import get_pylogger
 
 from .critic_head import CriticHead
 from .gate_head import GateHead
-from .must_go_head import MustGoHead
+from .mandatory_head import MandatorySelectionHead
 from .temporal_encoder import TemporalEncoder
 
 logger = get_pylogger(__name__)
 
 
-class MustGoManager(nn.Module):
+class MandatoryManager(nn.Module):
     """
     Hierarchical Manager Agent for PCVRP.
     Uses RNN to encode temporal waste patterns and GNN to encode spatial structure.
     Outputs:
-        1. Must-Go Selection: Which bins must be collected today (must_go=True means mandatory).
+        1. Mandatory Selection: Which bins must be collected today (mandatory=True means mandatory).
         2. Route Gate: Whether to dispatch vehicles today.
     """
 
@@ -62,7 +62,7 @@ class MustGoManager(nn.Module):
         activation_config: Optional[ActivationConfig] = None,
     ):
         """
-        Initialize the MustGoManager.
+        Initialize the MandatoryManager.
 
         Args:
             input_dim_static (int, optional): Static input dimension (e.g., coordinates). Defaults to 2.
@@ -88,7 +88,7 @@ class MustGoManager(nn.Module):
             norm_config (NormalizationConfig, optional): Configuration for normalization.
             activation_config (ActivationConfig, optional): Configuration for activation functions.
         """
-        super(MustGoManager, self).__init__()
+        super(MandatoryManager, self).__init__()
         self.device = device
         self.batch_size = batch_size
 
@@ -251,11 +251,11 @@ class MustGoManager(nn.Module):
 
     def _init_heads(self, hidden_dim: int, lstm_hidden: int, global_input_dim: int):
         """Initialize task-specific heads."""
-        # Must-Go Selection Head (Actor 1)
-        # Output: (Batch, N, 2) -> Logits for [Optional, MustGo]
+        # Mandatory Selection Head (Actor 1)
+        # Output: (Batch, N, 2) -> Logits for [Optional, Mandatory]
         # Index 0: bin is optional (can skip), Index 1: bin must be collected
         # Input: Hidden + Skip Connection (lstm_hidden)
-        self.must_go_head = MustGoHead(input_dim=hidden_dim + lstm_hidden, hidden_dim=hidden_dim)
+        self.mandatory_head = MandatorySelectionHead(input_dim=hidden_dim + lstm_hidden, hidden_dim=hidden_dim)
 
         # Route Gate Head (Actor 2)
         # Global Pooling -> MLP -> (Batch, 2) -> Logits for [No Route, Route]
@@ -274,8 +274,8 @@ class MustGoManager(nn.Module):
             # Accessing net[-1] from GateHead wrapper
             self.gate_head.net[-1].bias.fill_(0)
 
-            # Neutral bias for must_go_head
-            self.must_go_head.net[-1].bias.fill_(0)
+            # Neutral bias for mandatory_head
+            self.mandatory_head.net[-1].bias.fill_(0)
 
     def clear_memory(self):
         """
@@ -284,13 +284,13 @@ class MustGoManager(nn.Module):
         self.states_static = []
         self.states_dynamic = []
         self.states_global = []
-        self.actions_must_go = []  # Which bins must be collected
+        self.actions_mandatory = []  # Which bins must be collected
         self.actions_gate = []
-        self.log_probs_must_go = []
+        self.log_probs_mandatory = []
         self.log_probs_gate = []
         self.rewards = []
         self.values = []
-        self.target_must_go = []  # Ground truth must-go for auxiliary loss
+        self.target_mandatory = []  # Ground truth mandatory for auxiliary loss
         self.dones = []
 
     def feature_processing(self, static, dynamic):
@@ -327,8 +327,8 @@ class MustGoManager(nn.Module):
             global_features (torch.Tensor): Global features (Batch, global_input_dim).
 
         Returns:
-            tuple: (must_go_logits, gate_logits, value)
-                   - must_go_logits: Logits for must-go selection (B, N, 2).
+            tuple: (mandatory_logits, gate_logits, value)
+                   - mandatory_logits: Logits for mandatory selection (B, N, 2).
                      Index 0 = optional, Index 1 = must collect.
                    - gate_logits: Logits for route gating (B, 2).
                      Index 0 = skip routing, Index 1 = dispatch vehicles.
@@ -345,9 +345,9 @@ class MustGoManager(nn.Module):
         # h_skip: (B, N, H + lstm_hidden)
         h_skip = torch.cat([h, temporal_embed], dim=-1)
 
-        # Must-Go Selection Logits
-        # Outputs logits for [Optional, MustGo] per node
-        must_go_logits = self.must_go_head(h_skip)  # (B, N, 2)
+        # Mandatory Selection Logits
+        # Outputs logits for [Optional, Mandatory] per node
+        mandatory_logits = self.mandatory_head(h_skip)  # (B, N, 2)
 
         # Global Pooling for Gate/Critic
         # Combine Mean (for general load) and Max (for urgency/overflows)
@@ -365,7 +365,7 @@ class MustGoManager(nn.Module):
         # Value
         value = self.critic(h_combined)  # (B, 1)
 
-        return must_go_logits, gate_logits, value
+        return mandatory_logits, gate_logits, value
 
     def select_action(
         self,
@@ -374,11 +374,11 @@ class MustGoManager(nn.Module):
         global_features=None,
         deterministic=False,
         threshold=0.5,
-        must_go_threshold=0.5,
-        target_must_go=None,
+        mandatory_threshold=0.5,
+        target_mandatory=None,
     ):
         """
-        Select actions (gate and must_go) based on the current state.
+        Select actions (gate and mandatory) based on the current state.
 
         Args:
             static (torch.Tensor): Static features (Batch, N, 2).
@@ -386,16 +386,16 @@ class MustGoManager(nn.Module):
             global_features (torch.Tensor): Global features (Batch, G).
             deterministic (bool): If True, use argmax instead of sampling.
             threshold (float): Probability threshold for gate decision.
-            must_go_threshold (float): Probability threshold for must_go decision.
-            target_must_go (torch.Tensor, optional): Ground truth must_go for auxiliary loss.
+            mandatory_threshold (float): Probability threshold for mandatory decision.
+            target_mandatory (torch.Tensor, optional): Ground truth mandatory for auxiliary loss.
 
         Returns:
-            tuple: (must_go_action, gate_action, value)
-                   - must_go_action: (Batch, N) boolean tensor where True = must collect.
+            tuple: (mandatory_action, gate_action, value)
+                   - mandatory_action: (Batch, N) boolean tensor where True = must collect.
                    - gate_action: (Batch,) long tensor where 1 = dispatch vehicles.
                    - value: (Batch, 1) state value estimate.
         """
-        must_go_logits, gate_logits, value = self.forward(static, dynamic, global_features)
+        mandatory_logits, gate_logits, value = self.forward(static, dynamic, global_features)
 
         # 1. Gate Decision (0=Skip routing, 1=Dispatch vehicles)
         gate_probs = F.softmax(gate_logits, dim=-1)
@@ -409,37 +409,39 @@ class MustGoManager(nn.Module):
         else:
             gate_action = gate_dist.sample()
 
-        # 2. Must-Go Selection (Which bins must be collected)
+        # 2. Mandatory Selection (Which bins must be collected)
         # Index 0 = optional, Index 1 = must collect
-        must_go_probs = F.softmax(must_go_logits, dim=-1)
-        must_go_dist = torch.distributions.Categorical(must_go_probs)
+        mandatory_probs = F.softmax(mandatory_logits, dim=-1)
+        mandatory_dist = torch.distributions.Categorical(mandatory_probs)
 
-        must_go_action = (must_go_probs[:, :, 1] > must_go_threshold).long() if deterministic else must_go_dist.sample()
+        mandatory_action = (
+            (mandatory_probs[:, :, 1] > mandatory_threshold).long() if deterministic else mandatory_dist.sample()
+        )
 
         # Store for PPO
         if not deterministic:
-            log_prob_must_go = must_go_dist.log_prob(must_go_action).sum(dim=1)
+            log_prob_mandatory = mandatory_dist.log_prob(mandatory_action).sum(dim=1)
             log_prob_gate = gate_dist.log_prob(gate_action)
 
             self.states_static.append(static.detach().cpu())
             self.states_dynamic.append(dynamic.detach().cpu())
             self.states_global.append(global_features.detach().cpu() if global_features is not None else None)
             self.actions_gate.append(gate_action.detach().cpu())
-            self.actions_must_go.append(must_go_action.detach().cpu())
+            self.actions_mandatory.append(mandatory_action.detach().cpu())
             self.log_probs_gate.append(log_prob_gate.detach().cpu())
-            self.log_probs_must_go.append(log_prob_must_go.detach().cpu())
+            self.log_probs_mandatory.append(log_prob_mandatory.detach().cpu())
             self.values.append(value.detach().cpu())
 
-            # Store target must_go for auxiliary loss
-            if target_must_go is not None:
-                self.target_must_go.append(target_must_go.detach().cpu())
+            # Store target mandatory for auxiliary loss
+            if target_mandatory is not None:
+                self.target_mandatory.append(target_mandatory.detach().cpu())
             else:
                 # Fallback: bins with fill > critical_threshold should be collected
-                self.target_must_go.append((dynamic[:, :, -1] > self.critical_threshold).float().detach().cpu())
+                self.target_mandatory.append((dynamic[:, :, -1] > self.critical_threshold).float().detach().cpu())
 
-        return must_go_action, gate_action, value
+        return mandatory_action, gate_action, value
 
-    def get_must_go_mask(
+    def get_mandatory_mask(
         self,
         static,
         dynamic,
@@ -447,27 +449,27 @@ class MustGoManager(nn.Module):
         threshold=0.5,
     ):
         """
-        Get the must_go boolean mask for environment integration.
+        Get the mandatory boolean mask for environment integration.
 
-        This method provides the must_go mask in the format expected by
+        This method provides the mandatory mask in the format expected by
         the WCVRP/VRPP environments for action masking.
 
         Args:
             static (torch.Tensor): Static features (Batch, N, 2).
             dynamic (torch.Tensor): Dynamic features (Batch, N, History).
             global_features (torch.Tensor): Global features (Batch, G).
-            threshold (float): Probability threshold for must_go decision.
+            threshold (float): Probability threshold for mandatory decision.
 
         Returns:
             torch.Tensor: Boolean tensor (Batch, N) where True = must collect.
         """
-        must_go_logits, _, _ = self.forward(static, dynamic, global_features)
-        must_go_probs = F.softmax(must_go_logits, dim=-1)
+        mandatory_logits, _, _ = self.forward(static, dynamic, global_features)
+        mandatory_probs = F.softmax(mandatory_logits, dim=-1)
 
-        # must_go is True where P(must_go=1) > threshold
-        must_go = must_go_probs[:, :, 1] > threshold
+        # mandatory is True where P(mandatory=1) > threshold
+        mandatory = mandatory_probs[:, :, 1] > threshold
 
-        # Depot (index 0) should never be a must_go target
-        must_go[:, 0] = False
+        # Depot (index 0) should never be a mandatory target
+        mandatory[:, 0] = False
 
-        return must_go
+        return mandatory

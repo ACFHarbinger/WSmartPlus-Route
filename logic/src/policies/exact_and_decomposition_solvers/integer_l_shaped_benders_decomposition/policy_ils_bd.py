@@ -113,7 +113,7 @@ class IntegerLShapedPolicy(BaseRoutingPolicy):
         n_nodes = len(sub_dist_matrix)
 
         # ---- Build VRPPModel (network structure for Gurobi) ---------------
-        must_go_set: Set[int] = set(mandatory_nodes)
+        mandatory_set: Set[int] = set(mandatory_nodes)
         vrpp_model = VRPPModel(
             n_nodes=n_nodes,
             cost_matrix=sub_dist_matrix,
@@ -121,7 +121,7 @@ class IntegerLShapedPolicy(BaseRoutingPolicy):
             capacity=capacity,
             revenue_per_kg=revenue,
             cost_per_km=cost_unit,
-            mandatory_nodes=must_go_set,
+            mandatory_nodes=mandatory_set,
         )
 
         # Override fleet size from simulation context if explicitly provided

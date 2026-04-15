@@ -11,7 +11,7 @@ import torch
 from torch import nn
 
 if TYPE_CHECKING:
-    from logic.src.models import MustGoManager
+    from logic.src.models import MandatoryManager
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -83,7 +83,7 @@ def setup_hrl_manager(
     policy: Optional[str] = None,
     base_path: Optional[str] = None,
     worker_model: Optional[nn.Module] = None,
-) -> Optional[MustGoManager]:
+) -> Optional[MandatoryManager]:
     """
     Initializes and loads the Manager model for Hierarchical RL.
 
@@ -138,9 +138,9 @@ def setup_hrl_manager(
             global_input_dim = detected_dim
 
     # --- Build manager ---
-    from logic.src.models import MustGoManager
+    from logic.src.models import MandatoryManager
 
-    manager: MustGoManager = MustGoManager(
+    manager: MandatoryManager = MandatoryManager(
         input_dim_static=2,
         input_dim_dynamic=mrl_history,
         hidden_dim=gat_hidden,

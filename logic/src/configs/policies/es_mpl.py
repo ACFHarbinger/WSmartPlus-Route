@@ -9,8 +9,8 @@ Strictly follows the generational evolutionary algorithm terminology where:
 from dataclasses import dataclass
 from typing import List, Optional
 
-from .other.must_go import MustGoConfig
-from .other.post_processing import PostProcessingConfig
+from .other.mandatory_selection import MandatorySelectionConfig
+from .other.route_improvement import RouteImprovingConfig
 
 
 @dataclass
@@ -48,10 +48,10 @@ class MuPlusLambdaESConfig:
 
         seed (Optional[int]): Random seed for deterministic reproducibility.
 
-        must_go (Optional[List[MustGoConfig]]): Configuration for node
-            selection strategies.
+        mandatory_selection (Optional[List[MandatorySelectionConfig]]): Configuration
+            for node selection strategies.
 
-        post_processing (Optional[List[PostProcessingConfig]]): List of
+        route_improvement (Optional[List[RouteImprovingConfig]]): List of
             heuristics applied to refine solutions after optimization.
     """
 
@@ -64,5 +64,5 @@ class MuPlusLambdaESConfig:
     vrpp: bool = True
     profit_aware_operators: bool = False
     seed: Optional[int] = None
-    must_go: Optional[List[MustGoConfig]] = None
-    post_processing: Optional[List[PostProcessingConfig]] = None
+    mandatory_selection: Optional[List[MandatorySelectionConfig]] = None
+    route_improvement: Optional[List[RouteImprovingConfig]] = None
