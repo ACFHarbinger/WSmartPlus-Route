@@ -886,7 +886,7 @@ def parse_params():
         # Parse arguments into a dictionary using the custom handler
         command, opts = parser.parse_process_args()
 
-        # --- COMMAND-SPECIFIC VALIDATION AND POST-PROCESSING ---
+        # --- COMMAND-SPECIFIC VALIDATION AND route improvement ---
         if command == "file_system":
             # This returns a tuple: (fs_command, validated_opts)
             command, opts = validate_file_system_args(opts)

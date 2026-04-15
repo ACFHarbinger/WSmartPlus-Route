@@ -100,7 +100,7 @@ bc:
       #   for large instances. Disabling falls back to heuristic capacity cuts.
 
     # ---------------------------------------------------------------------
-    # Must-Go Strategy
+    # mandatory Strategy
     # ---------------------------------------------------------------------
     - mandatory_selection: ["other/ms_lookahead.yaml"]
       # Node selection strategy for waste collection problems
@@ -111,7 +111,7 @@ bc:
       # See: docs/MUST_GO_STRATEGIES.md
 
     # ---------------------------------------------------------------------
-    # Post-Processing
+    # route improvement
     # ---------------------------------------------------------------------
     - route_improvement: []
       # Route refinement heuristics (not needed for exact solutions)

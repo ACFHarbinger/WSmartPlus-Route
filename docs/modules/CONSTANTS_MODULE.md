@@ -866,7 +866,7 @@ CRITICAL_FILL_THRESHOLD: float = 0.9  # 90% capacity
 
 **Usage**:
 
-- Must-go bin selection (bins ≥ 0.9 flagged as mandatory)
+- mandatory bin selection (bins ≥ 0.9 flagged as mandatory)
 - Service Level Agreement (SLA) compliance
 - Look-ahead search (preventive collection)
 

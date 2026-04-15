@@ -1,5 +1,5 @@
 # =============================================================================
-# Post-Processing: Lin-Kernighan-Helsgaun (LKH)
+# route improvement: Lin-Kernighan-Helsgaun (LKH)
 # =============================================================================
 # PURPOSE:
 #   Advanced local search using Lin-Kernighan-Helsgaun algorithm for TSP refinement.

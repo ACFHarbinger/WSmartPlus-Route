@@ -31,7 +31,7 @@ def parse_params() -> Tuple[Union[str, Tuple[str, str]], Dict[str, Any]]:
         command, opts = parser.parse_process_args()
         assert command is not None
 
-        # --- COMMAND-SPECIFIC VALIDATION AND POST-PROCESSING ---
+        # --- COMMAND-SPECIFIC VALIDATION AND route improvement ---
         # "gen_data", "eval", "test_sim", "train" are now fully handled by Hydra or removed from legacy flow
         if command == "file_system":
             # This returns a tuple: (fs_command, validated_opts)

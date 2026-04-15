@@ -62,5 +62,5 @@ rl_gd_hh:
     # Selection algorithm for mandatory bin visited nodes.
     - mandatory_selection: ["other/ms_lookahead.yaml"]
 
-    # Optional post-processing passes.
+    # Optional route improvement passes.
     - route_improvement: []

@@ -115,16 +115,16 @@ ils_bd:
       # Requires: ortools Python package
 
     # ---------------------------------------------------------------------
-    # Must-Go Strategy
+    # mandatory Strategy
     # ---------------------------------------------------------------------
     - mandatory_selection: ["other/ms_lookahead.yaml"]
       # Selection strategy for mandatory visits.
 
     # ---------------------------------------------------------------------
-    # Post-Processing
+    # route improvement
     # ---------------------------------------------------------------------
     - route_improvement: []
-      # No post-processing needed for exact solutions.
+      # No route improvement needed for exact solutions.
 
     # ---------------------------------------------------------------------
     # Warm-Start Heuristics

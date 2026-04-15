@@ -83,6 +83,6 @@ abc:
       # Options: ms_lookahead.yaml, ms_last_minute_*.yaml, ms_regular.yaml
 
     - route_improvement: []
-      # Scout + onlooker phases provide diverse coverage; no post-processing
+      # Scout + onlooker phases provide diverse coverage; no route improvement
       # Empty = use ABC output directly
 # =============================================================================

@@ -143,7 +143,7 @@ Prints detailed model architecture summary using Rich tables.
 - Algorithm identification
 - Policy architecture breakdown (encoder/decoder)
 - Baseline summary
-- Must-go selector details
+- mandatory selector details
 - Expert policy (for imitation learning)
 - Trainable parameter counts
 
@@ -523,7 +523,7 @@ rl/
 │   │   └── shared_critic.py    # Shared critic
 │   ├── epoch.py                # Epoch utilities
 │   ├── time_training.py        # Temporal training
-│   ├── post_processing.py      # Route refinement
+│   ├── route_improvement.py      # Route refinement
 │   └── reward_scaler.py        # Reward normalization
 │
 ├── core/                       # RL algorithms
@@ -627,7 +627,7 @@ class RL4COLitModule(DataMixin, OptimizationMixin, StepMixin, pl.LightningModule
         val_dataset_path: Optional[str] = None,
         batch_size: int = 256,
         num_workers: int = 4,
-        must_go_selector: Optional[VectorizedSelector] = None,
+        mandatory_selection_selector: Optional[VectorizedSelector] = None,
         **kwargs,
     ):
         # Initialization logic
@@ -944,7 +944,7 @@ simulations/
 ├── actions/
 │   ├── base.py                 # SimulationAction abstract
 │   ├── fill.py                 # FillAction (waste accumulation)
-│   ├── selection.py            # MustGoSelectionAction
+│   ├── selection.py            # MandatorySelectionSelectionAction
 │   ├── policy.py               # PolicyExecutionAction
 │   ├── post_process.py         # PostProcessAction
 │   ├── collection.py           # CollectAction (emptying bins)
@@ -1224,17 +1224,17 @@ class FillAction(SimulationAction):
         context.bins.fill(day, context.opts["data_distribution"])
 ```
 
-#### 2. MustGoSelectionAction
+#### 2. MandatorySelectionSelectionAction
 
 **File**: `actions/selection.py`
 
 ```python
-class MustGoSelectionAction(SimulationAction):
+class MandatorySelectionSelectionAction(SimulationAction):
     def execute(self, context: SimulationContext, **kwargs):
         """Select bins that must be collected."""
-        selector = context.must_go_selector
-        must_go_indices = selector.select(context.bins, context.opts)
-        return must_go_indices
+        selector = context.mandatory_selection_selector
+        mandatory_selection_indices = selector.select(context.bins, context.opts)
+        return mandatory_selection_indices
 ```
 
 #### 3. PolicyExecutionAction
@@ -1243,11 +1243,11 @@ class MustGoSelectionAction(SimulationAction):
 
 ```python
 class PolicyExecutionAction(SimulationAction):
-    def execute(self, context: SimulationContext, must_go: List[int], **kwargs):
+    def execute(self, context: SimulationContext, mandatory_selection: List[int], **kwargs):
         """Execute routing policy to generate tour."""
         policy = context.policy_adapter
         tour, cost, metadata = policy.execute(
-            must_go=must_go,
+            mandatory_selection=mandatory_selection,
             bins=context.bins,
             distance_matrix=context.distance_matrix,
             area=context.opts["area"],
@@ -1303,7 +1303,7 @@ class LogAction(SimulationAction):
 # In RunningState.handle()
 actions = [
     FillAction(),
-    MustGoSelectionAction(),
+    MandatorySelectionSelectionAction(),
     PolicyExecutionAction(),
     CollectAction(),
     LogAction(),
@@ -1652,7 +1652,7 @@ class SimulationAction(ABC):
 
 # Concrete commands
 fill_action = FillAction()
-selection_action = MustGoSelectionAction()
+selection_action = MandatorySelectionSelectionAction()
 policy_action = PolicyExecutionAction()
 collect_action = CollectAction()
 log_action = LogAction()
@@ -2152,7 +2152,7 @@ streamlit run logic/src/pipeline/ui/app.py --server.port 8080
 Examples:
 - gurobi_empirical
 - hgs_empirical
-- ms_last_minute_cf70_empirical  (must-go last-minute, 70% capacity)
+- ms_last_minute_cf70_empirical  (mandatory last-minute, 70% capacity)
 - am_greedy_empirical
 - tsp_empirical
 ```

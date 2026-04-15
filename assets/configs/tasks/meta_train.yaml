@@ -67,7 +67,7 @@ meta_rl:
   hrl_clip_eps: 0.2 # PPO clipping epsilon for manager updates
 
   hrl_threshold:
-    0.9 # Fill level threshold for must-go bin detection.
+    0.9 # Fill level threshold for mandatory bin detection.
     # Manager predicts which bins exceed this threshold.
 
   # PID Controller for Adaptive Weighting

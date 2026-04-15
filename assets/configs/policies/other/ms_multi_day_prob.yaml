@@ -1,5 +1,5 @@
 # =============================================================================
-# Must-Go Strategy: Multi-Day Overflow Probability
+# mandatory Strategy: Multi-Day Overflow Probability
 # =============================================================================
 # PURPOSE:
 #   Stochastically select bins that have a high probability of overflowing

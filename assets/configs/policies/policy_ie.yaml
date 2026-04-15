@@ -25,8 +25,8 @@ ie:
   # Profit-aware operators
   profit_aware_operators: true
 
-  # Must-go node selection strategies.
+  # mandatory node selection strategies.
   mandatory_selection: ["other/ms_lookahead.yaml"]
 
-  # Post-processing refinement steps.
+  # route improvement refinement steps.
   route_improvement: []

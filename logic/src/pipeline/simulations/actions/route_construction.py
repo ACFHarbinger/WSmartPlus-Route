@@ -16,7 +16,7 @@ from logic.src.policies.base import PolicyRegistry
 from .base import SimulationAction, _flatten_config
 
 
-class PolicyExecutionAction(SimulationAction):
+class RouteConstructionAction(SimulationAction):
     """
     Executes the routing policy to generate collection tours.
     """

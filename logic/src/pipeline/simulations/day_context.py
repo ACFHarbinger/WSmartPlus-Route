@@ -295,14 +295,14 @@ def run_day(context: SimulationDayContext) -> SimulationDayContext:
         FillAction,
         LogAction,
         MandatorySelectionAction,
-        PolicyExecutionAction,
+        RouteConstructionAction,
         RouteImprovementAction,
     )
 
     commands = [
         FillAction(),
         MandatorySelectionAction(),
-        PolicyExecutionAction(),
+        RouteConstructionAction(),
         RouteImprovementAction(),
         CollectAction(),
         LogAction(),

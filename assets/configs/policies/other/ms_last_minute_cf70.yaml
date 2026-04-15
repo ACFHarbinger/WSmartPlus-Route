@@ -1,5 +1,5 @@
 # =============================================================================
-# Must-Go Strategy: Last Minute (Threshold-Based)
+# mandatory Strategy: Last Minute (Threshold-Based)
 # =============================================================================
 # PURPOSE:
 #   Collect bins when current fill level exceeds a fixed threshold.
@@ -7,7 +7,7 @@
 #
 # ALGORITHM:
 #   1. Check current fill level for each bin
-#   2. Mark bin as must-go if fill >= threshold
+#   2. Mark bin as mandatory if fill >= threshold
 #   3. No temporal prediction involved
 #
 # USE CASES:

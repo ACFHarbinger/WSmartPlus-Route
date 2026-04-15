@@ -128,7 +128,7 @@ Several policies expose multiple backend engines:
 | **Hyper-heuristic**      | Hyper-ACO (ACO selects operator sequences)           |
 | **Neural / DRL**         | Neural (Attention Models, HRL, Meta-RL)              |
 
-### 5.4 Selection Strategies (Must-Go Determination)
+### 5.4 Selection Strategies (mandatory Determination)
 
 In WCVRP/CVRP mode, a selection strategy runs **before** the routing policy to decide which bins must be visited:
 
@@ -149,7 +149,7 @@ use_all_bins = bool(values.get("vrpp", True))
 ```
 
 - **VRPP mode** (`True`): All bins are considered; the solver selects the profitable subset.
-- **CVRP/WCVRP mode** (`False`): Only must-go bins (pre-selected by a selection strategy) are routed.
+- **CVRP/WCVRP mode** (`False`): Only mandatory bins (pre-selected by a selection strategy) are routed.
 
 SCWCVRP stochastic waste is handled by the simulator's `Bins` object, not the routing policy. Only **Neural** has explicit stochastic modeling via temporal attention (TAM) and fill-level prediction (GRFPredictor).
 

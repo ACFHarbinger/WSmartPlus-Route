@@ -1,5 +1,5 @@
 # =============================================================================
-# Must-Go Strategy: Service Level (Statistical Overflow Prediction)
+# mandatory Strategy: Service Level (Statistical Overflow Prediction)
 # =============================================================================
 # PURPOSE:
 #   Statistical prediction using mean + confidence_factor * stddev.
@@ -8,7 +8,7 @@
 # ALGORITHM:
 #   1. Estimate fill level distribution (μ, σ) for each bin
 #   2. Compute threshold = μ + confidence_factor * σ
-#   3. Mark bin as must-go if predicted_fill >= threshold
+#   3. Mark bin as mandatory if predicted_fill >= threshold
 #   4. Higher confidence_factor → more conservative (fewer overflows)
 #
 # USE CASES:

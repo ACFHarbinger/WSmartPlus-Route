@@ -169,6 +169,6 @@ hgs:
       # See: docs/MUST_GO_STRATEGIES.md
 
     - route_improvement: []
-      # HGS local search is comprehensive; external post-processing redundant
+      # HGS local search is comprehensive; external route improvement redundant
       # Empty = use HGS output directly
 # =============================================================================

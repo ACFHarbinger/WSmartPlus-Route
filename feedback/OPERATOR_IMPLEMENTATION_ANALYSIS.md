@@ -2818,7 +2818,7 @@ Complex construction and optimization heuristics.
    - Calculate route waste: `route_waste = Σ wastes[node]` [line 36]
    - **Profitability Check**: `actual_profit = (route_waste * R) - (route_dist * C)` [line 37]
    - Remove route if `actual_profit < -1e-4` unless contains mandatory node
-   - **Extension**: Economic post-processing for VRPP
+   - **Extension**: Economic route improvement for VRPP
 
 **Key Features**:
 - **Two-Phase**: Ensures mandatory coverage before economic optimization

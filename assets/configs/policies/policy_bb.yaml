@@ -56,7 +56,7 @@ bb:
   # - false: The solver only visits nodes specified in 'mandatory_selection'.
   vrpp: true
 
-  # List of must-go strategy configuration files.
+  # List of mandatory strategy configuration files.
   # These strategies define which nodes MUST be visited regardless of profit.
   # Example:
   # mandatory_selection:
@@ -64,7 +64,7 @@ bb:
   #     threshold: 90.0
   mandatory_selection: ["other/ms_lookahead.yaml"]
 
-  # List of post-processing operations to apply after the search.
+  # List of route improvement operations to apply after the search.
   # Example:
   # route_improvement:
   #   - name: "two_opt"

@@ -1,5 +1,5 @@
 # =============================================================================
-# Must-Go Strategy: Regular (5-Day Cycle)
+# mandatory Strategy: Regular (5-Day Cycle)
 # =============================================================================
 # PURPOSE:
 #   Least frequent periodic schedule - collect every 5 days. Minimizes
@@ -7,7 +7,7 @@
 #
 # ALGORITHM:
 #   1. Track days since last collection for each bin
-#   2. Mark bin as must-go if days_since_collection >= 5
+#   2. Mark bin as mandatory if days_since_collection >= 5
 #   3. Deterministic schedule
 #
 # USE CASES:

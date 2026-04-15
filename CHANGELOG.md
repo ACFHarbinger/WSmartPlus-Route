@@ -37,7 +37,7 @@ Introduced a modular **Selection Strategy** system for the Simulator, allowing f
 
 ### Changed
 
-- **Simulator Engine**: Refactored `actions.py` to use `MustGoSelectionAction` and `PostProcessAction` for composable behavior.
+- **Simulator Engine**: Refactored `actions.py` to use `mandatorySelectionAction` and `PostProcessAction` for composable behavior.
 - **Testing**: Added comprehensive unit tests for selection actions and fixtures in `logic/test/fixtures/sim_fixtures.py`.
 
 ## [4.2.0] - 2026-01-25
@@ -218,7 +218,7 @@ The **Old RL Pipeline** (`logic/src/pipeline/reinforcement_learning/`) features 
   - Registery now supports: `rnn` (RWA), `bandit` (Contextual), `morl` (Pareto), `tdl` (TD), `hypernet`.
 - **Training Infrastructure**:
   - `Epoch Utilities`: Rich validation metrics (overflows, efficiency, cost) in `epoch.py`.
-  - `Post-Processing`: Full `calculate_efficiency` logic and `EfficiencyOptimizer` parity.
+  - `route improvement`: Full `calculate_efficiency` logic and `EfficiencyOptimizer` parity.
 - **HPO Module** (`logic/src/pipeline/rl/hpo/`):
   - Consolidated HPO logic into dedicated module.
   - `OptunaHPO`: Clean class-based interface for Optuna (TPE, Grid, Random, Hyperband).

@@ -1,5 +1,5 @@
 # =============================================================================
-# Post-Processing: Steepest Node Exchange
+# route improvement: Steepest Node Exchange
 # =============================================================================
 # PURPOSE:
 #   Perform pairwise node swaps until a local minimum is reached.

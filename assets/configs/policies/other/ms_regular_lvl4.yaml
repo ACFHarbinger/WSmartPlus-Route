@@ -1,5 +1,5 @@
 # =============================================================================
-# Must-Go Strategy: Regular (4-Day Cycle)
+# mandatory Strategy: Regular (4-Day Cycle)
 # =============================================================================
 # PURPOSE:
 #   Fixed-frequency collection every 4 days. Slightly less frequent than
@@ -7,7 +7,7 @@
 #
 # ALGORITHM:
 #   1. Track days since last collection for each bin
-#   2. Mark bin as must-go if days_since_collection >= 4
+#   2. Mark bin as mandatory if days_since_collection >= 4
 #   3. Deterministic schedule
 #
 # USE CASES:

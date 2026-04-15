@@ -29,8 +29,8 @@ progressive_hedging:
   # Random seed for scenario generation reproducibility.
   seed: 42
 
-  # Must-go node selection strategies.
+  # mandatory node selection strategies.
   mandatory_selection: []
 
-  # Post-processing refinement.
+  # route improvement refinement.
   route_improvement: []

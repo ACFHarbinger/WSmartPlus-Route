@@ -121,7 +121,7 @@ bp:
       # If false, it functions as a standard single-day deterministic solver.
 
     # ---------------------------------------------------------------------
-    # Must-Go Strategy
+    # mandatory Strategy
     # ---------------------------------------------------------------------
     - mandatory_selection: ["other/ms_lookahead.yaml"]
       # Node selection strategy for waste collection problems
@@ -135,7 +135,7 @@ bp:
     - vrpp: true
 
     # ---------------------------------------------------------------------
-    # Post-Processing
+    # route improvement
     # ---------------------------------------------------------------------
     - route_improvement: []
       # Route refinement heuristics (not needed for exact solutions)
