@@ -60,7 +60,9 @@ gpu = [
     "triton>=2.2.0 ; sys_platform != 'win32'",
     "torch-tb-profiler>=0.4.3",
     "nvidia-ml-py>=13.580.65",
-    "gymnasium>=1.1.1"
+    "gymnasium>=1.1.1",
+    "onnx>=1.19.0",
+    "onnxsim>=0.6.2",
 ]
 geo = [
     "osmnx>=2.0.6",
