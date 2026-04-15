@@ -41,7 +41,7 @@ class WCVRPGenerator(Generator):
         area: Optional[str] = None,
         data_dir: Optional[str] = None,
         indices: Optional[list[int]] = None,
-        generator: Optional[torch.Generator] = None,
+        generator: Optional[np.random.Generator] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -78,12 +78,13 @@ class WCVRPGenerator(Generator):
         self.data_dir = data_dir
         self.area = area
         self.indices = indices if indices is not None else list(range(0, num_loc))
+        self.grid: Any = None
         try:
             from logic.src.utils.data.loader import load_grid_base
 
             self.grid = load_grid_base(self.indices, self.area, self.data_dir)
         except FileNotFoundError:
-            self.grid = None
+            pass
 
     def _generate(self, batch_size: tuple[int, ...]) -> TensorDict:
         """Generate WCVRP instances."""

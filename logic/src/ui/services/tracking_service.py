@@ -40,14 +40,14 @@ try:
     from mlflow.entities import Run
     from mlflow.tracking import MlflowClient
 except ImportError:
-    mlflow = None
-    Run = Any
-    MlflowClient = Any
+    mlflow = None  # type: ignore[assignment]
+    Run = Any  # type: ignore[misc, assignment]
+    MlflowClient = Any  # type: ignore[misc, assignment]
 
 try:
     from zenml.client import Client as ZenMLClient
 except ImportError:
-    ZenMLClient = Any
+    ZenMLClient = Any  # type: ignore[misc, assignment]
 
 with contextlib.suppress(ImportError):
     from logic.src.tracking.core.store import TrackingStore

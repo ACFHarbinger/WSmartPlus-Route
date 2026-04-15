@@ -12,6 +12,7 @@ Reference:
 from __future__ import annotations
 
 import copy
+import random
 from typing import Any, Dict, List, Optional, Tuple
 
 import gymnasium as gym
@@ -104,7 +105,7 @@ class DRALNSEnv(gym.Env):
         self.state = DRALNSState()
 
         # Random state
-        self.rng = np.random.RandomState(seed)
+        self.rng = random.Random(seed)
 
         # Operators (matching reference implementation)
         self.destroy_ops = [
@@ -133,7 +134,7 @@ class DRALNSEnv(gym.Env):
             Tuple of (observation, info).
         """
         if seed is not None:
-            self.rng = np.random.RandomState(seed)
+            self.rng = random.Random(seed)
 
         # Generate or load problem instance
         if options is not None and "instance" in options:
@@ -324,45 +325,46 @@ class DRALNSEnv(gym.Env):
             return False
         delta = new_profit - current_profit
         probability = np.exp(delta / temperature)
-        return self.rng.rand() < probability
+        return self.rng.random() < probability
 
     # Destroy operators
     def _random_removal(self, routes: List[List[int]], n: int) -> Tuple[List[List[int]], List[int]]:
         return random_removal(routes, n, rng=self.rng)
 
     def _worst_removal(self, routes: List[List[int]], n: int) -> Tuple[List[List[int]], List[int]]:
+        assert self.dist_matrix is not None
         return worst_removal(routes, n, self.dist_matrix)
 
     def _cluster_removal(self, routes: List[List[int]], n: int) -> Tuple[List[List[int]], List[int]]:
+        assert self.dist_matrix is not None
         return cluster_removal(routes, n, self.dist_matrix, self.nodes, rng=self.rng)
 
     # Repair operators
     def _greedy_insertion(self, partial_routes: List[List[int]], removed: List[int]) -> List[List[int]]:
+        assert self.dist_matrix is not None and self.wastes is not None and self.capacity is not None
         return greedy_insertion(
             partial_routes,
             removed,
             self.dist_matrix,
             self.wastes,
             self.capacity,
-            R=self.R,
             mandatory_nodes=self.mandatory_nodes,
-            cost_unit=self.C,
         )
 
     def _regret_2_insertion(self, partial_routes: List[List[int]], removed: List[int]) -> List[List[int]]:
+        assert self.dist_matrix is not None and self.wastes is not None and self.capacity is not None
         return regret_2_insertion(
             partial_routes,
             removed,
             self.dist_matrix,
             self.wastes,
             self.capacity,
-            R=self.R,
             mandatory_nodes=self.mandatory_nodes,
-            cost_unit=self.C,
         )
 
     # Helpers
     def _build_initial_solution(self) -> List[List[int]]:
+        assert self.dist_matrix is not None and self.wastes is not None and self.capacity is not None
         return build_nn_routes(
             nodes=self.nodes,
             mandatory_nodes=self.mandatory_nodes,
@@ -374,6 +376,7 @@ class DRALNSEnv(gym.Env):
         )
 
     def _evaluate(self, routes: List[List[int]]) -> float:
+        assert self.wastes is not None
         if not routes:
             return 0.0
         revenue = sum(self.wastes.get(node, 0.0) * self.R for route in routes for node in route)
@@ -381,6 +384,7 @@ class DRALNSEnv(gym.Env):
         return revenue - cost
 
     def _cost(self, routes: List[List[int]]) -> float:
+        assert self.dist_matrix is not None
         total_cost = 0.0
         for route in routes:
             if not route:

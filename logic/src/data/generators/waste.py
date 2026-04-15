@@ -51,7 +51,7 @@ def generate_waste(
         Generated waste values.
     """
     size = (dataset_size, problem_size)
-    dist_obj: BaseDistribution = None
+    dist_obj: Optional[BaseDistribution] = None
     if distribution == "empty":
         dist_obj = Constant(value=0.0)
     elif distribution == "const":
@@ -79,4 +79,4 @@ def generate_waste(
         assert distribution == "dist"
         dist_obj = Distance(graph)
 
-    return dist_obj.set_sampling_method(sample_method).sample(size, rng=rng)
+    return dist_obj.set_sampling_method(sample_method).sample(size, rng=rng)  # type: ignore[arg-type]

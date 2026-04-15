@@ -34,7 +34,7 @@ class Beta(BaseDistribution):
             torch.Tensor: Sampled values
         """
         if generator is None:
-            generator = torch.Generator().manual_seed()
+            generator = torch.Generator()
 
         m = torch.distributions.Beta(self.alpha, self.beta)
         return m.sample(torch.Size(size))

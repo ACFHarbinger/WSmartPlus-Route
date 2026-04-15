@@ -95,7 +95,7 @@ class VectorizedALNS(AutoregressivePolicy):
             wastes=waste,
             vehicle_capacity=capacity,
             time_limit=self.time_limit,
-            device=device,
+            device=str(device),
             generator=self.generator,
         )
 

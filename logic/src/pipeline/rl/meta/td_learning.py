@@ -56,6 +56,7 @@ class CostWeightManager(WeightAdjustmentStrategy):
         self.expected_reward: Optional[float] = None
 
         # Current weights
+        self.weights: Dict[str, float]
         if initial_weights and isinstance(initial_weights, ITraversable):
             self.weights = initial_weights.copy()
         else:
