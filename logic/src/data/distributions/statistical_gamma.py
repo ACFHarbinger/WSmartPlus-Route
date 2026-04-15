@@ -65,7 +65,7 @@ class Gamma(BaseDistribution):
             torch.Tensor: Sampled values
         """
         if generator is None:
-            generator = torch.Generator().manual_seed()
+            generator = torch.Generator()
         if self.option is not None:
             # Use per-node heterogeneous params; fall back to numpy then convert
             return torch.from_numpy(self._sample_array(size)).float()

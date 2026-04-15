@@ -116,6 +116,7 @@ class PolicyFactory:
         import logic.src.policies.only_improving.policy_oi as policy_oi  # noqa
         import logic.src.policies.record_to_record_travel.policy_rrt as policy_rrt  # noqa
         import logic.src.policies.simulated_annealing.policy_sa as policy_sa  # noqa
+        import logic.src.policies.step_counting_hill_climbing.policy_schc as policy_schc  # noqa
         import logic.src.policies.threshold_accepting.policy_ta as policy_ta  # noqa
 
         # Others

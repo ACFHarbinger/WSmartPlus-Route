@@ -37,8 +37,8 @@ try:
     import optuna
     import optuna.visualization as ov
 except ImportError:
-    optuna = None
-    ov = None
+    optuna = None  # type: ignore[assignment]
+    ov = None  # type: ignore[assignment]
 
 # ---------------------------------------------------------------------------
 # Main render function

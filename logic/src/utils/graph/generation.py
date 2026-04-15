@@ -2,7 +2,7 @@
 Graph and adjacency matrix generation utilities.
 """
 
-from typing import Any, Union
+from typing import Any, Optional, Union
 
 import networkx as nx
 import numpy as np
@@ -24,7 +24,7 @@ def generate_adj_matrix(
     undirected: bool = False,
     add_depot: bool = True,
     negative: bool = False,
-    np_rng: np.random.Generator = None,
+    np_rng: Optional[np.random.Generator] = None,
 ) -> np.ndarray:
     """
     Generates a random adjacency matrix.

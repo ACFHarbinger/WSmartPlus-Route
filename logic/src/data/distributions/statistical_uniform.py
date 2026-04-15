@@ -34,7 +34,7 @@ class Uniform(BaseDistribution):
             torch.Tensor: Sampled values in range [0.01, 1.0].
         """
         if generator is None:
-            generator = torch.Generator().manual_seed()
+            generator = torch.Generator()
         res = torch.randint(self.low, self.high, size, generator=generator)
         return res.float() / 100.0
 

@@ -12,6 +12,7 @@ Reference:
 from __future__ import annotations
 
 import copy
+import random
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
@@ -86,7 +87,7 @@ class DRALNSSolver:
         # Problem setup
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
-        self.random = np.random.RandomState(seed)
+        self.random = random.Random(seed)
 
         # Define destroy operators (matching paper setup)
         self.destroy_ops = [
@@ -222,7 +223,7 @@ class DRALNSSolver:
 
         delta = new_profit - current_profit  # negative value
         probability = np.exp(delta / temperature)
-        return self.random.rand() < probability
+        return self.random.random() < probability
 
     # ========================================================================
     # Destroy Operators
@@ -252,9 +253,7 @@ class DRALNSSolver:
             self.dist_matrix,
             self.wastes,
             self.capacity,
-            R=self.R,
             mandatory_nodes=self.mandatory_nodes,
-            cost_unit=self.C,
         )
 
     def _regret_2_insertion(self, partial_routes: List[List[int]], removed: List[int]) -> List[List[int]]:
@@ -265,9 +264,7 @@ class DRALNSSolver:
             self.dist_matrix,
             self.wastes,
             self.capacity,
-            R=self.R,
             mandatory_nodes=self.mandatory_nodes,
-            cost_unit=self.C,
         )
 
     # ========================================================================

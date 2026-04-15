@@ -39,7 +39,7 @@ class Mixed(BaseDistribution):
             torch.Tensor: Sampled values.
         """
         if generator is None:
-            generator = torch.Generator().manual_seed()
+            generator = torch.Generator()
 
         batch_size, num_loc, _ = size
 

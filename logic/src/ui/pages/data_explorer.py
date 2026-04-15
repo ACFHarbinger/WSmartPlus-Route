@@ -25,7 +25,7 @@ import streamlit as st
 try:
     import torch
 except ImportError:
-    torch = None
+    torch = None  # type: ignore[assignment]
 
 from logic.src.constants.dashboard import PLOTLY_LAYOUT_DEFAULTS
 from logic.src.ui.pages.data_explorer_charts import (
@@ -509,7 +509,7 @@ def _lazy_load_td_tensor(
 
     filepath: Optional[str] = td_meta.get("filepath")
 
-    if torch is None:
+    if torch is None or filepath is None:
         return None
 
     try:

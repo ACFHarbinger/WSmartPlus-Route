@@ -13,7 +13,6 @@ import torch
 from tensordict import TensorDict
 
 from logic.src.envs.base import RL4COEnvBase
-from logic.src.interfaces import ITraversable
 from logic.src.models.common.improvement.policy import ImprovementPolicy
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
@@ -229,7 +228,7 @@ class IteratedLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
 
         if isinstance(self.ls_operator, str) and self.ls_operator == "random":
             op_probs_dict = self.default_op_probs
-        elif isinstance(self.ls_operator, ITraversable):
+        elif isinstance(self.ls_operator, dict):
             op_probs_dict = self.ls_operator
 
         if op_probs_dict:
@@ -242,7 +241,7 @@ class IteratedLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
 
         if isinstance(self.perturbation_type, str) and self.perturbation_type == "random":
             p_probs_dict = self.default_perturb_probs
-        elif isinstance(self.perturbation_type, ITraversable):
+        elif isinstance(self.perturbation_type, dict):
             p_probs_dict = self.perturbation_type
 
         if p_probs_dict:

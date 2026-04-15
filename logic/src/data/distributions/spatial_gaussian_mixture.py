@@ -39,7 +39,7 @@ class GaussianMixture(BaseDistribution):
             torch.Tensor: Sampled values.
         """
         if generator is None:
-            generator = torch.Generator().manual_seed()
+            generator = torch.Generator()
 
         batch_size, num_loc, _ = size
         if self.num_modes == 0:
@@ -216,14 +216,15 @@ class GaussianMixture(BaseDistribution):
         coords = coords - coords_min
         if isinstance(coords, torch.Tensor):
             range_max = torch.amax(coords_max - coords_min, dim=-1, keepdim=True)
-        else:
-            range_max = (coords_max - coords_min).max(axis=-1, keepdims=True)
+            diff = cast(np.ndarray, coords_max - coords_min)
+            range_max = diff.max(axis=-1, keepdims=True)
 
         coords = coords / (range_max + 1e-8)
 
         if isinstance(coords, torch.Tensor):
             coords = coords + (1 - torch.amax(coords, dim=1, keepdim=True)) / 2
         else:
-            coords = coords + (1 - coords.max(axis=1, keepdims=True)) / 2
+            arr_coords = cast(np.ndarray, coords)
+            coords = coords + (1 - arr_coords.max(axis=1, keepdims=True)) / 2
 
         return coords

@@ -41,7 +41,7 @@ class MixDistribution(BaseDistribution):
             Any: Description of return value.
         """
         if generator is None:
-            generator = torch.Generator().manual_seed()
+            generator = torch.Generator()
 
         batch_size, num_loc, _ = size
         coords = torch.FloatTensor(batch_size, num_loc, 2).uniform_(0, 1)

@@ -185,11 +185,11 @@ class HypRLPolicy(nn.Module):
             elif ptype == "categorical":
                 # Sample from categorical distribution
                 logits = head_output
-                dist = Categorical(logits=logits)
-                idx = dist.sample()
+                cat_dist = Categorical(logits=logits)
+                idx = cat_dist.sample()
                 value = spec["choices"][idx.item()]
 
                 sampled_config[name] = value
-                log_probs[name] = dist.log_prob(idx)
+                log_probs[name] = cat_dist.log_prob(idx)
 
         return sampled_config, log_probs, new_hidden
