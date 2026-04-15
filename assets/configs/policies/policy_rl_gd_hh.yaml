@@ -59,8 +59,6 @@ rl_gd_hh:
     # --- Meta Configuration ---
     - vrpp: true
 
-    - engine: "custom"
-
     # Selection algorithm for mandatory bin visited nodes.
     - must_go: ["other/mg_lookahead.yaml"]
 

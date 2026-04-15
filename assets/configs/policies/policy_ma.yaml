@@ -56,9 +56,6 @@ ma:
     - profit_aware_operators: false
     - vrpp: true
 
-    - engine: "custom"
-      # Policy execution backend (logic/src/policies/memetic_algorithm/)
-
     - must_go: ["other/mg_lookahead.yaml"]
       # Selection strategy for waste collection (Mandatory node identification).
 

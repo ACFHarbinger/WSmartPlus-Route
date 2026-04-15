@@ -10,7 +10,6 @@ from typing import Any, List, Optional
 class GDConfig:
     """Configuration for the Great Deluge policy."""
 
-    engine: str = "gd"
     max_iterations: int = 1000
     target_fitness_multiplier: float = 1.1
     n_removal: int = 2

@@ -177,9 +177,6 @@ hvpl:
     - profit_aware_operators: false
     - vrpp: true
 
-    - engine: "custom"
-    # Backend: logic/src/policies/hybrid_volleyball_premier_league/
-
     - must_go: ["other/mg_lookahead.yaml"]
     # Node selection strategy
 

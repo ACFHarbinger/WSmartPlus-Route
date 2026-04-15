@@ -128,7 +128,6 @@ es_mkl:
     - profit_aware_operators: false
     - vrpp: true
 
-    - engine: "custom"
     - must_go: ["other/mg_lookahead.yaml"]
     - post_processing: ["2opt_intra", "relocate"]
 

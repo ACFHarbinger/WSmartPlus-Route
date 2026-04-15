@@ -25,7 +25,6 @@ class HMMGDHHConfig:
         post_processing: Post-processing operation config list.
     """
 
-    engine: str = "hmm_gd_hh"
     max_iterations: int = 500
     flood_margin: float = 0.05
     rain_speed: float = 0.001

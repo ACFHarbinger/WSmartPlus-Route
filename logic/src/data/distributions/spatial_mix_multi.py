@@ -52,7 +52,7 @@ class MixMultiDistributions(BaseDistribution):
             torch.Tensor: Sampled values.
         """
         if generator is None:
-            generator = torch.Generator().manual_seed(42)
+            generator = torch.Generator().manual_seed()
 
         batch_size, num_loc, _ = size
         coords = torch.zeros(batch_size, num_loc, 2)
@@ -75,7 +75,7 @@ class MixMultiDistributions(BaseDistribution):
     def _sample_array(self, size: Tuple[int, ...], rng: Optional[np.random.Generator] = None) -> np.ndarray:
         """NumPy version of the distribution-mixing sampler."""
         if rng is None:
-            rng = np.random.default_rng(42)
+            rng = np.random.default_rng()
 
         batch_size, num_loc, _ = size
         # Initialize as zeros

@@ -32,7 +32,8 @@ class RENSConfig:
         seed (int): Random seed for the underlying Gurobi solver to ensure
             deterministic and reproducible results.
         vrpp (bool): Whether the problem is a VRP with Profits.
-        engine (str): Internal solver engine identifier. Defaults to "custom".
+        framework: Optimization framework to use ('ortools' or 'pyomo').
+        engine: Optimization engine to use ('gurobi', 'scip', 'highs', or 'cplex').
         must_go (Optional[MustGoConfig]): Composition handle for bin selection
             strategies (e.g., collecting bins at risk of overflow).
         post_processing (Optional[PostProcessingConfig]): Settings for
@@ -47,6 +48,7 @@ class RENSConfig:
     vrpp: bool = True
 
     # Infrastructure
-    engine: str = "custom"
+    framework: str = "ortools"
+    engine: str = "gurobi"
     must_go: Optional[MustGoConfig] = None
     post_processing: Optional[PostProcessingConfig] = None

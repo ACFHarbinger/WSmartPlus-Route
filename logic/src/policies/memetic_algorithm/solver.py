@@ -76,7 +76,7 @@ class MASolver:
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
         # self.random is used throughout for consistent reproducibility when a seed is provided.
-        self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
+        self.random = random.Random(params.seed) if params.seed is not None else random.Random()
         self.start_time = time.process_time()
 
     def solve(self) -> Tuple[List[List[int]], float]:

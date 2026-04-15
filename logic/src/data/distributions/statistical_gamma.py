@@ -65,7 +65,7 @@ class Gamma(BaseDistribution):
             torch.Tensor: Sampled values
         """
         if generator is None:
-            generator = torch.Generator().manual_seed(42)
+            generator = torch.Generator().manual_seed()
         if self.option is not None:
             # Use per-node heterogeneous params; fall back to numpy then convert
             return torch.from_numpy(self._sample_array(size)).float()
@@ -87,7 +87,7 @@ class Gamma(BaseDistribution):
             np.ndarray: Sampled values
         """
         if rng is None:
-            rng = cast(np.random.Generator, np.random.default_rng(42))
+            rng = cast(np.random.Generator, np.random.default_rng())
 
         if self.option is not None:
             alpha_pattern, theta_pattern = GAMMA_PRESETS[self.option]

@@ -55,7 +55,7 @@ def evolutionary_perturbation(
         List[List[int]]: The updated full global solution.
     """
     if rng is None:
-        rng = Random(42)
+        rng = Random()
 
     if not routes or not target_routes:
         return routes
@@ -128,7 +128,7 @@ def evolutionary_perturbation_profit(
     Micro-evolutionary perturbation for VRPP (Profit Maximization).
     """
     if rng is None:
-        rng = Random(42)
+        rng = Random()
 
     if not routes or not target_routes:
         return routes

@@ -51,6 +51,8 @@ class BPParams:
     multiple_waste_types: bool = False
     allow_heuristic_ryan_foster: bool = False
     use_ryan_foster: bool = False
+    # Multi-period adaptation (in essence solving the Inventory Routing Problem)
+    multi_day_mode: bool = False
 
     @classmethod
     def from_config(cls, config: Any) -> BPParams:

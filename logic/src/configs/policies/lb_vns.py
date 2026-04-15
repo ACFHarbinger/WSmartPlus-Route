@@ -57,7 +57,9 @@ class LocalBranchingVNSConfig:
 
         # Infrastructure Settings
         # -----------------------
-        engine (str): Identifier for the optimization engine backend (default: "custom").
+        engine (str): Solver engine to use ('gurobi', 'scip', 'highs', or 'cplex').
+
+        framework (str): Solver framework to use ('ortools', 'pyomo').
 
         must_go (Optional[MustGoConfig]): Configuration for identifying and enforcing
             mandatory nodes in the routing problem.
@@ -78,6 +80,7 @@ class LocalBranchingVNSConfig:
     vrpp: bool = True
 
     # Infrastructure
-    engine: str = "custom"
+    engine: str = "gurobi"
+    framework: str = "ortools"
     must_go: Optional[MustGoConfig] = None
     post_processing: Optional[PostProcessingConfig] = None

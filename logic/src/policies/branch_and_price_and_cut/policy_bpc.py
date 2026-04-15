@@ -80,7 +80,7 @@ class BPCPolicy(BaseRoutingPolicy):
                 return output.squeeze().numpy()
         raise ValueError("Invalid model_type")
 
-    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
+    def execute(self, **kwargs: Any) -> Tuple[Union[List[int], List[List[int]]], float, Any]:
         """
         Execute BPC.
         If multi_day_mode is True, evaluates for a single stage of the multi-period
@@ -192,7 +192,8 @@ class BPCPolicy(BaseRoutingPolicy):
                 global_route.extend([n for n in r if n != 0])
                 global_route.append(0)
 
-        cost = kwargs.get("model_env").compute_route_cost(global_route) if kwargs.get("model_env") else 0.0
+        model_env = kwargs.get("model_env")
+        cost = model_env.compute_route_cost(global_route) if model_env is not None else 0.0
 
         return global_route, cost, {"policy_type": "bpc", "multi_day_mode": True, "node_prizes": node_prizes}
 

@@ -18,7 +18,8 @@ class SWCTCFConfig:
         delta: Distance weight parameter.
         psi: Penalty parameter.
         time_limit: Maximum time in seconds for the solver.
-        engine: Solver engine to use ('gurobi', 'hexaly').
+        engine: Solver engine to use ('gurobi', 'scip', 'highs', or 'cplex').
+        framework: Solver framework to use ('ortools', 'pyomo').
         must_go: List of must-go strategy config files.
         post_processing: List of post-processing operations to apply.
     """
@@ -29,5 +30,6 @@ class SWCTCFConfig:
     time_limit: float = 600.0
     seed: Optional[int] = None
     engine: str = "gurobi"
+    framework: str = "ortools"
     must_go: Optional[List[MustGoConfig]] = None
     post_processing: Optional[List[PostProcessingConfig]] = None

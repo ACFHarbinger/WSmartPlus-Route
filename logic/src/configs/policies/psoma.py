@@ -26,7 +26,6 @@ class PSOMAConfig:
         post_processing: Post-processing operation config list.
     """
 
-    engine: str = "psoma"
     pop_size: int = 20
     omega: float = 0.4
     c1: float = 1.5

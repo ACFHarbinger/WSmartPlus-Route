@@ -15,7 +15,6 @@ from typing import Any, List, Optional
 class GENIUSConfig:
     """Configuration for the GENIUS (GENI + US) policy."""
 
-    engine: str = "genius"
     neighborhood_size: int = 5
     unstring_type: int = 1
     string_type: int = 1

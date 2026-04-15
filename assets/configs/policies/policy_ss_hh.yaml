@@ -85,9 +85,6 @@ ss_hh:
     # VRPP Settings
     - vrpp: true
 
-    - engine: "custom"
-    # Execution backend: logic/src/policies/sequence_based_selection_hyper_heuristic/
-
     - must_go: ["other/mg_lookahead.yaml"]
     # Node selection strategy for waste collection problems
 

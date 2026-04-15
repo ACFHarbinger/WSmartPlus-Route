@@ -66,7 +66,7 @@ class VNSSolver:
         self.mandatory_nodes = mandatory_nodes or []
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
-        self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
+        self.random = random.Random(params.seed) if params.seed is not None else random.Random()
 
         # Shaking neighborhoods N_1 ... N_{k_max} ordered by increasing severity
         self._neighborhoods = [

@@ -77,6 +77,11 @@ class BPCParams:
     use_swc_tcf_heuristic_pricing: bool = False
     use_swc_tcf_primal_heuristic: bool = False
 
+    # Multi-period adaptation and Adaptive Dynamic Programming Machine Learning model
+    multi_day_mode: bool = False
+    adp_model_path: str = ""
+    adp_model_type: str = "sklearn"
+
     @classmethod
     def from_config(cls, config: Any) -> BPCParams:
         """Create BPCParams from a configuration object or dictionary."""

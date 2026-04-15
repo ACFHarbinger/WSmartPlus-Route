@@ -138,7 +138,7 @@ class ALNSSARSASolver:
         self.expand_pool = getattr(rl_params, "vrpp", False)
         self.profit_aware_operators = getattr(rl_params, "profit_aware_operators", False)
         self.improvement_thresholds = rl_params.sarsa_improvement_thresholds
-        self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
+        self.random = random.Random(params.seed) if params.seed is not None else random.Random()
 
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))

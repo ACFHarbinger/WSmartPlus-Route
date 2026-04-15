@@ -62,7 +62,7 @@ class AHVPLSolver:
 
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
-        self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
+        self.random = random.Random(params.seed) if params.seed is not None else random.Random()
 
         # ACO: construction + pheromone guidance
         self.aco_solver = KSparseACOSolver(dist_matrix, wastes, capacity, R, C, params.aco_params, mandatory_nodes)

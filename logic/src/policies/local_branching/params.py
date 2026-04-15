@@ -30,6 +30,8 @@ class LBParams:
     node_limit_per_iteration: int = 1000
     mip_gap: float = 0.01
     seed: int = 42
+    engine: str = "gurobi"
+    framework: str = "ortools"
 
     @classmethod
     def from_config(cls, config: Any) -> LBParams:

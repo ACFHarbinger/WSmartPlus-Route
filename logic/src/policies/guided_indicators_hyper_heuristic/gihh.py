@@ -61,7 +61,7 @@ class GIHHSolver:
         self.C = C
         self.params = params
         self.mandatory_nodes = mandatory_nodes or []
-        self.rng = random.Random(params.seed) if params.seed is not None else random.Random(42)
+        self.rng = random.Random(params.seed) if params.seed is not None else random.Random()
 
         # Initialize new guidance indicators
         self.score_a = ScoreAIndicator()

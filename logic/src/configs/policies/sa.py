@@ -10,7 +10,6 @@ from typing import Any, List, Optional
 class SAConfig:
     """Configuration for the Simulated Annealing policy."""
 
-    engine: str = "sa"
     initial_temp: float = 100.0
     alpha: float = 0.995
     min_temp: float = 0.01

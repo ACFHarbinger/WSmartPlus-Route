@@ -34,6 +34,8 @@ class AKSParams:
     t_easy: float = 10.0
     epsilon: float = 0.1
     seed: int = 42
+    engine: str = "gurobi"
+    framework: str = "ortools"
 
     @classmethod
     def from_config(cls, config: Any) -> AKSParams:

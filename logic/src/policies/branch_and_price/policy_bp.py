@@ -85,7 +85,7 @@ class BranchAndPricePolicy(BaseRoutingPolicy):
         """Return the unique identification key for this policy's configuration."""
         return "bp"
 
-    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
+    def execute(self, **kwargs: Any) -> Tuple[Union[List[int], List[List[int]]], float, Any]:
         """
         Execute Exact Branch-and-Price.
         If multi_day_mode is True, evaluates for a single stage of the multi-period
@@ -105,7 +105,7 @@ class BranchAndPricePolicy(BaseRoutingPolicy):
 
         R = profit_vars.get("revenue_kg", 1.0)
         C = profit_vars.get("cost_km", 1.0)
-        vehicle_limit = profit_vars.get("number_vehicles", None)
+        num_vehicles = profit_vars.get("n_vehicles", 0)
 
         wastes = {i: float(bins.c[i - 1]) for i in range(1, len(bins.c) + 1)}
         capacity = float(profit_vars.get("bin_capacity", 100.0))
@@ -122,18 +122,18 @@ class BranchAndPricePolicy(BaseRoutingPolicy):
             cost_per_km=C,
             mandatory_nodes=set(must_go),
             params=params,
-            number_vehicles=vehicle_limit,
+            vehicle_limit=num_vehicles,
         )
 
-        routes, _ = solver.solve()
+        # solver.solve() returns the correctly delimited flat tour: [0, 1, 3, 0, 2, 0]
+        flat_tour, _ip_obj, _stats = solver.solve()
 
-        global_route = []
-        if routes:
-            for r in routes:
-                global_route.extend([n for n in r if n != 0])
-                global_route.append(0)
+        # Preserve the exact structure provided by the solver
+        global_route = flat_tour if flat_tour else [0, 0]
 
-        cost = kwargs.get("model_env").compute_route_cost(global_route) if kwargs.get("model_env") else 0.0
+        # Explicitly check for None before invoking methods on Optional[Any]
+        model_env = kwargs.get("model_env")
+        cost = model_env.compute_route_cost(global_route) if model_env is not None else 0.0
 
         return global_route, cost, {"policy_type": "bp", "multi_day_mode": True}
 

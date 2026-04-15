@@ -109,9 +109,6 @@ fa:
     - profit_aware_operators: false
     - vrpp: true
 
-    - engine: "custom"
-      # Execution backend: logic/src/policies/firefly_algorithm/
-
     - must_go: ["other/mg_lookahead.yaml"]
       # Node selection strategy for waste collection problems
       # Options: mg_lookahead.yaml, mg_last_minute_*.yaml, mg_regular.yaml

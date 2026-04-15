@@ -10,7 +10,6 @@ from typing import Any, List, Optional
 class GLSConfig:
     """Configuration for the Guided Local Search policy."""
 
-    engine: str = "gls"
     lambda_param: float = 1.0
     alpha_param: float = 0.3
     penalty_cycles: int = 1000

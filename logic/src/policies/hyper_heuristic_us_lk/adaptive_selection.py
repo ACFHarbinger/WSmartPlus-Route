@@ -45,7 +45,7 @@ class AdaptiveOperatorSelector:
         self.memory_size = memory_size
         self.learning_rate = learning_rate
         self.weight_decay = weight_decay
-        self.rng = random.Random(seed) if seed is not None else random.Random(42)
+        self.rng = random.Random(seed) if seed is not None else random.Random()
 
         # Initialize tracking structures
         self.weights: Dict[str, float] = {op: 1.0 for op in operators}

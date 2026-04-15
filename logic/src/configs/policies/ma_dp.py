@@ -12,8 +12,6 @@ class MemeticAlgorithmDualPopulationConfig:
     Configuration for the Memetic Algorithm Dual Population policy.
     """
 
-    engine: str = "ma_dp"
-
     # MADP Parameters
     population_size: int = 30
     max_iterations: int = 200

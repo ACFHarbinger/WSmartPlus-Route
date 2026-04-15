@@ -10,18 +10,38 @@ from typing import FrozenSet, List, Optional, Set, Tuple
 class Label:
     """
     Label for dynamic programming state in RCSPP / ng-RCSPP.
+
+    Represents a partial path from the depot to the current node with
+    accumulated resources.  Labels are ordered by reduced cost for efficient
+    dominance checking (higher is better for the maximisation objective).
     """
 
     # Primary sort key — higher reduced cost is preferred.
     reduced_cost: float = field(compare=True)
 
-    # State fields
+    # State fields — excluded from the dataclass ordering.
     node: int = field(compare=False)
     load: float = field(compare=False)
+
+    # visited: complete set of customer nodes on the partial path.
     visited: Set[int] = field(default_factory=set, compare=False)
+
+    # ng_memory: compact relaxed state for ng-route dominance / feasibility.
     ng_memory: Set[int] = field(default_factory=set, compare=False)
+
+    # rf_unmatched: nodes from a 'together' pair visited without their partner.
+    # Used for enforcing Ryan-Foster branching constraints during pricing.
     rf_unmatched: FrozenSet[int] = field(default_factory=frozenset, compare=False)
+
     parent: Optional["Label"] = field(default=None, compare=False, repr=False)
+
+    # Subset-Row Inequalities (SRI) state:
+    # A tuple where each entry corresponds to an active SRI subset S.
+    # State values:
+    #   0: No nodes in S visited yet.
+    #   1: One node in S visited (potential penalty on next visit).
+    #   2: Two nodes in S visited (dual penalty applied, resets on 3rd visit if allowed).
+    # This state enables the exact calculation of ⌊ 1/2 * Σ a_{ik} ⌋ dual penalties.
     sri_state: Tuple[int, ...] = field(default_factory=tuple, compare=False)
 
     def dominates(
@@ -48,7 +68,9 @@ class Label:
             return False
         if not self.rf_unmatched.issubset(other.rf_unmatched):
             return False
-        if len(self.sri_state) != len(other.sri_state):
+
+        # Exact ESPPRC requirement for SRI states
+        if self.sri_state != other.sri_state:
             return False
 
         total_potential_penalty = 0.0

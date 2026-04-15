@@ -24,7 +24,7 @@ class ScoreAIndicator:
     is good enough to be accepted into the non-dominated Pareto Archive (ARCH).
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize ScoreA tracking."""
         self.scores: Dict[str, float] = {}
 
@@ -59,7 +59,7 @@ class ScoreBIndicator:
     If it improves Cost (Objective 2), score decreases by 1.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize ScoreB tracking."""
         self.scores: Dict[str, float] = {}
 

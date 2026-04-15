@@ -107,7 +107,7 @@ def export_encoder_to_onnx(
     encoder.eval()
     device = _infer_device(encoder)
     if generator is None:
-        generator = torch.Generator(device=device).manual_seed(42)
+        generator = torch.Generator(device=device)
 
     dummy_input = torch.randn(batch_size, n_nodes, embed_dim, device=device, generator=generator)
 

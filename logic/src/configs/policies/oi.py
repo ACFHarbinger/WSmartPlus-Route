@@ -10,7 +10,6 @@ from typing import Any, List, Optional
 class OIConfig:
     """Configuration for the Only Improving policy."""
 
-    engine: str = "oi"
     max_iterations: int = 1000
     n_removal: int = 2
     n_llh: int = 5

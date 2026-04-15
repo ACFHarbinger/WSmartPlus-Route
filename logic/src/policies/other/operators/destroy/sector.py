@@ -50,7 +50,7 @@ def sector_removal(
         Tuple of (modified routes, list of removed node IDs).
     """
     if rng is None:
-        rng = Random(42)
+        rng = Random()
 
     # Gather nodes and compute angles
     node_angles: List[Tuple[float, int, int, int]] = []  # (angle, node, r_idx, pos)
@@ -135,7 +135,7 @@ def sector_profit_removal(
         Tuple of (modified routes, list of removed node IDs).
     """
     if rng is None:
-        rng = Random(42)
+        rng = Random()
 
     # 1. Pre-calculate marginal profits
     node_angles_data: List[Tuple[float, int, int, int, float]] = []

@@ -39,6 +39,7 @@ class ALNSParams:
             to the destroy pool in addition to random/worst/shaw (3 → 6 operators).
             Increases operator diversity at the cost of slightly higher per-iteration overhead.
         seed: Random seed for reproducibility.
+        engine: Engine to use for the solver.
     """
 
     time_limit: float = 60.0
@@ -61,6 +62,7 @@ class ALNSParams:
     profit_aware_operators: bool = False
     extended_operators: bool = False
     seed: Optional[int] = None
+    engine: str = "custom"
 
     @classmethod
     def from_config(cls, config: Any) -> ALNSParams:
@@ -96,4 +98,5 @@ class ALNSParams:
             profit_aware_operators=getattr(config, "profit_aware_operators", False),
             extended_operators=getattr(config, "extended_operators", False),
             seed=getattr(config, "seed", None),
+            engine=getattr(config, "engine", "custom"),
         )

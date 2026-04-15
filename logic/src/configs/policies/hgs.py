@@ -15,6 +15,7 @@ class HGSConfig:
     Based on Vidal et al. (2022) - "Hybrid genetic search for the CVRP".
 
     Attributes:
+        restart_timer: Maximum wall-clock seconds for optimization, before restarting the algorithm (0 = unlimited)
         time_limit: Maximum time in seconds for the solver (0.0 = unlimited).
         seed: Random seed for reproducibility.
         mu: Minimum population size per subpopulation.
@@ -45,6 +46,7 @@ class HGSConfig:
 
     # Core HGS parameters (Vidal 2022)
     time_limit: float = 0.0
+    restart_timer: float = 0.0
     seed: Optional[int] = None
     mu: int = 25
     n_offspring: int = 40

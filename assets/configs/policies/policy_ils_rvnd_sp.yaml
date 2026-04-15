@@ -18,5 +18,7 @@ ils_rvnd_sp:
   local_search_iterations: 500
   vrpp: true
   profit_aware_operators: false
+  engine: "gurobi"
+  framework: "ortools"
   must_go: ["other/mg_lookahead.yaml"]
   post_processing: []

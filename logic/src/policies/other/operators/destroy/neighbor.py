@@ -41,7 +41,7 @@ def neighbor_removal(
         Tuple of (modified routes, list of removed node IDs).
     """
     if rng is None:
-        rng = Random(42)
+        rng = Random()
 
     all_nodes = []
     node_loc = {}
@@ -110,7 +110,7 @@ def neighbor_profit_removal(
         Tuple of (modified routes, list of removed node IDs).
     """
     if rng is None:
-        rng = Random(42)
+        rng = Random()
 
     # 1. Flatten all nodes and pre-compute marginal profits
     all_nodes_data = []

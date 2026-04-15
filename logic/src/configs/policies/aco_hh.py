@@ -29,7 +29,6 @@ class HyperHeuristicACOConfig:
         local_search_iterations: Number of local search iterations.
         elitist_weight: Weight for elitist pheromone update.
         operators: List of local search operators to use.
-        engine: Solver engine to use.
         must_go: List of must-go strategy config files.
         post_processing: List of post-processing operations to apply.
     """
@@ -50,7 +49,6 @@ class HyperHeuristicACOConfig:
     local_search_iterations: int = 500
     elitist_weight: float = 1.0
     operators: List[str] = field(default_factory=lambda: ["swap", "2opt_intra", "relocate", "swap_star", "perturb"])
-    engine: str = "custom"
     vrpp: bool = True
     profit_aware_operators: bool = False
     must_go: Optional[List[MustGoConfig]] = None

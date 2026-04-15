@@ -24,7 +24,6 @@ class SLCConfig:
         post_processing: Post-processing operation config list.
     """
 
-    engine: str = "slc"
     n_teams: int = 5
     team_size: int = 4
     max_iterations: int = 50

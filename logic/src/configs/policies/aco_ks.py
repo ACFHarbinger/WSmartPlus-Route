@@ -28,7 +28,6 @@ class KSparseACOConfig:
         local_search: Whether to apply local search after construction.
         local_search_iterations: Number of local search iterations.
         elitist_weight: Weight for elitist pheromone update.
-        engine: Solver engine to use.
         must_go: List of must-go strategy config files.
         post_processing: List of post-processing operations to apply.
     """
@@ -48,7 +47,6 @@ class KSparseACOConfig:
     local_search: bool = True
     local_search_iterations: int = 500
     elitist_weight: float = 1.0
-    engine: str = "custom"
     vrpp: bool = True
     must_go: Optional[List[MustGoConfig]] = None
     post_processing: Optional[List[PostProcessingConfig]] = None

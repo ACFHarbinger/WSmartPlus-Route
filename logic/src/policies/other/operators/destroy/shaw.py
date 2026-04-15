@@ -95,7 +95,7 @@ def shaw_removal(  # noqa: C901
         return routes, []
 
     if rng is None:
-        rng = Random(42)
+        rng = Random()
 
     # Pick random seed
     seed: int = rng.choice(all_nodes)
@@ -250,7 +250,7 @@ def shaw_profit_removal(  # noqa: C901
         return routes, []
 
     if rng is None:
-        rng = Random(42)
+        rng = Random()
 
     # 2. Pick random seed
     seed: int = rng.choice(all_nodes)

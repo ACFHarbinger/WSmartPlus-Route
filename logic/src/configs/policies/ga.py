@@ -10,7 +10,6 @@ from typing import Any, List, Optional
 class GAConfig:
     """Configuration for the Genetic Algorithm policy."""
 
-    engine: str = "ga"
     pop_size: int = 30
     max_generations: int = 100
     crossover_rate: float = 0.8

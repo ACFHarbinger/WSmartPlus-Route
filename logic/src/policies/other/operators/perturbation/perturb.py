@@ -38,7 +38,7 @@ def perturb(
         bool: True if any swap was performed, False otherwise.
     """
     if rng is None:
-        rng = Random(42)
+        rng = Random()
 
     n_nodes = len(ctx.d) - 1
     visited = set(ctx.node_map.keys())
@@ -126,7 +126,7 @@ def perturb_profit(
         bool: True if any change was applied.
     """
     if rng is None:
-        rng = Random(42)
+        rng = Random()
 
     n_nodes = len(ctx.d) - 1
     visited = set(ctx.node_map.keys())

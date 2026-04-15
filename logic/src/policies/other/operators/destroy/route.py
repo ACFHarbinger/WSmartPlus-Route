@@ -57,7 +57,7 @@ def route_removal(
         return routes, []
 
     if rng is None:
-        rng = Random(42)
+        rng = Random()
 
     target = _select_route(routes, strategy, dist_matrix, wastes, rng)
     if target < 0:
@@ -159,7 +159,7 @@ def route_profit_removal(
         return routes, []
 
     if rng is None:
-        rng = Random(42)
+        rng = Random()
 
     target = _select_profit_route(routes, strategy, dist_matrix, wastes, R, C, rng)
     if target < 0:

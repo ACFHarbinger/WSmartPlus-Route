@@ -50,7 +50,7 @@ def genetic_transformation(
         Modified routes after transformation.
     """
     if rng is None:
-        rng = Random(42)
+        rng = Random()
 
     # Collect edges from both solutions
     current_edges = _extract_edges(routes)
@@ -137,7 +137,7 @@ def genetic_transformation_profit(
         Modified routes after transformation.
     """
     if rng is None:
-        rng = Random(42)
+        rng = Random()
 
     # Collect edges from both solutions
     current_edges = _extract_edges(routes)
