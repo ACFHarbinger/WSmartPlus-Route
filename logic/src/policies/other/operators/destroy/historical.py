@@ -70,7 +70,7 @@ def historical_removal(
         Tuple of (modified routes, list of removed node IDs).
     """
     if rng is None:
-        rng = Random(42)
+        rng = Random()
 
     # Collect all nodes with their scores
     scored: List[Tuple[float, int, int, int]] = []  # (score, node, r_idx, pos)
@@ -144,7 +144,7 @@ def historical_profit_removal(
         Tuple of (modified routes, list of removed node IDs).
     """
     if rng is None:
-        rng = Random(42)
+        rng = Random()
 
     # 1. Pre-calculate node profits with marginal formula
     node_map = {}

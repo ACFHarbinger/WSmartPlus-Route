@@ -74,9 +74,9 @@ class HyperHeuristicACO:
         self.params = params or HyperACOParams()
         self.initial_solution = initial_solution or []
         self.mandatory_nodes = mandatory_nodes
-        self.random = random.Random(self.params.seed) if self.params.seed is not None else random.Random(42)
+        self.random = random.Random(self.params.seed) if self.params.seed is not None else random.Random()
         self.np_rng = (
-            np.random.default_rng(self.params.seed) if self.params.seed is not None else np.random.default_rng(42)
+            np.random.default_rng(self.params.seed) if self.params.seed is not None else np.random.default_rng()
         )
 
         self.operator_names = list(HYPER_OPERATORS.keys())

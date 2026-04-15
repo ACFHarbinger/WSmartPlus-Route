@@ -32,7 +32,7 @@ def kick(ctx: Any, destroy_ratio: float = 0.2, rng: Optional[Random] = None) -> 
         bool: True if the operation was performed, False otherwise.
     """
     if rng is None:
-        rng = Random(42)
+        rng = Random()
 
     all_nodes = list(ctx.node_map.keys())
     n_remove = max(1, int(len(all_nodes) * destroy_ratio))
@@ -108,7 +108,7 @@ def kick_profit(
         bool: True if performed.
     """
     if rng is None:
-        rng = Random(42)
+        rng = Random()
 
     all_nodes = list(ctx.node_map.keys())
     if len(all_nodes) < 2:

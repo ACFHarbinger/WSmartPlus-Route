@@ -1,6 +1,8 @@
+import random
 from copy import deepcopy
 from typing import List
 
+import numpy as np
 from shapely.geometry import LineString
 
 from .distance import compute_sans_route_cost
@@ -159,7 +161,9 @@ def uncross_arcs_in_routes(
     return solution_after_uncross, profit_after_uncross, uncross_profit
 
 
-def rearrange_part_route(routes_list, distance_matrix, rng):
+def rearrange_part_route(
+    routes_list: List[List[int]], distance_matrix: np.ndarray, rng: random.Random
+) -> List[List[int]]:
     """
     Select a random portion of a route and reorder it using a greedy Nearest Neighbor heuristic.
 
@@ -172,26 +176,26 @@ def rearrange_part_route(routes_list, distance_matrix, rng):
         List[List[int]]: Routing solution with partially reordered route.
     """
     if not routes_list:
-        return 0
+        return [[0]]
 
-    chosen_route: List = rng.sample(routes_list, 1)[0]
+    chosen_route: List[int] = rng.sample(routes_list, 1)[0]
     length_chosen_route = len(chosen_route)
 
     if length_chosen_route < 4:
-        return 0
+        return [[0]]
 
     possible_percent = [0.1, 0.2, 0.3, 0.4]
     chosen_n = rng.sample(possible_percent, 1)[0]
     chosen_n_percent = int(chosen_n * length_chosen_route)
 
     if chosen_n_percent < 2:
-        return 0
+        return [[0]]
 
     bins = []
 
     max_start_index = length_chosen_route - 1 - chosen_n_percent
     if max_start_index < 1:
-        return 0
+        return [[0]]
 
     start_index = rng.randint(1, max_start_index)
     segment = chosen_route[start_index : start_index + chosen_n_percent]
@@ -209,7 +213,8 @@ def rearrange_part_route(routes_list, distance_matrix, rng):
     for i, bin_id in enumerate(sorted_segment):
         chosen_route.insert(start_index + i, bin_id)
 
-    return chosen_n
+    routes_list[routes_list.index(chosen_route)] = chosen_route
+    return routes_list
 
 
 # Function to generate a route using the nearest neighbor (starting from the left)

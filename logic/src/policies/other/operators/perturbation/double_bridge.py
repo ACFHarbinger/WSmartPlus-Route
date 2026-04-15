@@ -40,7 +40,7 @@ def double_bridge(ls: Any, r_idx: int, rng: Optional[Random] = None) -> bool:
         bool: True if the move was applied (route long enough), False otherwise.
     """
     if rng is None:
-        rng = Random(42)
+        rng = Random()
 
     route = ls.routes[r_idx]
     n = len(route)

@@ -52,8 +52,8 @@ class Generator(ABC):
         self.device = torch.device(device)
         self.bins = kwargs.get("bins")
         self._kwargs = kwargs
-        self.rng = np.random.default_rng(42) if rng is None else rng
-        self.generator = generator if generator is not None else torch.Generator(device=device).manual_seed(42)
+        self.rng = np.random.default_rng() if rng is None else rng
+        self.generator = generator if generator is not None else torch.Generator(device=device)
 
     @property
     def kwargs(self) -> dict[str, Any]:

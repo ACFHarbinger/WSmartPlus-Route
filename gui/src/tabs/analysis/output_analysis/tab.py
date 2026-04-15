@@ -128,7 +128,7 @@ class OutputAnalysisTab(QWidget):
         json_files, jsonl_files, tb_files = self._categorize_files(file_paths)
 
         for fpath in jsonl_files:
-            from ...windows import SimulationResultsWindow
+            from ....windows import SimulationResultsWindow
 
             win = SimulationResultsWindow(policy_names=["External_Log"], log_path=fpath)
             win.show()

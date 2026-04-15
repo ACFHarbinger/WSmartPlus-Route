@@ -23,13 +23,11 @@ class MAConfig:
     configuring the hybrid evolutionary-local-search engine.
 
     Operational Architecture:
-    - engine: Identifier for the factory-based policy instantiation ("ma").
     - pop_size: Controls the breadth of search (population size).
     - Generations/Rates: Controls the depth and intensiveness of the search.
     - Constraints: Time limit and seed for optimization control.
 
     Attributes:
-        engine: Registration key in the PolicyRegistry.
         pop_size: Number of solutions maintained in the population.
         max_generations: Total number of evolutionary cycles.
         crossover_rate: Probability of recombining parents.
@@ -43,9 +41,6 @@ class MAConfig:
         must_go: List of strategies for mandatory node selection.
         post_processing: Optional solvers applied after the MA search.
     """
-
-    # Engine Identifier
-    engine: str = "ma"
 
     # Core Evolutionary Hyper-parameters
     pop_size: int = 30

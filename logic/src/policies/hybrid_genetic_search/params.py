@@ -18,6 +18,7 @@ class HGSParams:
     Based on Vidal et al. (2022) - "Hybrid genetic search for the CVRP".
 
     Attributes:
+        restart_timer: Maximum wall-clock seconds for optimization, before restarting the algorithm (0 = unlimited)
         time_limit: Maximum search time in seconds (0 = unlimited).
         mu: Minimum population size (for each subpopulation).
         lambda_param: Generation size - number of individuals before survivor selection.
@@ -40,9 +41,11 @@ class HGSParams:
         initial_penalty_capacity: Initial penalty coefficient for capacity violations.
         penalty_increase: Multiplier for increasing penalty (when too many feasible).
         penalty_decrease: Multiplier for decreasing penalty (when too many infeasible).
+        engine: Engine to use for the solver.
     """
 
     # Core HGS parameters (Vidal 2022)
+    restart_timer: float = 0.0
     time_limit: float = 0.0  # 0 = no time limit
     mu: int = 25  # Minimum population size per subpopulation
     n_offspring: int = 40  # Generation size (number of individuals before survivor selection)
@@ -74,6 +77,7 @@ class HGSParams:
     # Infrastructure
     seed: Optional[int] = None
     vrpp: bool = True
+    engine: str = "custom"
     profit_aware_operators: bool = False
 
     @classmethod
@@ -112,6 +116,8 @@ class HGSParams:
             vrpp=getattr(config, "vrpp", True),
             profit_aware_operators=getattr(config, "profit_aware_operators", False),
             seed=getattr(config, "seed", 42),
+            engine=getattr(config, "engine", "custom"),
+            restart_timer=getattr(config, "restart_timer", 0.0),
         )
 
     @property

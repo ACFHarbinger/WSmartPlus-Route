@@ -31,12 +31,28 @@ class EdgeBranchingConstraint:
     """
 
     def __init__(self, u: int, v: int, must_use: bool) -> None:
+        """
+        Initialise an edge branching constraint.
+
+        Args:
+            u: Arc origin node.
+            v: Arc destination node.
+            must_use: Whether the arc must (True) or must not (False) be used.
+        """
         self.u = u
         self.v = v
         self.must_use = must_use
 
     def is_route_feasible(self, route: Route) -> bool:
-        """Return True if *route* satisfies this edge constraint."""
+        """
+        Return True if *route* satisfies this edge constraint.
+
+        Args:
+            route: A Route object whose node sequence is validated.
+
+        Returns:
+            True when the constraint is not violated.
+        """
         edge_present = self._edge_in_route(route.nodes)
         return edge_present if self.must_use else not edge_present
 
@@ -46,6 +62,7 @@ class EdgeBranchingConstraint:
         return any(full_path[i] == self.u and full_path[i + 1] == self.v for i in range(len(full_path) - 1))
 
     def __repr__(self) -> str:
+        """Return a developer-friendly string representation."""
         relation = "MUST_USE" if self.must_use else "FORBIDDEN"
         return f"EdgeBranchingConstraint({self.u} -> {self.v}: {relation})"
 
@@ -73,12 +90,29 @@ class RyanFosterBranchingConstraint:
         node_s: int,
         together: bool,
     ) -> None:
+        """
+        Initialise a Ryan-Foster branching constraint.
+
+        Args:
+            node_r: First node in the pair.
+            node_s: Second node in the pair.
+            together: Whether the two nodes must be co-visited (True) or
+                separated (False).
+        """
         self.node_r = node_r
         self.node_s = node_s
         self.together = together
 
     def is_route_feasible(self, route: Route) -> bool:
-        """Return True if *route* satisfies this Ryan-Foster constraint."""
+        """
+        Return True if *route* satisfies this Ryan-Foster constraint.
+
+        Args:
+            route: A Route object to validate.
+
+        Returns:
+            True when the constraint is not violated.
+        """
         r_in = self.node_r in route.node_coverage
         s_in = self.node_s in route.node_coverage
 
@@ -91,6 +125,7 @@ class RyanFosterBranchingConstraint:
         return True
 
     def __repr__(self) -> str:
+        """Return a developer-friendly string representation."""
         relation = "TOGETHER" if self.together else "SEPARATE"
         return f"RyanFosterBranchingConstraint({self.node_r}, {self.node_s}: {relation})"
 
@@ -119,6 +154,11 @@ class NodeVisitationBranchingConstraint:
         self.forced = forced
 
     def is_route_feasible(self, route: Route) -> bool:
+        """
+        In the 'forced' branch (v_i = 1), we don't filter existing routes
+        that don't visit i; the master model will enforce the visitation sum.
+        In the 'forbidden' branch (v_i = 0), we filter out any route visiting i.
+        """
         if not self.forced:
             return self.node not in route.node_coverage
         return True

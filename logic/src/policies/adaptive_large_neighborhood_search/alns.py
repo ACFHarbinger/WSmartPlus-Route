@@ -143,8 +143,8 @@ class ALNSSolver:
         self.vrpp = getattr(params, "vrpp", True)
         self.profit_aware_operators = getattr(params, "profit_aware_operators", False)
         self.extended_operators = getattr(params, "extended_operators", False)
-        self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
-        self.np_random = np.random.default_rng(params.seed) if params.seed is not None else np.random.default_rng(42)
+        self.random = random.Random(params.seed) if params.seed is not None else random.Random()
+        self.np_random = np.random.default_rng(params.seed) if params.seed is not None else np.random.default_rng()
 
         # Pre-assign no-op to avoid getattr in the hot iteration loop.
         self._viz_record: Callable = recorder.record if recorder is not None else lambda **k: None

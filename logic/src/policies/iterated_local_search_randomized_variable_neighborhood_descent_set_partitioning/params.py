@@ -36,6 +36,9 @@ class ILSRVNDSPParams:
     profit_aware_operators: bool = False
     local_search_iterations: int = 500
 
+    engine: str = "gurobi"
+    framework: str = "ortools"
+
     @classmethod
     def from_config(cls, config: Any) -> "ILSRVNDSPParams":
         """Build parameters from a configuration object."""

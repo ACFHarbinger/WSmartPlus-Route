@@ -59,7 +59,7 @@ def _get_partitioned_vars_aks(
     var_values = {var: val for var, val in zip(model._all_vars_list, model._node_rel)}
 
     # 1.5 Compute a totally feasible heuristic route
-    rng = random.Random(42)
+    rng = random.Random()
     heuristic_routes = build_greedy_routes(
         dist_matrix=dist_matrix, wastes=wastes, capacity=capacity, R=R, C=C, mandatory_nodes=mandatory_nodes, rng=rng
     )

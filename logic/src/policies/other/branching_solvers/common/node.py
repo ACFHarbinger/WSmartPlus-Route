@@ -124,5 +124,6 @@ class BranchNode:
         return b1 > b2
 
     def __repr__(self) -> str:
+        """Return a developer-friendly string representation."""
         bound_str = f"{self.lp_bound:.2f}" if self.lp_bound is not None else "None"
         return f"BranchNode(depth={self.depth}, bound={bound_str}, constraints={len(self.constraints)})"

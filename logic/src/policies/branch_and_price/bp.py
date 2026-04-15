@@ -16,7 +16,7 @@ Reference:
 
 import logging
 import warnings
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Dict, List, Optional, Set, Tuple, Union, cast
 
 import numpy as np
 
@@ -303,7 +303,7 @@ class BranchAndPriceSolver:
                     self.tree.prune_by_bound()
                 continue
 
-            result = self.tree.branch(node, routes, route_values)
+            result = self.tree.branch(node, routes, route_values, mandatory_nodes=self.mandatory_nodes)
             if result is None:
                 logging.warning(
                     "Branching stalled (no fractional candidates found). Falling back to restricted "
@@ -542,7 +542,7 @@ class BranchAndPriceSolver:
 
         if isinstance(pricing, RCSPPSolver):
             routes = pricing.solve(
-                dual_values=dual_values,
+                dual_values=cast(Any, dual_values),
                 max_routes=self.params.max_routes_per_iteration,
                 branching_constraints=constraints,
             )
@@ -550,7 +550,7 @@ class BranchAndPriceSolver:
             return [(r.nodes, r.reduced_cost if r.reduced_cost is not None else 0.0) for r in routes]
         else:
             return pricing.solve(
-                dual_values=dual_values,  # type: ignore[arg-type]
+                dual_values=cast(Any, dual_values),
                 max_routes=self.params.max_routes_per_iteration,
                 active_constraints=constraints,
             )

@@ -10,7 +10,6 @@ from typing import Any, List, Optional
 class SCHCConfig:
     """Configuration for the Step Counting Hill Climbing policy."""
 
-    engine: str = "schc"
     max_iterations: int = 1000
     step_size: int = 100
     n_removal: int = 2

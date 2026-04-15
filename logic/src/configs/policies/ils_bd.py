@@ -37,6 +37,8 @@ class IntegerLShapedBendersConfig:
         max_cuts_per_round: Maximum SECs / RCCs added per Gurobi callback.
         enable_heuristic_rcc_separation: Enable heuristic RCC separation.
         enable_comb_cuts: Enable heuristic comb inequality separation.
+        engine: Solver engine to use ('gurobi', 'scip', 'highs', or 'cplex').
+        framework: Solver framework to use ('ortools', 'pyomo').
         must_go: List of must-go strategy configuration files.
         post_processing: List of post-processing operations to apply.
     """
@@ -58,5 +60,7 @@ class IntegerLShapedBendersConfig:
     max_cuts_per_round: int = 50
     enable_heuristic_rcc_separation: bool = True
     enable_comb_cuts: bool = False
+    engine: str = "gurobi"
+    framework: str = "ortools"
     must_go: Optional[List[MustGoConfig]] = None
     post_processing: Optional[List[PostProcessingConfig]] = None

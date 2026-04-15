@@ -25,8 +25,6 @@ class HVPLConfig:
         - ALNS: Deep local search refinement (Phase 3)
     """
 
-    engine: str = "hvpl"
-
     # VPL Population Parameters
     n_teams: int = 30
     max_iterations: int = 100

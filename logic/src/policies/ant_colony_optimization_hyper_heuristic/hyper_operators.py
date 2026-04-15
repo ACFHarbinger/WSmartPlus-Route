@@ -84,7 +84,7 @@ class HyperOperatorContext:
         self.route_loads: List[float] = []
         self.node_map: Dict[int, Tuple[int, int]] = {}
         self.neighbors: Dict[int, List[int]] = {}
-        self.rng = rng or random.Random(42)
+        self.rng = rng or random.Random()
 
         # Top-3 Insertion Cache for O(1) SWAP* evaluation (Vidal 2022)
         # Maps: node_id -> route_idx -> [(cost_delta, position), ...]

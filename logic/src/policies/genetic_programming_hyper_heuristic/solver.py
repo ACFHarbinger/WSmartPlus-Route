@@ -81,7 +81,7 @@ class GPHHSolver:
         self.mandatory_nodes: Set[int] = set(mandatory_nodes or [])
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
-        self.rng = random.Random(params.seed) if params.seed is not None else random.Random(42)
+        self.rng = random.Random(params.seed) if params.seed is not None else random.Random()
         self.training_environments = training_environments  # May be None
 
         # Precompute K-NN index for the test instance (used in final application)

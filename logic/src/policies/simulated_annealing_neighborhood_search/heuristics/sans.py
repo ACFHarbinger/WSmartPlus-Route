@@ -119,6 +119,9 @@ def improved_simulated_annealing(  # noqa: C901
     """
     Refine routing solutions using a multi-neighborhood Simulated Annealing algorithm.
     """
+    if rng is None:
+        rng = random.Random()
+
     start_time = time.process_time()
 
     # --- 1. ROBUST INITIALIZATION ---

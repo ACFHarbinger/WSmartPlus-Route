@@ -64,7 +64,7 @@ class HULKOperators:
         self.mandatory_nodes = mandatory_nodes or []
         self.expand_pool = expand_pool
         self.profit_aware_operators = profit_aware_operators
-        self.rng = random.Random(seed) if seed is not None else random.Random(42)
+        self.rng = random.Random(seed) if seed is not None else random.Random()
 
     def apply_unstring_type_i(self, solution: Solution, n_remove: int) -> Tuple[Solution, List[int]]:
         return self._apply_unstring_wrapper(solution, n_remove, 1)

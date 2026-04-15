@@ -12,13 +12,11 @@ import numpy as np
 
 try:
     import gurobipy as gp
-    from gurobipy import GRB
 
     GUROBI_AVAILABLE = True
 except ImportError:
     GUROBI_AVAILABLE = False
-    gp = None
-    GRB = None
+    gp = None  # type: ignore[assignment]
 
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
@@ -44,8 +42,8 @@ def _add_local_branching_constraint(
     lhs = gp.LinExpr()
 
     # Process edge variables
-    for key, var in x.items():
-        val = incumbent_x.get(key, 0.0)
+    for edge_key, var in x.items():
+        val = incumbent_x.get(edge_key, 0.0)
         if val < 0.5:
             lhs.addTerms(1.0, var)
         else:
@@ -53,8 +51,8 @@ def _add_local_branching_constraint(
             lhs.addTerms(-1.0, var)
 
     # Process node selection variables
-    for key, var in y.items():
-        val = incumbent_y.get(key, 0.0)
+    for node_key, var in y.items():
+        val = incumbent_y.get(node_key, 0.0)
         if val < 0.5:
             lhs.addTerms(1.0, var)
         else:
@@ -153,8 +151,8 @@ def run_local_branching_gurobi(
             # Effectively: delta(x, old_incumbent) >= 1
             model.remove(lb_cut)
             model.addConstr(
-                gp.quicksum(1 - x[k] for k, v in incumbent_x.items() if v > 0.5)
-                + gp.quicksum(x[k] for k, v in incumbent_x.items() if v <= 0.5)
+                gp.quicksum(1 - x[edge] for edge, v in incumbent_x.items() if v > 0.5)
+                + gp.quicksum(x[edge] for edge, v in incumbent_x.items() if v <= 0.5)
                 >= 1
             )
 
@@ -170,8 +168,8 @@ def run_local_branching_gurobi(
             else:
                 # Add hard branch: we finished searching this neighborhood
                 model.addConstr(
-                    gp.quicksum(1 - x[k] for k, v in incumbent_x.items() if v > 0.5)
-                    + gp.quicksum(x[k] for k, v in incumbent_x.items() if v <= 0.5)
+                    gp.quicksum(1 - x[edge] for edge, v in incumbent_x.items() if v > 0.5)
+                    + gp.quicksum(x[edge] for edge, v in incumbent_x.items() if v <= 0.5)
                     >= k_current + 1
                 )
                 break  # Or try to continue from another point

@@ -100,7 +100,7 @@ class HMMGDHHSolver:
         self.mandatory_nodes = mandatory_nodes or []
         self.n_nodes = len(dist_matrix) - 1
         self.nodes = list(range(1, self.n_nodes + 1))
-        self.random = random.Random(params.seed) if params.seed is not None else random.Random(42)
+        self.random = random.Random(params.seed) if params.seed is not None else random.Random()
 
         # Dynamic LLH Pool (Fix #R-Final-2: Ablation Blocker)
         # Sliced according to params.n_llh to enable proper research evaluation

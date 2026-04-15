@@ -10,7 +10,6 @@ from typing import Any, List, Optional
 class RRTConfig:
     """Configuration for the Record-to-Record Travel policy."""
 
-    engine: str = "rr"
     tolerance: float = 0.05
     max_iterations: int = 500
     n_removal: int = 2

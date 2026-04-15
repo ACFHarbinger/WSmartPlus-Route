@@ -23,7 +23,6 @@ class ABCConfig:
         post_processing: Post-processing operation config list.
     """
 
-    engine: str = "abc"
     n_sources: int = 20
     limit: int = 10
     max_iterations: int = 200

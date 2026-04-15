@@ -60,8 +60,10 @@ class AdaptiveKernelSearchConfig:
     time_limit_stage_1: float = 0.2
 
         # Infrastructure
-        engine (str): Identifier for the optimization engine. Use "custom" to
+        engine (str): Identifier for the optimization engine. Use "gurobi" to
             invoke the project's native Gurobi-based AKS solver.
+        framework (str): Identifier for the optimization framework. Options
+            include "ortools" and "pyomon".
         must_go (Optional[MustGoConfig]): Configuration for mandatory node
             selection policies (e.g., must collect full bins).
         post_processing (Optional[PostProcessingConfig]): Optional configuration
@@ -83,6 +85,7 @@ class AdaptiveKernelSearchConfig:
     time_limit_stage_1: float = 0.2
 
     # Infrastructure
-    engine: str = "custom"
+    engine: str = "gurobi"
+    framework: str = "ortools"
     must_go: Optional[MustGoConfig] = None
     post_processing: Optional[PostProcessingConfig] = None

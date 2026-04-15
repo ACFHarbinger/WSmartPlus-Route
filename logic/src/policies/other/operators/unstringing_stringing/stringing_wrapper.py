@@ -295,7 +295,7 @@ def stringing_insertion_wrapper(  # noqa: C901
     Fallback to greedy insertion if stringing fails (e.g., node cannot fit, route too short).
     """
     if rng is None:
-        rng = random.Random(42)
+        rng = random.Random()
 
     from logic.src.policies.other.operators.repair.greedy import (
         greedy_insertion,

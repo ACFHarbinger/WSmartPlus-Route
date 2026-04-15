@@ -18,7 +18,6 @@ class MemeticAlgorithmIslandModelConfig:
     Functionally equivalent to SLC.
     """
 
-    engine: str = "ma_im"
     n_islands: int = 5
     island_size: int = 4
     max_generations: int = 50

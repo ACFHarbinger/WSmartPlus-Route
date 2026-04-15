@@ -74,6 +74,7 @@ class HGSALNSPolicy(BaseRoutingPolicy):
             min_removal=values.get("alns_min_removal", 1),
             max_removal_pct=values.get("alns_max_removal_pct", 0.2),
             time_limit=values.get("alns_time_limit", values.get("time_limit", 60.0)),
+            engine=values.get("alns_engine", "custom"),
             vrpp=vrpp,
             profit_aware_operators=profit_aware_operators,
             seed=seed,
@@ -90,9 +91,11 @@ class HGSALNSPolicy(BaseRoutingPolicy):
             nb_granular=values.get("hgs_neighbor_list_size", 10),
             local_search_iterations=values.get("hgs_local_search_iterations", 500),
             max_vehicles=values.get("hgs_max_vehicles", 0),
+            engine=values.get("hgs_engine", "custom"),
             seed=seed,
             vrpp=vrpp,
             profit_aware_operators=profit_aware_operators,
+            restart_timer=values.get("hgs_restart_timer", 0.0),
         )
 
         # Create HGSALNSParams

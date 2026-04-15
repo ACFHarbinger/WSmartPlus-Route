@@ -32,6 +32,8 @@ class LBVNSParams:
     max_lb_iterations: int = 5
     mip_gap: float = 0.01
     seed: int = 42
+    engine: str = "gurobi"
+    framework: str = "ortools"
 
     @classmethod
     def from_config(cls, config: Any) -> LBVNSParams:

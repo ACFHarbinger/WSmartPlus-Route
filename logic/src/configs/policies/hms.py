@@ -18,7 +18,6 @@ class HybridMemeticSearchConfig:
     Functionally equivalent to HVPL.
     """
 
-    engine: str = "hms"
     population_size: int = 30
     max_generations: int = 50
     substitution_rate: float = 0.2

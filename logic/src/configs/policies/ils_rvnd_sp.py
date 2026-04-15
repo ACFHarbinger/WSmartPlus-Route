@@ -35,4 +35,6 @@ class ILSRVNDSPConfig(ABCConfig):
     profit_aware_operators: bool = False
     time_limit: float = 120.0
     seed: int = 42
+    engine: str = "gurobi"
+    framework: str = "ortools"
     local_search_iterations: int = 500

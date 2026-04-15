@@ -13,6 +13,7 @@ from .bc import BCConfig
 from .bp import BPConfig
 from .bpc import BPCConfig
 from .cf_rs import CFRSConfig
+from .cp_sat import CPSATConfig
 from .cvrp import CVRPConfig
 from .de import DEConfig
 from .ema import EMAConfig
@@ -167,4 +168,5 @@ __all__ = [
     "PHConfig",
     "ScenarioTreeExtensiveFormConfig",
     "LBBDConfig",
+    "CPSATConfig",
 ]

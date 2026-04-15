@@ -26,25 +26,6 @@ def run_hgs(dist_matrix, wastes, capacity, R, C, values, mandatory_nodes=None, x
     Returns:
         Tuple[List[List[int]], float, float]: Best routes, profit, and cost.
     """
-    engine = values.get("engine") or values.get("variant")
-    if engine == "pyvrp":
-        return solve_pyvrp(dist_matrix, wastes, capacity, R, C, values)
-
-    if len(dist_matrix) <= 1:
-        return [], 0.0, 0.0
-
-    if len(dist_matrix) == 2:
-        d = wastes.get(1, 0)
-        if d <= capacity:
-            # Fix 5: Calculate simple profit = revenue - cost
-            cost = dist_matrix[0][1] + dist_matrix[1][0]
-            revenue = d * R
-            total_cost = C * cost
-            profit = revenue - total_cost
-            return [[1]], profit, total_cost
-        else:
-            return [], 0.0, 0.0
-
     # Create HGSParams using Vidal 2022 parameter names
     params = HGSParams(
         # Core HGS parameters (Vidal 2022)
@@ -74,6 +55,26 @@ def run_hgs(dist_matrix, wastes, capacity, R, C, values, mandatory_nodes=None, x
         lambda_max=values.get("lambda_max", 0),
         use_ejection_chains=values.get("use_ejection_chains", False),
         seed=values.get("seed", 42),
+        engine=values.get("engine", "custom"),
+        restart_timer=values.get("restart_timer", 0.0),
     )
+    if params.engine == "pyvrp":
+        return solve_pyvrp(dist_matrix, wastes, capacity, R, C, values)
+
+    if len(dist_matrix) <= 1:
+        return [], 0.0, 0.0
+
+    if len(dist_matrix) == 2:
+        d = wastes.get(1, 0)
+        if d <= capacity:
+            # Fix 5: Calculate simple profit = revenue - cost
+            cost = dist_matrix[0][1] + dist_matrix[1][0]
+            revenue = d * R
+            total_cost = C * cost
+            profit = revenue - total_cost
+            return [[1]], profit, total_cost
+        else:
+            return [], 0.0, 0.0
+
     solver = HGSSolver(dist_matrix, wastes, capacity, R, C, params, mandatory_nodes, x_coords, y_coords)
     return solver.solve()

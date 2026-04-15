@@ -148,7 +148,7 @@ def string_removal(
         return routes, []
 
     if rng is None:
-        rng = Random(42)
+        rng = Random()
 
     # Resolve c̄: treat default sentinel (3.0) as using n_remove directly so
     # the SISR formula is always meaningful.
@@ -251,7 +251,7 @@ def string_profit_removal(
         return routes, []
 
     if rng is None:
-        rng = Random(42)
+        rng = Random()
 
     # --- Pre-compute marginal profits ------------------------------------
     node_profits: Dict[int, float] = {}

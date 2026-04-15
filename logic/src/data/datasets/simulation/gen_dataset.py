@@ -70,7 +70,7 @@ class GenerativeDataset(SimulationDataset):
         self.max_waste = max_waste
         self.grid = grid
         self.seed = seed
-        self.rng = np.random.default_rng(seed) if seed is not None else np.random.default_rng(42)
+        self.rng = np.random.default_rng(seed) if seed is not None else np.random.default_rng()
 
         # Default coordinates if not provided
         if depot is None:

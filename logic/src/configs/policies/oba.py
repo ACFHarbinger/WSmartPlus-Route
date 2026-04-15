@@ -10,7 +10,6 @@ from typing import Any, List, Optional
 class OBAConfig:
     """Configuration for the Old Bachelor Acceptance policy."""
 
-    engine: str = "oba"
     dilation: float = 5.0
     contraction: float = 2.0
     max_iterations: int = 500

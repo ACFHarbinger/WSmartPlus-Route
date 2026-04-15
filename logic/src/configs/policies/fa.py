@@ -28,7 +28,6 @@ class FAConfig:
         post_processing: Post-processing operation config list.
     """
 
-    engine: str = "fa"
     pop_size: int = 20
     beta0: float = 1.0
     gamma: float = 0.1

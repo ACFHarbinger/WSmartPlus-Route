@@ -18,8 +18,6 @@ class HGSALNSConfig:
     of both metaheuristics.
     """
 
-    engine: str = "hgs_alns"
-
     # HGS-ALNS specific parameters
     vrpp: bool = True
     profit_aware_operators: bool = False

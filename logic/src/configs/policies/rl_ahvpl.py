@@ -21,8 +21,6 @@ class RLAHVPLConfig:
     management / crossover, all using Reinforcement Learning (RL) for adaptive operator selection.
     """
 
-    engine: str = "rl_ahvpl"
-
     # General parameters
     n_teams: int = 10
     time_limit: float = 60.0

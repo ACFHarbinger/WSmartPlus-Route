@@ -57,7 +57,7 @@ class RVND:
             >>> def swap_op(routes):
             ...     # Apply swap operator
             ...     return routes, True   # Found improvement
-            >>> rvnd = RVND(operators=[relocate_op, swap_op], rng=Random(42))
+            >>> rvnd = RVND(operators=[relocate_op, swap_op], rng=Random())
         """
         if not operators:
             raise ValueError("RVND requires at least one local search operator")

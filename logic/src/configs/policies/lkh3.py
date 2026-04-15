@@ -15,7 +15,6 @@ class LKH3Config:
     """Configuration for the LKH-3 policy.
 
     Attributes:
-        engine: Execution backend identifier.
         max_trials: Maximum number of local-search iterations per run.
         runs: Number of independent LKH runs (multi-start).
         popmusic_subpath_size: Sub-path size for POPMUSIC candidate generation.
@@ -31,7 +30,6 @@ class LKH3Config:
         post_processing: Post-processing operation config list.
     """
 
-    engine: str = "lkh3"
     runs: int = 10
     max_trials: int = 1000
     popmusic_subpath_size: int = 50

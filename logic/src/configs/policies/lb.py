@@ -29,7 +29,8 @@ class LocalBranchingConfig:
         vrpp (bool): Whether the problem is a VRP with Profits.
 
         # Infrastructure
-        engine (str): Identifier for the optimization engine (default: "custom").
+        engine (str): Solver engine to use ('gurobi', 'scip', 'highs', or 'cplex').
+        framework (str): Solver framework to use ('ortools', 'pyomo').
         must_go (Optional[MustGoConfig]): Configuration for mandatory node selection.
         post_processing (Optional[PostProcessingConfig]): Optional local search refinement.
     """
@@ -44,6 +45,7 @@ class LocalBranchingConfig:
     vrpp: bool = True
 
     # Infrastructure
-    engine: str = "custom"
+    engine: str = "gurobi"
+    framework: str = "ortools"
     must_go: Optional[MustGoConfig] = None
     post_processing: Optional[PostProcessingConfig] = None

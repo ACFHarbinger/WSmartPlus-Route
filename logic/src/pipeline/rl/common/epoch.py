@@ -143,7 +143,7 @@ def _get_next_day_waste(
     """Determine the next day's waste from pre-generated data or on-the-fly generation."""
     next_day_waste = torch.zeros_like(current_fill)
     if generator is None:
-        generator = torch.Generator(device=device).manual_seed(42)
+        generator = torch.Generator(device=device)
 
     full_key = f"_{key}_full"
     if full_key in td.keys() and td[full_key].dim() == 3:

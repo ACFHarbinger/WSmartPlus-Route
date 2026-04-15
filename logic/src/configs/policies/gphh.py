@@ -25,7 +25,6 @@ class GPHHConfig:
         post_processing: Post-processing operation config list.
     """
 
-    engine: str = "gphh"
     gp_pop_size: int = 20
     max_gp_generations: int = 30
     tree_depth: int = 3

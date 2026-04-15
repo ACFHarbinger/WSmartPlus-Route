@@ -15,6 +15,7 @@ class HGSRRParams:
     Configuration parameters for HGS-RR algorithm.
 
     Attributes:
+        restart_timer (float): Maximum wall-clock seconds for optimization, before restarting the algorithm (0 = unlimited)
         time_limit (float): Maximum execution time in seconds.
         mu (int): Minimum population size (for each subpopulation).
         nb_elite (int): Number of elite individuals preserved.
@@ -47,6 +48,7 @@ class HGSRRParams:
     """
 
     # Core HGS parameters
+    restart_timer: float = 0.0
     time_limit: float = 10.0
     population_size: int = 50
     elite_size: int = 10
