@@ -72,6 +72,10 @@ hms:
       # Maximum wall-clock seconds
       # Range: 60-600 (300s = production)
 
+    - n_removal: 3
+      # Number of nodes to remove during ALNS
+      # Range: 1-10 (3 = balanced)
+
     # ---------------------------------------------------------------------
     # ACO Nested Configuration (Initialization)
     # ---------------------------------------------------------------------

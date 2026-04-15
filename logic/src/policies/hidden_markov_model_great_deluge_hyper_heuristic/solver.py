@@ -171,6 +171,7 @@ class HMMGDHHSolver:
         profit = self._evaluate(routes)
         best_routes = copy.deepcopy(routes)
         best_profit = profit
+        best_cost = self._cost(routes)
 
         start_time = time.process_time()
 

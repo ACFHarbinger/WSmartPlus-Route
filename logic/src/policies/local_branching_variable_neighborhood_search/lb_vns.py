@@ -22,7 +22,7 @@ Reference:
 """
 
 import time
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
@@ -33,8 +33,8 @@ try:
     GUROBI_AVAILABLE = True
 except ImportError:
     GUROBI_AVAILABLE = False
-    gp = None  # type: ignore[assignment]
-    GRB = None  # type: ignore[misc,assignment]
+    gp: Any = None  # type: ignore[assignment,no-redef]
+    GRB: Any = None  # type: ignore[misc,assignment,no-redef]
 
 from ..kernel_search.solver import _dfj_subtour_elimination_callback, _reconstruct_tour, _set_mip_start, _setup_ks_model
 from ..local_branching.lb import _add_local_branching_constraint
@@ -209,7 +209,7 @@ def run_lb_vns_gurobi(
 
         # --- PHASE 1: SHAKING (Exploration) ---
         # Find a diversified starting point in the k-neighborhood.
-        shaken_x, shaken_y = _shake_solution_gurobi(model, x, y, incumbent_x, incumbent_y, k, seed + k)
+        shaken_x, shaken_y = _shake_solution_gurobi(model, x, y, incumbent_x, incumbent_y, k, seed + k)  # type: ignore[bad-argument-type]
 
         if shaken_x is None:
             # If the neighborhood is infeasible (e.g., k is too small to flip mandatory edges),

@@ -63,6 +63,9 @@ class BaseAcceptanceSolver(PolicyVizMixin):
             self._llh_worst_greedy,
             self._llh_random_regret,
         ]
+        self.best_cost = float("inf")
+        self.best_profit = float("-inf")
+        self.best_routes: List[List[int]] = []
 
     @abstractmethod
     def _accept(self, new_profit: float, current_profit: float, iteration: int) -> bool:
@@ -121,6 +124,10 @@ class BaseAcceptanceSolver(PolicyVizMixin):
             self._record_telemetry(iteration, best_profit, profit)
 
         best_cost = self._cost(best_routes)
+        if best_profit > self.best_profit:
+            self.best_profit = best_profit
+            self.best_routes = copy.deepcopy(routes)
+            self.best_cost = best_cost
         return best_routes, best_profit, best_cost
 
     def _record_telemetry(self, iteration: int, best_profit: float, current_profit: float):

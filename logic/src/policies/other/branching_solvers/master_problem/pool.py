@@ -3,11 +3,10 @@ Global Cut Pool for Branch-and-Price-and-Cut.
 """
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Dict, FrozenSet, Optional, Set, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, FrozenSet, Optional, Set, Tuple
 
 if TYPE_CHECKING:
-    from .constraints import VRPPMasterProblemConstraintsMixin
-    from .model import VRPPMasterProblem
+    from .problem_support import MasterProblemSupport
 
 
 @dataclass
@@ -108,7 +107,7 @@ class GlobalCutPool:
             self.lci_cuts[node_set] = (rhs, coefficients, node_alphas)
             self.lci_arcs[node_set] = arc
 
-    def apply_to_master(self, master: Union[VRPPMasterProblem, VRPPMasterProblemConstraintsMixin]) -> int:
+    def apply_to_master(self, master: MasterProblemSupport) -> int:
         """
         Inject all pooled global cuts into a fresh Master Problem instance.
         Typically called when entering a new B&B node to tighten the root relaxation.

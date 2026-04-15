@@ -1,5 +1,5 @@
 import itertools
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Union
 
 import numpy as np
 
@@ -60,7 +60,9 @@ class StateSpaceManager:
                     l_prime = min(self.L - 1, l + i)
                     self.trans_matrix[l, l_prime] += p
 
-    def get_transition_probs(self, state: Tuple[int, ...], action_set: set) -> List[Tuple[Tuple[int, ...], float]]:
+    def get_transition_probs(
+        self, state: Tuple[int, ...], action_set: Union[frozenset, set]
+    ) -> List[Tuple[Tuple[int, ...], float]]:
         """
         Given a state and an action (subset of nodes to visit),
         generate reachable non-zero-prob states and their probabilities.

@@ -302,8 +302,7 @@ class HULKOperators:
             return solution
 
         best_solution = solution
-        best_cost = solution.cost
-
+        best_cost = solution._cost
         for i in range(len(routes)):
             for j in range(i + 1, len(routes)):
                 if not routes[i] or not routes[j]:
@@ -324,17 +323,17 @@ class HULKOperators:
                             test_sol = Solution(
                                 test_routes, self.dist_matrix, self.wastes, self.capacity, self.R, self.C
                             )
-                            if test_sol.cost < best_cost - 1e-6:
+                            test_cost = test_sol._cost
+                            if test_cost < best_cost - 1e-6:
                                 best_solution = test_sol
-                                best_cost = test_sol.cost
+                                best_cost = test_cost
         return best_solution
 
     def apply_relocate(self, solution: Solution) -> Solution:
         """Apply relocate move."""
         routes = [list(r) for r in solution.routes]
         best_solution = solution
-        best_cost = solution.cost
-
+        best_cost = solution._cost
         for i in range(len(routes)):
             if not routes[i]:
                 continue
@@ -351,7 +350,8 @@ class HULKOperators:
                             test_sol = Solution(
                                 test_routes, self.dist_matrix, self.wastes, self.capacity, self.R, self.C
                             )
-                            if test_sol.cost < best_cost - 1e-6:
+                            test_cost = test_sol._cost
+                            if test_cost < best_cost - 1e-6:
                                 best_solution = test_sol
-                                best_cost = test_sol.cost
+                                best_cost = test_cost
         return best_solution

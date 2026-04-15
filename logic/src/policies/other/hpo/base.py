@@ -55,7 +55,7 @@ class PolicyHPOBase(ABC):
                 else:
                     # Handle omegaconf ListConfig/DictConfig if needed
                     try:
-                        target = target[part] if not part.isdigit() else target[int(part)]
+                        target = target[part] if not part.isdigit() else target[int(part)]  # type: ignore[index]
                     except (KeyError, IndexError, TypeError) as err:
                         raise AttributeError(f"Cannot find config path: {key}") from err
 
@@ -63,7 +63,7 @@ class PolicyHPOBase(ABC):
             if hasattr(target, last_part):
                 setattr(target, last_part, value)
             else:
-                target[last_part] = value
+                target[last_part] = value  # type: ignore[index]
 
     @staticmethod
     def suggest_param(trial: optuna.Trial, name: str, spec: Dict[str, Any]) -> Any:
