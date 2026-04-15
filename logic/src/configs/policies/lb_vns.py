@@ -5,8 +5,8 @@ Configuration for Local Branching with Variable Neighborhood Search (LB-VNS).
 from dataclasses import dataclass
 from typing import Optional
 
-from .other.mandatory_selection import MandatorySelectionConfig
-from .other.route_improvement import RouteImprovingConfig
+from .helpers.mandatory_selection import MandatorySelectionConfig
+from .helpers.route_improvement import RouteImprovingConfig
 
 
 @dataclass

@@ -3,7 +3,7 @@ import random
 from typing import Any, List
 
 from logic.src.interfaces.route_improvement import IRouteImprovement
-from logic.src.policies.other.operators.heuristics.large_neighborhood_search import (
+from logic.src.policies.helpers.operators.heuristics.large_neighborhood_search import (
     apply_lns,
 )
 

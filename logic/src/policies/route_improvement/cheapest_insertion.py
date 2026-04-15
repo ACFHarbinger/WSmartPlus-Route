@@ -1,7 +1,7 @@
 from typing import Any, List
 
 from logic.src.interfaces.route_improvement import IRouteImprovement
-from logic.src.policies.other.operators.repair import greedy_insertion, greedy_profit_insertion
+from logic.src.policies.helpers.operators.repair import greedy_insertion, greedy_profit_insertion
 
 from .base import RouteImproverRegistry
 from .common.helpers import (

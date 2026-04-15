@@ -1,9 +1,9 @@
 import unittest
 import numpy as np
 import torch
-from logic.src.policies.other.operators.intra_route.swap import move_swap
-from logic.src.policies.other.operators.repair.geni import geni_insertion, geni_profit_insertion
-from logic.src.policies.other.operators.repair.nearest import nearest_insertion, nearest_profit_insertion
+from logic.src.policies.helpers.operators.intra_route.swap import move_swap
+from logic.src.policies.helpers.operators.repair.geni import geni_insertion, geni_profit_insertion
+from logic.src.policies.helpers.operators.repair.nearest import nearest_insertion, nearest_profit_insertion
 
 class MockLS:
     def __init__(self, dist_matrix, routes, waste=None, capacity=100.0, C=1.0):

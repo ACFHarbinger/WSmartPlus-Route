@@ -704,7 +704,7 @@ neural:
 
 ---
 
-### 6. Auxiliary Configurations: `policies/other/*.yaml`
+### 6. Auxiliary Configurations: `policies/helpers/*.yaml`
 
 #### 6.1 mandatory Strategies
 

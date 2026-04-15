@@ -45,7 +45,7 @@ constraint and the strategy short-circuits to every revenue-positive
 bin with non-negative net profit.
 
 Example:
-    >>> from logic.src.policies.other.mandatory.selection_fractional_knapsack \\
+    >>> from logic.src.policies.helpers.mandatory.selection_fractional_knapsack \\
     ...     import FractionalKnapsackSelection
     >>> strategy = FractionalKnapsackSelection()
     >>> bins = strategy.select_bins(context)
@@ -56,8 +56,8 @@ from typing import List, Set
 import numpy as np
 
 from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
-from logic.src.policies.other.mandatory.base.selection_context import SelectionContext
-from logic.src.policies.other.mandatory.base.selection_registry import MandatorySelectionRegistry
+from logic.src.policies.helpers.mandatory.base.selection_context import SelectionContext
+from logic.src.policies.helpers.mandatory.base.selection_registry import MandatorySelectionRegistry
 
 
 @MandatorySelectionRegistry.register("fractional_knapsack")

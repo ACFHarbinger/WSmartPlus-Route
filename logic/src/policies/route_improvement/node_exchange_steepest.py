@@ -9,7 +9,7 @@ node swaps until a local minimum is reached.
 from typing import Any, List
 
 from logic.src.interfaces.route_improvement import IRouteImprovement
-from logic.src.policies.other.operators.intensification import (
+from logic.src.policies.helpers.operators.intensification import (
     node_exchange_steepest,
     node_exchange_steepest_profit,
 )

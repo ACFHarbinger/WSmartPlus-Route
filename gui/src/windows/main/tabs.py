@@ -84,7 +84,7 @@ class TabManager:
             "Cryptography Settings": FileSystemCryptographyTab(),
         }
 
-        self.other_tabs_map = {
+        self.helpers_tabs_map = {
             "Execute Script": RunScriptsTab(),
             "Program Test Suite": TestSuiteTab(),
         }
@@ -96,7 +96,7 @@ class TabManager:
             "Test Simulator": self.test_sim_tabs_map,
             "Data Analysis": self.analysis_tabs_map,
             "File System Tools": self.file_system_tabs_map,
-            "Other Tools": self.other_tabs_map,
+            "Other Tools": self.helpers_tabs_map,
         }
 
     def register_tabs(self, mediator):

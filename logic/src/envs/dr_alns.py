@@ -19,14 +19,14 @@ import gymnasium as gym
 import numpy as np
 
 from logic.src.models.core.dr_alns.ppo_agent import DRALNSState
-from logic.src.policies.other.operators import (
+from logic.src.policies.helpers.operators import (
     cluster_removal,
     greedy_insertion,
     random_removal,
     regret_2_insertion,
     worst_removal,
 )
-from logic.src.policies.other.operators.heuristics.nearest_neighbor_initialization import (
+from logic.src.policies.helpers.operators.heuristics.nearest_neighbor_initialization import (
     build_nn_routes,
 )
 

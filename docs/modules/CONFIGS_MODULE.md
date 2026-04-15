@@ -959,7 +959,7 @@ class ILSConfig:
 
 ### MandatorySelectionConfig
 
-**File**: `policies/other/mandatory_selection.py`
+**File**: `policies/helpers/mandatory_selection.py`
 
 Pre-selection strategy for mandatory collections.
 
@@ -1037,7 +1037,7 @@ mandatory_selection = MandatorySelectionConfig(
 
 ### route improvementConfig
 
-**File**: `policies/other/route_improvement.py`
+**File**: `policies/helpers/route_improvement.py`
 
 Solution refinement pipeline.
 
@@ -2068,7 +2068,7 @@ Config
 | `rl/core/ppo.py`            | 14    | PPOConfig         |
 | `rl/core/pomo.py`           | ~20   | POMOConfig        |
 | `policies/alns.py`          | 39    | ALNSConfig        |
-| `policies/other/mandatory_selection.py` | ~60   | MandatorySelectionConfig      |
+| `policies/helpers/mandatory_selection.py` | ~60   | MandatorySelectionConfig      |
 | `tasks/train.py`            | 75    | TrainConfig       |
 | `tasks/sim.py`              | ~20   | SimConfig         |
 

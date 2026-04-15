@@ -1,8 +1,8 @@
 import pytest
 import numpy as np
 from typing import Set, Dict, List
-from logic.src.policies.other.branching_solvers import Route
-from logic.src.policies.other.branching_solvers import (
+from logic.src.policies.helpers.branching_solvers import Route
+from logic.src.policies.helpers.branching_solvers import (
     EdgeBranching,
     RyanFosterBranching,
     BranchNode,

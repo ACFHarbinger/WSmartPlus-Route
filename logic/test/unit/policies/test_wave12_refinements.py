@@ -3,9 +3,9 @@ import pytest
 from typing import Dict, List, Tuple
 from logic.src.policies.differential_evolution.solver import DESolver
 from logic.src.policies.differential_evolution.params import DEParams
-from logic.src.policies.other.operators.unstringing_stringing.unstringing_i import apply_type_i_us
-from logic.src.policies.other.operators.unstringing_stringing.unstringing_ii import apply_type_ii_us
-from logic.src.policies.other.operators.unstringing_stringing.unstringing_iii import apply_type_iii_us
+from logic.src.policies.helpers.operators.unstringing_stringing.unstringing_i import apply_type_i_us
+from logic.src.policies.helpers.operators.unstringing_stringing.unstringing_ii import apply_type_ii_us
+from logic.src.policies.helpers.operators.unstringing_stringing.unstringing_iii import apply_type_iii_us
 
 def test_de_binomial_crossover_j_rand():
     """Verify that j_rand component is always inherited from mutant in DE."""

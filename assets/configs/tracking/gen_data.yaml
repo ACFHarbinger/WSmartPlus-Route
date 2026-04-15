@@ -16,7 +16,7 @@ zenml_stack_name: "wsmart-route-stack"
 wandb_mode: "disabled"
 no_tensorboard: false
 no_progress_bar: false
-log_dir: "logs/other"
+log_dir: "logs/helpers"
 verbose: true
 profile: false
 log_step: 10

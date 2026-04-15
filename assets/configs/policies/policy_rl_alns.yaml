@@ -22,7 +22,7 @@ rl_alns:
 
     # Centralized RL Configuration
     - rl_config:
-        _target_: logic.src.configs.policies.other.reinforcement_learning.RLConfig
+        _target_: logic.src.configs.policies.helpers.reinforcement_learning.RLConfig
         agent_type: bandit
 
         bandit:
