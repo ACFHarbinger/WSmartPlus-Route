@@ -55,7 +55,7 @@ from .ma_ts import MemeticAlgorithmToleranceBasedSelectionConfig
 from .neural import NeuralConfig
 from .oba import OBAConfig
 from .oi import OIConfig
-from .other import MandatorySelectionConfig, RouteImprovingConfig
+from .helpers import MandatorySelectionConfig, RouteImprovingConfig
 from .ph import PHConfig
 from .popmusic import POPMUSICConfig
 from .pso import PSOConfig

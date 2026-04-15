@@ -7,7 +7,7 @@ the intersection (requires all strategies to agree) or the union (requires
 only one strategy to select a bin) of the candidate results.
 
 Example:
-    >>> from logic.src.policies.other.mandatory.selection_dispatcher_portfolio import PortfolioDispatcher
+    >>> from logic.src.policies.helpers.mandatory.selection_dispatcher_portfolio import PortfolioDispatcher
     >>> strategy = PortfolioDispatcher()
     >>> bins = strategy.select_bins(context)
 """
@@ -15,8 +15,8 @@ Example:
 from typing import List, Set
 
 from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
-from logic.src.policies.other.mandatory.base.selection_context import SelectionContext
-from logic.src.policies.other.mandatory.base.selection_registry import MandatorySelectionRegistry
+from logic.src.policies.helpers.mandatory.base.selection_context import SelectionContext
+from logic.src.policies.helpers.mandatory.base.selection_registry import MandatorySelectionRegistry
 
 
 @MandatorySelectionRegistry.register("dispatcher_portfolio")
@@ -35,7 +35,7 @@ class PortfolioDispatcher(IMandatorySelectionStrategy):
         Returns:
             List[int]: List of bin IDs (1-based index).
         """
-        from logic.src.policies.other.mandatory.base.selection_factory import MandatorySelectionFactory
+        from logic.src.policies.helpers.mandatory.base.selection_factory import MandatorySelectionFactory
 
         candidates = context.dispatcher_candidate_strategies or ["last_minute", "deadline", "mip_knapsack"]
         mode = context.dispatcher_mode or "union"

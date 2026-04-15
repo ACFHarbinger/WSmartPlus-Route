@@ -205,7 +205,7 @@ This report documents differences between published algorithm formulations and t
 
 5. **Crossover**:
    - **Paper**: OX (Oliver et al. 1987)
-   - **Implementation**: Uses `from logic.src.policies.other.operators.crossover.ordered import ordered_crossover`
+   - **Implementation**: Uses `from logic.src.policies.helpers.operators.crossover.ordered import ordered_crossover`
    - **Match**: ✅ Exact
 
 6. **Split Algorithm**:

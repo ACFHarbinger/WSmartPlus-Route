@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from logic.src.policies.other.mandatory.base.selection_context import SelectionContext
+from logic.src.policies.helpers.mandatory.base.selection_context import SelectionContext
 
 
 def compute_eoq_thresholds(context: SelectionContext) -> np.ndarray:

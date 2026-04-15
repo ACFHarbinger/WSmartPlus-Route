@@ -13,7 +13,7 @@ collection. This ensures that the policy never leaves behind a bin that is eithe
 critically urgent or trivially cheap to collect without a justified trade-off.
 
 Example:
-    >>> from logic.src.policies.other.mandatory.selection_pareto import ParetoFrontSelection
+    >>> from logic.src.policies.helpers.mandatory.selection_pareto import ParetoFrontSelection
     >>> strategy = ParetoFrontSelection()
     >>> bins = strategy.select_bins(context)
 """
@@ -23,8 +23,8 @@ from typing import List
 import numpy as np
 
 from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
-from logic.src.policies.other.mandatory.base.selection_context import SelectionContext
-from logic.src.policies.other.mandatory.base.selection_registry import MandatorySelectionRegistry
+from logic.src.policies.helpers.mandatory.base.selection_context import SelectionContext
+from logic.src.policies.helpers.mandatory.base.selection_registry import MandatorySelectionRegistry
 
 
 @MandatorySelectionRegistry.register("pareto_front")

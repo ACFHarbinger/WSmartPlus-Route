@@ -7,7 +7,7 @@ from typing import Any, Dict, Optional
 
 from .envs import EnvConfig, GraphConfig, ObjectiveConfig
 from .models import DecoderConfig, DecodingConfig, EncoderConfig, ModelConfig, OptimConfig
-from .policies.other import MandatorySelectionConfig, RouteImprovingConfig
+from .policies.helpers import MandatorySelectionConfig, RouteImprovingConfig
 from .rl import RLConfig
 from .tasks import DataConfig, EvalConfig, HPOConfig, MetaRLConfig, SimConfig, SimHPOConfig, TrainConfig
 from .tracking import TrackingConfig

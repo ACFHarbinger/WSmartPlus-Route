@@ -1,10 +1,10 @@
 
 import numpy as np
 import pytest
-from logic.src.policies.other.mandatory.base.selection_context import SelectionContext
-from logic.src.policies.other.mandatory.selection_last_minute import LastMinuteSelection
-from logic.src.policies.other.mandatory.selection_revenue import RevenueThresholdSelection
-from logic.src.policies.other.mandatory.selection_service_level import ServiceLevelSelection
+from logic.src.policies.helpers.mandatory.base.selection_context import SelectionContext
+from logic.src.policies.helpers.mandatory.selection_last_minute import LastMinuteSelection
+from logic.src.policies.helpers.mandatory.selection_revenue import RevenueThresholdSelection
+from logic.src.policies.helpers.mandatory.selection_service_level import ServiceLevelSelection
 
 
 @pytest.fixture

@@ -1,7 +1,7 @@
 from typing import Any, List
 
 from logic.src.interfaces.route_improvement import IRouteImprovement
-from logic.src.policies.other.operators.repair.regret import (
+from logic.src.policies.helpers.operators.repair.regret import (
     regret_k_insertion,
     regret_k_profit_insertion,
 )

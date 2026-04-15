@@ -9,7 +9,7 @@ reoptimization per route using Dynamic Programming.
 from typing import Any, List
 
 from logic.src.interfaces.route_improvement import IRouteImprovement
-from logic.src.policies.other.operators.intensification import (
+from logic.src.policies.helpers.operators.intensification import (
     dp_route_reopt,
     dp_route_reopt_profit,
 )

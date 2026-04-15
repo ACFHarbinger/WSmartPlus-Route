@@ -10,7 +10,7 @@ Attributes:
     RouteImproverRegistry (class): Registry for algorithm classes.
 
 Example:
-    >>> from logic.src.policies.other.route_improvement.base import RouteImproverFactory
+    >>> from logic.src.policies.helpers.route_improvement.base import RouteImproverFactory
     >>> factory = RouteImproverFactory()
     >>> algorithm = factory.create("fast_tsp")
 """

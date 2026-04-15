@@ -18,7 +18,7 @@ from logic.src.utils.functions.rl import ensure_tensordict
 if TYPE_CHECKING:
     from logic.src.interfaces.env import IEnv
     from logic.src.interfaces.policy import IPolicy
-    from logic.src.policies.other.mandatory import VectorizedSelector
+    from logic.src.policies.helpers.mandatory import VectorizedSelector
 
 logger = get_pylogger(__name__)
 

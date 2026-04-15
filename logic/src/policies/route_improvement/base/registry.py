@@ -8,7 +8,7 @@ Attributes:
     RouteImproverRegistry (class): The registry class.
 
 Example:
-    >>> from logic.src.policies.other.route_improvement.base.registry import RouteImproverRegistry
+    >>> from logic.src.policies.helpers.route_improvement.base.registry import RouteImproverRegistry
     >>> RouteImproverRegistry.register("my_processor", MyProcessorClass)
     >>> cls = RouteImproverRegistry.get_route_improver_class("my_processor")
 """

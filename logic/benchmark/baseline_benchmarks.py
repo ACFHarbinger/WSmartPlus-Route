@@ -15,8 +15,8 @@ from logic.src.models.policies.random_local_search import (
     RandomLocalSearchPolicy,
 )
 from logic.src.tracking.logging.structured_logging import log_benchmark_metric
-from logic.src.policies.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow import run_swc_tcf_optimizer
-from logic.src.policies.other_algorithms.capacitated_vehicle_routing_problem.cvrp import find_routes, find_routes_ortools
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow import run_swc_tcf_optimizer
+from logic.src.policies.route_construction.helpers_algorithms.capacitated_vehicle_routing_problem.cvrp import find_routes, find_routes_ortools
 
 
 def benchmark_random_local_search(

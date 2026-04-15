@@ -253,7 +253,7 @@ class DeepGATDecoder(nn.Module):
         return torch.cat(
             [
                 current_node_embed,
-                torch.zeros_like(current_node_embed),  # Placeholder for graph context/other
+                torch.zeros_like(current_node_embed),  # Placeholder for graph context/helpers
                 torch.zeros(batch_size, num_steps, 1, device=embeddings.device),
             ],
             dim=-1,

@@ -73,7 +73,7 @@ def _run_task(cfg: Config) -> float:
         return 0.0
 
     if task == "hpo_sim":
-        from logic.src.policies.other.hpo.hpo_handler import run_hpo_sim
+        from logic.src.policies.helpers.hpo.hpo_handler import run_hpo_sim
 
         if cfg.tracking.verbose:
             _pretty_print_hydra_config(cfg, filter_keys=ROOT_KEYS + ["hpo_sim"])  # type: ignore[arg-type]

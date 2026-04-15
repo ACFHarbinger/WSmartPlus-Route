@@ -8,7 +8,7 @@ This is implemented using a greedy heuristic which provides a ln(n)
 approximation ratio.
 
 Example:
-    >>> from logic.src.policies.other.mandatory.selection_set_cover import SetCoverSelection
+    >>> from logic.src.policies.helpers.mandatory.selection_set_cover import SetCoverSelection
     >>> strategy = SetCoverSelection()
     >>> bins = strategy.select_bins(context)
 """
@@ -18,8 +18,8 @@ from typing import List
 import numpy as np
 
 from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
-from logic.src.policies.other.mandatory.base.selection_context import SelectionContext
-from logic.src.policies.other.mandatory.base.selection_registry import MandatorySelectionRegistry
+from logic.src.policies.helpers.mandatory.base.selection_context import SelectionContext
+from logic.src.policies.helpers.mandatory.base.selection_registry import MandatorySelectionRegistry
 
 
 @MandatorySelectionRegistry.register("set_cover")

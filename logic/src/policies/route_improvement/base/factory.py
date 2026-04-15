@@ -8,7 +8,7 @@ Attributes:
     RouteImproverFactory (class): The factory class.
 
 Example:
-    >>> from logic.src.policies.other.route_improvement.base.factory import RouteImproverFactory
+    >>> from logic.src.policies.helpers.route_improvement.base.factory import RouteImproverFactory
     >>> processors = RouteImproverFactory.create_from_config(config)
 """
 

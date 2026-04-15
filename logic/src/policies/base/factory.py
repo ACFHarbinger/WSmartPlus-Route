@@ -32,37 +32,28 @@ class PolicyFactory:
             return
 
         # Exact Stochastic and Decomposition Solvers
-        import logic.src.policies.exact_and_decomposition_solvers as exact_solvers  # noqa
+        import logic.src.policies.route_construction.exact_and_decomposition_solvers as exact_solvers  # noqa
 
         # Meta-Heuristics
-        import logic.src.policies.meta_heuristics as meta_heuristics  # noqa
+        import logic.src.policies.route_construction.meta_heuristics as meta_heuristics  # noqa
 
         # Hyper-Heuristics
-        import logic.src.policies.hyper_heuristics as hyper_heuristics  # noqa
+        import logic.src.policies.route_construction.hyper_heuristics as hyper_heuristics  # noqa
 
         # Matheuristics (Exact Solvers + Heuristics)
-        import logic.src.policies.matheuristics as matheuristics  # noqa
+        import logic.src.policies.route_construction.matheuristics as matheuristics  # noqa
 
         # Learning Algorithms
-        import logic.src.policies.learning_algorithms as learning_algorithms  # noqa
+        import logic.src.policies.route_construction.learning_algorithms as learning_algorithms  # noqa
 
         # Learning Heuristic Algorithms (Learning Algorithms + Heuristics)
-        import logic.src.policies.learning_heuristic_algorithms as learning_heuristic_algorithms  # noqa
+        import logic.src.policies.route_construction.learning_heuristic_algorithms as learning_heuristic_algorithms  # noqa
 
         # Acceptance Criterion
-        import logic.src.policies.boltzmann_metropolis_criterion.policy_bmc as policy_bmc  # noqa
-        import logic.src.policies.ensemble_move_acceptance.policy_ema as policy_ema  # noqa
-        import logic.src.policies.great_deluge.policy_gd as policy_gd  # noqa
-        import logic.src.policies.improving_and_equal.policy_ie as policy_ie  # noqa
-        import logic.src.policies.late_acceptance_hill_climbing.policy_lahc as policy_lahc  # noqa
-        import logic.src.policies.old_bachelor_acceptance.policy_oba as policy_oba  # noqa
-        import logic.src.policies.only_improving.policy_oi as policy_oi  # noqa
-        import logic.src.policies.record_to_record_travel.policy_rrt as policy_rrt  # noqa
-        import logic.src.policies.step_counting_hill_climbing.policy_schc as policy_schc  # noqa
-        import logic.src.policies.threshold_accepting.policy_ta as policy_ta  # noqa
+        import logic.src.policies.route_construction.acceptance_criteria as acceptance_criteria  # noqa
 
         # Other Algorithms
-        import logic.src.policies.other_algorithms as other_algorithms  # noqa
+        import logic.src.policies.route_construction.helpers_algorithms as other_algorithms  # noqa
 
         cls._registered = True
 

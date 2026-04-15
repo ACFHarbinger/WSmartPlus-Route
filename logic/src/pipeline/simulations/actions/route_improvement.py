@@ -10,7 +10,7 @@ from loguru import logger
 from logic.src.configs import RouteImprovingConfig
 from logic.src.constants import ROOT_DIR
 from logic.src.interfaces import ITraversable
-from logic.src.policies.other_algorithms.travelling_salesman_problem.tsp import get_route_cost
+from logic.src.policies.route_construction.helpers_algorithms.travelling_salesman_problem.tsp import get_route_cost
 from logic.src.policies.route_improvement import RouteImproverFactory
 from logic.src.utils.configs.config_loader import load_config
 

@@ -11,7 +11,7 @@ import logging
 from typing import Any, List
 
 from logic.src.interfaces.route_improvement import IRouteImprovement
-from logic.src.policies.other.operators.intensification import (
+from logic.src.policies.helpers.operators.intensification import (
     set_partitioning_polish,
     set_partitioning_polish_profit,
 )

@@ -18,7 +18,7 @@ def test_rl_alns_solver():
 
     for algo in algos:
         print(f"Testing with algorithm: {algo}")
-        from logic.src.configs.policies.other import RLConfig, BanditConfig
+        from logic.src.configs.policies.helpers import RLConfig, BanditConfig
         rl_config = RLConfig(
             agent_type="bandit",
             bandit=BanditConfig(algorithm=algo)
@@ -54,7 +54,7 @@ def test_ahvpl_rl_solver():
     C = 1.0
 
     aco_params = KSACOParams(max_iterations=5, n_ants=2)
-    from logic.src.configs.policies.other import RLConfig, BanditConfig, LinUCBConfig
+    from logic.src.configs.policies.helpers import RLConfig, BanditConfig, LinUCBConfig
     rl_config = RLConfig(
         agent_type="bandit",
         bandit=BanditConfig(algorithm="linucb"),

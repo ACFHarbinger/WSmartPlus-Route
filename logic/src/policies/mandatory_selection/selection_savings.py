@@ -7,7 +7,7 @@ at least one other sufficiently-full bin with which it shares a positive spatial
 saving (i.e., routing them together is cheaper than two separate round trips).
 
 Example:
-    >>> from logic.src.policies.other.mandatory.selection_savings import SavingsSelection
+    >>> from logic.src.policies.helpers.mandatory.selection_savings import SavingsSelection
     >>> strategy = SavingsSelection()
     >>> bins = strategy.select_bins(context)
 """
@@ -17,8 +17,8 @@ from typing import List
 import numpy as np
 
 from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
-from logic.src.policies.other.mandatory.base.selection_context import SelectionContext
-from logic.src.policies.other.mandatory.base.selection_registry import MandatorySelectionRegistry
+from logic.src.policies.helpers.mandatory.base.selection_context import SelectionContext
+from logic.src.policies.helpers.mandatory.base.selection_registry import MandatorySelectionRegistry
 
 
 @MandatorySelectionRegistry.register("savings")

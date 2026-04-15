@@ -6041,7 +6041,7 @@ $$ \theta*k = \text{MLP}*{hyper}( \text{Context}\_k ) $$
 
 | Parameter        | Default | Recommended | Description                                  |
 | :--------------- | :------ | :---------- | :------------------------------------------- |
-| `aux_dim`        | 32      | 16 - 64     | Latent dimension of auxiliary/other vectors. |
+| `aux_dim`        | 32      | 16 - 64     | Latent dimension of auxiliary/helpers vectors. |
 | `use_diagnostic` | `False` | -           | Enable to log attention maps to TensorBoard. |
 
 ---
@@ -6074,7 +6074,7 @@ Most "Other" subnets are very small ($< 1\%$ of total param count).
 ### 🧪 Usage Example: The Diagnostic Hook
 
 ```python
-from logic.src.models.subnets.other import RepresentationAnalyzer
+from logic.src.models.subnets.helpers import RepresentationAnalyzer
 
 ## 1. Attach to a living model
 analyzer = RepresentationAnalyzer()

@@ -5,7 +5,7 @@ RL-ALNS (Reinforcement Learning-augmented Adaptive Large Neighborhood Search) co
 from dataclasses import dataclass, field
 
 from .alns import ALNSConfig
-from .other import RLConfig
+from .helpers import RLConfig
 
 
 @dataclass

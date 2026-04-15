@@ -9,7 +9,7 @@ from logic.src.models.subnets.encoders.gac.encoder import GraphAttConvEncoder
 from logic.src.models.subnets.decoders.gat.decoder import GraphAttentionDecoder
 from logic.src.models.subnets.encoders.gat.encoder import GraphAttentionEncoder
 from logic.src.models.subnets.encoders.gcn.encoder import GraphConvolutionEncoder
-from logic.src.models.subnets.other.gru_fill_predictor import GatedRecurrentUnitFillPredictor
+from logic.src.models.subnets.helpers.gru_fill_predictor import GatedRecurrentUnitFillPredictor
 from logic.src.models.subnets.encoders.mlp.encoder import MLPEncoder
 from logic.src.models.subnets.encoders.moe.encoder import MoEGraphAttentionEncoder
 from logic.src.models.subnets.decoders.ptr.decoder import PointerDecoder

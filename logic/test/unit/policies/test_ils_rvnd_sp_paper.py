@@ -4,7 +4,7 @@ import random
 from typing import List, Optional
 from logic.src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp import ILSRVNDSPSolver
 from logic.src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params import ILSRVNDSPParams
-from logic.src.policies.other.local_search.local_search_base import LocalSearch
+from logic.src.policies.helpers.local_search.local_search_base import LocalSearch
 
 
 class MockLocalSearch(LocalSearch):
@@ -105,7 +105,7 @@ def test_neighborhood_cross():
     # Cross at (2, r0, pos1) and (5, r1, pos1)
     # r0: [1, 2] + [6] = [1, 2, 6]
     # r1: [4, 5] + [3] = [4, 5, 3]
-    from logic.src.policies.other.operators.inter_route.subramanian_neighborhoods import move_cross
+    from logic.src.policies.helpers.operators.inter_route.subramanian_neighborhoods import move_cross
     improved = move_cross(ls, u=2, v=5, r_u=0, p_u=1, r_v=1, p_v=1)
 
     assert improved
@@ -123,7 +123,7 @@ def test_shift_2_0():
     ls.d[1, 2] = 10  # Edge being removed: 1-2
     ls.d[1, 0] = 0   # Repair edge: 1-0 (cheap)
 
-    from logic.src.policies.other.operators.inter_route.subramanian_neighborhoods import shift_2_0
+    from logic.src.policies.helpers.operators.inter_route.subramanian_neighborhoods import shift_2_0
     # shift [2, 3] from r0 (pos 1) to r1 (after pos 1)
     improved = shift_2_0(ls, r_src=0, pos_src=1, r_dst=1, pos_dst=1)
     assert improved
