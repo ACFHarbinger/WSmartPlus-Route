@@ -31,7 +31,7 @@ gd:
   profit_aware_operators: true
 
   # Must-go node selection strategies.
-  must_go: ["other/mg_lookahead.yaml"]
+  mandatory_selection: ["other/ms_lookahead.yaml"]
 
   # Post-processing refinery.
-  post_processing: []
+  route_improvement: []

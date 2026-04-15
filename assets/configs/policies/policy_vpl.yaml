@@ -100,12 +100,12 @@ vpl:
     # VRPP Settings
     - vrpp: true
 
-    - must_go: ["other/mg_lookahead.yaml"]
+    - mandatory_selection: ["other/ms_lookahead.yaml"]
     # Node selection strategy for waste collection problems
-    # Options: mg_lookahead.yaml, mg_last_minute_*.yaml, mg_regular.yaml
+    # Options: ms_lookahead.yaml, ms_last_minute_*.yaml, ms_regular.yaml
 
-    - post_processing: []
+    - route_improvement: []
     # Optional post-processing refinement
     # Empty = use VPL output directly
-    # Options: ["pp_2opt.yaml", "pp_relocate.yaml"] for extra refinement
+    # Options: ["ri_two_opt.yaml", "ri_relocate.yaml"] for extra refinement
 # =============================================================================

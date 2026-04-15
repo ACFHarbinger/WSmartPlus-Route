@@ -91,7 +91,7 @@ class AdaptiveKernelSearchPolicy(BaseRoutingPolicy):
         distance_matrix = kwargs["distance_matrix"]
         wastes = kwargs.get("wastes", {})
         capacity = kwargs.get("capacity", 1.0e9)
-        mandatory_nodes = kwargs.get("must_go", [])
+        mandatory_nodes = kwargs.get("mandatory", [])
 
         # 3. Handle objective multipliers
         R = kwargs.get("R", 1.0)

@@ -58,7 +58,7 @@ class VRPPModel:
         1. Degree constraints: ∑_{(i,j) ∈ δ(i)} x[i,j] = 2·y[i] for all customers i
         2. Depot degree: ∑_{(0,j) ∈ δ(0)} x[0,j] ≤ 2K (where K is fleet size)
         3. Global capacity: ∑_{i ∈ V\\{0}} demand[i]·y[i] ≤ K·Q (aggregate capacity)
-        4. Mandatory nodes: y[i] = 1 for i ∈ must_go
+        4. Mandatory nodes: y[i] = 1 for i ∈ mandatory
 
     Dynamic Constraints (added via callbacks):
         5. Prize-Collecting Subtour Elimination Cuts (PC-SEC):
@@ -91,7 +91,7 @@ class VRPPModel:
             num_vehicles: Fleet size (K).
             revenue_per_kg: Revenue coefficient (R).
             cost_per_km: Cost coefficient (C).
-            mandatory_nodes: Set of node indices that must be visited (must_go).
+            mandatory_nodes: Set of node indices that must be visited (mandatory).
             node_coords: Node coordinates for spatial branching.
         """
         self.n_nodes = n_nodes

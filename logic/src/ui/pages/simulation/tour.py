@@ -39,9 +39,9 @@ def render_tour_details(display_entry: Any) -> None:
         )
     st.dataframe(pd.DataFrame(tour_rows), width="stretch")
 
-    must_go = data.get("must_go", [])
-    if must_go:
-        st.markdown(f"**must_go Selection** ({len(must_go)} bins): `{must_go}`")
+    mandatory = data.get("mandatory", [])
+    if mandatory:
+        st.markdown(f"**mandatory Selection** ({len(mandatory)} bins): `{mandatory}`")
 
 
 def render_raw_data_view(display_entry: Any) -> None:

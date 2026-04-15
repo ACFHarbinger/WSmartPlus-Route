@@ -51,5 +51,5 @@ policies:
         epsilon_min: 0.05
 
     # Common policy fields
-    must_go: ["other/mg_lookahead.yaml"]
-    post_processing: []
+    mandatory_selection: ["other/ms_lookahead.yaml"]
+    route_improvement: []

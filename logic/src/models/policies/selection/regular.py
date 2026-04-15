@@ -50,10 +50,10 @@ class RegularSelector(VectorizedSelector):
 
         if freq <= 0:
             # Collect every day
-            must_go = torch.ones(batch_size, num_nodes, dtype=torch.bool, device=device)
+            mandatory = torch.ones(batch_size, num_nodes, dtype=torch.bool, device=device)
         elif current_day is None:
             # No day info - assume collection day
-            must_go = torch.ones(batch_size, num_nodes, dtype=torch.bool, device=device)
+            mandatory = torch.ones(batch_size, num_nodes, dtype=torch.bool, device=device)
         else:
             # Ensure current_day is a tensor
             if not isinstance(current_day, Tensor):
@@ -67,11 +67,11 @@ class RegularSelector(VectorizedSelector):
             is_collection_day = (current_day % (freq + 1)) == 1  # (batch_size,)
             is_collection_day = is_collection_day.unsqueeze(-1)  # (batch_size, 1)
 
-            # If collection day, all bins are must-go
-            must_go = is_collection_day.expand(-1, num_nodes)
+            # If collection day, all bins are mandatory
+            mandatory = is_collection_day.expand(-1, num_nodes)
 
-        # Depot is never a must-go
-        must_go = must_go.clone()
-        must_go[:, 0] = False
+        # Depot is never a mandatory
+        mandatory = mandatory.clone()
+        mandatory[:, 0] = False
 
-        return must_go
+        return mandatory

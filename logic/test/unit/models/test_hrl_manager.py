@@ -1,9 +1,9 @@
 import torch
 import pytest
-from logic.src.models.meta.hrl_manager import MustGoManager
+from logic.src.models.meta.hrl_manager import MandatoryManager
 
 def test_gatlst_manager_init():
-    manager = MustGoManager(
+    manager = MandatoryManager(
         input_dim_static=2,
         input_dim_dynamic=10,
         global_input_dim=2,
@@ -13,7 +13,7 @@ def test_gatlst_manager_init():
         n_heads=2,
         device="cpu"
     )
-    assert isinstance(manager, MustGoManager)
+    assert isinstance(manager, MandatoryManager)
     assert manager.hidden_dim == 16
 
 def test_gatlst_manager_forward():
@@ -21,7 +21,7 @@ def test_gatlst_manager_forward():
     num_nodes = 10
     history_len = 10
 
-    manager = MustGoManager(
+    manager = MandatoryManager(
         input_dim_static=2,
         input_dim_dynamic=history_len,
         global_input_dim=2,
@@ -36,9 +36,9 @@ def test_gatlst_manager_forward():
     dynamic = torch.randn(batch_size, num_nodes, history_len)
     global_features = torch.randn(batch_size, 2)
 
-    must_go_logits, gate_logits, value = manager(static, dynamic, global_features)
+    mandatory_logits, gate_logits, value = manager(static, dynamic, global_features)
 
-    assert must_go_logits.shape == (batch_size, num_nodes, 2)
+    assert mandatory_logits.shape == (batch_size, num_nodes, 2)
     assert gate_logits.shape == (batch_size, 2)
     assert value.shape == (batch_size, 1)
 
@@ -47,7 +47,7 @@ def test_gatlst_manager_select_action():
     num_nodes = 10
     history_len = 10
 
-    manager = MustGoManager(
+    manager = MandatoryManager(
         input_dim_static=2,
         input_dim_dynamic=history_len,
         global_input_dim=2,
@@ -62,10 +62,10 @@ def test_gatlst_manager_select_action():
     dynamic = torch.randn(batch_size, num_nodes, history_len)
     global_features = torch.randn(batch_size, 2)
 
-    must_go_action, gate_action, value = manager.select_action(
+    mandatory_action, gate_action, value = manager.select_action(
         static, dynamic, global_features, deterministic=False
     )
 
-    assert must_go_action.shape == (batch_size, num_nodes)
+    assert mandatory_action.shape == (batch_size, num_nodes)
     assert gate_action.shape == (batch_size,)
     assert value.shape == (batch_size, 1)

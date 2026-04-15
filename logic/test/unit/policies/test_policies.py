@@ -47,7 +47,7 @@ def mock_policy_data():
         "area": "riomaior",
         "config": {},
         "distancesC": np.zeros((n_bins + 1, n_bins + 1), dtype=np.int32),
-        "must_go": [1],  # Pre-selected bin index 1 (ID 1)
+        "mandatory": [1],  # Pre-selected bin index 1 (ID 1)
     }
 
 
@@ -119,7 +119,7 @@ class TestAdvancedSolverEngines:
             capacity,
             R,
             C,
-            global_must_go,
+            global_mandatory,
             local_to_global,
             vrpp_tour_global,
         ) = hgs_inputs
@@ -131,7 +131,7 @@ class TestAdvancedSolverEngines:
             R,
             C,
             values,
-            global_must_go,
+            global_mandatory,
             local_to_global,
             vrpp_tour_global,
         )
@@ -149,7 +149,7 @@ class TestAdvancedSolverEngines:
             capacity,
             R,
             C,
-            global_must_go,
+            global_mandatory,
             local_to_global,
             vrpp_tour_global,
         ) = hgs_inputs
@@ -161,7 +161,7 @@ class TestAdvancedSolverEngines:
             R,
             C,
             values,
-            global_must_go,
+            global_mandatory,
             local_to_global,
             vrpp_tour_global,
         )
@@ -407,7 +407,7 @@ class TestPOPMUSIC:
 
         return {
             "coords": coords,
-            "must_go": [1, 2, 3],
+            "mandatory": [1, 2, 3],
             "distance_matrix": dist_matrix,
             "n_vehicles": 4,
             "wastes": {1: 10, 2: 10, 3: 10},

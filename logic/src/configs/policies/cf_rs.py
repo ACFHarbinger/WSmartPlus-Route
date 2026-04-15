@@ -8,8 +8,8 @@ routing policy, following the project's standard configuration architecture.
 from dataclasses import dataclass
 from typing import List, Optional
 
-from .other.must_go import MustGoConfig
-from .other.post_processing import PostProcessingConfig
+from .other.mandatory_selection import MandatorySelectionConfig
+from .other.route_improvement import RouteImprovingConfig
 
 
 @dataclass
@@ -50,9 +50,9 @@ class CFRSConfig:
         mip_objective: MIP objective for exact assignment mode.
             "minimize_cost" (default): Minimize total insertion cost for benchmarks.
             "maximize_profit": Maximize profit (revenue - cost) for simulation.
-        must_go: List of must-go strategy configuration files or dicts.
+        mandatory_selection: List of mandatory strategy configuration files or dicts.
             Controls which bins are selected for collection on a given day.
-        post_processing: List of post-processing operations (e.g., local search)
+        route_improvement: List of route improvement operations (e.g., local search)
             to apply to the resulting tours for further refinement.
     """
 
@@ -89,7 +89,7 @@ class CFRSConfig:
     mip_objective: str = "minimize_cost"
 
     # Bin selection strategies (VRPP/WCVRP specific)
-    must_go: Optional[List[MustGoConfig]] = None
+    mandatory_selection: Optional[List[MandatorySelectionConfig]] = None
 
     # Tour refinement strategies
-    post_processing: Optional[List[PostProcessingConfig]] = None
+    route_improvement: Optional[List[RouteImprovingConfig]] = None

@@ -20,5 +20,5 @@ ga:
     - profit_aware_operators: false
     - vrpp: true
 
-    - must_go: ["other/mg_lookahead.yaml"]
-    - post_processing: []
+    - mandatory_selection: ["other/ms_lookahead.yaml"]
+    - route_improvement: []

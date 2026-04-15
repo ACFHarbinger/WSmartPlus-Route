@@ -177,9 +177,9 @@ hvpl:
     - profit_aware_operators: false
     - vrpp: true
 
-    - must_go: ["other/mg_lookahead.yaml"]
+    - mandatory_selection: ["other/ms_lookahead.yaml"]
     # Node selection strategy
 
-    - post_processing: []
+    - route_improvement: []
     # Post-processing (empty = use HVPL output directly)
 # =============================================================================

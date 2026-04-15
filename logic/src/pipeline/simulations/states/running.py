@@ -95,9 +95,9 @@ class RunningState(SimState):
         """Standardizes policy config resolution from structured context."""
         current_policy_config = {}  # type: ignore[var-annotated]
 
-        # 1. START WITH GLOBAL CONFIGS (must_go, post_processing)
+        # 1. START WITH GLOBAL CONFIGS (mandatory, route_improvement)
         if ctx.config:
-            for g_key in ["must_go", "post_processing"]:
+            for g_key in ["mandatory", "route_improvement"]:
                 if g_key in ctx.config:
                     current_policy_config[g_key] = ctx.config[g_key]
 

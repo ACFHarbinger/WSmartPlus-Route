@@ -24,7 +24,7 @@ def _add_bin_marker(
     bin_id: int,
     bin_states: Optional[List[float]],
     collected_set: set,
-    must_go_set: set,
+    mandatory_set: set,
     toured_ids: set,
     dataset_id: Optional[int] = None,
 ) -> None:
@@ -36,9 +36,9 @@ def _add_bin_marker(
         bin_id: The 0-indexed bin ID (matches indices in state arrays).
         bin_states: List of per-bin fill levels (0-100).
         collected_set: Set of bin IDs that were collected today.
-        must_go_set: Set of bin IDs selected for collection today.
+        mandatory_set: Set of bin IDs selected for collection today.
         toured_ids: Set of bin IDs that appear in the tour.
-        dataset_id: Optional dataset-level ID for backward-compatible must-go matching.
+        dataset_id: Optional dataset-level ID for backward-compatible mandatory matching.
     """
     lat = point.get("lat")
     lng = point.get("lng") or point.get("lon")
@@ -47,21 +47,21 @@ def _add_bin_marker(
 
     is_toured = bin_id in toured_ids
     is_served = bin_id in collected_set
-    # Check must_go against both positional id and dataset_id
+    # Check mandatory against both positional id and dataset_id
     # (logs may contain either format depending on when they were generated)
-    is_must_go = bin_id in must_go_set or (dataset_id is not None and dataset_id in must_go_set)
+    is_mandatory = bin_id in mandatory_set or (dataset_id is not None and dataset_id in mandatory_set)
 
     # Get fill level
     fill_level = 50.0
     if bin_states is not None and 0 <= bin_id < len(bin_states):
         fill_level = bin_states[bin_id]
 
-    # 3-tier color system (Priority: Must-Go > Served > Pending):
-    #   Orange = must-go (selected, takes priority to match legend)
+    # 3-tier color system (Priority: Mandatory > Served > Pending):
+    #   Orange = mandatory (selected, takes priority to match legend)
     #   Green  = served (collected today)
     #   Red    = pending (not selected, not served)
-    if is_must_go:
-        color = BIN_COLORS["must_go"]
+    if is_mandatory:
+        color = BIN_COLORS["mandatory"]
     elif is_served:
         color = BIN_COLORS["served"]
     else:
@@ -75,13 +75,13 @@ def _add_bin_marker(
         radius = 4 + (fill_level / 100.0) * 4
         fill_opacity = 0.35
 
-    border_weight = 4 if is_must_go else 2
+    border_weight = 4 if is_mandatory else 2
 
     # Build popup
     popup_text = point.get("popup", f"Bin {bin_id}")
     enhanced_popup = f"{popup_text}<br>Lat: {lat:.4f}<br>Lng: {lng:.4f}<br>Fill: {fill_level:.1f}%"
-    if is_must_go:
-        enhanced_popup += "<br><b style='color: #fd7e14;'>Must-Go</b>"
+    if is_mandatory:
+        enhanced_popup += "<br><b style='color: #fd7e14;'>Mandatory</b>"
     if is_served:
         enhanced_popup += "<br><b style='color: #28a745;'>Served</b>"
     if not is_toured:
@@ -93,18 +93,18 @@ def _add_bin_marker(
         popup=enhanced_popup,
         color=color,
         fill=True,
-        fillColor=BIN_COLORS["must_go"] if is_must_go and is_served else color,
+        fillColor=BIN_COLORS["mandatory"] if is_mandatory and is_served else color,
         fillOpacity=fill_opacity,
         weight=border_weight,
     ).add_to(m)
 
-    # For must-go bins that were served, add an outer dashed ring
-    if is_must_go and is_served:
+    # For mandatory bins that were served, add an outer dashed ring
+    if is_mandatory and is_served:
         folium.CircleMarker(
             location=[lat, lng],
             radius=radius + 4,
             popup=None,
-            color=BIN_COLORS["must_go"],
+            color=BIN_COLORS["mandatory"],
             fill=False,
             weight=2,
             dashArray="5 3",
@@ -115,7 +115,7 @@ def create_simulation_map(  # noqa: C901
     tour: List[Dict[str, Any]],
     bin_states: Optional[List[float]] = None,
     served_indices: Optional[List[int]] = None,
-    must_go: Optional[List[int]] = None,
+    mandatory: Optional[List[int]] = None,
     all_bin_coords: Optional[List[Dict[str, Any]]] = None,
     collected: Optional[List[float]] = None,
     vehicle_id: int = 0,
@@ -132,13 +132,13 @@ def create_simulation_map(  # noqa: C901
               Bins use IDs 0..N-1, Depot uses ID -1.
         bin_states: Optional list of bin fill levels (0-100).
         served_indices: Optional list of indices that were served.
-        must_go: Optional list of 0-indexed bin IDs.
+        mandatory: Optional list of 0-indexed bin IDs.
         all_bin_coords: Optional list of coordinate dicts for ALL bins.
         collected: Optional list of per-bin collected amounts (kg).
     """
     center = get_map_center(tour)
     m = folium.Map(location=center, zoom_start=zoom_start, tiles="cartodbpositron")
-    must_go_set = set(must_go) if must_go else set()
+    mandatory_set = set(mandatory) if mandatory else set()
 
     # Build set of bin IDs that appear in the tour
     toured_ids: set = set(served_indices) if served_indices else set()
@@ -188,7 +188,7 @@ def create_simulation_map(  # noqa: C901
         if bin_id == -1:
             continue  # Skip depot (handled in Pass 1)
 
-        # Extract dataset_id for backward-compatible must-go matching
+        # Extract dataset_id for backward-compatible mandatory matching
         ds_id: Optional[int] = None
         with contextlib.suppress(ValueError, TypeError):
             raw_ds = bin_point.get("dataset_id")
@@ -202,7 +202,7 @@ def create_simulation_map(  # noqa: C901
             bin_id,
             bin_states,
             collected_set,
-            must_go_set,
+            mandatory_set,
             toured_ids,
             dataset_id=ds_id,
         )
@@ -227,7 +227,7 @@ def create_simulation_map(  # noqa: C901
             bin_id,
             bin_states,
             collected_set,
-            must_go_set,
+            mandatory_set,
             toured_ids,
         )
 

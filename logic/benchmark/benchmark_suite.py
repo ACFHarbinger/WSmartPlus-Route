@@ -8,7 +8,7 @@ from logic.src.envs.problems import VRPP
 from logic.src.models import AttentionModel
 from logic.src.models.subnets.factories import AttentionComponentFactory
 from logic.src.models.policies.random_local_search import RandomLocalSearchPolicy
-from logic.src.policies.smart_waste_collection_two_commodity_flow.policy_swc_tcf import run_swc_tcf_optimizer
+from logic.src.policies.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.policy_swc_tcf import run_swc_tcf_optimizer
 
 
 def get_dummy_model(device="cpu"):
@@ -68,23 +68,20 @@ def benchmark_solvers(seed=42):
     print("\n--- OR Solver Performance (N=20) ---")
     n_bins = 20
     np_rng = np.random.default_rng(seed)
-    dist_matrix = np_rng.rand(n_bins + 1, n_bins + 1).tolist()
-    bins = np_rng.rand(n_bins) * 100
+    dist_matrix = np_rng.random((n_bins + 1, n_bins + 1)).tolist()
+    bins = np_rng.random(n_bins) * 100
     values = {"Q": 100.0, "R": 1.0, "B": 1.0, "C": 0.1, "V": 1.0, "Omega": 0.1, "delta": 0.0, "psi": 0.8}
     binsids = list(range(n_bins + 1))
-    must_go = [5, 10, 15]
+    mandatory_nodes = [5, 10, 15]
 
     for backend in ["gurobi", "hexaly"]:
         start = time.time()
         run_swc_tcf_optimizer(
             bins=bins,
             distance_matrix=dist_matrix,
-            param=0.0,
-            media=np.zeros(n_bins),
-            desviopadrao=np.zeros(n_bins),
             values=values,
             binsids=binsids,
-            must_go=must_go,
+            mandatory_nodes=mandatory_nodes,
             optimizer=backend,
             time_limit=10,
             seed=seed,

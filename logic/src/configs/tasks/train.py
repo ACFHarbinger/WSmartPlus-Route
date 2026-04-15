@@ -45,8 +45,8 @@ class TrainConfig:
     enable_scaler: bool = False
     checkpoint_epochs: int = 1
     shrink_size: Optional[int] = None
-    post_processing_epochs: int = 0
-    lr_post_processing: float = 0.001
+    route_improvement_epochs: int = 0
+    lr_route_improvement: float = 0.001
     efficiency_weight: float = 0.8
     overflow_weight: float = 0.2
     # Process control

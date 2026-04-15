@@ -17,7 +17,7 @@ class NeuralParams:
         waste_weight: Reward multiplier for collected waste (revenue).
         cost_weight: Penalty multiplier for travel distance.
         overflow_penalty: Penalty multiplier for bin overflows.
-        selector_name: Name of vectorized selector for must-go filtering.
+        selector_name: Name of vectorized selector for mandatory filtering.
         selector_threshold: Confidence threshold for node selection.
         seed: Random seed for reproducibility.
     """

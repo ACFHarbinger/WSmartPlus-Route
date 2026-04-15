@@ -1,10 +1,10 @@
 
 import numpy as np
 import pytest
-from logic.src.policies.other.must_go.base.selection_context import SelectionContext
-from logic.src.policies.other.must_go.selection_last_minute import LastMinuteSelection
-from logic.src.policies.other.must_go.selection_revenue import RevenueThresholdSelection
-from logic.src.policies.other.must_go.selection_service_level import ServiceLevelSelection
+from logic.src.policies.other.mandatory.base.selection_context import SelectionContext
+from logic.src.policies.other.mandatory.selection_last_minute import LastMinuteSelection
+from logic.src.policies.other.mandatory.selection_revenue import RevenueThresholdSelection
+from logic.src.policies.other.mandatory.selection_service_level import ServiceLevelSelection
 
 
 @pytest.fixture
@@ -22,16 +22,16 @@ def base_context():
 class TestLastMinuteSelection:
     def test_select_bins(self, base_context):
         strategy = LastMinuteSelection()
-        must_go = strategy.select_bins(base_context)
+        mandatory = strategy.select_bins(base_context)
         # Bins > 90 are Bin 2 (index 1) which is 95.
-        assert must_go == [2]
+        assert mandatory == [2]
 
     def test_select_bins_low_threshold(self, base_context):
         base_context.threshold = 40.0
         strategy = LastMinuteSelection()
-        must_go = strategy.select_bins(base_context)
+        mandatory = strategy.select_bins(base_context)
         # Bins > 40 are indices 1, 3, 4 -> IDs 2, 4, 5
-        assert must_go == [2, 4, 5]
+        assert mandatory == [2, 4, 5]
 
 class TestServiceLevelSelection:
     def test_select_bins_no_data(self, base_context):
@@ -50,10 +50,10 @@ class TestServiceLevelSelection:
         # Bin 4: 94 + 5 + 2*1 = 101 (Yes)
 
         strategy = ServiceLevelSelection()
-        must_go = strategy.select_bins(base_context)
-        assert 2 in must_go
-        assert 4 in must_go
-        assert len(must_go) == 2
+        mandatory = strategy.select_bins(base_context)
+        assert 2 in mandatory
+        assert 4 in mandatory
+        assert len(mandatory) == 2
 
 class TestRevenueThresholdSelection:
     def test_select_bins(self, base_context):
@@ -63,6 +63,6 @@ class TestRevenueThresholdSelection:
         # Threshold 150
         base_context.threshold = 150.0
         strategy = RevenueThresholdSelection()
-        must_go = strategy.select_bins(base_context)
+        mandatory = strategy.select_bins(base_context)
         # Expected: Bin 2 (190) and Bin 4 (170)
-        assert must_go == [2, 4]
+        assert mandatory == [2, 4]

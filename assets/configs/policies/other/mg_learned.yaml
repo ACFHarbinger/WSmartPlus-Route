@@ -1,3 +1,0 @@
-strategy: learned
-learned_model_path: assets/models/must_go_imitator.pkl
-learned_threshold: 0.5

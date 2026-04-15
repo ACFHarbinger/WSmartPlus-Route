@@ -5,8 +5,8 @@ Configuration for the Local Branching (LB) matheuristic.
 from dataclasses import dataclass
 from typing import Optional
 
-from .other.must_go import MustGoConfig
-from .other.post_processing import PostProcessingConfig
+from .other.mandatory_selection import MandatorySelectionConfig
+from .other.route_improvement import RouteImprovingConfig
 
 
 @dataclass
@@ -31,8 +31,9 @@ class LocalBranchingConfig:
         # Infrastructure
         engine (str): Solver engine to use ('gurobi', 'scip', 'highs', or 'cplex').
         framework (str): Solver framework to use ('ortools', 'pyomo').
-        must_go (Optional[MustGoConfig]): Configuration for mandatory node selection.
-        post_processing (Optional[PostProcessingConfig]): Optional local search refinement.
+        mandatory_selection (Optional[MandatorySelectionConfig]): Configuration for mandatory
+            node selection.
+        route_improvement (Optional[RouteImprovingConfig]): Optional local search refinement.
     """
 
     time_limit: float = 300.0
@@ -47,5 +48,5 @@ class LocalBranchingConfig:
     # Infrastructure
     engine: str = "gurobi"
     framework: str = "ortools"
-    must_go: Optional[MustGoConfig] = None
-    post_processing: Optional[PostProcessingConfig] = None
+    mandatory_selection: Optional[MandatorySelectionConfig] = None
+    route_improvement: Optional[RouteImprovingConfig] = None

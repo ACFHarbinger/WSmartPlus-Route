@@ -14,7 +14,7 @@ from rich.table import Table
 class ModelSummaryCallback(Callback):
     """
     Callback to print a detailed summary of the model architecture,
-    including encoder, decoder, and must-go selection details.
+    including encoder, decoder, and mandatory selection details.
     """
 
     def on_train_start(self, trainer: pl.Trainer, pl_module: pl.LightningModule) -> None:
@@ -92,11 +92,11 @@ class ModelSummaryCallback(Callback):
             bl_name = model.baseline.__class__.__name__
             table.add_row("3", "baseline", bl_name, fmt_params(model.baseline), "train", "0")
 
-        # 4. Must-Go Selection
-        if hasattr(model, "must_go_selector") and model.must_go_selector is not None:
-            selector = model.must_go_selector
+        # 4. Mandatory Selection
+        if hasattr(model, "mandatory_selector") and model.mandatory_selector is not None:
+            selector = model.mandatory_selector
             strategy = getattr(selector, "strategy", selector.__class__.__name__.replace("Selector", "").lower())
-            table.add_row("4", "must_go", f"Selector ({strategy})", "0", "N/A", "0")
+            table.add_row("4", "mandatory", f"Selector ({strategy})", "0", "N/A", "0")
 
         # 5. Expert Policy (for Imitation/Adaptive Imitation)
         if hasattr(model, "expert_policy") and model.expert_policy is not None:

@@ -15,7 +15,7 @@ def _run_pyomo_tcf_optimizer(  # noqa: C901
     distance_matrix: List[List[float]],
     values: Dict[str, float],
     binsids: List[int],
-    must_go: List[int],
+    mandatory_nodes: List[int],
     number_vehicles: int = 1,
     time_limit: int = 60,
     solver_id: str = "scip",
@@ -38,7 +38,7 @@ def _run_pyomo_tcf_optimizer(  # noqa: C901
     pure_binsids = binsids[1:] if len(binsids) == n_bins + 1 else binsids
     criticos_dict = {0: False}
     for i, bin_id in enumerate(pure_binsids, 1):
-        criticos_dict[i] = bin_id in must_go
+        criticos_dict[i] = bin_id in mandatory_nodes
 
     max_dist = 6000
 
@@ -104,11 +104,11 @@ def _run_pyomo_tcf_optimizer(  # noqa: C901
 
     model.route_out = pyo.Constraint(model.V_real, rule=route_out_rule)
 
-    # Must-Go & Pre-assignments
+    # Mandatory & Pre-assignments
     critical_nodes = [i for i in nodes_real if criticos_dict[i]]
     if critical_nodes:
         min_visits = len(critical_nodes) - len(nodes_real) * delta
-        model.must_go_coverage = pyo.Constraint(expr=sum(model.g[i] for i in critical_nodes) >= min_visits)
+        model.mandatory_coverage = pyo.Constraint(expr=sum(model.g[i] for i in critical_nodes) >= min_visits)
 
     model.forced_visits = pyo.ConstraintList()
     for i in nodes_real:

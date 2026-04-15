@@ -30,7 +30,7 @@ progressive_hedging:
   seed: 42
 
   # Must-go node selection strategies.
-  must_go: []
+  mandatory_selection: []
 
   # Post-processing refinement.
-  post_processing: []
+  route_improvement: []

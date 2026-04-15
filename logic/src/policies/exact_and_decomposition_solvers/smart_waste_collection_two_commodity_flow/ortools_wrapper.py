@@ -15,7 +15,7 @@ def _run_ortools_tcf_optimizer(  # noqa: C901
     distance_matrix: List[List[float]],
     values: Dict[str, float],
     binsids: List[int],
-    must_go: List[int],
+    mandatory_nodes: List[int],
     number_vehicles: int = 1,
     time_limit: int = 60,
     solver_id: str = "SCIP",  # Can be 'GUROBI', 'SCIP', 'HIGHS', 'CPLEX'
@@ -63,7 +63,7 @@ def _run_ortools_tcf_optimizer(  # noqa: C901
     pure_binsids = binsids[1:] if len(binsids) == n_bins + 1 else binsids
     criticos_dict = {0: False}
     for i, bin_id in enumerate(pure_binsids, 1):
-        criticos_dict[i] = bin_id in must_go
+        criticos_dict[i] = bin_id in mandatory_nodes
 
     max_dist = 6000
     valid_arcs = [(i, j) for i in nodes for j in nodes if i != j and distance_matrix[i][j] <= max_dist]
@@ -116,7 +116,7 @@ def _run_ortools_tcf_optimizer(  # noqa: C901
         solver.Add(solver.Sum(x[i, j] for i in nodes if (i, j) in valid_arcs) == g[j])
         solver.Add(solver.Sum(x[j, k] for k in nodes if (j, k) in valid_arcs) == g[j])
 
-    # Must-Go & Pre-assignments
+    # Mandatory & Pre-assignments
     critical_nodes = [i for i in nodes_real if criticos_dict[i]]
     if critical_nodes:
         min_visits = len(critical_nodes) - len(nodes_real) * delta

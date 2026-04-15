@@ -49,9 +49,9 @@ bpc:
     # ---------------------------------------------------------------------
     # Infrastructure Settings
     # ---------------------------------------------------------------------
-    - must_go: ["other/mg_lookahead.yaml"]
+    - mandatory_selection: ["other/ms_lookahead.yaml"]
       # Node selection strategy for waste collection problems
-      # Options: mg_lookahead.yaml, mg_last_minute_*.yaml, mg_regular.yaml
+      # Options: ms_lookahead.yaml, ms_last_minute_*.yaml, ms_regular.yaml
       # See: docs/MUST_GO_STRATEGIES.md
 
     - time_limit: 60
@@ -59,7 +59,7 @@ bpc:
       # Range: 30-3600 (30s = quick test, 3600s = thorough search)
       # Note: BPC may find optimal solution early and stop before time_limit
 
-    - post_processing: []
+    - route_improvement: []
       # Route refinement heuristics (not needed for exact solutions)
       # Always empty for BPC since solutions are already optimal
 

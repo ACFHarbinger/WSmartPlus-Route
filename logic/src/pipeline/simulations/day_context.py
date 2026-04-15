@@ -111,7 +111,7 @@ class SimulationDayContext(Mapping):
         fill: Fill levels.
         total_fill: Total fill levels.
         extra_output: Any extra output from policy.
-        must_go: List of must-go bins.
+        mandatory: List of mandatory bins.
         time: Elapsed time for policy execution.
     """
 
@@ -164,7 +164,7 @@ class SimulationDayContext(Mapping):
     fill: Optional[np.ndarray] = None
     total_fill: Optional[np.ndarray] = None
     extra_output: Any = None
-    must_go: Optional[List[int]] = None
+    mandatory: Optional[List[int]] = None
     time: float = 0.0
 
     @property
@@ -294,16 +294,16 @@ def run_day(context: SimulationDayContext) -> SimulationDayContext:
         CollectAction,
         FillAction,
         LogAction,
-        MustGoSelectionAction,
+        MandatorySelectionAction,
         PolicyExecutionAction,
-        PostProcessAction,
+        RouteImprovementAction,
     )
 
     commands = [
         FillAction(),
-        MustGoSelectionAction(),
+        MandatorySelectionAction(),
         PolicyExecutionAction(),
-        PostProcessAction(),
+        RouteImprovementAction(),
         CollectAction(),
         LogAction(),
     ]

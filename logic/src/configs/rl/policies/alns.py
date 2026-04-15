@@ -18,8 +18,8 @@ class ALNSConfig:
         min_removal: Minimum number of nodes to remove per destroy operation.
         max_removal_pct: Maximum percentage of nodes to remove per destroy operation.
         engine: Solver engine to use ('custom', 'alns').
-        must_go: List of must-go strategy config files.
-        post_processing: List of post-processing operations to apply.
+        mandatory_selection: List of mandatory strategy config files.
+        route_improvement: List of route improvement operations to apply.
     """
 
     time_limit: float = 60.0

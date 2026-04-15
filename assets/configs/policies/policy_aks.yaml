@@ -71,9 +71,9 @@ aks:
     - engine: "gurobi"
       # Specifies the use of the project's gurobi Adaptive Kernel Search engine.
 
-    - must_go: ["other/mg_lookahead.yaml"]
+    - mandatory_selection: ["other/ms_lookahead.yaml"]
       # Points to the YAML defining the lookahead-based node selection strategy.
 
-    - post_processing: []
+    - route_improvement: []
       # External local search refinement (e.g., 2-opt) applied to the result.
 # =============================================================================

@@ -69,7 +69,7 @@ class ExactSDPPolicy(BaseRoutingPolicy):
 
         optimal_subset = engine.get_optimal_action(day, state_tuple)
 
-        # Enforce must_go elements into subset just in case
+        # Enforce mandatory elements into subset just in case
         route_set = set(optimal_subset)
         for mg in mandatory_nodes:
             route_set.add(mg)

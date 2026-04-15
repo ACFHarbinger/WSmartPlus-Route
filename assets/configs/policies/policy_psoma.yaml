@@ -97,11 +97,11 @@ psoma:
     - profit_aware_operators: false
     - vrpp: true
 
-    - must_go: ["other/mg_lookahead.yaml"]
+    - mandatory_selection: ["other/ms_lookahead.yaml"]
       # Node selection strategy for waste collection problems
-      # Options: mg_lookahead.yaml, mg_last_minute_*.yaml, mg_regular.yaml
+      # Options: ms_lookahead.yaml, ms_last_minute_*.yaml, ms_regular.yaml
 
-    - post_processing: []
+    - route_improvement: []
       # Memetic step already refines routes; no further post-processing needed
       # Empty = use PSOMA output directly
 # =============================================================================

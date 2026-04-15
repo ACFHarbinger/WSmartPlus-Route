@@ -37,7 +37,7 @@ cvrp:
 
     - n_vehicles: 0
       # Use unlimited/dynamic number of vehicles by default
-      # so that must_go strategies don't fail due to 1-vehicle capacity limit.
+      # so that mandatory_selection strategies don't fail due to 1-vehicle capacity limit.
 
     # ---------------------------------------------------------------------
     # Performance Tuning
@@ -54,11 +54,11 @@ cvrp:
     # ---------------------------------------------------------------------
     # Node Selection Strategy
     # ---------------------------------------------------------------------
-    - must_go:
+    - mandatory_selection:
         [
-          "other/mg_regular_lvl3.yaml",
-          "other/mg_regular_lvl4.yaml",
-          "other/mg_regular_lvl5.yaml",
+          "other/ms_regular_lvl3.yaml",
+          "other/ms_regular_lvl4.yaml",
+          "other/ms_regular_lvl5.yaml",
         ]
     # Multiple selection strategies for waste collection
     # Collects bins when fill level exceeds 70%, 80%, or 90%
@@ -75,7 +75,7 @@ cvrp:
     # ---------------------------------------------------------------------
     # Infrastructure Settings
     # ---------------------------------------------------------------------
-    - post_processing: []
+    - route_improvement: []
       # Route refinement heuristics (OR-Tools local search handles this)
       # Empty = trust OR-Tools built-in 2-opt/relocate
       # OR-Tools already applies: 2-opt, Relocate, Exchange, CROSS

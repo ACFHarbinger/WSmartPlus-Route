@@ -61,7 +61,7 @@ def test_popmusic_lifo_order():
 
     data = {
         "coords": coords,
-        "must_go": [1, 2, 3],
+        "mandatory": [1, 2, 3],
         "distance_matrix": dist_matrix,
         "n_vehicles": 4,
         "wastes": {1: 10, 2: 10, 3: 10},

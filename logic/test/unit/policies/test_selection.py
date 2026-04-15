@@ -1,11 +1,11 @@
-"""Tests for Must-Go Selection strategies."""
+"""Tests for Mandatory Selection strategies."""
 
 import numpy as np
 import pytest
-from logic.src.policies.other.must_go.base.selection_context import SelectionContext
-from logic.src.policies.other.must_go.selection_last_minute import LastMinuteSelection
-from logic.src.policies.other.must_go.selection_lookahead import LookaheadSelection
-from logic.src.policies.other.must_go.selection_regular import RegularSelection
+from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
+from logic.src.policies.mandatory_selection.selection_last_minute import LastMinuteSelection
+from logic.src.policies.mandatory_selection.selection_lookahead import LookaheadSelection
+from logic.src.policies.mandatory_selection.selection_regular import RegularSelection
 
 
 @pytest.fixture

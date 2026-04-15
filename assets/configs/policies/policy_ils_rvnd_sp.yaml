@@ -20,5 +20,5 @@ ils_rvnd_sp:
   profit_aware_operators: false
   engine: "gurobi"
   framework: "ortools"
-  must_go: ["other/mg_lookahead.yaml"]
-  post_processing: []
+  mandatory_selection: ["other/ms_lookahead.yaml"]
+  route_improvement: []

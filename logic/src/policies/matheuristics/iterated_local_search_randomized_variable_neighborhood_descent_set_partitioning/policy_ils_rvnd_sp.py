@@ -24,7 +24,7 @@ class ILSRVNDSPPolicy(BaseRoutingPolicy):
     """
     ILS-RVND-SP policy class.
 
-    Visits pre-selected 'must_go' bins using Iterated Local Search, Randomized Variable Neighborhood Descent, and Set Partitioning.
+    Visits pre-selected 'mandatory' bins using Iterated Local Search, Randomized Variable Neighborhood Descent, and Set Partitioning.
     """
 
     def __init__(self, config: Optional[Union[ILSRVNDSPConfig, Dict[str, Any]]] = None):

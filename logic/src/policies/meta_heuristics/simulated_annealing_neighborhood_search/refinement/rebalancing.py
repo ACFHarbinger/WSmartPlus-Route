@@ -22,7 +22,7 @@ def rebalance_solution(
     p_route_difference: float,
     p_shift: float,
     data: pd.DataFrame,
-    must_go_bins: List[int],
+    mandatory_bins: List[int],
     distance_matrix: np.ndarray,
     values: Dict,
     iterations: int = 10,
@@ -38,7 +38,7 @@ def rebalance_solution(
         p_route_difference: Imbalance penalty.
         p_shift: Shift penalty.
         data: Bin data.
-        must_go_bins: Mandatory nodes.
+        mandatory_bins: Mandatory nodes.
         distance_matrix: Distances.
         values: parameters.
         iterations: Number of swap loops.
@@ -60,7 +60,7 @@ def rebalance_solution(
             p_route_difference,
             p_shift,
             data,
-            must_go_bins,
+            mandatory_bins,
             distance_matrix,
             values,
         )

@@ -29,7 +29,7 @@ schc:
   profit_aware_operators: false
 
   # Must-go node selection strategies.
-  must_go: ["other/mg_lookahead.yaml"]
+  mandatory_selection: ["other/ms_lookahead.yaml"]
 
   # Post-processing refinement.
-  post_processing: []
+  route_improvement: []

@@ -49,7 +49,7 @@ def run_ils_bd(
     revenue: float,
     cost_unit: float,
     params: ILSBDParams,
-    must_go_indices: Set[int],
+    mandatory_indices: Set[int],
     vehicle_limit: int = 1,
 ) -> Tuple[List[List[int]], float]:
     r"""Solve a stochastic VRP instance with the Integer L-Shaped Method.
@@ -65,7 +65,7 @@ def run_ils_bd(
         revenue: Revenue per unit of waste collected.
         cost_unit: Cost per unit of distance traveled.
         params: ILSBDParams configuration for the solver.
-        must_go_indices: Set of local node indices that are mandatory.
+        mandatory_indices: Set of local node indices that are mandatory.
         vehicle_limit: Number of vehicles available (defaults to 1).
 
     Returns:
@@ -83,7 +83,7 @@ def run_ils_bd(
         capacity=capacity,
         revenue_per_kg=revenue,
         cost_per_km=cost_unit,
-        mandatory_nodes=must_go_indices,
+        mandatory_nodes=mandatory_indices,
     )
     vrpp_model.num_vehicles = max(1, vehicle_limit)
 

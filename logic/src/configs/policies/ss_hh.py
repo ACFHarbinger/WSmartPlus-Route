@@ -22,8 +22,8 @@ class SSHHConfig:
         threshold_feasible_base: Base acceptance threshold T (Eq. 4).
         threshold_decay_rate: Time-decay coefficient for T (Eq. 4).
         vrpp: If True, solver operates in full VRPP mode.
-        must_go: Must-go selection strategy config list.
-        post_processing: Post-processing operation config list.
+        mandatory_selection: Mandatory selection strategy config list.
+        route_improvement: Route improvement operation config list.
     """
 
     max_iterations: int = 500
@@ -35,5 +35,5 @@ class SSHHConfig:
     threshold_decay_rate: float = 0.01
     seed: Optional[int] = None
     vrpp: bool = True
-    must_go: Optional[List[Any]] = field(default_factory=list)
-    post_processing: Optional[List[Any]] = field(default_factory=list)
+    mandatory_selection: Optional[List[Any]] = field(default_factory=list)
+    route_improvement: Optional[List[Any]] = field(default_factory=list)

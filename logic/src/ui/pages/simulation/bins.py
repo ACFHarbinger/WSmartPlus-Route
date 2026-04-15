@@ -41,21 +41,21 @@ def render_bin_state_inspector(display_entry: Any) -> None:
     bin_states_before = data.get("bin_state_c", [])
     bin_states_after = data.get("bins_state_real_c_after", [])
     bin_collected = data.get("bin_state_collected", [])
-    must_go = data.get("must_go")
+    mandatory = data.get("mandatory")
 
     if not bin_states_before:
         st.info("No bin state data available.")
         return
 
     n_bins = len(bin_states_before)
-    must_go_set = set(must_go) if must_go else set()
+    mandatory_set = set(mandatory) if mandatory else set()
 
     rows = []
     for i in range(n_bins):
         before = bin_states_before[i] if i < len(bin_states_before) else 0
         after = bin_states_after[i] if i < len(bin_states_after) else 0
         collected_amount = bin_collected[i] if i < len(bin_collected) else 0
-        was_selected = (i + 1) in must_go_set
+        was_selected = (i + 1) in mandatory_set
         was_collected = collected_amount > 0
         is_overflow = before > 100
 
@@ -65,7 +65,7 @@ def render_bin_state_inspector(display_entry: Any) -> None:
                 "Fill Before (%)": round(before, 1),
                 "Fill After (%)": round(after, 1),
                 "Collected (kg)": round(collected_amount, 2),
-                "Selected (must_go)": was_selected,
+                "Selected (mandatory)": was_selected,
                 "Collected": was_collected,
                 "Overflow": is_overflow,
             }
@@ -77,7 +77,7 @@ def render_bin_state_inspector(display_entry: Any) -> None:
     with col1:
         st.metric("Total Bins", n_bins)
     with col2:
-        st.metric("Bins Selected", len(must_go_set))
+        st.metric("Bins Selected", len(mandatory_set))
     with col3:
         st.metric("Bins Collected", sum(1 for r in rows if r["Collected"]))
     with col4:
@@ -85,14 +85,14 @@ def render_bin_state_inspector(display_entry: Any) -> None:
 
     filter_opt = st.radio(
         "Filter bins",
-        ["All", "Selected (must_go)", "Collected", "Overflowing"],
+        ["All", "Selected (mandatory)", "Collected", "Overflowing"],
         horizontal=True,
         key="bin_filter_radio",
     )
 
     filtered_df = df
-    if filter_opt == "Selected (must_go)":
-        filtered_df = df[df["Selected (must_go)"]]
+    if filter_opt == "Selected (mandatory)":
+        filtered_df = df[df["Selected (mandatory)"]]
     elif filter_opt == "Collected":
         filtered_df = df[df["Collected"]]
     elif filter_opt == "Overflowing":
@@ -108,7 +108,7 @@ def render_collection_details(display_entry: Any) -> None:
     data = display_entry.data
     bin_collected = data.get("bin_state_collected", [])
     bin_states_before = data.get("bin_state_c", [])
-    must_go = data.get("must_go")
+    mandatory = data.get("mandatory")
 
     if not bin_collected:
         st.info("No collection data available.")
@@ -120,9 +120,9 @@ def render_collection_details(display_entry: Any) -> None:
     with col2:
         st.metric("Total Collected (kg)", f"{sum(c for c in bin_collected if c > 0):.2f}")
     with col3:
-        st.metric("Bins in must_go", len(must_go) if must_go else 0)
+        st.metric("Bins in mandatory", len(mandatory) if mandatory else 0)
 
-    must_go_set = set(must_go) if must_go else set()
+    mandatory_set = set(mandatory) if mandatory else set()
     collected_bins = []
     for i, amount in enumerate(bin_collected):
         if amount > 0:
@@ -132,7 +132,7 @@ def render_collection_details(display_entry: Any) -> None:
                     "Bin ID": i + 1,
                     "Fill Before (%)": round(fill_before, 1),
                     "Amount Collected (kg)": round(amount, 2),
-                    "Was in must_go": (i + 1) in must_go_set,
+                    "Was in mandatory": (i + 1) in mandatory_set,
                 }
             )
 

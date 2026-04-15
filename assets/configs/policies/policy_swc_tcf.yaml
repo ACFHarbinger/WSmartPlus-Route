@@ -51,7 +51,7 @@ swc_tcf:
     # Bonus reward for visiting mandatory nodes
     # Range: 0-100 (0 = no bonus, 100 = strong incentive)
     # delta=0 → all nodes treated equally (standard SWC-TCF)
-    # delta>0 → must_go nodes receive extra profit delta
+    # delta>0 → mandatory_selection nodes receive extra profit delta
     # Use case: Prioritize high-fill bins in waste collection
 
     - psi: 1
@@ -61,7 +61,7 @@ swc_tcf:
     # psi=2 → double travel cost (favor fewer, longer routes)
     # Trade-off: Higher psi → visit fewer nodes but higher profit/node
 
-    # Objective = Σ profit - psi * Σ cost - Omega * Σ overtime + delta * Σ must_go
+    # Objective = Σ profit - psi * Σ cost - Omega * Σ overtime + delta * Σ mandatory_selection
     # Gurobi maximizes this combined objective
     # ---------------------------------------------------------------------
     # Solver Backend
@@ -77,12 +77,12 @@ swc_tcf:
     # ---------------------------------------------------------------------
     # Node Selection Strategy
     # ---------------------------------------------------------------------
-    - must_go: ["other/mg_lookahead.yaml"]
+    - mandatory_selection: ["other/ms_lookahead.yaml"]
     # VRPP Settings
     - vrpp: true
     # Multiple selection strategies (union of both):
-    #   1. mg_lookahead.yaml: Bins predicted to overflow soon
-    #   2. mg_service_level0.84.xml: Statistical service level ≥84%
+    #   1. ms_lookahead.yaml: Bins predicted to overflow soon
+    #   2. ms_service_level0.84.xml: Statistical service level ≥84%
     #
     # Must-go nodes receive bonus profit (delta) and stricter constraints
     # See: docs/MUST_GO_STRATEGIES.md for detailed comparison
@@ -99,7 +99,7 @@ swc_tcf:
     # ---------------------------------------------------------------------
     # Post-Processing
     # ---------------------------------------------------------------------
-    - post_processing: []
+    - route_improvement: []
     # No post-processing needed for exact solutions
     # Empty = use Gurobi output directly (already optimal)
 
@@ -132,8 +132,8 @@ swc_tcf:
     #   - Visit once: Σ x[i,j] ≤ 1 for all i (if y[i]=1)
     #   - Capacity: Σ waste[i] * y[i] ≤ vehicle_capacity
     #   - Subtour elimination: u[i] - u[j] + n*x[i,j] ≤ n-1
-    #   - Must-go: y[i] = 1 for all i in must_go set
+    #   - Must-go: y[i] = 1 for all i in mandatory_selection set
     #
     # Objective:
-    #   Maximize: Σ profit[i]*y[i] - psi*Σ cost[i,j]*x[i,j] - Omega*overtime + delta*Σ y[must_go]
+    #   Maximize: Σ profit[i]*y[i] - psi*Σ cost[i,j]*x[i,j] - Omega*overtime + delta*Σ y[mandatory_selection]
 # =============================================================================

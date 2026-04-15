@@ -22,7 +22,7 @@ class HGSPolicy(BaseRoutingPolicy):
     """
     Hybrid Genetic Search policy class.
 
-    Visits pre-selected 'must_go' bins using evolutionary optimization.
+    Visits pre-selected 'mandatory' bins using evolutionary optimization.
     """
 
     def __init__(self, config: Optional[Union[HGSConfig, Dict[str, Any]]] = None):

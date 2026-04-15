@@ -18,7 +18,7 @@ from .service_level import ServiceLevelSelector
 
 def create_selector_from_config(cfg) -> Optional[VectorizedSelector]:
     """
-    Create a vectorized selector from a MustGoConfig or dict.
+    Create a vectorized selector from a MandatorySelectionConfig or dict.
     """
     if cfg is None:
         return None
@@ -123,7 +123,7 @@ def get_vectorized_selector(name: str, **kwargs) -> VectorizedSelector:
             - 'lookahead': Predictive overflow-based selection
             - 'revenue': Revenue-based selection
             - 'service_level': Statistical overflow prediction
-            - 'manager': Neural network-based selection (MustGoManager)
+            - 'manager': Neural network-based selection (MandatoryManager)
         **kwargs: Parameters passed to the selector constructor.
 
     Returns:

@@ -117,13 +117,13 @@ ils_bd:
     # ---------------------------------------------------------------------
     # Must-Go Strategy
     # ---------------------------------------------------------------------
-    - must_go: ["other/mg_lookahead.yaml"]
+    - mandatory_selection: ["other/ms_lookahead.yaml"]
       # Selection strategy for mandatory visits.
 
     # ---------------------------------------------------------------------
     # Post-Processing
     # ---------------------------------------------------------------------
-    - post_processing: []
+    - route_improvement: []
       # No post-processing needed for exact solutions.
 
     # ---------------------------------------------------------------------

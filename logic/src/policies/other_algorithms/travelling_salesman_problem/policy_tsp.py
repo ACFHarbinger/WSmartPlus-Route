@@ -22,7 +22,7 @@ class TSPPolicy(BaseRoutingPolicy):
     """
     Traveling Salesperson Policy (TSP).
 
-    Visits provided 'must_go' bins using a single vehicle strategy with
+    Visits provided 'mandatory' bins using a single vehicle strategy with
     capacity-based tour splitting.
     """
 

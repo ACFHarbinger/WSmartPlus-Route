@@ -5,8 +5,8 @@ Relaxation Enforced Neighborhood Search (RENS) configuration.
 from dataclasses import dataclass
 from typing import Optional
 
-from .other.must_go import MustGoConfig
-from .other.post_processing import PostProcessingConfig
+from .other.mandatory_selection import MandatorySelectionConfig
+from .other.route_improvement import RouteImprovingConfig
 
 
 @dataclass
@@ -34,9 +34,9 @@ class RENSConfig:
         vrpp (bool): Whether the problem is a VRP with Profits.
         framework: Optimization framework to use ('ortools' or 'pyomo').
         engine: Optimization engine to use ('gurobi', 'scip', 'highs', or 'cplex').
-        must_go (Optional[MustGoConfig]): Composition handle for bin selection
-            strategies (e.g., collecting bins at risk of overflow).
-        post_processing (Optional[PostProcessingConfig]): Settings for
+        mandatory_selection (Optional[MandatorySelectionConfig]): Composition handle
+            for bin selection strategies (e.g., collecting bins at risk of overflow).
+        route_improvement (Optional[RouteImprovingConfig]): Settings for
             post-optimization refinement (e.g., Local Search or Route-Smoothing).
     """
 
@@ -50,5 +50,5 @@ class RENSConfig:
     # Infrastructure
     framework: str = "ortools"
     engine: str = "gurobi"
-    must_go: Optional[MustGoConfig] = None
-    post_processing: Optional[PostProcessingConfig] = None
+    mandatory_selection: Optional[MandatorySelectionConfig] = None
+    route_improvement: Optional[RouteImprovingConfig] = None

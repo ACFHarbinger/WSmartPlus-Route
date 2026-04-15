@@ -107,7 +107,7 @@ def test_small_instance_solve():
 
     tour, cost, extra = policy.execute(
         coords=coords,
-        must_go=[1],
+        mandatory=[1],
         distance_matrix=dist_matrix,
         wastes=wastes,
         R=R,

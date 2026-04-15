@@ -15,7 +15,7 @@ class NeuralAgent(BatchMixin, SimulationMixin):
     Agent interface between simulator/environment and neural routing models.
 
     Handles model inference, hierarchical decision-making (HRL), and
-    post-processing for waste collection routing.
+    route improvement for waste collection routing.
 
     Attributes:
         model: The neural routing model (AttentionModel, etc.)

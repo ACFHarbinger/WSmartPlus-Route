@@ -55,9 +55,9 @@ lb:
     - engine: "gurobi"
       # Specifies the use of the project's gurobi Local Branching engine.
 
-    - must_go: ["other/mg_lookahead.yaml"]
+    - mandatory_selection: ["other/ms_lookahead.yaml"]
     # Defines which bins are prioritized for mandatory collection.
 
-    - post_processing: []
+    - route_improvement: []
     # External local search refinements (e.g., 2-opt) applied to the tour.
 # =============================================================================

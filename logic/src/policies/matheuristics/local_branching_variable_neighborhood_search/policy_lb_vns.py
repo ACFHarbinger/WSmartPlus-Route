@@ -92,7 +92,7 @@ class LocalBranchingVNSPolicy(BaseRoutingPolicy):
             wastes (Dict[int, float]): Dictionary mapping node indices to expected
                 collection profits (represented as waste weight).
             capacity (float): Maximum weight the vehicle can carry in a single tour.
-            must_go (List[int]): List of indices for 'mandatory' nodes that must be visited.
+            mandatory (List[int]): List of indices for 'mandatory' nodes that must be visited.
             R (float): Revenue multiplier for the objective function.
             C (float): Cost multiplier (distance) for the objective function.
             seed (int): Optional seed override for reproducibility.
@@ -110,7 +110,7 @@ class LocalBranchingVNSPolicy(BaseRoutingPolicy):
         distance_matrix = kwargs["distance_matrix"]
         wastes = kwargs.get("wastes", {})
         capacity = kwargs.get("capacity", 1.0e9)
-        mandatory_nodes = kwargs.get("must_go", [])
+        mandatory_nodes = kwargs.get("mandatory", [])
         R = kwargs.get("R", 1.0)
         C = kwargs.get("C", 1.0)
 

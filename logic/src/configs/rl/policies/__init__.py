@@ -35,7 +35,7 @@ These configs are used in:
    - Configures expert policy for demonstration generation
 2. **Adaptive Imitation**: logic/src/pipeline/rl/core/adaptive_imitation.py
    - Switches between expert and learned policy
-3. **Post-Processing**: logic/src/pipeline/rl/features/post_processing.py
+3. **Route Improvement**: logic/src/pipeline/rl/features/route_improvement.py
    - Refines neural solutions with classical algorithms
 """
 

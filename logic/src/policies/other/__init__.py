@@ -5,16 +5,16 @@ Includes policies that do not fit into the standard RL or classical categories,
 such as baseline comparisons and experimental heuristics.
 """
 
-from .must_go import (
+from .mandatory import (
     CombinedSelector,
     DeadlineDrivenSelection,
-    IMustGoSelectionStrategy,
+    IMandatorySelectionStrategy,
     LastMinuteSelector,
     LookaheadSelector,
     ManagerSelector,
+    MandatorySelectionFactory,
+    MandatorySelectionRegistry,
     MultiDayOverflowSelection,
-    MustGoSelectionFactory,
-    MustGoSelectionRegistry,
     ParetoFrontSelection,
     ProfitPerKmSelection,
     RegularSelector,
@@ -27,18 +27,18 @@ from .must_go import (
     create_selector_from_config,
     get_vectorized_selector,
 )
-from .post_processing import (
-    ClassicalLocalSearchPostProcessor,
-    FastTSPPostProcessor,
-    IPostProcessor,
-    PathPostProcessor,
-    PostProcessorFactory,
-    PostProcessorRegistry,
-    RandomLocalSearchPostProcessor,
+from .route_improvement import (
+    ClassicalLocalSearchRouteImprover,
+    FastTSPRouteImprover,
+    IRouteImprovement,
+    PathRouteImprover,
+    RandomLocalSearchRouteImprover,
+    RouteImproverFactory,
+    RouteImproverRegistry,
 )
 
 __all__ = [
-    "IMustGoSelectionStrategy",
+    "IMandatorySelectionStrategy",
     "CombinedSelector",
     "LastMinuteSelector",
     "LookaheadSelector",
@@ -56,14 +56,14 @@ __all__ = [
     "ProfitPerKmSelection",
     "SpatialSynergySelection",
     "StochasticRegretSelection",
-    "ClassicalLocalSearchPostProcessor",
-    "FastTSPPostProcessor",
-    "IPostProcessor",
-    "PathPostProcessor",
-    "PostProcessorFactory",
-    "PostProcessorRegistry",
-    "RandomLocalSearchPostProcessor",
-    "MustGoSelectionFactory",
-    "MustGoSelectionRegistry",
+    "ClassicalLocalSearchRouteImprover",
+    "FastTSPRouteImprover",
+    "IRouteImprovement",
+    "PathRouteImprover",
+    "RouteImproverFactory",
+    "RouteImproverRegistry",
+    "RandomLocalSearchRouteImprover",
+    "MandatorySelectionFactory",
+    "MandatorySelectionRegistry",
     "SelectionContext",
 ]

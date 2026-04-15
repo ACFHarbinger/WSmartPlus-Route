@@ -21,9 +21,9 @@ filo:
   n_cw: 100
   local_search_iterations: 500
   seed: 42
-  must_go: ["other/mg_lookahead.yaml"]
+  mandatory_selection: ["other/ms_lookahead.yaml"]
   # VRPP Settings
   vrpp: true
   profit_aware_operators: false
 
-  post_processing: []
+  route_improvement: []

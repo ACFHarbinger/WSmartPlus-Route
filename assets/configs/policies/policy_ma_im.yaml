@@ -54,8 +54,8 @@ ma_im:
     - profit_aware_operators: false
     - vrpp: true
 
-    - must_go: ["other/mg_lookahead.yaml"]
+    - mandatory_selection: ["other/ms_lookahead.yaml"]
       # Node selection strategy for waste collection problems
 
-    - post_processing: []
+    - route_improvement: []
       # Intra-island local search and inter-island recombination are comprehensive

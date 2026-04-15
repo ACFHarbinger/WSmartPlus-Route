@@ -90,7 +90,7 @@ class BranchAndBoundPolicy(BaseRoutingPolicy):
             A tuple containing (List of routes, total profit, total travel cost).
         """
         # Convert local mandatory indices to a set for fast lookup in branching
-        must_go_indices = set(mandatory_nodes)
+        mandatory_indices = set(mandatory_nodes)
 
         # Standardize configuration to BBParams
         params = BBParams.from_config(values)
@@ -103,7 +103,7 @@ class BranchAndBoundPolicy(BaseRoutingPolicy):
             R=revenue,
             C=cost_unit,
             params=params,
-            must_go_indices=must_go_indices,
+            mandatory_indices=mandatory_indices,
             env=kwargs.get("model_env"),
             recorder=kwargs.get("recorder"),
         )

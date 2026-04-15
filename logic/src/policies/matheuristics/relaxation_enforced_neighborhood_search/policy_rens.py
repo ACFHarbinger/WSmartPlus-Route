@@ -88,7 +88,7 @@ class RENSPolicy(BaseRoutingPolicy):
                 - distance_matrix (np.ndarray): Cost matrix between nodes.
                 - wastes (Dict[int, float]): Current waste levels for each bin.
                 - capacity (float): Vehicle volume limit.
-                - must_go (List[int]): Optional nodes requiring collection.
+                - mandatory (List[int]): Optional nodes requiring collection.
                 - R (float): Revenue multiplier.
                 - C (float): Cost multiplier.
 
@@ -102,7 +102,7 @@ class RENSPolicy(BaseRoutingPolicy):
         distance_matrix = kwargs["distance_matrix"]
         wastes = kwargs.get("wastes", {})
         capacity = kwargs.get("capacity", 1.0e9)
-        mandatory_nodes = kwargs.get("must_go", [])
+        mandatory_nodes = kwargs.get("mandatory", [])
 
         # 3. Handle objective multipliers
         R = kwargs.get("R", 1.0)

@@ -1,5 +1,5 @@
 """
-Action for must-go bin selection.
+Action for mandatory bin selection.
 """
 
 import os
@@ -7,23 +7,23 @@ from typing import Any, Dict, List, cast
 
 import numpy as np
 
-from logic.src.configs import MustGoConfig
+from logic.src.configs import MandatorySelectionConfig
 from logic.src.constants import MAX_CAPACITY_PERCENT, ROOT_DIR
 from logic.src.interfaces import IBinContainer, ITraversable
-from logic.src.policies.other import MustGoSelectionFactory, SelectionContext
+from logic.src.policies.other import MandatorySelectionFactory, SelectionContext
 from logic.src.utils.configs.config_loader import load_config
 
 from .base import SimulationAction, _flatten_config
 
 
-class MustGoSelectionAction(SimulationAction):
+class MandatorySelectionAction(SimulationAction):
     """
     Identifies which bins are targets for collection based on various strategies.
     """
 
     def execute(self, context: Dict[str, Any]) -> None:
         """
-        Execute must-go selection strategies and update context['must_go'].
+        Execute mandatory selection strategies and update context['mandatory'].
         """
         # Early exit if neural network explicitly predicts selection
         model_name = ""
@@ -38,9 +38,9 @@ class MustGoSelectionAction(SimulationAction):
         if not strategies:
             # Check if there is a 'cached' tour and no strategies
             if context.get("cached"):
-                context["must_go"] = []
-            # If no strategies and not cached, then no must-go bins
-            context["must_go"] = []
+                context["mandatory"] = []
+            # If no strategies and not cached, then no mandatory bins
+            context["mandatory"] = []
             return
 
         # 2. Execute all strategies and union results
@@ -60,7 +60,7 @@ class MustGoSelectionAction(SimulationAction):
         if n_bins is None:
             n_bins = len(current_fill) if current_fill is not None else 0
 
-        final_must_go: set = set()
+        final_mandatory: set = set()
 
         for strat_info in strategies:
             s_name = strat_info["name"]
@@ -151,13 +151,13 @@ class MustGoSelectionAction(SimulationAction):
             if "config" in strat_info:
                 # Use structured config
                 m_config = strat_info["config"]
-                strategy = MustGoSelectionFactory.create_from_config(m_config)
+                strategy = MandatorySelectionFactory.create_from_config(m_config)
                 res = strategy.select_bins(sel_ctx)
                 s_name = m_config.strategy
             elif s_name == "select_all":
                 res = (sel_ctx.bin_ids + 1).tolist()
             else:
-                strategy = MustGoSelectionFactory.create_strategy(str(s_name), **cast(Dict[str, Any], s_params))
+                strategy = MandatorySelectionFactory.create_strategy(str(s_name), **cast(Dict[str, Any], s_params))
                 res = strategy.select_bins(sel_ctx)
 
             # Ensure list
@@ -166,35 +166,35 @@ class MustGoSelectionAction(SimulationAction):
             elif not isinstance(res, list):
                 res = list(res)
 
-            final_must_go.update(res)
+            final_mandatory.update(res)
 
-        context["must_go"] = sorted(list(final_must_go))
+        context["mandatory"] = sorted(list(final_mandatory))
 
     def _gather_strategies(self, context: Dict[str, Any]) -> List[Dict[str, Any]]:
         """Gather all strategies from configuration."""
         strategies: List[Dict[str, Any]] = []
         raw_cfg = context.get("config", {})
         flat_cfg = _flatten_config(raw_cfg)
-        config_must_go = flat_cfg.get("must_go")
+        config_mandatory = flat_cfg.get("mandatory")
 
-        if isinstance(config_must_go, MustGoConfig):
-            strategies.append({"config": config_must_go})
-        elif config_must_go:
-            if isinstance(config_must_go, (list, tuple)) or (
-                not isinstance(config_must_go, (str, dict)) and hasattr(config_must_go, "__iter__")
+        if isinstance(config_mandatory, MandatorySelectionConfig):
+            strategies.append({"config": config_mandatory})
+        elif config_mandatory:
+            if isinstance(config_mandatory, (list, tuple)) or (
+                not isinstance(config_mandatory, (str, dict)) and hasattr(config_mandatory, "__iter__")
             ):
-                items_to_parse = config_must_go
+                items_to_parse = config_mandatory
             else:
-                items_to_parse = [config_must_go]
+                items_to_parse = [config_mandatory]
 
             for item in items_to_parse:
                 strategies.extend(self._parse_strategy_item(item))
         return strategies
 
     def _parse_strategy_item(self, item: Any) -> List[Dict[str, Any]]:
-        """Parse a single must-go configuration item."""
+        """Parse a single mandatory configuration item."""
         strategies: List[Dict[str, Any]] = []
-        if isinstance(item, MustGoConfig):
+        if isinstance(item, MandatorySelectionConfig):
             strategies.append({"config": item})
         elif isinstance(item, str) and (item.endswith(".xml") or item.endswith(".yaml")):
             fpath = os.path.join(ROOT_DIR, "assets", "configs", "policies", item)

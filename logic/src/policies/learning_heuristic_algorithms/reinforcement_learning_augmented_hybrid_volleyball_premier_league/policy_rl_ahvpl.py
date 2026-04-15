@@ -39,7 +39,7 @@ class RLAHVPLPolicy(BaseRoutingPolicy):
     """
     RL-AHVPL policy class.
 
-    Visits pre-selected 'must_go' bins using the Reinforcement Learning
+    Visits pre-selected 'mandatory' bins using the Reinforcement Learning
     augmented HVPL metaheuristic combining ACO, ALNS, HGS, and CMAB.
     """
 

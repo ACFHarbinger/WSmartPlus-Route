@@ -109,7 +109,7 @@ class BranchAndPricePolicy(BaseRoutingPolicy):
 
         wastes = {i: float(bins.c[i - 1]) for i in range(1, len(bins.c) + 1)}
         capacity = float(profit_vars.get("bin_capacity", 100.0))
-        must_go = kwargs.get("must_go", [])
+        mandatory = kwargs.get("mandatory", [])
 
         params = BPParams.from_config(config_dict)
 
@@ -120,7 +120,7 @@ class BranchAndPricePolicy(BaseRoutingPolicy):
             capacity=capacity,
             revenue_per_kg=R,
             cost_per_km=C,
-            mandatory_nodes=set(must_go),
+            mandatory_nodes=set(mandatory),
             params=params,
             vehicle_limit=num_vehicles,
         )

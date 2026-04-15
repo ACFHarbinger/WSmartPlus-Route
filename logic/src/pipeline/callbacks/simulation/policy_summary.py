@@ -11,7 +11,7 @@ from rich import box
 from rich.console import Console
 from rich.table import Table
 
-from logic.src.configs import Config, MustGoConfig
+from logic.src.configs import Config, MandatorySelectionConfig
 from logic.src.interfaces import ITraversable
 from logic.src.pipeline.simulations.actions.base import _flatten_config
 from logic.src.tracking.logging.logger_writer import LoggerWriter
@@ -49,7 +49,7 @@ class PolicySummaryCallback:
         table.add_column("Policy Name", style="bold cyan")
         table.add_column("Engine", style="green")
         table.add_column("Selection Strategy", style="yellow")
-        table.add_column("Post-Processing", style="blue")
+        table.add_column("Route Improvement", style="blue")
 
         policies: List[str] = cfg.sim.full_policies or []
         config_paths: Dict[str, Any] = dict(cfg.sim.config_path) if cfg.sim.config_path else {}
@@ -66,9 +66,9 @@ class PolicySummaryCallback:
             # Extract details
             engine = self._extract_engine(policy_name, config)
             selection = self._extract_selection(config)
-            post_proc = self._extract_post_processing(config)
+            route_imp = self._extract_route_improvement(config)
 
-            table.add_row(str(idx + 1), policy_name, engine, selection, post_proc)
+            table.add_row(str(idx + 1), policy_name, engine, selection, route_imp)
 
         console.print(table)
         console.print("\n")
@@ -109,20 +109,20 @@ class PolicySummaryCallback:
         """Extract selection strategy details."""
         raw_cfg = config
         flat_cfg = _flatten_config(raw_cfg)
-        config_must_go = flat_cfg.get("must_go")
+        config_mandatory = flat_cfg.get("mandatory")
 
         strategies = []
 
         items = []
-        if isinstance(config_must_go, MustGoConfig):
-            items = [config_must_go]
-        elif isinstance(config_must_go, (list, tuple)):
-            items = list(config_must_go)
-        elif not isinstance(config_must_go, (str, dict, type(None))) and hasattr(config_must_go, "__iter__"):
-            # config_must_go is Iterable but not str/dict/None
-            items = list(cast(Iterable[Any], config_must_go))
-        elif config_must_go is not None:
-            items = [config_must_go]
+        if isinstance(config_mandatory, MandatorySelectionConfig):
+            items = [config_mandatory]
+        elif isinstance(config_mandatory, (list, tuple)):
+            items = list(config_mandatory)
+        elif not isinstance(config_mandatory, (str, dict, type(None))) and hasattr(config_mandatory, "__iter__"):
+            # config_mandatory is Iterable but not str/dict/None
+            items = list(cast(Iterable[Any], config_mandatory))
+        elif config_mandatory is not None:
+            items = [config_mandatory]
 
         for item in items:
             name, params = self._parse_selection_item(item)
@@ -136,9 +136,9 @@ class PolicySummaryCallback:
         params: str = ""
 
         item_obj: object = item
-        if isinstance(item_obj, MustGoConfig):
+        if isinstance(item_obj, MandatorySelectionConfig):
             name = str(item_obj.strategy)
-            params = self._parse_must_go_config_params(item_obj)
+            params = self._parse_mandatory_config_params(item_obj)
 
         elif isinstance(item_obj, ITraversable):
             if "strategy" in item_obj:
@@ -157,8 +157,8 @@ class PolicySummaryCallback:
 
         return name, params
 
-    def _parse_must_go_config_params(self, config: MustGoConfig) -> str:
-        """Extract formatted parameters from a MustGoConfig object."""
+    def _parse_mandatory_config_params(self, config: MandatorySelectionConfig) -> str:
+        """Extract formatted parameters from a MandatorySelectionConfig object."""
         strategy = config.strategy
         if strategy == "regular":
             return f"(freq={config.frequency})"
@@ -186,11 +186,11 @@ class PolicySummaryCallback:
             return f"(c={item['critical_threshold']}, s={item.get('synergy_threshold')})"
         return ""
 
-    def _extract_post_processing(self, config: Dict[str, Any]) -> str:
-        """Extract post processing steps."""
+    def _extract_route_improvement(self, config: Dict[str, Any]) -> str:
+        """Extract route improvement steps."""
         raw_cfg = config
         flat_cfg = _flatten_config(raw_cfg)
-        pp = flat_cfg.get("post_processing")
+        pp = flat_cfg.get("route_improvement")
 
         if not pp:
             return "None"

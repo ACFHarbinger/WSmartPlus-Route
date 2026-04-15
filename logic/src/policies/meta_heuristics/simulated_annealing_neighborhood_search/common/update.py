@@ -3,7 +3,7 @@ Temporal state transition and bin accumulation logic for simulation days.
 
 Manages the evolution of bin fill levels and determines optimal collection
 schedules based on predicted overflow. Provides utilities for updating bin
-states after collection and identifying 'must-go' candidates for upcoming
+states after collection and identifying 'mandatory' candidates for upcoming
 planning cycles.
 """
 
@@ -30,7 +30,7 @@ def should_bin_be_collected(current_fill_level, accumulation_rate):
 def add_bins_to_collect(
     binsids,
     next_collection_day,
-    must_go_bins,
+    mandatory_bins,
     current_fill_levels,
     accumulation_rates,
     current_collection_day,
@@ -42,7 +42,7 @@ def add_bins_to_collect(
     Args:
         binsids (List[int]): All relevant bin IDs.
         next_collection_day (int): Target future day.
-        must_go_bins (List[int]): Current set of mandatory collections.
+        mandatory_bins (List[int]): Current set of mandatory collections.
         current_fill_levels (Dict/np.ndarray): State.
         accumulation_rates (Dict/np.ndarray): Growth rate.
         current_collection_day (int): Today.
@@ -51,23 +51,23 @@ def add_bins_to_collect(
         List[int]: Updated must-collect list.
     """
     for i in binsids:
-        if i in must_go_bins:
+        if i in mandatory_bins:
             continue
         else:
             for j in range(current_collection_day + 1, next_collection_day):
                 if current_fill_levels[i] + j * accumulation_rates[i] >= MAX_CAPACITY_PERCENT:
-                    must_go_bins.append(i)
+                    mandatory_bins.append(i)
                     break
-    return must_go_bins
+    return mandatory_bins
 
 
-def update_fill_levels_after_first_collection(binsids, must_go_bins, current_fill_levels):
+def update_fill_levels_after_first_collection(binsids, mandatory_bins, current_fill_levels):
     """
     Simulate bin emptying after collection by resetting fill levels to zero.
 
     Args:
         binsids (List[int]): All bins.
-        must_go_bins (List[int]): Bins that were collected.
+        mandatory_bins (List[int]): Bins that were collected.
         current_fill_levels (np.ndarray): State to update.
 
     Returns:
@@ -75,7 +75,7 @@ def update_fill_levels_after_first_collection(binsids, must_go_bins, current_fil
     """
     current_fill_levels = current_fill_levels.copy()
     for i in binsids:
-        if i in must_go_bins:
+        if i in mandatory_bins:
             current_fill_levels[i] = 0
     return current_fill_levels
 
@@ -96,12 +96,12 @@ def initialize_lists_of_bins(binsids):
     return next_collection_days
 
 
-def calculate_next_collection_days(must_go_bins, current_fill_levels, accumulation_rates, binsids):
+def calculate_next_collection_days(mandatory_bins, current_fill_levels, accumulation_rates, binsids):
     """
-    Calculate how many days remain until each must-go bin overflows again.
+    Calculate how many days remain until each mandatory bin overflows again.
 
     Args:
-        must_go_bins (List[int]): Bins to analyze.
+        mandatory_bins (List[int]): Bins to analyze.
         current_fill_levels (np.ndarray): Current state.
         accumulation_rates (np.ndarray): Growth rates.
         binsids (List[int]): Total bins.
@@ -111,7 +111,7 @@ def calculate_next_collection_days(must_go_bins, current_fill_levels, accumulati
     """
     next_collection_days = initialize_lists_of_bins(binsids)
     temporary_fill_levels = current_fill_levels.copy()
-    for i in must_go_bins:
+    for i in mandatory_bins:
         current_day = 0
         while temporary_fill_levels[i] < MAX_CAPACITY_PERCENT:
             temporary_fill_levels[i] = temporary_fill_levels[i] + accumulation_rates[i]
@@ -120,12 +120,12 @@ def calculate_next_collection_days(must_go_bins, current_fill_levels, accumulati
     return next_collection_days
 
 
-def get_next_collection_day(must_go_bins, current_fill_levels, accumulation_rates, binsids):
+def get_next_collection_day(mandatory_bins, current_fill_levels, accumulation_rates, binsids):
     """
     Determine the minimum number of days until the first bin in the set overflows.
 
     Args:
-        must_go_bins (List[int]): Target set.
+        mandatory_bins (List[int]): Target set.
         current_fill_levels (np.ndarray): State.
         accumulation_rates (np.ndarray): Daily rates.
         binsids (List[int]): Bin IDs.
@@ -134,7 +134,7 @@ def get_next_collection_day(must_go_bins, current_fill_levels, accumulation_rate
         int: Minimum days to next overflow.
     """
     next_collection_days = calculate_next_collection_days(
-        must_go_bins, current_fill_levels, accumulation_rates, binsids
+        mandatory_bins, current_fill_levels, accumulation_rates, binsids
     )
     next_collection_days_array = np.array(next_collection_days)
     next_collection_day = np.min(next_collection_days_array[np.nonzero(next_collection_days_array)])

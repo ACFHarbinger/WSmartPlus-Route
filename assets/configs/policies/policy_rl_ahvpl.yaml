@@ -256,6 +256,6 @@ rl_ahvpl:
     - gls_probability: 0.5
     - vrpp: true
 
-    - must_go: ["other/mg_lookahead.yaml"]
-    - post_processing: []
+    - mandatory_selection: ["other/ms_lookahead.yaml"]
+    - route_improvement: []
       # ALNS + HGS local search is comprehensive; no further refinement needed

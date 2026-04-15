@@ -86,7 +86,7 @@ def solve_uncapacitated_op(
         lam: Current Lagrange multiplier λ ≥ 0.
         R: Revenue coefficient per unit waste (r_w).
         C: Cost coefficient per unit distance (c_km).
-        forced_in: Customer indices that MUST be visited (e.g. must-go or B&B fixes).
+        forced_in: Customer indices that MUST be visited (e.g. mandatory or B&B fixes).
         forced_out: Customer indices that MUST NOT be visited (B&B fixes).
         time_limit: Gurobi time limit for this solve (seconds).
         seed: Gurobi random seed for reproducibility.
