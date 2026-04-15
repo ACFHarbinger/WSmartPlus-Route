@@ -64,5 +64,5 @@ sa:
   mandatory_selection:
     - "other/ms_lookahead.yaml"
 
-  # List of post-processing refinement operations.
+  # List of route improvement refinement operations.
   route_improvement: []

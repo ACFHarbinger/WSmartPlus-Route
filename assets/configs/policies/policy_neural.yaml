@@ -82,7 +82,7 @@ neural:
     - vrpp: true
 
     # ---------------------------------------------------------------------
-    # Post-Processing
+    # route improvement
     # ---------------------------------------------------------------------
     - route_improvement: []
       # Optional local search refinement after neural construction

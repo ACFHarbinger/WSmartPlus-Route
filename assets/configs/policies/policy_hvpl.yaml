@@ -181,5 +181,5 @@ hvpl:
     # Node selection strategy
 
     - route_improvement: []
-    # Post-processing (empty = use HVPL output directly)
+    # route improvement (empty = use HVPL output directly)
 # =============================================================================

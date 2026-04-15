@@ -9,7 +9,7 @@ import torch
 
 
 class EfficiencyOptimizer:
-    """Optimizes routes post-generation."""
+    """Optimizes routes as a route improvement step."""
 
     def __init__(self, problem, **kwargs):
         """

@@ -65,7 +65,7 @@ tsp:
     #       Primarily used for consistency with other policies
 
     # ---------------------------------------------------------------------
-    # Post-Processing
+    # route improvement
     # ---------------------------------------------------------------------
     - route_improvement: []
     # Optional local search refinement after TSP

@@ -8,7 +8,7 @@
 # Key Features:
 #   - Adaptive Imitation Learning (IL → RL transition)
 #   - Multi-day temporal training for WCVRP
-#   - Must-go bin selection strategies
+#   - mandatory bin selection strategies
 #   - Lightning-based distributed training
 # =============================================================================
 
@@ -141,7 +141,7 @@ model:
   name: "am" # Model architecture (overridden by model=<config> CLI arg)
 
 # =============================================================================
-# Must-Go Selection Strategy
+# Mandatory Selection Strategy
 # =============================================================================
 # Determines which bins MUST be collected during each routing decision.
 # Critical for WCVRP training to prevent overflow penalties.
@@ -152,17 +152,17 @@ model:
 #   - lookahead: Predict future overflows and collect proactively
 #   - revenue: Collect if revenue > cost
 #   - service_level: Statistical overflow prediction
-#   - manager: Neural network decides must-go bins (HRL)
+#   - manager: Neural network decides mandatory bins (HRL)
 #   - combined: Hybrid of multiple strategies
-#   - null: No must-go constraints (free routing)
+#   - null: No mandatory constraints (free routing)
 # =============================================================================
-must_go:
+mandatory_selection:
   strategy: "lookahead" # Default strategy for training
 
   # LastMinute/Manager threshold
   threshold:
-    0.7 # Fill level threshold (0-1). Bins >= threshold are must-go.
-    # For manager: probability threshold for must-go decision.
+    0.7 # Fill level threshold (0-1). Bins >= threshold are mandatory.
+    # For manager: probability threshold for mandatory decision.
 
   # Regular parameters
   frequency: 3 # Collection frequency in days (for strategy=regular)

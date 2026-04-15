@@ -1,5 +1,5 @@
 # =============================================================================
-# Post-Processing: Set-Partitioning Polish
+# route improvement: Set-Partitioning Polish
 # =============================================================================
 # PURPOSE:
 #   Solve set-partitioning IP exactly over an externally-provided route pool.

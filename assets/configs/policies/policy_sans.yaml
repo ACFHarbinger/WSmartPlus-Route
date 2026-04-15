@@ -123,7 +123,7 @@ sans:
     vrpp: true
 
     route_improvement: []
-    # No post-processing
+    # No route improvement
 
     # LAC-specific numeric parameters (legacy format)
     # WARNING: Do not modify unless reproducing exact published results.
@@ -157,7 +157,7 @@ sans:
     vrpp: true
 
     route_improvement: []
-    # No post-processing
+    # No route improvement
 
     # LAC-specific numeric parameters (legacy format)
     params:

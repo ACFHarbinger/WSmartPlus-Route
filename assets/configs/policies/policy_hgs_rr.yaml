@@ -208,9 +208,9 @@ hgs_rr:
       # See: docs/MUST_GO_STRATEGIES.md
 
     - route_improvement: []
-      # Optional post-processing operations
+      # Optional route improvement operations
       # Empty = use HGS-RR output directly
-      # HGS-RR local search is comprehensive; external post-processing redundant
+      # HGS-RR local search is comprehensive; external route improvement redundant
 
 # =============================================================================
 # PARAMETER TUNING RECOMMENDATIONS

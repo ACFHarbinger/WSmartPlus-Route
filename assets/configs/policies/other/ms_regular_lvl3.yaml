@@ -1,5 +1,5 @@
 # =============================================================================
-# Must-Go Strategy: Regular (Periodic Collection)
+# mandatory Strategy: Regular (Periodic Collection)
 # =============================================================================
 # PURPOSE:
 #   Fixed-frequency collection schedule - collect every N days regardless
@@ -7,7 +7,7 @@
 #
 # ALGORITHM:
 #   1. Track days since last collection for each bin
-#   2. Mark bin as must-go if days_since_collection >= frequency
+#   2. Mark bin as mandatory if days_since_collection >= frequency
 #   3. Deterministic, no fill-level awareness
 #
 # USE CASES:

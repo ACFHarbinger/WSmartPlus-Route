@@ -1,5 +1,5 @@
 # =============================================================================
-# Must-Go Strategy: Last Minute (High Threshold)
+# mandatory Strategy: Last Minute (High Threshold)
 # =============================================================================
 # PURPOSE:
 #   Aggressive threshold-based strategy - only collect nearly-full bins.
@@ -7,7 +7,7 @@
 #
 # ALGORITHM:
 #   1. Check current fill level for each bin
-#   2. Mark bin as must-go if fill >= 0.9
+#   2. Mark bin as mandatory if fill >= 0.9
 #   3. Very reactive - waits until bins are 90% full
 #
 # USE CASES:

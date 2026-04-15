@@ -77,6 +77,6 @@ sca:
     # Options: ms_lookahead.yaml, ms_last_minute_*.yaml, ms_regular.yaml
 
     - route_improvement: []
-    # LRV decoding followed by greedy routing; no post-processing needed
+    # LRV decoding followed by greedy routing; no route improvement needed
     # Empty = use SCA output directly
 # =============================================================================

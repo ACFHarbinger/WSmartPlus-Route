@@ -105,7 +105,7 @@ vpl:
     # Options: ms_lookahead.yaml, ms_last_minute_*.yaml, ms_regular.yaml
 
     - route_improvement: []
-    # Optional post-processing refinement
+    # Optional route improvement refinement
     # Empty = use VPL output directly
     # Options: ["ri_two_opt.yaml", "ri_relocate.yaml"] for extra refinement
 # =============================================================================

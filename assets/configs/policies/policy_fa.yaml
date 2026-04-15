@@ -114,6 +114,6 @@ fa:
       # Options: ms_lookahead.yaml, ms_last_minute_*.yaml, ms_regular.yaml
 
     - route_improvement: []
-      # Pairwise attraction already refines solutions; no post-processing needed
+      # Pairwise attraction already refines solutions; no route improvement needed
       # Empty = use FA output directly
 # =============================================================================

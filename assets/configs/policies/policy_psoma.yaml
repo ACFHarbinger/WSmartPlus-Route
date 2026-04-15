@@ -102,6 +102,6 @@ psoma:
       # Options: ms_lookahead.yaml, ms_last_minute_*.yaml, ms_regular.yaml
 
     - route_improvement: []
-      # Memetic step already refines routes; no further post-processing needed
+      # Memetic step already refines routes; no further route improvement needed
       # Empty = use PSOMA output directly
 # =============================================================================

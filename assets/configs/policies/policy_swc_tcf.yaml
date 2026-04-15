@@ -84,7 +84,7 @@ swc_tcf:
     #   1. ms_lookahead.yaml: Bins predicted to overflow soon
     #   2. ms_service_level0.84.xml: Statistical service level ≥84%
     #
-    # Must-go nodes receive bonus profit (delta) and stricter constraints
+    # mandatory nodes receive bonus profit (delta) and stricter constraints
     # See: docs/MUST_GO_STRATEGIES.md for detailed comparison
 
     # ---------------------------------------------------------------------
@@ -97,10 +97,10 @@ swc_tcf:
     # Note: 600s (10 min) allows solving most 50-node instances to optimality
 
     # ---------------------------------------------------------------------
-    # Post-Processing
+    # route improvement
     # ---------------------------------------------------------------------
     - route_improvement: []
-    # No post-processing needed for exact solutions
+    # No route improvement needed for exact solutions
     # Empty = use Gurobi output directly (already optimal)
 
     # ---------------------------------------------------------------------
@@ -132,7 +132,7 @@ swc_tcf:
     #   - Visit once: Σ x[i,j] ≤ 1 for all i (if y[i]=1)
     #   - Capacity: Σ waste[i] * y[i] ≤ vehicle_capacity
     #   - Subtour elimination: u[i] - u[j] + n*x[i,j] ≤ n-1
-    #   - Must-go: y[i] = 1 for all i in mandatory_selection set
+    #   - mandatory: y[i] = 1 for all i in mandatory_selection set
     #
     # Objective:
     #   Maximize: Σ profit[i]*y[i] - psi*Σ cost[i,j]*x[i,j] - Omega*overtime + delta*Σ y[mandatory_selection]

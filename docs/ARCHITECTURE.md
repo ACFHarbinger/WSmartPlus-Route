@@ -319,7 +319,7 @@ logic/src/
 │   │   │   ├── baselines.py      # Rollout, Critic, POMO, Warmup, etc.
 │   │   │   ├── epoch.py          # Epoch management
 │   │   │   ├── time_training.py  # Temporal training
-│   │   │   └── post_processing.py
+│   │   │   └── route_improvement.py
 │   │   ├── core/                 # RL algorithms
 │   │   │   ├── reinforce.py
 │   │   │   ├── ppo.py
@@ -964,7 +964,7 @@ Decoder (per step):
 ### 8.3 Hierarchical RL (Manager-Worker)
 
 ```
-                    MustGoManager (High-Level)
+                    MandatorySelectionManager (High-Level)
                            │
                     ┌──────┴──────┐
                     │  GAT + LSTM │
@@ -1253,14 +1253,14 @@ Modular strategies control *which* bins are selected for collection each day.
 | **Regular** | Periodic: Fixed schedule (e.g., every 3 days) | `frequency` (days) |
 | **MeansStdDev** | Statistical: Collect if current + mean fill * days > capacity | `confidence_factor` (float) |
 
-These strategies are composable via `MustGoSelectionAction` and can be chained with `PostProcessAction` for complex behaviors.
+These strategies are composable via `MandatorySelectionSelectionAction` and can be chained with `PostProcessAction` for complex behaviors.
 
-### 11.5 Post-Processing
+### 11.5 route improvement
 
 The `PostProcessAction` allows for modular refinement of generated tours. It functions as a middleware layer between policy execution and the final simulation step.
 
 - **Purpose**: Refine tours (e.g., local search, TSP re-optimization) completely independent of the generation policy.
-- **Configuration**: List of processors defined in `post_processing` key of simulation config.
+- **Configuration**: List of processors defined in `route_improvement` key of simulation config.
 - **Support**: Can Use XML/YAML configs similarly to selection strategies.
 
 ```python
@@ -1268,10 +1268,10 @@ The `PostProcessAction` allows for modular refinement of generated tours. It fun
 class PostProcessAction(SimulationAction):
     def execute(self, context):
         tour = context.get("tour")
-        processors = context.get("config").get("post_processing", [])
+        processors = context.get("config").get("route_improvement", [])
 
         for pp_name in processors:
-             processor = PostProcessorFactory.create(pp_name)
+             processor = RouteImproverFactory.create(pp_name)
              tour = processor.process(tour)
 
         context["tour"] = tour

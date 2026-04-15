@@ -54,7 +54,7 @@ Based on the analysis of _GDPO: Group reward-Decoupled Normalization Policy Opti
 
 **Implementation Plan**:
 
-- **Scheduler**: Use `MustGoManager` or a simpler tabular/bandit manager for pattern assignment.
+- **Scheduler**: Use `mandatoryManager` or a simpler tabular/bandit manager for pattern assignment.
 - **Reward Signal**: The "env" for the scheduler is the simulator running the Lower-Level Router.
 - **GDPO Application**: The scheduler's epoch involves running $G$ simulations. Normalize Cost, Consistency, and Balance _independently_ across these $G$ simulations before updating the scheduler policy.
 

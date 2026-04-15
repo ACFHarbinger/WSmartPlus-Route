@@ -86,6 +86,6 @@ hs:
       # Options: ms_lookahead.yaml, ms_last_minute_*.yaml, ms_regular.yaml
 
     - route_improvement: []
-      # HM archive retains best solutions; no further post-processing needed
+      # HM archive retains best solutions; no further route improvement needed
       # Empty = use HS output directly
 # =============================================================================

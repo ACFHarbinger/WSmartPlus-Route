@@ -267,13 +267,13 @@ assets/configs/
     ├── policy_swc_tcf.yaml    # SWC-TCF policies
     ├── policy_cvrp.yaml       # CVRP-specific policies
     └── other/                 # Auxiliary configurations
-        ├── ms_lookahead.yaml       # Must-go: Lookahead strategy
-        ├── ms_last_minute_*.yaml   # Must-go: Threshold strategies
-        ├── ms_regular_*.yaml       # Must-go: Fixed-frequency
-        ├── ms_service_level*.yaml  # Must-go: Service level
-        ├── pp_cls.yaml             # Post-processing: CLS
-        ├── pp_ftsp.yaml            # Post-processing: Fast TSP
-        └── pp_rds.yaml             # Post-processing: RDS
+        ├── ms_lookahead.yaml       # mandatory: Lookahead strategy
+        ├── ms_last_minute_*.yaml   # mandatory: Threshold strategies
+        ├── ms_regular_*.yaml       # mandatory: Fixed-frequency
+        ├── ms_service_level*.yaml  # mandatory: Service level
+        ├── pp_cls.yaml             # route improvement: CLS
+        ├── pp_ftsp.yaml            # route improvement: Fast TSP
+        └── pp_rds.yaml             # route improvement: RDS
 ```
 
 ---
@@ -318,7 +318,7 @@ Task configurations define **what** the system does (training, evaluation, simul
 - **Optimizer:** Learning rate, scheduler, gradient clipping
 - **Baselines:** Exponential, rollout, critic
 - **Expert Policies:** Loaded from `tasks/policies/rl/`
-- **Must-Go Strategy:** Bin selection for WCVRP
+- **mandatory Strategy:** Bin selection for WCVRP
 
 **Example Configuration:**
 
@@ -618,8 +618,8 @@ hgs:
     - elite_size: 10 # Elite preservation
     - mutation_rate: 0.2 # Mutation probability
     - engine: "custom" # PyVRP backend
-    - must_go: ["other/ms_lookahead.yaml"]
-    - post_processing: []
+    - mandatory_selection: ["other/ms_lookahead.yaml"]
+    - route_improvement: []
 ```
 
 **Use Cases:**
@@ -699,14 +699,14 @@ neural:
   custom:
     - model_path: "checkpoints/best_model.pt"
     - decoding_strategy: "greedy"
-    - must_go: ["other/ms_lookahead.yaml"]
+    - mandatory_selection: ["other/ms_lookahead.yaml"]
 ```
 
 ---
 
 ### 6. Auxiliary Configurations: `policies/other/*.yaml`
 
-#### 6.1 Must-Go Strategies
+#### 6.1 mandatory Strategies
 
 **Purpose:** Determine which bins **must** be collected in waste collection problems.
 
@@ -720,13 +720,13 @@ neural:
 **Example:**
 
 ```bash
-# Change must-go strategy for HGS
+# Change mandatory strategy for HGS
 python main.py test_sim \
   sim.policies=[hgs] \
-  +hgs.custom[0].must_go=["other/ms_last_minute_cf90.yaml"]
+  +hgs.custom[0].mandatory_selection=["other/ms_last_minute_cf90.yaml"]
 ```
 
-#### 6.2 Post-Processing
+#### 6.2 route improvement
 
 **Purpose:** Refine routes after construction.
 

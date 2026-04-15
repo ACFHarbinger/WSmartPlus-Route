@@ -1,5 +1,5 @@
 # =============================================================================
-# Post-Processing: Path-Based Opportunistic Collection
+# route improvement: Path-Based Opportunistic Collection
 # =============================================================================
 # PURPOSE:
 #   Expands routes by including bins that lie on shortest paths between

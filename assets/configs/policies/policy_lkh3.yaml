@@ -19,7 +19,7 @@
 #
 # TYPICAL USE CASES:
 #   - Medium instances (50-500 nodes) as primary solver
-#   - Post-processing refinement of existing tours
+#   - route improvement refinement of existing tours
 #   - Benchmarking against constructive neural methods
 #
 # REFERENCE:

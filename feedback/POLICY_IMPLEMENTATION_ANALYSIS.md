@@ -78,9 +78,9 @@ This report documents differences between published algorithm formulations and t
    - **Paper**: Generic integer programming
    - **Implementation**: Specialized for routing with edge variables `x[i,j]` and node visit variables `y[i]`
 
-4. **Must-Go Constraints** (EXTENSION):
+4. **mandatory Constraints** (EXTENSION):
    - **Paper**: Not mentioned
-   - **Implementation**: Supports mandatory node visits via `must_go_indices` ([bb.py:74](logic/src/policies/branch_and_bound/bb.py#L74))
+   - **Implementation**: Supports mandatory node visits via `mandatory_selection_indices` ([bb.py:74](logic/src/policies/branch_and_bound/bb.py#L74))
 
 5. **Branching Strategy** (STRONG BRANCHING):
    - **Paper**: Mentions "most fractional" as a basic rule but leaves room for advanced penalties.
@@ -551,7 +551,7 @@ This report documents differences between published algorithm formulations and t
    - Route operators: 2-opt, move, swap, relocate, cross, or-opt, n-bin removal/insertion
    - Add operators: add bins, add routes from removed pool
 3. **SA Acceptance**: Boltzmann acceptance with geometric cooling
-4. **Arc Uncrossing**: Post-processing to remove geometric route crossings
+4. **Arc Uncrossing**: route improvement to remove geometric route crossings
 5. **Temperature Reheating**: Restart temperature when stagnating
 
 #### Implementation Differences
@@ -2759,7 +2759,7 @@ This report documents differences between published algorithm formulations and t
 
 - **Representation**: Routes (List[List[int]]) instead of permutations
 - **Objective**: Profit = Revenue - Cost (for VRPP)
-- **Constraints**: Capacity, must-go nodes
+- **Constraints**: Capacity, mandatory nodes
 - **Neighborhoods**: Destroy-repair, swap, relocate, 2-opt
 
 ### 2. Continuous to Discrete (Swarm/EA)
