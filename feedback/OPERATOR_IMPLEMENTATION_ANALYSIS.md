@@ -2,7 +2,7 @@
 
 **Project**: WSmart+ Route
 **Date**: March 22, 2026
-**Purpose**: Comprehensive analysis of local search operators in `logic/src/policies/other/operators/`
+**Purpose**: Comprehensive analysis of local search operators in `logic.src.policies.helpers/operators/`
 **Total Operators Analyzed**: 60+ operators across 7 categories
 
 ---
@@ -68,7 +68,7 @@ Destroy (or removal) operators select and remove nodes from the current solution
 ### 1.1 Random Removal
 
 **Paper**: Pisinger & Ropke (2007) - "A general heuristic for vehicle routing problems"
-**Implementation**: `logic/src/policies/other/operators/destroy/random.py`
+**Implementation**: `logic.src.policies.helpers/operators/destroy/random.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components from Paper
@@ -81,25 +81,25 @@ Destroy (or removal) operators select and remove nodes from the current solution
 
 1. **Uniform Random Selection**:
    - **Paper**: Each node has equal probability 1/n
-   - **Implementation**: [random.py:56](logic/src/policies/other/operators/destroy/random.py#L56)
+   - **Implementation**: [random.py:56](logic.src.policies.helpers/operators/destroy/random.py#L56)
    - `targets = rng.sample(all_nodes, n_remove)`
    - **Match**: ✅ Exact
 
 2. **Safe Removal**:
-   - **Implementation**: [random.py:59-63](logic/src/policies/other/operators/destroy/random.py#L59-L63)
+   - **Implementation**: [random.py:59-63](logic.src.policies.helpers/operators/destroy/random.py#L59-L63)
    - Sort targets by (route_idx, node_idx) in reverse order
    - Pop from back to avoid index shifting issues
    - **Enhancement**: Robust implementation detail
 
 3. **Empty Route Cleanup**:
-   - **Implementation**: [random.py:66](logic/src/policies/other/operators/destroy/random.py#L66)
+   - **Implementation**: [random.py:66](logic.src.policies.helpers/operators/destroy/random.py#L66)
    - `routes = [r for r in routes if r]`
    - Remove empty routes after node removal
    - **Match**: ✅ Standard practice
 
 #### VRPP Extension: Profit-Biased Random Removal
 
-**Implementation**: [random.py:70-173](logic/src/policies/other/operators/destroy/random.py#L70-173)
+**Implementation**: [random.py:70-173](logic.src.policies.helpers/operators/destroy/random.py#L70-173)
 
 1. **Biased Sampling**:
    - Nodes with lower profit have higher removal probability
@@ -118,7 +118,7 @@ Destroy (or removal) operators select and remove nodes from the current solution
 ### 1.2 Worst Removal
 
 **Paper**: Ropke & Pisinger (2006) - "An Adaptive Large Neighborhood Search Heuristic for the Pickup and Delivery Problem with Time Windows"
-**Implementation**: `logic/src/policies/other/operators/destroy/worst.py`
+**Implementation**: `logic.src.policies.helpers/operators/destroy/worst.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components from Paper
@@ -153,7 +153,7 @@ Destroy (or removal) operators select and remove nodes from the current solution
 
 #### VRPP Extension: Worst Profit Removal
 
-**Implementation**: [worst.py:78-147](logic/src/policies/other/operators/destroy/worst.py#L78-147)
+**Implementation**: [worst.py:78-147](logic.src.policies.helpers/operators/destroy/worst.py#L78-147)
 
 1. **Profit Contribution** [worst.py:111-128]:
    - Revenue: `revenue = waste * R`
@@ -173,7 +173,7 @@ Destroy (or removal) operators select and remove nodes from the current solution
 ### 1.3 Cluster Removal
 
 **Paper**: Shaw (1998) variant - Spatial clustering
-**Implementation**: `logic/src/policies/other/operators/destroy/cluster.py`
+**Implementation**: `logic.src.policies.helpers/operators/destroy/cluster.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components from Paper
@@ -207,7 +207,7 @@ Destroy (or removal) operators select and remove nodes from the current solution
 
 #### VRPP Extension: Profit-Based Cluster Removal
 
-**Implementation**: [cluster.py:101-193](logic/src/policies/other/operators/destroy/cluster.py#L101-193)
+**Implementation**: [cluster.py:101-193](logic.src.policies.helpers/operators/destroy/cluster.py#L101-193)
 
 1. **Profit Calculation** [cluster.py:147-150]:
    - `profit = revenue - (distance_from_depot * C)`
@@ -233,7 +233,7 @@ Destroy (or removal) operators select and remove nodes from the current solution
 ### 1.4 Shaw Removal
 
 **Paper**: Shaw (1998) - "Using Constraint Programming and Local Search Methods to Solve Vehicle Routing Problems"
-**Implementation**: `logic/src/policies/other/operators/destroy/shaw.py`
+**Implementation**: `logic.src.policies.helpers/operators/destroy/shaw.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components from Paper
@@ -273,7 +273,7 @@ Destroy (or removal) operators select and remove nodes from the current solution
 
 #### VRPP Extension: shaw_profit_removal
 
-**Implementation**: [shaw.py:158-278](logic/src/policies/other/operators/destroy/shaw.py#L158-278)
+**Implementation**: [shaw.py:158-278](logic.src.policies.helpers/operators/destroy/shaw.py#L158-278)
 
 1. **Profit Relatedness** [lines 240-247]:
    - Calculate node profit: `profit = revenue - (d[depot, node] * C)` [lines 215-217]
@@ -294,7 +294,7 @@ Destroy (or removal) operators select and remove nodes from the current solution
 ### 1.5 String Removal
 
 **Paper**: Christiaens & Vanden Berghe (2020) - "Slack Induction by String Removals for Vehicle Routing Problems"
-**Implementation**: `logic/src/policies/other/operators/destroy/string.py`
+**Implementation**: `logic.src.policies.helpers/operators/destroy/string.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components from Paper
@@ -353,7 +353,7 @@ Destroy (or removal) operators select and remove nodes from the current solution
 ### 1.6 Route Removal
 
 **Paper**: Standard VRP practice (used in LNS frameworks)
-**Implementation**: `logic/src/policies/other/operators/destroy/route.py`
+**Implementation**: `logic.src.policies.helpers/operators/destroy/route.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components
@@ -425,7 +425,7 @@ Destroy (or removal) operators select and remove nodes from the current solution
 ### 1.7 Neighbor Removal
 
 **Paper**: Ropke & Pisinger (2006) - "An Adaptive Large Neighborhood Search Heuristic for the Pickup and Delivery Problem with Time Windows"
-**Implementation**: `logic/src/policies/other/operators/destroy/neighbor.py`
+**Implementation**: `logic.src.policies.helpers/operators/destroy/neighbor.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components
@@ -498,7 +498,7 @@ to_remove.extend(similar_nodes)
 ### 1.8 Historical Removal
 
 **Paper**: Pisinger & Ropke (2007) - "A general heuristic for vehicle routing problems"
-**Implementation**: `logic/src/policies/other/operators/destroy/historical.py`
+**Implementation**: `logic.src.policies.helpers/operators/destroy/historical.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components
@@ -580,7 +580,7 @@ for r_idx, route in enumerate(routes):
 ### 1.9 Sector Removal
 
 **Paper**: Pisinger & Ropke (2007) - "A general heuristic for vehicle routing problems"
-**Implementation**: `logic/src/policies/other/operators/destroy/sector.py`
+**Implementation**: `logic.src.policies.helpers/operators/destroy/sector.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components
@@ -677,7 +677,7 @@ Repair (or insertion) operators reinsert removed nodes into partial solutions. T
 ### 2.1 Greedy Insertion
 
 **Paper**: Multiple sources (Solomon 1987, Pisinger & Ropke 2007)
-**Implementation**: `logic/src/policies/other/operators/repair/greedy.py`
+**Implementation**: `logic.src.policies.helpers/operators/repair/greedy.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components from Paper
@@ -690,39 +690,39 @@ Repair (or insertion) operators reinsert removed nodes into partial solutions. T
 
 1. **Greedy Best Position Search**:
    - **Paper**: min_{position} {cost_increase(node, position)}
-   - **Implementation**: [greedy.py:68-101](logic/src/policies/other/operators/repair/greedy.py#L68-101)
+   - **Implementation**: [greedy.py:68-101](logic.src.policies.helpers/operators/repair/greedy.py#L68-101)
    - Double loop: all unassigned nodes × all positions
    - Track best (node, route, position) globally
    - **Match**: ✅ Exact
 
 2. **Capacity Feasibility**:
-   - **Implementation**: [greedy.py:79](logic/src/policies/other/operators/repair/greedy.py#L79)
+   - **Implementation**: [greedy.py:79](logic.src.policies.helpers/operators/repair/greedy.py#L79)
    - `if loads[i] + node_waste > capacity: continue`
    - **Match**: ✅ Standard constraint handling
 
 3. **Cost Calculation**:
-   - **Implementation**: [greedy.py:87](logic/src/policies/other/operators/repair/greedy.py#L87)
+   - **Implementation**: [greedy.py:87](logic.src.policies.helpers/operators/repair/greedy.py#L87)
    - `cost = d[prev,node] + d[node,nxt] - d[prev,nxt]`
    - **Match**: ✅ Exact insertion cost formula
 
 4. **VRPP Profit Check**:
-   - **Implementation**: [greedy.py:95-96](logic/src/policies/other/operators/repair/greedy.py#L95-96)
+   - **Implementation**: [greedy.py:95-96](logic.src.policies.helpers/operators/repair/greedy.py#L95-96)
    - Skip insertion if `cost * C > revenue` (unless mandatory)
    - **Extension**: VRPP adaptation for selective routing
 
 5. **Noise for Diversification**:
-   - **Implementation**: [greedy.py:90-91](logic/src/policies/other/operators/repair/greedy.py#L90-L91)
+   - **Implementation**: [greedy.py:90-91](logic.src.policies.helpers/operators/repair/greedy.py#L90-L91)
    - `cost += noise * dist_matrix.max()`
    - **Enhancement**: Pisinger & Ropke (2007) diversification
 
 6. **Mandatory Node Handling**:
-   - **Implementation**: [greedy.py:109-114](logic/src/policies/other/operators/repair/greedy.py#L109-L114)
+   - **Implementation**: [greedy.py:109-114](logic.src.policies.helpers/operators/repair/greedy.py#L109-L114)
    - Open new route if mandatory node can't be inserted
    - **Extension**: Robustness for constrained VRP
 
 #### Profit-Maximization Variant
 
-**Implementation**: [greedy.py:123-222](logic/src/policies/other/operators/repair/greedy.py#L123-L222)
+**Implementation**: [greedy.py:123-222](logic.src.policies.helpers/operators/repair/greedy.py#L123-L222)
 
 1. **Objective Change**: Maximize `profit = revenue - cost` instead of minimizing cost
 2. **Selection Criterion**: `profit = waste * R - delta_dist * C`
@@ -735,7 +735,7 @@ Repair (or insertion) operators reinsert removed nodes into partial solutions. T
 ### 2.2 Regret Insertion
 
 **Paper**: Potvin & Rousseau (1993) - "A parallel route building algorithm for the vehicle routing problem with time windows"
-**Implementation**: `logic/src/policies/other/operators/repair/regret.py`
+**Implementation**: `logic.src.policies.helpers/operators/repair/regret.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components from Paper
@@ -781,7 +781,7 @@ Repair (or insertion) operators reinsert removed nodes into partial solutions. T
 
 #### VRPP Extension: Regret Profit Insertion
 
-**Implementation**: [regret.py:254-376](logic/src/policies/other/operators/repair/regret.py#L254-376)
+**Implementation**: [regret.py:254-376](logic.src.policies.helpers/operators/repair/regret.py#L254-376)
 
 1. **Profit-Based Options** [lines 311-323]:
    - Helper function `_get_insertion_options_with_profit`
@@ -805,7 +805,7 @@ Repair (or insertion) operators reinsert removed nodes into partial solutions. T
 ### 2.4 Blink Insertion
 
 **Paper**: Christiaens & Vanden Berghe (2020) - "Slack Induction by String Removals for Vehicle Routing Problems"
-**Implementation**: `logic/src/policies/other/operators/repair/greedy_blink.py`
+**Implementation**: `logic.src.policies.helpers/operators/repair/greedy_blink.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components
@@ -863,7 +863,7 @@ Repair (or insertion) operators reinsert removed nodes into partial solutions. T
 ### 2.3 Savings Insertion
 
 **Paper**: Clarke & Wright (1964) - "Scheduling of Vehicles from a Central Depot to a Number of Delivery Points"
-**Implementation**: `logic/src/policies/other/operators/repair/savings.py`
+**Implementation**: `logic.src.policies.helpers/operators/repair/savings.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components
@@ -916,7 +916,7 @@ Repair (or insertion) operators reinsert removed nodes into partial solutions. T
 ### 2.5 Deep Insertion
 
 **Paper**: Reimann et al. (2004)
-**Implementation**: `logic/src/policies/other/operators/repair/deep.py`
+**Implementation**: `logic.src.policies.helpers/operators/repair/deep.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components
@@ -982,7 +982,7 @@ if new_profit >= seed_hurdle or is_mandatory:
 ### 2.6 Farthest Insertion
 
 **Paper**: Rosenkrantz et al. (1977) - "An analysis of several heuristics for the traveling salesman problem"
-**Implementation**: `logic/src/policies/other/operators/repair/farthest.py`
+**Implementation**: `logic.src.policies.helpers/operators/repair/farthest.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components
@@ -1073,7 +1073,7 @@ Intra-route operators improve individual routes without moving nodes between rou
 ### 3.1 k-Opt (2-Opt, 3-Opt, k-Opt General)
 
 **Paper**: Croes (1958) for 2-opt, Lin (1965) for 3-opt
-**Implementation**: `logic/src/policies/other/operators/intra_route/k_opt.py`
+**Implementation**: `logic.src.policies.helpers/operators/intra_route/k_opt.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components from Paper
@@ -1131,7 +1131,7 @@ Intra-route operators improve individual routes without moving nodes between rou
 ### 3.2 Or-Opt
 
 **Paper**: Or (1976) - "Traveling Salesman-Type Combinatorial Problems"
-**Implementation**: `logic/src/policies/other/operators/intra_route/or_opt.py`
+**Implementation**: `logic.src.policies.helpers/operators/intra_route/or_opt.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components from Paper
@@ -1173,7 +1173,7 @@ Intra-route operators improve individual routes without moving nodes between rou
 ### 3.4 Relocate (Intra/Inter)
 
 **Paper**: Standard VRP operator (used in Taillard 1993, Vidal et al. 2012)
-**Implementation**: `logic/src/policies/other/operators/intra_route/relocate.py`
+**Implementation**: `logic.src.policies.helpers/operators/intra_route/relocate.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components from Paper
@@ -1215,7 +1215,7 @@ Intra-route operators improve individual routes without moving nodes between rou
 ### 3.3 Swap (Intra/Inter)
 
 **Paper**: Standard VRP operator (used in Taillard 1993, Gendreau et al. 1994)
-**Implementation**: `logic/src/policies/other/operators/intra_route/swap.py`
+**Implementation**: `logic.src.policies.helpers/operators/intra_route/swap.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components from Paper
@@ -1263,7 +1263,7 @@ Intra-route operators improve individual routes without moving nodes between rou
 ### 3.5 GENI
 
 **Paper**: Gendreau et al. (1992) - "A Generalized Insertion Heuristic for the Traveling Salesman Problem with Time Windows"
-**Implementation**: `logic/src/policies/other/operators/intra_route/geni.py`
+**Implementation**: `logic.src.policies.helpers/operators/intra_route/geni.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components from Paper
@@ -1326,7 +1326,7 @@ Intra-route operators improve individual routes without moving nodes between rou
 ### 3.7 K-Permutation
 
 **Paper**: Various (open-loop TSP optimization)
-**Implementation**: `logic/src/policies/other/operators/intra_route/k_permutation.py`
+**Implementation**: `logic.src.policies.helpers/operators/intra_route/k_permutation.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components
@@ -1400,7 +1400,7 @@ Inter-route operators move nodes between different routes.
 ### 4.1 SWAP*
 
 **Paper**: Taillard et al. (1997) - "Adaptive memory programming: A unified view of metaheuristics"
-**Implementation**: `logic/src/policies/other/operators/inter_route/swap_star.py`
+**Implementation**: `logic.src.policies.helpers/operators/inter_route/swap_star.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components from Paper
@@ -1446,7 +1446,7 @@ Inter-route operators move nodes between different routes.
 ### 4.2 Cross-Exchange
 
 **Paper**: Taillard et al. (1997) - "A Tabu Search Heuristic for the Vehicle Routing Problem with Soft Time Windows"
-**Implementation**: `logic/src/policies/other/operators/inter_route/cross_exchange.py`
+**Implementation**: `logic.src.policies.helpers/operators/inter_route/cross_exchange.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components from Paper
@@ -1488,7 +1488,7 @@ Inter-route operators move nodes between different routes.
 ### 4.3 k-Opt* (2-Opt*, 3-Opt*, General)
 
 **Paper**: Potvin & Rousseau (1995) - "An Exchange Heuristic for Routeing Problems with Time Windows"
-**Implementation**: `logic/src/policies/other/operators/inter_route/k_opt_star.py`
+**Implementation**: `logic.src.policies.helpers/operators/inter_route/k_opt_star.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components from Paper
@@ -1554,7 +1554,7 @@ Inter-route operators move nodes between different routes.
 ### 4.4 Ejection Chain
 
 **Paper**: Glover (1996) - "Ejection chains, reference structures and alternating path methods for traveling salesman problems"
-**Implementation**: `logic/src/policies/other/operators/inter_route/ejection_chain.py`
+**Implementation**: `logic.src.policies.helpers/operators/inter_route/ejection_chain.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components
@@ -1657,7 +1657,7 @@ for r_idx, route in enumerate(ls.routes):
 ### 4.5 Cyclic Transfer (p-Exchange)
 
 **Paper**: Various (generalization of swap to p routes)
-**Implementation**: `logic/src/policies/other/operators/inter_route/cyclic_transfer.py`
+**Implementation**: `logic.src.policies.helpers/operators/inter_route/cyclic_transfer.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components
@@ -1747,7 +1747,7 @@ return total_gain
 ### 4.8 λ-Interchange (Exchange Chains)
 
 **Paper**: Osman (1993) - "Metastrategy simulated annealing and tabu search algorithms for the vehicle routing problem"
-**Implementation**: `logic/src/policies/other/operators/inter_route/exchange_chain.py`
+**Implementation**: `logic.src.policies.helpers/operators/inter_route/exchange_chain.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components
@@ -1894,7 +1894,7 @@ Genetic algorithm recombination operators for evolutionary approaches.
 ### 5.1 Ordered Crossover (OX)
 
 **Paper**: Davis (1985) - "Applying Adaptive Algorithms to Epistatic Domains"
-**Implementation**: `logic/src/policies/other/operators/crossover/ordered.py`
+**Implementation**: `logic.src.policies.helpers/operators/crossover/ordered.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components from Paper
@@ -1940,7 +1940,7 @@ Genetic algorithm recombination operators for evolutionary approaches.
 ### 5.2 Edge Recombination Crossover (ERX)
 
 **Paper**: Whitley et al. (1989) - "The Genitor Algorithm and Selection Pressure"
-**Implementation**: `logic/src/policies/other/operators/crossover/edge_recombination.py`
+**Implementation**: `logic.src.policies.helpers/operators/crossover/edge_recombination.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components from Paper
@@ -1995,7 +1995,7 @@ Genetic algorithm recombination operators for evolutionary approaches.
 ### 5.3 Generalized Partition Crossover (GPX)
 
 **Paper**: Whitley et al. (2009) - "The Generalized Partition Crossover for the Traveling Salesman Problem"
-**Implementation**: `logic/src/policies/other/operators/crossover/generalized_partition.py`
+**Implementation**: `logic.src.policies.helpers/operators/crossover/generalized_partition.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components from Paper
@@ -2056,7 +2056,7 @@ Genetic algorithm recombination operators for evolutionary approaches.
 ### 5.4 Selective Route Exchange (SRX)
 
 **Paper**: HGS literature (Vidal 2012 and variants)
-**Implementation**: `logic/src/policies/other/operators/crossover/selective_route_exchange.py`
+**Implementation**: `logic.src.policies.helpers/operators/crossover/selective_route_exchange.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components
@@ -2120,7 +2120,7 @@ for node in p2.giant_tour:
 ### 5.5 Position Independent Crossover (PIX)
 
 **Paper**: Various VRPP literature (focus on node selection over sequencing)
-**Implementation**: `logic/src/policies/other/operators/crossover/position_independent.py`
+**Implementation**: `logic.src.policies.helpers/operators/crossover/position_independent.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components
@@ -2430,7 +2430,7 @@ Diversification operators for escaping local optima in ILS and related methods.
 ### 6.1 Double Bridge
 
 **Paper**: Martin et al. (1991) - "Large-Step Markov Chains for the Traveling Salesman Problem"
-**Implementation**: `logic/src/policies/other/operators/perturbation/double_bridge.py`
+**Implementation**: `logic.src.policies.helpers/operators/perturbation/double_bridge.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components from Paper
@@ -2479,7 +2479,7 @@ Diversification operators for escaping local optima in ILS and related methods.
 ### 6.2 Kick
 
 **Paper**: ILS literature (Lourenço et al. 2003) - "Iterated Local Search"
-**Implementation**: `logic/src/policies/other/operators/perturbation/kick.py`
+**Implementation**: `logic.src.policies.helpers/operators/perturbation/kick.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components from Paper
@@ -2525,7 +2525,7 @@ Diversification operators for escaping local optima in ILS and related methods.
 ### 6.3 Perturb
 
 **Paper**: ILS/VNS literature (general concept)
-**Implementation**: `logic/src/policies/other/operators/perturbation/perturb.py`
+**Implementation**: `logic.src.policies.helpers/operators/perturbation/perturb.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components from Paper
@@ -2580,7 +2580,7 @@ Diversification operators for escaping local optima in ILS and related methods.
 ### 6.4 Genetic Transformation (GT)
 
 **Paper**: Memetic algorithm literature (hybridization of GA with local search)
-**Implementation**: `logic/src/policies/other/operators/perturbation/genetic_transformation.py`
+**Implementation**: `logic.src.policies.helpers/operators/perturbation/genetic_transformation.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components
@@ -2675,7 +2675,7 @@ return edges
 ### 6.5 Evolutionary Perturbation
 
 **Paper**: Micro-GA literature (localized evolutionary search)
-**Implementation**: `logic/src/policies/other/operators/perturbation/evolutionary.py`
+**Implementation**: `logic.src.policies.helpers/operators/perturbation/evolutionary.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components
@@ -2779,7 +2779,7 @@ Complex construction and optimization heuristics.
 ### 7.1 Greedy Route Construction
 
 **Paper**: Various (foundational heuristic, adapted for VRPP)
-**Implementation**: `logic/src/policies/other/operators/heuristics/greedy_initialization.py`
+**Implementation**: `logic.src.policies.helpers/operators/heuristics/greedy_initialization.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components from Paper
@@ -2833,7 +2833,7 @@ Complex construction and optimization heuristics.
 ### 7.2 Nearest Neighbor Construction
 
 **Paper**: Rosenkrantz et al. (1977)
-**Implementation**: `logic/src/policies/other/operators/heuristics/nn_initialization.py`
+**Implementation**: `logic.src.policies.helpers/operators/heuristics/nn_initialization.py`
 **Faithfulness**: ★★★★★ (5/5)
 
 #### Key Components from Paper
@@ -2894,7 +2894,7 @@ while True:
 **Paper**: Helsgaun (2000) - "An effective implementation of the Lin-Kernighan traveling salesman heuristic", European Journal of Operational Research, 126(1), 106-130
 **Original Algorithm**: Lin & Kernighan (1973) - "An Effective Heuristic Algorithm for the Traveling-Salesman Problem", Operations Research 21, 498-516
 **LKH-3 Extension**: Helsgaun (2017) - "An Extension of the Lin-Kernighan-Helsgaun TSP Solver for Constrained Traveling Salesman and Vehicle Routing Problems"
-**Implementation**: `logic/src/policies/other/operators/heuristics/lin_kernighan_helsgaun.py`
+**Implementation**: `logic.src.policies.helpers/operators/heuristics/lin_kernighan_helsgaun.py`
 **Faithfulness**: ★★★★★ (5/5) - Complete LKH-3 implementation with all innovations from Helsgaun (2000)
 
 #### Key Components from Papers

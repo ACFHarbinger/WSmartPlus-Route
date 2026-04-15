@@ -1,6 +1,6 @@
 """Unit tests for HGS local search operators."""
 
-from logic.src.policies.other.operators import (
+from logic.src.policies.helpers.operators import (
     move_2opt_intra,
     move_2opt_star,
     move_relocate,

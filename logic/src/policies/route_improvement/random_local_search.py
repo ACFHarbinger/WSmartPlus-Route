@@ -7,7 +7,7 @@ from typing import Any, List
 import numpy as np
 
 from logic.src.interfaces import IRouteImprovement
-from logic.src.policies.other.local_search.local_search_manager import LocalSearchManager
+from logic.src.policies.helpers.local_search.local_search_manager import LocalSearchManager
 
 from .base import RouteImproverRegistry
 from .common.helpers import assemble_tour, split_tour, to_numpy

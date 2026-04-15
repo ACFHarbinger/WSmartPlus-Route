@@ -12,7 +12,7 @@ def test_alns_sarsa_operator_integration():
         sys.path.insert(0, root)
 
     from logic.src.policies.adaptive_large_neighborhood_search.params import ALNSParams
-    from logic.src.policies.other.reinforcement_learning.alns_sarsa import ALNSSARSASolver
+    from logic.src.policies.helpers.reinforcement_learning.alns_sarsa import ALNSSARSASolver
     from logic.src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params import (
         RLAHVPLParams,
     )

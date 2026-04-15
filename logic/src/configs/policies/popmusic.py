@@ -7,8 +7,8 @@ from typing import List, Optional
 
 from .alns import ALNSConfig
 from .hgs import HGSConfig
-from .other.mandatory_selection import MandatorySelectionConfig
-from .other.route_improvement import RouteImprovingConfig
+from .helpers.mandatory_selection import MandatorySelectionConfig
+from .helpers.route_improvement import RouteImprovingConfig
 from .tsp import TSPConfig
 
 

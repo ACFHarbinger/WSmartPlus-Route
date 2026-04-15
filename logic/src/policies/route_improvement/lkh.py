@@ -7,7 +7,7 @@ from typing import Any, List
 import numpy as np
 
 from logic.src.interfaces import IRouteImprovement
-from logic.src.policies.other.operators.heuristics.lin_kernighan_helsgaun import solve_lkh
+from logic.src.policies.helpers.operators.heuristics.lin_kernighan_helsgaun import solve_lkh
 
 from .base import RouteImproverRegistry
 from .common.helpers import assemble_tour, split_tour, to_numpy

@@ -34,7 +34,7 @@ If ``context.n_vehicles <= 0`` the strategy short-circuits to all bins
 with non-negative standalone net profit.
 
 Example:
-    >>> from logic.src.policies.other.mandatory.selection_mip_knapsack \\
+    >>> from logic.src.policies.helpers.mandatory.selection_mip_knapsack \\
     ...     import MIPKnapsackSelection
     >>> strategy = MIPKnapsackSelection()
     >>> bins = strategy.select_bins(context)
@@ -46,8 +46,8 @@ import numpy as np
 from scipy.optimize import Bounds, LinearConstraint, milp
 
 from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
-from logic.src.policies.other.mandatory.base.selection_context import SelectionContext
-from logic.src.policies.other.mandatory.base.selection_registry import MandatorySelectionRegistry
+from logic.src.policies.helpers.mandatory.base.selection_context import SelectionContext
+from logic.src.policies.helpers.mandatory.base.selection_registry import MandatorySelectionRegistry
 
 
 @MandatorySelectionRegistry.register("mip_knapsack")

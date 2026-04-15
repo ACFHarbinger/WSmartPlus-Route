@@ -9,7 +9,7 @@ variant when revenue/cost are configured) to perform chain relocations
 from typing import Any, List
 
 from logic.src.interfaces.route_improvement import IRouteImprovement
-from logic.src.policies.other.operators.intensification import (
+from logic.src.policies.helpers.operators.intensification import (
     or_opt_steepest,
     or_opt_steepest_profit,
 )

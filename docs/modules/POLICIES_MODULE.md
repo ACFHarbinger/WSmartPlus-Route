@@ -1099,7 +1099,7 @@ print(f"Routes: {routes}")
 ##### Advanced Configuration
 
 ```python
-from logic.src.configs.policies.other import RLConfig
+from logic.src.configs.policies.helpers import RLConfig
 from logic.src.policies.ant_colony_optimization_k_sparse.params import KSACOParams
 from logic.src.policies.adaptive_large_neighborhood_search.params import ALNSParams
 
@@ -3056,7 +3056,7 @@ new_routes, delta_cost = lambda_interchange(
 Context object for selection decisions.
 
 ```python
-from logic.src.policies.other import SelectionContext
+from logic.src.policies.helpers import SelectionContext
 
 context = SelectionContext(
     bins=bins_state,
@@ -3075,7 +3075,7 @@ context = SelectionContext(
 Factory for creating selectors.
 
 ```python
-from logic.src.policies.other import MandatorySelectionSelectionFactory
+from logic.src.policies.helpers import MandatorySelectionSelectionFactory
 
 # Create selector
 selector = MandatorySelectionSelectionFactory.create_selector(
@@ -3096,7 +3096,7 @@ mandatory_selection_bins = selector.select(context)
 Select bins exceeding fill threshold.
 
 ```python
-from logic.src.policies.other.mandatory_selection import LastMinuteSelector
+from logic.src.policies.helpers.mandatory_selection import LastMinuteSelector
 
 selector = LastMinuteSelector(threshold=0.9)
 
@@ -3111,7 +3111,7 @@ mandatory_selection = selector.select(context)
 Select bins on fixed-frequency schedule.
 
 ```python
-from logic.src.policies.other.mandatory_selection import RegularSelector
+from logic.src.policies.helpers.mandatory_selection import RegularSelector
 
 # Collect every 3 days
 selector = RegularSelector(frequency=3)
@@ -3126,7 +3126,7 @@ mandatory_selection = selector.select(context)
 Select bins predicted to overflow within N days.
 
 ```python
-from logic.src.policies.other.mandatory_selection import LookaheadSelector
+from logic.src.policies.helpers.mandatory_selection import LookaheadSelector
 
 # Predict 7 days ahead
 selector = LookaheadSelector(
@@ -3144,7 +3144,7 @@ mandatory_selection = selector.select(context)
 Select bins where profit exceeds cost.
 
 ```python
-from logic.src.policies.other.mandatory_selection import RevenueSelector
+from logic.src.policies.helpers.mandatory_selection import RevenueSelector
 
 selector = RevenueSelector(
     revenue_per_kg=1.0,
@@ -3161,7 +3161,7 @@ mandatory_selection = selector.select(context)
 Statistical overflow prediction.
 
 ```python
-from logic.src.policies.other.mandatory_selection import ServiceLevelSelector
+from logic.src.policies.helpers.mandatory_selection import ServiceLevelSelector
 
 # 95% service level
 selector = ServiceLevelSelector(
@@ -3179,7 +3179,7 @@ mandatory_selection = selector.select(context)
 Combine multiple strategies with AND/OR logic.
 
 ```python
-from logic.src.policies.other.mandatory_selection import CombinedSelector
+from logic.src.policies.helpers.mandatory_selection import CombinedSelector
 
 selector = CombinedSelector(
     logic="or",  # or "and"
@@ -3197,7 +3197,7 @@ mandatory_selection = selector.select(context)
 
 ```python
 from logic.src.policies import create_policy
-from logic.src.policies.other import MandatorySelectionSelectionFactory
+from logic.src.policies.helpers import MandatorySelectionSelectionFactory
 
 # Create policy
 policy = create_policy("hgs")
@@ -3235,7 +3235,7 @@ tour, cost, _ = policy.execute(
 **File**: `factory.py`
 
 ```python
-from logic.src.policies.other import RouteImproverFactory
+from logic.src.policies.helpers import RouteImproverFactory
 
 # Create post-processor
 post_processor = RouteImproverFactory.create_processor("fast_tsp")
@@ -3256,7 +3256,7 @@ improved_tour = post_processor.process(
 Fast TSP heuristic using `fast_tsp` library.
 
 ```python
-from logic.src.policies.other.route_improvement import FastTSPRouteImprover
+from logic.src.policies.helpers.route_improvement import FastTSPRouteImprover
 
 processor = FastTSPRouteImprover()
 
@@ -3274,7 +3274,7 @@ improved_tour = processor.process(
 2-opt and 3-opt intra-route improvements.
 
 ```python
-from logic.src.policies.other.route_improvement import ClassicalLocalSearchRouteImprover
+from logic.src.policies.helpers.route_improvement import ClassicalLocalSearchRouteImprover
 
 processor = ClassicalLocalSearchRouteImprover(
     operators=["2opt", "3opt"],
@@ -3294,7 +3294,7 @@ improved_tour = processor.process(
 Randomized operator selection.
 
 ```python
-from logic.src.policies.other.route_improvement import RandomLocalSearchRouteImprover
+from logic.src.policies.helpers.route_improvement import RandomLocalSearchRouteImprover
 
 processor = RandomLocalSearchRouteImprover(
     operator_probs={
@@ -3318,7 +3318,7 @@ improved_tour = processor.process(
 ILS with perturbation for escaping local minima.
 
 ```python
-from logic.src.policies.other.route_improvement import IteratedLocalSearchRouteImprover
+from logic.src.policies.helpers.route_improvement import IteratedLocalSearchRouteImprover
 
 processor = IteratedLocalSearchRouteImprover(
     n_restarts=5,
@@ -3339,7 +3339,7 @@ improved_tour = processor.process(
 Specialized path optimization.
 
 ```python
-from logic.src.policies.other.route_improvement import PathRouteImprover
+from logic.src.policies.helpers.route_improvement import PathRouteImprover
 
 processor = PathRouteImprover()
 
@@ -3352,7 +3352,7 @@ improved_tour = processor.process(
 ### 10.3 Pipeline Configuration
 
 ```python
-from logic.src.policies.other import RouteImproverFactory
+from logic.src.policies.helpers import RouteImproverFactory
 
 # Multi-stage refinement pipeline
 processors = [
@@ -3442,7 +3442,7 @@ improved_routes = ls.search(
 
 ```python
 from logic.src.policies import create_policy
-from logic.src.policies.other import (
+from logic.src.policies.helpers import (
     MandatorySelectionSelectionFactory,
     RouteImproverFactory,
     SelectionContext
@@ -3814,13 +3814,13 @@ from logic.src.policies.operators import (
 )
 
 # mandatory selection
-from logic.src.policies.other import (
+from logic.src.policies.helpers import (
     MandatorySelectionSelectionFactory, MandatorySelectionSelectionRegistry,
     SelectionContext
 )
 
 # route improvement
-from logic.src.policies.other import (
+from logic.src.policies.helpers import (
     RouteImproverFactory, RouteImproverRegistry
 )
 

@@ -7,7 +7,7 @@ capacity constraints to compute reduced costs for each bin and selects those
 with a positive marginal contribution to the overall objective.
 
 Example:
-    >>> from logic.src.policies.other.mandatory.selection_lagrangian import LagrangianSelection
+    >>> from logic.src.policies.helpers.mandatory.selection_lagrangian import LagrangianSelection
     >>> strategy = LagrangianSelection()
     >>> bins = strategy.select_bins(context)
 """
@@ -18,8 +18,8 @@ import numpy as np
 from scipy.optimize import linprog
 
 from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
-from logic.src.policies.other.mandatory.base.selection_context import SelectionContext
-from logic.src.policies.other.mandatory.base.selection_registry import MandatorySelectionRegistry
+from logic.src.policies.helpers.mandatory.base.selection_context import SelectionContext
+from logic.src.policies.helpers.mandatory.base.selection_registry import MandatorySelectionRegistry
 
 
 @MandatorySelectionRegistry.register("lagrangian")

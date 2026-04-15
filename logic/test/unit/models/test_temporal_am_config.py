@@ -4,8 +4,8 @@ import torch
 import torch.nn as nn
 from logic.src.models.core.temporal_attention_model.model import TemporalAttentionModel
 from logic.src.models.core.temporal_attention_model.policy import TemporalAMPolicy
-from logic.src.models.subnets.other.gru_fill_predictor import GatedRecurrentUnitFillPredictor
-from logic.src.models.subnets.other.lstm_fill_predictor import LongShortTermMemoryFillPredictor
+from logic.src.models.subnets.helpers.gru_fill_predictor import GatedRecurrentUnitFillPredictor
+from logic.src.models.subnets.helpers.lstm_fill_predictor import LongShortTermMemoryFillPredictor
 from unittest.mock import MagicMock
 
 class TestTemporalAMConfig:

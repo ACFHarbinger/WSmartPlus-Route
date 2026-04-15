@@ -4,7 +4,7 @@ Unit tests for GENI 3-opt and 4-opt topologies.
 
 import numpy as np
 import pytest
-from logic.src.policies.other.operators.repair.geni import _apply_geni_move, _evaluate_route
+from logic.src.policies.helpers.operators.repair.geni import _apply_geni_move, _evaluate_route
 
 def test_geni_type_i_reconnection():
     """Verify Type I (3-opt) reconnection structure."""

@@ -7,7 +7,7 @@ exact solver (like the MIP Knapsack). It extracts features for each bin and
 predicts the probability that the bin should be selected.
 
 Example:
-    >>> from logic.src.policies.other.mandatory.selection_learned import LearnedSelection
+    >>> from logic.src.policies.helpers.mandatory.selection_learned import LearnedSelection
     >>> strategy = LearnedSelection()
     >>> bins = strategy.select_bins(context)
 """
@@ -18,8 +18,8 @@ from typing import Any, List, Optional
 import numpy as np
 
 from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
-from logic.src.policies.other.mandatory.base.selection_context import SelectionContext
-from logic.src.policies.other.mandatory.base.selection_registry import MandatorySelectionRegistry
+from logic.src.policies.helpers.mandatory.base.selection_context import SelectionContext
+from logic.src.policies.helpers.mandatory.base.selection_registry import MandatorySelectionRegistry
 
 
 @MandatorySelectionRegistry.register("learned")

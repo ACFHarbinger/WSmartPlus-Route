@@ -5,7 +5,7 @@ Unit tests for Pure Branch-and-Price Solver.
 import numpy as np
 import pytest
 from logic.src.policies.branch_and_price.bp import BranchAndPriceSolver
-from logic.src.policies.other.branching_solvers import VRPPMasterProblem, Route
+from logic.src.policies.helpers.branching_solvers import VRPPMasterProblem, Route
 
 def test_master_problem_dual_signs():
     """Test that Master Problem returns non-negative duals for Set Packing."""

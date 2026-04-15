@@ -20,7 +20,7 @@ import torch
 import torch.nn as nn
 
 from logic.src.interfaces.route_improvement import IRouteImprovement
-from logic.src.policies.other.operators.intensification import (
+from logic.src.policies.helpers.operators.intensification import (
     two_opt_steepest,
     two_opt_steepest_profit,
 )

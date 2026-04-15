@@ -49,7 +49,7 @@ class OrOptRouteImprover(IRouteImprovement):
             return tour
 
         try:
-            from logic.src.policies.other.local_search.local_search_manager import LocalSearchManager
+            from logic.src.policies.helpers.local_search.local_search_manager import LocalSearchManager
 
             routes = split_tour(tour)
             if not routes:

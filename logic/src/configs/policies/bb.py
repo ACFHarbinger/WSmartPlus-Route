@@ -8,8 +8,8 @@ mapping YAML configuration values to typed Python attributes for use in the solv
 from dataclasses import dataclass
 from typing import List, Optional
 
-from .other.mandatory_selection import MandatorySelectionConfig
-from .other.route_improvement import RouteImprovingConfig
+from .helpers.mandatory_selection import MandatorySelectionConfig
+from .helpers.route_improvement import RouteImprovingConfig
 
 
 @dataclass

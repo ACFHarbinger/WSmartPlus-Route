@@ -16,12 +16,12 @@ import pytest
 from logic.src.policies.hybrid_genetic_search import evolution, individual
 from logic.src.policies.hybrid_genetic_search import params as hgs_params
 from logic.src.policies.hybrid_genetic_search import split as split_module
-from logic.src.policies.other.local_search import local_search_base
+from logic.src.policies.helpers.local_search import local_search_base
 
 # HGS and ALNS auxiliary imports
-from logic.src.policies.other.operators import destroy as destroy_operators
-from logic.src.policies.other.operators import repair as repair_operators
-from logic.src.policies.other.operators.crossover import ordered_crossover
+from logic.src.policies.helpers.operators import destroy as destroy_operators
+from logic.src.policies.helpers.operators import repair as repair_operators
+from logic.src.policies.helpers.operators.crossover import ordered_crossover
 
 # Look-ahead auxiliary imports
 from logic.src.policies.simulated_annealing_neighborhood_search.common.check import (

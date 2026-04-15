@@ -8,7 +8,7 @@ collect it. It naturally deprioritizes highly valuable but highly isolated bins,
 acting as a robust proxy for marginal insertion cost.
 
 Example:
-    >>> from logic.src.policies.other.mandatory.selection_profit_per_km import ProfitPerKmSelection
+    >>> from logic.src.policies.helpers.mandatory.selection_profit_per_km import ProfitPerKmSelection
     >>> strategy = ProfitPerKmSelection()
     >>> bins = strategy.select_bins(context)
 """

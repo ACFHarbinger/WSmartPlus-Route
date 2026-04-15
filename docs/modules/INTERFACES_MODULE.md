@@ -446,7 +446,7 @@ class IMandatorySelectionSelection(Protocol):
 
 ```python
 from logic.src.interfaces import IMandatorySelectionSelection, SelectionContext
-from logic.src.policies.other.mandatory_selection import LastMinuteSelection
+from logic.src.policies.helpers.mandatory_selection import LastMinuteSelection
 
 # Selection strategy implements IMandatorySelectionSelection
 selector: IMandatorySelectionSelection = LastMinuteSelection(threshold=0.9)
@@ -508,7 +508,7 @@ class Iroute improvement(Protocol):
 
 ```python
 from logic.src.interfaces import Iroute improvement
-from logic.src.policies.other.route_improvement import TwoOptProcessor
+from logic.src.policies.helpers.route_improvement import TwoOptProcessor
 
 # Post-processor implements Iroute improvement
 refiner: Iroute improvement = TwoOptProcessor(max_iterations=100)
@@ -610,8 +610,8 @@ from logic.src.interfaces import (
 )
 from logic.src.envs import WCVRPEnv
 from logic.src.policies import HGSPolicy
-from logic.src.policies.other.mandatory_selection import LastMinuteSelection
-from logic.src.policies.other.route_improvement import TwoOptProcessor
+from logic.src.policies.helpers.mandatory_selection import LastMinuteSelection
+from logic.src.policies.helpers.route_improvement import TwoOptProcessor
 
 def run_routing_pipeline(
     env: IEnv,
@@ -665,7 +665,7 @@ neural_policy = NeuralAdapter(
 ).get_policy(decode_type="greedy")
 
 # Use different selection strategy
-from logic.src.policies.other.mandatory_selection import RegularSelection
+from logic.src.policies.helpers.mandatory_selection import RegularSelection
 
 regular_selector = RegularSelection(frequency=3)
 

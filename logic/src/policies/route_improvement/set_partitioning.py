@@ -21,8 +21,8 @@ import random
 from typing import Any, List, Set, Tuple
 
 from logic.src.interfaces.route_improvement import IRouteImprovement
-from logic.src.policies.other.operators.heuristics.large_neighborhood_search import apply_lns
-from logic.src.policies.other.operators.intensification import (
+from logic.src.policies.helpers.operators.heuristics.large_neighborhood_search import apply_lns
+from logic.src.policies.helpers.operators.intensification import (
     dp_route_reopt,
     set_partitioning_polish,
     set_partitioning_polish_profit,
