@@ -22,6 +22,9 @@ from logic.src.policies.other.branching_solvers.separation import (
     SeparationEngine,
 )
 
+from .lagrangian_relaxation.subgradient_optimization import _nearest_neighbour_tour_cost, run_subgradient
+from .lagrangian_relaxation.uncapacitated_orienteering_problem import solve_uncapacitated_op
+
 __all__ = [
     "AnyBranchingConstraint",
     "BranchAndBoundTree",
@@ -29,11 +32,16 @@ __all__ = [
     "EdgeBranching",
     "RyanFosterBranching",
     "MultiEdgePartitionBranching",
-    "DivergenceNodeSelection",
     "GlobalCutPool",
     "Route",
     "VRPPMasterProblem",
     "RCSPPSolver",
     "Label",
+    "CapacityCut",
+    "CombInequality",
+    "PCSubtourEliminationCut",
     "SeparationEngine",
+    "run_subgradient",
+    "_nearest_neighbour_tour_cost",
+    "solve_uncapacitated_op",
 ]

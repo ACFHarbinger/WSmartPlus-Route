@@ -135,6 +135,15 @@ bpc:
     - use_swc_tcf_primal_heuristic: false
       # Whether to execute SWC-TCF at intermediate B&B nodes to update upper bound
 
+    # --- Lagrangian pre-pruning ---
+    - lr_pre_pruning: false
+    - lr_lambda_init: 0.0
+    - lr_max_subgradient_iters: 30
+    - lr_subgradient_theta: 1.0
+    - lr_op_time_limit: 3.0
+    - lr_pre_pruning_depth_limit: -1
+    - lr_warm_start_cg: false
+
     - multi_day_mode: false
       # Whether to operate in multi-period stochastic mode.
       # If true, enables ADP-based value function approximation (BPC-ADP).
