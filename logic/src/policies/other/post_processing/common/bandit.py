@@ -18,10 +18,10 @@ class ThompsonBandit:
 
     def select(self) -> str:
         """Select an operator by sampling from Beta distributions."""
-        samples = {}
+        samples: Dict[str, float] = {}
         for name, (a, b) in self.params.items():
-            samples[name] = self.rng.beta(a, b)
-        return max(samples, key=samples.get)
+            samples[name] = float(self.rng.beta(a, b))
+        return max(samples, key=lambda x: samples[x])
 
     def update(self, name: str, success: int):
         """Update parameters based on success (1) or failure (0)."""

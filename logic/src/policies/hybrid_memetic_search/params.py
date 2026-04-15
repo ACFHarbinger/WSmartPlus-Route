@@ -36,6 +36,7 @@ class HybridMemeticSearchParams:
     elitism_count: int = 3
 
     # Phase-specific Parameters
+    n_removal: int = 3
     aco_init_iterations: int = 50
     time_limit: float = 300.0
     seed: Optional[int] = None
@@ -99,8 +100,9 @@ class HybridMemeticSearchParams:
                 aco_init_iterations=config.get("aco_init_iterations", 50),
                 time_limit=config.get("time_limit", 300.0),
                 vrpp=config.get("vrpp", True),
+                n_removal=config.get("n_removal", 3),
                 profit_aware_operators=config.get("profit_aware_operators", False),
-                aco_params=KSACOParams.from_config(config.get("aco")) if config.get("aco") else None,
+                aco_params=KSACOParams.from_config(config.get("aco")) if config.get("aco") else None,  # type: ignore[arg-type]
                 alns_params=ALNSParams.from_config(config.get("alns")) if config.get("alns") else None,
             )
 
@@ -113,6 +115,7 @@ class HybridMemeticSearchParams:
             elitism_count=config.elitism_count,
             aco_init_iterations=config.aco_init_iterations,
             time_limit=config.time_limit,
+            n_removal=config.n_removal,
             vrpp=getattr(config, "vrpp", True),
             profit_aware_operators=getattr(config, "profit_aware_operators", False),
             aco_params=KSACOParams.from_config(config.aco) if config.aco else None,

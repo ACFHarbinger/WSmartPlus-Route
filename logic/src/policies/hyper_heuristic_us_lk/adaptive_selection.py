@@ -147,7 +147,7 @@ class AdaptiveOperatorSelector:
         self.weights[operator] *= self.weight_decay
 
         # Add learning component
-        self.weights[operator] += self.learning_rate * avg_score
+        self.weights[operator] += self.learning_rate * float(avg_score)
 
         # Ensure positive weight
         self.weights[operator] = max(0.1, self.weights[operator])

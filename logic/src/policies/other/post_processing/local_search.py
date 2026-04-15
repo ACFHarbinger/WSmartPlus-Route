@@ -72,7 +72,7 @@ class ClassicalLocalSearchPostProcessor(IPostProcessor):
         if op_key and op_key in INTENSIFICATION_OPERATORS:
             op_fn = INTENSIFICATION_OPERATORS[op_key]
             try:
-                refined_routes = op_fn(routes, dist_matrix, wastes, capacity, R=R, C=C, max_iter=max_iter)
+                refined_routes = op_fn(routes, dist_matrix, wastes, capacity, R=R, C=C, max_iter=max_iter)  # type: ignore[operator]
                 return assemble_tour(refined_routes)
             except Exception:
                 return tour

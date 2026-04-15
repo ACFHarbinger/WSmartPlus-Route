@@ -139,7 +139,7 @@ class RolloutSelection(IMustGoSelectionStrategy):
             This evaluation assumes cost_per_km > 0 to resolve ties between
             "collect today" and "defer indefinitely" (both zeros if costs=0).
         """
-        mu = context.accumulation_rates[idx]
+        mu = context.accumulation_rates[idx] if context.accumulation_rates is not None else 0.0
         sigma = target_sigma
         # Dedicated rollout discount with fallback to whittle_discount
         discount = getattr(context, "rollout_discount", getattr(context, "whittle_discount", 0.95))

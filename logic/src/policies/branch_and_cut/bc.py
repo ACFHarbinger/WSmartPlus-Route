@@ -39,8 +39,8 @@ try:
     GUROBI_AVAILABLE = True
 except ImportError:
     GUROBI_AVAILABLE = False
-    gp = None  # type: ignore[assignment]
-    GRB = None  # type: ignore[assignment,misc]
+    gp: Any = None  # type: ignore[assignment,no-redef]
+    GRB: Any = None  # type: ignore[assignment,misc,no-redef]
 
 
 class BranchAndCutSolver:
@@ -125,11 +125,11 @@ class BranchAndCutSolver:
 
         # Statistics
         self.stats = {
-            "total_cuts": 0.0,
-            "sec_cuts": 0.0,
-            "capacity_cuts": 0.0,
-            "nodes_explored": 0.0,
-            "lp_iterations": 0.0,  # counts integer solutions (MIPSOL events)
+            "total_cuts": 0,
+            "sec_cuts": 0,
+            "capacity_cuts": 0,
+            "nodes_explored": 0,
+            "lp_iterations": 0,  # counts integer solutions (MIPSOL events)
             "fractional_iterations": 0.0,  # counts fractional LP nodes (MIPNODE events)
         }
 
@@ -447,8 +447,9 @@ class BranchAndCutSolver:
         # Store cuts for pool re-evaluation at child nodes (active via _evaluate_pool_cuts).
         for cut in cuts:
             # Signature: (node_set, class_name, facet_form, node_i, node_j)
+            node_set = getattr(cut, "node_set", set())
             sig = (
-                frozenset(cut.node_set),
+                frozenset(node_set) if node_set else frozenset(),
                 cut.__class__.__name__,
                 getattr(cut, "facet_form", None),
                 getattr(cut, "node_i", None),
@@ -519,8 +520,9 @@ class BranchAndCutSolver:
         # Store cuts for pool re-evaluation at child nodes (active via _evaluate_pool_cuts).
         for cut in cuts:
             # Signature: (node_set, class_name, facet_form, node_i, node_j)
+            node_set = getattr(cut, "node_set", set())
             sig = (
-                frozenset(cut.node_set),
+                frozenset(node_set) if node_set else frozenset(),
                 cut.__class__.__name__,
                 getattr(cut, "facet_form", None),
                 getattr(cut, "node_i", None),
@@ -652,7 +654,7 @@ class BranchAndCutSolver:
             if len(S) <= 1:
                 continue
 
-            expected_demand = sum(avg_demands.get(i, 0.0) * y_val_dict.get(i, 0.0) for i in S)
+            expected_demand = sum(avg_demands.get(i, 0.0) * y_val_dict.get(i, 0.0) for i in S)  # type: ignore[no-matching-overload]
 
             if expected_demand > 0:
                 req_capacity = (2.0 * expected_demand) / self.model.capacity
@@ -662,7 +664,9 @@ class BranchAndCutSolver:
 
                 if delta_S_val < req_capacity - 1e-4:
                     edge_vars = [
-                        self.x_vars[tuple(sorted(e))] for e in delta_S_edges if tuple(sorted(e)) in self.x_vars
+                        self.x_vars[tuple(sorted(e))]  # type: ignore[index]
+                        for e in delta_S_edges
+                        if tuple(sorted(e)) in self.x_vars
                     ]
                     y_vars_S = [self.y_vars[i] for i in S if i in self.y_vars]
                     demand_S = [avg_demands.get(i, 0.0) for i in S if i in self.y_vars]
@@ -760,7 +764,7 @@ class BranchAndCutSolver:
                 if len(S) <= 1:
                     continue
 
-                scenario_load = sum(scenario_demands.get(i, 0.0) * y_val_dict.get(i, 0.0) for i in S)
+                scenario_load = sum(scenario_demands.get(i, 0.0) * y_val_dict.get(i, 0.0) for i in S)  # type: ignore[no-matching-overload]
 
                 delta_S_edges = [(u, v) for u, v in self.model.edges if (u in S) != (v in S)]
                 delta_S_val = sum(x_vals[edges_list.index((u, v))] for u, v in delta_S_edges)
@@ -768,7 +772,9 @@ class BranchAndCutSolver:
 
                 if scenario_load - provided_capacity > q_val + 1e-4:
                     edge_vars = [
-                        self.x_vars[tuple(sorted(e))] for e in delta_S_edges if tuple(sorted(e)) in self.x_vars
+                        self.x_vars[tuple(sorted(e))]  # type: ignore[index]
+                        for e in delta_S_edges
+                        if tuple(sorted(e)) in self.x_vars
                     ]
                     y_vars_S = [self.y_vars[i] for i in S if i in self.y_vars]
                     demand_S = [scenario_demands.get(i, 0.0) for i in S if i in self.y_vars]

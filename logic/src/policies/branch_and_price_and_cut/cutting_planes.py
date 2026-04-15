@@ -185,7 +185,7 @@ class RoundedCapacityCutEngine(CuttingPlaneEngine):
         """
         # Task 2: Exact separation requires flow conservation on elementary routes.
         # Use filtered edge usage to prevent invalid cut generation from cyclic support.
-        edge_vars = master.get_edge_usage(elementary_only=True)
+        edge_vars = master.get_edge_usage(only_elementary=True)
         if not edge_vars:
             return 0
 

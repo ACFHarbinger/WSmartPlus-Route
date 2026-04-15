@@ -18,6 +18,7 @@ class HybridMemeticSearchConfig:
     Functionally equivalent to HVPL.
     """
 
+    n_removal: int = 3
     population_size: int = 30
     max_generations: int = 50
     substitution_rate: float = 0.2

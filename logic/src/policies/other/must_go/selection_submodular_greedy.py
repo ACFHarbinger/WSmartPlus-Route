@@ -15,7 +15,7 @@ to efficiently select bins while respecting a cardinality budget.
 """
 
 import heapq
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 
@@ -57,7 +57,7 @@ class SubmodularGreedySelection(IMustGoSelectionStrategy):
         budget = context.modular_budget if context.modular_budget > 0 else n_bins
 
         # 2. State management
-        selected_set = []
+        selected_set: List[int] = []
         # min_dist_to_S[i] = min_{j in S union {0}} dist(i, j)
         # Initially S = {}, so S union {0} = {0}
         min_dist_to_S = dist_mat[0, 1:].copy()
@@ -71,7 +71,7 @@ class SubmodularGreedySelection(IMustGoSelectionStrategy):
         current_obj = get_total_objective(min_dist_to_S)
 
         # 3. Greedy with Lazy Evaluation
-        priority_queue = []
+        priority_queue: List[Tuple[float, int, int]] = []
 
         # Marginal gain g(k | S) = f(S union {k}) - f(S)
         def compute_marginal_gain(k_idx, current_min_dists):

@@ -81,8 +81,10 @@ class RandomLocalSearchPostProcessor(IPostProcessor):
         )
         manager.set_routes(routes)
 
+        from typing import Callable
+
         # Map probabilistic keys to manager methods
-        op_map = {
+        op_map: dict[str, Callable[[], Any]] = {
             "two_opt": manager.two_opt_intra,
             "swap": manager.swap,
             "relocate": manager.relocate,

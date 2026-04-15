@@ -135,6 +135,7 @@ ignore_missing_imports = true
 check_untyped_defs = false
 disallow_untyped_defs = false
 explicit_package_bases = true
+allow_redefinition = true
 
 files = ["logic/src", "gui/src"]
 exclude = [
@@ -176,7 +177,6 @@ ignore = ["**/__init__.py"]
 [tool.pyrefly.errors]
 "implicit-import" = false
 "untyped-import" = false
-#"optional-member-access" = false
 #"optional-call" = false
 #"optional-iterable" = false
 #"attribute-access-issue" = false

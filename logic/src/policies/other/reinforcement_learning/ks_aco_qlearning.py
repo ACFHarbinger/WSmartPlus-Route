@@ -383,10 +383,10 @@ class KSparseACOQLSolver:
         for route in best_routes:
             if not route:
                 continue
-            self.pheromone.update_edge(0, route[0], delta, evaporate=False)
+            self.pheromone.deposit_edge(0, route[0], delta)
             for k in range(len(route) - 1):
-                self.pheromone.update_edge(route[k], route[k + 1], delta, evaporate=False)
-            self.pheromone.update_edge(route[-1], 0, delta, evaporate=False)
+                self.pheromone.deposit_edge(route[k], route[k + 1], delta)
+            self.pheromone.deposit_edge(route[-1], 0, delta)
 
     def _calculate_cost(self, routes: List[List[int]]) -> float:
         """Calculate total routing cost."""

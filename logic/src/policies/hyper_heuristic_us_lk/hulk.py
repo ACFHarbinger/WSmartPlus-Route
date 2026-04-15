@@ -146,7 +146,7 @@ class HULKSolver:
             current = Solution(routes, self.dist_matrix, self.wastes, self.capacity, self.R, self.C)
 
             restart_best = current.copy()
-            restart_best_profit = restart_best.profit
+            restart_best_profit = restart_best.profit or 0.0
 
             # Reset temperature
             self.temperature = self.params.start_temp
@@ -174,8 +174,8 @@ class HULKSolver:
                 # Gamma: Accepted worsening move
                 # Delta: Rejected move
 
-                is_global_best = neighbor.profit > global_best_profit
-                is_improvement = neighbor.profit > current.profit
+                is_global_best = (neighbor.profit or 0.0) > global_best_profit
+                is_improvement = (neighbor.profit or 0.0) > (current.profit or 0.0)
 
                 if is_global_best:
                     reward = self.params.score_alpha
@@ -195,9 +195,9 @@ class HULKSolver:
                 if accepted:
                     current = neighbor
 
-                    if current.profit > restart_best_profit:
+                    if (current.profit or 0.0) > restart_best_profit:
                         restart_best = current.copy()
-                        restart_best_profit = current.profit
+                        restart_best_profit = current.profit or 0.0
                         last_improvement_it = it
 
                 # Cool temperature

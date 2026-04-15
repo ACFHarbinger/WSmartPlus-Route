@@ -49,7 +49,6 @@ from .constraints import (
     RyanFosterBranchingConstraint,
 )
 from .strategies import (
-    BranchingStrategy,
     EdgeBranching,
     FleetSizeBranching,
     MultiEdgePartitionBranching,
@@ -65,7 +64,6 @@ __all__ = [
     "NodeVisitationBranchingConstraint",
     "AnyBranchingConstraint",
     "BranchingConstraint",
-    "BranchingStrategy",
     "EdgeBranching",
     "RyanFosterBranching",
     "FleetSizeBranching",

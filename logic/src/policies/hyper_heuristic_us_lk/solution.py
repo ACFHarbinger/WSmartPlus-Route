@@ -44,9 +44,9 @@ class Solution:
         self.C = C
 
         # Compute metrics
-        self._cost = None
-        self._revenue = None
-        self._profit = None
+        self._cost = 0.0
+        self._revenue = 0.0
+        self._profit = 0.0
         self._compute_metrics()
 
     def _compute_metrics(self):

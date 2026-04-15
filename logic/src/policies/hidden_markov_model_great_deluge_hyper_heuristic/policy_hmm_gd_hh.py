@@ -5,6 +5,7 @@ Adapts the HMM + Great Deluge (HMM-GD) hyper-heuristic solver to the
 agnostic BaseRoutingPolicy interface.
 """
 
+import random
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
@@ -14,6 +15,7 @@ from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.base.factory import PolicyRegistry
 from logic.src.policies.hidden_markov_model_great_deluge_hyper_heuristic.params import HMMGDHHParams
 from logic.src.policies.hidden_markov_model_great_deluge_hyper_heuristic.solver import HMMGDHHSolver
+from logic.src.policies.other.operators.heuristics.greedy_initialization import build_greedy_routes
 
 
 @PolicyRegistry.register("hmm_gd_hh")
@@ -72,5 +74,16 @@ class HMMGDHHPolicy(BaseRoutingPolicy):
             mandatory_nodes,
         )
 
-        routes, profit, cost = solver.solve()
+        rng = random.Random(params.seed)
+        heuristic_routes = build_greedy_routes(
+            dist_matrix=sub_dist_matrix,
+            wastes=sub_wastes,
+            capacity=capacity,
+            R=revenue,
+            C=cost_unit,
+            mandatory_nodes=mandatory_nodes,
+            rng=rng,
+        )
+
+        routes, profit, cost = solver.solve(initial_routes=heuristic_routes)
         return routes, profit, cost
