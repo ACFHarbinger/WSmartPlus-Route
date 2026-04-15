@@ -5,19 +5,19 @@ Data preview utilities for JSON structures.
 import glob
 import json
 import os
-from typing import Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 from .value_processing import find_single_input_values, find_two_input_values
 
 
 def preview_changes(
-    root_directory,
-    output_key="km",
-    filename_pattern="log_*.json",
-    process_func=None,
-    update_val=0,
-    input_keys=(None, None),
-):
+    root_directory: str,
+    output_key: str = "km",
+    filename_pattern: str = "log_*.json",
+    process_func: Optional[Callable[..., Any]] = None,
+    update_val: Union[int, float] = 0,
+    input_keys: Tuple[Optional[str], Optional[str]] = (None, None),
+) -> None:
     """
     Preview what changes will be made without actually modifying files.
 
@@ -46,7 +46,7 @@ def preview_changes(
     if has_2_keys:
         has_2_inputs = True
         key_value = key2  # Second input is the name of the second key
-        input2_name = key2
+        input2_name = str(key2)
     elif key1 is not None:
         has_2_inputs = True
         key_value = update_val  # Second input is the literal update_val
@@ -63,9 +63,9 @@ def preview_changes(
 
             if has_2_inputs:
                 # Two-input mode: find pairs of keys (input_key2 can be a string key or a value)
-                key_values_found = find_two_input_values(data, input_key1=key1, input_key2=key_value)
-                if key_values_found:
-                    for location, value1, value2 in key_values_found:
+                key_values_found_2 = find_two_input_values(data, input_key1=key1, input_key2=key_value)
+                if key_values_found_2:
+                    for location, value1, value2 in key_values_found_2:
                         new_value = process_func(value1, value2)
                         print(
                             f"- Would calculate and write to key '{output_key}' at '{location}': "
@@ -75,9 +75,9 @@ def preview_changes(
                     print(f"- No suitable input pairs ({key1}, {input2_name}) found")
             else:
                 # Single-input mode: find the output key
-                key_values_found = find_single_input_values(data, output_key=output_key)
-                if key_values_found:
-                    for location, old_value in key_values_found:
+                key_values_found_1 = find_single_input_values(data, output_key=output_key)
+                if key_values_found_1:
+                    for location, old_value in key_values_found_1:
                         new_value = process_func(old_value, update_val)
                         print(
                             f"- Would update file '{location}' and key '{output_key}': "
@@ -89,7 +89,13 @@ def preview_changes(
             print(f"- ERROR {e}: could not read '{file_path}'")
 
 
-def preview_file_changes(file_path, output_key="km", process_func=None, update_val=0, input_keys=(None, None)):
+def preview_file_changes(
+    file_path: str,
+    output_key: str = "km",
+    process_func: Optional[Callable[..., Any]] = None,
+    update_val: Union[int, float] = 0,
+    input_keys: Tuple[Optional[str], Optional[str]] = (None, None),
+) -> None:
     """
     Preview changes for a single file without modifying it.
 
@@ -121,7 +127,7 @@ def preview_file_changes(file_path, output_key="km", process_func=None, update_v
     if has_2_keys:
         has_2_inputs = True
         key_value = key2  # Second input is the name of the second key
-        input2_name = key2
+        input2_name = str(key2)
     elif key1 is not None:
         has_2_inputs = True
         key_value = update_val  # Second input is the literal update_val
@@ -135,9 +141,9 @@ def preview_file_changes(file_path, output_key="km", process_func=None, update_v
 
             if has_2_inputs:
                 # Two-input mode: find pairs of keys
-                key_values_found = find_two_input_values(data, input_key1=key1, input_key2=key_value)
-                if key_values_found:
-                    for location, value1, value2 in key_values_found:
+                key_values_found_2 = find_two_input_values(data, input_key1=key1, input_key2=key_value)
+                if key_values_found_2:
+                    for location, value1, value2 in key_values_found_2:
                         new_value = process_func(value1, value2)
                         print(
                             f"- Would calculate and write to key '{output_key}' at '{location}': "
@@ -147,9 +153,9 @@ def preview_file_changes(file_path, output_key="km", process_func=None, update_v
                     print(f"- No suitable input pairs ({key1}, {input2_name}) found")
             else:
                 # Single-input mode: find the output key
-                key_values_found = find_single_input_values(data, output_key=output_key)
-                if key_values_found:
-                    for location, old_value in key_values_found:
+                key_values_found_1 = find_single_input_values(data, output_key=output_key)
+                if key_values_found_1:
+                    for location, old_value in key_values_found_1:
                         new_value = process_func(old_value, update_val)
                         print(
                             f"- Would update file '{location}' and key '{output_key}': "
@@ -162,12 +168,12 @@ def preview_file_changes(file_path, output_key="km", process_func=None, update_v
 
 
 def preview_pattern_files_statistics(
-    root_directory,
-    filename_pattern="log_*.json",
-    output_filename="output.json",
-    output_key="km",
-    process_func=None,
-):
+    root_directory: str,
+    filename_pattern: str = "log_*.json",
+    output_filename: str = "output.json",
+    output_key: str = "km",
+    process_func: Optional[Callable[..., Any]] = None,
+) -> None:
     """
     Preview changes for pattern files statistics operation without modifying files.
 
@@ -199,7 +205,7 @@ def preview_pattern_files_statistics(
             key_values_found = find_single_input_values(data, output_key=output_key)
             if key_values_found:
                 # Group values by field name (the part after the last dot)
-                grouped_values = {}
+                grouped_values: Dict[str, List[Any]] = {}
                 if key_values_found:
                     for location, value in key_values_found:
                         # Extract field name from location (e.g., '[0].hexaly_vrpp0.84_gamma1' -> 'hexaly_vrpp0.84_gamma1')
@@ -230,7 +236,12 @@ def preview_pattern_files_statistics(
     print(f"\nSummary: {files_with_changes}/{len(files)} files would be processed")
 
 
-def preview_file_statistics(file_path, output_filename="output.json", output_key="km", process_func=None):
+def preview_file_statistics(
+    file_path: str,
+    output_filename: str = "output.json",
+    output_key: str = "km",
+    process_func: Optional[Callable[..., Any]] = None,
+) -> bool:
     """
     Preview changes for a single file statistics operation without modifying it
     """
@@ -238,11 +249,11 @@ def preview_file_statistics(file_path, output_filename="output.json", output_key
 
     if not os.path.exists(file_path):
         print(f"File not found: {file_path}")
-        return
+        return False
 
     if not os.path.isfile(file_path):
         print(f"Path is not a file: {file_path}")
-        return
+        return False
 
     print(f"Preview mode - single file: {file_path}")
     try:
@@ -251,7 +262,7 @@ def preview_file_statistics(file_path, output_filename="output.json", output_key
 
         # Track if any modifications would be made
         key_values_found = find_single_input_values(data, output_key=output_key)
-        grouped_values = {}
+        grouped_values: Dict[str, List[Any]] = {}
         if key_values_found:
             # Group values by field name (the part after the last dot)
             for location, value in key_values_found:
@@ -282,3 +293,4 @@ def preview_file_statistics(file_path, output_filename="output.json", output_key
             return False
     except Exception as e:
         print(f"- ERROR {e}: could not read '{file_path}'")
+        return False

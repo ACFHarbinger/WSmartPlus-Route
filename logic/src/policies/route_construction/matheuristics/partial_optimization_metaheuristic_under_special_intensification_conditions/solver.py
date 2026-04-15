@@ -24,15 +24,15 @@ from logic.src.configs.policies.alns import ALNSConfig
 from logic.src.configs.policies.hgs import HGSConfig
 from logic.src.policies.helpers.operators.heuristics.greedy_initialization import build_greedy_routes
 from logic.src.policies.helpers.operators.heuristics.nearest_neighbor_initialization import build_nn_routes
+from logic.src.policies.route_construction.helpers_algorithms.travelling_salesman_problem.tsp import (
+    find_route,
+    get_route_cost,
+)
 from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns import ALNSSolver
 from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params import ALNSParams
 from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs import HGSSolver
 from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.params import HGSParams
 from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.split import LinearSplit
-from logic.src.policies.route_construction.helpers_algorithms.travelling_salesman_problem.tsp import (
-    find_route,
-    get_route_cost,
-)
 
 
 def run_popmusic(  # noqa: C901

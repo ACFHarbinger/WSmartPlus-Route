@@ -10,7 +10,7 @@ import numpy as np
 from logic.src.configs import MandatorySelectionConfig
 from logic.src.constants import MAX_CAPACITY_PERCENT, ROOT_DIR
 from logic.src.interfaces import IBinContainer, ITraversable
-from logic.src.policies.helpers import MandatorySelectionFactory, SelectionContext
+from logic.src.policies.mandatory_selection import MandatorySelectionFactory, SelectionContext
 from logic.src.utils.configs.config_loader import load_config
 
 from .base import SimulationAction, _flatten_config

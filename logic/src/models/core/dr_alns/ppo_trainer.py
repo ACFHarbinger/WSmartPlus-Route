@@ -34,7 +34,7 @@ class PPOBuffer:
         self.capacity = capacity
         self.reset()
 
-    def reset(self):
+    def reset(self) -> None:
         """Clear the buffer."""
         self.states: List[torch.Tensor] = []
         self.actions: List[Dict[str, int]] = []
@@ -156,7 +156,9 @@ class PPOTrainer:
 
         self.buffer = PPOBuffer()
 
-    def collect_experience(self, n_steps: int, instance_generator: Optional[Callable] = None) -> Dict[str, float]:
+    def collect_experience(
+        self, n_steps: int, instance_generator: Optional[Callable[..., Any]] = None
+    ) -> Dict[str, float]:
         """
         Collect experience by running the agent in the environment.
 

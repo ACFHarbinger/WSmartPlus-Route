@@ -13,7 +13,7 @@ import os
 import random
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional, Tuple
 
 import numpy as np
 import torch
@@ -82,8 +82,8 @@ class InitializingState(SimState):
         logger.info(f"Initialization complete. Transitioning to RunningState for {ctx.pol_name} policy.")
         ctx.transition_to(RunningState())
 
-    def _setup_logging_and_dirs(self, ctx):
-        def _safe_get(obj, path, default=None):
+    def _setup_logging_and_dirs(self, ctx: SimulationContext) -> None:
+        def _safe_get(obj: Any, path: str, default: Any = None) -> Any:
             try:
                 for part in path.split("."):
                     obj = getattr(obj, part)
@@ -114,10 +114,10 @@ class InitializingState(SimState):
         else:
             logger.info(f"Results directory already exists: {ctx.results_dir}")
 
-    def _load_all_configurations(self, ctx):
+    def _load_all_configurations(self, ctx: SimulationContext) -> None:
         ctx.config = {}
 
-        def _safe_get(obj, path, default=None):
+        def _safe_get(obj: Any, path: str, default: Any = None) -> Any:
             try:
                 for part in path.split("."):
                     obj = getattr(obj, part)
@@ -138,7 +138,7 @@ class InitializingState(SimState):
 
         self._load_neural_configs(ctx)
 
-    def _load_neural_configs(self, ctx):
+    def _load_neural_configs(self, ctx: SimulationContext) -> None:
         # Priority 1: policy_cfg (new structured format)
         model_name = ""
         if isinstance(ctx.pol_cfg, dict) and "model" in ctx.pol_cfg:
@@ -158,7 +158,7 @@ class InitializingState(SimState):
         if is_neural and (is_neural_arch or model_name == "") and os.path.exists(neural_cfg_path):
             try:
                 neural_cfg = load_config(neural_cfg_path)
-                if neural_cfg:
+                if neural_cfg and ctx.config is not None:
                     if "neural" in neural_cfg:
                         # Flatten specific neural sub-configs if they are lists
                         for pol_key, pol_val in neural_cfg["neural"].items():
@@ -169,20 +169,20 @@ class InitializingState(SimState):
             except (OSError, ValueError) as e:
                 print(f"\n[WARNING] Failed to load neural config {neural_cfg_path}: {e}")
 
-    def _setup_capacities(self, ctx):
+    def _setup_capacities(self, ctx: SimulationContext) -> None:
         sim = ctx.cfg.sim
         capacities, _, _, _, _ = load_area_and_waste_type_params(sim.graph.area, sim.graph.waste_type)
         ctx.vehicle_capacity = capacities
 
-    def _load_checkpoint_if_needed(self, ctx):
+    def _load_checkpoint_if_needed(self, ctx: SimulationContext) -> Tuple[Optional[Any], int]:
         saved_state, last_day = (None, 0)
-        if ctx.cfg.sim.resume:
+        if ctx.cfg.sim.resume and ctx.checkpoint is not None:
             saved_state, last_day = ctx.checkpoint.load_state()
             if saved_state is not None and ctx.overall_progress:
                 ctx.overall_progress.update(last_day)
         return saved_state, last_day
 
-    def _setup_models(self, ctx):
+    def _setup_models(self, ctx: SimulationContext) -> None:
         model_name = ""
         if isinstance(ctx.pol_cfg, dict) and "model" in ctx.pol_cfg:
             model_name = ctx.pol_cfg["model"].get("name", "").lower()
@@ -216,10 +216,10 @@ class InitializingState(SimState):
 
             ctx.model_env, configs = setup_model(
                 ctx.pol_name,
-                ctx.model_weights_path,
+                ctx.model_weights_path or "",
                 model_paths,
                 ctx.device,
-                ctx.lock,
+                ctx.lock,  # type: ignore[arg-type]
                 temp,
                 strat,
             )
@@ -246,7 +246,7 @@ class InitializingState(SimState):
             ctx.model_tup = (None, None)
             self.configs = None  # type: ignore[assignment]
 
-    def _restore_state(self, ctx, saved_state, last_day):
+    def _restore_state(self, ctx: SimulationContext, saved_state: Any, last_day: int) -> None:
         (
             ctx.new_data,
             ctx.coords,
@@ -262,7 +262,7 @@ class InitializingState(SimState):
         ) = saved_state
         ctx.start_day = last_day + 1
 
-    def _initialize_new_state(self, ctx, data, bins_coordinates, depot):
+    def _initialize_new_state(self, ctx: SimulationContext, data: Any, bins_coordinates: Any, depot: Any) -> None:
         sim = ctx.cfg.sim
 
         ctx.new_data, ctx.coords = process_data(data, bins_coordinates, depot, ctx.indices)
@@ -311,15 +311,16 @@ class InitializingState(SimState):
         self._initialize_bins(ctx)
 
         ctx.cached = [] if sim.cache_regular else None
-        if sim.stats_filepath is not None:
-            ctx.bins.set_statistics(sim.stats_filepath)
-        if ctx.bins.waste_dataset is not None:
-            ctx.bins.set_sample_waste(ctx.sample_id)
+        if ctx.bins is not None:
+            if sim.stats_filepath is not None:
+                ctx.bins.set_statistics(sim.stats_filepath)
+            if ctx.bins.waste_dataset is not None:
+                ctx.bins.set_sample_waste(ctx.sample_id)
 
-        ctx.bins.set_indices(ctx.indices)
+            ctx.bins.set_indices(ctx.indices)
         ctx.daily_log = {key: [] for key in DAY_METRICS}
 
-    def _initialize_bins(self, ctx):
+    def _initialize_bins(self, ctx: SimulationContext) -> None:
         sim = ctx.cfg.sim
         data_dist = sim.data_distribution
         if "gamma" in data_dist:

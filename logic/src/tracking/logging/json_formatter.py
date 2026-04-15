@@ -12,7 +12,7 @@ from logic.src.interfaces import ITraversable
 class JsonFormatter(logging.Formatter):
     """Formatter that outputs JSON strings."""
 
-    def format(self, record):
+    def format(self, record: logging.LogRecord) -> str:
         """Format a log record as a JSON string."""
         log_entry = {
             "timestamp": datetime.datetime.fromtimestamp(record.created).isoformat(),

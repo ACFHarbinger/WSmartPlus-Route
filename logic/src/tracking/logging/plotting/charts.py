@@ -4,27 +4,28 @@ Line chart plotting utilities.
 
 from __future__ import annotations
 
-from typing import Dict, List, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def plot_linechart(
-    output_dest,
-    graph_log,
-    plot_func,
-    policies,
-    x_label=None,
-    y_label=None,
-    title=None,
-    fsave=True,
-    scale="linear",
-    x_values=None,
-    linestyles=None,
-    markers=None,
-    annotate=True,
-    pareto_front=False,
-):
+    output_dest: str,
+    graph_log: np.ndarray,
+    plot_func: Callable[..., Any],
+    policies: List[str],
+    x_label: Optional[str] = None,
+    y_label: Optional[str] = None,
+    title: Optional[str] = None,
+    fsave: bool = True,
+    scale: str = "linear",
+    x_values: Optional[Union[List[float], np.ndarray]] = None,
+    linestyles: Optional[List[str]] = None,
+    markers: Optional[List[str]] = None,
+    annotate: bool = True,
+    pareto_front: bool = False,
+) -> Optional[List[List[int]]]:
     """
     Plots a generic line chart, optionally handling multiple policies and Pareto fronts.
 
@@ -48,7 +49,13 @@ def plot_linechart(
         list or None: Pareto dominants if pareto_front is True, else None.
     """
 
-    def plot_graphs_out(plot_func, graph_log, x_values, linestyles, markers):
+    def plot_graphs_out(
+        plot_func: Callable[..., Any],
+        graph_log: np.ndarray,
+        x_values: Optional[Union[List[float], np.ndarray]],
+        linestyles: Optional[List[str]],
+        markers: Optional[List[str]],
+    ) -> Dict[int, List[Tuple[float, float]]]:
         """
         Helper to plot graphs for different policies.
 
@@ -112,7 +119,9 @@ def plot_linechart(
     return pareto_dominants if pareto_front else None
 
 
-def _plot_2d_graph(plot_func, graph_log, markers) -> Dict[int, List[Tuple[float, float]]]:
+def _plot_2d_graph(
+    plot_func: Callable[..., Any], graph_log: np.ndarray, markers: Optional[List[str]]
+) -> Dict[int, List[Tuple[float, float]]]:
     """Helper to plot 2D graph log data."""
     points_by_nbins: Dict[int, List[Tuple[float, float]]] = {0: []}
     for id_val, ll in enumerate(graph_log):
@@ -125,7 +134,7 @@ def _plot_2d_graph(plot_func, graph_log, markers) -> Dict[int, List[Tuple[float,
     return points_by_nbins
 
 
-def _annotate_plot(graph_log) -> None:
+def _annotate_plot(graph_log: np.ndarray) -> None:
     """Helper to annotate plot points."""
     for lg in zip(*graph_log, strict=False):
         for id_val, xy in enumerate(
@@ -135,7 +144,7 @@ def _annotate_plot(graph_log) -> None:
                 _add_scatter_marker(xy)
 
 
-def _set_plot_attributes(scale, x_label, y_label, policies) -> None:
+def _set_plot_attributes(scale: str, x_label: Optional[str], y_label: Optional[str], policies: List[str]) -> None:
     """Helper to set plot scales, labels and legend."""
     if scale != "linear":
         plt.yscale(scale)
@@ -147,7 +156,7 @@ def _set_plot_attributes(scale, x_label, y_label, policies) -> None:
     plt.legend(policies)
 
 
-def _save_plot(output_dest, x_values) -> None:
+def _save_plot(output_dest: str, x_values: Optional[Union[List[float], np.ndarray]]) -> None:
     """Helper to save plot with appropriate parameters."""
     if x_values is not None:
         plt.savefig(output_dest)
