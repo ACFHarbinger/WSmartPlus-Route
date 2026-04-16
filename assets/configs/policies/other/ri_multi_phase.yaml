@@ -1,0 +1,9 @@
+# route improvement: Multi-Phase
+methods:
+  - "multi_phase"
+
+multi_phase:
+  phases:
+    - "cheapest_insertion"
+    - "lkh"
+  seed: 42

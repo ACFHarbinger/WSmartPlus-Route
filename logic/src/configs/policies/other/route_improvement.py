@@ -253,11 +253,10 @@ class BranchAndPricePostConfig:
 
 
 @dataclass
-class TwoPhasePostConfig:
-    """Configuration for Two-phase composition."""
+class MultiPhasePostConfig:
+    """Configuration for Multi-phase composition."""
 
-    phase_one: str = "cheapest_insertion"
-    phase_two: str = "lkh"
+    phases: List[str] = field(default_factory=lambda: ["cheapest_insertion", "lkh"])
     seed: int = 42
 
 
@@ -272,7 +271,7 @@ class RouteImprovingConfig:
             Supported: 'fast_tsp', 'lkh', 'classical_local_search', 'random_local_search', 'path',
                        'or_opt', 'cross_exchange', 'guided_local_search', 'simulated_annealing',
                        'cheapest_insertion', 'regret_k_insertion', 'profitable_detour',
-                       'ruin_recreate', 'adaptive_lns', 'two_phase', 'steepest_two_opt',
+                       'ruin_recreate', 'adaptive_lns', 'multi_phase', 'steepest_two_opt',
                        'or_opt_steepest', 'node_exchange_steepest', 'dp_route_reopt',
                        'fix_and_optimize', 'set_partitioning_polish', 'set_partitioning',
                        'branch_and_price'.
@@ -288,7 +287,7 @@ class RouteImprovingConfig:
         insertion: Shared configuration for insertion/augmentation strategies.
         ruin_recreate: Configuration for LNS.
         adaptive_lns: Configuration for ALNS.
-        two_phase: Configuration for Two-phase composition.
+        multi_phase: Configuration for Multi-phase composition.
         time_limit: Soft global time limit for route improvement operations.
         params: Additional strategy-specific parameters as a dictionary.
     """
@@ -310,7 +309,7 @@ class RouteImprovingConfig:
     insertion: InsertionPostConfig = field(default_factory=InsertionPostConfig)
     ruin_recreate: RuinRecreatePostConfig = field(default_factory=RuinRecreatePostConfig)
     adaptive_lns: AdaptiveLNSPostConfig = field(default_factory=AdaptiveLNSPostConfig)
-    two_phase: TwoPhasePostConfig = field(default_factory=TwoPhasePostConfig)
+    multi_phase: MultiPhasePostConfig = field(default_factory=MultiPhasePostConfig)
 
     # Added strategies
     fix_and_optimize: FixAndOptimizePostConfig = field(default_factory=FixAndOptimizePostConfig)
