@@ -52,10 +52,37 @@ class FILOPolicy(BaseRoutingPolicy):
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
         """
-        Run FILO solver.
+        Execute the Fast Iterative Localized Optimization (FILO) solver logic.
+
+        FILO is a high-performance metaheuristic designed for large-scale VRPs.
+        It employs a localized search strategy, focusing on subsets of nodes
+        (localized neighborhoods) to improve the solution iteratively. It
+        combines simulated annealing-based acceptance criteria with sophisticated
+        "ruin and recreate" operators tailored for waste collection constraints.
+
+        Args:
+            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+                sub-problem nodes.
+            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+                current bin inventory levels.
+            capacity (float): Maximum vehicle collection capacity.
+            revenue (float): Revenue obtained per kilogram of waste collected.
+            cost_unit (float): Monetary cost incurred per kilometer traveled.
+            values (Dict[str, Any]): Merged configuration dictionary containing
+                FILO parameters (max_iterations, temperature factors, shaking intensity).
+            mandatory_nodes (List[int]): Local indices of bins that MUST be
+                collected in this period.
+            **kwargs: Additional context, including:
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
 
         Returns:
-            Tuple of (routes, profit, solver_cost)
+            Tuple[List[List[int]], float, float]: A 3-tuple containing:
+                - routes: Optimized collection routes (list-of-lists, local indices).
+                - profit: Total calculated net profit (Total Revenue - Total Cost).
+                - cost: Total travel cost calculated by the solver.
         """
         # Build parameters from config
         params = FILOParams(

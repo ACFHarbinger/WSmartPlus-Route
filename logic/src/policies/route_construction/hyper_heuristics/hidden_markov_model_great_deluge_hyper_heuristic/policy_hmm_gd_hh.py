@@ -54,6 +54,42 @@ class HMMGDHHPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
+        """
+        Execute the Hidden Markov Model + Great Deluge Hyper-Heuristic (HMM-GD-HH)
+        solver logic.
+
+        This solver combines an online-learning HMM for low-level heuristic
+        selection with the Great Deluge acceptance criterion. The HMM models
+        the search process as a set of hidden states (improving, stagnant, etc.)
+        and learns to transition between heuristics to escape local optima.
+
+        The Great Deluge framework provides a parameter-less acceptance threshold
+        that "rains" (decreases or increases) over time to control search intensity.
+
+        Args:
+            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+                sub-problem nodes.
+            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+                current bin inventory levels.
+            capacity (float): Maximum vehicle collection capacity.
+            revenue (float): Revenue obtained per kilogram of waste collected.
+            cost_unit (float): Monetary cost incurred per kilometer traveled.
+            values (Dict[str, Any]): Merged configuration dictionary containing
+                hyperparameters like `rain_speed`, `learning_rate`, etc.
+            mandatory_nodes (List[int]): Local indices of bins that MUST be
+                collected in this period.
+            **kwargs: Additional context, including:
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
+
+        Returns:
+            Tuple[List[List[int]], float, float]: A 3-tuple containing:
+                - routes: Optimized collection routes for the current day.
+                - profit: Total calculated net profit (Total Revenue - Total Cost).
+                - cost: Total travel cost calculated by the solver.
+        """
         params = HMMGDHHParams(
             max_iterations=int(values.get("max_iterations", 500)),
             flood_margin=float(values.get("flood_margin", 0.05)),

@@ -9,6 +9,7 @@ metrics that flow immutably through the three-phase pipeline:
   Phase 3 — Route Improvement    : appends ``ImprovementMetrics``
 """
 
+from .multi_day_context import MultiDayContext
 from .search_context import (
     AcceptanceMetrics,
     ConstructionMetrics,
@@ -27,4 +28,5 @@ __all__ = [
     "AcceptanceMetrics",
     "ImprovementMetrics",
     "merge_context",
+    "MultiDayContext",
 ]

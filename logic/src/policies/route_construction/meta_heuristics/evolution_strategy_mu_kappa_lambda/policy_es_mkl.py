@@ -53,12 +53,42 @@ class MuKappaLambdaESPolicy(BaseRoutingPolicy):
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
         """
-        Run (μ,κ,λ)-ES solver for routing problems.
+        Execute the (mu, kappa, lambda) Evolution Strategy (ES) solver logic.
 
-        Uses a routing-adapted version of the classical ES with age control.
+        (mu, kappa, lambda)-ES is a sophisticated evolutionary algorithm that
+        introduces an "age" control parameter (kappa):
+        - mu: The number of parent individuals.
+        - lambda: The number of offspring generated.
+        - kappa: The maximum age (in generations) an individual can survive
+          multiple selection cycles.
+        - Selection: Parents can survive across generations (like mu + lambda)
+          but are strictly removed if they exceed age kappa. This prevents
+          stagnation by ensuring constant population turnover while retaining
+          beneficial elite individuals for a limited time.
+
+        Args:
+            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+                sub-problem nodes.
+            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+                current bin inventory levels.
+            capacity (float): Maximum vehicle collection capacity.
+            revenue (float): Revenue obtained per kilogram of waste collected.
+            cost_unit (float): Monetary cost incurred per kilometer traveled.
+            values (Dict[str, Any]): Merged configuration dictionary containing
+                ES parameters (mu, kappa, lambda, sigma).
+            mandatory_nodes (List[int]): Local indices of bins that MUST be
+                collected in this period.
+            **kwargs: Additional context, including:
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
 
         Returns:
-            Tuple of (routes, profit, solver_cost)
+            Tuple[List[List[int]], float, float]: A 3-tuple containing:
+                - routes: Optimized collection routes (list-of-lists, local indices).
+                - profit: Total calculated net profit (Total Revenue - Total Cost).
+                - cost: Total travel cost calculated by the solver.
         """
         tau_default: float = 1.0 / (2.0**0.5)
         params = MuKappaLambdaESParams(

@@ -1,22 +1,23 @@
-"""
-Logic-Based Benders Decomposition (LBBD) Policy Adapter.
-"""
+from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Tuple
 
 import numpy as np
 from logic.src.configs.policies.lbbd import LBBDConfig
-from logic.src.policies.context.search_context import SearchContext
-from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
+from logic.src.policies.route_construction.base.base_multi_period_policy import BaseMultiPeriodRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
+
+if TYPE_CHECKING:
+    from logic.src.pipeline.simulations.bins.prediction import ScenarioTree
 
 from .lbbd_engine import LBBDEngine
 
 
 @RouteConstructorRegistry.register("lbbd")
-class LBBDPolicy(BaseRoutingPolicy):
+class LBBDPolicy(BaseMultiPeriodRoutingPolicy):
     """
     Adapter for the Logic-Based Benders Decomposition (LBBD) policy.
+    Supports multi-period stochastic decision making via ScenarioTree.
     """
 
     @classmethod
@@ -25,6 +26,50 @@ class LBBDPolicy(BaseRoutingPolicy):
 
     def _get_config_key(cls) -> str:
         return "lbbd"
+
+    def _run_multi_period_solver(
+        self,
+        tree: ScenarioTree,
+        capacity: float,
+        revenue: float,
+        cost_unit: float,
+        **kwargs: Any,
+    ) -> Tuple[List[List[List[int]]], float, Dict[str, Any]]:
+        """
+        Execute the Logic-Based Benders Decomposition (LBBD) solver logic.
+
+        This method decomposes the multi-period stochastic routing problem into
+        a Master Problem (scheduling assignment) and several Sub-problems
+        (specific daily routing). It utilizes logic-based cuts to communicate
+        between the scheduling level and the routing level, ensuring that
+        Day 0 routes are optimized with respect to both immediate profit and
+        expected longer-term resource availability across scenarios.
+
+        Args:
+            tree (ScenarioTree): Tree of future fill rate realization scenarios.
+            capacity (float): Maximum vehicle collection capacity.
+            revenue (float): Revenue obtained per kilogram of waste collected.
+            cost_unit (float): Monetary cost incurred per kilometer traveled.
+            **kwargs: Additional context, including:
+                - distance_matrix (np.ndarray): Symmetric distance matrix.
+
+        Returns:
+            Tuple[List[List[List[int]]], float, Dict[str, Any]]:
+                A 3-tuple containing:
+                - full_plan: Collection plan (nested list by day and vehicle).
+                - profit: The optimal objective value (cumulative net profit).
+                - stats: Execution statistics and decomposition iterations.
+        """
+        distance_matrix = kwargs["distance_matrix"]
+        cfg: LBBDConfig = self.config
+
+        # Instantiate and run Engine
+        engine = LBBDEngine(config=cfg, distance_matrix=distance_matrix, tree=tree, capacity=capacity)
+
+        # Solve for the full horizon T
+        full_plan, profit, stats = engine.solve()
+
+        return full_plan, profit, stats
 
     def _run_solver(
         self,
@@ -38,36 +83,6 @@ class LBBDPolicy(BaseRoutingPolicy):
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
         """
-        Satisfies the abstract base class, but LBBD uses the execute method.
+        Satisfies the abstract base class, but LBBD uses _run_multi_period_solver.
         """
         return [], 0.0, 0.0
-
-    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Optional[SearchContext]]:
-        """
-        Executes the LBBD solver loop.
-        """
-        # 1. State extraction
-        distance_matrix = kwargs["distance_matrix"]
-        wastes = kwargs.get("wastes", {})
-        capacity = kwargs.get("capacity", 1.0)
-
-        cfg: LBBDConfig = self.config
-
-        # 2. Instantiate and run Engine
-        engine = LBBDEngine(config=cfg, distance_matrix=distance_matrix, initial_wastes=wastes, capacity=capacity)
-
-        # 3. Solve and return Day 1 action
-        route, expected_val = engine.solve()
-
-        if not route or len(route) < 2:
-            return [0, 0], 0.0, kwargs.get("search_context")
-
-        # Calculate actual cost of the extracted route for return
-        actual_cost = 0.0
-        for i in range(len(route) - 1):
-            actual_cost += distance_matrix[route[i], route[i + 1]]
-
-        # Carry forward context if present
-        incoming_ctx: Optional[SearchContext] = kwargs.get("search_context")
-
-        return route, float(actual_cost), incoming_ctx

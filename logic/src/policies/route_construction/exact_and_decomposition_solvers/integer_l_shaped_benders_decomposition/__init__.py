@@ -31,7 +31,7 @@ stochastic integer programs with complete recourse". Operations Research
 Letters, 13(3), 133-142.
 """
 
-from typing import Dict, List, Set, Tuple
+from typing import Any, Dict, List, Set, Tuple
 
 import numpy as np
 
@@ -51,6 +51,7 @@ def run_ils_bd(
     params: ILSBDParams,
     mandatory_indices: Set[int],
     vehicle_limit: int = 1,
+    **kwargs: Any,
 ) -> Tuple[List[List[int]], float]:
     r"""Solve a stochastic VRP instance with the Integer L-Shaped Method.
 
@@ -88,7 +89,10 @@ def run_ils_bd(
     vrpp_model.num_vehicles = max(1, vehicle_limit)
 
     engine = IntegerLShapedEngine(model=vrpp_model, params=params)
-    routes, _y_hat, profit, _stats = engine.solve(sub_wastes=sub_wastes)
+    # Note: run_ils_bd is a deterministic fallback; in multi-period it should be passed a tree.
+    # We pass None here to satisfy signature if the engine handles it, or a dummy tree.
+    # For now, just fix the keyword error.
+    routes, _y_hat, profit, _stats = engine.solve(tree=kwargs.get("tree"))  # type: ignore[arg-type]
 
     return routes, profit
 

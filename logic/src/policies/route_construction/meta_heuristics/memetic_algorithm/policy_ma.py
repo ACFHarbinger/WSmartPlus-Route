@@ -79,22 +79,42 @@ class MAPolicy(BaseRoutingPolicy):
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
         """
-        Internal execution bridge to the MASolver.
+        Execute the Memetic Algorithm (MA) solver logic.
 
-        Prepares high-level simulator data into the mathematical representation
-        expected by the generic Memetic Algorithm engine.
+        MA is a population-based search heuristic that combines evolutionary
+        global search with local search refinement. It is often described as
+        a "Genetic Algorithm + Local Search". In this implementation:
+        - Population: Maintains a set of candidate solutions.
+        - Evolution: Standard genetic operators (selection, crossover, mutation)
+          are applied to evolve the population.
+        - Learning (Memetics): Each individual offspring undergoes a local search
+          refinement (learning) before being added to the population, ensuring
+          the search stays close to local optima.
+        This policy acts as an adapter for the mathematical MASolver engine.
 
-        Algorithm Process:
-        1. Extract and cast hyper-parameters from the combined 'values' dictionary.
-        2. Instantiate the MASolver with problem-specific data (Distance, Waste, Capacity).
-        3. Invoke the solve() method to run the generational evolutionary processes.
-        4. Post-process results into the standard (Routes, Profit, Cost) format.
+        Args:
+            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+                sub-problem nodes.
+            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+                current bin inventory levels.
+            capacity (float): Maximum vehicle collection capacity.
+            revenue (float): Revenue obtained per kilogram of waste collected.
+            cost_unit (float): Monetary cost incurred per kilometer traveled.
+            values (Dict[str, Any]): Merged configuration dictionary containing
+                MA parameters (pop_size, crossover_rate, mutation_rate, local_search_rate).
+            mandatory_nodes (List[int]): Local indices of bins that MUST be
+                collected in this period.
+            **kwargs: Additional context, including:
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
 
         Returns:
-            Tuple[List[List[int]], float, float]:
-                - best_routes: Optimal collection sequences found.
-                - best_reward: Net profit (Revenue - Distance Cost).
-                - total_cost: Distance component of the solution.
+            Tuple[List[List[int]], float, float]: A 3-tuple containing:
+                - routes: Optimized collection routes (list-of-lists, local indices).
+                - profit: Total calculated net profit (Total Revenue - Total Cost).
+                - cost: Total travel cost calculated by the solver.
         """
         # 1. Parameter Extraction & Mapping (See params.py for conceptual mapping)
         params = MAParams(

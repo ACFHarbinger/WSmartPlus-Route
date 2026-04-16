@@ -5,6 +5,8 @@ Simulator adapter for the Local Branching (LB) matheuristic.
 from typing import Any, Dict, List, Optional, Tuple, Type
 
 from logic.src.configs.policies.lb import LocalBranchingConfig
+from logic.src.policies.context.multi_day_context import MultiDayContext
+from logic.src.policies.context.search_context import SearchContext
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.matheuristics.local_branching.lb import run_local_branching_gurobi
@@ -83,19 +85,41 @@ class LocalBranchingPolicy(BaseRoutingPolicy):
         """Not used - LB requires specialized execute()."""
         return [], 0.0, 0.0
 
-    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
+    def execute(
+        self, **kwargs: Any
+    ) -> Tuple[List[int], float, float, Optional[SearchContext], Optional[MultiDayContext]]:
         """
-        Execute the Local Branching matheuristic on the current simulation state.
+        Execute the Local Branching (LB) matheuristic on the simulation state.
 
-        This method extracts environment parameters and delegates the iterative
-        neighborhood search to the specialized Gurobi-based LB solver.
+        Local Branching explores the solution space by defining K-neighborhoods
+        centered around an incumbent solution. It uses "Local Branching Cuts"
+        (Hamming distance constraints) to restrict the MIP search space to
+        these neighborhoods, allowing the solver to find improvements
+        efficiently.
+
+        This implementation uses Gurobi for the iterative neighborhood solves.
 
         Args:
-            **kwargs (Any): Simulation state including `distance_matrix`,
-                `wastes`, `capacity`, and `mandatory` nodes.
+            **kwargs: Context for matheuristic execution, including:
+                - distance_matrix (np.ndarray): Symmetric or asymmetric cost matrix.
+                - wastes (Dict[int, float]): Bin inventory levels.
+                - capacity (float): Vehicle collection capacity.
+                - mandatory (List[int]): Local indices of mandatory nodes.
+                - R (float): Revenue multiplier.
+                - C (float): Cost multiplier.
+                - seed (int): Random seed for reproducibility.
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
 
         Returns:
-            Tuple[List[int], float, Any]: (tour, total_cost, metadata)
+            Tuple of:
+                - tour: The optimized daily tour (list of node IDs).
+                - cost: Total travel cost calculated by the solver.
+                - obj_val: Net calculated profit (Revenue - Cost).
+                - Optional[SearchContext]: Updated search context.
+                - Optional[MultiDayContext]: Updated multi-period context.
         """
         # 1. Initialize type-safe Params
         params = LBParams.from_config(self._config or kwargs.get("config", {}).get("lb", {}))
@@ -126,4 +150,4 @@ class LocalBranchingPolicy(BaseRoutingPolicy):
             seed=seed,
         )
 
-        return tour, float(cost), {"obj_val": obj_val}
+        return tour, cost, obj_val, kwargs.get("search_context"), kwargs.get("multi_day_context")

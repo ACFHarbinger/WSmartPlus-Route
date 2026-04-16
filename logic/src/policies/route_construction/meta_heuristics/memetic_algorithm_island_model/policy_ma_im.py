@@ -41,6 +41,41 @@ class MemeticAlgorithmIslandModelPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
+        """
+        Execute the Memetic Algorithm Island Model (MA-IM) solver logic.
+
+        MA-IM is a parallelized memetic architecture that partitions the
+        population into multiple independent "islands". Each island runs its own
+        evolutionary and local search cycle. Periodically, individuals migrate
+        between islands (information exchange) to maintain global diversity
+        while allowing each island to exploit its local search space effectively.
+        This prevents the "super-individual" problem where a single high-quality
+        solution dominates the entire population too early.
+
+        Args:
+            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+                sub-problem nodes.
+            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+                current bin inventory levels.
+            capacity (float): Maximum vehicle collection capacity.
+            revenue (float): Revenue obtained per kilogram of waste collected.
+            cost_unit (float): Monetary cost incurred per kilometer traveled.
+            values (Dict[str, Any]): Merged configuration dictionary containing
+                MA-IM parameters (n_islands, island_size, max_generations).
+            mandatory_nodes (List[int]): Local indices of bins that MUST be
+                collected in this period.
+            **kwargs: Additional context, including:
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
+
+        Returns:
+            Tuple[List[List[int]], float, float]: A 3-tuple containing:
+                - routes: Optimized collection routes (list-of-lists, local indices).
+                - profit: Total calculated net profit (Total Revenue - Total Cost).
+                - cost: Total travel cost calculated by the solver.
+        """
         params = MemeticAlgorithmIslandModelParams(
             n_islands=values.get("n_islands", 5),
             island_size=values.get("island_size", 4),

@@ -48,10 +48,41 @@ class MuPlusLambdaESPolicy(BaseRoutingPolicy):
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
         """
-        Run (μ+λ)-ES solver.
+        Execute the (mu + lambda) Evolution Strategy (ES) solver logic.
+
+        (mu + lambda)-ES is an elitist evolutionary algorithm:
+        - mu: The number of parent individuals.
+        - lambda: The number of offspring generated.
+        - सिलेक्शन (Selection): The next generation is selected from the union
+          of the mu parents and lambda offspring (size mu + lambda).
+          The best mu individuals are kept.
+        This strategy ensures that the best solution found so far (elitism)
+        is never lost, leading to faster but potentially more greedy
+        convergence compared to (mu, lambda) strategies.
+
+        Args:
+            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+                sub-problem nodes.
+            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+                current bin inventory levels.
+            capacity (float): Maximum vehicle collection capacity.
+            revenue (float): Revenue obtained per kilogram of waste collected.
+            cost_unit (float): Monetary cost incurred per kilometer traveled.
+            values (Dict[str, Any]): Merged configuration dictionary containing
+                ES parameters (mu, lambda, max_iterations).
+            mandatory_nodes (List[int]): Local indices of bins that MUST be
+                collected in this period.
+            **kwargs: Additional context, including:
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
 
         Returns:
-            Tuple of (routes, profit, solver_cost)
+            Tuple[List[List[int]], float, float]: A 3-tuple containing:
+                - routes: Optimized collection routes (list-of-lists, local indices).
+                - profit: Total calculated net profit (Total Revenue - Total Cost).
+                - cost: Total travel cost calculated by the solver.
         """
         params = MuPlusLambdaESParams(
             mu=values.get("mu", 10),

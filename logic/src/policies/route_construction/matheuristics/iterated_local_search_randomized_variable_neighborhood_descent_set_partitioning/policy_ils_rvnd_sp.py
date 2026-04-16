@@ -55,10 +55,41 @@ class ILSRVNDSPPolicy(BaseRoutingPolicy):
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
         """
-        Run ILS-RVND-SP solver.
+        Execute the Iterated Local Search - Randomized Variable Neighborhood Descent -
+        Set Partitioning (ILS-RVND-SP) solver logic.
+
+        ILS-RVND-SP is a powerful matheuristic that operates in two main stages:
+        1. Heuristic Generation (ILS + RVND): Uses a randomized local search
+           framework to discover a diverse set of feasible routes by iteratively
+           perturbing and refining solution structures.
+        2. Set Partitioning (SP) Optimization: All discovered routes are collected
+           into a pool. A Set Partitioning MIP is then solved (using Gurobi) to
+           select the optimal subset of routes that covers the required nodes
+           while maximizing profit.
+
+        Args:
+            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+                sub-problem nodes.
+            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+                current bin inventory levels.
+            capacity (float): Maximum vehicle collection capacity.
+            revenue (float): Revenue obtained per kilogram of waste collected.
+            cost_unit (float): Monetary cost incurred per kilometer traveled.
+            values (Dict[str, Any]): Merged configuration dictionary containing
+                ILS settings, RVND neighborhood configurations, and SP MIP goals.
+            mandatory_nodes (List[int]): Local indices of bins that MUST be
+                collected in this period.
+            **kwargs: Additional context, including:
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
 
         Returns:
-            Tuple of (routes, profit, solver_cost)
+            Tuple[List[List[int]], float, float]: A 3-tuple containing:
+                - routes: Optimized collection routes for the current day.
+                - profit: Total calculated net profit (Total Revenue - Total Cost).
+                - cost: Total travel cost calculated by the solver.
         """
         params = ILSRVNDSPParams(
             max_restarts=int(values.get("max_restarts", 10)),

@@ -11,12 +11,14 @@ Reference:
 """
 
 import random
-from typing import Any, List, Tuple
+from typing import Any, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
 
 from logic.src.data.processor import convert_to_dict
+from logic.src.policies.context.multi_day_context import MultiDayContext
+from logic.src.policies.context.search_context import SearchContext
 from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search import (
     improved_simulated_annealing,
 )
@@ -34,7 +36,9 @@ from logic.src.policies.route_construction.other_algorithms.travelling_salesman_
 from .params import SANSParams
 
 
-def execute_new(policy: Any, params: SANSParams, **kwargs: Any) -> Tuple[List[int], float, Any]:
+def execute_new(
+    policy: Any, params: SANSParams, **kwargs: Any
+) -> Tuple[List[int], float, float, Optional[SearchContext], Optional[MultiDayContext]]:
     """Execute the improved simulated annealing engine.
 
     Args:
@@ -43,7 +47,7 @@ def execute_new(policy: Any, params: SANSParams, **kwargs: Any) -> Tuple[List[in
         **kwargs: Arguments passed to the policy's execute method.
 
     Returns:
-        Tuple[List[int], float, Any]: Tour, distance, and metadata.
+        Tuple[List[int], float, float, Any, Any]: Tour, distance, profit, and metadata.
     """
     mandatory = kwargs.get("mandatory", [])
     early_result = policy._validate_mandatory(mandatory)
@@ -117,10 +121,12 @@ def execute_new(policy: Any, params: SANSParams, **kwargs: Any) -> Tuple[List[in
     )
 
     tour = optimized_routes[0] if optimized_routes else [0, 0]
-    return tour, last_distance, {"profit": best_profit}
+    return tour, last_distance, best_profit, kwargs.get("search_context"), kwargs.get("multi_day_context")
 
 
-def execute_og(policy: Any, params: SANSParams, **kwargs: Any) -> Tuple[List[int], float, Any]:
+def execute_og(
+    policy: Any, params: SANSParams, **kwargs: Any
+) -> Tuple[List[int], float, float, Optional[SearchContext], Optional[MultiDayContext]]:
     """Execute the original LAC (look-ahead collection) engine.
 
     Args:
@@ -194,7 +200,7 @@ def execute_og(policy: Any, params: SANSParams, **kwargs: Any) -> Tuple[List[int
             np_rng=np_rng,
         )
     except Exception:
-        return [0, 0], 0.0, None
+        return [0, 0], 0.0, 0.0, kwargs.get("search_context"), kwargs.get("multi_day_context")
 
     tour = res[0] if res else [0, 0]
     cost = get_route_cost(distance_matrix, tour)
@@ -204,4 +210,4 @@ def execute_og(policy: Any, params: SANSParams, **kwargs: Any) -> Tuple[List[int
     collected_revenue = sum(float(bins.c[n - 1]) * R for n in visited if 1 <= n <= bins.n)
     profit = collected_revenue - cost * C
 
-    return tour, cost, {"profit": profit}
+    return tour, cost, profit, kwargs.get("search_context"), kwargs.get("multi_day_context")

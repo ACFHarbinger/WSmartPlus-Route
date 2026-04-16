@@ -9,6 +9,8 @@ from typing import Any, Dict, List, Optional, Set, Tuple, Type, Union
 import numpy as np
 
 from logic.src.configs.policies import BPCConfig
+from logic.src.policies.context.multi_day_context import MultiDayContext
+from logic.src.policies.context.search_context import SearchContext
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine import (
@@ -82,11 +84,39 @@ class BPCPolicy(BaseRoutingPolicy):
                 return output.squeeze().numpy()
         raise ValueError("Invalid model_type")
 
-    def execute(self, **kwargs: Any) -> Tuple[Union[List[int], List[List[int]]], float, Any]:
+    def execute(
+        self, **kwargs: Any
+    ) -> Tuple[Union[List[int], List[List[int]]], float, float, Optional[SearchContext], Optional[MultiDayContext]]:
         """
-        Execute BPC.
-        If multi_day_mode is True, evaluates for a single stage of the multi-period
-        problem without standard subset extraction, and applies Approximate Dynamic Programming.
+        Execute the Branch-and-Price-and-Cut (BPC) solver logic.
+
+        This method coordinates the execution of the BPC algorithm, which is the
+        most advanced exact optimization technique in the framework. It
+        combines column generation (pricing), cutting planes (separation), and
+        branch-and-bound to solve large-scale VRP variants to optimality.
+
+        If `multi_day_mode` is enabled, it integrates with an Approximate
+        Dynamic Programming (ADP) model to augment node prizes with future-value
+        estimates (rho_it), effectively solving a single stage of a multi-period
+        Stochastic VRP.
+
+        Args:
+            **kwargs: Context dictionary containing:
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
+                - config (Dict): Optional nested configuration overrides.
+                - model_ls (List): Multi-period model parameters (when multi_day_mode=True).
+
+        Returns:
+            Tuple[Union[List[int], List[List[int]]], float, float, Optional[SearchContext], Optional[MultiDayContext]]:
+                A 5-tuple containing:
+                - tour: The optimized collection routes (flat or nested).
+                - cost: Total travel cost of the routes.
+                - profit: Total net profit (Revenue + Future Value - Cost).
+                - search_context: The enriched search context after BPC execution.
+                - multi_day_context: The final multi-day state metadata.
         """
         import logging
 
@@ -176,7 +206,7 @@ class BPCPolicy(BaseRoutingPolicy):
             for i in range(1, n_bins + 1):
                 node_prizes[i] = wastes[i] * R
 
-        routes, _ = run_bpc(
+        routes, profit = run_bpc(
             dist_matrix=dist_matrix,
             wastes=wastes,
             capacity=capacity,
@@ -197,7 +227,7 @@ class BPCPolicy(BaseRoutingPolicy):
         model_env = kwargs.get("model_env")
         cost = model_env.compute_route_cost(global_route) if model_env is not None else 0.0
 
-        return global_route, cost, {"policy_type": "bpc", "multi_day_mode": True, "node_prizes": node_prizes}
+        return global_route, cost, profit, kwargs.get("search_context"), kwargs.get("multi_day_context")
 
     def _run_solver(
         self,
@@ -211,17 +241,37 @@ class BPCPolicy(BaseRoutingPolicy):
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
         """
-        Run BPC solver.
+        Execute core BPC optimization combining column generation and cutting planes.
 
-        All nodes in mandatory_nodes are treated as mandatory for the solver.
-        In VRPP mode, additional nodes from sub_wastes might be collected if profitable.
+        This method coordinates the highest-fidelity exact search in the
+        framework. It dynamically generates routes (columns) with positive
+        reduced cost and strengthens the master problem relaxation using valid
+        inequalities (cuts) like SECs and Rounded Capacity Inequalities. The
+        search is managed within a global branch-and-bound tree.
+
+        Args:
+            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+                sub-problem nodes.
+            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+                current bin inventory levels.
+            capacity (float): Maximum vehicle collection capacity.
+            revenue (float): Revenue obtained per kilogram of waste collected.
+            cost_unit (float): Monetary cost incurred per kilometer traveled.
+            values (Dict[str, Any]): Merged configuration dictionary containing
+                BPC parameters (branching_strategy, cuts_enabled, time_limit).
+            mandatory_nodes (List[int]): Local indices of bins that MUST be
+                collected in this period.
+            **kwargs: Additional context, including:
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
 
         Returns:
-            Tuple of (routes, profit, solver_cost)
-            - routes: List of routes (list of node indices).
-            - profit: Objective value (collected revenue - distance cost) in $.
-            - solver_cost: Raw travel distance (km), NOT multiplied by cost_unit.
-              Callers needing monetary cost should compute solver_cost * cost_unit.
+            Tuple[List[List[int]], float, float]: A 3-tuple containing:
+                - routes: Optimized collection routes (list-of-lists, local indices).
+                - profit: Total calculated net profit (Total Revenue - Total Cost).
+                - cost: Total travel cost calculated by the solver.
         """
         # Return contract for run_bpc:
         #   routes          — list of customer-node lists (depot excluded)

@@ -52,7 +52,40 @@ class POPMUSICPolicy(BaseRoutingPolicy):
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
         """
-        Run POPMUSIC solver.
+         Execute the Partial Optimization Metaheuristic Under Special
+         Intensification Conditions (POPMUSIC) solver logic.
+
+         POPMUSIC is a decomposition-based matheuristic that breaks a large
+        problem into smaller, overlapping sub-problems (parts) centered around
+        "seed" nodes. Each part is optimized independently using a base solver
+        (e.g., LKH-3 or Gurobi). If an improvement is found, the part is
+        re-merged into the global solution, and the search continues until
+        local optimality is achieved across all potential centroids.
+
+         Args:
+             sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+                 sub-problem nodes.
+             sub_wastes (Dict[int, float]): Mapping of local node indices to their
+                 current bin inventory levels.
+             capacity (float): Maximum vehicle collection capacity.
+             revenue (float): Revenue obtained per kilogram of waste collected.
+             cost_unit (float): Monetary cost incurred per kilometer traveled.
+             values (Dict[str, Any]): Merged configuration dictionary containing
+                 POPMUSIC settings, sub-problem sizes, and base solver choices.
+             mandatory_nodes (List[int]): Local indices of bins that MUST be
+                 collected in this period.
+             **kwargs: Additional context, including:
+                 - coords (np.ndarray): Spatial coordinates for clustering.
+                 - search_context (Optional[SearchContext]): Context for tracking
+                   recursive solver statistics.
+                 - multi_day_context (Optional[MultiDayContext]): Context for
+                   inter-day state propagation.
+
+         Returns:
+             Tuple[List[List[int]], float, float]: A 3-tuple containing:
+                 - routes: Optimized collection routes (list-of-lists, local indices).
+                 - profit: Total calculated net profit (Total Revenue - Total Cost).
+                 - cost: Total travel cost calculated by the solver.
         """
         # 1. Initialize parameters
         params = POPMUSICParams.from_config(self.config)

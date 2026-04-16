@@ -1,18 +1,52 @@
 r"""
-Integer L-Shaped (Benders Decomposition) Policy Adapter.
+Integer L-Shaped (Benders Decomposition) Policy Adapter for Stochastic VRPP.
 
-Adapts the Benders decomposition engine to the system-agnostic routing policy
-interface (BaseRoutingPolicy), handling parameter mapping, VRPPModel construction,
-engine invocation, and raw-distance reporting.
+Adapts the Benders decomposition engine to the Multi-Period Stochastic framework,
+handling parameter mapping, recourse evaluation, and non-anticipativity
+enforcement within a rolling-horizon context.
+
+Algorithm — Integer L-Shaped Method (Laporte & Louveaux, 1993):
+    The problem is formulated as a Two-Stage Stochastic Integer Program (2-SIP):
+
+    1. **Stage 1 (Master Problem)**:
+       Binary routing arcs $x_{ij}$ and node-visit flags $y_i$ are decided
+       for Day 1 before stochastic demand is revealed. A surrogate variable $\theta$
+       approximates the expected recourse cost for the remaining $T-1$ days.
+
+    2. **Stage 2 (Recourse Subproblem)**:
+       Evaluates the expected penalty $Q(\mathbf{y})$ incurred by the Stage 1
+       decisions across all scenarios in the `ScenarioTree`. This includes
+       cumulative overflow penalties and missed revenue over the $T$-day horizon.
+
+Iterative Process:
+    - **Optimality Cuts**: If the surrogate $\theta$ is less than the true
+      expected recourse $Q(\mathbf{y})$, an L-shaped optimality cut is added to
+      the master problem.
+    - **Combinatorial Cuts**: Since Stage 1 variables are binary, the engine
+      generates powerful combinatorial cuts that are valid for all integer
+       solutions, accelerating convergence compared to standard Benders.
+
+Implementation:
+    - **Lookahead**: Uses the `ScenarioTree` to compute analytical recourse gradients.
+    - **Rolling Horizon**: Re-solves the Master Problem each day, updating $\theta$
+      based on latest inventory observations.
+
+Registry key: ``"ils_bd"``
+
+References:
+    Laporte, G., & Louveaux, F. V. (1993). "The integer L-shaped method for
+    stochastic integer programs with complete recourse". Operations Research
+    Letters, 13(3), 133-142.
 """
 
-from typing import Any, Dict, List, Optional, Set, Tuple, Type, Union
+from dataclasses import asdict
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
 
 from logic.src.configs.policies import IntegerLShapedBendersConfig
 from logic.src.policies.helpers.branching_solvers.vrpp_model import VRPPModel
-from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
+from logic.src.policies.route_construction.base.base_multi_period_policy import BaseMultiPeriodRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
 from .ils_bd_engine import IntegerLShapedEngine
@@ -20,60 +54,91 @@ from .params import ILSBDParams
 
 
 @RouteConstructorRegistry.register("ils_bd")
-class IntegerLShapedPolicy(BaseRoutingPolicy):
-    r"""Integer L-Shaped (Benders Decomposition) policy for stochastic VRPP / SCWCVRP.
-
-    Formulates the routing-under-uncertainty problem as a Two-Stage Stochastic
-    Integer Program (2-SIP):
-
-        Stage 1 (Master Problem):
-            Binary routing arcs x_{ij} and node-visit flags y_i are decided
-            before stochastic demand is revealed.  A surrogate variable θ
-            represents the expected recourse cost.
-
-        Stage 2 (Recourse Subproblem):
-            For each SAA scenario ω, the penalty incurred by the Stage 1
-            decision is evaluated against the realised bin fill level w_i(ω):
-                - Overflow penalty p⁺: unvisited bins above threshold.
-                - Undervisit penalty p⁻: visited bins below threshold.
-
-    The Integer L-Shaped Method (Laporte & Louveaux, 1993) then iterates:
-        1. Solve MP → integer routing + surrogate θ̂.
-        2. Evaluate Q̄(ŷ̂) analytically over SAA scenarios.
-        3. If Q̄(ŷ̂) > θ̂ + gap: add Benders optimality cut; repeat.
-        4. Else: θ̂ accurately represents recourse → optimal.
-
-    Because Stage 1 variables are binary, the cuts are *combinatorial* L-shaped
-    cuts, valid at every binary point (not merely at the LP relaxation).
-
-    Registry key: ``"ils_bd"``
-
-    References:
-        Laporte, G., & Louveaux, F. V. (1993). "The integer L-shaped method for
-        stochastic integer programs with complete recourse". Operations Research
-        Letters, 13(3), 133-142.
+class IntegerLShapedPolicy(BaseMultiPeriodRoutingPolicy):
+    r"""Integer L-Shaped (Benders Decomposition) policy for multi-period planning.
+    Standardized to the Multi-Period framework with stochastic lookahead.
     """
 
     def __init__(
         self,
         config: Optional[Union[IntegerLShapedBendersConfig, Dict[str, Any]]] = None,
     ) -> None:
-        """Initialise the ILS policy adapter.
-
-        Args:
-            config: IntegerLShapedBendersConfig dataclass, raw configuration dict from YAML, or
-                    None to use all framework defaults.
-        """
+        """Initialise the ILS policy adapter."""
         super().__init__(config)
 
     @classmethod
-    def _config_class(cls) -> Optional[Type]:
-        """Return the typed configuration class for automatic parsing."""
+    def _config_class(cls) -> Type[IntegerLShapedBendersConfig]:
+        """Return the typed configuration class."""
         return IntegerLShapedBendersConfig
 
     def _get_config_key(self) -> str:
-        """Return the YAML config key for this policy."""
+        """Return the YAML config key."""
         return "ils_bd"
+
+    def _run_multi_period_solver(
+        self,
+        tree: Any,
+        capacity: float,
+        revenue: float,
+        cost_unit: float,
+        **kwargs: Any,
+    ) -> Tuple[List[List[List[int]]], float, Dict[str, Any]]:
+        """
+        Execute the Integer L-Shaped Benders Decomposition solver logic.
+
+        This method optimizes Stage 1 decisions (Day 0 routes) by evaluating the
+        analytical expected recourse cost across all scenarios in the
+        `ScenarioTree`. It iteratively solves a Master Problem and injects
+        optimality and feasibility cuts generated by the Stage 2 sub-problems
+        until the first-stage decisions are stable and consistent with the
+        expected cumulative profit over the $T$-period horizon.
+
+        Args:
+            tree (ScenarioTree): Tree of future fill rate realization scenarios.
+            capacity (float): Maximum vehicle collection capacity.
+            revenue (float): Revenue obtained per kilogram of waste collected.
+            cost_unit (float): Monetary cost incurred per kilometer traveled.
+            **kwargs: Additional context, including:
+                - distance_matrix (np.ndarray): Symmetric distance matrix.
+                - sub_wastes (Dict[int, float]): Current bin fill levels.
+                - mandatory (List[int]): Bins that MUST be collected today.
+
+        Returns:
+            Tuple[List[List[List[int]]], float, Dict[str, Any]]:
+                A 3-tuple containing:
+                - full_plan: Collection plan (nested list by day and vehicle).
+                - expected_profit: Optimal objective value (expected total net profit).
+                - metadata: Execution statistics, including the number of Benders cuts.
+        """
+        sub_dist_matrix = kwargs["distance_matrix"]
+        sub_wastes = kwargs.get("sub_wastes", {})
+        mandatory_nodes = kwargs.get("mandatory", [])
+
+        n_nodes = len(sub_dist_matrix)
+        vrpp_model = VRPPModel(
+            n_nodes=n_nodes,
+            cost_matrix=sub_dist_matrix,
+            wastes=sub_wastes,  # Day 0 observed
+            capacity=capacity,
+            revenue_per_kg=revenue,
+            cost_per_km=cost_unit,
+            mandatory_nodes=set(mandatory_nodes),
+        )
+
+        # Merge config
+        params = ILSBDParams.from_config(asdict(self.config))
+
+        # Invoke Multi-Period Engine
+        engine = IntegerLShapedEngine(model=vrpp_model, params=params)
+        routes, _y_hat, profit, stats = engine.solve(tree=tree)
+
+        # Build T-period plan snapshot
+        # For ILS-BD, we currently extract the first-stage route.
+        # Future days are handled as expected recourse.
+        full_plan: List[List[List[int]]] = [[] for _ in range(self.horizon + 1)]
+        full_plan[0] = routes
+
+        return full_plan, profit, stats
 
     def _run_solver(
         self,
@@ -86,66 +151,5 @@ class IntegerLShapedPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        r"""Run the Integer L-Shaped Benders decomposition solver.
-
-        Constructs a VRPPModel from the localised sub-problem, initialises the
-        ILS engine with the merged configuration, executes the Benders outer
-        loop, and returns the best feasible routing solution.
-
-        Args:
-            sub_dist_matrix: Localised N×N distance matrix (0 = depot).
-            sub_wastes: Observed fill levels {local_node_idx: fill_%}.
-            capacity: Vehicle payload capacity (problem units).
-            revenue: Revenue per unit of waste collected (€/%-fill unit).
-            cost_unit: Travel cost per distance unit (€/km).
-            values: Merged configuration dict (area defaults + YAML overrides).
-            mandatory_nodes: Local node indices that MUST be visited.
-            **kwargs: Additional simulation context (n_vehicles, etc.).
-
-        Returns:
-            Tuple of (routes, profit, raw_distance):
-                routes: List of customer-node route lists (depot excluded).
-                profit: Deterministic net profit = revenue − travel_cost.
-                        The recourse surrogate θ is excluded to maintain
-                        compatibility with the BaseRoutingPolicy interface.
-                raw_distance: Total depot-to-depot travel distance (km).
-        """
-        n_nodes = len(sub_dist_matrix)
-
-        # ---- Build VRPPModel (network structure for Gurobi) ---------------
-        mandatory_set: Set[int] = set(mandatory_nodes)
-        vrpp_model = VRPPModel(
-            n_nodes=n_nodes,
-            cost_matrix=sub_dist_matrix,
-            wastes=sub_wastes,
-            capacity=capacity,
-            revenue_per_kg=revenue,
-            cost_per_km=cost_unit,
-            mandatory_nodes=mandatory_set,
-        )
-
-        # Override fleet size from simulation context if explicitly provided
-        n_vehicles = kwargs.get("n_vehicles")
-        if n_vehicles is not None:
-            vehicle_limit = int(n_vehicles) if int(n_vehicles) > 0 else None
-            if vehicle_limit is not None:
-                vrpp_model.num_vehicles = vehicle_limit
-
-        # ---- Build typed ILS parameters -----------------------------------
-        params = ILSBDParams.from_config(values)
-
-        # ---- Run Benders decomposition ------------------------------------
-        engine = IntegerLShapedEngine(model=vrpp_model, params=params)
-        routes, _y_hat, profit, _stats = engine.solve(sub_wastes=sub_wastes)
-
-        # ---- Compute raw travel distance (km) ----------------------------
-        raw_distance = 0.0
-        for route in routes:
-            inner = [n for n in route if n != 0]
-            if not inner:
-                continue
-            path = [0] + inner + [0]
-            for k in range(len(path) - 1):
-                raw_distance += float(sub_dist_matrix[path[k]][path[k + 1]])
-
-        return routes, profit, raw_distance
+        """Legacy fallback."""
+        return [], 0.0, 0.0

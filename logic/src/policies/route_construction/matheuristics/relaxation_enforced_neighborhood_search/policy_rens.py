@@ -18,6 +18,8 @@ Reference:
 from typing import Any, Dict, List, Optional, Tuple, Type
 
 from logic.src.configs.policies.rens import RENSConfig
+from logic.src.policies.context.multi_day_context import MultiDayContext
+from logic.src.policies.context.search_context import SearchContext
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
@@ -76,24 +78,43 @@ class RENSPolicy(BaseRoutingPolicy):
         """Not used - RENS requires specialized execute()."""
         return [], 0.0, 0.0
 
-    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
+    def execute(
+        self, **kwargs: Any
+    ) -> Tuple[List[int], float, float, Optional[SearchContext], Optional[MultiDayContext]]:
         """
-        Execute the RENS matheuristic on the current state.
+        Execute the Relaxation Enforced Neighborhood Search (RENS) matheuristic
+        on the simulation state.
 
-        Extracts environmental variables (distance matrix, waste levels, capacity)
-        and invokes the Gurobi-based RENS solver.
+        RENS is a simple but effective matheuristic that explores the
+        neighborhood defined by the rounding of an LP relaxation solution.
+        It solves a restricted MIP where variables are fixed or bounded based
+        on their values in the initial LP solution, drastically reducing the
+        search space.
+
+        This implementation uses Gurobi for both the LP relaxation and the
+        restricted MIP phase.
 
         Args:
-            **kwargs: Cumulative simulation state including:
+            **kwargs: Context for matheuristic execution, including:
                 - distance_matrix (np.ndarray): Cost matrix between nodes.
                 - wastes (Dict[int, float]): Current waste levels for each bin.
                 - capacity (float): Vehicle volume limit.
                 - mandatory (List[int]): Optional nodes requiring collection.
                 - R (float): Revenue multiplier.
                 - C (float): Cost multiplier.
+                - seed (int): Optional seed override.
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
 
         Returns:
-            A tuple of (tour, total_travel_cost, extra_data_dict).
+            Tuple of:
+                - tour: The optimized daily tour (starting/ending at depot 0).
+                - cost: Total travel cost calculated by the solver.
+                - obj_val: Final calculated net profit (Revenue - Cost).
+                - Optional[SearchContext]: Updated search context.
+                - Optional[MultiDayContext]: Updated multi-period context.
         """
         # 1. Initialize parameters
         params = RENSParams.from_config(self.config)
@@ -125,4 +146,4 @@ class RENSPolicy(BaseRoutingPolicy):
             seed=seed,
         )
 
-        return tour, float(cost), {"obj_val": obj_val}
+        return tour, cost, obj_val, kwargs.get("search_context"), kwargs.get("multi_day_context")

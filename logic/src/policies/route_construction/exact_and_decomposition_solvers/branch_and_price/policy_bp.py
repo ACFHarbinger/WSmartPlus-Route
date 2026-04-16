@@ -20,6 +20,8 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 import numpy as np
 
 from logic.src.configs.policies import BPConfig
+from logic.src.policies.context.multi_day_context import MultiDayContext
+from logic.src.policies.context.search_context import SearchContext
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
@@ -85,11 +87,37 @@ class BranchAndPricePolicy(BaseRoutingPolicy):
         """Return the unique identification key for this policy's configuration."""
         return "bp"
 
-    def execute(self, **kwargs: Any) -> Tuple[Union[List[int], List[List[int]]], float, Any]:
+    def execute(
+        self, **kwargs: Any
+    ) -> Tuple[Union[List[int], List[List[int]]], float, float, Optional[SearchContext], Optional[MultiDayContext]]:
         """
-        Execute Exact Branch-and-Price.
-        If multi_day_mode is True, evaluates for a single stage of the multi-period
-        problem without standard BaseRoutingPolicy subset extraction.
+        Execute the Branch-and-Price (BP) solver logic.
+
+        This method coordinates the execution of the BP algorithm, which is an
+        exact optimization technique for solving the VRPP using column
+        generation within a branch-and-bound framework.
+
+        If `multi_day_mode` is enabled (typically for stochastic sub-problems
+        in a rolling horizon), it executes a specialized multi-period
+        evaluation that bypasses standard subset extraction. Otherwise,
+        it falls back to the standard policy execution loop.
+
+        Args:
+            **kwargs: Context dictionary containing:
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
+                - config (Dict): Optional nested configuration overrides.
+
+        Returns:
+            Tuple[Union[List[int], List[List[int]]], float, float, Optional[SearchContext], Optional[MultiDayContext]]:
+                A 5-tuple containing:
+                - tour: The optimized collection routes.
+                - cost: Total travel cost calculated based on the routes.
+                - profit: Total calculated net profit (Total Revenue - Total Cost).
+                - search_context: The enriched search context after column generation.
+                - multi_day_context: The final multi-day state metadata.
         """
         config_dict = kwargs.get("config", {}).get(self._get_config_key(), {})
         multi_day_mode = config_dict.get("multi_day_mode", False)
@@ -125,8 +153,7 @@ class BranchAndPricePolicy(BaseRoutingPolicy):
             vehicle_limit=num_vehicles,
         )
 
-        # solver.solve() returns the correctly delimited flat tour: [0, 1, 3, 0, 2, 0]
-        flat_tour, _ip_obj, _stats = solver.solve()
+        flat_tour, profit, _stats = solver.solve()
 
         # Preserve the exact structure provided by the solver
         global_route = flat_tour if flat_tour else [0, 0]
@@ -135,7 +162,7 @@ class BranchAndPricePolicy(BaseRoutingPolicy):
         model_env = kwargs.get("model_env")
         cost = model_env.compute_route_cost(global_route) if model_env is not None else 0.0
 
-        return global_route, cost, {"policy_type": "bp", "multi_day_mode": True}
+        return global_route, cost, profit, kwargs.get("search_context"), kwargs.get("multi_day_context")
 
     def _run_solver(
         self,
@@ -149,53 +176,38 @@ class BranchAndPricePolicy(BaseRoutingPolicy):
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
         """
-        Run the Branch-and-Price solver.
+        Execute core Branch-and-Price optimization using column generation.
 
-        All nodes in ``mandatory_nodes`` are treated as must-visit.  In VRPP
-        mode, additional nodes from ``sub_wastes`` may be collected if their
-        inclusion is profitable.
-
-        Parameter resolution
-        --------------------
-        Each parameter is looked up in ``values`` first (runtime override),
-        then in ``self._config`` (YAML default), then falls back to a hard
-        default.  This three-tier priority applies to all solver parameters,
-        including the new ng-route parameters.
-
-        ng-Route relaxation
-        -------------------
-        When ``use_exact_pricing=True``, the DP pricer can use the ng-route
-        relaxation (Baldacci et al. 2011).  The two controlling parameters are:
-
-        ``use_ng_routes`` (bool, default True)
-            Enables or disables the ng-route state-space relaxation.
-            Set to False to restore exact ESPPRC.
-
-        ``ng_neighborhood_size`` (int, default 8)
-            Size of each node's ng-neighborhood.  Higher values → tighter
-            relaxation, more labels, longer solve time.
-
-        Branching strategy
-        ------------------
-        ``branching_strategy`` (str) controls edge vs Ryan-Foster branching.
-        The legacy ``use_ryan_foster_branching`` bool is still honoured as a
-        fallback for backward compatibility.
+        This method solves the master problem (set covering) by iteratively calling
+        the pricing subproblem (RCSPP) to identify routes with positive reduced
+        cost. The algorithm employs state-space relaxations (ng-routes) to
+        maintain balance between lower-bound quality and computational
+        complexity. If integrality is not achieved at the root, a branching
+        scheme (Edge or Ryan-Foster) is invoked.
 
         Args:
-            sub_dist_matrix: Localised distance matrix for candidate nodes
-                (shape (n+1) × (n+1), index 0 = depot).
-            sub_wastes: Current fill levels for available customer nodes.
-            capacity: Maximum vehicle payload.
-            revenue: Expected revenue per unit of waste collected.
-            cost_unit: Cost per unit of distance travelled.
-            values: Merged configuration dictionary from simulation and YAML.
-            mandatory_nodes: Indices of nodes that MUST be visited.
-            **kwargs: Additional solver parameters (forwarded transparently).
+            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+                sub-problem nodes.
+            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+                current bin inventory levels.
+            capacity (float): Maximum vehicle collection capacity.
+            revenue (float): Revenue obtained per kilogram of waste collected.
+            cost_unit (float): Monetary cost incurred per kilometer traveled.
+            values (Dict[str, Any]): Merged configuration dictionary containing
+                BP parameters (ng_neighborhood_size, branching_strategy).
+            mandatory_nodes (List[int]): Local indices of bins that MUST be
+                collected in this period.
+            **kwargs: Additional context, including:
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
 
         Returns:
-            Tuple of ``(routes, total_profit, total_travel_cost)`` where
-            ``routes`` is a list of node sequences (depot excluded) for each
-            selected route.
+            Tuple[List[List[int]], float, float]: A 3-tuple containing:
+                - routes: Optimized collection routes (list-of-lists, local indices).
+                - profit: Total calculated net profit (Total Revenue - Total Cost).
+                - cost: Total travel cost calculated by the solver.
         """
         n_nodes = len(sub_dist_matrix) - 1
         mandatory_set = set(mandatory_nodes)
