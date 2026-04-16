@@ -3,9 +3,10 @@ Policy Wrapper for Exact Stochastic Dynamic Programming.
 """
 
 from dataclasses import asdict
-from typing import Any, Dict, List, Tuple
+from typing import Any, List, Optional, Tuple
 
 from logic.src.configs.policies.esdp import ExactSDPConfig
+from logic.src.policies.context.search_context import SearchContext
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.esdp_engine import (
@@ -31,7 +32,7 @@ class ExactSDPPolicy(BaseRoutingPolicy):
     def _get_config_key(self) -> str:
         return "exact_sdp"
 
-    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Dict[str, Any]]:
+    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Optional[SearchContext]]:
         """
         Retrieves the exact SDP sequence.
         """
@@ -46,7 +47,7 @@ class ExactSDPPolicy(BaseRoutingPolicy):
         N = sub_dist_matrix.shape[0]
         if params.max_nodes + 1 < N:  # +1 for depot
             # Fallback for overly large graphs
-            return ([0] + list(range(1, N)) + [0], 0.0, {"profit": 0.0})
+            return ([0] + list(range(1, N)) + [0], 0.0, kwargs.get("search_context"))
 
         day = kwargs.get("day", 1)
         wastes = sub_wastes
@@ -78,7 +79,7 @@ class ExactSDPPolicy(BaseRoutingPolicy):
 
         route = list(route_set)
         if not route:
-            return ([0, 0], 0.0, {"profit": 0.0})
+            return ([0, 0], 0.0, kwargs.get("search_context"))
 
         import itertools
 
@@ -93,4 +94,7 @@ class ExactSDPPolicy(BaseRoutingPolicy):
                 best_cost = cost
                 best_tour = tour
 
-        return best_tour, float(best_cost), {"profit": 0.0}
+        # Carry forward context if present
+        incoming_ctx: Optional[SearchContext] = kwargs.get("search_context")
+
+        return best_tour, float(best_cost), incoming_ctx

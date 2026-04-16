@@ -12,11 +12,12 @@ Example:
     >>> bins = strategy.select_bins(context)
 """
 
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 
 from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
+from logic.src.policies.context.search_context import SearchContext
 from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
 from logic.src.policies.mandatory_selection.base.selection_registry import MandatorySelectionRegistry
 
@@ -27,7 +28,7 @@ class SavingsSelection(IMandatorySelectionStrategy):
     Selection strategy based on Clarke-Wright spatial savings.
     """
 
-    def select_bins(self, context: SelectionContext) -> List[int]:
+    def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
         """
         Select bins that offer positive routing savings with neighbors.
 
@@ -42,7 +43,7 @@ class SavingsSelection(IMandatorySelectionStrategy):
 
         n_bins = len(context.current_fill)
         if n_bins < 2:
-            return []
+            return [], SearchContext.initialize(selection_metrics={"strategy": "SavingsSelection"})
 
         # 1. Pre-filter by fill ratio
         fill_ratios = context.current_fill / context.max_fill
@@ -50,7 +51,7 @@ class SavingsSelection(IMandatorySelectionStrategy):
         candidate_indices = np.nonzero(candidate_mask)[0]
 
         if len(candidate_indices) < 2:
-            return []
+            return [], SearchContext.initialize(selection_metrics={"strategy": "SavingsSelection"})
 
         # 2. Compute pairwise savings s_ij = d(0, i) + d(0, j) - d(i, j)
         # distance_matrix[0] is depot. Bins are index 1:n_bins+1
@@ -77,4 +78,6 @@ class SavingsSelection(IMandatorySelectionStrategy):
 
         mandatory_indices = candidate_indices[has_saving]
 
-        return sorted((mandatory_indices + 1).tolist())
+        return sorted((mandatory_indices + 1).tolist()), SearchContext.initialize(
+            selection_metrics={"strategy": "SavingsSelection"}
+        )

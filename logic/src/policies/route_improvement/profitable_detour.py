@@ -2,9 +2,10 @@
 Profitable Detour Route Improver.
 """
 
-from typing import Any, List
+from typing import Any, List, Tuple
 
 from logic.src.interfaces.route_improvement import IRouteImprovement
+from logic.src.policies.context.search_context import ImprovementMetrics
 
 from .base import RouteImproverRegistry
 from .common.helpers import assemble_tour, route_load, split_tour, to_numpy
@@ -17,7 +18,7 @@ class ProfitableDetourRouteImprover(IRouteImprovement):
     Inserts bins that lie within a certain detour budget from existing tour edges.
     """
 
-    def process(self, tour: List[int], **kwargs: Any) -> List[int]:  # noqa: C901
+    def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:  # noqa: C901
         """
         Apply Profitable Detour augmentation to the tour.
 
@@ -35,7 +36,7 @@ class ProfitableDetourRouteImprover(IRouteImprovement):
         """
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:
-            return tour
+            return tour, {"algorithm": "ProfitableDetourRouteImprover"}
 
         # Parameters
         epsilon = kwargs.get("detour_epsilon", self.config.get("detour_epsilon", 0.2))
@@ -57,7 +58,7 @@ class ProfitableDetourRouteImprover(IRouteImprovement):
         try:
             routes = split_tour(tour)
             if not routes:
-                return tour
+                return tour, {"algorithm": "ProfitableDetourRouteImprover"}
 
             current_routes = [r[:] for r in routes]
             current_loads = [route_load(r, wastes) for r in current_routes]
@@ -107,7 +108,7 @@ class ProfitableDetourRouteImprover(IRouteImprovement):
                     if not inserted_any:
                         i += 1
 
-            return assemble_tour(current_routes)
+            return assemble_tour(current_routes), {"algorithm": "ProfitableDetourRouteImprover"}
 
         except Exception:
-            return tour
+            return tour, {"algorithm": "ProfitableDetourRouteImprover"}

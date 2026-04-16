@@ -1,11 +1,12 @@
 import math
 import random
 from collections import deque
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Tuple, cast
 
 import numpy as np
 
-from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
+from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion, ObjectiveValue
+from logic.src.policies.context.search_context import AcceptanceMetrics
 
 from .base.registry import AcceptanceCriterionRegistry
 
@@ -54,7 +55,8 @@ class AdaptiveBoltzmannMetropolis(IAcceptanceCriterion):
         self.temp = 0.0  # Initialized during first transitions
         self.sigma = 0.0
 
-    def setup(self, initial_objective: float) -> None:
+    def setup(self, initial_objective: ObjectiveValue) -> None:
+        initial_objective = cast(float, initial_objective)
         pass
 
     def _update_stats(self, delta: float) -> None:
@@ -65,25 +67,52 @@ class AdaptiveBoltzmannMetropolis(IAcceptanceCriterion):
                 # Initialize T0 based on first observed sigma
                 self.temp = -self.sigma / math.log(self.p0)
 
-    def accept(self, current_obj: float, candidate_obj: float, **kwargs: Any) -> bool:
+    def accept(
+        self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, **kwargs: Any
+    ) -> Tuple[bool, AcceptanceMetrics]:
+        current_obj = cast(float, current_obj)
+        candidate_obj = cast(float, candidate_obj)
         delta = candidate_obj - current_obj
         if not self.maximization:
             delta = -delta
 
         # Always accept improving or equal moves
         if delta >= 0:
-            return True
+            _accepted = bool(True)
+            return _accepted, {
+                "accepted": _accepted,
+                "delta": candidate_obj - current_obj,
+                "temperature": self.temp,
+                "sigma": self.sigma,
+                "window_len": len(self.deltas),
+            }
 
         # If temperature is not yet initialized, reject worsening
         if self.temp <= self.min_temp:
-            return False
+            _accepted = bool(False)
+            return _accepted, {
+                "accepted": _accepted,
+                "delta": candidate_obj - current_obj,
+                "temperature": self.temp,
+                "sigma": self.sigma,
+                "window_len": len(self.deltas),
+            }
 
         # Boltzmann probability: P = exp(delta / T)
         # Note: delta is negative here for worsening moves
         prob = math.exp(delta / self.temp)
-        return self.rng.random() < prob
+        _accepted = bool(self.rng.random() < prob)
+        return _accepted, {
+            "accepted": _accepted,
+            "delta": candidate_obj - current_obj,
+            "temperature": self.temp,
+            "sigma": self.sigma,
+            "window_len": len(self.deltas),
+        }
 
-    def step(self, current_obj: float, candidate_obj: float, accepted: bool, **kwargs: Any) -> None:
+    def step(self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, accepted: bool, **kwargs: Any) -> None:
+        current_obj = cast(float, current_obj)
+        candidate_obj = cast(float, candidate_obj)
         delta = candidate_obj - current_obj
         if not self.maximization:
             delta = -delta

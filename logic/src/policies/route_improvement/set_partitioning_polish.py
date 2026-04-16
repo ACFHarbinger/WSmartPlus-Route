@@ -8,9 +8,10 @@ SetPartitioningRouteImprover.
 """
 
 import logging
-from typing import Any, List
+from typing import Any, List, Tuple
 
 from logic.src.interfaces.route_improvement import IRouteImprovement
+from logic.src.policies.context.search_context import ImprovementMetrics
 from logic.src.policies.helpers.operators.intensification import (
     set_partitioning_polish,
     set_partitioning_polish_profit,
@@ -53,18 +54,18 @@ class SetPartitioningPolishRouteImprover(IRouteImprovement):
     unless they have a specific reason to hand-curate the pool.
     """
 
-    def process(self, tour: List[int], **kwargs: Any) -> List[int]:
+    def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:
-            return tour
+            return tour, {"algorithm": "SetPartitioningPolishRouteImprover"}
 
         if not _HAS_GUROBI:
-            return tour
+            return tour, {"algorithm": "SetPartitioningPolishRouteImprover"}
 
         route_pool = kwargs.get("route_pool", self.config.get("route_pool", []))
         if not route_pool:
             # Nothing to polish against — return input unchanged.
-            return tour
+            return tour, {"algorithm": "SetPartitioningPolishRouteImprover"}
 
         wastes = kwargs.get("wastes", self.config.get("wastes", {}))
         capacity = kwargs.get("capacity", self.config.get("capacity", float("inf")))
@@ -79,7 +80,7 @@ class SetPartitioningPolishRouteImprover(IRouteImprovement):
         try:
             routes = split_tour(tour)
             if not routes:
-                return tour
+                return tour, {"algorithm": "SetPartitioningPolishRouteImprover"}
 
             if revenue_kg > 0 or cost_per_km > 0:
                 refined = set_partitioning_polish_profit(
@@ -105,7 +106,7 @@ class SetPartitioningPolishRouteImprover(IRouteImprovement):
                     seed=seed,
                 )
 
-            return assemble_tour(refined)
+            return assemble_tour(refined), {"algorithm": "SetPartitioningPolishRouteImprover"}
 
         except Exception:
-            return tour
+            return tour, {"algorithm": "SetPartitioningPolishRouteImprover"}

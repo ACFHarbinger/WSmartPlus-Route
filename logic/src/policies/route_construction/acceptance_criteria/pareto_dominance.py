@@ -1,10 +1,7 @@
-"""
-Pareto Dominance Acceptance Criterion.
-"""
+from typing import Any, Dict, Sequence, Tuple, cast
 
-from typing import Any, Dict, Sequence
-
-from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
+from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion, ObjectiveValue
+from logic.src.policies.context.search_context import AcceptanceMetrics
 
 from .base.registry import AcceptanceCriterionRegistry
 
@@ -19,14 +16,15 @@ class ParetoDominanceAcceptance(IAcceptanceCriterion):
     iterables of floats (e.g., tuple or list of objective values) rather than scalar floats.
     """
 
-    def setup(self, initial_objective: float) -> None:
+    def setup(self, initial_objective: ObjectiveValue) -> None:
         pass
 
-    def accept(self, current_obj: float, candidate_obj: float, **kwargs: Any) -> bool:
-        # We type ignore because the base Interface dictates float,
-        # but multi-objective needs tuples/lists.
-        cur_objs: Sequence[float] = current_obj  # type: ignore
-        cand_objs: Sequence[float] = candidate_obj  # type: ignore
+    def accept(
+        self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, **kwargs: Any
+    ) -> Tuple[bool, AcceptanceMetrics]:
+        # Multi-objective criteria expect Sequence[float]
+        cur_objs = cast(Sequence[float], current_obj)
+        cand_objs = cast(Sequence[float], candidate_obj)
 
         if len(cur_objs) != len(cand_objs):
             raise ValueError("Objective dimensions must match for Pareto dominance.")
@@ -36,13 +34,15 @@ class ParetoDominanceAcceptance(IAcceptanceCriterion):
         better_in_one = False
         for cur_val, cand_val in zip(cur_objs, cand_objs, strict=True):
             if cand_val < cur_val:
-                return False
+                _accepted = bool(False)
+                return _accepted, {"accepted": _accepted, "delta": 0.0}
             if cand_val > cur_val:
                 better_in_one = True
 
-        return better_in_one
+        _accepted = bool(better_in_one)
+        return _accepted, {"accepted": _accepted, "delta": 0.0}
 
-    def step(self, current_obj: float, candidate_obj: float, accepted: bool, **kwargs: Any) -> None:
+    def step(self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, accepted: bool, **kwargs: Any) -> None:
         pass
 
     def get_state(self) -> Dict[str, Any]:

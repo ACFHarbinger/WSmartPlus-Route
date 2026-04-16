@@ -2,11 +2,12 @@
 Constraint Programming (CP-SAT) Policy Adapter.
 """
 
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
 from logic.src.configs.policies.cp_sat import CPSATConfig
+from logic.src.policies.context.search_context import SearchContext
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
@@ -43,7 +44,7 @@ class CPSATPolicy(BaseRoutingPolicy):
         """
         return [], 0.0, 0.0
 
-    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Dict[str, Any]]:
+    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Optional[SearchContext]]:
         """
         Executes the CP-SAT solver.
         """
@@ -61,11 +62,14 @@ class CPSATPolicy(BaseRoutingPolicy):
         route, expected_val = engine.solve()
 
         if not route or len(route) < 2:
-            return [0, 0], 0.0, {"expected_value": expected_val, "stats": engine.stats}
+            return [0, 0], 0.0, kwargs.get("search_context")
 
         # Calculate actual cost of the extracted route for return
         actual_cost = 0.0
         for i in range(len(route) - 1):
             actual_cost += distance_matrix[route[i], route[i + 1]]
 
-        return route, float(actual_cost), {"expected_value": expected_val, "stats": engine.stats}
+        # Carry forward context if present
+        incoming_ctx: Optional[SearchContext] = kwargs.get("search_context")
+
+        return route, float(actual_cost), incoming_ctx

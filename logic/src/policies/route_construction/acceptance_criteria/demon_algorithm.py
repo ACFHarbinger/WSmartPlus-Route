@@ -1,6 +1,7 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple, cast
 
-from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
+from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion, ObjectiveValue
+from logic.src.policies.context.search_context import AcceptanceMetrics
 
 from .base.registry import AcceptanceCriterionRegistry
 
@@ -32,26 +33,54 @@ class DemonAlgorithm(IAcceptanceCriterion):
         self.history: List[float] = []
         self._warmed_up = False
 
-    def setup(self, initial_objective: float) -> None:
+    def setup(self, initial_objective: ObjectiveValue) -> None:
+        initial_objective = cast(float, initial_objective)
         pass
 
-    def accept(self, current_obj: float, candidate_obj: float, **kwargs: Any) -> bool:
+    def accept(
+        self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, **kwargs: Any
+    ) -> Tuple[bool, AcceptanceMetrics]:
+        current_obj = cast(float, current_obj)
+        candidate_obj = cast(float, candidate_obj)
         delta = candidate_obj - current_obj
         if self.maximization:
             delta = -delta
 
         # Always accept improving or equal moves (delta <= 0 in minimization)
         if delta <= 0:
-            return True
+            _accepted = bool(True)
+            return _accepted, {
+                "accepted": _accepted,
+                "delta": candidate_obj - current_obj,
+                "demon_credit": self.demon_credit,
+                "warmed_up": self._warmed_up,
+                "maximization": self.maximization,
+            }
 
         # If not warmed up, we typically reject worsening unless credit was somehow set
         if not self._warmed_up and self.demon_credit <= 0:
-            return False
+            _accepted = bool(False)
+            return _accepted, {
+                "accepted": _accepted,
+                "delta": candidate_obj - current_obj,
+                "demon_credit": self.demon_credit,
+                "warmed_up": self._warmed_up,
+                "maximization": self.maximization,
+            }
 
         # Worsening move: accepted if delta <= credit
-        return delta <= self.demon_credit
+        _accepted = bool(delta <= self.demon_credit)
+        return _accepted, {
+            "accepted": _accepted,
+            "delta": candidate_obj - current_obj,
+            "demon_credit": self.demon_credit,
+            "warmed_up": self._warmed_up,
+            "maximization": self.maximization,
+        }
 
-    def step(self, current_obj: float, candidate_obj: float, accepted: bool, **kwargs: Any) -> None:
+    def step(self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, accepted: bool, **kwargs: Any) -> None:
+        current_obj = cast(float, current_obj)
+        candidate_obj = cast(float, candidate_obj)
         delta = candidate_obj - current_obj
         if self.maximization:
             delta = -delta

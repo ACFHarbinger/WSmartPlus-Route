@@ -8,9 +8,10 @@ the unchanged fixed routes.
 """
 
 import logging
-from typing import Any, List
+from typing import Any, List, Tuple
 
 from logic.src.interfaces.route_improvement import IRouteImprovement
+from logic.src.policies.context.search_context import ImprovementMetrics
 from logic.src.policies.helpers.operators.intensification import (
     fix_and_optimize,
     fix_and_optimize_profit,
@@ -56,13 +57,13 @@ class FixAndOptimizeRouteImprover(IRouteImprovement):
     replaces the free routes; all other routes pass through unchanged.
     """
 
-    def process(self, tour: List[int], **kwargs: Any) -> List[int]:
+    def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:
-            return tour
+            return tour, {"algorithm": "FixAndOptimizeRouteImprover"}
 
         if not _HAS_GUROBI:
-            return tour
+            return tour, {"algorithm": "FixAndOptimizeRouteImprover"}
 
         # Sub-MIP parameters
         n_free = kwargs.get("fo_n_free", self.config.get("fo_n_free"))  # None -> use fraction
@@ -82,7 +83,7 @@ class FixAndOptimizeRouteImprover(IRouteImprovement):
         try:
             routes = split_tour(tour)
             if not routes:
-                return tour
+                return tour, {"algorithm": "FixAndOptimizeRouteImprover"}
 
             if revenue_kg > 0 or cost_per_km > 0:
                 refined = fix_and_optimize_profit(
@@ -110,7 +111,7 @@ class FixAndOptimizeRouteImprover(IRouteImprovement):
                     seed=seed,
                 )
 
-            return assemble_tour(refined)
+            return assemble_tour(refined), {"algorithm": "FixAndOptimizeRouteImprover"}
 
         except Exception:
-            return tour
+            return tour, {"algorithm": "FixAndOptimizeRouteImprover"}

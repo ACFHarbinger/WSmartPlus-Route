@@ -6,12 +6,13 @@ the mathematically exact expected overflow volume of a bin if its collection
 is deferred to the next day, assuming normally distributed accumulation rates.
 """
 
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 from scipy.stats import norm
 
 from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
+from logic.src.policies.context.search_context import SearchContext
 from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
 from logic.src.policies.mandatory_selection.base.selection_registry import MandatorySelectionRegistry
 
@@ -25,7 +26,7 @@ class StochasticRegretSelection(IMandatorySelectionStrategy):
     exceeds a defined threshold.
     """
 
-    def select_bins(self, context: SelectionContext) -> List[int]:
+    def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
         """
         Select bins based on the mathematical expectation of their overflow.
 
@@ -60,4 +61,6 @@ class StochasticRegretSelection(IMandatorySelectionStrategy):
         mandatory_indices = np.nonzero(expected_overflow > context.threshold)[0]
 
         # Return 1-based indexing for the routing engine
-        return (mandatory_indices + 1).tolist()
+        return (mandatory_indices + 1).tolist(), SearchContext.initialize(
+            selection_metrics={"strategy": "StochasticRegretSelection"}
+        )

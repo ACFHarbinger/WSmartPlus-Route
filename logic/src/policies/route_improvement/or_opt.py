@@ -2,9 +2,10 @@
 Or-opt Route Improver.
 """
 
-from typing import Any, List
+from typing import Any, List, Tuple
 
 from logic.src.interfaces.route_improvement import IRouteImprovement
+from logic.src.policies.context.search_context import ImprovementMetrics
 
 from .base import RouteImproverRegistry
 from .common.helpers import assemble_tour, split_tour, to_numpy
@@ -17,7 +18,7 @@ class OrOptRouteImprover(IRouteImprovement):
     Wraps LocalSearchManager.or_opt.
     """
 
-    def process(self, tour: List[int], **kwargs: Any) -> List[int]:
+    def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
         """
         Apply Or-opt improvement to the tour.
 
@@ -30,7 +31,7 @@ class OrOptRouteImprover(IRouteImprovement):
         """
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:
-            return tour
+            return tour, {"algorithm": "OrOptRouteImprover"}
 
         # Parameters
         chain_len = kwargs.get("chain_len", self.config.get("chain_len", 2))
@@ -46,14 +47,14 @@ class OrOptRouteImprover(IRouteImprovement):
         # Convert distance matrix to numpy
         dm = to_numpy(distance_matrix)
         if len(tour) < 3:
-            return tour
+            return tour, {"algorithm": "OrOptRouteImprover"}
 
         try:
             from logic.src.policies.helpers.local_search.local_search_manager import LocalSearchManager
 
             routes = split_tour(tour)
             if not routes:
-                return tour
+                return tour, {"algorithm": "OrOptRouteImprover"}
 
             manager = LocalSearchManager(
                 dist_matrix=dm,
@@ -70,8 +71,8 @@ class OrOptRouteImprover(IRouteImprovement):
                 if not manager.or_opt(chain_len=chain_len):
                     break
 
-            return assemble_tour(manager.get_routes())
+            return assemble_tour(manager.get_routes()), {"algorithm": "OrOptRouteImprover"}
 
         except Exception:
             # Fallback to original tour on any unexpected error
-            return tour
+            return tour, {"algorithm": "OrOptRouteImprover"}

@@ -6,9 +6,10 @@ profit variant when revenue/cost are configured) to perform pairwise
 node swaps until a local minimum is reached.
 """
 
-from typing import Any, List
+from typing import Any, List, Tuple
 
 from logic.src.interfaces.route_improvement import IRouteImprovement
+from logic.src.policies.context.search_context import ImprovementMetrics
 from logic.src.policies.helpers.operators.intensification import (
     node_exchange_steepest,
     node_exchange_steepest_profit,
@@ -25,10 +26,10 @@ class NodeExchangeSteepestRouteImprover(IRouteImprovement):
     intra-route node swaps to improve the tour.
     """
 
-    def process(self, tour: List[int], **kwargs: Any) -> List[int]:
+    def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:
-            return tour
+            return tour, {"algorithm": "NodeExchangeSteepestRouteImprover"}
 
         wastes = kwargs.get("wastes", self.config.get("wastes", {}))
         capacity = kwargs.get("capacity", self.config.get("capacity", float("inf")))
@@ -41,7 +42,7 @@ class NodeExchangeSteepestRouteImprover(IRouteImprovement):
         try:
             routes = split_tour(tour)
             if not routes:
-                return tour
+                return tour, {"algorithm": "NodeExchangeSteepestRouteImprover"}
 
             if revenue_kg > 0 or cost_per_km > 0:
                 refined = node_exchange_steepest_profit(
@@ -62,7 +63,7 @@ class NodeExchangeSteepestRouteImprover(IRouteImprovement):
                     max_iter=max_iter,
                 )
 
-            return assemble_tour(refined)
+            return assemble_tour(refined), {"algorithm": "NodeExchangeSteepestRouteImprover"}
 
         except Exception:
-            return tour
+            return tour, {"algorithm": "NodeExchangeSteepestRouteImprover"}

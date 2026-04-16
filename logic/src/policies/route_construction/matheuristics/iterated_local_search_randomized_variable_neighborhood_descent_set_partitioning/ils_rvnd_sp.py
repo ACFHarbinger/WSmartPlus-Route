@@ -301,7 +301,7 @@ class ILSRVNDSPSolver:
 
             iter_routes = copy.deepcopy(best_routes)
 
-            for _ in range(max_ils_iterations):
+            for ils_idx in range(max_ils_iterations):
                 if self.params.time_limit > 0 and (time.process_time() - start_time) > self.params.time_limit:
                     break
 
@@ -316,10 +316,10 @@ class ILSRVNDSPSolver:
 
                 # ILS Acceptance Criterion:
                 # Delegate decision (improve only, SA, GD, etc. based on injection)
-                is_accepted = self.params.acceptance_criterion.accept(
+                is_accepted, _ = self.params.acceptance_criterion.accept(
                     current_obj=current_profit,
                     candidate_obj=ls_profit,
-                    iteration=iteration * max_ils_iterations + _,
+                    iteration=iteration * max_ils_iterations + ils_idx,
                     max_iterations=max_iterations * max_ils_iterations,
                 )
 
@@ -337,7 +337,7 @@ class ILSRVNDSPSolver:
                     current_obj=current_profit,
                     candidate_obj=ls_profit,
                     accepted=is_accepted,
-                    iteration=iteration * max_ils_iterations + _,
+                    iteration=iteration * max_ils_iterations + ils_idx,
                 )
 
             getattr(self, "_viz_record", lambda **k: None)(

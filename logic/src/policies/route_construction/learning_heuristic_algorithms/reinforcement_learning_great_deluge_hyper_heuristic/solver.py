@@ -128,7 +128,7 @@ class RLGDHHSolver:
             new_profit = self._evaluate(new_routes)
 
             # (c) Adaptation + (d) Acceptance
-            is_accepted = self.params.acceptance_criterion.accept(
+            is_accepted, _ = self.params.acceptance_criterion.accept(
                 current_obj=current_profit,
                 candidate_obj=new_profit,
                 iteration=iteration,

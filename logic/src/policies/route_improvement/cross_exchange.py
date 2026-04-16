@@ -2,9 +2,10 @@
 Cross-Exchange Route Improver.
 """
 
-from typing import Any, List
+from typing import Any, List, Tuple
 
 from logic.src.interfaces.route_improvement import IRouteImprovement
+from logic.src.policies.context.search_context import ImprovementMetrics
 
 from .base import RouteImproverRegistry
 from .common.helpers import assemble_tour, split_tour, to_numpy
@@ -17,7 +18,7 @@ class CrossExchangeRouteImprover(IRouteImprovement):
     Wraps LocalSearchManager.cross_exchange_op.
     """
 
-    def process(self, tour: List[int], **kwargs: Any) -> List[int]:
+    def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
         """
         Apply cross-exchange improvement to the tour.
 
@@ -30,7 +31,7 @@ class CrossExchangeRouteImprover(IRouteImprovement):
         """
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:
-            return tour
+            return tour, {"algorithm": "CrossExchangeRouteImprover"}
 
         # Parameters
         max_seg_len = kwargs.get("cross_exchange_max_segment_len", self.config.get("cross_exchange_max_segment_len", 3))
@@ -47,7 +48,7 @@ class CrossExchangeRouteImprover(IRouteImprovement):
         dm = to_numpy(distance_matrix)
 
         if len(tour) < 3:
-            return tour
+            return tour, {"algorithm": "CrossExchangeRouteImprover"}
 
         try:
             from logic.src.policies.helpers.local_search.local_search_manager import LocalSearchManager
@@ -55,7 +56,7 @@ class CrossExchangeRouteImprover(IRouteImprovement):
             routes = split_tour(tour)
             if len(routes) < 2:
                 # Cross-exchange requires at least two routes
-                return tour
+                return tour, {"algorithm": "CrossExchangeRouteImprover"}
 
             manager = LocalSearchManager(
                 dist_matrix=dm,
@@ -72,8 +73,8 @@ class CrossExchangeRouteImprover(IRouteImprovement):
                 if not manager.cross_exchange_op(max_seg_len=max_seg_len):
                     break
 
-            return assemble_tour(manager.get_routes())
+            return assemble_tour(manager.get_routes()), {"algorithm": "CrossExchangeRouteImprover"}
 
         except Exception:
             # Fallback to original tour on any unexpected error
-            return tour
+            return tour, {"algorithm": "CrossExchangeRouteImprover"}

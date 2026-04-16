@@ -15,9 +15,10 @@ Example:
 """
 
 from dataclasses import replace
-from typing import Any, Dict, List, Optional, cast
+from typing import Any, Dict, List, Optional, Tuple, cast
 
 from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
+from logic.src.policies.context.search_context import SearchContext
 
 from .base.selection_context import SelectionContext
 from .base.selection_factory import MandatorySelectionFactory
@@ -49,7 +50,7 @@ class CombinedSelection(IMandatorySelectionStrategy):
         if self.logic not in ["or", "and"]:
             raise ValueError(f"Unknown logic: {self.logic}. Must be 'or' or 'and'.")
 
-    def select_bins(self, context: SelectionContext) -> List[int]:
+    def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
         """
         Select bins based on combined strategies.
 
@@ -60,13 +61,7 @@ class CombinedSelection(IMandatorySelectionStrategy):
             List[int]: List of bin IDs (1-based index).
         """
         if not self.strategy_configs:
-            return []
-
-        # Initialize result set based on logic
-        # For 'or', start empty (neutral element for union)
-        # For 'and', start with all bins (neutral element for intersection) - wait,
-        # actually for intersection we need the first set to intersect with.
-        # So we can just process the first one and then loop.
+            return [], SearchContext.initialize(selection_metrics={"strategy": "CombinedSelection"})
 
         # Instantiate strategies
         strategies = []
@@ -78,21 +73,29 @@ class CombinedSelection(IMandatorySelectionStrategy):
                 strategies.append((strategy, params))
 
         if not strategies:
-            return []
+            return [], SearchContext.initialize(selection_metrics={"strategy": "CombinedSelection"})
 
         # Execute first strategy
         first_strat, first_params = strategies[0]
+        ctx_0 = self._update_context(context, first_params)
 
-        # Update context with first params
-        ctx = self._update_context(context, first_params)
-        result_set = set(first_strat.select_bins(ctx))
+        mandatory_0, master_ctx = first_strat.select_bins(ctx_0)
+        result_set = set(mandatory_0)
+
+        # Merge metrics into master_ctx
+        master_ctx = master_ctx.merge(
+            SearchContext.initialize(selection_metrics={"strategy": "CombinedSelection", "logic": self.logic})
+        )
+
         for strategy, params in strategies[1:]:
-            ctx = self._update_context(context, params)
-            current_bins = set(strategy.select_bins(ctx))
+            ctx_i = self._update_context(context, params)
+            current_bins_list, sub_ctx = strategy.select_bins(ctx_i)
+            current_bins = set(current_bins_list)
 
             result_set = result_set.union(current_bins) if self.logic == "or" else result_set.intersection(current_bins)
+            master_ctx = master_ctx.merge(sub_ctx)
 
-        return list(result_set)
+        return sorted(list(result_set)), master_ctx
 
     def _update_context(self, context: SelectionContext, params: Dict[str, Any]) -> SelectionContext:
         """

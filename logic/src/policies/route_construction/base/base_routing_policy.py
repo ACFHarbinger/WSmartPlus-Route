@@ -15,6 +15,7 @@ import numpy as np
 
 from logic.src.interfaces.route_constructor import IRouteConstructor
 from logic.src.pipeline.simulations.repository import load_area_and_waste_type_params
+from logic.src.policies.context.search_context import ConstructionMetrics, SearchContext, merge_context
 from logic.src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp import get_route_cost
 from logic.src.tracking.core.run import get_active_run
 from logic.src.tracking.viz_mixin import PolicyVizMixin
@@ -393,22 +394,32 @@ class BaseRoutingPolicy(PolicyVizMixin, IRouteConstructor):
         if params:
             run.log_params(params)
 
-    def execute(self, **kwargs: Any) -> Tuple[Union[List[int], List[List[int]]], float, Any]:
+    def execute(self, **kwargs: Any) -> Tuple[Union[List[int], List[List[int]]], float, Optional[SearchContext]]:
         """
         Execute the routing policy using template method pattern.
 
+        Threads the ``SearchContext`` (from Phase 1) forward:
+        1. Reads ``kwargs["search_context"]`` if present (from mandatory selection).
+        2. Merges ``ConstructionMetrics`` into it after the solver runs.
+        3. Returns the enriched context as the third tuple element.
+
         Args:
-            **kwargs: Simulation context.
+            **kwargs: Simulation context.  May include ``search_context``
+                (a ``SearchContext`` from Phase 1).
 
         Returns:
-            Tuple of (tour, cost, extra_output)
+            Tuple of (tour, cost, search_context)
         """
         mandatory = kwargs.get("mandatory", [])
+
+        # Carry forward any SearchContext created by Phase 1
+        incoming_ctx: Optional[SearchContext] = kwargs.get("search_context")
 
         # 1. Validate
         early_result = self._validate_mandatory(mandatory)
         if early_result is not None:
-            return early_result
+            # Return the context even on early exit so the pipeline stays consistent
+            return early_result[0], early_result[1], incoming_ctx
 
         # 2. Extract context
         bins = kwargs["bins"]
@@ -495,4 +506,21 @@ class BaseRoutingPolicy(PolicyVizMixin, IRouteConstructor):
         # 7. Compute cost
         cost = self._compute_cost(distance_matrix, tour)
 
-        return tour, cost, {"profit": profit}
+        # 8. Merge ConstructionMetrics into the incoming SearchContext
+        construction_patch: ConstructionMetrics = {
+            "algorithm": type(self).__name__,
+            "n_mandatory": len(mandatory),
+            "profit": profit,
+        }
+        if incoming_ctx is not None:
+            from logic.src.policies.context.search_context import SearchPhase
+
+            out_ctx: Optional[SearchContext] = merge_context(
+                incoming_ctx,
+                phase=SearchPhase.CONSTRUCTION,
+                construction_metrics=construction_patch,
+            )
+        else:
+            out_ctx = None
+
+        return tour, cost, out_ctx

@@ -38,7 +38,7 @@ class TestFastTSPRouteImprover:
     def test_fast_tsp_refinement(self, sample_route_data):
         dist_matrix, tour = sample_route_data
         processor = FastTSPRouteImprover()
-        refined_tour = processor.process(tour, distance_matrix=dist_matrix)
+        refined_tour, _ = processor.process(tour, distance_matrix=dist_matrix)
         assert len(refined_tour) == len(tour)
         assert refined_tour[0] == 0
         assert refined_tour[-1] == 0
@@ -47,7 +47,7 @@ class TestClassicalLocalSearchRouteImprover:
     def test_2opt_refinement(self, sample_route_data):
         dist_matrix, tour = sample_route_data
         processor = ClassicalLocalSearchRouteImprover()
-        refined_tour = processor.process(tour, distance_matrix=dist_matrix, operator_name="2opt")
+        refined_tour, _ = processor.process(tour, distance_matrix=dist_matrix, operator_name="2opt")
         assert len(refined_tour) == len(tour)
         assert refined_tour[0] == 0
         assert refined_tour[-1] == 0
@@ -68,7 +68,7 @@ class TestClassicalLocalSearchRouteImprover:
 
         tour = [0, 2, 1, 0, 4, 3, 5, 0]
         processor = ClassicalLocalSearchRouteImprover()
-        refined_tour = processor.process(tour, distance_matrix=dist_matrix, operator_name="2opt")
+        refined_tour, _ = processor.process(tour, distance_matrix=dist_matrix, operator_name="2opt")
 
         assert refined_tour[0] == 0
         assert refined_tour[-1] == 0
@@ -78,7 +78,7 @@ class TestRandomLocalSearchRouteImprover:
     def test_random_ls_refinement(self, sample_route_data):
         dist_matrix, tour = sample_route_data
         processor = RandomLocalSearchRouteImprover()
-        refined_tour = processor.process(
+        refined_tour, _ = processor.process(
             tour,
             distance_matrix=dist_matrix,
             iterations=10,
@@ -109,7 +109,7 @@ class TestPathRouteImprover:
         # bin 1 -> idx 0, etc.
         current_fill = np.array([10.0, 10.0, 10.0, 10.0]) # 4 bins
 
-        refined = processor.process(
+        refined, _ = processor.process(
             tour,
             paths_between_states=paths,
             total_fill=current_fill,
@@ -131,7 +131,7 @@ class TestPathRouteImprover:
         # Current load: 1(50) + 3(50) = 100. Capacity = 100.
         # Node 2(50) + 100 = 150 > 100. Should skip.
 
-        refined = processor.process(
+        refined, _ = processor.process(
             tour,
             paths_between_states=paths,
             total_fill=current_fill,
@@ -148,7 +148,7 @@ class TestPathRouteImprover:
         paths[1][3] = [1, 2, 3]
         current_fill = np.array([10.0, 10.0, 10.0, 10.0])
 
-        refined = processor.process(
+        refined, _ = processor.process(
             tour,
             paths_between_states=paths,
             total_fill=current_fill,

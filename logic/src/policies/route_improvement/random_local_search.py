@@ -2,11 +2,12 @@
 Random Local Search Route Improver.
 """
 
-from typing import Any, List
+from typing import Any, List, Tuple
 
 import numpy as np
 
 from logic.src.interfaces import IRouteImprovement
+from logic.src.policies.context.search_context import ImprovementMetrics
 from logic.src.policies.helpers.local_search.local_search_manager import LocalSearchManager
 
 from .base import RouteImproverRegistry
@@ -20,7 +21,7 @@ class RandomLocalSearchRouteImprover(IRouteImprovement):
     the metaheuristic sub-package. Compatible with multi-route tours.
     """
 
-    def process(self, tour: List[int], **kwargs: Any) -> List[int]:
+    def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
         """
         Apply random local search operators stochastically.
 
@@ -34,7 +35,7 @@ class RandomLocalSearchRouteImprover(IRouteImprovement):
 
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or len(tour) < 3:
-            return tour
+            return tour, {"algorithm": "RandomLocalSearchRouteImprover"}
 
         # Get parameters from config (via kwargs) with fallbacks
         n_iterations = kwargs.get("iterations", kwargs.get("n_iterations", self.config.get("iterations", 500)))
@@ -67,7 +68,7 @@ class RandomLocalSearchRouteImprover(IRouteImprovement):
 
         routes = split_tour(tour)
         if not routes:
-            return tour
+            return tour, {"algorithm": "RandomLocalSearchRouteImprover"}
 
         # Initialize LocalSearchManager
         manager = LocalSearchManager(
@@ -98,7 +99,7 @@ class RandomLocalSearchRouteImprover(IRouteImprovement):
 
         active_ops = [op for op in op_probs.keys() if op in op_map]
         if not active_ops:
-            return tour
+            return tour, {"algorithm": "RandomLocalSearchRouteImprover"}
 
         probs = np.array([op_probs.get(op, 0.0) for op in active_ops])
         probs = probs / (probs.sum() + 1e-10)
@@ -112,6 +113,6 @@ class RandomLocalSearchRouteImprover(IRouteImprovement):
                 op_func()  # Apply the operator (manager handles success internally)
 
             # Re-assemble tour
-            return assemble_tour(manager.get_routes())
+            return assemble_tour(manager.get_routes()), {"algorithm": "RandomLocalSearchRouteImprover"}
         except Exception:
-            return tour
+            return tour, {"algorithm": "RandomLocalSearchRouteImprover"}

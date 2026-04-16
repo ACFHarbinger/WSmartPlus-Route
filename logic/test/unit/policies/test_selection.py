@@ -27,22 +27,24 @@ class TestRegularSelection:
         # ((4 - 1) % 3) == 0.
         ctx = SelectionContext(bin_ids=np.array([0, 1]), current_fill=np.zeros(2), current_day=4, threshold=3.0)
         # Should return [1, 2] (indices 0, 1 mapped to IDs 1, 2)
-        assert list(strategy.select_bins(ctx)) == [1, 2]
+        mandatory, _ = strategy.select_bins(ctx)
+        assert list(mandatory) == [1, 2]
 
         # Case 2: skip
         ctx = SelectionContext(bin_ids=np.array([0, 1]), current_fill=np.zeros(2), current_day=5, threshold=3.0)
-        assert list(strategy.select_bins(ctx)) == []
+        mandatory, _ = strategy.select_bins(ctx)
+        assert list(mandatory) == []
 
 class TestLastMinuteSelection:
     def test_last_minute_basic(self, base_context):
         strategy = LastMinuteSelection()
-        selected = strategy.select_bins(base_context)
+        mandatory, _ = strategy.select_bins(base_context)
         # current_fill = [10.0, 95.0, 30.0, 85.0, 50.0], threshold=90.0
         # Index 1 is > 90. Mapped to ID 2.
-        assert list(selected) == [2]
+        assert list(mandatory) == [2]
 
 class TestLookaheadSelection:
     def test_lookahead_no_prediction(self, base_context):
         strategy = LookaheadSelection()
-        selected = strategy.select_bins(base_context)
-        assert list(selected) == []
+        mandatory, _ = strategy.select_bins(base_context)
+        assert list(mandatory) == []

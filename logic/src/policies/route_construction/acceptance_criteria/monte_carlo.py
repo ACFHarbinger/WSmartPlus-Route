@@ -3,9 +3,10 @@ Monte Carlo Acceptance (MCA) Criterion.
 """
 
 import random
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Tuple, cast
 
-from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
+from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion, ObjectiveValue
+from logic.src.policies.context.search_context import AcceptanceMetrics
 
 from .base.registry import AcceptanceCriterionRegistry
 
@@ -27,15 +28,32 @@ class MonteCarloAcceptance(IAcceptanceCriterion):
         self.p = max(0.0, min(1.0, p))
         self.rng = random.Random(seed)
 
-    def setup(self, initial_objective: float) -> None:
+    def setup(self, initial_objective: ObjectiveValue) -> None:
+        initial_objective = cast(float, initial_objective)
         pass
 
-    def accept(self, current_obj: float, candidate_obj: float, **kwargs: Any) -> bool:
+    def accept(
+        self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, **kwargs: Any
+    ) -> Tuple[bool, AcceptanceMetrics]:
+        current_obj = cast(float, current_obj)
+        candidate_obj = cast(float, candidate_obj)
         if candidate_obj >= current_obj:
-            return True
-        return self.rng.random() < self.p
+            _accepted = bool(True)
+            return _accepted, {
+                "accepted": _accepted,
+                "delta": candidate_obj - current_obj,
+                "acceptance_probability": self.p,
+            }
+        _accepted = bool(self.rng.random() < self.p)
+        return _accepted, {
+            "accepted": _accepted,
+            "delta": candidate_obj - current_obj,
+            "acceptance_probability": self.p,
+        }
 
-    def step(self, current_obj: float, candidate_obj: float, accepted: bool, **kwargs: Any) -> None:
+    def step(self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, accepted: bool, **kwargs: Any) -> None:
+        current_obj = cast(float, current_obj)
+        candidate_obj = cast(float, candidate_obj)
         pass
 
     def get_state(self) -> Dict[str, Any]:

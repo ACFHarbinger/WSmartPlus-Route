@@ -2,11 +2,12 @@
 LKH (Lin-Kernighan-Helsgaun) Route Improver.
 """
 
-from typing import Any, List
+from typing import Any, List, Tuple
 
 import numpy as np
 
 from logic.src.interfaces import IRouteImprovement
+from logic.src.policies.context.search_context import ImprovementMetrics
 from logic.src.policies.helpers.operators.heuristics.lin_kernighan_helsgaun import solve_lkh
 
 from .base import RouteImproverRegistry
@@ -23,7 +24,7 @@ class LinKernighanHelsgaunRouteImprover(IRouteImprovement):
     the results back to the original node IDs.
     """
 
-    def process(self, tour: List[int], **kwargs: Any) -> List[int]:
+    def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
         """
         Apply LKH refinement to a tour using sub-matrix extraction.
 
@@ -43,17 +44,17 @@ class LinKernighanHelsgaunRouteImprover(IRouteImprovement):
         # 1. Early Exits & Edge Cases
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None:
-            return tour
+            return tour, {"algorithm": "LinKernighanHelsgaunRouteImprover"}
 
         dm = to_numpy(distance_matrix)
 
         if not tour:
-            return tour
+            return tour, {"algorithm": "LinKernighanHelsgaunRouteImprover"}
 
         # 2. Split tour into trips (sub-problems)
         routes = split_tour(tour)
         if not routes:
-            return tour
+            return tour, {"algorithm": "LinKernighanHelsgaunRouteImprover"}
 
         refined_routes = []
         for trip in routes:
@@ -94,4 +95,4 @@ class LinKernighanHelsgaunRouteImprover(IRouteImprovement):
                 # If LKH fails for one trip, keep original trip
                 refined_routes.append(trip)
 
-        return assemble_tour(refined_routes)
+        return assemble_tour(refined_routes), {"algorithm": "LinKernighanHelsgaunRouteImprover"}

@@ -169,7 +169,7 @@ class GIHHSolver:
 
             # Use modular criterion to decide acceptance
             assert self.params.acceptance_criterion is not None
-            is_accepted = self.params.acceptance_criterion.accept(
+            is_accepted, _ = self.params.acceptance_criterion.accept(
                 current_obj=current_sol.profit,
                 candidate_obj=candidate_sol.profit,
                 iteration=iteration,

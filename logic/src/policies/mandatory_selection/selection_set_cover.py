@@ -13,11 +13,12 @@ Example:
     >>> bins = strategy.select_bins(context)
 """
 
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 
 from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
+from logic.src.policies.context.search_context import SearchContext
 from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
 from logic.src.policies.mandatory_selection.base.selection_registry import MandatorySelectionRegistry
 
@@ -28,7 +29,7 @@ class SetCoverSelection(IMandatorySelectionStrategy):
     Selection strategy based on greedy Set Cover.
     """
 
-    def select_bins(self, context: SelectionContext) -> List[int]:
+    def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
         """
         Select hub bins to cover all critical bins within service_radius.
 
@@ -43,14 +44,14 @@ class SetCoverSelection(IMandatorySelectionStrategy):
 
         n_bins = len(context.current_fill)
         if n_bins == 0:
-            return []
+            return [], SearchContext.initialize(selection_metrics={"strategy": "SetCoverSelection"})
 
         # 1. Define the Universe U of critical bins
         fill_ratios = context.current_fill / context.max_fill
         critical_indices = np.nonzero(fill_ratios > context.critical_threshold)[0]
 
         if len(critical_indices) == 0:
-            return []
+            return [], SearchContext.initialize(selection_metrics={"strategy": "SetCoverSelection"})
 
         universe = set(critical_indices)
 
@@ -90,4 +91,6 @@ class SetCoverSelection(IMandatorySelectionStrategy):
             selected_hubs.append(best_j)
             uncovered = uncovered - candidate_sets[best_j]
 
-        return sorted((np.array(selected_hubs) + 1).tolist())
+        return sorted((np.array(selected_hubs) + 1).tolist()), SearchContext.initialize(
+            selection_metrics={"strategy": "SetCoverSelection"}
+        )

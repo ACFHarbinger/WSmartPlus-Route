@@ -276,7 +276,7 @@ def run_lb_vns_gurobi(
 
         # --- PHASE 3: NEIGHBORHOOD CHANGE (Move Acceptance) ---
         # Delegate decision to injected criterion
-        is_accepted = acceptance_criterion.accept(
+        is_accepted, _ = acceptance_criterion.accept(
             current_obj=current_best_obj,
             candidate_obj=current_ls_obj,
             iteration=int((time.process_time() - start_time) / params.time_limit * 100),  # Progress-based iteration

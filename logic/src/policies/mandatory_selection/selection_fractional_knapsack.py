@@ -51,11 +51,12 @@ Example:
     >>> bins = strategy.select_bins(context)
 """
 
-from typing import List, Set
+from typing import List, Set, Tuple
 
 import numpy as np
 
 from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
+from logic.src.policies.context.search_context import SearchContext
 from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
 from logic.src.policies.mandatory_selection.base.selection_registry import MandatorySelectionRegistry
 
@@ -133,7 +134,7 @@ class FractionalKnapsackSelection(IMandatorySelectionStrategy):
 
         return packed
 
-    def select_bins(self, context: SelectionContext) -> List[int]:
+    def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
         """
         Return the selected bin IDs (1-based) under the multi-vehicle plan.
 
@@ -144,7 +145,7 @@ class FractionalKnapsackSelection(IMandatorySelectionStrategy):
         if context.distance_matrix is None:
             raise ValueError("FractionalKnapsackSelection requires a distance_matrix.")
         if context.revenue_kg <= 0:
-            return []
+            return [], SearchContext.initialize(selection_metrics={"strategy": "FractionalKnapsackSelection"})
 
         dm = np.asarray(context.distance_matrix)
 
@@ -161,22 +162,24 @@ class FractionalKnapsackSelection(IMandatorySelectionStrategy):
         eligible_mask = (mass > 0) & (net_profit_depot > 0)
         eligible_idx: Set[int] = set(int(i) for i in np.nonzero(eligible_mask)[0])
         if not eligible_idx:
-            return []
+            return [], SearchContext.initialize(selection_metrics={"strategy": "FractionalKnapsackSelection"})
 
         n_vehicles = int(getattr(context, "n_vehicles", 1))
 
         # Unbounded knapsacks: capacity does not bind.
         if n_vehicles <= 0:
-            return sorted(i + 1 for i in eligible_idx)
+            return sorted(i + 1 for i in eligible_idx), SearchContext.initialize(
+                selection_metrics={"strategy": "FractionalKnapsackSelection"}
+            )
 
         capacity = float(context.vehicle_capacity)
         if capacity <= 0:
-            return []
+            return [], SearchContext.initialize(selection_metrics={"strategy": "FractionalKnapsackSelection"})
 
         # Discard bins that individually exceed a single vehicle's capacity.
         eligible_idx = {i for i in eligible_idx if mass[i] <= capacity}
         if not eligible_idx:
-            return []
+            return [], SearchContext.initialize(selection_metrics={"strategy": "FractionalKnapsackSelection"})
 
         # --- Greedy pass across all K knapsacks ---
         remaining = set(eligible_idx)
@@ -197,5 +200,9 @@ class FractionalKnapsackSelection(IMandatorySelectionStrategy):
         best_single_value = float(revenue[best_single])
 
         if best_single_value > greedy_value:
-            return [best_single + 1]
-        return sorted(i + 1 for i in greedy_selected)
+            return [best_single + 1], SearchContext.initialize(
+                selection_metrics={"strategy": "FractionalKnapsackSelection"}
+            )
+        return sorted(i + 1 for i in greedy_selected), SearchContext.initialize(
+            selection_metrics={"strategy": "FractionalKnapsackSelection"}
+        )

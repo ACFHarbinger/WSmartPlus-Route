@@ -21,6 +21,7 @@ import random
 from typing import Any, List, Set, Tuple
 
 from logic.src.interfaces.route_improvement import IRouteImprovement
+from logic.src.policies.context.search_context import ImprovementMetrics
 from logic.src.policies.helpers.operators.heuristics.large_neighborhood_search import apply_lns
 from logic.src.policies.helpers.operators.intensification import (
     dp_route_reopt,
@@ -81,13 +82,13 @@ class SetPartitioningRouteImprover(IRouteImprovement):
     better tour may exist using routes never generated.
     """
 
-    def process(self, tour: List[int], **kwargs: Any) -> List[int]:  # noqa: C901
+    def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:  # noqa: C901
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:
-            return tour
+            return tour, {"algorithm": "SetPartitioningRouteImprover"}
 
         if not _HAS_GUROBI:
-            return tour
+            return tour, {"algorithm": "SetPartitioningRouteImprover"}
 
         # Pool-construction parameters
         n_perturbations = kwargs.get("sp_n_perturbations", self.config.get("sp_n_perturbations", 20))
@@ -115,7 +116,7 @@ class SetPartitioningRouteImprover(IRouteImprovement):
         try:
             input_routes = split_tour(tour)
             if not input_routes:
-                return tour
+                return tour, {"algorithm": "SetPartitioningRouteImprover"}
 
             # --- Pool construction ---
             seen: Set[Tuple[int, ...]] = set()
@@ -181,7 +182,7 @@ class SetPartitioningRouteImprover(IRouteImprovement):
                         add([m_node])
 
             if not pool:
-                return tour
+                return tour, {"algorithm": "SetPartitioningRouteImprover"}
 
             # --- Solve set-partitioning IP ---
             if revenue_kg > 0 or cost_per_km > 0:
@@ -214,9 +215,9 @@ class SetPartitioningRouteImprover(IRouteImprovement):
             polished_cost = tour_distance(refined, dm)
             input_cost = tour_distance(input_routes, dm)
             if polished_cost > input_cost + 1e-6:
-                return tour
+                return tour, {"algorithm": "SetPartitioningRouteImprover"}
 
-            return assemble_tour(refined)
+            return assemble_tour(refined), {"algorithm": "SetPartitioningRouteImprover"}
 
         except Exception:
-            return tour
+            return tour, {"algorithm": "SetPartitioningRouteImprover"}

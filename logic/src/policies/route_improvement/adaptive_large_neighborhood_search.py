@@ -1,8 +1,9 @@
 import pickle
 import random
-from typing import Any, List
+from typing import Any, List, Tuple
 
 from logic.src.interfaces.route_improvement import IRouteImprovement
+from logic.src.policies.context.search_context import ImprovementMetrics
 from logic.src.policies.helpers.operators.heuristics.large_neighborhood_search import (
     apply_lns,
 )
@@ -27,7 +28,7 @@ class AdaptiveLargeNeighborhoodSearchRouteImprover(IRouteImprovement):
     Delegates to operators.heuristics.apply_lns for the ruin-and-recreate pass.
     """
 
-    def process(self, tour: List[int], **kwargs: Any) -> List[int]:
+    def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
         """
         Apply ALNS to the tour.
 
@@ -41,7 +42,7 @@ class AdaptiveLargeNeighborhoodSearchRouteImprover(IRouteImprovement):
         """
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:
-            return tour
+            return tour, {"algorithm": "AdaptiveLargeNeighborhoodSearchRouteImprover"}
 
         # Parameters
         iterations = kwargs.get("alns_iterations", self.config.get("alns_iterations", 200))
@@ -72,7 +73,7 @@ class AdaptiveLargeNeighborhoodSearchRouteImprover(IRouteImprovement):
 
             current_routes = split_tour(tour)
             if not current_routes:
-                return tour
+                return tour, {"algorithm": "AdaptiveLargeNeighborhoodSearchRouteImprover"}
 
             current_cost = tour_distance(current_routes, dm)
 
@@ -140,7 +141,7 @@ class AdaptiveLargeNeighborhoodSearchRouteImprover(IRouteImprovement):
                 ruin_bandit.update(ruin_name, success)
                 recreate_bandit.update(recreate_name, success)
 
-            return assemble_tour(best_routes)
+            return assemble_tour(best_routes), {"algorithm": "AdaptiveLargeNeighborhoodSearchRouteImprover"}
 
         except Exception:
-            return tour
+            return tour, {"algorithm": "AdaptiveLargeNeighborhoodSearchRouteImprover"}

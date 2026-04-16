@@ -2,9 +2,10 @@
 Ensemble Move Acceptance (EMA) Criterion.
 """
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple, cast
 
-from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
+from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion, ObjectiveValue
+from logic.src.policies.context.search_context import AcceptanceMetrics
 
 from .base.registry import AcceptanceCriterionRegistry
 
@@ -29,24 +30,36 @@ class EnsembleAcceptance(IAcceptanceCriterion):
         self.criteria = criteria
         self.rule = rule.upper()
 
-    def setup(self, initial_objective: float) -> None:
+    def setup(self, initial_objective: ObjectiveValue) -> None:
+        initial_objective = cast(float, initial_objective)
         for crit in self.criteria:
             crit.setup(initial_objective)
 
-    def accept(self, current_obj: float, candidate_obj: float, **kwargs: Any) -> bool:
-        # Gather votes from all encapsulated criteria
-        votes = [crit.accept(current_obj, candidate_obj) for crit in self.criteria]
+    def accept(
+        self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, **kwargs: Any
+    ) -> Tuple[bool, AcceptanceMetrics]:
+        current_obj = cast(float, current_obj)
+        candidate_obj = cast(float, candidate_obj)
+        # Gather votes from all encapsulated criteria (List of Tuple[bool, AcceptanceMetrics])
+        _results = [crit.accept(current_obj, candidate_obj) for crit in self.criteria]
+        votes = [res[0] for res in _results]
+        # Keep metrics for detailed analysis if needed (optional optimization)
 
         if self.rule == "G-AND":
-            return all(votes)  # Strict consensus
+            _accepted = bool(all(votes))  # Strict consensus
+            return _accepted, {"accepted": _accepted, "delta": candidate_obj - current_obj}
         elif self.rule == "G-OR":
-            return any(votes)  # Authority rule (at least one)
+            _accepted = bool(any(votes))  # Authority rule (at least one)
+            return _accepted, {"accepted": _accepted, "delta": candidate_obj - current_obj}
         elif self.rule == "G-VOT":
-            return sum(votes) >= (len(votes) / 2.0)  # Majority rule
+            _accepted = bool(sum(votes) >= (len(votes) / 2.0))  # Majority rule
+            return _accepted, {"accepted": _accepted, "delta": candidate_obj - current_obj}
         else:
             raise ValueError(f"Unknown EMA rule: {self.rule}")
 
-    def step(self, current_obj: float, candidate_obj: float, accepted: bool, **kwargs: Any) -> None:
+    def step(self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, accepted: bool, **kwargs: Any) -> None:
+        current_obj = cast(float, current_obj)
+        candidate_obj = cast(float, candidate_obj)
         # Advance the state of all encapsulated criteria
         for crit in self.criteria:
             crit.step(current_obj, candidate_obj, accepted)

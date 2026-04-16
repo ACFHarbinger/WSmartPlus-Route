@@ -1,5 +1,8 @@
 """
 Simulated Annealing Route Improver.
+
+Delegates move acceptance to the pluggable ``BoltzmannAcceptance`` criterion,
+threading per-step ``AcceptanceMetrics`` into the returned ``ImprovementMetrics``.
 """
 
 from typing import Any, Dict, List, Tuple
@@ -7,6 +10,10 @@ from typing import Any, Dict, List, Tuple
 import numpy as np
 
 from logic.src.interfaces.route_improvement import IRouteImprovement
+from logic.src.policies.context.search_context import AcceptanceMetrics, ImprovementMetrics
+from logic.src.policies.route_construction.acceptance_criteria.boltzmann_metropolis_criterion import (
+    BoltzmannAcceptance,
+)
 
 from .base import RouteImproverRegistry
 from .common.helpers import assemble_tour, route_distance, route_load, split_tour, to_numpy, tour_distance
@@ -16,11 +23,14 @@ from .common.helpers import assemble_tour, route_distance, route_load, split_tou
 class SimulatedAnnealingRouteImprover(IRouteImprovement):
     """
     Simulated Annealing route improver.
-    Applies random local moves (swaps, relocations, reversals) and accepts them
-    based on the Metropolis criterion, allowing exploration of worsening moves.
+
+    Applies random local moves (swaps, relocations, reversals) and delegates
+    move acceptance to a ``BoltzmannAcceptance`` criterion, which returns
+    ``AcceptanceMetrics`` on each step.  These are collected in an
+    ``acceptance_trace`` and surfaced via the ``ImprovementMetrics`` return.
     """
 
-    def process(self, tour: List[int], **kwargs: Any) -> List[int]:
+    def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
         """
         Apply Simulated Annealing to the tour.
 
@@ -30,16 +40,15 @@ class SimulatedAnnealingRouteImprover(IRouteImprovement):
                      'sa_t_init', 'sa_t_min', 'sa_cooling', etc.
 
         Returns:
-            List[int]: Refined tour.
+            Tuple[List[int], ImprovementMetrics]: (refined_tour, metrics)
         """
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:
-            return tour
+            return tour, {"algorithm": "SimulatedAnnealingRouteImprover"}
 
         # Parameters
         iterations = kwargs.get("sa_iterations", self.config.get("sa_iterations", 5000))
         t_init = kwargs.get("sa_t_init", self.config.get("sa_t_init", 10.0))
-        t_min = kwargs.get("sa_t_min", self.config.get("sa_t_min", 0.01))
         cooling = kwargs.get("sa_cooling", self.config.get("sa_cooling", 0.999))
         seed = kwargs.get("seed", self.config.get("seed", 42))
 
@@ -50,26 +59,27 @@ class SimulatedAnnealingRouteImprover(IRouteImprovement):
         dm = to_numpy(distance_matrix)
 
         if len(tour) < 3:
-            return tour
+            return tour, {"algorithm": "SimulatedAnnealingRouteImprover"}
+
+        # Instantiate the acceptance criterion (Q2 delegation)
+        criterion = BoltzmannAcceptance(initial_temp=t_init, alpha=cooling, seed=seed)
+        acceptance_trace: List[AcceptanceMetrics] = []
+        n_local_optima = 0
 
         try:
             rng = np.random.default_rng(seed)
             routes = split_tour(tour)
             if not routes:
-                return tour
+                return tour, {"algorithm": "SimulatedAnnealingRouteImprover"}
 
             current_routes = [r[:] for r in routes]
             current_cost = tour_distance(current_routes, dm)
+            criterion.setup(current_cost)
 
             best_routes = [r[:] for r in current_routes]
             best_cost = current_cost
 
-            t = t_init
-
             for i in range(iterations):
-                # 1. Cooling - every iteration regardless of success
-                t = max(t * cooling, t_min)
-
                 # 1b. Periodic cost resync to avoid drift
                 if i > 0 and i % 100 == 0:
                     current_cost = tour_distance(current_routes, dm)
@@ -80,18 +90,40 @@ class SimulatedAnnealingRouteImprover(IRouteImprovement):
                 if new_routes is None:
                     continue
 
-                # 3. Acceptance check (Metropolis)
-                if delta < 0 or rng.random() < np.exp(-delta / t):
+                # 3. Delegate acceptance to the criterion (returns metrics now)
+                is_accepted, step_metrics = criterion.accept(
+                    current_obj=current_cost,
+                    candidate_obj=current_cost + delta,
+                )
+                criterion.step(
+                    current_obj=current_cost,
+                    candidate_obj=current_cost + delta,
+                    accepted=is_accepted,
+                )
+                # Cap trace length to avoid unbounded memory in long runs
+                if len(acceptance_trace) < 1000:
+                    acceptance_trace.append(step_metrics)
+
+                if is_accepted:
                     current_routes = new_routes
                     current_cost += delta
                     if current_cost < best_cost - 1e-6:
                         best_cost = current_cost
                         best_routes = [r[:] for r in current_routes]
+                else:
+                    n_local_optima += 1
 
-            return assemble_tour(best_routes)
+            metrics: ImprovementMetrics = {
+                "algorithm": "SimulatedAnnealingRouteImprover",
+                "n_iterations": iterations,
+                "n_local_optima": n_local_optima,
+                "best_delta": best_cost - tour_distance(split_tour(tour), dm),
+                "acceptance_trace": acceptance_trace,
+            }
+            return assemble_tour(best_routes), metrics
 
         except Exception:
-            return tour
+            return tour, {"algorithm": "SimulatedAnnealingRouteImprover"}
 
     def _random_move(  # noqa: C901
         self,

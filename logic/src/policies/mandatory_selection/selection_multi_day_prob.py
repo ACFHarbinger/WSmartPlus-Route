@@ -12,12 +12,13 @@ Example:
     >>> bins = strategy.select_bins(context)
 """
 
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 from scipy.stats import norm
 
 from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
+from logic.src.policies.context.search_context import SearchContext
 from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
 from logic.src.policies.mandatory_selection.base.selection_registry import MandatorySelectionRegistry
 
@@ -28,7 +29,7 @@ class MultiDayOverflowSelection(IMandatorySelectionStrategy):
     Stochastic selection strategy based on cumulative probability over time.
     """
 
-    def select_bins(self, context: SelectionContext) -> List[int]:
+    def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
         """
         Selects bins if their probability of overflowing within K days
         exceeds a defined risk threshold.
@@ -67,4 +68,6 @@ class MultiDayOverflowSelection(IMandatorySelectionStrategy):
         # Here context.threshold acts as the maximum acceptable risk probability (e.g., 0.85)
         mandatory_indices = np.nonzero(prob_overflow >= context.threshold)[0]
 
-        return (mandatory_indices + 1).tolist()
+        return (mandatory_indices + 1).tolist(), SearchContext.initialize(
+            selection_metrics={"strategy": "MultiDayOverflowSelection"}
+        )
