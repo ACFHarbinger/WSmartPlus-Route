@@ -2,11 +2,12 @@
 Guided Local Search Route Improver.
 """
 
-from typing import Any, List
+from typing import Any, List, Tuple
 
 import numpy as np
 
 from logic.src.interfaces.route_improvement import IRouteImprovement
+from logic.src.policies.context.search_context import ImprovementMetrics
 
 from .base import RouteImproverRegistry
 from .common.helpers import assemble_tour, split_tour, to_numpy, tour_distance
@@ -20,7 +21,7 @@ class GuidedLocalSearchRouteImprover(IRouteImprovement):
     to escape local optima.
     """
 
-    def process(self, tour: List[int], **kwargs: Any) -> List[int]:
+    def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
         """
         Apply Guided Local Search to the tour.
 
@@ -34,7 +35,7 @@ class GuidedLocalSearchRouteImprover(IRouteImprovement):
         """
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:
-            return tour
+            return tour, {"algorithm": "GuidedLocalSearchRouteImprover"}
 
         # Parameters
         gls_iterations = kwargs.get("gls_iterations", self.config.get("gls_iterations", 20))
@@ -54,14 +55,14 @@ class GuidedLocalSearchRouteImprover(IRouteImprovement):
         dm = to_numpy(distance_matrix)
 
         if len(tour) < 3:
-            return tour
+            return tour, {"algorithm": "GuidedLocalSearchRouteImprover"}
 
         try:
             from logic.src.policies.helpers.local_search.local_search_manager import LocalSearchManager
 
             routes = split_tour(tour)
             if not routes:
-                return tour
+                return tour, {"algorithm": "GuidedLocalSearchRouteImprover"}
 
             penalty = np.zeros_like(dm)
             lambda_factor = lambda_factor_weight * np.mean(dm)
@@ -108,10 +109,10 @@ class GuidedLocalSearchRouteImprover(IRouteImprovement):
                 if penalty_decay < 1.0:
                     penalty *= penalty_decay
 
-            return assemble_tour(best_routes)
+            return assemble_tour(best_routes), {"algorithm": "GuidedLocalSearchRouteImprover"}
 
         except Exception:
-            return tour
+            return tour, {"algorithm": "GuidedLocalSearchRouteImprover"}
 
     def _get_operator_method(self, manager: Any, name: str):
         """Map operator name to LocalSearchManager method."""

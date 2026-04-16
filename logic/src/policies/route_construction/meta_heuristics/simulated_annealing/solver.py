@@ -233,7 +233,7 @@ class SASolver(LocalSearch):
 
     def optimize(self, solution: List[List[int]]) -> List[List[int]]:
         """Implementation for LocalSearch ABC."""
-        best_routes, _, _ = self.solve(initial_solution=solution)
+        best_routes, _, __ = self.solve(initial_solution=solution)
         return best_routes
 
     def solve(self, initial_solution: Optional[List[List[int]]] = None) -> Tuple[List[List[int]], float, float]:  # noqa: C901

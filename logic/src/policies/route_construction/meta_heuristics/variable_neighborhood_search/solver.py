@@ -134,7 +134,7 @@ class VNSSolver:
                 ls_routes, ls_profit = self._local_search(shaken, start)
 
                 # === Move or not (Modular acceptance criterion) ===
-                is_accepted = self.params.acceptance_criterion.accept(
+                is_accepted, _ = self.params.acceptance_criterion.accept(
                     current_obj=profit,
                     candidate_obj=ls_profit,
                     iteration=iteration,

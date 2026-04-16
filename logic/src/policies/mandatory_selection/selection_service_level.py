@@ -12,12 +12,13 @@ Example:
     >>> bins = strategy.select_bins(context)
 """
 
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 
 from logic.src.constants import MAX_CAPACITY_PERCENT
 from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
+from logic.src.policies.context.search_context import SearchContext
 from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
 from logic.src.policies.mandatory_selection.base.selection_registry import MandatorySelectionRegistry
 
@@ -28,7 +29,7 @@ class ServiceLevelSelection(IMandatorySelectionStrategy):
     Statistical overflow prediction strategy using linear confidence bounds.
     """
 
-    def select_bins(self, context: SelectionContext) -> List[int]:
+    def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
         """
         Select bins that are statistically likely to overflow within the horizon.
 
@@ -40,7 +41,7 @@ class ServiceLevelSelection(IMandatorySelectionStrategy):
             List[int]: List of bin IDs (1-based) predicted to overflow.
         """
         if context.accumulation_rates is None or context.std_deviations is None:
-            return []
+            return [], SearchContext.initialize(selection_metrics={"strategy": "ServiceLevelSelection"})
 
         # Extract horizon parameter dynamically (defaults to 1 for next-day projection)
         horizon_days = getattr(context, "horizon_days", 1)
@@ -55,4 +56,4 @@ class ServiceLevelSelection(IMandatorySelectionStrategy):
 
         # Identify bins where the worst-case projection exceeds capacity
         mandatory = np.nonzero(predicted_fill >= MAX_CAPACITY_PERCENT)[0] + 1
-        return mandatory.tolist()
+        return mandatory.tolist(), SearchContext.initialize(selection_metrics={"strategy": "ServiceLevelSelection"})

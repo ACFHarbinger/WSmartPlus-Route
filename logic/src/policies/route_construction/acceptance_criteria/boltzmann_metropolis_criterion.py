@@ -4,9 +4,10 @@ Boltzmann-Metropolis Criterion (BMC) / Simulated Annealing.
 
 import math
 import random
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Tuple, cast
 
-from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
+from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion, ObjectiveValue
+from logic.src.policies.context.search_context import AcceptanceMetrics
 
 from .base.registry import AcceptanceCriterionRegistry
 
@@ -31,21 +32,31 @@ class BoltzmannAcceptance(IAcceptanceCriterion):
         self.alpha = alpha
         self.rng = random.Random(seed)
 
-    def setup(self, initial_objective: float) -> None:
+    def setup(self, initial_objective: ObjectiveValue) -> None:
+        initial_objective = cast(float, initial_objective)
         pass
 
-    def accept(self, current_obj: float, candidate_obj: float, **kwargs: Any) -> bool:
+    def accept(
+        self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, **kwargs: Any
+    ) -> Tuple[bool, AcceptanceMetrics]:
+        current_obj = cast(float, current_obj)
+        candidate_obj = cast(float, candidate_obj)
         delta = candidate_obj - current_obj
         if delta >= 0:
-            return True
+            _accepted = bool(True)
+            return _accepted, {"accepted": _accepted, "delta": candidate_obj - current_obj, "temperature": self.T}
 
         # delta is negative, T is positive -> exp(negative) gives valid [0, 1] probability
         if self.T <= 1e-9:
-            return False
+            _accepted = bool(False)
+            return _accepted, {"accepted": _accepted, "delta": candidate_obj - current_obj, "temperature": self.T}
 
-        return self.rng.random() < math.exp(delta / self.T)
+        _accepted = bool(self.rng.random() < math.exp(delta / self.T))
+        return _accepted, {"accepted": _accepted, "delta": candidate_obj - current_obj, "temperature": self.T}
 
-    def step(self, current_obj: float, candidate_obj: float, accepted: bool, **kwargs: Any) -> None:
+    def step(self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, accepted: bool, **kwargs: Any) -> None:
+        current_obj = cast(float, current_obj)
+        candidate_obj = cast(float, candidate_obj)
         # Geometric decay
         self.T *= self.alpha
 

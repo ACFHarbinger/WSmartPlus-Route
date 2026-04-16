@@ -1,6 +1,7 @@
-from typing import Any, List
+from typing import Any, List, Tuple
 
 from logic.src.interfaces.route_improvement import IRouteImprovement
+from logic.src.policies.context.search_context import ImprovementMetrics
 from logic.src.policies.helpers.operators.repair import greedy_insertion, greedy_profit_insertion
 
 from .base import RouteImproverRegistry
@@ -19,7 +20,7 @@ class CheapestInsertionRouteImprover(IRouteImprovement):
     (or greedy_profit_insertion when cost_per_km/revenue_kg are configured).
     """
 
-    def process(self, tour: List[int], **kwargs: Any) -> List[int]:
+    def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
         """
         Apply cheapest insertion augmentation to the tour.
 
@@ -33,7 +34,7 @@ class CheapestInsertionRouteImprover(IRouteImprovement):
         """
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:
-            return tour
+            return tour, {"algorithm": "CheapestInsertionRouteImprover"}
 
         # Problem parameters
         wastes = kwargs.get("wastes", self.config.get("wastes", {}))
@@ -78,7 +79,7 @@ class CheapestInsertionRouteImprover(IRouteImprovement):
                     expand_pool=True,
                 )
 
-            return assemble_tour(refined_routes)
+            return assemble_tour(refined_routes), {"algorithm": "CheapestInsertionRouteImprover"}
 
         except Exception:
-            return tour
+            return tour, {"algorithm": "CheapestInsertionRouteImprover"}

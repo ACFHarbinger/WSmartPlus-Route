@@ -19,11 +19,12 @@ inside an inner simulation loop.
 import logging
 import signal
 from contextlib import contextmanager
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
 from logic.src.interfaces.route_improvement import IRouteImprovement
+from logic.src.policies.context.search_context import ImprovementMetrics
 
 from .base import RouteImproverRegistry
 from .common.helpers import (
@@ -99,10 +100,10 @@ class BranchAndPriceRouteImprover(IRouteImprovement):
     then to a pool-restricted set-partitioning when primary fails.
     """
 
-    def process(self, tour: List[int], **kwargs: Any) -> List[int]:
+    def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:
-            return tour
+            return tour, {"algorithm": "BranchAndPriceRouteImprover"}
 
         # Problem parameters
         wastes = kwargs.get("wastes", {}) if kwargs.get("wastes") is not None else self.config.get("wastes", {})
@@ -135,10 +136,10 @@ class BranchAndPriceRouteImprover(IRouteImprovement):
         try:
             input_routes = split_tour(tour)
             if not input_routes:
-                return tour
+                return tour, {"algorithm": "BranchAndPriceRouteImprover"}
             input_cost = tour_distance(input_routes, dm)
         except Exception:
-            return tour
+            return tour, {"algorithm": "BranchAndPriceRouteImprover"}
 
         # Create local kwargs to avoid double-passing explicitly handled arguments
         local_kwargs = kwargs.copy()
@@ -163,7 +164,7 @@ class BranchAndPriceRouteImprover(IRouteImprovement):
                 if refined is not None:
                     refined_cost = tour_distance(refined, dm)
                     if refined_cost <= input_cost + 1e-6:
-                        return assemble_tour(refined)
+                        return assemble_tour(refined), {"algorithm": "BranchAndPriceRouteImprover"}
                     else:
                         logger.debug(
                             "branch_and_price (in-house): worse than input (%.2f vs %.2f); keeping input.",
@@ -193,12 +194,12 @@ class BranchAndPriceRouteImprover(IRouteImprovement):
                 if refined is not None:
                     refined_cost = tour_distance(refined, dm)
                     if refined_cost <= input_cost + 1e-6:
-                        return assemble_tour(refined)
+                        return assemble_tour(refined), {"algorithm": "BranchAndPriceRouteImprover"}
             except Exception as e:
                 logger.warning("branch_and_price: vrpy failed (%s); falling back to set_partitioning.", e)
 
         # ---- Tertiary: set_partitioning fallback ----
-        return self._fallback_set_partitioning(tour, **kwargs)
+        return self._fallback_set_partitioning(tour, **kwargs), {"algorithm": "BranchAndPriceRouteImprover"}
 
     def _solve_inhouse(
         self,
@@ -450,7 +451,8 @@ class BranchAndPriceRouteImprover(IRouteImprovement):
 
             kwargs.setdefault("sp_n_perturbations", 50)
             sp = SetPartitioningRouteImprover(config=self.config)
-            return sp.process(tour, **kwargs)
+            refined_tour, _ = sp.process(tour, **kwargs)
+            return refined_tour
         except Exception as e:
             logger.warning("branch_and_price: all fallbacks exhausted (%s); returning input.", e)
             return tour

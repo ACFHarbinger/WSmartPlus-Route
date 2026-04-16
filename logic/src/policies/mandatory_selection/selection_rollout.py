@@ -17,11 +17,12 @@ Example:
     >>> bins = strategy.select_bins(context)
 """
 
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 
 from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
+from logic.src.policies.context.search_context import SearchContext
 from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
 from logic.src.policies.mandatory_selection.base.selection_registry import MandatorySelectionRegistry
 
@@ -32,7 +33,7 @@ class RolloutSelection(IMandatorySelectionStrategy):
     Lookahead-based selection strategy using one-step rollout.
     """
 
-    def select_bins(self, context: SelectionContext) -> List[int]:
+    def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
         """
         Select bins by comparing simulated future rewards.
 
@@ -51,7 +52,7 @@ class RolloutSelection(IMandatorySelectionStrategy):
 
         n_bins = len(context.current_fill)
         if n_bins == 0:
-            return []
+            return [], SearchContext.initialize(selection_metrics={"strategy": "RolloutSelection"})
 
         mu = context.accumulation_rates
         if mu is None:
@@ -112,7 +113,9 @@ class RolloutSelection(IMandatorySelectionStrategy):
             if r_collect > r_defer:
                 mandatory_indices.append(i)
 
-        return sorted((np.array(mandatory_indices) + 1).tolist())
+        return sorted((np.array(mandatory_indices) + 1).tolist()), SearchContext.initialize(
+            selection_metrics={"strategy": "RolloutSelection"}
+        )
 
     def _eval_bin(
         self,

@@ -7,12 +7,13 @@ this risk measure provides a robust estimate of "tail" overflow risk, focusing
 on extreme outcomes rather than just the mean.
 """
 
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 from scipy.stats import norm
 
 from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
+from logic.src.policies.context.search_context import SearchContext
 from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
 from logic.src.policies.mandatory_selection.base.selection_registry import MandatorySelectionRegistry
 
@@ -23,7 +24,7 @@ class CVaRSelection(IMandatorySelectionStrategy):
     Selection strategy based on Tail risk (CVaR of overflow).
     """
 
-    def select_bins(self, context: SelectionContext) -> List[int]:
+    def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
         """
         Select bins where tail overflow risk exceeds the threshold.
 
@@ -35,7 +36,7 @@ class CVaRSelection(IMandatorySelectionStrategy):
         """
         n_bins = len(context.current_fill)
         if n_bins == 0:
-            return []
+            return [], SearchContext.initialize(selection_metrics={"strategy": "CVaRSelection"})
 
         mu = context.accumulation_rates
         if mu is None:
@@ -80,4 +81,6 @@ class CVaRSelection(IMandatorySelectionStrategy):
 
         mandatory_indices = np.nonzero(final_risk > threshold)[0]
 
-        return sorted((mandatory_indices + 1).tolist())
+        return sorted((mandatory_indices + 1).tolist()), SearchContext.initialize(
+            selection_metrics={"strategy": "CVaRSelection"}
+        )

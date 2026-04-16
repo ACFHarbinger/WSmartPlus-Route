@@ -15,12 +15,13 @@ Example:
     >>> bins = strategy.select_bins(context)
 """
 
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 from scipy.stats import norm
 
 from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
+from logic.src.policies.context.search_context import SearchContext
 from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
 from logic.src.policies.mandatory_selection.base.selection_registry import MandatorySelectionRegistry
 
@@ -31,7 +32,7 @@ class WassersteinRobustSelection(IMandatorySelectionStrategy):
     Distributionally robust selection strategy based on Wasserstein ambiguity balls.
     """
 
-    def select_bins(self, context: SelectionContext) -> List[int]:
+    def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
         """
         Select bins based on the worst-case expected overflow volume.
 
@@ -46,7 +47,7 @@ class WassersteinRobustSelection(IMandatorySelectionStrategy):
 
         n_bins = len(context.current_fill)
         if n_bins == 0:
-            return []
+            return [], SearchContext.initialize(selection_metrics={"strategy": "WassersteinRobustSelection"})
 
         mu = context.accumulation_rates
         if mu is None:
@@ -78,4 +79,6 @@ class WassersteinRobustSelection(IMandatorySelectionStrategy):
 
         mandatory_indices = np.nonzero(robust_expectation > threshold)[0]
 
-        return sorted((mandatory_indices + 1).tolist())
+        return sorted((mandatory_indices + 1).tolist()), SearchContext.initialize(
+            selection_metrics={"strategy": "WassersteinRobustSelection"}
+        )

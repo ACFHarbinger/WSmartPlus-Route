@@ -12,9 +12,10 @@ Example:
     >>> bins = strategy.select_bins(context)
 """
 
-from typing import List, Set
+from typing import List, Set, Tuple
 
 from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
+from logic.src.policies.context.search_context import SearchContext
 from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
 from logic.src.policies.mandatory_selection.base.selection_registry import MandatorySelectionRegistry
 
@@ -25,7 +26,7 @@ class PortfolioDispatcher(IMandatorySelectionStrategy):
     Portfolio dispatcher for ensemble selection.
     """
 
-    def select_bins(self, context: SelectionContext) -> List[int]:
+    def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
         """
         Run multiple strategies and aggregate via union or intersection.
 
@@ -44,19 +45,22 @@ class PortfolioDispatcher(IMandatorySelectionStrategy):
             raise ValueError(f"PortfolioDispatcher: Unknown mode '{mode}'. Use 'union' or 'intersection'.")
 
         results: List[Set[int]] = []
+        master_ctx = SearchContext.initialize(selection_metrics={"strategy": "PortfolioDispatcher", "mode": mode})
+
         for name in candidates:
             try:
                 strategy = MandatorySelectionFactory.create_strategy(name)
-                res = set(strategy.select_bins(context))
-                results.append(res)
+                mandatory, sub_ctx = strategy.select_bins(context)
+                results.append(set(mandatory))
+                master_ctx = master_ctx.merge(sub_ctx)
             except Exception:
                 # Skip failed strategies
                 continue
 
         if not results:
-            return []
+            return [], master_ctx
 
         # union or intersection
         final_set = set().union(*results) if mode == "union" else results[0].intersection(*results[1:])
 
-        return sorted(list(final_set))
+        return sorted(list(final_set)), master_ctx

@@ -312,7 +312,8 @@ class LocalSearch(ABC):
         """
         if self.acceptance_criterion is None:
             return candidate_obj > current_obj + 1e-4
-        return self.acceptance_criterion.accept(current_obj=current_obj, candidate_obj=candidate_obj, **kwargs)
+        accepted, _ = self.acceptance_criterion.accept(current_obj=current_obj, candidate_obj=candidate_obj, **kwargs)
+        return accepted
 
     def step_move(self, current_obj: float, candidate_obj: float, accepted: bool, **kwargs: Any) -> None:
         """

@@ -10,11 +10,12 @@ This implementation uses a discretized MDP (20 states) and Value Iteration
 to solve for the indifferent subsidy.
 """
 
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 
 from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
+from logic.src.policies.context.search_context import SearchContext
 from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
 from logic.src.policies.mandatory_selection.base.selection_registry import MandatorySelectionRegistry
 
@@ -25,7 +26,7 @@ class WhittleIndexSelection(IMandatorySelectionStrategy):
     Selection strategy based on Whittle Index priority.
     """
 
-    def select_bins(self, context: SelectionContext) -> List[int]:
+    def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
         """
         Rank bins by Whittle index and select top candidates.
 
@@ -37,7 +38,7 @@ class WhittleIndexSelection(IMandatorySelectionStrategy):
         """
         n_bins = len(context.current_fill)
         if n_bins == 0:
-            return []
+            return [], SearchContext.initialize(selection_metrics={"strategy": "WhittleIndexSelection"})
 
         mu = context.accumulation_rates
         if mu is None:
@@ -115,4 +116,6 @@ class WhittleIndexSelection(IMandatorySelectionStrategy):
             top_k = ranked_indices[:k]
             mandatory = top_k[whittle_indices[top_k] > 1e-3]
 
-        return sorted((mandatory + 1).tolist())
+        return sorted((mandatory + 1).tolist()), SearchContext.initialize(
+            selection_metrics={"strategy": "WhittleIndexSelection"}
+        )

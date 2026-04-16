@@ -2,11 +2,12 @@
 Fast TSP Refinement Route Improver.
 """
 
-from typing import Any, List
+from typing import Any, List, Tuple
 
 import numpy as np
 
 from logic.src.interfaces import IRouteImprovement
+from logic.src.policies.context.search_context import ImprovementMetrics
 from logic.src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp import find_route
 
 from .base import RouteImproverRegistry
@@ -20,7 +21,7 @@ class FastTSPRouteImprover(IRouteImprovement):
     Splits long tours by depot (0), re-optimizes each segment, and reconstructs.
     """
 
-    def process(self, tour: List[int], **kwargs: Any) -> List[int]:
+    def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
         """
         Refine the tour by splitting it into trips and optimizing each with fast_tsp.
 
@@ -36,7 +37,7 @@ class FastTSPRouteImprover(IRouteImprovement):
 
         routes = split_tour(tour)
         if not routes:
-            return tour
+            return tour, {"algorithm": "FastTSPRouteImprover"}
 
         refined_routes = []
         for trip in routes:
@@ -55,4 +56,4 @@ class FastTSPRouteImprover(IRouteImprovement):
             else:
                 refined_routes.append(trip)
 
-        return assemble_tour(refined_routes)
+        return assemble_tour(refined_routes), {"algorithm": "FastTSPRouteImprover"}

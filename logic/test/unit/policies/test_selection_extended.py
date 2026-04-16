@@ -22,21 +22,22 @@ def base_context():
 class TestLastMinuteSelection:
     def test_select_bins(self, base_context):
         strategy = LastMinuteSelection()
-        mandatory = strategy.select_bins(base_context)
+        mandatory, _ = strategy.select_bins(base_context)
         # Bins > 90 are Bin 2 (index 1) which is 95.
         assert mandatory == [2]
 
     def test_select_bins_low_threshold(self, base_context):
         base_context.threshold = 40.0
         strategy = LastMinuteSelection()
-        mandatory = strategy.select_bins(base_context)
+        mandatory, _ = strategy.select_bins(base_context)
         # Bins > 40 are indices 1, 3, 4 -> IDs 2, 4, 5
         assert mandatory == [2, 4, 5]
 
 class TestServiceLevelSelection:
     def test_select_bins_no_data(self, base_context):
         strategy = ServiceLevelSelection()
-        assert strategy.select_bins(base_context) == []
+        mandatory, _ = strategy.select_bins(base_context)
+        assert mandatory == []
 
     def test_select_bins_with_data(self, base_context):
         base_context.accumulation_rates = np.array([5.0, 5.0, 5.0, 5.0, 5.0])
@@ -50,7 +51,7 @@ class TestServiceLevelSelection:
         # Bin 4: 94 + 5 + 2*1 = 101 (Yes)
 
         strategy = ServiceLevelSelection()
-        mandatory = strategy.select_bins(base_context)
+        mandatory, _ = strategy.select_bins(base_context)
         assert 2 in mandatory
         assert 4 in mandatory
         assert len(mandatory) == 2
@@ -63,6 +64,6 @@ class TestRevenueThresholdSelection:
         # Threshold 150
         base_context.threshold = 150.0
         strategy = RevenueThresholdSelection()
-        mandatory = strategy.select_bins(base_context)
+        mandatory, _ = strategy.select_bins(base_context)
         # Expected: Bin 2 (190) and Bin 4 (170)
         assert mandatory == [2, 4]

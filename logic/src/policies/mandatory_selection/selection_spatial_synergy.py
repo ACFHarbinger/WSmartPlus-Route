@@ -14,11 +14,12 @@ Example:
     >>> bins = strategy.select_bins(context)
 """
 
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 
 from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
+from logic.src.policies.context.search_context import SearchContext
 from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
 from logic.src.policies.mandatory_selection.base.selection_registry import MandatorySelectionRegistry
 
@@ -33,7 +34,7 @@ class SpatialSynergySelection(IMandatorySelectionStrategy):
     by extracting parameters dynamically from the SelectionContext.
     """
 
-    def select_bins(self, context: SelectionContext) -> List[int]:
+    def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
         """
         Select critical bins and their valid spatial synergies.
 
@@ -59,7 +60,7 @@ class SpatialSynergySelection(IMandatorySelectionStrategy):
         # 1. Identify critically full bins (0-based indices)
         critical_indices = np.nonzero(fill_ratios > critical_threshold)[0]
         if len(critical_indices) == 0:
-            return []
+            return [], SearchContext.initialize(selection_metrics={"strategy": "SpatialSynergySelection"})
 
         # 2. Identify moderately full bins that are eligible for synergy
         moderate_indices = np.nonzero(fill_ratios > synergy_threshold)[0]
@@ -79,4 +80,6 @@ class SpatialSynergySelection(IMandatorySelectionStrategy):
             mandatory_set.update(synergy_bins.tolist())
 
         # Convert back to 1-based IDs for the routing engine
-        return [i + 1 for i in mandatory_set]
+        return [i + 1 for i in mandatory_set], SearchContext.initialize(
+            selection_metrics={"strategy": "SpatialSynergySelection"}
+        )

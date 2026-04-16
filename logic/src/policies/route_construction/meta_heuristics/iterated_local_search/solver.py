@@ -124,7 +124,7 @@ class ILSSolver:
 
             # === Acceptance Phase (Transition between local optima) ===
             # Decide whether to move from incumbent 'routes' to 'inner_routes'
-            is_accepted = self.params.acceptance_criterion.accept(
+            is_accepted, _ = self.params.acceptance_criterion.accept(
                 current_obj=profit,
                 candidate_obj=inner_profit,
                 iteration=restart,

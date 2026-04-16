@@ -27,6 +27,7 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 
 from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
+from logic.src.policies.context.search_context import SearchContext
 from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
 from logic.src.policies.mandatory_selection.base.selection_registry import MandatorySelectionRegistry
 
@@ -116,7 +117,7 @@ class ThompsonDispatcher(IMandatorySelectionStrategy):
             except Exception as e:
                 logger.error(f"ThompsonDispatcher: Failed to save state to {path}: {e}")
 
-    def select_bins(self, context: SelectionContext) -> List[int]:
+    def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
         """
         Sample a strategy via Thompson Sampling and dispatch the call.
 
@@ -160,4 +161,8 @@ class ThompsonDispatcher(IMandatorySelectionStrategy):
 
         # Dispatch
         strategy = MandatorySelectionFactory.create_strategy(winner_name)
-        return strategy.select_bins(context)
+        mandatory, sub_ctx = strategy.select_bins(context)
+
+        # Merge metrics into a fresh context
+        ctx = SearchContext.initialize(selection_metrics={"strategy": "ThompsonDispatcher", "winner": winner_name})
+        return mandatory, ctx.merge(sub_ctx)

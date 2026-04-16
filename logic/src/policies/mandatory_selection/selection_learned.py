@@ -13,11 +13,12 @@ Example:
 """
 
 import os
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Tuple
 
 import numpy as np
 
 from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
+from logic.src.policies.context.search_context import SearchContext
 from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
 from logic.src.policies.mandatory_selection.base.selection_registry import MandatorySelectionRegistry
 
@@ -54,7 +55,7 @@ class LearnedSelection(IMandatorySelectionStrategy):
         else:
             raise RuntimeError(f"LearnedSelection: Unsupported model extension {ext}")
 
-    def select_bins(self, context: SelectionContext) -> List[int]:
+    def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
         """
         Extract features and predict selection using the learned model.
 
@@ -66,7 +67,7 @@ class LearnedSelection(IMandatorySelectionStrategy):
         """
         n_bins = len(context.current_fill)
         if n_bins == 0:
-            return []
+            return [], SearchContext.initialize(selection_metrics={"strategy": "LearnedSelection"})
 
         # Resolve model path from context if not provided at init
         path = self.model_path if self.model_path is not None else getattr(context, "learned_model_path", None)
@@ -122,4 +123,6 @@ class LearnedSelection(IMandatorySelectionStrategy):
 
         mandatory_indices = np.nonzero(probs >= threshold)[0]
 
-        return sorted((mandatory_indices + 1).tolist())
+        return sorted((mandatory_indices + 1).tolist()), SearchContext.initialize(
+            selection_metrics={"strategy": "LearnedSelection"}
+        )

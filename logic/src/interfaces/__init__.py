@@ -3,6 +3,16 @@ Interfaces for WSmart-Route logic components.
 DEFINING PROTOCOLS TO DECOUPLE MODULES.
 """
 
+from logic.src.policies.context import (
+    AcceptanceMetrics,
+    ConstructionMetrics,
+    ImprovementMetrics,
+    SearchContext,
+    SearchPhase,
+    SelectionMetrics,
+    merge_context,
+)
+
 from .acceptance_criterion import IAcceptanceCriterion
 from .bin_container import IBinContainer
 from .env import IEnv
@@ -25,4 +35,12 @@ __all__ = [
     "ITensorDictLike",
     "ITraversable",
     "IBinContainer",
+    # Context / tracking types
+    "SearchContext",
+    "SearchPhase",
+    "SelectionMetrics",
+    "ConstructionMetrics",
+    "AcceptanceMetrics",
+    "ImprovementMetrics",
+    "merge_context",
 ]

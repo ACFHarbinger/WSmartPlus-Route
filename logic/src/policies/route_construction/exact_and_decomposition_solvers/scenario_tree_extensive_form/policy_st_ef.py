@@ -2,11 +2,12 @@
 Scenario-Tree Extensive Form (ST-EF) Policy Adapter.
 """
 
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
 from logic.src.configs.policies.st_ef import ScenarioTreeExtensiveFormConfig
+from logic.src.policies.context.search_context import SearchContext
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine import (
@@ -47,7 +48,7 @@ class ScenarioTreeExtensiveFormPolicy(BaseRoutingPolicy):
         """
         return [], 0.0, 0.0
 
-    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Dict[str, Any]]:
+    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Optional[SearchContext]]:
         """
         Executes the ST-EF solver.
         """
@@ -89,11 +90,14 @@ class ScenarioTreeExtensiveFormPolicy(BaseRoutingPolicy):
 
         if not route:
             # Fallback if no feasible route found
-            return [0, 0], 0.0, {"expected_value": expected_val}
+            return [0, 0], 0.0, kwargs.get("search_context")
 
         # Calculate actual cost of the extracted route for return
         actual_cost = 0.0
         for i in range(len(route) - 1):
             actual_cost += distance_matrix[route[i], route[i + 1]]
 
-        return route, float(actual_cost), {"expected_value": expected_val}
+        # Carry forward context if present
+        incoming_ctx: Optional[SearchContext] = kwargs.get("search_context")
+
+        return route, float(actual_cost), incoming_ctx

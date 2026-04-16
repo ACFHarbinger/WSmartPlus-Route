@@ -14,12 +14,13 @@ Example:
     >>> bins = strategy.select_bins(context)
 """
 
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 
 from logic.src.constants import MAX_CAPACITY_PERCENT
 from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
+from logic.src.policies.context.search_context import SearchContext
 from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
 from logic.src.policies.mandatory_selection.base.selection_registry import MandatorySelectionRegistry
 
@@ -126,12 +127,12 @@ class LookaheadSelection(IMandatorySelectionStrategy):
                         break
         return mandatory_bins
 
-    def select_bins(self, context: SelectionContext) -> List[int]:
+    def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
         """
         Select bins based on lookahead logic.
         """
         if context.accumulation_rates is None:
-            return []
+            return [], SearchContext.initialize(selection_metrics={"strategy": "LookaheadSelection"})
 
         current_fill_levels = context.current_fill
         accumulation_rates = context.accumulation_rates
@@ -163,4 +164,6 @@ class LookaheadSelection(IMandatorySelectionStrategy):
                 )
 
         # Convert back to 1-based IDs
-        return [i + 1 for i in mandatory_bins]
+        return [i + 1 for i in mandatory_bins], SearchContext.initialize(
+            selection_metrics={"strategy": "LookaheadSelection"}
+        )

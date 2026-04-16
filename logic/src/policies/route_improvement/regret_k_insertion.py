@@ -1,6 +1,7 @@
-from typing import Any, List
+from typing import Any, List, Tuple
 
 from logic.src.interfaces.route_improvement import IRouteImprovement
+from logic.src.policies.context.search_context import ImprovementMetrics
 from logic.src.policies.helpers.operators.repair.regret import (
     regret_k_insertion,
     regret_k_profit_insertion,
@@ -22,7 +23,7 @@ class RegretKInsertionRouteImprover(IRouteImprovement):
     Useful for selecting bins that have a high cost if not inserted into their best position.
     """
 
-    def process(self, tour: List[int], **kwargs: Any) -> List[int]:
+    def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
         """
         Apply Regret-k insertion augmentation to the tour.
 
@@ -36,7 +37,7 @@ class RegretKInsertionRouteImprover(IRouteImprovement):
         """
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:
-            return tour
+            return tour, {"algorithm": "RegretKInsertionRouteImprover"}
 
         # Parameters
         k = kwargs.get("regret_k", self.config.get("regret_k", 2))
@@ -89,7 +90,7 @@ class RegretKInsertionRouteImprover(IRouteImprovement):
                     noise=noise,
                 )
 
-            return assemble_tour(refined_routes)
+            return assemble_tour(refined_routes), {"algorithm": "RegretKInsertionRouteImprover"}
 
         except Exception:
-            return tour
+            return tour, {"algorithm": "RegretKInsertionRouteImprover"}
