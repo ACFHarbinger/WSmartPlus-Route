@@ -1,0 +1,49 @@
+# Policy Configuration
+
+# =============================================================================
+# SRC (Sequential Route Constructor) Meta-Solver Configuration
+# =============================================================================
+# PURPOSE:
+#   Orchestrates a sequence of routing solvers, where each solver uses the 
+#   output of the previous ones to refine the solution.
+#
+# ALGORITHM:
+#   1. Runs solvers in the specified 'constructors' order.
+#   2. Threads intermediate tours and search context between calls.
+#   3. Aborts sequence if 'time_limit' is exceeded between calls.
+#
+# PERFORMANCE:
+#   - Variable: Depends on the complexity of the underlying solvers.
+#
+# TYPICAL USE CASES:
+#   - Progressive refinement: Simple constructive -> Meta-heuristic -> Exact.
+#   - Collaborative solvers: Neural selection -> Classical optimization.
+# =============================================================================
+
+src:
+  # ---------------------------------------------------------------------
+  # Solver Sequence
+  # ---------------------------------------------------------------------
+  - constructors: ["tsp", "nn"]
+  # Registry names of route constructors to apply in order.
+  # Default: ["tsp", "nn"]
+
+  # ---------------------------------------------------------------------
+  # Runtime Control
+  # ---------------------------------------------------------------------
+  - time_limit: 60
+  # Maximum wall-clock seconds for the entire sequence.
+  # If exceeded between solver calls, SRC returns result of last solver.
+
+  # ---------------------------------------------------------------------
+  # Node Selection Strategy
+  # ---------------------------------------------------------------------
+  - vrpp: true
+  # Profit-aware routing mode (Vehicle Routing Problem with Profits).
+
+  # ---------------------------------------------------------------------
+  # Determinism
+  # ---------------------------------------------------------------------
+  - seed: 42
+  # Global seed for the sequential wrapper logic.
+# =============================================================================
