@@ -9,6 +9,8 @@ orchestrating the Gurobi optimization process.
 from typing import Any, Dict, List, Optional, Tuple, Type
 
 from logic.src.configs.policies.lb_vns import LocalBranchingVNSConfig
+from logic.src.policies.context.multi_day_context import MultiDayContext
+from logic.src.policies.context.search_context import SearchContext
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.matheuristics.local_branching_variable_neighborhood_search.lb_vns import (
@@ -80,28 +82,42 @@ class LocalBranchingVNSPolicy(BaseRoutingPolicy):
         """Not used - LB-VNS requires specialized execute()."""
         return [], 0.0, 0.0
 
-    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
+    def execute(
+        self, **kwargs: Any
+    ) -> Tuple[List[int], float, float, Optional[SearchContext], Optional[MultiDayContext]]:
         """
-        Extract the current problem state and execute the LB-VNS metaheuristic.
+        Execute the Local Branching with Variable Neighborhood Search (LB-VNS)
+        matheuristic on the simulation state.
 
-        This method bridges the simulation state (numpy arrays and dictionaries)
-         with the gurobipy-based mathematical model.
+        LB-VNS combines the intensification power of Local Branching with the
+        diversification capabilities of Variable Neighborhood Search. It
+        iteratively explores K-neighborhoods around an incumbent solution and
+        applies shaking (VNS) to escape local optima when Local Branching
+        converges without further improvement.
 
-        Parameters (passed via kwargs):
-            distance_matrix (np.ndarray): NxN symmetric matrix representing travel costs.
-            wastes (Dict[int, float]): Dictionary mapping node indices to expected
-                collection profits (represented as waste weight).
-            capacity (float): Maximum weight the vehicle can carry in a single tour.
-            mandatory (List[int]): List of indices for 'mandatory' nodes that must be visited.
-            R (float): Revenue multiplier for the objective function.
-            C (float): Cost multiplier (distance) for the objective function.
-            seed (int): Optional seed override for reproducibility.
+        This implementation uses Gurobi for the restricted MIP solves.
+
+        Args:
+            **kwargs: Context for matheuristic execution, including:
+                - distance_matrix (np.ndarray): Symmetric or asymmetric cost matrix.
+                - wastes (Dict[int, float]): Map of customer IDs to collection profits.
+                - capacity (float): Maximum weight the vehicle can carry.
+                - mandatory (List[int]): IDs of nodes that must be visited.
+                - R (float): Revenue multiplier.
+                - C (float): Cost multiplier.
+                - seed (int): Optional seed override.
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
 
         Returns:
-            Tuple[List[int], float, Dict[str, Any]]:
-                - List[int]: The optimized tour sequence starting and ending at the depot (0).
-                - float: The total travel cost of the reconstructed tour.
-                - Dict[str, Any]: Metadata containing the final mathematical objective value.
+            Tuple of:
+                - tour: The optimized daily tour (starting/ending at depot 0).
+                - cost: Total travel cost calculated by the solver.
+                - obj_val: Final net profit (Revenue - Cost).
+                - Optional[SearchContext]: Updated search context.
+                - Optional[MultiDayContext]: Updated multi-period context.
         """
         # 1. Initialize parameters
         params = LBVNSParams.from_config(self.config)
@@ -130,4 +146,4 @@ class LocalBranchingVNSPolicy(BaseRoutingPolicy):
             params=params,
         )
 
-        return tour, float(cost), {"obj_val": obj_val}
+        return tour, cost, obj_val, kwargs.get("search_context"), kwargs.get("multi_day_context")

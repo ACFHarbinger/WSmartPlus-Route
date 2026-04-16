@@ -53,10 +53,40 @@ class MuCommaLambdaESPolicy(BaseRoutingPolicy):
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
         """
-        Run (μ,λ)-ES solver.
+        Execute the (mu, lambda) Evolution Strategy (ES) solver logic.
+
+        (mu, lambda)-ES is a rigorous generational evolutionary algorithm:
+        - mu: The number of parents selected to produce the next generation.
+        - lambda: The number of offspring generated from the parents.
+        - सिलेक्शन (Selection): Only the lambda offspring are considered for
+          the next generation (the parents are discarded), using truncation
+          selection (best mu out of lambda).
+        This implementation applies discrete mutation (node swaps/removals)
+        and optional local search to refine offspring.
+
+        Args:
+            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+                sub-problem nodes.
+            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+                current bin inventory levels.
+            capacity (float): Maximum vehicle collection capacity.
+            revenue (float): Revenue obtained per kilogram of waste collected.
+            cost_unit (float): Monetary cost incurred per kilometer traveled.
+            values (Dict[str, Any]): Merged configuration dictionary containing
+                ES parameters (mu, lambda, max_iterations).
+            mandatory_nodes (List[int]): Local indices of bins that MUST be
+                collected in this period.
+            **kwargs: Additional context, including:
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
 
         Returns:
-            Tuple of (routes, profit, solver_cost)
+            Tuple[List[List[int]], float, float]: A 3-tuple containing:
+                - routes: Optimized collection routes (list-of-lists, local indices).
+                - profit: Total calculated net profit (Total Revenue - Total Cost).
+                - cost: Total travel cost calculated by the solver.
         """
         # Map configuration dictionary to strict ES parameters
         params = MuCommaLambdaESParams(

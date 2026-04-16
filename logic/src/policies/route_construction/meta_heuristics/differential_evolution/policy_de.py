@@ -64,10 +64,39 @@ class DEPolicyAdapter(BaseRoutingPolicy):
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
         """
-        Solve VRPP instance using Differential Evolution.
+        Execute the Memetic Differential Evolution (MDE) solver logic.
+
+        MDE (specifically MDE/rand/1/exp) adapts the continuous Differential
+        Evolution algorithm for the discrete VRPP. It uses a Random Key
+        representation where continuous vectors are mapped to discrete node
+        sequences. Global exploration is achieved through mutation and
+        exponential crossover on these vectors, while exploitation is
+        strengthened by discrete local search (memetic phase) applied to the
+        resulting tours.
+
+        Args:
+            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+                sub-problem nodes.
+            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+                current bin inventory levels.
+            capacity (float): Maximum vehicle collection capacity.
+            revenue (float): Revenue obtained per kilogram of waste collected.
+            cost_unit (float): Monetary cost incurred per kilometer traveled.
+            values (Dict[str, Any]): Merged configuration dictionary containing
+                DE parameters (pop_size, mutation_factor, crossover_rate).
+            mandatory_nodes (List[int]): Local indices of bins that MUST be
+                collected in this period.
+            **kwargs: Additional context, including:
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
 
         Returns:
-            Tuple of (best_routes, best_profit, best_cost)
+            Tuple[List[List[int]], float, float]: A 3-tuple containing:
+                - routes: Optimized collection routes (list-of-lists, local indices).
+                - profit: Total calculated net profit (Total Revenue - Total Cost).
+                - cost: Total travel cost calculated by the solver.
         """
         params = DEParams(
             pop_size=values.get("pop_size", 50),

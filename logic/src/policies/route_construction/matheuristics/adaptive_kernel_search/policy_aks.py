@@ -5,6 +5,8 @@ Simulator adapter for the Adaptive Kernel Search (AKS) matheuristic.
 from typing import Any, Dict, List, Optional, Tuple, Type
 
 from logic.src.configs.policies.aks import AdaptiveKernelSearchConfig
+from logic.src.policies.context.multi_day_context import MultiDayContext
+from logic.src.policies.context.search_context import SearchContext
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
@@ -80,9 +82,42 @@ class AdaptiveKernelSearchPolicy(BaseRoutingPolicy):
         """Not used - AKS requires specialized execute()."""
         return [], 0.0, 0.0
 
-    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
+    def execute(
+        self, **kwargs: Any
+    ) -> Tuple[List[int], float, float, Optional[SearchContext], Optional[MultiDayContext]]:
         """
-        Execute the AKS matheuristic on the provided simulation state.
+        Execute the Adaptive Kernel Search (AKS) matheuristic on the simulation state.
+
+        AKS iteratively decomposes the VRPP into a set of tractable sub-problems
+        by selecting a subset of promising variables (the Kernel). It then
+        adaptively expands this Kernel by solving MIP buckets, promoting variables
+        that belong to high-quality feasible solutions discovered during the
+        search.
+
+        This implementation uses Gurobi as the underlying MIP solver and
+        includes subtour elimination constraints.
+
+        Args:
+            **kwargs: Context for matheuristic execution, including:
+                - distance_matrix (np.ndarray): Full distance matrix for the problem.
+                - wastes (Dict[int, float]): Bin inventory levels.
+                - capacity (float): Vehicle collection capacity.
+                - mandatory (List[int]): Local indices of mandatory bins.
+                - R (float): Revenue multiplier.
+                - C (float): Cost multiplier.
+                - seed (int): Random seed for reproducibility.
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
+
+        Returns:
+            Tuple of:
+                - tour: The optimized daily tour (list of node IDs).
+                - cost: Total travel cost calculated by the solver.
+                - obj_val: Net calculated profit (Revenue - Cost).
+                - Optional[SearchContext]: Updated search context.
+                - Optional[MultiDayContext]: Updated multi-period context.
         """
         # 1. Initialize parameters
         params = AKSParams.from_config(self.config)
@@ -120,4 +155,4 @@ class AdaptiveKernelSearchPolicy(BaseRoutingPolicy):
         )
 
         # 6. Return standardized results
-        return tour, float(cost), {"obj_val": obj_val}
+        return tour, cost, obj_val, kwargs.get("search_context"), kwargs.get("multi_day_context")

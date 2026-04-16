@@ -52,10 +52,39 @@ class ACOPolicy(BaseRoutingPolicy):
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
         """
-        Run K-Sparse ACO solver.
+        Execute the K-Sparse Ant Colony Optimization (ACO) solver logic.
+
+        This implementation uses the Ant Colony System (ACS) framework with a
+        sparse pheromone matrix (K-Sparse). Ants construct solutions by
+        probabilistically choosing next nodes based on pheromone levels and
+        greedy desirability (profit-to-distance ratio). Pheromones are
+        updated globally by the best-found solution (and optionally elitist
+        ants) and locally by every ant during construction to encourage
+        exploration.
+
+        Args:
+            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+                sub-problem nodes.
+            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+                current bin inventory levels.
+            capacity (float): Maximum vehicle collection capacity.
+            revenue (float): Revenue obtained per kilogram of waste collected.
+            cost_unit (float): Monetary cost incurred per kilometer traveled.
+            values (Dict[str, Any]): Merged configuration dictionary containing
+                ACO parameters (n_ants, alpha, beta, q0, k_sparse).
+            mandatory_nodes (List[int]): Local indices of bins that MUST be
+                collected in this period.
+            **kwargs: Additional context, including:
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
 
         Returns:
-            Tuple of (routes, profit, solver_cost)
+            Tuple[List[List[int]], float, float]: A 3-tuple containing:
+                - routes: Optimized collection routes (list-of-lists, local indices).
+                - profit: Total calculated net profit (Total Revenue - Total Cost).
+                - cost: Total travel cost calculated by the solver.
         """
         params = KSACOParams(
             n_ants=values.get("n_ants", 10),

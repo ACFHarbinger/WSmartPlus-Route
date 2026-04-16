@@ -5,13 +5,19 @@ Implements a multi-vehicle routing policy (CVRP) that visits a specific set of b
 Agnostic to how the targets were selected.
 """
 
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
 
 from logic.src.configs.policies import CVRPConfig
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
+
+if TYPE_CHECKING:
+    from logic.src.policies.context.multi_day_context import MultiDayContext
+    from logic.src.policies.context.search_context import SearchContext
 
 from .cvrp import find_routes, find_routes_ortools
 from .params import CVRPParams
@@ -60,17 +66,44 @@ class CVRPPolicy(BaseRoutingPolicy):
         # Not used - we override execute() for CVRP
         return [[]], 0.0, 0.0
 
-    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
+    def execute(
+        self, **kwargs: Any
+    ) -> Tuple[Union[List[int], List[List[int]]], float, float, Optional[SearchContext], Optional[MultiDayContext]]:
         """
-        Execute CVRP policy.
+        Execute the Capacitated Vehicle Routing Problem (CVRP) solver logic.
 
-        Overrides base execute because CVRP uses different solver interface
-        and works with global indices directly.
+        This policy solves the problem of finding optimal routes for a fleet
+        of vehicles to deliver or collect waste from a set of bins, subject
+        to vehicle capacity constraints and mandatory collection requirements.
+        It supports multiple engines, including OR-Tools and custom geometric
+        heuristics (Clarke-Wright savings).
+
+        Args:
+            **kwargs: Context dictionary containing:
+                - mandatory (List[int]): Global indices of bins to be collected.
+                - bins (Bins): Container for bin stock and distribution data.
+                - distance_matrix (np.ndarray): Global symmetric distance matrix.
+                - n_vehicles (int): Number of available vehicles.
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
+
+        Returns:
+            Tuple[Union[List[int], List[List[int]]], float, float, Optional[SearchContext], Optional[MultiDayContext]]:
+                A 5-tuple containing:
+                - tour: Optimized collection routes (flat or nested list).
+                - cost: Total travel cost calculated based on the routes.
+                - profit: Total calculated net profit (Total Revenue - Total Cost).
+                - search_context: Propagated or updated search context.
+                - multi_day_context: Propagated multi-day state metadata.
         """
         mandatory = kwargs.get("mandatory", [])
         early_result = self._validate_mandatory(mandatory)
         if early_result is not None:
-            return early_result
+            # Re-map early result to 5-tuple
+            routes, dist = early_result
+            return routes, dist, 0.0, kwargs.get("search_context"), kwargs.get("multi_day_context")
 
         bins = kwargs["bins"]
         area = kwargs.get("area", "Rio Maior")
@@ -114,4 +147,11 @@ class CVRPPolicy(BaseRoutingPolicy):
             tour = list(tour)
 
         cost = self._compute_cost(distance_matrix, tour)
-        return tour, cost, tour
+        # Compute profit
+        R = values.get("revenue_kg", 1.0)
+        C = values.get("cost_km", 1.0)
+        visited = {n for n in tour if n != 0}
+        collected_revenue = sum(float(bins.c[n - 1]) * R for n in visited if 1 <= n <= bins.n)
+        profit = collected_revenue - cost * C
+
+        return tour, cost, profit, kwargs.get("search_context"), kwargs.get("multi_day_context")

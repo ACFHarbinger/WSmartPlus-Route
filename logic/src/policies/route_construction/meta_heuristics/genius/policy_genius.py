@@ -44,6 +44,44 @@ class GENIUSPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
+        """
+        Execute the GENIUS (Generalized Insertion + Unstringing and Stringing)
+        solver logic.
+
+        GENIUS is a classical metaheuristic for the TSP and VRP that uses:
+        - GENI (Generalized Insertion): A complex insertion procedure that
+          considers multiple neighborhood nodes to find the best placement for
+          a new node.
+        - US (Unstringing and Stringing): A post-optimization procedure that
+          removes nodes (unstringing) and re-inserts them (stringing) to
+          improve the tour quality.
+        This policy adapts the Gendreau et al. (1992) methodology for the
+        WSmart-Route framework, supporting profit-aware extensions.
+
+        Args:
+            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+                sub-problem nodes.
+            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+                current bin inventory levels.
+            capacity (float): Maximum vehicle collection capacity.
+            revenue (float): Revenue obtained per kilogram of waste collected.
+            cost_unit (float): Monetary cost incurred per kilometer traveled.
+            values (Dict[str, Any]): Merged configuration dictionary containing
+                GENIUS parameters (neighborhood_size, unstring_type, string_type).
+            mandatory_nodes (List[int]): Local indices of bins that MUST be
+                collected in this period.
+            **kwargs: Additional context, including:
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
+
+        Returns:
+            Tuple[List[List[int]], float, float]: A 3-tuple containing:
+                - routes: Optimized collection routes (list-of-lists, local indices).
+                - profit: Total calculated net profit (Total Revenue - Total Cost).
+                - cost: Total travel cost calculated by the solver.
+        """
         params = GENIUSParams(
             neighborhood_size=int(values.get("neighborhood_size", 5)),
             unstring_type=int(values.get("unstring_type", 1)),

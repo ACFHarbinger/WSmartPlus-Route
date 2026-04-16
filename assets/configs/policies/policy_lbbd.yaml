@@ -4,6 +4,8 @@ policy:
   target: logic.src.policies.logic_based_benders_decomposition.policy_lbbd.LBBDPolicy
   params:
     num_days: 3
+    stochastic_master: false
+    mean_increment: 0.2
     num_scenarios: 5
     max_iterations: 20
     benders_gap: 0.01

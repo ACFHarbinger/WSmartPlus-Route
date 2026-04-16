@@ -46,6 +46,43 @@ class PSOMAPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
+        """
+        Execute the Particle Swarm Optimization Memetic Algorithm (PSOMA)
+        solver logic.
+
+        PSOMA is a hybrid metaheuristic that combines the collective intelligence
+        of Particle Swarm Optimization (PSO) with the individual refinement
+        capabilities of a Memetic Algorithm. While the swarm particles explore
+        the global profit surface through velocity-driven movements (cognitive
+        and social attraction), individual particles are periodically refined
+        using local search operators. This "education" step ensures that
+        particles converge onto meaningful local optima, effectively bridging
+        long-range exploration with rigorous intensification.
+
+        Args:
+            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+                sub-problem nodes.
+            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+                current bin inventory levels.
+            capacity (float): Maximum vehicle collection capacity.
+            revenue (float): Revenue obtained per kilogram of waste collected.
+            cost_unit (float): Monetary cost incurred per kilometer traveled.
+            values (Dict[str, Any]): Merged configuration dictionary containing
+                PSOMA parameters (pop_size, omega, c1, c2, local_search_freq).
+            mandatory_nodes (List[int]): Local indices of bins that MUST be
+                collected in this period.
+            **kwargs: Additional context, including:
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
+
+        Returns:
+            Tuple[List[List[int]], float, float]: A 3-tuple containing:
+                - routes: Optimized collection routes (list-of-lists, local indices).
+                - profit: Total calculated net profit (Total Revenue - Total Cost).
+                - cost: Total travel cost calculated by the solver.
+        """
         params = PSOMAParams(
             pop_size=int(values.get("pop_size", 20)),
             omega=float(values.get("omega", 0.4)),

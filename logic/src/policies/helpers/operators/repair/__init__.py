@@ -15,6 +15,7 @@ Example:
 from .branch_bound import bb_insertion, bb_profit_insertion
 from .deep import deep_insertion, deep_profit_insertion
 from .farthest import farthest_insertion, farthest_profit_insertion
+from .forward_looking import forward_looking_insertion
 from .geni import geni_insertion, geni_profit_insertion
 from .greedy import greedy_insertion, greedy_profit_insertion
 from .greedy_blink import greedy_insertion_with_blinks, greedy_profit_insertion_with_blinks
@@ -67,4 +68,6 @@ __all__ = [
     "apply_type_iv_s_profit",
     "stringing_insertion",
     "stringing_profit_insertion",
+    # Inter-period / forward-looking
+    "forward_looking_insertion",
 ]

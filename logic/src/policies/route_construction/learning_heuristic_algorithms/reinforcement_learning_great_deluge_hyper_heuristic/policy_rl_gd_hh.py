@@ -79,22 +79,39 @@ class RLGDHHPolicy(BaseRoutingPolicy):
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
         """
-        Internal execution bridge to the RLGDHHSolver.
+        Execute the Reinforcement Learning - Great Deluge Hyper-Heuristic (RL-GD-HH)
+        solver logic.
 
-        Maps high-level simulator data into the mathematical representation
-        expected by the hyper-heuristic algorithm.
+        RL-GD-HH employs an online learning mechanism to dynamically select
+        low-level heuristics based on their past success. The Great Deluge
+        component regulates solution acceptance using a global "water level"
+        threshold that decreases over time, facilitating an effective balance
+        between intensification and diversification without the need for
+        parameter-heavy temperature cooling schedules.
 
-        Algorithm Process:
-        1. Extract and cast hyper-parameters for RL/GD (reward rates, bounds).
-        2. Instantiate the RLGDHHSolver with problem data and learning settings.
-        3. Run the optimization loop (Fig 2 in paper).
-        4. Calculate and return final routing metrics (Routes, Profit, Cost).
+        Args:
+            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+                sub-problem nodes.
+            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+                current bin inventory levels.
+            capacity (float): Maximum vehicle collection capacity.
+            revenue (float): Revenue obtained per kilogram of waste collected.
+            cost_unit (float): Monetary cost incurred per kilometer traveled.
+            values (Dict[str, Any]): Merged configuration dictionary containing
+                RL parameters and Great Deluge settings like `flood_margin`.
+            mandatory_nodes (List[int]): Local indices of bins that MUST be
+                collected in this period.
+            **kwargs: Additional context, including:
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
 
         Returns:
-            Tuple[List[List[int]], float, float]:
-                - best_routes: Optimal collection sequences found.
-                - best_reward: Net profit (Revenue - Distance Cost).
-                - total_cost: Distance component of the solution ($).
+            Tuple[List[List[int]], float, float]: A 3-tuple containing:
+                - routes: Optimized collection routes for the current day.
+                - profit: Total calculated net profit (Total Revenue - Total Cost).
+                - cost: Total travel cost calculated by the solver.
         """
         # 1. Parameter Extraction (Mapping simulator values to RLGDHHParams)
         params = RLGDHHParams(

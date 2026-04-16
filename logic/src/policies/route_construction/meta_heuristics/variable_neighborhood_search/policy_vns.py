@@ -47,6 +47,45 @@ class VNSPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
+        """
+        Execute the Variable Neighborhood Search (VNS) solver logic.
+
+        VNS is a metaheuristic that systematically changes the neighborhood
+        structure during the search to escape local optima. In this
+        implementation:
+        - Shaking: A random solution is generated in the k-th neighborhood of
+           the current best solution (intensification/exploration tradeoff).
+        - Local Search: A descent heuristic is applied to the shaken solution.
+        - Neighborhood Change: If the refined solution is better, the search
+          resets to the first neighborhood (N_1); otherwise, it moves to
+          the next neighborhood (N_{k+1}).
+        By cycling through neighborhoods of increasing size/complexity, VNS
+        effectively explores different structural regions of the solution space.
+
+        Args:
+            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+                sub-problem nodes.
+            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+                current bin inventory levels.
+            capacity (float): Maximum vehicle collection capacity.
+            revenue (float): Revenue obtained per kilogram of waste collected.
+            cost_unit (float): Monetary cost incurred per kilometer traveled.
+            values (Dict[str, Any]): Merged configuration dictionary containing
+                VNS parameters (k_max, max_iterations, local_search_iterations).
+            mandatory_nodes (List[int]): Local indices of bins that MUST be
+                collected in this period.
+            **kwargs: Additional context, including:
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
+
+        Returns:
+            Tuple[List[List[int]], float, float]: A 3-tuple containing:
+                - routes: Optimized collection routes (list-of-lists, local indices).
+                - profit: Total calculated net profit (Total Revenue - Total Cost).
+                - cost: Total travel cost calculated by the solver.
+        """
         params = VNSParams(
             k_max=int(values.get("k_max", 5)),
             max_iterations=int(values.get("max_iterations", 200)),

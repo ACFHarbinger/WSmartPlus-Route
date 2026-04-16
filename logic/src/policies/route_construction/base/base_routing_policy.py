@@ -167,7 +167,7 @@ class BaseRoutingPolicy(PolicyVizMixin, IRouteConstructor):
             return config_cls(**filtered)
         return config
 
-    def _validate_mandatory(self, mandatory: Optional[List[int]]) -> Optional[Tuple[List[int], float, Any]]:
+    def _validate_mandatory(self, mandatory: Optional[List[int]]) -> Optional[Tuple[List[int], float]]:
         """
         Validate mandatory input. Returns early result if empty.
 
@@ -178,7 +178,7 @@ class BaseRoutingPolicy(PolicyVizMixin, IRouteConstructor):
             Empty tour tuple if no targets, else None (continue processing).
         """
         if not mandatory:
-            return [0, 0], 0.0, None
+            return [0, 0], 0.0
         return None
 
     def _load_area_params(
@@ -394,32 +394,33 @@ class BaseRoutingPolicy(PolicyVizMixin, IRouteConstructor):
         if params:
             run.log_params(params)
 
-    def execute(self, **kwargs: Any) -> Tuple[Union[List[int], List[List[int]]], float, Optional[SearchContext]]:
+    def execute(
+        self, **kwargs: Any
+    ) -> Tuple[Union[List[int], List[List[int]]], float, float, Optional[SearchContext], Optional[Any]]:
         """
         Execute the routing policy using template method pattern.
 
         Threads the ``SearchContext`` (from Phase 1) forward:
-        1. Reads ``kwargs["search_context"]`` if present (from mandatory selection).
+        1. Reads ``kwargs["search_context"]`` if present.
         2. Merges ``ConstructionMetrics`` into it after the solver runs.
-        3. Returns the enriched context as the third tuple element.
+        3. Returns (tour, cost, profit, search_context, multi_day_context).
 
         Args:
-            **kwargs: Simulation context.  May include ``search_context``
-                (a ``SearchContext`` from Phase 1).
+            **kwargs: Simulation context.
 
         Returns:
-            Tuple of (tour, cost, search_context)
+            Tuple of (tour, cost, profit, search_context, multi_day_context)
         """
         mandatory = kwargs.get("mandatory", [])
 
-        # Carry forward any SearchContext created by Phase 1
+        # Carry forward contexts if present
         incoming_ctx: Optional[SearchContext] = kwargs.get("search_context")
+        multi_day_ctx: Optional[Any] = kwargs.get("multi_day_context")
 
         # 1. Validate
         early_result = self._validate_mandatory(mandatory)
         if early_result is not None:
-            # Return the context even on early exit so the pipeline stays consistent
-            return early_result[0], early_result[1], incoming_ctx
+            return early_result[0], early_result[1], 0.0, incoming_ctx, multi_day_ctx
 
         # 2. Extract context
         bins = kwargs["bins"]
@@ -523,4 +524,4 @@ class BaseRoutingPolicy(PolicyVizMixin, IRouteConstructor):
         else:
             out_ctx = None
 
-        return tour, cost, out_ctx
+        return tour, cost, profit, out_ctx, multi_day_ctx

@@ -59,10 +59,43 @@ class HVPLPolicy(BaseRoutingPolicy):
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
         """
-        Run HVPL solver.
+                Execute the Hybrid Volleyball Premier League (HVPL) solver logic.
 
-        Returns:
-            Tuple of (routes, profit, solver_cost)
+                HVPL is a population-based metaheuristic inspired by the competition and
+                substitution dynamics in a volleyball league. In this implementation:
+         team formation that reflects
+                  diverse tactical approaches.
+                - Competition Phase: Teams (solutions) participate in matches where better
+                  performing team "brightness" or tactical strength influences others.
+                - Substitution & Coaching: Mechanisms for replacing weak components of a
+        Team (solution) with stronger tactics (heuristics) derived from ACO or
+                  ALNS operator successes.
+                Designed for complex combinatorial optimization, specifically addressing
+                simultaneous profit selection and routing.
+
+                Args:
+                    sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+                        sub-problem nodes.
+                    sub_wastes (Dict[int, float]): Mapping of local node indices to their
+                        current bin inventory levels.
+                    capacity (float): Maximum vehicle collection capacity.
+                    revenue (float): Revenue obtained per kilogram of waste collected.
+                    cost_unit (float): Monetary cost incurred per kilometer traveled.
+                    values (Dict[str, Any]): Merged configuration dictionary containing
+                        HVPL parameters and nested ACO/ALNS configs.
+                    mandatory_nodes (List[int]): Local indices of bins that MUST be
+                        collected in this period.
+                    **kwargs: Additional context, including:
+                        - search_context (Optional[SearchContext]): Context for tracking
+                          recursive solver statistics.
+                        - multi_day_context (Optional[MultiDayContext]): Context for
+                          inter-day state propagation.
+
+                Returns:
+                    Tuple[List[List[int]], float, float]: A 3-tuple containing:
+                        - routes: Optimized collection routes (list-of-lists, local indices).
+                        - profit: Total calculated net profit (Total Revenue - Total Cost).
+                        - cost: Total travel cost calculated by the solver.
         """
         seed = values.get("seed", 42)
         vrpp = values.get("vrpp", True)

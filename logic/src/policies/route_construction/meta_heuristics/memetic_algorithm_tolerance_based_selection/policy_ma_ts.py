@@ -41,6 +41,43 @@ class MemeticAlgorithmToleranceBasedSelectionPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
+        """
+        Execute the Memetic Algorithm with Tolerance-Based Selection (MA-TS)
+        solver logic.
+
+        MA-TS is a memetic algorithm variant that employs a "tolerance"
+        threshold during the survivor selection phase. Instead of strictly
+        choosing the absolute best individuals, it allows for the selection
+        of solutions that fall within a specified performance tolerance of the
+        global optimum. This "fuzzy" selection pressure helps maintain
+        structural diversity in the population for longer periods, preventing
+        stagnation in massive local optima and improving the algorithm's
+        ability to escape from locally deceptive regions of the profit surface.
+
+        Args:
+            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+                sub-problem nodes.
+            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+                current bin inventory levels.
+            capacity (float): Maximum vehicle collection capacity.
+            revenue (float): Revenue obtained per kilogram of waste collected.
+            cost_unit (float): Monetary cost incurred per kilometer traveled.
+            values (Dict[str, Any]): Merged configuration dictionary containing
+                MA-TS parameters (population_size, tolerance_pct, recombination_rate).
+            mandatory_nodes (List[int]): Local indices of bins that MUST be
+                collected in this period.
+            **kwargs: Additional context, including:
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
+
+        Returns:
+            Tuple[List[List[int]], float, float]: A 3-tuple containing:
+                - routes: Optimized collection routes (list-of-lists, local indices).
+                - profit: Total calculated net profit (Total Revenue - Total Cost).
+                - cost: Total travel cost calculated by the solver.
+        """
         params = MemeticAlgorithmToleranceBasedSelectionParams(
             population_size=values.get("population_size", 10),
             max_iterations=values.get("max_iterations", 100),

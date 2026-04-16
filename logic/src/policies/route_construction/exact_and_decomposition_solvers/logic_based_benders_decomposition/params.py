@@ -13,6 +13,7 @@ class LBBDParams:
     """
 
     num_days: int = 3
+    stochastic_master: bool = False
     mean_increment: float = 0.2
     num_scenarios: int = 5
     max_iterations: int = 20
@@ -40,6 +41,7 @@ class LBBDParams:
         """
         return cls(
             num_days=int(config.get("num_days", 3)),
+            stochastic_master=bool(config.get("stochastic_master", False)),
             mean_increment=float(config.get("mean_increment", 0.2)),
             num_scenarios=int(config.get("num_scenarios", 5)),
             max_iterations=int(config.get("max_iterations", 20)),
@@ -61,6 +63,7 @@ class LBBDParams:
         """
         return {
             "num_days": self.num_days,
+            "stochastic_master": self.stochastic_master,
             "mean_increment": self.mean_increment,
             "num_scenarios": self.num_scenarios,
             "max_iterations": self.max_iterations,

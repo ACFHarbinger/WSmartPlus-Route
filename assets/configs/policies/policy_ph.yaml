@@ -20,6 +20,15 @@ progressive_hedging:
   # Number of scenarios for Sample Average Approximation (SAA).
   num_scenarios: 10
 
+  # Multi-period planning horizon.
+  horizon: 7
+
+  # Scope of the consensus constraints ('day_0' or 'full').
+  consensus_scope: "day_0"
+
+  # Penalty for stockouts (bin overflows) in scenario evaluations.
+  stockout_penalty: 500.0
+
   # Wall-clock time limit in seconds.
   time_limit: 300.0
 

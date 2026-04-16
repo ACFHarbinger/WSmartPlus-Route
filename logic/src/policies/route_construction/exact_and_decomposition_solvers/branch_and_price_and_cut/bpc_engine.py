@@ -477,7 +477,7 @@ def _solve_pricing_step(
         if swc_tcf is not None:
             # We call the heuristic. It accepts kwargs.
             # We must pass the dual_values dictionary so it modifies profits internally.
-            route_nodes, cost, metrics = swc_tcf.execute(
+            route_nodes, cost, profit, metrics, _ = swc_tcf.execute(
                 distance_matrix=pricing_solver.cost_matrix,
                 bins=pricing_solver.wastes,
                 number_vehicles=1,  # Generate one good column
@@ -1332,7 +1332,7 @@ def run_bpc(  # noqa: C901
     if getattr(params, "use_swc_tcf_initialization", False):
         swc_tcf = RouteConstructorFactory.get_adapter("swc_tcf")
         if swc_tcf is not None:
-            swc_routes, _, _ = swc_tcf.execute(
+            swc_routes, _, _, _, _ = swc_tcf.execute(
                 distance_matrix=dist_matrix,
                 bins=wastes,
                 mandatory=list(m_set),
@@ -1634,7 +1634,7 @@ def run_bpc(  # noqa: C901
                         forced_nodes_heuristic.add(bc.node)
 
                 # Execute heuristic independently of LP fractional variables
-                h_routes, h_cost, h_metrics = swc_tcf.execute(
+                h_routes, h_cost, h_profit, h_metrics, _ = swc_tcf.execute(
                     distance_matrix=dist_matrix,
                     bins=wastes,
                     mandatory=list(m_set.union(forced_nodes_heuristic)),

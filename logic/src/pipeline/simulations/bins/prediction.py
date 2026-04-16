@@ -1,11 +1,114 @@
 """
-Statistical prediction and frequency calculation for waste bins.
+Statistical prediction and scenario generation for waste bins.
 """
 
-from typing import Tuple
+from dataclasses import dataclass, field
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 from scipy.stats import gamma  # pyrefly: ignore[missing-module-attribute]
+
+
+@dataclass
+class ScenarioTreeNode:
+    """A node in the scenario tree representing a state at a specific day."""
+
+    day: int
+    wastes: np.ndarray  # Bin fill levels [0-100]
+    probability: float
+    children: List["ScenarioTreeNode"] = field(default_factory=list)
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
+class ScenarioTree:
+    """A collection of scenarios forming a tree structure."""
+
+    root: ScenarioTreeNode
+    horizon: int
+    num_bins: int
+
+    def get_scenarios_at_day(self, day: int) -> List[ScenarioTreeNode]:
+        """Flatten the tree at a specific depth to get a set of scenarios."""
+        result = []
+
+        def traverse(node: ScenarioTreeNode):
+            if node.day == day:
+                result.append(node)
+            else:
+                for child in node.children:
+                    traverse(child)
+
+        traverse(self.root)
+        return result
+
+
+class ScenarioGenerator:
+    """
+    Generates scenario trees for multi-period stochastic optimization.
+    """
+
+    def __init__(self, method: str = "stochastic", horizon: int = 7, seed: int = 42) -> None:
+        self.method = method
+        self.horizon = horizon
+        self.seed = seed
+        # Initialize RNG for stochastic paths
+        self.rng = np.random.default_rng(seed)
+
+    def generate(
+        self,
+        current_wastes: np.ndarray,
+        bin_stats: Optional[Dict[str, np.ndarray]] = None,
+        truth_generator: Optional[Any] = None,
+    ) -> ScenarioTree:
+        """
+        Generate a scenario tree.
+
+        Args:
+            current_wastes: Current fill levels for bins.
+            bin_stats: Dictionary with 'means' and 'stds' of fill rates.
+            truth_generator: Optional object that provides future true values (Oracle).
+
+        Returns:
+            ScenarioTree: The generated scenario tree.
+        """
+        root = ScenarioTreeNode(day=0, wastes=current_wastes.copy(), probability=1.0)
+
+        if self.method == "perfect_oracle" and truth_generator:
+            self._generate_oracle_path(root, truth_generator)
+        else:
+            self._generate_stochastic_tree(root, bin_stats)
+
+        return ScenarioTree(root=root, horizon=self.horizon, num_bins=len(current_wastes))
+
+    def _generate_oracle_path(self, root: ScenarioTreeNode, truth_generator: Any) -> None:
+        """Generate a single deterministic path using known future values."""
+        current = root
+        for t in range(1, self.horizon + 1):
+            future_wastes = truth_generator.get_future_wastes(t)
+            child = ScenarioTreeNode(day=t, wastes=future_wastes, probability=1.0)
+            current.children.append(child)
+            current = child
+
+    def _generate_stochastic_tree(self, root: ScenarioTreeNode, bin_stats: Optional[Dict[str, np.ndarray]]) -> None:
+        """Generate branches based on statistical distributions."""
+        if bin_stats is None:
+            # Fallback: static levels
+            current = root
+            for t in range(1, self.horizon + 1):
+                child = ScenarioTreeNode(day=t, wastes=current.wastes.copy(), probability=1.0)
+                current.children.append(child)
+                current = child
+            return
+
+        means = bin_stats["means"]
+        # In this baseline, we implement the "Mean Value" scenario path
+        current = root
+        for t in range(1, self.horizon + 1):
+            new_wastes = np.minimum(100.0, current.wastes + means)
+            child = ScenarioTreeNode(day=t, wastes=new_wastes, probability=1.0)
+            current.children.append(child)
+            current = child
 
 
 def predict_days_to_overflow(ui: np.ndarray, vi: np.ndarray, f: np.ndarray, cl: float) -> np.ndarray:
@@ -70,5 +173,5 @@ def calculate_frequency_and_level(ui: float, vi: float, cf: float) -> Tuple[int,
 
         v = gamma.ppf(1 - cf, k, scale=th)
         if v > 100:
-            return n, ov
-    return 49, ov
+            return n, float(ov)
+    return 49, float(ov)

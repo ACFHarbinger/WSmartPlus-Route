@@ -41,6 +41,43 @@ class MemeticAlgorithmDualPopulationPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
+        """
+        Execute the Memetic Algorithm with Dual Population (MA-DP) solver logic.
+
+        MA-DP is an specialized memetic architecture that maintains two distinct
+        populations:
+        - Diverse Population: Focuses on exploration and maintaining solution
+          structural variety to prevent premature convergence.
+        - Elite Population: Focuses on intensification and refining the best
+          known solutions.
+        Information is periodically exchanged between populations (diversity
+        injection), and elite individuals undergo rigorous learning (local search)
+        to ensure high-quality solution boundaries.
+
+        Args:
+            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+                sub-problem nodes.
+            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+                current bin inventory levels.
+            capacity (float): Maximum vehicle collection capacity.
+            revenue (float): Revenue obtained per kilogram of waste collected.
+            cost_unit (float): Monetary cost incurred per kilometer traveled.
+            values (Dict[str, Any]): Merged configuration dictionary containing
+                MA-DP parameters (population_size, diversity_injection_rate, elite_count).
+            mandatory_nodes (List[int]): Local indices of bins that MUST be
+                collected in this period.
+            **kwargs: Additional context, including:
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
+
+        Returns:
+            Tuple[List[List[int]], float, float]: A 3-tuple containing:
+                - routes: Optimized collection routes (list-of-lists, local indices).
+                - profit: Total calculated net profit (Total Revenue - Total Cost).
+                - cost: Total travel cost calculated by the solver.
+        """
         params = MemeticAlgorithmDualPopulationParams(
             population_size=values.get("population_size", 30),
             max_iterations=values.get("max_iterations", 200),
