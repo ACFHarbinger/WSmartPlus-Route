@@ -31,7 +31,7 @@ class BoltzmannAcceptance(IAcceptanceCriterion):
     def setup(self, initial_objective: float) -> None:
         pass
 
-    def accept(self, current_obj: float, candidate_obj: float) -> bool:
+    def accept(self, current_obj: float, candidate_obj: float, **kwargs: Any) -> bool:
         delta = candidate_obj - current_obj
         if delta >= 0:
             return True
@@ -42,7 +42,7 @@ class BoltzmannAcceptance(IAcceptanceCriterion):
 
         return self.rng.random() < math.exp(delta / self.T)
 
-    def step(self, current_obj: float, candidate_obj: float, accepted: bool) -> None:
+    def step(self, current_obj: float, candidate_obj: float, accepted: bool, **kwargs: Any) -> None:
         # Geometric decay
         self.T *= self.alpha
 

@@ -18,7 +18,7 @@ class IAcceptanceCriterion(ABC):
         pass
 
     @abstractmethod
-    def accept(self, current_obj: float, candidate_obj: float) -> bool:
+    def accept(self, current_obj: float, candidate_obj: float, **kwargs: Any) -> bool:
         """
         Evaluates whether a candidate solution should be accepted.
         This method MUST be stateless and purely functional.
@@ -26,6 +26,7 @@ class IAcceptanceCriterion(ABC):
         Args:
             current_obj (float): The objective value of the current incumbent solution.
             candidate_obj (float): The objective value of the proposed candidate solution.
+            **kwargs (Any): Additional context such as structural solution representations.
 
         Returns:
             bool: True if the candidate is accepted, False otherwise.
@@ -33,7 +34,7 @@ class IAcceptanceCriterion(ABC):
         pass
 
     @abstractmethod
-    def step(self, current_obj: float, candidate_obj: float, accepted: bool) -> None:
+    def step(self, current_obj: float, candidate_obj: float, accepted: bool, **kwargs: Any) -> None:
         """
         Advances the internal state of the criterion (e.g., cooling temperature,
         updating memory buffers, adjusting thresholds).
@@ -42,6 +43,7 @@ class IAcceptanceCriterion(ABC):
             current_obj (float): The objective value of the solution *after* the decision.
             candidate_obj (float): The objective value of the evaluated candidate.
             accepted (bool): The boolean result of the `accept` method.
+            **kwargs (Any): Additional context such as structural solution representations.
         """
         pass
 
