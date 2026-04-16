@@ -10,13 +10,13 @@ import numpy as np
 
 from logic.src.configs.policies import MuCommaLambdaESConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from .params import MuCommaLambdaESParams
 from .solver import MuCommaLambdaESSolver
 
 
-@PolicyRegistry.register("es_mcl")
+@RouteConstructorRegistry.register("es_mcl")
 class MuCommaLambdaESPolicy(BaseRoutingPolicy):
     """
     (μ,λ) Evolution Strategy policy class.

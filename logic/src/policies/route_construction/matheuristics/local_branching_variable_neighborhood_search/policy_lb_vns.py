@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type
 
 from logic.src.configs.policies.lb_vns import LocalBranchingVNSConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.matheuristics.local_branching_variable_neighborhood_search.lb_vns import (
     run_lb_vns_gurobi,
 )
@@ -19,7 +19,7 @@ from logic.src.policies.route_construction.matheuristics.local_branching_variabl
 )
 
 
-@PolicyRegistry.register("lb_vns")
+@RouteConstructorRegistry.register("lb_vns")
 class LocalBranchingVNSPolicy(BaseRoutingPolicy):
     """
     Simulator adapter for the Local Branching with Variable Neighborhood Search (LB-VNS).

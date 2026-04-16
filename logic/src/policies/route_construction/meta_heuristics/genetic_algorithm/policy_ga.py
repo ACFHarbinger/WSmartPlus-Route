@@ -8,13 +8,13 @@ import numpy as np
 
 from logic.src.configs.policies.ga import GAConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from .params import GAParams
 from .solver import GASolver
 
 
-@PolicyRegistry.register("ga")
+@RouteConstructorRegistry.register("ga")
 class GAPolicy(BaseRoutingPolicy):
     """Genetic Algorithm policy class."""
 

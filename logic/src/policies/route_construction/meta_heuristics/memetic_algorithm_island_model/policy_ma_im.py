@@ -8,13 +8,13 @@ import numpy as np
 
 from logic.src.configs.policies.ma_im import MemeticAlgorithmIslandModelConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from .params import MemeticAlgorithmIslandModelParams
 from .solver import MemeticAlgorithmIslandModelSolver
 
 
-@PolicyRegistry.register("ma_im")
+@RouteConstructorRegistry.register("ma_im")
 class MemeticAlgorithmIslandModelPolicy(BaseRoutingPolicy):
     """
     Memetic Algorithm Island Model policy class.

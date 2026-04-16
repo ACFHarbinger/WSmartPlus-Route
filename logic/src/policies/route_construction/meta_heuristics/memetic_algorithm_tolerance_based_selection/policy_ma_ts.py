@@ -8,13 +8,13 @@ import numpy as np
 
 from logic.src.configs.policies.ma_ts import MemeticAlgorithmToleranceBasedSelectionConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from .params import MemeticAlgorithmToleranceBasedSelectionParams
 from .solver import MemeticAlgorithmToleranceBasedSelectionSolver
 
 
-@PolicyRegistry.register("ma_ts")
+@RouteConstructorRegistry.register("ma_ts")
 class MemeticAlgorithmToleranceBasedSelectionPolicy(BaseRoutingPolicy):
     """
     Memetic Algorithm Tolerance-based Selection policy class.

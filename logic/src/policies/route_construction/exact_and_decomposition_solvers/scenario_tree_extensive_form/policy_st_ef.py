@@ -8,7 +8,7 @@ import numpy as np
 
 from logic.src.configs.policies.st_ef import ScenarioTreeExtensiveFormConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine import (
     ScenarioTreeExtensiveFormEngine,
 )
@@ -17,7 +17,7 @@ from logic.src.policies.route_construction.exact_and_decomposition_solvers.scena
 )
 
 
-@PolicyRegistry.register("st_ef")
+@RouteConstructorRegistry.register("st_ef")
 class ScenarioTreeExtensiveFormPolicy(BaseRoutingPolicy):
     """
     Adapter for the Scenario-Tree Extensive Form (ST-EF) policy.

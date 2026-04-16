@@ -11,13 +11,13 @@ import numpy as np
 
 from logic.src.configs.policies.psoma import PSOMAConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from .params import PSOMAParams
 from .solver import PSOMAsSolver
 
 
-@PolicyRegistry.register("psoma")
+@RouteConstructorRegistry.register("psoma")
 class PSOMAPolicy(BaseRoutingPolicy):
     """
     PSOMA policy class.

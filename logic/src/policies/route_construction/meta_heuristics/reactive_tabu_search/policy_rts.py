@@ -8,13 +8,13 @@ import numpy as np
 
 from logic.src.configs.policies.rts import RTSConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from .params import RTSParams
 from .solver import RTSSolver
 
 
-@PolicyRegistry.register("rts")
+@RouteConstructorRegistry.register("rts")
 class RTSPolicy(BaseRoutingPolicy):
     """Reactive Tabu Search policy class."""
 

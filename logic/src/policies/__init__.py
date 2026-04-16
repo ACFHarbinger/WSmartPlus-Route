@@ -30,7 +30,7 @@ Example:
     >>> routes = find_routes(distance_matrix, wastes, capacity)
 """
 
-from .base import IPolicy, PolicyFactory, PolicyRegistry
+from .route_construction.base import IRouteConstructor, RouteConstructorFactory, RouteConstructorRegistry
 from .route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.policy_gihh import (
     GIHHParams,
     GIHHSolver,
@@ -92,9 +92,9 @@ from .route_construction.other_algorithms.travelling_salesman_problem.tsp import
 __all__ = [
     "ALNSParams",
     "run_alns",
-    "IPolicy",
-    "PolicyFactory",
-    "PolicyRegistry",
+    "IRouteConstructor",
+    "RouteConstructorFactory",
+    "RouteConstructorRegistry",
     "find_routes",
     "find_routes_ortools",
     "GIHHSolver",

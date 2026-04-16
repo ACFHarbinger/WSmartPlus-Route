@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
 
-from logic.src.configs.policies.helpers import (
+from logic.src.configs.policies.other import (
     BanditConfig,
     ContextFeatureExtractorConfig,
     EvolutionaryCMABConfig,
@@ -20,8 +20,8 @@ from logic.src.configs.policies.helpers import (
     TDLearningConfig,
 )
 from logic.src.configs.policies.rl_ahvpl import RLAHVPLConfig
-from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
+from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params import (
     RLAHVPLParams,
 )
@@ -34,7 +34,7 @@ from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search
 from logic.src.policies.route_construction.meta_heuristics.reactive_tabu_search.params import RTSParams
 
 
-@PolicyRegistry.register("rl_ahvpl")
+@RouteConstructorRegistry.register("rl_ahvpl")
 class RLAHVPLPolicy(BaseRoutingPolicy):
     """
     RL-AHVPL policy class.
@@ -88,7 +88,7 @@ class RLAHVPLPolicy(BaseRoutingPolicy):
             local_search=values.get("aco_local_search", False),
             local_search_iterations=values.get("aco_local_search_iterations", 0),
             elitist_weight=values.get("aco_elitist_weight", 1.0),
-            time_limit=values.get("aco_time_limit", values.get("time_limit", 60.0)),
+            time_limit=values.get("aco_time_limit", 60.0),
             vrpp=vrpp,
             profit_aware_operators=profit_aware_operators,
             seed=seed,
@@ -101,23 +101,23 @@ class RLAHVPLPolicy(BaseRoutingPolicy):
             reaction_factor=values.get("alns_reaction_factor", 0.1),
             min_removal=values.get("alns_min_removal", 1),
             max_removal_pct=values.get("alns_max_removal_pct", 0.2),
-            time_limit=values.get("alns_time_limit", values.get("time_limit", 60.0)),
+            time_limit=values.get("alns_time_limit", 60.0),
             vrpp=vrpp,
             profit_aware_operators=profit_aware_operators,
             seed=seed,
         )
 
         hgs_params = HGSParams(
-            time_limit=values.get("hgs_time_limit", values.get("time_limit", 60.0)),
-            mu=values.get("hgs_mu", values.get("hgs_population_size", 50)),
-            nb_elite=values.get("hgs_nb_elite", values.get("hgs_elite_size", 5)),
+            time_limit=values.get("hgs_time_limit", 60.0),
+            mu=values.get("hgs_mu", int(values.get("hgs_population_size", 50))),
+            nb_elite=values.get("hgs_nb_elite", int(values.get("hgs_elite_size", 5))),
             mutation_rate=values.get("hgs_mutation_rate", 0.2),
             crossover_rate=values.get("hgs_crossover_rate", 0.7),
-            n_offspring=values.get("hgs_n_offspring", values.get("hgs_n_generations", 100)),
+            n_offspring=values.get("hgs_n_offspring", int(values.get("hgs_n_generations", 100))),
             n_iterations_no_improvement=values.get(
-                "hgs_n_iterations_no_improvement", values.get("hgs_no_improvement_threshold", 20)
+                "hgs_n_iterations_no_improvement", int(values.get("hgs_no_improvement_threshold", 20))
             ),
-            nb_granular=values.get("hgs_nb_granular", values.get("hgs_neighbor_list_size", 10)),
+            nb_granular=values.get("hgs_nb_granular", int(values.get("hgs_neighbor_list_size", 10))),
             local_search_iterations=values.get("hgs_local_search_iterations", 500),
             max_vehicles=values.get("hgs_max_vehicles", 0),
             vrpp=vrpp,
@@ -134,7 +134,7 @@ class RLAHVPLPolicy(BaseRoutingPolicy):
             max_iterations=values.get("rts_max_iterations", 500),
             n_removal=values.get("rts_n_removal", 2),
             n_llh=values.get("rts_n_llh", 5),
-            time_limit=values.get("rts_time_limit", values.get("time_limit", 60.0)),
+            time_limit=values.get("rts_time_limit", 60.0),
             vrpp=vrpp,
             profit_aware_operators=profit_aware_operators,
             seed=seed,

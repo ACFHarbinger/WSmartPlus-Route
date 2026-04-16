@@ -10,7 +10,7 @@ import numpy as np
 
 from logic.src.configs.policies import HGSALNSConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from ..adaptive_large_neighborhood_search.params import ALNSParams
 from ..hybrid_genetic_search.params import HGSParams
@@ -18,7 +18,7 @@ from .hgs_alns import HGSALNSSolver
 from .params import HGSALNSParams
 
 
-@PolicyRegistry.register("hgs_alns")
+@RouteConstructorRegistry.register("hgs_alns")
 class HGSALNSPolicy(BaseRoutingPolicy):
     """
     Hybrid HGS-ALNS policy class for the simulator.

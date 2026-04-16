@@ -11,13 +11,13 @@ import numpy as np
 
 from logic.src.configs.policies.lca import LCAConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from .params import LCAParams
 from .solver import LCASolver
 
 
-@PolicyRegistry.register("lca")
+@RouteConstructorRegistry.register("lca")
 class LCAPolicy(BaseRoutingPolicy):
     """
     LCA policy class.

@@ -12,7 +12,7 @@ import numpy as np
 
 from logic.src.configs.policies import PHConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.registry import PolicyRegistry
+from logic.src.policies.base.registry import RouteConstructorRegistry
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.scenario import (
     ScenarioGenerator,
 )
@@ -20,7 +20,7 @@ from logic.src.policies.route_construction.exact_and_decomposition_solvers.integ
 from .ph_engine import ProgressiveHedgingEngine
 
 
-@PolicyRegistry.register("ph")
+@RouteConstructorRegistry.register("ph")
 class ProgressiveHedgingPolicy(BaseRoutingPolicy):
     """Policy adapter for Progressive Hedging decomposition.
 

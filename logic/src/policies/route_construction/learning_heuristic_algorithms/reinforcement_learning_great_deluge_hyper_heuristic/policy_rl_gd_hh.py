@@ -15,14 +15,14 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 import numpy as np
 
 from logic.src.configs.policies.rl_gd_hh import RLGDHHConfig
-from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
+from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
 from .params import RLGDHHParams
 from .solver import RLGDHHSolver
 
 
-@PolicyRegistry.register("rl_gd_hh")
+@RouteConstructorRegistry.register("rl_gd_hh")
 class RLGDHHPolicy(BaseRoutingPolicy):
     """
     Adapter for the RL-GD-HH solver.

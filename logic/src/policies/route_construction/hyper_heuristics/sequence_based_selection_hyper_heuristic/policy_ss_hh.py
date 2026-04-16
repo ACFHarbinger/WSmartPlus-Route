@@ -11,13 +11,13 @@ import numpy as np
 
 from logic.src.configs.policies.ss_hh import SSHHConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from .params import SSHHParams
 from .solver import SSHHSolver
 
 
-@PolicyRegistry.register("ss_hh")
+@RouteConstructorRegistry.register("ss_hh")
 class SSHHPolicy(BaseRoutingPolicy):
     """
     SS-HH policy class.

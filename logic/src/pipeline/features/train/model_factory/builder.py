@@ -30,9 +30,9 @@ from logic.src.models.policies import (
     VectorizedHGS,
     VectorizedHGSALNS,
 )
+from logic.src.models.policies.selection.factory import create_selector_from_config
 from logic.src.pipeline.features.base import deep_sanitize, remap_legacy_keys
 from logic.src.pipeline.rl import REINFORCE, MetaRLModule
-from logic.src.policies.helpers.mandatory import create_selector_from_config
 from logic.src.tracking.logging.pylogger import get_pylogger
 
 try:
@@ -43,7 +43,7 @@ except ImportError:
 from .registry import _ALGO_REGISTRY
 
 if TYPE_CHECKING:
-    from logic.src.models.policies.autoregressive import AutoregressivePolicy
+    from logic.src.models.common.autoregressive.policy import AutoregressivePolicy
 
 logger = get_pylogger(__name__)
 

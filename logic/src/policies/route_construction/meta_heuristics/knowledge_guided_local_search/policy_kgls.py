@@ -10,13 +10,13 @@ import numpy as np
 
 from logic.src.configs.policies import KGLSConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from .kgls import KGLSSolver
 from .params import KGLSParams
 
 
-@PolicyRegistry.register("kgls")
+@RouteConstructorRegistry.register("kgls")
 class KGLSPolicy(BaseRoutingPolicy):
     """
     KGLS policy class.

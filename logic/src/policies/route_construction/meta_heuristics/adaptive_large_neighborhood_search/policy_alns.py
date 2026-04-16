@@ -10,12 +10,12 @@ import numpy as np
 
 from logic.src.configs.policies import ALNSConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from .dispatcher import run_alns
 
 
-@PolicyRegistry.register("alns")
+@RouteConstructorRegistry.register("alns")
 class ALNSPolicy(BaseRoutingPolicy):
     """
     ALNS policy class.

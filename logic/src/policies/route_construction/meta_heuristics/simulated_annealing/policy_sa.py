@@ -9,13 +9,13 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from .params import SAParams
 from .solver import SASolver
 
 
-@PolicyRegistry.register("sa")
+@RouteConstructorRegistry.register("sa")
 class SAPolicy(BaseRoutingPolicy):
     """
     Simulated Annealing (SA) policy adapter.

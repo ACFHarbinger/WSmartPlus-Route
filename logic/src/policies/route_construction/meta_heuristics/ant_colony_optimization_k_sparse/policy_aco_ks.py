@@ -10,13 +10,13 @@ import numpy as np
 
 from logic.src.configs.policies import KSparseACOConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from .params import KSACOParams
 from .solver import KSparseACOSolver
 
 
-@PolicyRegistry.register("aco_ks")
+@RouteConstructorRegistry.register("aco_ks")
 class ACOPolicy(BaseRoutingPolicy):
     """
     K-Sparse Ant Colony Optimization policy class.

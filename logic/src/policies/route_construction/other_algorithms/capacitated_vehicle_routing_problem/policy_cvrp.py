@@ -11,13 +11,13 @@ import numpy as np
 
 from logic.src.configs.policies import CVRPConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from .cvrp import find_routes, find_routes_ortools
 from .params import CVRPParams
 
 
-@PolicyRegistry.register("cvrp")
+@RouteConstructorRegistry.register("cvrp")
 class CVRPPolicy(BaseRoutingPolicy):
     """
     Capacitated Vehicle Routing Policy (CVRP).

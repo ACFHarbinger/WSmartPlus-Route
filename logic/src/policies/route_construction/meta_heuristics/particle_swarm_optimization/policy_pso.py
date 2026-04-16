@@ -10,13 +10,13 @@ import numpy as np
 
 from logic.src.configs.policies.pso import PSOConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from .params import PSOParams
 from .solver import PSOSolver
 
 
-@PolicyRegistry.register("pso")
+@RouteConstructorRegistry.register("pso")
 class PSOPolicyAdapter(BaseRoutingPolicy):
     """
     Policy adapter for Particle Swarm Optimization with velocity momentum.

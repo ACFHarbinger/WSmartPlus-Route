@@ -12,14 +12,14 @@ import numpy as np
 
 from logic.src.configs.policies import BCConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 from logic.src.policies.helpers.branching_solvers.vrpp_model import VRPPModel
 
 from .bc import BranchAndCutSolver
 from .params import BCParams
 
 
-@PolicyRegistry.register("bc")
+@RouteConstructorRegistry.register("bc")
 class BranchAndCutPolicy(BaseRoutingPolicy):
     """
     Adapter for the Branch-and-Cut routing solver.

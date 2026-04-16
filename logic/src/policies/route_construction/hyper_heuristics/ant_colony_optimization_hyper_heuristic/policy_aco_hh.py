@@ -11,7 +11,7 @@ import numpy as np
 
 from logic.src.configs.policies import HyperHeuristicACOConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 from logic.src.policies.helpers.operators.heuristics.greedy_initialization import build_greedy_routes
 from logic.src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco import (
     HyperHeuristicACO,
@@ -24,7 +24,7 @@ from logic.src.policies.route_construction.hyper_heuristics.ant_colony_optimizat
 )
 
 
-@PolicyRegistry.register("aco_hh")
+@RouteConstructorRegistry.register("aco_hh")
 class HyperACOPolicy(BaseRoutingPolicy):
     """
     Hyper-Heuristic ACO policy class.

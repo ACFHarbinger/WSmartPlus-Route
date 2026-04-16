@@ -2,21 +2,21 @@ from typing import Any, Dict, List, Tuple
 
 import numpy as np
 
-from logic.src.configs.policies.helpers import (
+from logic.src.configs.policies.other import (
     BanditConfig,
     FeatureExtractorConfig,
     RewardShapingConfig,
     RLConfig,
     TDLearningConfig,
 )
-from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
+from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
 from ..reinforcement_learning_adaptive_large_neighborhood_search.params import RLALNSParams
 from ..reinforcement_learning_adaptive_large_neighborhood_search.solver import RLALNSSolver
 
 
-@PolicyRegistry.register("rl_alns")
+@RouteConstructorRegistry.register("rl_alns")
 class RLALNSPolicy(BaseRoutingPolicy):
     """
     Adapter for the RL-ALNS solver.

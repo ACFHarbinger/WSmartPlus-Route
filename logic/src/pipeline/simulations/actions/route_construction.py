@@ -10,8 +10,7 @@ import numpy as np
 import torch
 from omegaconf import DictConfig, OmegaConf
 
-from logic.src.policies import PolicyFactory
-from logic.src.policies.base import PolicyRegistry
+from logic.src.policies.route_construction.base import RouteConstructorFactory, RouteConstructorRegistry
 
 from .base import SimulationAction, _flatten_config
 
@@ -24,7 +23,7 @@ class RouteConstructionAction(SimulationAction):
     def execute(self, context: Dict[str, Any]) -> None:
         """Execute the selected routing policy."""
         # Ensure all adapters are imported so the registry is fully populated
-        PolicyFactory.ensure_registered()
+        RouteConstructorFactory.ensure_registered()
 
         # 1. GET FULL POLICY NAME (for identification)
         full_policy = str(context.get("full_policy") or "")
@@ -62,7 +61,7 @@ class RouteConstructionAction(SimulationAction):
 
         # Fallback: identify solver from keys in raw config matching registry
         if not solver_key:
-            registered = set(PolicyRegistry.list_policies())
+            registered = set(RouteConstructorRegistry.list_route_constructors())
             for key in registered:
                 if key in raw_cfg:
                     solver_key = key
@@ -73,7 +72,7 @@ class RouteConstructionAction(SimulationAction):
             solver_key = full_policy
 
         # Resolve compound names (e.g. 'lookahead_lahc_custom_emp' -> 'lahc')
-        registered = set(PolicyRegistry.list_policies())
+        registered = set(RouteConstructorRegistry.list_route_constructors())
         if solver_key and solver_key not in registered:
             lower = str(solver_key).lower()
             # Try to extract a registered engine from the compound name
@@ -97,7 +96,7 @@ class RouteConstructionAction(SimulationAction):
             return
 
         try:
-            adapter = PolicyFactory.get_adapter(solver_key, config=raw_cfg)
+            adapter = RouteConstructorFactory.get_adapter(solver_key, config=raw_cfg)
 
             start_time = time.process_time()
             tour, cost, extra_output = adapter.execute(**context)
