@@ -16,8 +16,9 @@ from .genius import policy_genius as policy_genius
 from .guided_local_search import policy_gls as policy_gls
 from .harmony_search import policy_hs as policy_hs
 from .hybrid_genetic_search import policy_hgs as policy_hgs
-from .hybrid_genetic_search_adaptive_large_neighborhood_search import policy_hgs_alns as policy_hgs_alns
-from .hybrid_genetic_search_ruin_and_recreate import policy_hgs_rr as policy_hgs_rr
+from .hybrid_genetic_search_with_adaptive_diversity_control import policy_hgs_adc as policy_hgs_adc
+from .hybrid_genetic_search_with_adaptive_large_neighborhood_search import policy_hgs_alns as policy_hgs_alns
+from .hybrid_genetic_search_with_ruin_and_recreate import policy_hgs_rr as policy_hgs_rr
 from .hybrid_memetic_search import policy_hms as policy_hms
 from .hybrid_volleyball_premier_league import policy_hvpl as policy_hvpl
 from .iterated_local_search import policy_ils as policy_ils
@@ -60,6 +61,7 @@ __all__ = [
     "policy_hgs",
     "policy_hgs_alns",
     "policy_hgs_rr",
+    "policy_hgs_adc",
     "policy_hms",
     "policy_hvpl",
     "policy_ils",
