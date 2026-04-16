@@ -8,7 +8,7 @@ for specialized sub-widgets and data managers.
 
 import os
 import webbrowser
-from typing import Optional
+from typing import Any, Dict, List, Optional, Set, Union
 
 import folium
 import logic.src.constants as udef
@@ -39,7 +39,12 @@ class SimulationResultsWindow(QWidget):
 
     start_chart_processing = Signal(str)
 
-    def __init__(self, policy_names, log_path=None, dataset_path=None):
+    def __init__(
+        self,
+        policy_names: List[str],
+        log_path: Optional[str] = None,
+        dataset_path: Optional[str] = None,
+    ) -> None:
         """
         Initialize the simulation results orchestration window.
 
@@ -59,7 +64,7 @@ class SimulationResultsWindow(QWidget):
 
         # Data Management
         self.data_manager = SimulationDataManager(policy_names)
-        self.historical_routes = {}  # key -> day -> routes
+        self.historical_routes: Dict[str, Dict[int, Dict[str, Any]]] = {}  # key -> day -> routes
 
         # Load simulation dataset for bin coordinates
         self.dataset: Optional[SimulationDataset] = self._load_dataset(dataset_path)
@@ -68,6 +73,7 @@ class SimulationResultsWindow(QWidget):
         self.setup_ui()
 
         # Worker Threads
+        self.file_tailer: Optional[FileTailerWorker] = None
         self.setup_workers(log_path)
 
     @staticmethod
@@ -86,7 +92,7 @@ class SimulationResultsWindow(QWidget):
             return PandasExcelDataset.load(dataset_path)
         return NumpyDictDataset.load(dataset_path)
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         """Build the main window layout."""
         layout = QVBoxLayout(self)
 
@@ -114,15 +120,19 @@ class SimulationResultsWindow(QWidget):
         self.raw_log_area.setReadOnly(True)
         self.tabs.addTab(self.raw_log_area, "Raw Output")
 
-    def setup_workers(self, log_path):
+    def setup_workers(self, log_path: Optional[str]) -> None:
         """Initialize and start background workers."""
         # File Tailer
-        self.file_thread = QThread()
-        self.file_tailer = FileTailerWorker(data_mutex=self.data_mutex, log_path=log_path)
-        self.file_tailer.moveToThread(self.file_thread)
-        self.file_thread.started.connect(self.file_tailer.tail_file)
-        self.file_tailer.log_line_ready.connect(self._handle_new_log_line)
-        self.file_thread.start()
+        if log_path:
+            self.file_thread = QThread()
+            self.file_tailer = FileTailerWorker(data_mutex=self.data_mutex, log_path=log_path)
+            self.file_tailer.moveToThread(self.file_thread)
+            self.file_thread.started.connect(self.file_tailer.tail_file)
+            self.file_tailer.log_line_ready.connect(self._handle_new_log_line)
+            self.file_thread.start()
+        else:
+            self.file_thread = None  # type: ignore[assignment]
+            self.file_tailer = None
 
         # Chart Processor (Legacy support for ChartWorker)
         self.chart_thread = QThread()
@@ -141,7 +151,7 @@ class SimulationResultsWindow(QWidget):
         self.chart_worker.data_ready.connect(self._update_ui_on_data_ready)
 
     @Slot(str)
-    def _handle_new_log_line(self, line):
+    def _handle_new_log_line(self, line: str) -> None:
         """Process incoming log lines and update components."""
         self.raw_log_area.append(line.strip())
 
@@ -160,7 +170,7 @@ class SimulationResultsWindow(QWidget):
             self.status_label.setText("Simulation Complete.")
             self.redraw_summary_chart()
 
-    def _update_route_cache(self, key, record):
+    def _update_route_cache(self, key: str, record: Dict[str, Any]) -> None:
         """
         Update the internal cache of routes for map visualization.
 
@@ -180,7 +190,7 @@ class SimulationResultsWindow(QWidget):
             }
 
     @Slot(str, dict)
-    def _update_ui_on_data_ready(self, target_key, processed_data):
+    def _update_ui_on_data_ready(self, target_key: str, processed_data: Dict[str, Any]) -> None:
         """
         Update the UI components when new processed simulation data is available.
 
@@ -195,22 +205,22 @@ class SimulationResultsWindow(QWidget):
         self.dashboard_tab.day_combo.addItems([str(d) for d in days])
         self.dashboard_tab.view_route_btn.setEnabled(len(days) > 0)
 
-    def _on_dashboard_selection_changed(self):
+    def _on_dashboard_selection_changed(self) -> None:
         """Handle control changes in the dashboard."""
         policy = self.dashboard_tab.policy_combo.currentText()
         sample = self.dashboard_tab.sample_combo.currentText()
         if policy and sample:
             self.start_chart_processing.emit(f"{policy}_{sample}")
 
-    def _on_summary_selection_changed(self):
+    def _on_summary_selection_changed(self) -> None:
         """Handle control changes in the summary tab."""
         pass
 
-    def redraw_summary_chart(self):
+    def redraw_summary_chart(self) -> None:
         """Update summary visualization."""
         pass
 
-    def _view_route_on_map(self):
+    def _view_route_on_map(self) -> None:
         """
         Generate a Folium-based HTML map for the selected route and open it in the web browser.
 
@@ -278,7 +288,10 @@ class SimulationResultsWindow(QWidget):
         webbrowser.open(f"file://{os.path.abspath(temp_path)}")
 
     @staticmethod
-    def _normalize_mandatory_nodes(mandatory_nodes_raw, routes):
+    def _normalize_mandatory_nodes(
+        mandatory_nodes_raw: List[Union[int, str]],
+        routes: List[Dict[str, Any]],
+    ) -> Set[int]:
         """Normalize mandatory node IDs to positional indices using the route coord mapping.
 
         Logs may contain either positional indices or dataset IDs depending on when
@@ -302,8 +315,14 @@ class SimulationResultsWindow(QWidget):
 
     @staticmethod
     def _add_bin_markers_to_map(
-        m, sample_data, routes, tour_indices_set, collected_set, mandatory_nodes_set, bin_states
-    ):
+        m: folium.Map,
+        sample_data: Any,
+        routes: List[Dict[str, Any]],
+        tour_indices_set: Set[int],
+        collected_set: Set[int],
+        mandatory_nodes_set: Set[int],
+        bin_states: List[float],
+    ) -> None:
         """Add bin CircleMarkers to the Folium map with appropriate styling."""
         locs = sample_data["locs"]
         depot = sample_data["depot"]
@@ -348,11 +367,13 @@ class SimulationResultsWindow(QWidget):
                 weight=weight,
             ).add_to(m)
 
-    def closeEvent(self, event):
+    def closeEvent(self, event: Any) -> None:
         """Cleanup threads on close."""
-        self.file_tailer.stop()
-        self.file_thread.quit()
-        self.file_thread.wait()
+        if self.file_tailer:
+            self.file_tailer.stop()
+        if hasattr(self, "file_thread") and self.file_thread:
+            self.file_thread.quit()
+            self.file_thread.wait()
         self.chart_thread.quit()
         self.chart_thread.wait()
         event.accept()

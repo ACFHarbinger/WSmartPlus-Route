@@ -4,12 +4,15 @@ Repository Pattern for Simulation data access.
 
 import contextlib
 import os
-from typing import Optional, Union
+from typing import TYPE_CHECKING, Optional, Union
 
 import torch
 
 from logic.src.constants import DATASET_EXTENSIONS, ROOT_DIR
-from logic.src.data.datasets import NumpyDictDataset, PandasCsvDataset, PandasExcelDataset
+
+if TYPE_CHECKING:
+    from logic.src.data.datasets import NumpyDictDataset, PandasCsvDataset, PandasExcelDataset
+
 
 from .base import SimulationRepository
 from .dataset import DatasetRepository
@@ -82,6 +85,8 @@ def set_repository_from_path(
     ext = os.path.splitext(abs_path)[1].lower()
     if ext not in DATASET_EXTENSIONS:
         return False
+
+    from logic.src.data.datasets import NumpyDictDataset, PandasCsvDataset, PandasExcelDataset
 
     loader_map = {
         ".npz": NumpyDictDataset,

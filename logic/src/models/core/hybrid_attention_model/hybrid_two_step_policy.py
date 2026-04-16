@@ -7,7 +7,7 @@ import torch
 from tensordict import TensorDict
 from torch import nn
 
-from logic.src.envs.base import RL4COEnvBase
+from logic.src.envs.base.base import RL4COEnvBase
 from logic.src.models.common.autoregressive.policy import AutoregressivePolicy
 from logic.src.models.policies.adaptive_large_neighborhood_search import VectorizedALNS
 from logic.src.models.policies.ant_colony_system import VectorizedACOPolicy

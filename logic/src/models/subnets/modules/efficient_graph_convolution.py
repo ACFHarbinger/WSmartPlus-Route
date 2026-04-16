@@ -3,14 +3,32 @@
 from typing import Any, Iterable, Optional, Tuple, cast
 
 import torch
-import torch_sparse
 from torch import Tensor
 from torch.nn import Linear, Parameter
-from torch_geometric.nn import MessagePassing
-from torch_geometric.nn.conv.gcn_conv import gcn_norm
-from torch_geometric.nn.inits import glorot, zeros
-from torch_geometric.typing import Adj, OptTensor, SparseTensor
-from torch_geometric.utils import add_remaining_self_loops, scatter
+
+try:
+    import torch_sparse
+    from torch_geometric.nn import MessagePassing
+    from torch_geometric.nn.conv.gcn_conv import gcn_norm
+    from torch_geometric.nn.inits import glorot, zeros
+    from torch_geometric.typing import Adj, OptTensor, SparseTensor
+    from torch_geometric.utils import add_remaining_self_loops, scatter
+
+    PYG_AVAILABLE = True
+except (ImportError, OSError):
+    # Handle both missing package and DLL load failures (common with CUDA mismatches)
+    PYG_AVAILABLE = False
+    MessagePassing = object  # type: ignore[assignment, misc]
+    gcn_norm = None
+    glorot = None
+    zeros = None
+    add_remaining_self_loops = None
+    scatter = None
+
+    # Define minimal types for structural compatibility
+    Adj = Any
+    OptTensor = Optional[Tensor]
+    SparseTensor = Any
 
 
 # Adapted from https://github.com/shyam196/egc
@@ -40,20 +58,14 @@ class EfficientGraphConvolution(MessagePassing):
         **kwargs,
     ):
         """
-        Args:
-            in_channels: Dimension of input features.
-            out_channels: Dimension of output features.
-            aggrs: Iterable of aggregator names to use (e.g., "sum", "mean", "symnorm").
-            n_heads: Number of attention heads.
-            num_bases: Number of basis functions for the weight matrix.
-            cached: If set to `True`, the layer will cache the computation of
-                :obj:`edge_index` and :obj:`symnorm_weight` on first execution,
-                and will use the cached values for further executions.
-            add_self_loops: If set to `False`, will not add self-loops to the
-                input graph.
-            bias: Whether to use a bias term.
-            sigmoid: If set to `True`, applies a sigmoid activation to the weighting coefficients.
+        Initialize the EGC layer.
         """
+        if not PYG_AVAILABLE:
+            raise ImportError(
+                "torch_geometric and torch_sparse are required for EfficientGraphConvolution. "
+                "The libraries could not be loaded, possibly due to a CUDA/PyTorch version mismatch."
+            )
+
         super(EfficientGraphConvolution, self).__init__(node_dim=1, **kwargs)
         if out_channels % n_heads != 0:
             raise ValueError("out_channels must be divisible by the number of heads")

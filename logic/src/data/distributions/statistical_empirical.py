@@ -12,8 +12,6 @@ import numpy as np
 import pandas
 import torch
 
-from logic.src.utils.data.loader import load_grid_base
-
 if TYPE_CHECKING:
     from logic.src.pipeline.simulations.wsmart_bin_analysis import GridBase
 
@@ -42,6 +40,8 @@ class Empirical(BaseDistribution):
         self.dataset = dataset
         self.data_path = data_path
         if grid is None and data_path is not None and indices is not None and os.path.isdir(data_path):
+            from logic.src.utils.data.loader import load_grid_base
+
             self.grid = load_grid_base(indices, area, data_path)
         if data_path is not None and os.path.isfile(data_path):
             if data_path.endswith(".pkl"):

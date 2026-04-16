@@ -10,7 +10,7 @@ from typing import Any, Dict, Optional
 
 from tensordict import TensorDict
 
-from logic.src.envs.base import RL4COEnvBase
+from logic.src.envs.base.base import RL4COEnvBase
 from logic.src.models.common.autoregressive.policy import AutoregressivePolicy
 from logic.src.models.subnets.decoders.mdam import MDAMDecoder
 from logic.src.models.subnets.embeddings import get_init_embedding

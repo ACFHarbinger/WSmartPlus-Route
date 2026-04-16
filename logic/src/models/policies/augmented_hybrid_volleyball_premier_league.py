@@ -11,7 +11,7 @@ from typing import Any, Dict, Optional
 import torch
 from tensordict import TensorDict
 
-from logic.src.envs.base import RL4COEnvBase
+from logic.src.envs.base.base import RL4COEnvBase
 from logic.src.models.policies.hgs_core.crossover import vectorized_ordered_crossover
 from logic.src.models.policies.hgs_core.population import VectorizedPopulation
 from logic.src.models.policies.hybrid_volleyball_premier_league import VectorizedHVPL

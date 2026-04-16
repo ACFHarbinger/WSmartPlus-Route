@@ -16,7 +16,7 @@ else:
     # This block is executed at runtime
     try:
         from torch_geometric.nn import MessagePassing
-    except ImportError:
+    except (ImportError, OSError):
         MessagePassing = object
 
 

@@ -16,7 +16,7 @@ import torch
 from tensordict import TensorDict
 from torch import nn
 
-from logic.src.envs.base import RL4COEnvBase
+from logic.src.envs.base.base import RL4COEnvBase
 from logic.src.utils.decoding import batchify, get_decoding_strategy
 
 from .decoder import NonAutoregressiveDecoder
