@@ -13,7 +13,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
 
-from logic.src.interfaces.adapter import IPolicyAdapter
+from logic.src.interfaces.route_constructor import IRouteConstructor
 from logic.src.pipeline.simulations.repository import load_area_and_waste_type_params
 from logic.src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp import get_route_cost
 from logic.src.tracking.core.run import get_active_run
@@ -40,7 +40,7 @@ def _flatten_raw_config(source: Any) -> Dict[str, Any]:
     return result
 
 
-class BaseRoutingPolicy(PolicyVizMixin, IPolicyAdapter):
+class BaseRoutingPolicy(PolicyVizMixin, IRouteConstructor):
     """
     Base class for routing policies with common utilities.
 

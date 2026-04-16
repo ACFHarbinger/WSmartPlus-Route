@@ -8,13 +8,13 @@ import numpy as np
 
 from logic.src.configs.policies.ma_dp import MemeticAlgorithmDualPopulationConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from .params import MemeticAlgorithmDualPopulationParams
 from .solver import MemeticAlgorithmDualPopulationSolver
 
 
-@PolicyRegistry.register("ma_dp")
+@RouteConstructorRegistry.register("ma_dp")
 class MemeticAlgorithmDualPopulationPolicy(BaseRoutingPolicy):
     """
     Memetic Algorithm Dual Population policy class.

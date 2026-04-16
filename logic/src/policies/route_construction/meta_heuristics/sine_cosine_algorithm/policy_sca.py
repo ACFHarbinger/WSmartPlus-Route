@@ -11,12 +11,12 @@ import numpy as np
 
 from logic.src.configs.policies.sca import SCAConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.meta_heuristics.sine_cosine_algorithm.params import SCAParams
 from logic.src.policies.route_construction.meta_heuristics.sine_cosine_algorithm.solver import SCASolver
 
 
-@PolicyRegistry.register("sca")
+@RouteConstructorRegistry.register("sca")
 class SCAPolicy(BaseRoutingPolicy):
     """
     SCA policy class.

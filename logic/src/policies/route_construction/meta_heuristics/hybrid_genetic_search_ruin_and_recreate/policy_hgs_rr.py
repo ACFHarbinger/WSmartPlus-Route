@@ -11,13 +11,13 @@ import numpy as np
 
 from logic.src.configs.policies import HGSRRConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from .hgs_rr import HGSRRSolver
 from .params import HGSRRParams
 
 
-@PolicyRegistry.register("hgs_rr")
+@RouteConstructorRegistry.register("hgs_rr")
 class HGSRRPolicy(BaseRoutingPolicy):
     """
     Hybrid Genetic Search with Ruin-and-Recreate policy class.

@@ -2,10 +2,10 @@
 Neural Policy Adapter Implementation.
 
 This module provides the NeuralPolicy class, which adapts deep reinforcement
-learning models to the common IPolicy interface used by the optimization engine.
+learning models to the common IRouteConstructor interface used by the optimization engine.
 
 Attributes:
-    PolicyRegistry: Registry where this policy is automatically registered with key "neural".
+    RouteConstructorRegistry: Registry where this policy is automatically registered with key "neural".
 
 Example:
     >>> from logic.src.policies.neural_agent.policy_neural import NeuralPolicy
@@ -18,8 +18,8 @@ from typing import Any, Dict, List, Optional, Tuple
 import torch
 
 from logic.src.models.policies.selection import get_vectorized_selector
-from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
+from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 from logic.src.tracking.core.run import get_active_run
 from logic.src.utils.functions import move_to
 
@@ -27,7 +27,7 @@ from .agent import NeuralAgent
 from .params import NeuralParams
 
 
-@PolicyRegistry.register("neural")
+@RouteConstructorRegistry.register("neural")
 class NeuralPolicy(BaseRoutingPolicy):
     """
     Neural Policy wrapper that executes deep reinforcement learning models.

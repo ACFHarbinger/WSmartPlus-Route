@@ -16,13 +16,13 @@ import numpy as np
 
 from logic.src.configs.policies.ma import MAConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from .params import MAParams
 from .solver import MASolver
 
 
-@PolicyRegistry.register("ma")
+@RouteConstructorRegistry.register("ma")
 class MAPolicy(BaseRoutingPolicy):
     """
     Adapter for the Memetic Algorithm (MA) solver.

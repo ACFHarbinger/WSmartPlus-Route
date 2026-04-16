@@ -6,13 +6,13 @@ from typing import Any, Dict, List, Optional, Tuple, Type
 
 from logic.src.configs.policies.aks import AdaptiveKernelSearchConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from .aks import run_adaptive_kernel_search_gurobi
 from .params import AKSParams
 
 
-@PolicyRegistry.register("aks")
+@RouteConstructorRegistry.register("aks")
 class AdaptiveKernelSearchPolicy(BaseRoutingPolicy):
     """
     Simulator adapter for the Adaptive Kernel Search (AKS) matheuristic.

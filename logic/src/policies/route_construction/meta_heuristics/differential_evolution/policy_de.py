@@ -10,13 +10,13 @@ import numpy as np
 
 from logic.src.configs.policies.de import DEConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from .params import DEParams
 from .solver import DESolver
 
 
-@PolicyRegistry.register("de")
+@RouteConstructorRegistry.register("de")
 class DEPolicyAdapter(BaseRoutingPolicy):
     """
     Policy adapter for Memetic Differential Evolution (MDE).

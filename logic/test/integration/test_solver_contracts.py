@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 from logic.src.policies.base import PolicyFactory
-from logic.src.policies.base import PolicyRegistry
+from logic.src.policies.base import RouteConstructorRegistry
 from logic.src.policies import run_hgs
 from logic.src.policies.capacitated_vehicle_routing_problem.cvrp import find_routes, find_routes_ortools
 from logic.src.policies.smart_waste_collection_two_commodity_flow.policy_swc_tcf import run_swc_tcf_optimizer

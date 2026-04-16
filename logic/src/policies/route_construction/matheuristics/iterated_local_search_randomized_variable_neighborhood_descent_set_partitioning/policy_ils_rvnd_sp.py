@@ -10,7 +10,7 @@ import numpy as np
 
 from logic.src.configs.policies import ILSRVNDSPConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp import (
     ILSRVNDSPSolver,
 )
@@ -19,7 +19,7 @@ from logic.src.policies.route_construction.matheuristics.iterated_local_search_r
 )
 
 
-@PolicyRegistry.register("ils_rvnd_sp")
+@RouteConstructorRegistry.register("ils_rvnd_sp")
 class ILSRVNDSPPolicy(BaseRoutingPolicy):
     """
     ILS-RVND-SP policy class.

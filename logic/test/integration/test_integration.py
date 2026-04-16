@@ -71,9 +71,9 @@ class TestIntegrationSimulation:
         """Test basic sequential simulation run."""
         # Ensure we have some policies to test
         sim_opts["policies"] = ["policy_regular_emp"]
-        from logic.src.policies.base.registry import PolicyRegistry
+        from logic.src.policies.base.registry import RouteConstructorRegistry
         MockPolicy = MagicMock()
-        PolicyRegistry.register("policy_regular_emp")(MockPolicy)
+        RouteConstructorRegistry.register("policy_regular_emp")(MockPolicy)
         instance = MockPolicy.return_value
         instance.execute.return_value = ([0, 1, 2, 0], 10.0, None)
         try:
@@ -81,18 +81,18 @@ class TestIntegrationSimulation:
             assert not failed
             assert any("regular_emp" in k for k in log.keys())
         finally:
-            if "policy_regular_emp" in PolicyRegistry._registry:
-                del PolicyRegistry._registry["policy_regular_emp"]
+            if "policy_regular_emp" in RouteConstructorRegistry._registry:
+                del RouteConstructorRegistry._registry["policy_regular_emp"]
 
     @pytest.mark.unit
     @patch("logic.src.pipeline.simulations.states.initializing.setup_model")
     def test_sim_policy_neural_mock(self, mock_setup, sim_opts):
         """Test Neural policy integration in simulation."""
-        from logic.src.policies.base.registry import PolicyRegistry
+        from logic.src.policies.base.registry import RouteConstructorRegistry
 
         # Register a Mock class that accepts any arguments (like config)
         MockPolicy = MagicMock()
-        PolicyRegistry.register("meanstd0.84_am_emp")(MockPolicy)
+        RouteConstructorRegistry.register("meanstd0.84_am_emp")(MockPolicy)
 
         instance = MockPolicy.return_value
         instance.execute.return_value = ([0, 1, 2, 0], 10.0, None)
@@ -106,8 +106,8 @@ class TestIntegrationSimulation:
             assert not failed
             assert any("am_emp" in k for k in log.keys())
         finally:
-            if "meanstd0.84_am_emp" in PolicyRegistry._registry:
-                del PolicyRegistry._registry["meanstd0.84_am_emp"]
+            if "meanstd0.84_am_emp" in RouteConstructorRegistry._registry:
+                del RouteConstructorRegistry._registry["meanstd0.84_am_emp"]
 
 
 class TestIntegrationProblems:

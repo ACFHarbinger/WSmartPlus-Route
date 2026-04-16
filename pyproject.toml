@@ -56,6 +56,8 @@ dev = [
     "types-pyyaml>=6.0.12.20250915",
     "mutmut>=2.5.0",
     "rich>=14.1.0",
+    "pip>=26.0.1",
+    "pyright>=1.1.408",
 ]
 
 [project.optional-dependencies]

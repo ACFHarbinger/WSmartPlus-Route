@@ -1,9 +1,9 @@
 """
-Policy Adapters Package.
+Route Constructor Base Package.
 
 This package provides adapter implementations for various routing
 optimization policies (HGS, ALNS, VRPP, etc.) and a factory pattern
-for dynamic policy instantiation.
+for dynamic route constructor instantiation.
 """
 
-from .factory import IPolicy, PolicyFactory, PolicyRegistry
+from .factory import IRouteConstructor, RouteConstructorFactory, RouteConstructorRegistry

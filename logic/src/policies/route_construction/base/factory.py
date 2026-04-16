@@ -4,30 +4,27 @@ Policy Adapter module - Unified interface for all routing policies.
 This module implements the Adapter design pattern to provide a consistent
 interface for executing diverse routing policies within the simulator.
 
-Now also includes the IPolicy interface and PolicyRegistry.
+Now also includes the IRouteConstructor interface and RouteConstructorRegistry.
 """
 
 from typing import Any, Optional
 
-# --- IPolicy Interface ---
-from logic.src.interfaces.adapter import IPolicyAdapter
+# --- IRouteConstructor Interface ---
+from logic.src.interfaces.route_constructor import IRouteConstructor
 
-from .registry import PolicyRegistry
-
-# Alias for backward compatibility
-IPolicy = IPolicyAdapter
+from .registry import RouteConstructorRegistry
 
 
-class PolicyFactory:
+class RouteConstructorFactory:
     """
-    Factory for creating policy adapters.
+    Factory for creating route constructors.
     """
 
     _registered = False
 
     @classmethod
     def ensure_registered(cls) -> None:
-        """Import all adapter modules to trigger @PolicyRegistry.register() decorators."""
+        """Import all adapter modules to trigger @RouteConstructorRegistry.register() decorators."""
         if cls._registered:
             return
 
@@ -64,7 +61,7 @@ class PolicyFactory:
         engine: Optional[str] = None,
         threshold: Optional[float] = None,
         **kwargs: Any,
-    ) -> IPolicy:
+    ) -> IRouteConstructor:
         """
         Create and return the appropriate PolicyAdapter for the given parameters.
 
@@ -79,7 +76,7 @@ class PolicyFactory:
         Returns:
             Instantiated policy adapter with typed config.
         """
-        PolicyFactory.ensure_registered()
+        RouteConstructorFactory.ensure_registered()
 
         # Normalize name
         if not isinstance(name, str):
@@ -87,11 +84,11 @@ class PolicyFactory:
         name = name.lower()
 
         # Try Registry first
-        cls = PolicyRegistry.get(name) or PolicyRegistry.get(f"policy_{name}")
+        cls = RouteConstructorRegistry.get(name) or RouteConstructorRegistry.get(f"policy_{name}")
 
         if cls:
             if config is not None:
                 return cls(config=config)  # type: ignore[return-value,call-arg]
             return cls()  # type: ignore[return-value]
 
-        raise ValueError(f"Unknown policy: {name}. Ensure it is registered in PolicyRegistry.")
+        raise ValueError(f"Unknown policy: {name}. Ensure it is registered in RouteConstructorRegistry.")

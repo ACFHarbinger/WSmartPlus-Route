@@ -22,8 +22,8 @@ from typing import List
 import numpy as np
 
 from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
-from logic.src.policies.helpers.mandatory.base.selection_context import SelectionContext
-from logic.src.policies.helpers.mandatory.base.selection_registry import MandatorySelectionRegistry
+from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
+from logic.src.policies.mandatory_selection.base.selection_registry import MandatorySelectionRegistry
 
 
 @MandatorySelectionRegistry.register("rollout")
@@ -43,7 +43,7 @@ class RolloutSelection(IMandatorySelectionStrategy):
             List[int]: List of bin IDs (1-based index).
         """
         # Lazy import to avoid circular dependencies
-        from logic.src.policies.helpers.mandatory.base.selection_factory import MandatorySelectionFactory
+        from logic.src.policies.mandatory_selection.base.selection_factory import MandatorySelectionFactory
 
         # TODO: Implement full-system rollout that simulates the entire state
         # (all bins) and uses the base policy on the full context to capture
@@ -66,7 +66,7 @@ class RolloutSelection(IMandatorySelectionStrategy):
             base_policy = MandatorySelectionFactory.create_strategy(base_policy_name)
         except Exception:
             # Fallback if policy creation fails
-            from logic.src.policies.helpers.mandatory.selection_last_minute import LastMinuteSelection
+            from logic.src.policies.mandatory_selection.selection_last_minute import LastMinuteSelection
 
             base_policy = LastMinuteSelection()
 

@@ -11,13 +11,13 @@ from typing import Any, Dict, List, Optional, Tuple, Type
 
 from logic.src.configs.policies.cf_rs import CFRSConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from .params import CFRSParams
 from .solver import run_cf_rs
 
 
-@PolicyRegistry.register("cf_rs")
+@RouteConstructorRegistry.register("cf_rs")
 class ClusterFirstRouteSecondPolicy(BaseRoutingPolicy):
     """
     Simulator adapter for the Cluster-First Route-Second (CFRS) policy.

@@ -10,13 +10,13 @@ import numpy as np
 
 from logic.src.configs.policies.hulk import HULKConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from .hulk import HULKSolver
 from .params import HULKParams
 
 
-@PolicyRegistry.register("hulk")
+@RouteConstructorRegistry.register("hulk")
 class HULKPolicy(BaseRoutingPolicy):
     """HULK hyper-heuristic policy class."""
 

@@ -12,14 +12,14 @@ import numpy as np
 
 from logic.src.configs.policies import IntegerLShapedBendersConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 from logic.src.policies.helpers.branching_solvers.vrpp_model import VRPPModel
 
 from .ils_bd_engine import IntegerLShapedEngine
 from .params import ILSBDParams
 
 
-@PolicyRegistry.register("ils_bd")
+@RouteConstructorRegistry.register("ils_bd")
 class IntegerLShapedPolicy(BaseRoutingPolicy):
     r"""Integer L-Shaped (Benders Decomposition) policy for stochastic VRPP / SCWCVRP.
 

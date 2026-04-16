@@ -6,12 +6,12 @@ from typing import Any, Dict, List, Optional, Tuple, Type
 
 from logic.src.configs.policies.lb import LocalBranchingConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.matheuristics.local_branching.lb import run_local_branching_gurobi
 from logic.src.policies.route_construction.matheuristics.local_branching.params import LBParams
 
 
-@PolicyRegistry.register("lb")
+@RouteConstructorRegistry.register("lb")
 class LocalBranchingPolicy(BaseRoutingPolicy):
     """
     Simulator adapter for the Local Branching (LB) matheuristic.

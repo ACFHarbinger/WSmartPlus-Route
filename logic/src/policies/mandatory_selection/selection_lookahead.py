@@ -20,8 +20,8 @@ import numpy as np
 
 from logic.src.constants import MAX_CAPACITY_PERCENT
 from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
-from logic.src.policies.helpers.mandatory.base.selection_context import SelectionContext
-from logic.src.policies.helpers.mandatory.base.selection_registry import MandatorySelectionRegistry
+from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
+from logic.src.policies.mandatory_selection.base.selection_registry import MandatorySelectionRegistry
 
 
 @MandatorySelectionRegistry.register("lookahead")

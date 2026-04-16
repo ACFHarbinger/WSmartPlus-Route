@@ -7,12 +7,12 @@ from typing import Any, Dict, List, Tuple
 import numpy as np
 from logic.src.configs.policies.lbbd import LBBDConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from .lbbd_engine import LBBDEngine
 
 
-@PolicyRegistry.register("lbbd")
+@RouteConstructorRegistry.register("lbbd")
 class LBBDPolicy(BaseRoutingPolicy):
     """
     Adapter for the Logic-Based Benders Decomposition (LBBD) policy.

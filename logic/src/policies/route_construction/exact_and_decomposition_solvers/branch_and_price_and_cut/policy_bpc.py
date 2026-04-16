@@ -10,7 +10,7 @@ import numpy as np
 
 from logic.src.configs.policies import BPCConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine import (
     run_bpc,
 )
@@ -18,7 +18,7 @@ from logic.src.policies.route_construction.exact_and_decomposition_solvers.branc
 from .params import BPCParams
 
 
-@PolicyRegistry.register("bpc")
+@RouteConstructorRegistry.register("bpc")
 class BPCPolicy(BaseRoutingPolicy):
     """
     Branch-and-Price-and-Cut policy class.

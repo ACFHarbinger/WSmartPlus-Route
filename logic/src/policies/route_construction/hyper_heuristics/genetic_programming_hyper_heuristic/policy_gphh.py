@@ -14,7 +14,7 @@ import numpy as np
 
 from logic.src.configs.policies.gphh import GPHHConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.params import GPHHParams
 from logic.src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.solver import GPHHSolver
 
@@ -72,7 +72,7 @@ def _make_synthetic_training_envs(
 # ---------------------------------------------------------------------------
 
 
-@PolicyRegistry.register("gphh")
+@RouteConstructorRegistry.register("gphh")
 class GPHHPolicy(BaseRoutingPolicy):
     """
     GPHH policy class.
