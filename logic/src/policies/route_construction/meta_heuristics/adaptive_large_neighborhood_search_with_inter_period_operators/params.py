@@ -25,6 +25,7 @@ class ALNSIPOParams(ALNSParams):
         shift_direction: Direction for ShiftVisitRemoval ("both", "forward", "backward").
         inventory_lambda: Weight on inventory term in ForwardLookingInsertion.
         inter_period_weight: Initial roulette weight for inter-period operators.
+        stochastic_repair: If True, multi-period repair ops use ScenarioTree evaluation.
     """
 
     horizon: int = 7
@@ -34,6 +35,7 @@ class ALNSIPOParams(ALNSParams):
     shift_direction: str = "both"
     inventory_lambda: float = 1.0
     inter_period_weight: float = 1.0
+    stochastic_repair: bool = False
 
     @classmethod
     def from_config(cls, config: Any) -> ALNSIPOParams:
@@ -59,6 +61,7 @@ class ALNSIPOParams(ALNSParams):
             "shift_direction": getattr(config, "shift_direction", "both"),
             "inventory_lambda": getattr(config, "inventory_lambda", 1.0),
             "inter_period_weight": getattr(config, "inter_period_weight", 1.0),
+            "stochastic_repair": getattr(config, "stochastic_repair", False),
         }
 
         # 3. Combine and instantiate

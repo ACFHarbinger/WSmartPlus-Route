@@ -24,7 +24,14 @@ from .branch_bound import bb_profit_removal, bb_removal
 from .cluster import cluster_profit_removal, cluster_removal
 from .guided import penalized_removal
 from .historical import historical_profit_removal, historical_removal
-from .multi_period import pattern_removal, shift_visit_removal
+from .multi_period import (
+    pattern_removal,
+    random_horizon_removal,
+    shaw_horizon_removal,
+    shift_visit_removal,
+    urgency_aware_removal,
+    worst_profit_horizon_removal,
+)
 from .neighbor import neighbor_profit_removal, neighbor_removal
 from .random import random_profit_removal, random_removal
 from .route import route_profit_removal, route_removal
@@ -72,4 +79,8 @@ __all__ = [
     # Inter-period operators
     "shift_visit_removal",
     "pattern_removal",
+    "random_horizon_removal",
+    "worst_profit_horizon_removal",
+    "shaw_horizon_removal",
+    "urgency_aware_removal",
 ]

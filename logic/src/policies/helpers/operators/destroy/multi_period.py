@@ -30,6 +30,235 @@ from __future__ import annotations
 import random as _random
 from typing import Dict, List, Optional, Set, Tuple
 
+import numpy as np
+
+
+def random_horizon_removal(
+    horizon_routes: List[List[List[int]]],
+    n_remove: int,
+    rng: Optional[_random.Random] = None,
+) -> Tuple[List[List[List[int]]], List[Tuple[int, int]]]:
+    """Remove visits randomly from across the entire T-day horizon.
+
+    Args:
+        horizon_routes: Full T-day plan [day][route][node].
+        n_remove: Total number of (node, day) pairs to remove.
+        rng: Random number generator.
+
+    Returns:
+        Tuple of (modified_horizon, removed_visits).
+    """
+    if rng is None:
+        rng = _random.Random()
+
+    # Flatten all (node, day) occurrences
+    candidates: List[Tuple[int, int]] = []
+    for t, day_routes in enumerate(horizon_routes):
+        for route in day_routes:
+            for node in route:
+                candidates.append((node, t))
+
+    if not candidates:
+        return horizon_routes, []
+
+    n_remove = min(n_remove, len(candidates))
+    selected = rng.sample(candidates, n_remove)
+    selected_set = set(selected)
+
+    # Reconstruct horizon without selected visits
+    new_horizon: List[List[List[int]]] = []
+    for t, day_routes in enumerate(horizon_routes):
+        new_day: List[List[int]] = []
+        for route in day_routes:
+            new_route = [node for node in route if (node, t) not in selected_set]
+            if new_route:
+                new_day.append(new_route)
+        new_horizon.append(new_day)
+
+    return new_horizon, selected
+
+
+def worst_profit_horizon_removal(
+    horizon_routes: List[List[List[int]]],
+    n_remove: int,
+    dist_matrix: np.ndarray,
+    wastes: Dict[int, float],
+    R: float,
+    C: float,
+    p: float = 3.0,
+    rng: Optional[_random.Random] = None,
+) -> Tuple[List[List[List[int]]], List[Tuple[int, int]]]:
+    """Remove visits with the lowest marginal profit across the T-day horizon.
+
+    Profit for a visit (i, t) is defined as R * w_i,t - detour_cost * C.
+
+    Args:
+        horizon_routes: Full T-day plan.
+        n_remove: Number of visits to remove.
+        dist_matrix: Distance matrix.
+        wastes: Fill levels for all nodes (static for the day).
+        R: Revenue per unit collected.
+        C: Cost per unit distance.
+        p: Randomization factor (p=1 index is uniform, p large is deterministic).
+        rng: Random number generator.
+
+    Returns:
+        Tuple of (modified_horizon, removed_visits).
+    """
+    if rng is None:
+        rng = _random.Random()
+
+    # Calculate marginal profit for every visit in the horizon
+    visit_profits: List[Tuple[int, int, float]] = []
+    for t, day_routes in enumerate(horizon_routes):
+        for route in day_routes:
+            for i, node in enumerate(route):
+                prev = 0 if i == 0 else route[i - 1]
+                nxt = 0 if i == len(route) - 1 else route[i + 1]
+                detour = dist_matrix[prev, node] + dist_matrix[node, nxt] - dist_matrix[prev, nxt]
+                profit = (wastes.get(node, 0.0) * R) - (detour * C)
+                visit_profits.append((node, t, profit))
+
+    if not visit_profits:
+        return horizon_routes, []
+
+    # Sort ascending by profit (worst first)
+    visit_profits.sort(key=lambda x: x[2])
+
+    removed: List[Tuple[int, int]] = []
+    available = list(range(len(visit_profits)))
+    n_remove = min(n_remove, len(visit_profits))
+
+    for _ in range(n_remove):
+        y = rng.random()
+        idx_pos = int(y**p * len(available))
+        idx_pos = min(idx_pos, len(available) - 1)
+        visit_idx = available.pop(idx_pos)
+        node, t, _ = visit_profits[visit_idx]
+        removed.append((node, t))
+
+    removed_set = set(removed)
+    new_horizon: List[List[List[int]]] = []
+    for t, day_routes in enumerate(horizon_routes):
+        new_day: List[List[int]] = []
+        for route in day_routes:
+            new_route = [node for node in route if (node, t) not in removed_set]
+            if new_route:
+                new_day.append(new_route)
+        new_horizon.append(new_day)
+
+    return new_horizon, removed
+
+
+def shaw_horizon_removal(
+    horizon_routes: List[List[List[int]]],
+    n_remove: int,
+    dist_matrix: np.ndarray,
+    p: float = 6.0,
+    rng: Optional[_random.Random] = None,
+) -> Tuple[List[List[List[int]]], List[Tuple[int, int]]]:
+    """Remove geographically related visits across the T-day horizon.
+
+    Args:
+        horizon_routes: Full T-day plan.
+        n_remove: Number of visits to remove.
+        dist_matrix: Distance matrix.
+        p: Shaw randomness parameter.
+        rng: Random number generator.
+    """
+    if rng is None:
+        rng = _random.Random()
+
+    # Flatten candidates
+    candidates: List[Tuple[int, int]] = []
+    for t, day_routes in enumerate(horizon_routes):
+        for route in day_routes:
+            for node in route:
+                candidates.append((node, t))
+
+    if not candidates:
+        return horizon_routes, []
+
+    n_remove = min(n_remove, len(candidates))
+    # Pick a random pivot visit
+    pivot_idx = rng.randrange(len(candidates))
+    pivot_node, pivot_t = candidates.pop(pivot_idx)
+    removed = [(pivot_node, pivot_t)]
+
+    while len(removed) < n_remove:
+        # Sort remaining candidates by geographic proximity to the LAST removed node
+        ref_node, _ = removed[-1]
+        candidates.sort(key=lambda x: dist_matrix[ref_node, x[0]])
+
+        y = rng.random()
+        idx = int(y**p * len(candidates))
+        idx = min(idx, len(candidates) - 1)
+        removed.append(candidates.pop(idx))
+
+    removed_set = set(removed)
+    new_horizon: List[List[List[int]]] = []
+    for t, day_routes in enumerate(horizon_routes):
+        new_day: List[List[int]] = []
+        for route in day_routes:
+            new_route = [node for node in route if (node, t) not in removed_set]
+            if new_route:
+                new_day.append(new_route)
+        new_horizon.append(new_day)
+
+    return new_horizon, removed
+
+
+def urgency_aware_removal(
+    horizon_routes: List[List[List[int]]],
+    n_remove: int,
+    wastes: Dict[int, float],
+    fill_threshold: float = 70.0,
+    rng: Optional[_random.Random] = None,
+) -> Tuple[List[List[List[int]]], List[Tuple[int, int]]]:
+    """Remove visits to bins that are near the threshold on UNVISITED days.
+
+    Args:
+        horizon_routes: Full T-day plan.
+        n_remove: Total visits to remove.
+        wastes: Current fill levels (used as urgency indicator).
+        fill_threshold: Urgency threshold tau.
+        rng: Random number generator.
+    """
+    if rng is None:
+        rng = _random.Random()
+
+    # Identify "urgent" nodes: currently at or near threshold
+    # Note: In a real simulation, we'd use expected future fill,
+    # but as a destroy operator, we reason about the current 'wastes' snapshot.
+    urgent_nodes = {node for node, fill in wastes.items() if fill >= fill_threshold * 0.8}
+
+    # Flatten all visits for these urgent nodes
+    candidates: List[Tuple[int, int]] = []
+    for t, day_routes in enumerate(horizon_routes):
+        for route in day_routes:
+            for node in route:
+                if node in urgent_nodes:
+                    candidates.append((node, t))
+
+    if not candidates:
+        # Fallback to random if no urgent visits found
+        return random_horizon_removal(horizon_routes, n_remove, rng)
+
+    n_remove = min(n_remove, len(candidates))
+    selected = rng.sample(candidates, n_remove)
+    selected_set = set(selected)
+
+    new_horizon: List[List[List[int]]] = []
+    for t, day_routes in enumerate(horizon_routes):
+        new_day: List[List[int]] = []
+        for route in day_routes:
+            new_route = [node for node in route if (node, t) not in selected_set]
+            if new_route:
+                new_day.append(new_route)
+        new_horizon.append(new_day)
+
+    return new_horizon, selected
+
 
 def shift_visit_removal(  # noqa: C901
     horizon_routes: List[List[List[int]]],

@@ -19,6 +19,7 @@ from .forward_looking import forward_looking_insertion
 from .geni import geni_insertion, geni_profit_insertion
 from .greedy import greedy_insertion, greedy_profit_insertion
 from .greedy_blink import greedy_insertion_with_blinks, greedy_profit_insertion_with_blinks
+from .multi_period import greedy_horizon_insertion, regret_k_temporal_insertion, stochastic_aware_insertion
 from .nearest import nearest_insertion, nearest_profit_insertion
 from .regret import (
     regret_2_insertion,
@@ -70,4 +71,7 @@ __all__ = [
     "stringing_profit_insertion",
     # Inter-period / forward-looking
     "forward_looking_insertion",
+    "greedy_horizon_insertion",
+    "regret_k_temporal_insertion",
+    "stochastic_aware_insertion",
 ]
