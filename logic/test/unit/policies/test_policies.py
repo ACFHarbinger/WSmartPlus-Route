@@ -9,7 +9,7 @@ import numpy as np
 import pytest
 from logic.src.policies import run_hgs
 from logic.src.policies.adaptive_large_neighborhood_search.policy_alns import ALNSPolicy
-from logic.src.policies.base import PolicyRegistry
+from logic.src.policies.base import RouteConstructorRegistry
 from logic.src.policies.capacitated_vehicle_routing_problem.cvrp import find_routes
 
 from logic.src.policies.branch_and_price_and_cut.policy_bpc import run_bpc, BPCPolicy
@@ -67,7 +67,7 @@ class TestPolicyAdapters:
     def test_alns_adapter(self, mock_policy_data):
         with patch("logic.src.policies.adaptive_large_neighborhood_search.policy_alns.run_alns") as mock_run:
             mock_run.return_value = ([[1]], 10.0, 5.0)
-            policy = cast(Callable, PolicyRegistry.get("alns"))()
+            policy = cast(Callable, RouteConstructorRegistry.get("alns"))()
             assert isinstance(policy, ALNSPolicy)
             tour, cost, extra = policy.execute(policy="alns_1.0", **mock_policy_data)
             assert tour == [0, 1, 0]
@@ -77,7 +77,7 @@ class TestPolicyAdapters:
     def test_bpc_adapter(self, mock_policy_data):
         with patch("logic.src.policies.branch_and_price_and_cut.policy_bpc.run_bpc") as mock_run:
             mock_run.return_value = ([[1]], 10.0)
-            policy = cast(Callable, PolicyRegistry.get("bpc"))()
+            policy = cast(Callable, RouteConstructorRegistry.get("bpc"))()
             assert isinstance(policy, BPCPolicy)
             tour, cost, extra = policy.execute(policy="bpc_1.0", **mock_policy_data)
             assert tour == [0, 1, 0]
@@ -88,7 +88,7 @@ class TestPolicyAdapters:
         with patch("logic.src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.policy_ils_rvnd_sp.ILSRVNDSPSolver") as mock_solver_cls:
             mock_solver_instance = mock_solver_cls.return_value
             mock_solver_instance.solve.return_value = ([[1]], 10.0, 5.0)
-            policy = cast(Callable, PolicyRegistry.get("ils_rvnd_sp"))()
+            policy = cast(Callable, RouteConstructorRegistry.get("ils_rvnd_sp"))()
             assert isinstance(policy, ILSRVNDSPPolicy)
             tour, cost, extra = policy.execute(policy="ils_rvnd_sp_1.0", **mock_policy_data)
             assert tour == [0, 1, 0]
@@ -98,7 +98,7 @@ class TestPolicyAdapters:
     def test_hgs_adapter(self, mock_policy_data):
         with patch("logic.src.policies.hybrid_genetic_search.policy_hgs.run_hgs") as mock_run:
             mock_run.return_value = ([[1]], 10.0, 5.0)
-            policy = cast(Callable, PolicyRegistry.get("hgs"))()
+            policy = cast(Callable, RouteConstructorRegistry.get("hgs"))()
             assert isinstance(policy, HGSPolicy)
             tour, cost, extra = policy.execute(policy="hgs_1.0", **mock_policy_data)
             assert tour == [0, 1, 0]

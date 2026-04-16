@@ -11,12 +11,12 @@ import numpy as np
 
 from logic.src.configs.policies.slc import SLCConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.meta_heuristics.soccer_league_competition.params import SLCParams
 from logic.src.policies.route_construction.meta_heuristics.soccer_league_competition.solver import SLCSolver
 
 
-@PolicyRegistry.register("slc")
+@RouteConstructorRegistry.register("slc")
 class SLCPolicy(BaseRoutingPolicy):
     """
     SLC policy class.

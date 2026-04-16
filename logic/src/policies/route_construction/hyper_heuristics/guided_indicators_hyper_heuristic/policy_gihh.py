@@ -11,13 +11,13 @@ import numpy as np
 
 from logic.src.configs.policies import GIHHConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from .gihh import GIHHSolver
 from .params import GIHHParams
 
 
-@PolicyRegistry.register("gihh")
+@RouteConstructorRegistry.register("gihh")
 class GIHHPolicy(BaseRoutingPolicy):
     """
     Hyper-Heuristic with Two Guidance Indicators policy class.

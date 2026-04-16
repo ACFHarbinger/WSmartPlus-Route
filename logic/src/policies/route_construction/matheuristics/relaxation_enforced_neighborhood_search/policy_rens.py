@@ -19,13 +19,13 @@ from typing import Any, Dict, List, Optional, Tuple, Type
 
 from logic.src.configs.policies.rens import RENSConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from .params import RENSParams
 from .solver import run_rens_gurobi
 
 
-@PolicyRegistry.register("rens")
+@RouteConstructorRegistry.register("rens")
 class RENSPolicy(BaseRoutingPolicy):
     """
     Policy adapter for the RENS (Relaxation Enforced Neighborhood Search) algorithm.

@@ -11,7 +11,7 @@ import numpy as np
 
 from logic.src.configs.policies.ahvpl import AHVPLConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from ..adaptive_large_neighborhood_search.params import ALNSParams
 from ..ant_colony_optimization_k_sparse.params import KSACOParams
@@ -20,7 +20,7 @@ from .ahvpl import AHVPLSolver
 from .params import AHVPLParams
 
 
-@PolicyRegistry.register("ahvpl")
+@RouteConstructorRegistry.register("ahvpl")
 class AHVPLPolicy(BaseRoutingPolicy):
     """
     AHVPL policy class.

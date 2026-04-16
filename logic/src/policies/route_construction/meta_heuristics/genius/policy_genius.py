@@ -13,13 +13,13 @@ import numpy as np
 
 from logic.src.configs.policies.genius import GENIUSConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from .params import GENIUSParams
 from .solver import GENIUSSolver
 
 
-@PolicyRegistry.register("genius")
+@RouteConstructorRegistry.register("genius")
 class GENIUSPolicy(BaseRoutingPolicy):
     """GENIUS (GENI + US) policy class."""
 

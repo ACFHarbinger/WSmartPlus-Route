@@ -11,13 +11,13 @@ import numpy as np
 
 from logic.src.configs.policies.hs import HSConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from .params import HSParams
 from .solver import HSSolver
 
 
-@PolicyRegistry.register("hs")
+@RouteConstructorRegistry.register("hs")
 class HSPolicy(BaseRoutingPolicy):
     """
     HS policy class.

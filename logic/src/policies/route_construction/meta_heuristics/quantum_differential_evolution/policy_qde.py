@@ -11,13 +11,13 @@ import numpy as np
 
 from logic.src.configs.policies.qde import QDEConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from .params import QDEParams
 from .solver import QDESolver
 
 
-@PolicyRegistry.register("qde")
+@RouteConstructorRegistry.register("qde")
 class QDEPolicy(BaseRoutingPolicy):
     """
     QDE policy class.

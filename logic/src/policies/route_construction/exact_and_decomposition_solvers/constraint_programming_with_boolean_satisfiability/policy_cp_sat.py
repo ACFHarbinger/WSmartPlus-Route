@@ -8,12 +8,12 @@ import numpy as np
 
 from logic.src.configs.policies.cp_sat import CPSATConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from .cp_sat_engine import CPSATEngine
 
 
-@PolicyRegistry.register("cp_sat")
+@RouteConstructorRegistry.register("cp_sat")
 class CPSATPolicy(BaseRoutingPolicy):
     """
     Adapter for the Constraint Programming with Boolean Satisfiability (CP-SAT) policy using OR-Tools.

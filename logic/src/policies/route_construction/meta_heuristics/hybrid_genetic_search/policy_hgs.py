@@ -12,12 +12,12 @@ import numpy as np
 
 from logic.src.configs.policies import HGSConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from .dispatcher import run_hgs
 
 
-@PolicyRegistry.register("hgs")
+@RouteConstructorRegistry.register("hgs")
 class HGSPolicy(BaseRoutingPolicy):
     """
     Hybrid Genetic Search policy class.

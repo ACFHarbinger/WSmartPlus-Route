@@ -16,8 +16,8 @@ Example:
 from typing import List
 
 from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
-from logic.src.policies.helpers.mandatory.base.selection_context import SelectionContext
-from logic.src.policies.helpers.mandatory.base.selection_registry import (
+from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
+from logic.src.policies.mandatory_selection.base.selection_registry import (
     MandatorySelectionRegistry,
 )
 

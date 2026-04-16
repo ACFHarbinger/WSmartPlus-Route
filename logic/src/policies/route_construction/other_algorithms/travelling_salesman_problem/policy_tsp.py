@@ -11,13 +11,13 @@ import numpy as np
 
 from logic.src.configs.policies import TSPConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from .params import TSPParams
 from .tsp import find_route, get_multi_tour, get_route_cost
 
 
-@PolicyRegistry.register("tsp")
+@RouteConstructorRegistry.register("tsp")
 class TSPPolicy(BaseRoutingPolicy):
     """
     Traveling Salesperson Policy (TSP).

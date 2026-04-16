@@ -8,13 +8,13 @@ import numpy as np
 
 from logic.src.configs.policies.gls import GLSConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from .params import GLSParams
 from .solver import GLSSolver
 
 
-@PolicyRegistry.register("gls")
+@RouteConstructorRegistry.register("gls")
 class GLSPolicy(BaseRoutingPolicy):
     """Guided Large Neighborhood Search (G-LNS) policy class."""
 

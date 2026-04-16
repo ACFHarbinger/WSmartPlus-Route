@@ -8,13 +8,13 @@ import numpy as np
 
 from logic.src.configs.policies.ils import ILSConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from .params import ILSParams
 from .solver import ILSSolver
 
 
-@PolicyRegistry.register("ils")
+@RouteConstructorRegistry.register("ils")
 class ILSPolicy(BaseRoutingPolicy):
     """Iterated Local Search policy class."""
 

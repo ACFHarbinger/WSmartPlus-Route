@@ -11,11 +11,11 @@ from abc import ABC, abstractmethod
 from typing import Any, List, Tuple, Union
 
 
-class IPolicyAdapter(ABC):
+class IRouteConstructor(ABC):
     """
     Interface for all routing policy adapters.
-    Adapts various policies (Neural, Classical, Heuristic) to a common execution interface
-    for the simulator.
+    Adapts various policies (Neural, Classical, Heuristic)
+    to a common execution interface for the simulator.
     """
 
     @abstractmethod

@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type
 
 from logic.src.configs.policies.popmusic import POPMUSICConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver import (
     run_popmusic,
 )
@@ -14,7 +14,7 @@ from logic.src.policies.route_construction.matheuristics.partial_optimization_me
 from .params import POPMUSICParams
 
 
-@PolicyRegistry.register("popmusic")
+@RouteConstructorRegistry.register("popmusic")
 class POPMUSICPolicy(BaseRoutingPolicy):
     """
     Adapter for the POPMUSIC (Partial Optimization Metaheuristic Under Special

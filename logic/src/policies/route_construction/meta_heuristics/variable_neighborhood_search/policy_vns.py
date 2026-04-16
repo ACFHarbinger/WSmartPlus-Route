@@ -10,12 +10,12 @@ import numpy as np
 
 from logic.src.configs.policies.vns import VNSConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.meta_heuristics.variable_neighborhood_search.params import VNSParams
 from logic.src.policies.route_construction.meta_heuristics.variable_neighborhood_search.solver import VNSSolver
 
 
-@PolicyRegistry.register("vns")
+@RouteConstructorRegistry.register("vns")
 class VNSPolicy(BaseRoutingPolicy):
     """
     Variable Neighborhood Search policy class.

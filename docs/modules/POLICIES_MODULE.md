@@ -130,7 +130,7 @@ logic/src/policies/
 │   ├── __init__.py
 │   ├── base_routing_policy.py              # Template base class
 │   ├── factory.py                           # PolicyFactory
-│   ├── registry.py                          # PolicyRegistry
+│   ├── registry.py                          # RouteConstructorRegistry
 │   ├── policy_alns.py                       # ALNS adapter
 │   ├── policy_bpc.py                        # BPC adapter
 │   ├── policy_cvrp.py                       # CVRP adapter
@@ -327,28 +327,28 @@ tour, cost, metadata = policy.execute(
 - `"neural"`, `"am"`, `"ddam"`, `"tam"`, `"transgcn"`
 - `"tsp"`, `"cvrp"`, `"swc_tcf"`
 
-### 4.2 PolicyRegistry
+### 4.2 RouteConstructorRegistry
 
 **File**: `adapters/registry.py`
 
-The `PolicyRegistry` maintains a decentralized map of all available optimization engines, enabling automated discovery and type-safe access through the registration decorator.
+The `RouteConstructorRegistry` maintains a decentralized map of all available optimization engines, enabling automated discovery and type-safe access through the registration decorator.
 
 ```python
-from logic.src.policies.adapters import PolicyRegistry
+from logic.src.policies.adapters import RouteConstructorRegistry
 
 # Register custom policy
-@PolicyRegistry.register("my_custom_policy")
+@RouteConstructorRegistry.register("my_custom_policy")
 class MyCustomPolicy(IPolicyAdapter):
     def execute(self, **kwargs):
         # Implementation
         return tour, cost, metadata
 
 # Get registered policy
-policy_cls = PolicyRegistry.get("my_custom_policy")
+policy_cls = RouteConstructorRegistry.get("my_custom_policy")
 policy = policy_cls()
 
 # List all policies
-all_policies = PolicyRegistry.list_policies()
+all_policies = RouteConstructorRegistry.list_policies()
 print(all_policies)
 # ['alns', 'hgs', 'bpc', 'neural', 'my_custom_policy', ...]
 ```
@@ -3525,9 +3525,9 @@ print(f"Best policy: {best_policy} with cost {results[best_policy]['cost']:.2f}"
 ### 12.3 Custom Policy Implementation
 
 ```python
-from logic.src.policies.adapters import BaseRoutingPolicy, PolicyRegistry
+from logic.src.policies.adapters import BaseRoutingPolicy, RouteConstructorRegistry
 
-@PolicyRegistry.register("my_custom_policy")
+@RouteConstructorRegistry.register("my_custom_policy")
 class MyCustomPolicy(BaseRoutingPolicy):
     """Custom routing policy implementation."""
 
@@ -3636,7 +3636,7 @@ policy = HGSPolicy()
 
 ```python
 # ✅ GOOD: Register for discoverability
-@PolicyRegistry.register("my_policy")
+@RouteConstructorRegistry.register("my_policy")
 class MyPolicy(IPolicyAdapter):
     ...
 
@@ -3792,7 +3792,7 @@ for i in range(n):
 
 ```python
 # Policy creation
-from logic.src.policies.adapters import PolicyFactory, PolicyRegistry
+from logic.src.policies.adapters import PolicyFactory, RouteConstructorRegistry
 
 # Main policies
 from logic.src.policies import (

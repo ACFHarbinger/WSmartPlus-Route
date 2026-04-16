@@ -13,7 +13,7 @@ import numpy as np
 
 from logic.src.configs.policies import SANSConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.dispatcher import (
     execute_new,
     execute_og,
@@ -22,8 +22,8 @@ from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_n
 from .params import SANSParams
 
 
-@PolicyRegistry.register("sans")
-@PolicyRegistry.register("lac")  # Backward compatibility alias
+@RouteConstructorRegistry.register("sans")
+@RouteConstructorRegistry.register("lac")  # Backward compatibility alias
 class SANSPolicy(BaseRoutingPolicy):
     """
     Simulated Annealing Neighborhood Search policy class.

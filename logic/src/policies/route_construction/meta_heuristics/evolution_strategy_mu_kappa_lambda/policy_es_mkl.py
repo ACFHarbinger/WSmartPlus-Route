@@ -11,13 +11,13 @@ import numpy as np
 
 from logic.src.configs.policies import MuKappaLambdaESConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from .params import MuKappaLambdaESParams
 from .solver import MuKappaLambdaESSolver
 
 
-@PolicyRegistry.register("es_mkl")
+@RouteConstructorRegistry.register("es_mkl")
 class MuKappaLambdaESPolicy(BaseRoutingPolicy):
     """
     (μ,κ,λ) Evolution Strategy policy with age-based selection.

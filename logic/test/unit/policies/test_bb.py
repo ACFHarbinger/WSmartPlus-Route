@@ -5,7 +5,7 @@ from unittest.mock import patch, MagicMock
 
 import numpy as np
 import pytest
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 from logic.src.policies.branch_and_bound.policy_bb import BranchAndBoundPolicy
 
 
@@ -52,7 +52,7 @@ class TestBBPolicy:
 
     @pytest.mark.unit
     def test_bb_adapter_registration(self):
-        policy = PolicyRegistry.get("bb")
+        policy = RouteConstructorRegistry.get("bb")
         assert policy is not None
         instance = policy()
         assert isinstance(instance, BranchAndBoundPolicy)
@@ -64,7 +64,7 @@ class TestBBPolicy:
         # However, for a unit test of the ADAPTER, we can mock run_bb.
         with patch("logic.src.policies.branch_and_bound.policy_bb.run_bb_optimizer") as mock_run:
             mock_run.return_value = ([[1, 2]], 25.0)
-            policy = cast(Callable, PolicyRegistry.get("bb"))()
+            policy = cast(Callable, RouteConstructorRegistry.get("bb"))()
             tour, cost, extra = policy.execute(**bb_test_data)
 
             assert tour[0] == 0
@@ -77,7 +77,7 @@ class TestBBPolicy:
         """Integration test with Gurobi (requires license)."""
         try:
             import gurobipy
-            policy = PolicyRegistry.get("bb")()
+            policy = RouteConstructorRegistry.get("bb")()
             tour, cost, extra = policy.execute(**bb_test_data)
 
             assert isinstance(tour, list)

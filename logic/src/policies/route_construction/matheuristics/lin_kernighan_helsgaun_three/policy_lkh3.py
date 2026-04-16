@@ -17,7 +17,7 @@ import numpy as np
 
 from logic.src.configs.policies.lkh3 import LKH3Config
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.graph_augmentation import (
     augment_graph,
 )
@@ -29,7 +29,7 @@ from logic.src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_
 from .params import LKH3Params
 
 
-@PolicyRegistry.register("lkh3")
+@RouteConstructorRegistry.register("lkh3")
 class LKH3Policy(BaseRoutingPolicy):
     """LKH-3 policy class.
 

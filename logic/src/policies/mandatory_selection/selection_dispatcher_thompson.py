@@ -27,8 +27,8 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 
 from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
-from logic.src.policies.helpers.mandatory.base.selection_context import SelectionContext
-from logic.src.policies.helpers.mandatory.base.selection_registry import MandatorySelectionRegistry
+from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
+from logic.src.policies.mandatory_selection.base.selection_registry import MandatorySelectionRegistry
 
 # Configure simple logging
 logger = logging.getLogger(__name__)
@@ -126,7 +126,7 @@ class ThompsonDispatcher(IMandatorySelectionStrategy):
         Returns:
             List[int]: List of bin IDs (1-based index).
         """
-        from logic.src.policies.helpers.mandatory.base.selection_factory import MandatorySelectionFactory
+        from logic.src.policies.mandatory_selection.base.selection_factory import MandatorySelectionFactory
 
         candidates = context.dispatcher_candidate_strategies or ["last_minute", "deadline", "mip_knapsack"]
         state_path = context.dispatcher_state_path

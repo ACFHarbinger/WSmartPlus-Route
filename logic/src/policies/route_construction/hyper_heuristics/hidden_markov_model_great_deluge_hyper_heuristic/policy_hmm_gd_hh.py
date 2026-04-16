@@ -12,7 +12,7 @@ import numpy as np
 
 from logic.src.configs.policies.hmm_gd_hh import HMMGDHHConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 from logic.src.policies.helpers.operators.heuristics.greedy_initialization import build_greedy_routes
 from logic.src.policies.route_construction.hyper_heuristics.hidden_markov_model_great_deluge_hyper_heuristic.params import (
     HMMGDHHParams,
@@ -22,7 +22,7 @@ from logic.src.policies.route_construction.hyper_heuristics.hidden_markov_model_
 )
 
 
-@PolicyRegistry.register("hmm_gd_hh")
+@RouteConstructorRegistry.register("hmm_gd_hh")
 class HMMGDHHPolicy(BaseRoutingPolicy):
     """
     HMM-GD-HH policy class.

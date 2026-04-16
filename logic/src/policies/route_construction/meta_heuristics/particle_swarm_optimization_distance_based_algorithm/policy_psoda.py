@@ -10,13 +10,13 @@ import numpy as np
 
 from logic.src.configs.policies import DistancePSOConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from .params import DistancePSOParams
 from .solver import DistancePSOSolver
 
 
-@PolicyRegistry.register("psoda")
+@RouteConstructorRegistry.register("psoda")
 class DistancePSOPolicy(BaseRoutingPolicy):
     """
     Distance-Based Particle Swarm Optimization policy class.

@@ -11,13 +11,13 @@ import numpy as np
 
 from logic.src.configs.policies.fa import FAConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from .params import FAParams
 from .solver import FASolver
 
 
-@PolicyRegistry.register("fa")
+@RouteConstructorRegistry.register("fa")
 class FAPolicy(BaseRoutingPolicy):
     """
     FA policy class.

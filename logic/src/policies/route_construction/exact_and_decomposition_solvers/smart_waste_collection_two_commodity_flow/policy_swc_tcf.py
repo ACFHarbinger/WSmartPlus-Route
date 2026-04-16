@@ -10,13 +10,13 @@ import numpy as np
 
 from logic.src.configs.policies import SWCTCFConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from .dispatcher import run_swc_tcf_optimizer
 from .params import SWCTCFParams
 
 
-@PolicyRegistry.register("swc_tcf")
+@RouteConstructorRegistry.register("swc_tcf")
 class SWCTCFPolicy(BaseRoutingPolicy):
     """
     Smart Waste Collection - Two-Commodity Flow (SWC-TCF) policy adapter.

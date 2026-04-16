@@ -11,13 +11,13 @@ import numpy as np
 
 from logic.src.configs.policies.abc import ABCConfig
 from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import PolicyRegistry
+from logic.src.policies.base.factory import RouteConstructorRegistry
 
 from .params import ABCParams
 from .solver import ABCSolver
 
 
-@PolicyRegistry.register("abc")
+@RouteConstructorRegistry.register("abc")
 class ABCPolicy(BaseRoutingPolicy):
     """
     ABC policy class.

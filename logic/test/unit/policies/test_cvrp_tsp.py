@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 
 import numpy as np
 import pytest
-from logic.src.policies.base import PolicyRegistry
+from logic.src.policies.base import RouteConstructorRegistry
 from logic.src.policies.capacitated_vehicle_routing_problem.policy_cvrp import CVRPPolicy
 from logic.src.policies.travelling_salesman_problem.policy_tsp import TSPPolicy
 
@@ -47,7 +47,7 @@ def test_tsp_policy(mock_params):
         # Assume it just returns the tour if valid
         mock_get_multi.return_value = [0, 1, 2, 3, 4, 5, 0]
 
-        cls = PolicyRegistry.get("tsp")
+        cls = RouteConstructorRegistry.get("tsp")
         assert cls is not None
         policy = cls()
         assert isinstance(policy, TSPPolicy)
@@ -72,7 +72,7 @@ def test_cvrp_policy(mock_params):
         # Mock find_routes (CVRP)
         mock_find.return_value = [0, 1, 2, 0, 3, 4, 5, 0] # 2 routes
 
-        cls = PolicyRegistry.get("cvrp")
+        cls = RouteConstructorRegistry.get("cvrp")
         assert cls is not None
         policy = cls()
         assert isinstance(policy, CVRPPolicy)
