@@ -2,12 +2,12 @@
 
 import numpy as np
 import pytest
-from logic.src.policies.adaptive_large_neighborhood_search.params import ALNSParams
-from logic.src.policies.ant_colony_optimization_k_sparse.params import KSACOParams
-from logic.src.policies.augmented_hybrid_volleyball_premier_league.ahvpl import AHVPLSolver
-from logic.src.policies.augmented_hybrid_volleyball_premier_league.params import AHVPLParams
-from logic.src.policies.hybrid_genetic_search.individual import Individual
-from logic.src.policies.hybrid_genetic_search.params import HGSParams
+from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params import ALNSParams
+from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params import KSACOParams
+from logic.src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.ahvpl import AHVPLSolver
+from logic.src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.params import AHVPLParams
+from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual import Individual
+from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.params import HGSParams
 from logic.src.policies.helpers.operators.crossover import ordered_crossover
 
 

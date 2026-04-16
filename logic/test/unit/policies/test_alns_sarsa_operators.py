@@ -11,9 +11,9 @@ def test_alns_sarsa_operator_integration():
     if root not in sys.path:
         sys.path.insert(0, root)
 
-    from logic.src.policies.adaptive_large_neighborhood_search.params import ALNSParams
+    from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params import ALNSParams
     from logic.src.policies.helpers.reinforcement_learning.alns_sarsa import ALNSSARSASolver
-    from logic.src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params import (
+    from logic.src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params import (
         RLAHVPLParams,
     )
 

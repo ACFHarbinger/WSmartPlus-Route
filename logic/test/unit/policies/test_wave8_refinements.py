@@ -1,9 +1,9 @@
 import pytest
 import numpy as np
-from logic.src.policies.differential_evolution.solver import DESolver
-from logic.src.policies.differential_evolution.params import DEParams
-from logic.src.policies.hybrid_volleyball_premier_league.solver import HVPLSolver
-from logic.src.policies.hybrid_volleyball_premier_league.params import HVPLParams
+from logic.src.policies.route_construction.meta_heuristics.differential_evolution.solver import DESolver
+from logic.src.policies.route_construction.meta_heuristics.differential_evolution.params import DEParams
+from logic.src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.solver import HVPLSolver
+from logic.src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.params import HVPLParams
 
 @pytest.fixture
 def small_instance():

@@ -1,9 +1,9 @@
 import pytest
 import numpy as np
-import random
+
 from typing import List, Optional
-from logic.src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp import ILSRVNDSPSolver
-from logic.src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params import ILSRVNDSPParams
+from logic.src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp import ILSRVNDSPSolver
+from logic.src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params import ILSRVNDSPParams
 from logic.src.policies.helpers.local_search.local_search_base import LocalSearch
 
 
@@ -19,20 +19,20 @@ class MockLocalSearch(LocalSearch):
         self._loads = [sum(self.waste.get(n, 0) for n in r) for r in routes]
         self.target_neighborhood = "all"
 
-    def optimize(self, routes: Optional[List[List[int]]] = None):
+    def optimize(self, solution: Optional[List[List[int]]] = None):
         """Dummy optimize implementation."""
-        if routes:
-            self.routes = [list(r) for r in routes]
+        if solution:
+            self.routes = [list(r) for r in solution]
         return self.routes
 
-    def _get_load_cached(self, r_idx):
-        return self._loads[r_idx]
+    def _get_load_cached(self, ri):
+        return self._loads[ri]
 
-    def _calc_load_fresh(self, route):
-        return sum(self.waste.get(n, 0) for n in route)
+    def _calc_load_fresh(self, r):
+        return sum(self.waste.get(n, 0) for n in r)
 
-    def _update_map(self, affected):
-        for r_idx in affected:
+    def _update_map(self, affected_indices):
+        for r_idx in affected_indices:
             for n in self.routes[r_idx]:
                 self.route_map[n] = r_idx
 
@@ -58,7 +58,7 @@ def test_params_paper_defaults(sample_params):
 def test_perturb_paper():
     """Verify that _perturb uses random moves and maintains node set."""
     dist_matrix = np.zeros((10, 10))
-    wastes = {i: 1 for i in range(1, 10)}
+    wastes = {i: 1. for i in range(1, 10)}
     params = ILSRVNDSPParams(time_limit=10, seed=42)
     solver = ILSRVNDSPSolver(dist_matrix, wastes, 100, 100, 1, params)
 
@@ -79,7 +79,7 @@ def test_ils_acceptance_strict():
     # This is harder to test directly without mocking the inner loop,
     # but we can verify the logic in run_ils_rvnd via code inspection or tiny solver run.
     dist_matrix = np.zeros((5, 5))
-    wastes = {i: 1 for i in range(1, 5)}
+    wastes = {i: 1. for i in range(1, 5)}
     params = ILSRVNDSPParams(time_limit=10, MaxIter_a=1, MaxIter_b=1, MaxIterILS_b=1, seed=42)
     solver = ILSRVNDSPSolver(dist_matrix, wastes, 100, 100, 1, params)
 

@@ -4,8 +4,9 @@ Unit tests for the Progressive Hedging (PH) policy.
 
 import numpy as np
 import pytest
-from logic.src.policies.progressive_hedging import ProgressiveHedgingPolicy
-from logic.src.policies.branch_and_cut.bc import GUROBI_AVAILABLE
+from logic.src.configs.policies import PHConfig
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging import ProgressiveHedgingPolicy
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc import GUROBI_AVAILABLE
 
 
 @pytest.mark.skipif(not GUROBI_AVAILABLE, reason="Gurobi not available for subproblems")
@@ -36,7 +37,7 @@ def test_ph_convergence_small():
     cost_unit = 1.0
 
     # Progressive Hedging Configuration
-    config = {
+    values = {
         "rho": 1.0,
         "max_iterations": 20,
         "convergence_tol": 0.05,
@@ -44,6 +45,14 @@ def test_ph_convergence_small():
         "verbose": True,
         "seed": 42
     }
+    config = PHConfig(
+        rho=values["rho"],
+        max_iterations=values["max_iterations"],
+        convergence_tol=values["convergence_tol"],
+        sub_solver=values["sub_solver"],
+        verbose=values["verbose"],
+        seed=values["seed"]
+    )
 
     policy = ProgressiveHedgingPolicy(config=config)
 
@@ -54,7 +63,7 @@ def test_ph_convergence_small():
         capacity=capacity,
         revenue=revenue,
         cost_unit=cost_unit,
-        values=config,
+        values=values,
         scenarios=scenarios,
         mandatory_nodes=[]
     )

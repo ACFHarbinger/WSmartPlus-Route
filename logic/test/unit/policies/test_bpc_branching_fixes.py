@@ -1,6 +1,4 @@
-import pytest
 import numpy as np
-from typing import Set, Dict, List
 from logic.src.policies.helpers.branching_solvers import Route
 from logic.src.policies.helpers.branching_solvers import (
     EdgeBranching,
@@ -92,7 +90,7 @@ def test_edge_branching_no_partition():
 
 def test_bpc_policy_adapter_profit_alignment():
     """Verify that BPCPolicy._run_solver correctly interprets solver output."""
-    from logic.src.policies.branch_and_price_and_cut.policy_bpc import BPCPolicy
+    from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.policy_bpc import BPCPolicy
     from unittest.mock import patch, MagicMock
 
     policy = BPCPolicy()

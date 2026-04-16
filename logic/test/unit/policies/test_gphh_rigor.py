@@ -11,14 +11,14 @@ Validates:
 """
 
 import random
-from typing import Dict, List, Set
 
 import numpy as np
 import pytest
 
-from logic.src.policies.genetic_programming_hyper_heuristic.params import GPHHParams
-from logic.src.policies.genetic_programming_hyper_heuristic.solver import GPHHSolver
-from logic.src.policies.genetic_programming_hyper_heuristic.tree import (
+from logic.src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.tree import to_callable, _mutate
+from logic.src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.params import GPHHParams
+from logic.src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.solver import GPHHSolver
+from logic.src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.tree import (
     ConstantNode,
     FunctionNode,
     GPNode,
@@ -198,8 +198,6 @@ class TestDeepOperators:
 
     def test_compile_tree_equivalence(self):
         """Verify that compiled lambda produces identical results to evaluate()."""
-        from logic.src.policies.genetic_programming_hyper_heuristic.tree import to_callable
-
         t = FunctionNode("ADD",
                          FunctionNode("MUL", TerminalNode("node_profit"), TerminalNode("insertion_cost")),
                          FunctionNode("DIV", TerminalNode("distance_to_route"), TerminalNode("remaining_capacity")))
@@ -233,8 +231,6 @@ class TestDeepOperators:
 
     def test_protected_div_compilation(self):
         """Verify that compiled DIV uses the protected_div helper."""
-        from logic.src.policies.genetic_programming_hyper_heuristic.tree import to_callable
-
         # Build a tree that would normally bloat if DIV stringified sub-expressions twice
         # FunctionNode("DIV", l, r) -> "protected_div(l, r)"
         t = FunctionNode("DIV", TerminalNode("node_profit"), TerminalNode("distance_to_route"))
@@ -255,8 +251,6 @@ class TestDeepOperators:
 
     def test_erc_perturbation_mutation(self, rng):
         """Verify that mutation can perturb a ConstantNode's value."""
-        from logic.src.policies.genetic_programming_hyper_heuristic.tree import _mutate
-
         c = ConstantNode(0.5)
         # Force mutation on the root constant node
         # Since it's a constant, _mutate has a 50% chance to perturb.

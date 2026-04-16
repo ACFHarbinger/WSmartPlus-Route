@@ -1,9 +1,9 @@
 import numpy as np
 import pytest
-from logic.src.policies.harmony_search.solver import HSSolver
-from logic.src.policies.harmony_search.params import HSParams
-from logic.src.policies.sine_cosine_algorithm.solver import SCASolver
-from logic.src.policies.sine_cosine_algorithm.params import SCAParams
+from logic.src.policies.route_construction.meta_heuristics.harmony_search.solver import HSSolver
+from logic.src.policies.route_construction.meta_heuristics.harmony_search.params import HSParams
+from logic.src.policies.route_construction.meta_heuristics.sine_cosine_algorithm.solver import SCASolver
+from logic.src.policies.route_construction.meta_heuristics.sine_cosine_algorithm.params import SCAParams
 
 @pytest.fixture
 def small_vrpp_instance():

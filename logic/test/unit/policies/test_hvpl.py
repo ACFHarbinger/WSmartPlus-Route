@@ -1,6 +1,8 @@
 import numpy as np
-from logic.src.policies.hybrid_volleyball_premier_league.solver import HVPLSolver
-from logic.src.policies.hybrid_volleyball_premier_league.params import HVPLParams
+from logic.src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.solver import HVPLSolver
+from logic.src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.params import HVPLParams
+from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params import ALNSParams
+from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params import KSACOParams
 
 
 def test_hvpl_solver():
@@ -17,15 +19,38 @@ def test_hvpl_solver():
     C = 1.0
 
     # Use very small params for fast test
+    aco_params = KSACOParams(
+        n_ants=2,
+        k_sparse=10,
+        alpha=1.0,
+        beta=2.0,
+        rho=0.1,
+        tau_0=None,
+        tau_min=0.001,
+        tau_max=10.0,
+        max_iterations=1,  # Only one iteration per construction phase
+        time_limit=60.0,
+        local_search=False,  # ALNS handles local search
+        local_search_iterations=0,
+        elitist_weight=1.0,
+    )
+    alns_params = ALNSParams(
+        max_iterations=5,
+        start_temp=100.0,
+        cooling_rate=0.95,
+        reaction_factor=0.1,
+        min_removal=1,
+        max_removal_pct=0.3,
+        time_limit=60.0,
+    )
     params = HVPLParams(
         n_teams=3,
         max_iterations=2,
         substitution_rate=0.3,
-        time_limit=5.0
+        time_limit=5.0,
+        aco_params=aco_params,
+        alns_params=alns_params,
     )
-    # Adjust nested params for speed
-    params.alns_params.max_iterations = 5
-    params.aco_params.n_ants = 2
 
     solver = HVPLSolver(dist_matrix, waste, capacity, R, C, params)
 

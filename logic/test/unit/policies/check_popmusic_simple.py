@@ -26,7 +26,7 @@ sys.modules["shapely"] = MagicMock()
 # Add project root to path
 sys.path.append(os.path.abspath("."))
 
-from logic.src.policies.popmusic.solver import run_popmusic, find_route_neighbors
+from logic.src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver import run_popmusic, find_route_neighbors
 from scipy.spatial import KDTree
 
 def test_find_route_neighbors_kdtree():
@@ -64,7 +64,7 @@ def test_popmusic_lifo_order():
         "mandatory": [1, 2, 3],
         "distance_matrix": dist_matrix,
         "n_vehicles": 4,
-        "wastes": {1: 10, 2: 10, 3: 10},
+        "wastes": {1: 10., 2: 10., 3: 10.},
         "capacity": 100,
         "R": 1.0,
         "C": 0.1

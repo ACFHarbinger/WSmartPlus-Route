@@ -7,9 +7,9 @@ and the Hyper-Heuristic with Two Guidance Indicators (GIHH) policies.
 
 import numpy as np
 import pytest
-from logic.src.policies.hybrid_genetic_search_ruin_and_recreate import HGSRRSolver, HGSRRParams
-from logic.src.policies.guided_indicators_hyper_heuristic import GIHHSolver, GIHHParams
-from logic.src.policies.base import PolicyFactory
+from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search_ruin_and_recreate import HGSRRSolver, HGSRRParams
+from logic.src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic import GIHHSolver, GIHHParams
+from logic.src.policies.route_construction.base.factory import RouteConstructorFactory
 
 
 class TestHGSRRPolicy:
@@ -108,7 +108,7 @@ class TestHGSRRPolicy:
         assert cost > 0
 
     def test_hgs_rr_policy_adapter(self, simple_instance):
-        """Test HGS-RR through PolicyFactory."""
+        """Test HGS-RR through RouteConstructorFactory."""
         dist_matrix, wastes, capacity, R, C = simple_instance
 
         config = {
@@ -120,7 +120,7 @@ class TestHGSRRPolicy:
             }
         }
 
-        policy = PolicyFactory.get_adapter("hgs_rr", config=config)
+        policy = RouteConstructorFactory.get_adapter("hgs_rr", config=config)
         assert policy is not None
 
 
@@ -265,7 +265,7 @@ class TestGIHHPolicy:
         assert isinstance(profit, float)
 
     def test_gihh_policy_adapter(self, simple_instance):
-        """Test GIHH through PolicyFactory."""
+        """Test GIHH through RouteConstructorFactory."""
         dist_matrix, wastes, capacity, R, C = simple_instance
 
         config = {
@@ -276,7 +276,7 @@ class TestGIHHPolicy:
             }
         }
 
-        policy = PolicyFactory.get_adapter("gihh", config=config)
+        policy = RouteConstructorFactory.get_adapter("gihh", config=config)
         assert policy is not None
 
 

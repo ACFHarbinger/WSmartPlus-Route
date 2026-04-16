@@ -1,10 +1,8 @@
 import numpy as np
 import pytest
-from logic.src.policies.base import PolicyFactory
-from logic.src.policies.base import RouteConstructorRegistry
 from logic.src.policies import run_hgs
-from logic.src.policies.capacitated_vehicle_routing_problem.cvrp import find_routes, find_routes_ortools
-from logic.src.policies.smart_waste_collection_two_commodity_flow.policy_swc_tcf import run_swc_tcf_optimizer
+from logic.src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.cvrp import find_routes, find_routes_ortools
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.policy_swc_tcf import run_swc_tcf_optimizer
 
 
 class TestSWCTCFOptimizerContract:
@@ -19,7 +17,7 @@ class TestSWCTCFOptimizerContract:
             distance_matrix=data["dist_matrix"],
             values=data["values"],
             binsids=data["binsids"],
-            mandatory=data["mandatory"],
+            mandatory_nodes=data["mandatory_nodes"],
             optimizer=backend,
             time_limit=5,
         )
@@ -36,7 +34,7 @@ class TestSWCTCFOptimizerContract:
         # 3. Constraint Check (Mandatory)
         # mandatory contains ID 2 and 4. They MUST be in the routes.
         # Note: ID 0 is depot. Bins are 1-5.
-        for ms_id in data["mandatory"]:
+        for ms_id in data["mandatory_nodes"]:
             assert ms_id in routes, f"Mandatory bin {ms_id} was not collected by {backend}"
 
     @pytest.mark.integration
@@ -45,7 +43,7 @@ class TestSWCTCFOptimizerContract:
         """Case where no bins should be collected."""
         data = base_vrpp_data
         data["bins"] = np.zeros(len(data["bins"]))  # all empty
-        data["mandatory"] = []
+        data["mandatory_nodes"] = []
         data["values"]["psi"] = 0.99
 
         routes, profit, cost = run_swc_tcf_optimizer(
@@ -53,7 +51,7 @@ class TestSWCTCFOptimizerContract:
             distance_matrix=data["dist_matrix"],
             values=data["values"],
             binsids=data["binsids"],
-            mandatory=data["mandatory"],
+            mandatory_nodes=data["mandatory_nodes"],
             optimizer=backend,
             time_limit=5,
         )

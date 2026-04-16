@@ -10,7 +10,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.
 
 import numpy as np
 import pytest
-from logic.src.policies.local_branching.lb import GUROBI_AVAILABLE, run_local_branching_gurobi
+from logic.src.policies.route_construction.matheuristics.local_branching.lb import GUROBI_AVAILABLE, run_local_branching_gurobi
 
 
 def mock_run_lb(dist_matrix, wastes, capacity, R, C, mandatory_nodes, **kwargs):

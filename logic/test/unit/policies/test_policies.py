@@ -5,19 +5,22 @@ import math
 from typing import Callable, cast
 from unittest.mock import patch
 
+import pandas as pd
 import numpy as np
 import pytest
 from logic.src.policies import run_hgs
-from logic.src.policies.adaptive_large_neighborhood_search.policy_alns import ALNSPolicy
-from logic.src.policies.base import RouteConstructorRegistry
-from logic.src.policies.capacitated_vehicle_routing_problem.cvrp import find_routes
+from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.policy_alns import ALNSPolicy
+from logic.src.policies.route_construction.base import RouteConstructorRegistry
+from logic.src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.cvrp import find_routes
 
-from logic.src.policies.branch_and_price_and_cut.policy_bpc import run_bpc, BPCPolicy
-from logic.src.policies.hybrid_genetic_search.policy_hgs import HGSPolicy
-from logic.src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.policy_ils_rvnd_sp import (
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.policy_bpc import BPCPolicy
+from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.policy_hgs import HGSPolicy
+from logic.src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.policy_ils_rvnd_sp import (
     ILSRVNDSPPolicy,
 )
-from logic.src.policies.travelling_salesman_problem import tsp
+from logic.src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.solver import RLGDHHSolver
+from logic.src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.params import RLGDHHParams
+from logic.src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp import find_route, get_route_cost
 
 
 class MockBins:
@@ -209,7 +212,7 @@ class TestSingleVehiclePolicies:
         test_C = np.array([[0, 10, 20], [10, 0, 5], [20, 5, 0]])
         test_to_collect = [1, 2]
         with patch("logic.src.policies.travelling_salesman_problem.tsp.fast_tsp.find_tour", return_value=[0, 1, 2]):
-            res_route = tsp.find_route(test_C, test_to_collect)
+            res_route = find_route(test_C, test_to_collect)
             assert res_route == [0, 1, 2, 0]
 
     @pytest.mark.unit
@@ -217,7 +220,7 @@ class TestSingleVehiclePolicies:
         """Test calculation of total cost for a given route."""
         test_C = np.array([[0, 10, 20], [10, 0, 5], [20, 5, 0]])
         test_tour = [0, 1, 2, 0]
-        res_cost = tsp.get_route_cost(test_C, test_tour)
+        res_cost = get_route_cost(test_C, test_tour)
         assert abs(float(res_cost) - 35.0) < 1e-6
 
 
@@ -245,9 +248,6 @@ class TestRLGDHHSolver:
         toward quality_lb over the full search budget.
         (Ozcan et al. 2010, Fig 2, Step 18)
         """
-        from logic.src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver import RLGDHHSolver
-        from logic.src.policies.reinforcement_learning_great_deluge_hyper_heuristic.params import RLGDHHParams
-
         dist, wastes = tiny_problem
         params = RLGDHHParams(
             max_iterations=20,
@@ -266,7 +266,7 @@ class TestRLGDHHSolver:
         )
 
         # Monkey-patch solve() to intercept water_level each iteration
-        water_levels: list = []
+        water_levels: list[float] = []
         _orig_solve = solver.solve
 
         import copy as _copy
@@ -306,9 +306,6 @@ class TestRLGDHHSolver:
         the heuristic's utility must DECREASE (not increase or stay the same).
         Paper (p. 10): neutral moves are penalised identically to worsening moves.
         """
-        from logic.src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver import RLGDHHSolver
-        from logic.src.policies.reinforcement_learning_great_deluge_hyper_heuristic.params import RLGDHHParams
-
         dist, wastes = tiny_problem
         params = RLGDHHParams(
             max_iterations=1,
@@ -350,9 +347,6 @@ class TestRLGDHHSolver:
         RL2 punishment variant must halve the utility (floor division).
         (Ozcan et al. 2010, Section 3.2)
         """
-        from logic.src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver import RLGDHHSolver
-        from logic.src.policies.reinforcement_learning_great_deluge_hyper_heuristic.params import RLGDHHParams
-
         dist, wastes = tiny_problem
         params = RLGDHHParams(seed=0, punishment_type="RL2", initial_utility=30.0)
         solver = RLGDHHSolver(
@@ -373,9 +367,6 @@ class TestRLGDHHSolver:
         RL3 punishment variant must take the floor-sqrt of the utility.
         (Ozcan et al. 2010, Section 3.2)
         """
-        from logic.src.policies.reinforcement_learning_great_deluge_hyper_heuristic.solver import RLGDHHSolver
-        from logic.src.policies.reinforcement_learning_great_deluge_hyper_heuristic.params import RLGDHHParams
-
         dist, wastes = tiny_problem
         params = RLGDHHParams(seed=0, punishment_type="RL3", initial_utility=30.0)
         solver = RLGDHHSolver(
@@ -419,7 +410,7 @@ class TestPOPMUSIC:
     @pytest.mark.unit
     def test_popmusic_lifo_order(self, mock_popmusic_data):
         """Verify that POPMUSIC uses LIFO stack for seed selection."""
-        from logic.src.policies.popmusic.solver import run_popmusic
+        from logic.src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver import run_popmusic
 
         # Patch _optimize_subproblem to record the order of seeds (neighborhood_indices[0])
         # and always return an improvement for the first few calls to trigger re-pushing.
@@ -447,7 +438,7 @@ class TestPOPMUSIC:
     @pytest.mark.unit
     def test_find_route_neighbors_kdtree(self):
         """Verify KD-Tree neighbor search returns correct indices."""
-        from logic.src.policies.popmusic.solver import find_route_neighbors
+        from logic.src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver import find_route_neighbors
         from scipy.spatial import KDTree
 
         centroids = [
