@@ -1,0 +1,6 @@
+method: nlgd
+params:
+  initial_level: 100.0
+  beta: 0.01
+  t_max: 1000
+  maximization: true

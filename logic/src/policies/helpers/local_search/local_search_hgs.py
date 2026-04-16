@@ -61,10 +61,11 @@ class HGSLocalSearch(LocalSearch):
 
         self.routes = [r[:] for r in solution.routes]
 
-        # Run optimization
-        self._optimize_internal()
+        # Run optimization with current profit context
+        self._optimize_internal(initial_profit=solution.profit_score)
 
         solution.routes = self.routes
+        solution.profit_score = self.current_profit
         new_gt = []
         for r in self.routes:
             new_gt.extend(r)

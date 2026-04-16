@@ -6,8 +6,10 @@ Based on Fred Glover's "Tabu Search Fundamentals and Uses" (1995).
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Optional
+
+from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
 
 
 @dataclass
@@ -102,10 +104,14 @@ class TSParams:
     use_2opt: bool = True
     use_insertion: bool = True
 
+    # Injected Acceptance Criterion
+    acceptance_criterion: IAcceptanceCriterion = field(default_factory=lambda: None)  # type: ignore
+
     @classmethod
     def from_config(cls, config: Any) -> TSParams:
         """Build parameters from a configuration object."""
-        return cls(
+        # Build parameters
+        params = cls(
             tabu_tenure=getattr(config, "tabu_tenure", 7),
             dynamic_tenure=getattr(config, "dynamic_tenure", True),
             min_tenure=getattr(config, "min_tenure", 5),
@@ -134,3 +140,18 @@ class TSParams:
             use_2opt=getattr(config, "use_2opt", True),
             use_insertion=getattr(config, "use_insertion", True),
         )
+
+        # Handle Acceptance Criterion Injection
+        from logic.src.policies.route_construction.acceptance_criteria.factory import AcceptanceCriterionFactory
+
+        acceptance_cfg = getattr(config, "acceptance", None)
+        if acceptance_cfg:
+            params.acceptance_criterion = AcceptanceCriterionFactory.create(
+                name=acceptance_cfg.method,
+                config=acceptance_cfg.params,
+            )
+        else:
+            # Default to aspiration for standard TS
+            params.acceptance_criterion = AcceptanceCriterionFactory.create(name="ac")
+
+        return params

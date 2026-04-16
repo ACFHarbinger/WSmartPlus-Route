@@ -3,7 +3,10 @@ from typing import Any, Dict
 from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
 from logic.src.interfaces.distance_metric import IDistanceMetric
 
+from .base.registry import AcceptanceCriterionRegistry
 
+
+@AcceptanceCriterionRegistry.register("svns")
 class SkewedVNSAcceptance(IAcceptanceCriterion):
     """
     Skewed Variable Neighborhood Search (SVNS) Acceptance Criterion.

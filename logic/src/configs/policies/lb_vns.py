@@ -2,8 +2,10 @@
 Configuration for Local Branching with Variable Neighborhood Search (LB-VNS).
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional
+
+from logic.src.configs.policies.helpers.acceptance_criteria import AcceptanceConfig
 
 from .helpers.mandatory_selection import MandatorySelectionConfig
 from .helpers.route_improvement import RouteImprovingConfig
@@ -84,3 +86,6 @@ class LocalBranchingVNSConfig:
     framework: str = "ortools"
     mandatory_selection: Optional[MandatorySelectionConfig] = None
     route_improvement: Optional[RouteImprovingConfig] = None
+
+    # Injected Acceptance Criterion
+    acceptance: AcceptanceConfig = field(default_factory=lambda: AcceptanceConfig(method="only_improving"))

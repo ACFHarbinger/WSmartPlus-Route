@@ -8,6 +8,8 @@ import dataclasses
 from dataclasses import dataclass
 from typing import Any, Optional
 
+from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
+
 
 @dataclass
 class ALNSParams:
@@ -63,6 +65,7 @@ class ALNSParams:
     extended_operators: bool = False
     seed: Optional[int] = None
     engine: str = "custom"
+    acceptance_criterion: Optional[IAcceptanceCriterion] = None
 
     @classmethod
     def from_config(cls, config: Any) -> ALNSParams:
@@ -75,28 +78,49 @@ class ALNSParams:
             ALNSParams instance with values from config.
         """
         if isinstance(config, dict):
-            return cls(**{k: v for k, v in config.items() if k in {f.name for f in dataclasses.fields(cls)}})
+            params = cls(**{k: v for k, v in config.items() if k in {f.name for f in dataclasses.fields(cls)}})
+        else:
+            params = cls(
+                time_limit=config.time_limit,
+                max_iterations=config.max_iterations,
+                start_temp=config.start_temp,
+                cooling_rate=config.cooling_rate,
+                reaction_factor=config.reaction_factor,
+                min_removal=getattr(config, "min_removal", 4),
+                max_removal_pct=getattr(config, "max_removal_pct", 0.3),
+                segment_size=getattr(config, "segment_size", 100),
+                noise_factor=getattr(config, "noise_factor", 0.025),
+                worst_removal_randomness=getattr(config, "worst_removal_randomness", 3.0),
+                shaw_randomization=getattr(config, "shaw_randomization", 6.0),
+                max_removal_cap=getattr(config, "max_removal_cap", 100),
+                regret_pool=getattr(config, "regret_pool", "regret234"),
+                sigma_1=getattr(config, "sigma_1", 33.0),
+                sigma_2=getattr(config, "sigma_2", 9.0),
+                sigma_3=getattr(config, "sigma_3", 13.0),
+                vrpp=getattr(config, "vrpp", True),
+                profit_aware_operators=getattr(config, "profit_aware_operators", False),
+                extended_operators=getattr(config, "extended_operators", False),
+                seed=getattr(config, "seed", None),
+                engine=getattr(config, "engine", "custom"),
+            )
 
-        return cls(
-            time_limit=config.time_limit,
-            max_iterations=config.max_iterations,
-            start_temp=config.start_temp,
-            cooling_rate=config.cooling_rate,
-            reaction_factor=config.reaction_factor,
-            min_removal=getattr(config, "min_removal", 4),
-            max_removal_pct=getattr(config, "max_removal_pct", 0.3),
-            segment_size=getattr(config, "segment_size", 100),
-            noise_factor=getattr(config, "noise_factor", 0.025),
-            worst_removal_randomness=getattr(config, "worst_removal_randomness", 3.0),
-            shaw_randomization=getattr(config, "shaw_randomization", 6.0),
-            max_removal_cap=getattr(config, "max_removal_cap", 100),
-            regret_pool=getattr(config, "regret_pool", "regret234"),
-            sigma_1=getattr(config, "sigma_1", 33.0),
-            sigma_2=getattr(config, "sigma_2", 9.0),
-            sigma_3=getattr(config, "sigma_3", 13.0),
-            vrpp=getattr(config, "vrpp", True),
-            profit_aware_operators=getattr(config, "profit_aware_operators", False),
-            extended_operators=getattr(config, "extended_operators", False),
-            seed=getattr(config, "seed", None),
-            engine=getattr(config, "engine", "custom"),
-        )
+        # Handle Acceptance Criterion Injection
+        from logic.src.policies.route_construction.acceptance_criteria.factory import AcceptanceCriterionFactory
+
+        acceptance_cfg = getattr(config, "acceptance", None)
+        if acceptance_cfg:
+            params.acceptance_criterion = AcceptanceCriterionFactory.create(
+                name=acceptance_cfg.method,
+                config=acceptance_cfg.params,
+            )
+        else:
+            # Automatic mapping for legacy compatibility
+            # Use Boltzmann with original start_temp and cooling_rate
+            params.acceptance_criterion = AcceptanceCriterionFactory.create(
+                name="bmc",
+                initial_temp=params.start_temp,
+                alpha=params.cooling_rate,
+                seed=params.seed,
+            )
+
+        return params

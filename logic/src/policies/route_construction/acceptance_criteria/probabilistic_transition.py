@@ -8,7 +8,10 @@ from typing import Any, Dict, Optional
 
 from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
 
+from .base.registry import AcceptanceCriterionRegistry
 
+
+@AcceptanceCriterionRegistry.register("pt")
 class ProbabilisticTransitionAcceptance(IAcceptanceCriterion):
     """
     Acceptance criterion inspired by Ant Colony Optimization (ACO) transition rules.

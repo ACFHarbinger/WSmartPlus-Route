@@ -6,7 +6,10 @@ from typing import Any, Dict, List
 
 from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
 
+from .base.registry import AcceptanceCriterionRegistry
 
+
+@AcceptanceCriterionRegistry.register("lahc")
 class LateAcceptance(IAcceptanceCriterion):
     """
     Memory-based thresholding utilizing a finite circular array.

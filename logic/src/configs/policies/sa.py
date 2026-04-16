@@ -4,6 +4,7 @@ SANS (Simulated Annealing Neighborhood Search) configuration.
 
 from typing import List, Optional
 
+from .helpers.acceptance_criteria import AcceptanceConfig, BoltzmannAcceptanceConfig
 from .helpers.mandatory_selection import MandatorySelectionConfig
 from .helpers.route_improvement import RouteImprovingConfig
 
@@ -41,3 +42,6 @@ class SAConfig:
     profit_aware_operators: bool = False
     mandatory_selection: Optional[List[MandatorySelectionConfig]] = None
     route_improvement: Optional[List[RouteImprovingConfig]] = None
+    acceptance: AcceptanceConfig = AcceptanceConfig(
+        method="boltzmann", params=BoltzmannAcceptanceConfig(initial_temp=100.0, alpha=0.95)
+    )

@@ -7,7 +7,10 @@ import numpy as np
 
 from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
 
+from .base.registry import AcceptanceCriterionRegistry
 
+
+@AcceptanceCriterionRegistry.register("abm")
 class AdaptiveBoltzmannMetropolis(IAcceptanceCriterion):
     """
     Adaptive Boltzmann Metropolis Criterion.

@@ -1,0 +1,4 @@
+method: rrt
+params:
+  record_deviation: 0.05
+  maximization: true

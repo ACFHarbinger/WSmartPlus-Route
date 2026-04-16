@@ -1,0 +1,4 @@
+method: ema
+params:
+  weights: [1.0]
+  methods: ["oi"]

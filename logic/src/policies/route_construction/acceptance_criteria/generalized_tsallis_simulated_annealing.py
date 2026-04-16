@@ -7,7 +7,10 @@ import numpy as np
 
 from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
 
+from .base.registry import AcceptanceCriterionRegistry
 
+
+@AcceptanceCriterionRegistry.register("gt_sa")
 class GeneralizedTsallisSA(IAcceptanceCriterion):
     """
     Generalized (Tsallis) Simulated Annealing Acceptance Criterion (Tsallis & Stariolo, 1996).
