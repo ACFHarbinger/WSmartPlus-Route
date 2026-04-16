@@ -32,7 +32,7 @@ from typing import Any, Dict, List, Set, Tuple, Union
 import numpy as np
 
 from logic.src.configs.policies import PHConfig
-from logic.src.policies.base.factory import PolicyFactory
+from logic.src.policies.route_construction.base.factory import RouteConstructorFactory
 
 logger = logging.getLogger(__name__)
 
@@ -137,7 +137,7 @@ class ProgressiveHedgingEngine:
                     node_prizes[i] = base_profit - dual - penalty
 
                 # Dispatch to sub-solver
-                sub_solver = PolicyFactory.get_adapter(self.sub_solver_name)
+                sub_solver = RouteConstructorFactory.get_adapter(self.sub_solver_name)
 
                 values = {}
                 if hasattr(sub_solver, "config") and sub_solver.config is not None:

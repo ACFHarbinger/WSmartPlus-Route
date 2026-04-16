@@ -121,7 +121,7 @@ class AnalysisMixin:
             ]
         ].groupby("Cidx")
         res = groupDF.apply(
-            lambda group: (100 - (group["Max"] - group["Min"]).sum() / len(group) if len(group) > 0 else 100)
+            lambda group: 100 - (group["Max"] - group["Min"]).sum() / len(group) if len(group) > 0 else 100
         ).to_numpy()
         self.recs.loc[self.recs.index[start_idx] : self.recs.index[end_idx - 1], "Avg_Dist"] = res
 

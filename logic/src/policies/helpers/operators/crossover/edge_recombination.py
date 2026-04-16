@@ -4,7 +4,9 @@ from typing import Dict, List, Optional, Set, Tuple
 
 import numpy as np
 
-from logic.src.policies.hybrid_genetic_search.individual import Individual
+from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual import (
+    Individual,
+)
 
 
 def edge_recombination_crossover(

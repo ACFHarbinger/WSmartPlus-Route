@@ -7,8 +7,8 @@ from typing import Any, Dict, List, Tuple
 import numpy as np
 
 from logic.src.configs.policies.st_ef import ScenarioTreeExtensiveFormConfig
-from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import RouteConstructorRegistry
+from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
+from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine import (
     ScenarioTreeExtensiveFormEngine,
 )

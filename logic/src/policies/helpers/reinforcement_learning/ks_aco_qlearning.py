@@ -15,13 +15,19 @@ from typing import Any, Deque, Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.policies.ant_colony_optimization_k_sparse.construction import SolutionConstructor
-from logic.src.policies.ant_colony_optimization_k_sparse.params import KSACOParams
-from logic.src.policies.ant_colony_optimization_k_sparse.pheromones import SparsePheromoneTau
 from logic.src.policies.helpers.local_search.local_search_manager import LocalSearchManager
 from logic.src.policies.helpers.operators.heuristics import build_nn_routes
 from logic.src.policies.helpers.reinforcement_learning.agents.td_learning import QLearningAgent
 from logic.src.policies.helpers.reinforcement_learning.features.state import StateFeatureExtractor
+from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.construction import (
+    SolutionConstructor,
+)
+from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params import (
+    KSACOParams,
+)
+from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.pheromones import (
+    SparsePheromoneTau,
+)
 
 
 class KSparseACOQLSolver:

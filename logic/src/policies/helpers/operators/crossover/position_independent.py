@@ -1,7 +1,9 @@
 import random
 from typing import List, Optional
 
-from logic.src.policies.hybrid_genetic_search.individual import Individual
+from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual import (
+    Individual,
+)
 
 
 def position_independent_crossover(

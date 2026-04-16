@@ -6,8 +6,8 @@ from dataclasses import asdict
 from typing import Any, Dict, List, Tuple
 
 from logic.src.configs.policies.esdp import ExactSDPConfig
-from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import RouteConstructorRegistry
+from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
+from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.esdp_engine import (
     ExactSDPEngine,
 )

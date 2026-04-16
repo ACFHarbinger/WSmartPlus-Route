@@ -9,8 +9,8 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 import numpy as np
 
 from logic.src.configs.policies import HGSALNSConfig
-from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import RouteConstructorRegistry
+from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
+from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
 from ..adaptive_large_neighborhood_search.params import ALNSParams
 from ..hybrid_genetic_search.params import HGSParams
@@ -71,7 +71,7 @@ class HGSALNSPolicy(BaseRoutingPolicy):
             reaction_factor=values.get("alns_reaction_factor", 0.1),
             min_removal=values.get("alns_min_removal", 1),
             max_removal_pct=values.get("alns_max_removal_pct", 0.2),
-            time_limit=values.get("alns_time_limit", values.get("time_limit", 60.0)),
+            time_limit=values.get("alns_time_limit", 60.0),
             engine=values.get("alns_engine", "custom"),
             vrpp=vrpp,
             profit_aware_operators=profit_aware_operators,
@@ -79,7 +79,7 @@ class HGSALNSPolicy(BaseRoutingPolicy):
         )
 
         hgs_params = HGSParams(
-            time_limit=values.get("hgs_time_limit", values.get("time_limit", 60.0)),
+            time_limit=values.get("hgs_time_limit", 60.0),
             mu=values.get("hgs_population_size", 50),
             nb_elite=values.get("hgs_elite_size", 5),
             mutation_rate=values.get("hgs_mutation_rate", 0.2),
