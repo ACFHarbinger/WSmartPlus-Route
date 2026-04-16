@@ -23,6 +23,8 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 
 import numpy as np
 
+from logic.src.interfaces import IAcceptanceCriterion
+
 from ..operators.inter_route import (
     move_2opt_star,
     move_cross,
@@ -252,6 +254,21 @@ class LocalSearch(ABC):
                 insertion_costs.sort(key=lambda x: x[0])
                 self.top_insertions[node][r_idx] = insertion_costs[:3]
 
+    def _cost(self, routes: List[List[int]]) -> float:
+        """Calculate total distance of all routes."""
+        total = 0.0
+        for r in routes:
+            if not r:
+                continue
+            # Depot to first node
+            total += self.d[0, r[0]]
+            # Between nodes
+            for i in range(len(r) - 1):
+                total += self.d[r[i], r[i + 1]]
+            # Last node to depot
+            total += self.d[r[-1], 0]
+        return total
+
     def _should_try_operator(self, op_name: str) -> bool:
         """Check if the operator should be tried based on target_neighborhood filter."""
         target = getattr(self, "_target_neighborhood", "all")
@@ -291,17 +308,20 @@ class LocalSearch(ABC):
         """
         Consult the registered acceptance criterion to decide if a move should be applied.
         """
+        if self.acceptance_criterion is None:
+            return candidate_obj > current_obj + 1e-4
         return self.acceptance_criterion.accept(current_obj=current_obj, candidate_obj=candidate_obj, **kwargs)
 
     def step_move(self, current_obj: float, candidate_obj: float, accepted: bool, **kwargs: Any) -> None:
         """
         Perform internal state updates (e.g., cooling, counting) after a move decision.
         """
-        self.acceptance_criterion.step(
-            current_obj=current_obj, candidate_obj=candidate_obj, accepted=accepted, **kwargs
-        )
+        if self.acceptance_criterion is not None:
+            self.acceptance_criterion.step(
+                current_obj=current_obj, candidate_obj=candidate_obj, accepted=accepted, **kwargs
+            )
 
-    def _sectors_overlap(s1: Optional[Tuple[float, float]], s2: Optional[Tuple[float, float]]) -> bool:
+    def _sectors_overlap(self, s1: Optional[Tuple[float, float]], s2: Optional[Tuple[float, float]]) -> bool:
         """Return True if two polar sectors overlap, handling the ±π wraparound."""
         if s1 is None or s2 is None:
             return True

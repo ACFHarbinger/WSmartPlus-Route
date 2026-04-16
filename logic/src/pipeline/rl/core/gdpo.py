@@ -24,6 +24,8 @@ class GDPO(REINFORCE):
     before being aggregated into the final advantage signal.
     """
 
+    weights_tensor: torch.Tensor
+
     def __init__(
         self,
         gdpo_objective_keys: List[str],

@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any, Dict, Optional, Union
+from typing import Any, Optional
 
 
 @dataclass
@@ -129,6 +129,13 @@ class MonteCarloConfig:
 
 
 @dataclass
+class AspirationConfig:
+    """Configuration for Aspiration Criterion."""
+
+    pass
+
+
+@dataclass
 class AcceptanceConfig:
     """
     Unified configuration wrapper for selecting an acceptance criterion.
@@ -139,20 +146,4 @@ class AcceptanceConfig:
     """
 
     method: str = "only_improving"
-    params: Union[
-        OnlyImprovingConfig,
-        ImprovingAndEqualConfig,
-        AllMovesAcceptedConfig,
-        BoltzmannAcceptanceConfig,
-        DemonAlgorithmConfig,
-        GeneralizedTsallisSAConfig,
-        NonLinearGreatDelugeConfig,
-        EMCQConfig,
-        AdaptiveBoltzmannConfig,
-        LateAcceptanceConfig,
-        StepCountingConfig,
-        GreatDelugeConfig,
-        ThresholdAcceptingConfig,
-        MonteCarloConfig,
-        Dict[str, Any],
-    ] = field(default_factory=OnlyImprovingConfig)
+    params: Any = field(default_factory=OnlyImprovingConfig)

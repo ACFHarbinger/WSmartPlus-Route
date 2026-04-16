@@ -173,9 +173,9 @@ def run_lb_vns_gurobi(
         acceptance_criterion = params.acceptance_criterion
     else:
         # Avoid circular import if needed, or use a default
-        from logic.src.policies.route_construction.acceptance_criteria.only_improving import OnlyImprovingAcceptance
+        from logic.src.policies.route_construction.acceptance_criteria.only_improving import OnlyImproving
 
-        acceptance_criterion = OnlyImprovingAcceptance()
+        acceptance_criterion = OnlyImproving()
 
     # 1. Setup mathematical formulation with DFJ lazy constraints (no MTZ)
     # This creates the variables x (edges) and y (nodes) and the base constraints.

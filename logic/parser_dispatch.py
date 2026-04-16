@@ -3,8 +3,6 @@ import pprint
 import sys
 import traceback
 
-from gui.src.app import run_app_gui
-
 from logic.benchmark.benchmark_suite import run_benchmarks
 from logic.src.file_system import (
     delete_file_system_entries,
@@ -151,6 +149,8 @@ def parser_entry_point(args) -> None:
         else:
             pretty_print_args(comm, opts, inner_comm)
             if comm == "gui":
+                from gui.src.app import run_app_gui
+
                 exit_code = run_app_gui(opts)
             elif comm == "benchmark":
                 run_benchmarks(opts)

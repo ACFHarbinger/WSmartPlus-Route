@@ -9,6 +9,8 @@ from torch import nn
 class AbsolutePositionalEmbedding(nn.Module):
     """Sinusoidal positional embedding."""
 
+    pe: torch.Tensor
+
     def __init__(self, embed_dim: int, max_len: int = 5000):
         """
         Initialize AbsolutePositionalEmbedding.

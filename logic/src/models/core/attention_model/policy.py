@@ -27,6 +27,9 @@ class AttentionModelPolicy(AutoregressivePolicy):
     RL4CO-style Policy using existing Attention Model components.
     """
 
+    encoder: GraphAttentionEncoder
+    decoder: GlimpseDecoder
+
     def __init__(
         self,
         env_name: str,

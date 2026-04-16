@@ -9,6 +9,8 @@ Example:
 
 from __future__ import annotations
 
+from typing import cast
+
 import torch
 from tensordict import TensorDict
 from torch import nn
@@ -73,7 +75,9 @@ class NeuOptEncoder(ImprovementEncoder):
 
         h = self.init_proj(h)
 
-        for layer in self.layers:
+        for layer_module in self.layers:
+            # Cast to ModuleDict for indexing
+            layer = cast(nn.ModuleDict, layer_module)
             # Multi-head attention
             attn_out = layer["mha"](h)
             h = layer["norm1"](h + attn_out)

@@ -15,7 +15,7 @@ import copy
 import random
 import time
 from collections import deque
-from typing import Deque, Dict, List, Optional, Tuple
+from typing import Any, Deque, Dict, List, Optional, Tuple, cast
 
 import numpy as np
 
@@ -95,6 +95,7 @@ class RTSSolver:
         best_profit = profit
 
         # Setup modular acceptance criterion (Aspiration folding)
+        assert self.params.acceptance_criterion is not None
         self.params.acceptance_criterion.setup(profit)
 
         tenure = self.params.initial_tenure
@@ -124,7 +125,7 @@ class RTSSolver:
                 is_tabu = any(h == sol_hash for _, h in tabu_list)
 
                 # Modular Aspiration: Consult criterion if move is tabu
-                if is_tabu and not self.params.acceptance_criterion.accept(
+                if is_tabu and not cast(Any, self.params.acceptance_criterion).accept(
                     current_obj=profit, candidate_obj=cand_profit, is_tabu=True, it=iteration
                 ):
                     continue
@@ -160,7 +161,7 @@ class RTSSolver:
                 best_profit = profit
 
             # Step the criterion after move acceptance
-            self.params.acceptance_criterion.step(
+            cast(Any, self.params.acceptance_criterion).step(
                 current_obj=profit,
                 candidate_obj=best_cand_profit,
                 accepted=True,

@@ -9,7 +9,7 @@ Example:
 
 import contextlib
 from dataclasses import asdict, is_dataclass
-from typing import Any, Dict, cast
+from typing import TYPE_CHECKING, Any, Dict, cast
 
 import pytorch_lightning as pl
 from omegaconf import DictConfig, OmegaConf
@@ -41,6 +41,9 @@ except ImportError:
     get_active_run = None  # type: ignore[assignment]
 
 from .registry import _ALGO_REGISTRY
+
+if TYPE_CHECKING:
+    from logic.src.models.policies.autoregressive import AutoregressivePolicy
 
 logger = get_pylogger(__name__)
 
@@ -212,7 +215,7 @@ def _init_hybrid_policy(cfg: Config):
     # 1. Neural construction policy
     neural_cfg = cast(Any, cfg).copy()  # Simplified copy
     neural_cfg.model.name = "am"
-    neural_policy = create_model(cast(Config, neural_cfg)).policy
+    neural_policy = cast("AutoregressivePolicy", create_model(cast(Config, neural_cfg)).policy)
 
     # 2. Heuristic refinement policy
     ref_strategy = getattr(cfg.rl, "refinement_strategy", "alns")

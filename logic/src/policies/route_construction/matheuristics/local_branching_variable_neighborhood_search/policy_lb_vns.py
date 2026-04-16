@@ -117,7 +117,7 @@ class LocalBranchingVNSPolicy(BaseRoutingPolicy):
         # 3. Enforce deterministic behavior (override seed if provided in kwargs)
         seed = kwargs.get("seed", params.seed)
 
-        # 4. Call the core matheuristic solver with granular parameter extraction
+        # 4. Call the core matheuristic solver with curated parameters
         tour, obj_val, cost = run_lb_vns_gurobi(
             dist_matrix=distance_matrix,
             wastes=wastes,
@@ -125,14 +125,9 @@ class LocalBranchingVNSPolicy(BaseRoutingPolicy):
             R=R,
             C=C,
             mandatory_nodes=mandatory_nodes,
-            k_min=params.k_min,
-            k_max=params.k_max,
-            k_step=params.k_step,
-            time_limit=params.time_limit,
-            time_limit_per_lb=params.time_limit_per_lb,
-            max_lb_iterations=params.max_lb_iterations,
             mip_gap=params.mip_gap,
             seed=seed,
+            params=params,
         )
 
         return tour, float(cost), {"obj_val": obj_val}
