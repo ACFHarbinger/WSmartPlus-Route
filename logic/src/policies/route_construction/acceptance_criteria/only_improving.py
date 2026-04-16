@@ -16,10 +16,10 @@ class OnlyImproving(IAcceptanceCriterion):
     def setup(self, initial_objective: float) -> None:
         pass
 
-    def accept(self, current_obj: float, candidate_obj: float) -> bool:
+    def accept(self, current_obj: float, candidate_obj: float, **kwargs: Any) -> bool:
         return candidate_obj > current_obj
 
-    def step(self, current_obj: float, candidate_obj: float, accepted: bool) -> None:
+    def step(self, current_obj: float, candidate_obj: float, accepted: bool, **kwargs: Any) -> None:
         pass
 
     def get_state(self) -> Dict[str, Any]:

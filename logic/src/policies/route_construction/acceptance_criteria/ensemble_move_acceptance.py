@@ -30,7 +30,7 @@ class EnsembleAcceptance(IAcceptanceCriterion):
         for crit in self.criteria:
             crit.setup(initial_objective)
 
-    def accept(self, current_obj: float, candidate_obj: float) -> bool:
+    def accept(self, current_obj: float, candidate_obj: float, **kwargs: Any) -> bool:
         # Gather votes from all encapsulated criteria
         votes = [crit.accept(current_obj, candidate_obj) for crit in self.criteria]
 
@@ -43,7 +43,7 @@ class EnsembleAcceptance(IAcceptanceCriterion):
         else:
             raise ValueError(f"Unknown EMA rule: {self.rule}")
 
-    def step(self, current_obj: float, candidate_obj: float, accepted: bool) -> None:
+    def step(self, current_obj: float, candidate_obj: float, accepted: bool, **kwargs: Any) -> None:
         # Advance the state of all encapsulated criteria
         for crit in self.criteria:
             crit.step(current_obj, candidate_obj, accepted)

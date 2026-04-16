@@ -28,13 +28,13 @@ class ThresholdAccepting(IAcceptanceCriterion):
     def setup(self, initial_objective: float) -> None:
         pass
 
-    def accept(self, current_obj: float, candidate_obj: float) -> bool:
+    def accept(self, current_obj: float, candidate_obj: float, **kwargs: Any) -> bool:
         # delta = candidate - current. If worsening by 10, delta is -10.
         # If threshold is 15, -10 >= -15 is True.
         delta = candidate_obj - current_obj
         return delta >= -self.threshold
 
-    def step(self, current_obj: float, candidate_obj: float, accepted: bool) -> None:
+    def step(self, current_obj: float, candidate_obj: float, accepted: bool, **kwargs: Any) -> None:
         self.threshold = max(0.0, self.threshold - self.decay_rate)
 
     def get_state(self) -> Dict[str, Any]:

@@ -29,11 +29,11 @@ class StepCountingHillClimbing(IAcceptanceCriterion):
         self.bound = initial_objective
         self.counter = 0
 
-    def accept(self, current_obj: float, candidate_obj: float) -> bool:
+    def accept(self, current_obj: float, candidate_obj: float, **kwargs: Any) -> bool:
         # Accept if the candidate is better than the frozen bound
         return candidate_obj >= self.bound
 
-    def step(self, current_obj: float, candidate_obj: float, accepted: bool) -> None:
+    def step(self, current_obj: float, candidate_obj: float, accepted: bool, **kwargs: Any) -> None:
         self.counter += 1
         if self.counter >= self.step_size:
             # Threshold update condition met

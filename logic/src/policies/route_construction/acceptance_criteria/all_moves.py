@@ -1,5 +1,5 @@
 """
-Improving and Equal (IE) Criterion.
+All Moves Accepted (AMA) Criterion.
 """
 
 from typing import Any, Dict
@@ -7,19 +7,18 @@ from typing import Any, Dict
 from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
 
 
-class ImprovingAndEqual(IAcceptanceCriterion):
+class AllMovesAccepted(IAcceptanceCriterion):
     """
-    Weakly elitist strategy.
-
-    Accepts improving moves and identical-cost moves, allowing the solver to
-    transverse neutral objective plateaus.
+    Trivial acceptance criterion that accepts every generated neighborhood candidate.
+    This effectively transforms the metaheuristic into an unconstrained Random Walk
+    across the search space.
     """
 
     def setup(self, initial_objective: float) -> None:
         pass
 
     def accept(self, current_obj: float, candidate_obj: float, **kwargs: Any) -> bool:
-        return candidate_obj >= current_obj
+        return True
 
     def step(self, current_obj: float, candidate_obj: float, accepted: bool, **kwargs: Any) -> None:
         pass
