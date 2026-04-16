@@ -1,0 +1,230 @@
+"""
+HNA Policy Adapter for Simulator Integration.
+
+Provides a simulator-callable policy shim that wraps the trained
+``HRLIRPModule``. When no checkpoint is available, the policy falls back
+to a threshold-based Manager + greedy Worker.
+
+Registry key: ``"hna"``
+"""
+
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
+
+import numpy as np
+
+from logic.src.configs.policies import HNAPolicyConfig
+from logic.src.policies.helpers.operators import greedy_insertion
+from logic.src.policies.route_construction.base.base_multi_period_policy import BaseMultiPeriodRoutingPolicy
+from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
+
+
+@RouteConstructorRegistry.register("hna")
+class HierarchicalNeuralAgentPolicy(BaseMultiPeriodRoutingPolicy):
+    """
+    Simulator-callable policy adapter for the Hierarchical RL (HRL-IRP) algorithm.
+
+    This policy implements a Manager-Worker architecture for the Inventory
+    Routing Problem (IRP):
+    - **Manager**: A high-level neural network (or threshold-based fallback)
+      that decides which nodes must be visited on the current day to prevent
+      future stockouts across the $T$-day horizon.
+    - **Worker**: A low-level routing heuristic (Greedy Insertion) that
+      constructs efficient vehicle tours to satisfy the Manager's visit
+      decisions.
+
+    When a pre-trained ``HRLIRPModule`` checkpoint is provided, the Manager
+    network selects mandatory nodes based on current fill levels; otherwise,
+    it falls back to a greedy threshold heuristic (nodes with fill % above
+    ``greedy_threshold``).
+
+    The policy utilizes the ``BaseMultiPeriodRoutingPolicy`` template to
+    propagate multi-day plans and scenario transitions through the simulator.
+
+    Registry key: ``"hna"``
+    """
+
+    def __init__(
+        self,
+        config: Optional[Union[HNAPolicyConfig, Dict[str, Any]]] = None,
+    ) -> None:
+        """Initialise the HRL-IRP simulator policy."""
+        super().__init__(config)
+        self._module: Optional[Any] = None  # loaded lazily from checkpoint
+        self._module_loaded: bool = False
+
+    @classmethod
+    def _config_class(cls) -> Type[HNAPolicyConfig]:
+        return HNAPolicyConfig
+
+    def _get_config_key(self) -> str:
+        return "hna"
+
+    def _load_module(self) -> None:
+        """Lazily load the HRLIRPModule from checkpoint."""
+        if self._module_loaded:
+            return
+
+        cfg: HNAPolicyConfig = self.config  # type: ignore[assignment]
+
+        if cfg.checkpoint_path is not None:
+            try:
+                from logic.src.pipeline.rl.meta.hrl_irp import HRLIRPModule
+
+                self._module = HRLIRPModule.load_from_checkpoint(
+                    cfg.checkpoint_path,
+                    map_location=cfg.device,
+                )
+                self._module.eval()
+                if cfg.verbose:
+                    print(f"[HRL-IRP] Loaded checkpoint from {cfg.checkpoint_path}")
+            except Exception as exc:
+                if cfg.verbose:
+                    print(f"[HRL-IRP] Checkpoint load failed: {exc}. Using threshold fallback.")
+                self._module = None
+        else:
+            self._module = None
+
+        self._module_loaded = True
+
+    # ------------------------------------------------------------------
+    # Candidate selection
+    # ------------------------------------------------------------------
+
+    def _select_mandatory_nodes(
+        self,
+        wastes: Dict[int, float],
+        locs: Optional[np.ndarray] = None,
+    ) -> List[int]:
+        """Select mandatory nodes for the current day.
+
+        If a trained module is available, uses the Manager network.
+        Otherwise, uses the threshold heuristic.
+
+        Args:
+            wastes: Current fill levels {node_id: fill_%}.
+            locs: Node coordinates (optional, for neural inference).
+
+        Returns:
+            List of selected mandatory node IDs.
+        """
+        cfg: HNAPolicyConfig = self.config  # type: ignore[assignment]
+        self._load_module()
+
+        if self._module is not None and locs is not None:
+            try:
+                import torch
+
+                device = cfg.device
+                nodes = sorted(wastes.keys())
+                len(nodes)
+                fill_tensor = torch.tensor([wastes[n] for n in nodes], dtype=torch.float32, device=device).unsqueeze(0)
+                locs_tensor = torch.tensor(locs, dtype=torch.float32, device=device).unsqueeze(0)
+                mgr_obs = torch.cat([locs_tensor.view(1, -1), fill_tensor, torch.zeros(1, 1, device=device)], dim=-1)
+
+                with torch.no_grad():
+                    if hasattr(self._module, "manager") and self._module.manager is not None:
+                        logits = self._module.manager(mgr_obs)
+                        if isinstance(logits, tuple):
+                            logits = logits[0]
+                        probs = torch.sigmoid(logits).squeeze(0)
+                        mandatory = [nodes[i] for i, p in enumerate(probs) if p.item() > 0.5]
+                        return mandatory
+
+            except Exception:
+                pass  # Fall through to threshold
+
+        # Threshold fallback
+        return [n for n, fill in wastes.items() if fill >= cfg.greedy_threshold]
+
+    # ------------------------------------------------------------------
+    # Multi-period solver
+    # ------------------------------------------------------------------
+
+    def _run_multi_period_solver(
+        self,
+        tree: Any,
+        capacity: float,
+        revenue: float,
+        cost_unit: float,
+        **kwargs: Any,
+    ) -> Tuple[List[List[List[int]]], float, Dict[str, Any]]:
+        """Execute the HRL-IRP policy over the T-day horizon.
+
+        Args:
+            tree: ScenarioTree for demand simulation.
+            capacity: Vehicle capacity.
+            revenue: Revenue per unit waste (R).
+            cost_unit: Cost per unit distance (C).
+            **kwargs: Additional context (distance_matrix, sub_wastes, mandatory).
+
+        Returns:
+            Tuple of (full_plan[day][route][node], total_profit, metadata).
+        """
+        cfg: HNAPolicyConfig = self.config  # type: ignore[assignment]
+        sub_dist_matrix: np.ndarray = kwargs["distance_matrix"]
+        sub_wastes: Dict[int, float] = kwargs.get("sub_wastes", {})
+        mandatory_base: List[int] = kwargs.get("mandatory", [])
+        locs: Optional[np.ndarray] = kwargs.get("locs")
+
+        full_plan: List[List[List[int]]] = []
+        total_profit = 0.0
+        rolling_wastes = dict(sub_wastes)
+
+        for t in range(cfg.horizon):
+            # Manager: select node subset for this day
+            mandatory_selected = self._select_mandatory_nodes(rolling_wastes, locs)
+            # Always include base mandatory nodes
+            mandatory_today = sorted(set(mandatory_selected) | set(mandatory_base))
+
+            if mandatory_today:
+                routes = greedy_insertion(
+                    routes=[],
+                    removed_nodes=list(mandatory_today),
+                    dist_matrix=sub_dist_matrix,
+                    wastes=rolling_wastes,
+                    capacity=capacity,
+                    expand_pool=True,
+                )
+            else:
+                routes = []
+
+            # Compute profit
+            routing_cost = 0.0
+            for route in routes:
+                if not route:
+                    continue
+                routing_cost += sub_dist_matrix[0][route[0]] * cost_unit
+                for i in range(len(route) - 1):
+                    routing_cost += sub_dist_matrix[route[i]][route[i + 1]] * cost_unit
+                routing_cost += sub_dist_matrix[route[-1]][0] * cost_unit
+
+            day_revenue = sum(rolling_wastes.get(n, 0.0) * revenue for r in routes for n in r)
+            day_profit = day_revenue - routing_cost
+            total_profit += day_profit
+
+            full_plan.append(routes)
+
+            # Update inventory
+            visited = {n for r in routes for n in r}
+            for n in rolling_wastes:
+                if n in visited:
+                    rolling_wastes[n] = 0.0
+            # Demand transition (use scenario tree or uniform noise)
+            if tree is not None and hasattr(tree, "get_scenarios_at_day") and t + 1 < cfg.horizon:
+                scenarios = tree.get_scenarios_at_day(t + 1)
+                if scenarios:
+                    sc = scenarios[0]
+                    for n in rolling_wastes:
+                        if hasattr(sc, "wastes") and n - 1 < len(sc.wastes):
+                            rolling_wastes[n] = min(rolling_wastes[n] + float(sc.wastes[n - 1]), 200.0)
+
+            if cfg.verbose:
+                print(f"[HRL-IRP] Day {t}: profit={day_profit:.2f}, visited={visited}")
+
+        metadata: Dict[str, Any] = {
+            "total_profit": total_profit,
+            "horizon": cfg.horizon,
+            "checkpoint_used": cfg.checkpoint_path is not None and self._module is not None,
+        }
+
+        return full_plan, total_profit, metadata

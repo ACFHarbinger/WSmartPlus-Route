@@ -8,7 +8,7 @@ from typing import List, Optional
 from ..envs.graph import GraphConfig
 from ..envs.objective import ObjectiveConfig
 from ..models.decoding import DecodingConfig
-from ..policies.neural import NeuralConfig
+from ..policies.na import NeuralAgentConfig
 
 
 @dataclass
@@ -43,7 +43,7 @@ class EvalConfig:
     offset: int = 0
     eval_batch_size: int = 256
     decoding: DecodingConfig = field(default_factory=DecodingConfig)
-    policy: NeuralConfig = field(default_factory=NeuralConfig)
+    policy: NeuralAgentConfig = field(default_factory=NeuralAgentConfig)
     seed: int = 42
     data_distribution: Optional[str] = None
     no_cuda: bool = False

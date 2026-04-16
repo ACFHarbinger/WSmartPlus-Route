@@ -15,6 +15,8 @@ and maintain tractability, we rely heavily on the ng-route relaxation framework,
 balancing bounding strength with computational viability for the VRPP.
 """
 
+from __future__ import annotations
+
 import heapq
 import logging
 from typing import TYPE_CHECKING, Any, Dict, FrozenSet, List, Optional, Set, Tuple, Union, cast

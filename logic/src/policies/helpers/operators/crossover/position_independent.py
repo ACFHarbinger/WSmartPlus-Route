@@ -1,9 +1,19 @@
-import random
-from typing import List, Optional
+from __future__ import annotations
 
-from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual import (
-    Individual,
-)
+import random
+from typing import TYPE_CHECKING, List, Optional
+
+if TYPE_CHECKING:
+    from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual import (
+        Individual,
+    )
+
+
+def _get_individual_class() -> type:
+    """Lazy import to break circular dependency with meta_heuristics.__init__"""
+    from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual import Individual
+
+    return Individual
 
 
 def position_independent_crossover(
@@ -90,4 +100,4 @@ def position_independent_crossover(
         f"Crossover produced a giant tour missing mandatory nodes: {set(mandatory_nodes) - set(child_gt)}"
     )
 
-    return Individual(child_gt, expand_pool=p1.expand_pool)
+    return _get_individual_class()(child_gt, expand_pool=p1.expand_pool)

@@ -5,6 +5,8 @@ Defines the mathematical structures and facet forms for cutting planes used
 to strengthen the LP relaxation of the Vehicle Routing Problem with Profits.
 """
 
+from __future__ import annotations
+
 from typing import List, Set
 
 import numpy as np

@@ -1,5 +1,5 @@
 """
-Configuration dataclass for the HRL-IRP policy (simulator-callable wrapper config).
+Configuration dataclass for the HNA policy (simulator-callable wrapper config).
 """
 
 from __future__ import annotations
@@ -9,14 +9,14 @@ from typing import Optional
 
 
 @dataclass
-class HRLIRPPolicyConfig:
-    """Configuration for the HRL-IRP simulator policy adapter.
+class HNAPolicyConfig:
+    """Configuration for the Hierarchical Neural Agent simulator policy adapter.
 
     This is the lightweight config for the *simulator-callable* shim
-    (``policy_hrl_irp.py``), not the full Lightning training module config.
+    (``policy_hna.py``), not the full Lightning training module config.
 
     Attributes:
-        checkpoint_path: Path to a pre-trained HRLIRPModule checkpoint.
+        checkpoint_path: Path to a pre-trained HNAModule checkpoint.
             If None, the manager falls back to a threshold-based heuristic
             and the worker uses the greedy nearest-neighbour heuristic.
         device: Torch device string ("cpu", "cuda", "cuda:0", etc.).

@@ -2,6 +2,8 @@
 Dynamic programming labels for RCSPP.
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from typing import FrozenSet, List, Optional, Set, Tuple
 

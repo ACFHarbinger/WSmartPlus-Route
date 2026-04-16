@@ -25,17 +25,23 @@ from .solver import MASolver
 @RouteConstructorRegistry.register("ma")
 class MAPolicy(BaseRoutingPolicy):
     """
-    Adapter for the Memetic Algorithm (MA) solver.
+    Memetic Algorithm (MA) Policy - Evolutionary Search with Individual Learning.
 
-    This policy handles the conversion from abstract problem variables
-    (distance matrices, waste levels) into the specific parameters and state
-    required by the MASolver's evolutionary generational step.
+    This policy implements a Memetic Algorithm (Moscato, 1989), which extends the
+    standard Genetic Algorithm by incorporating a local search (learning) phase
+    for every individual offspring.
 
-    Design Pattern: Adapter
-    ----------------------
-    MAPolicy acts as an adapter, allowing the MASolver implementation (which
-    focused on numerical optimization) to be used within the simulator's
-    BaseRoutingPolicy framework.
+    Algorithm Components:
+    1.  **Global Exploration**: Employs genetic operators (selection, crossover,
+        mutation) to maintain a diverse population of routing solutions.
+    2.  **Individual Education**: Each newly generated offspring undergoes a
+        dedicated local search refinement (memetic learning) to reach a local
+        optimum before being re-integrated into the population.
+    3.  **Memetic Synergy**: This approach combines the broad exploratory power
+        of evolutionary search with the precision of deterministic local
+        optimization.
+
+    Registry key: ``"ma"``
     """
 
     def __init__(self, config: Optional[Union[MAConfig, Dict[str, Any]]] = None):

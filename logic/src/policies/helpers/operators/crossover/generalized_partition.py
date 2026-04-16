@@ -1,12 +1,22 @@
+from __future__ import annotations
+
 import random
 from collections import defaultdict
-from typing import Dict, List, Optional, Set, Tuple
+from typing import TYPE_CHECKING, Dict, List, Optional, Set, Tuple
 
 import numpy as np
 
-from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual import (
-    Individual,
-)
+if TYPE_CHECKING:
+    from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual import (
+        Individual,
+    )
+
+
+def _get_individual_class() -> type:
+    """Lazy import of Individual to break the circular import."""
+    from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual import Individual
+
+    return Individual
 
 
 def _dfs_iterative(
@@ -271,7 +281,7 @@ def route_profit_gpx_crossover(
         rng = random.Random()
 
     if not p1.routes or not p2.routes:
-        return Individual(p1.giant_tour[:])
+        return _get_individual_class()(p1.giant_tour[:])
 
     # 1. Extract physical edges and find components
     p1_edges = _get_physical_edges(p1.routes)
@@ -303,4 +313,4 @@ def route_profit_gpx_crossover(
     rng.shuffle(unvisited)
     child_gt = route_nodes + unvisited
 
-    return Individual(child_gt, expand_pool=p1.expand_pool)
+    return _get_individual_class()(child_gt, expand_pool=p1.expand_pool)

@@ -8,6 +8,8 @@ total collected profit across a finite fleet.
 Theoretical Basis: Barnhart et al. (1998).
 """
 
+from __future__ import annotations
+
 from logic.src.policies.helpers.branching_solvers.master_problem.model import VRPPMasterProblem
 from logic.src.policies.helpers.branching_solvers.master_problem.pool import GlobalCutPool
 

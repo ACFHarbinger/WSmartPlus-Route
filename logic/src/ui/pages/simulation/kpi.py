@@ -112,7 +112,7 @@ def render_policy_info(display_entry: Any) -> None:
         parts = policy_str.split("_")
         details: Dict[str, Any] = {"Full Policy String": policy_str}
 
-        known_policies = ["hgs", "alns", "gurobi", "tsp", "neural", "am", "ddam", "bcp"]
+        known_policies = ["hgs", "alns", "gurobi", "tsp", "na", "am", "ddam", "bcp"]
         known_selections = ["regular", "last_minute", "lookahead", "revenue", "service_level"]
         known_engines = ["gurobi", "pyvrp", "ortools"]
 

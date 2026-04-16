@@ -39,6 +39,7 @@ class ILSBDParams:
 
     Attributes:
         time_limit: Maximum wall-clock seconds for the overall Benders solve.
+        master_time_limit: Time limit for each master problem solve (seconds).
         n_scenarios: Number of SAA discrete scenarios for recourse approximation.
         seed: Random seed for reproducible scenario generation.
         vrpp: Whether to formulate as VRPP (some customer nodes may be skipped).
@@ -55,6 +56,11 @@ class ILSBDParams:
             "full". Overflow penalties are triggered for unvisited bins with
             fill > τ; undervisit penalties are triggered for visited bins with
             fill < τ.
+        horizon: Planning horizon T (number of days).
+        stockout_penalty: Penalty per unit of bin overflow per day.
+        big_m: Big-M constant for decoupling collection quantities and visit variables.
+        mean_scenario_only: If True, use mean demand for balance constraints in the master problem.
+        initial_inventory: Initial fill level (%) for all bins (default 0).
         fill_rate_cv: Coefficient of variation for the Gamma-distribution used in
             scenario generation.  CV = σ/μ; higher values produce more spread.
         mip_gap: Relative MIP gap tolerance for each Gurobi master problem solve.
@@ -68,7 +74,8 @@ class ILSBDParams:
         enable_comb_cuts: Enable heuristic comb inequality separation.
     """
 
-    time_limit: float = 120.0
+    time_limit: float = 300.0
+    master_time_limit: float = 60.0
     n_scenarios: int = 20
     seed: Optional[int] = 42
     vrpp: bool = True
@@ -78,6 +85,11 @@ class ILSBDParams:
     overflow_penalty: float = 100.0
     undervisit_penalty: float = 10.0
     collection_threshold: float = 70.0
+    horizon: int = 7
+    stockout_penalty: float = 500.0
+    big_m: float = 1e4
+    mean_scenario_only: bool = True
+    initial_inventory: float = 0.0
     fill_rate_cv: float = 0.3
     mip_gap: float = 0.01
     theta_lower_bound: float = 0.0

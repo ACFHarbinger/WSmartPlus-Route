@@ -15,6 +15,8 @@ and maintain tractability, we rely heavily on the ng-route relaxation framework,
 balancing bounding strength with computational viability for the VRPP.
 """
 
+from __future__ import annotations
+
 from logic.src.policies.helpers.branching_solvers.pricing.labels import Label
 from logic.src.policies.helpers.branching_solvers.pricing.solver import RCSPPSolver
 

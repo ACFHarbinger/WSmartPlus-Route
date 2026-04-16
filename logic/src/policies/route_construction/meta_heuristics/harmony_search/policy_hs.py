@@ -20,9 +20,24 @@ from .solver import HSSolver
 @RouteConstructorRegistry.register("hs")
 class HSPolicy(BaseRoutingPolicy):
     """
-    HS policy class.
+    Harmony Search (HS) Policy - Music-Inspired Global Optimization.
 
-    Visits bins using Harmony Search.
+    Harmony Search mimics the improvisation process of musicians to find an
+    aesthetically pleasing harmony, which corresponds to the global optimum
+    in optimization.
+
+    Algorithm Components:
+    1.  **Harmony Memory (HM)**: Stores a set of high-quality routing solutions.
+    2.  **Improvisation**: Generates a new harmony by either (a) selecting from
+        HM, (b) adjusting a value from HM, or (c) choosing a random value,
+        guided by Memory Consideration Rate (HMCR) and Pitch Adjustment Rate (PAR).
+    3.  **Update**: Replaces the worst harmony in HM if the new harmony is
+        superior.
+
+    HS is known for its simplicity and ability to find near-optimal solutions
+    rapidly across various combinatorial structures.
+
+    Registry key: ``"hs"``
     """
 
     def __init__(self, config: Optional[Union[HSConfig, Dict[str, Any]]] = None):

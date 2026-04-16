@@ -1,3 +1,5 @@
-from .neural_agent import policy_neural as policy_neural
+from .approximate_dynamic_programming_with_rollout import ADPRolloutPolicy as ADPRolloutPolicy
+from .hierarchical_neural_agent import HierarchicalNeuralAgentPolicy as HierarchicalNeuralAgentPolicy
+from .neural_agent import NeuralAgentPolicy as NeuralAgentPolicy
 
-__all__ = ["policy_neural"]
+__all__ = ["ADPRolloutPolicy", "HierarchicalNeuralAgentPolicy", "NeuralAgentPolicy"]

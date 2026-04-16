@@ -2,6 +2,8 @@
 Branch-and-Bound tree management for VRPP.
 """
 
+from __future__ import annotations
+
 import heapq
 import logging
 import warnings
