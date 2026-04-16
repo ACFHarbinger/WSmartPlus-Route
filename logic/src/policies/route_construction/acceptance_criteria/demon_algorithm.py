@@ -2,7 +2,10 @@ from typing import Any, Dict, List
 
 from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
 
+from .base.registry import AcceptanceCriterionRegistry
 
+
+@AcceptanceCriterionRegistry.register("da")
 class DemonAlgorithm(IAcceptanceCriterion):
     """
     Demon Algorithm Acceptance Criterion (Wood, 2000).

@@ -38,6 +38,7 @@ except ImportError:
 
 from ..kernel_search.solver import _dfj_subtour_elimination_callback, _reconstruct_tour, _set_mip_start, _setup_ks_model
 from ..local_branching.lb import _add_local_branching_constraint
+from .params import LBVNSParams
 
 
 def _shake_solution_gurobi(
@@ -118,15 +119,10 @@ def run_lb_vns_gurobi(
     R: float,
     C: float,
     mandatory_nodes: List[int],
-    k_min: int = 10,
-    k_max: int = 50,
-    k_step: int = 5,
-    time_limit: float = 300.0,
-    time_limit_per_lb: float = 30.0,
-    max_lb_iterations: int = 10,
     mip_gap: float = 0.01,
     seed: int = 42,
     env: Optional[gp.Env] = None,
+    params: Optional[LBVNSParams] = None,
 ) -> Tuple[List[int], float, float]:
     """
     Solve the Vehicle Routing Problem with Profits (VRPP) using LB-VNS.
@@ -165,8 +161,21 @@ def run_lb_vns_gurobi(
     # Initialize the Gurobi model
     model = gp.Model("LB_VNS_VRPP", env=env) if env else gp.Model("LB_VRPP")
     model.setParam("OutputFlag", 0)  # Silent mode
-    model.setParam("Seed", seed)
-    model.setParam("MIPGap", mip_gap)
+    # (blank line)
+    # Initialize params if not provided
+    params = params or LBVNSParams()
+    # (blank line)
+    model.setParam("Seed", params.seed)
+    model.setParam("MIPGap", params.mip_gap)
+
+    # Setup modular acceptance criterion (fallback if params not provided)
+    if params is not None and params.acceptance_criterion is not None:
+        acceptance_criterion = params.acceptance_criterion
+    else:
+        # Avoid circular import if needed, or use a default
+        from logic.src.policies.route_construction.acceptance_criteria.only_improving import OnlyImprovingAcceptance
+
+        acceptance_criterion = OnlyImprovingAcceptance()
 
     # 1. Setup mathematical formulation with DFJ lazy constraints (no MTZ)
     # This creates the variables x (edges) and y (nodes) and the base constraints.
@@ -180,13 +189,13 @@ def run_lb_vns_gurobi(
     # 2. Find an initial feasible solution
     # A short initial B&B run to establish a baseline (incumbent).
     # We allocate up to 30% of the budget (or at least 20s if budget allows) for this critical step
-    initial_alloc = min(time_limit * 0.8, max(20.0, time_limit * 0.3))
+    initial_alloc = min(params.time_limit * 0.8, max(20.0, params.time_limit * 0.3))
     model.setParam("TimeLimit", initial_alloc)
     model.optimize(_dfj_subtour_elimination_callback)
 
     if model.SolCount == 0:
         # If no solution found, try a slightly longer emergency solve.
-        fallback_alloc = min(time_limit * 0.8, max(15.0, time_limit * 0.5))
+        fallback_alloc = min(params.time_limit * 0.8, max(15.0, params.time_limit * 0.5))
         model.setParam("TimeLimit", fallback_alloc)
         model.optimize(_dfj_subtour_elimination_callback)
         if model.SolCount == 0:
@@ -196,14 +205,17 @@ def run_lb_vns_gurobi(
     incumbent_x = {key: var.X for key, var in x.items()}
     incumbent_y = {key: var.X for key, var in y.items()}
 
+    # Setup modular acceptance criterion
+    acceptance_criterion.setup(current_best_obj)
+
     # 3. MAIN VARIABLE NEIGHBORHOOD SEARCH LOOP
     # =========================================================================
     start_time = time.process_time()
-    k = k_min
+    k = params.k_min
 
-    while k <= k_max:
+    while k <= params.k_max:
         elapsed = time.process_time() - start_time
-        if elapsed > time_limit:
+        if elapsed > params.time_limit:
             # Terminate if the global budget is exhausted.
             break
 
@@ -214,7 +226,7 @@ def run_lb_vns_gurobi(
         if shaken_x is None:
             # If the neighborhood is infeasible (e.g., k is too small to flip mandatory edges),
             # expand the neighborhood and try again.
-            k += k_step
+            k += params.k_step
             continue
 
         # --- PHASE 2: LOCAL SEARCH (Intensification) ---
@@ -229,8 +241,8 @@ def run_lb_vns_gurobi(
 
         # Internal Local Branching loop for intensification
         lb_iter = 0
-        while lb_iter < max_lb_iterations:
-            remaining_time = time_limit - (time.process_time() - start_time)
+        while lb_iter < params.max_lb_iterations:
+            remaining_time = params.time_limit - (time.process_time() - start_time)
             if remaining_time <= 0:
                 break
 
@@ -243,7 +255,7 @@ def run_lb_vns_gurobi(
             for key, var in y.items():  # type: ignore[assignment]
                 var.Start = current_ls_y.get(key, 0.0)  # type: ignore[call-overload,union-attr]
 
-            iter_time = min(time_limit_per_lb / max_lb_iterations, remaining_time)
+            iter_time = min(params.time_limit_per_lb / params.max_lb_iterations, remaining_time)
             model.setParam("TimeLimit", iter_time)
             model.optimize(_dfj_subtour_elimination_callback)
 
@@ -263,16 +275,30 @@ def run_lb_vns_gurobi(
             lb_iter += 1
 
         # --- PHASE 3: NEIGHBORHOOD CHANGE (Move Acceptance) ---
-        # Check if the intensification phase yielded a solution better than the GLOBAL incumbent.
-        if current_ls_obj > current_best_obj + 1e-4:
-            # Moving: A better attraction basin was found! Update and intensification restarts.
+        # Delegate decision to injected criterion
+        is_accepted = acceptance_criterion.accept(
+            current_obj=current_best_obj,
+            candidate_obj=current_ls_obj,
+            iteration=int((time.process_time() - start_time) / params.time_limit * 100),  # Progress-based iteration
+            max_iterations=100,
+        )
+
+        if is_accepted:
+            # Moving: Update and intensification restarts.
             current_best_obj = current_ls_obj
             incumbent_x = current_ls_x
             incumbent_y = current_ls_y  # type: ignore[assignment]
-            k = k_min  # Reset VNS to smallest neighborhood
+            k = params.k_min  # Reset VNS to smallest neighborhood
         else:
             # Staying: Neighborhood N_k exhausted. Expand to diversify further.
-            k += k_step
+            k += params.k_step
+
+        # Step criterion
+        acceptance_criterion.step(
+            current_obj=current_best_obj,
+            candidate_obj=current_ls_obj,
+            accepted=is_accepted,
+        )
 
         # Cleanup warm-start values
         for var in model.getVars():

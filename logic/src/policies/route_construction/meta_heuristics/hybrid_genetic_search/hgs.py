@@ -168,6 +168,7 @@ class HGSSolver:
 
         # Initialize dual subpopulations and penalty
         penalty_capacity = self.params.initial_penalty_capacity
+        self.params.acceptance_criterion.setup(0.0)  # Placeholder or actual best profit
         pop_feasible, pop_infeasible = self._initialize_population(penalty_capacity)
 
         # Fix 4: best_profit_so_far initialized from feasible pool only.
@@ -227,6 +228,15 @@ class HGSSolver:
             if len(pop_infeasible) >= self.params.mu + self.params.n_offspring:
                 self._trim_one(pop_infeasible)
                 diversity_cache.clear()
+
+            # Step the criterion after offspring education (Algorithm state update)
+            self.params.acceptance_criterion.step(
+                current_obj=best_profit_so_far,
+                candidate_obj=child.profit_score if child.is_feasible else -float("inf"),
+                accepted=child.is_feasible and child.profit_score > best_profit_so_far,
+                iteration=it,
+                max_iterations=self.params.n_iterations_no_improvement,
+            )
 
             # Adjust penalties (batched every 100 iterations per Vidal 2022)
             if it % 100 == 0:

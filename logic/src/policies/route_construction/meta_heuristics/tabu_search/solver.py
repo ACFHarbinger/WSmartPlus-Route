@@ -114,10 +114,11 @@ class TSSolver:
         profit = self._evaluate(routes)
         current_routes = copy.deepcopy(routes)
         current_profit = profit
-
-        # Track best solution
         best_routes = copy.deepcopy(routes)
         best_profit = profit
+
+        # Setup modular acceptance criterion
+        self.params.acceptance_criterion.setup(profit)
 
         # Add initial solution to elite pool
         self._update_elite_pool(routes, profit)
@@ -158,10 +159,23 @@ class TSSolver:
 
             # Generate candidate neighborhood and select best move
             candidates = self._generate_candidates(current_routes)
-            best_candidate, best_candidate_profit, best_move_desc = self._select_best_candidate(candidates, best_profit)
+            best_candidate, best_candidate_profit, best_move_desc = self._select_best_candidate(
+                candidates, current_profit, best_profit
+            )
 
             # Move to best candidate
             if best_candidate is not None:
+                # Determine if this specific move was accepted (using the same logic as selection)
+                # Note: selection already filtered by acceptance, but we need the flag for step()
+                is_tabu = self._is_tabu(best_move_desc) if best_move_desc else False
+                is_accepted = self.params.acceptance_criterion.accept(
+                    current_obj=current_profit,
+                    candidate_obj=best_candidate_profit,
+                    is_tabu=is_tabu,
+                    best_profit=best_profit,
+                    iteration=iteration,
+                )
+
                 current_routes = best_candidate
                 current_profit = best_candidate_profit
 
@@ -182,6 +196,14 @@ class TSSolver:
                 else:
                     self.iterations_since_improvement += 1
 
+                # Step criterion
+                self.params.acceptance_criterion.step(
+                    current_obj=current_profit,
+                    candidate_obj=best_candidate_profit,
+                    accepted=is_accepted,
+                    iteration=iteration,
+                )
+
             # Record telemetry
             getattr(self, "_viz_record", lambda **k: None)(
                 iteration=self.iteration,
@@ -201,13 +223,11 @@ class TSSolver:
     def _select_best_candidate(
         self,
         candidates: Sequence[Tuple[List[List[int]], Tuple[str, Any]]],
+        current_profit: float,
         best_profit: float,
     ) -> Tuple[Optional[List[List[int]]], float, Optional[Tuple[str, Any]]]:
         """
-        Select best non-tabu candidate with aspiration criteria.
-
-        Returns:
-            Tuple of (best_routes, best_profit, best_move_desc)
+        Select best accepted candidate based on modular criterion (non-tabu or aspirated).
         """
         best_candidate = None
         best_candidate_profit = float("-inf")
@@ -215,20 +235,22 @@ class TSSolver:
 
         for candidate_routes, move_desc in candidates:
             candidate_profit = self._evaluate(candidate_routes)
-
-            # Check tabu status
             is_tabu = self._is_tabu(move_desc)
 
-            # Aspiration criterion: accept if globally best
-            aspiration_override = False
-            if is_tabu and self.params.aspiration_enabled and candidate_profit > best_profit:
-                aspiration_override = True
+            # Accept if not tabu or if aspiration criteria met
+            # Delegate decision to injected criterion
+            is_accepted = self.params.acceptance_criterion.accept(
+                current_obj=current_profit,
+                candidate_obj=candidate_profit,
+                is_tabu=is_tabu,
+                best_profit=best_profit,
+                iteration=self.iteration,
+            )
 
-            # Skip if tabu and no aspiration
-            if is_tabu and not aspiration_override:
+            if not is_accepted:
                 continue
 
-            # Apply frequency-based penalty for diversification
+            # Apply frequency-based penalty for diversification (Objective selection phase)
             penalty = 0.0
             if self.params.diversification_enabled:
                 penalty = self._compute_frequency_penalty(move_desc)
@@ -237,10 +259,10 @@ class TSSolver:
 
             if adjusted_profit > best_candidate_profit:
                 best_candidate = candidate_routes
-                best_candidate_profit = candidate_profit  # Use original profit for comparison
+                best_candidate_profit = candidate_profit
                 best_move_desc = move_desc
 
-        # If all moves are tabu and aspiration didn't help, force a move
+        # If all moves are rejected, force the least-rejected one (Tabu search convention)
         if best_candidate is None and candidates:
             best_candidate, best_move_desc = candidates[0]
             best_candidate_profit = self._evaluate(best_candidate)

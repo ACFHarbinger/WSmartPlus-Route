@@ -5,6 +5,7 @@ GIHH (Hyper-Heuristic with Two Guidance Indicators) configuration.
 from dataclasses import dataclass
 from typing import List, Optional
 
+from .helpers.acceptance_criteria import AcceptanceConfig, OnlyImprovingConfig
 from .helpers.mandatory_selection import MandatorySelectionConfig
 from .helpers.route_improvement import RouteImprovingConfig
 
@@ -51,3 +52,4 @@ class GIHHConfig:
 
     mandatory_selection: Optional[List[MandatorySelectionConfig]] = None
     route_improvement: Optional[List[RouteImprovingConfig]] = None
+    acceptance: AcceptanceConfig = AcceptanceConfig(method="only_improving", params=OnlyImprovingConfig())

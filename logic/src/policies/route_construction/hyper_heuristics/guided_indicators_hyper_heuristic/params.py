@@ -5,7 +5,12 @@ This module defines the configuration parameters for the GIHH algorithm.
 """
 
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any, Optional
+
+from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
+
+if TYPE_CHECKING:
+    pass
 
 
 @dataclass
@@ -42,11 +47,13 @@ class GIHHParams:
     # Profit-awareness
     vrpp: bool = True
     profit_aware_operators: bool = False
+    acceptance_criterion: Optional[IAcceptanceCriterion] = None
 
     @classmethod
     def from_config(cls, config: Any) -> "GIHHParams":
         """Create parameters from a configuration object."""
-        return cls(
+        # Build parameters
+        params = cls(
             time_limit=getattr(config, "time_limit", 60.0),
             max_iterations=getattr(config, "max_iterations", 1000),
             seed=getattr(config, "seed", None),
@@ -59,3 +66,18 @@ class GIHHParams:
             vrpp=getattr(config, "vrpp", True),
             profit_aware_operators=getattr(config, "profit_aware_operators", False),
         )
+
+        # Handle Acceptance Criterion Injection
+        from logic.src.policies.route_construction.acceptance_criteria.factory import AcceptanceCriterionFactory
+
+        acceptance_cfg = getattr(config, "acceptance", None)
+        if acceptance_cfg:
+            params.acceptance_criterion = AcceptanceCriterionFactory.create(
+                name=acceptance_cfg.method,
+                config=acceptance_cfg.params,
+            )
+        else:
+            # Default to only_improving for standard GIHH
+            params.acceptance_criterion = AcceptanceCriterionFactory.create(name="oi")
+
+        return params

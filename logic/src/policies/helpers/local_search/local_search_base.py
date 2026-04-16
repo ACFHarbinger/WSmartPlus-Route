@@ -62,6 +62,7 @@ class LocalSearch(ABC):
         params: Any,
         neighbors: Optional[Dict[int, List[int]]] = None,
         penalty_capacity: float = 1.0,
+        acceptance_criterion: Optional[IAcceptanceCriterion] = None,
     ):
         """
         Initialize Local Search base class.
@@ -85,6 +86,14 @@ class LocalSearch(ABC):
         self.params = params
         self.penalty_capacity = penalty_capacity
         self.random = random.Random(params.seed) if params.seed is not None else random.Random()
+
+        # Modular Acceptance Criterion Injection
+        self.acceptance_criterion = acceptance_criterion or getattr(params, "acceptance_criterion", None)
+        if self.acceptance_criterion is None:
+            # Fallback for base LocalSearch (elitist hill-climbing)
+            from logic.src.policies.route_construction.acceptance_criteria.factory import AcceptanceCriterionFactory
+
+            self.acceptance_criterion = AcceptanceCriterionFactory.create(name="only_improving")
 
         if neighbors is not None:
             self.neighbors = neighbors
@@ -120,6 +129,9 @@ class LocalSearch(ABC):
         # Route sector cache: route_idx -> (min_angle, max_angle)
         self.route_sectors: Dict[int, Optional[Tuple[float, float]]] = {}
 
+        # Current objective value tracking
+        self.current_profit: float = 0.0
+
     @abstractmethod
     def optimize(self, solution: Any) -> Any:
         """
@@ -131,6 +143,7 @@ class LocalSearch(ABC):
         self,
         target_neighborhood: Optional[str] = None,
         active_nodes: Optional[Set[int]] = None,
+        initial_profit: Optional[float] = None,
     ):
         """
         Core local search loop. Assumes self.routes is populated.
@@ -140,8 +153,16 @@ class LocalSearch(ABC):
                                If None or "all", applies all available operators.
             active_nodes: If provided, restricts search to moves involving at least one active node.
                         This enables O(1) localization per iteration (FILO).
+            initial_profit: Optional absolute profit of the starting solution.
         """
         self.route_loads = [self._calc_load_fresh(r) for r in self.routes]
+        if initial_profit is not None:
+            self.current_profit = initial_profit
+        else:
+            # Fallback slow calculation (should be avoided in tight loops)
+            self.current_profit = (
+                sum(self.waste.get(n, 0) * self.R for r in self.routes for n in r) - self._cost(self.routes) * self.C
+            )
 
         # Initialize node map and sector cache
         self.node_map.clear()
@@ -266,7 +287,20 @@ class LocalSearch(ABC):
         self.route_sectors[route_idx] = res
         return res
 
-    @staticmethod
+    def accept_move(self, current_obj: float, candidate_obj: float, **kwargs: Any) -> bool:
+        """
+        Consult the registered acceptance criterion to decide if a move should be applied.
+        """
+        return self.acceptance_criterion.accept(current_obj=current_obj, candidate_obj=candidate_obj, **kwargs)
+
+    def step_move(self, current_obj: float, candidate_obj: float, accepted: bool, **kwargs: Any) -> None:
+        """
+        Perform internal state updates (e.g., cooling, counting) after a move decision.
+        """
+        self.acceptance_criterion.step(
+            current_obj=current_obj, candidate_obj=candidate_obj, accepted=accepted, **kwargs
+        )
+
     def _sectors_overlap(s1: Optional[Tuple[float, float]], s2: Optional[Tuple[float, float]]) -> bool:
         """Return True if two polar sectors overlap, handling the ±π wraparound."""
         if s1 is None or s2 is None:

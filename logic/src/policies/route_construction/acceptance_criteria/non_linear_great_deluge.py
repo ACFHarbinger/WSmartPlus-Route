@@ -3,7 +3,10 @@ from typing import Any, Dict
 
 from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
 
+from .base.registry import AcceptanceCriterionRegistry
 
+
+@AcceptanceCriterionRegistry.register("nlgd")
 class NonLinearGreatDeluge(IAcceptanceCriterion):
     """
     Non-Linear Great Deluge (NLGD) Acceptance Criterion (Landa-Silva et al., 2004).

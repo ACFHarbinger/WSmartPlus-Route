@@ -73,7 +73,6 @@ References:
     Transportation Science, 40(4), 455-472.
 """
 
-import math
 import random
 import time
 from typing import Callable, Dict, List, Optional, Set, Tuple
@@ -105,7 +104,6 @@ from logic.src.policies.helpers.operators import (
     worst_removal,
 )
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
-from logic.src.utils.functions import safe_exp
 
 from .params import ALNSParams
 
@@ -182,6 +180,19 @@ class ALNSSolver:
 
         # Visited solutions tracking (Ropke & Pisinger 2005, Section 3.3)
         self.visited_solutions: Set[Tuple[int, ...]] = set()
+
+        # Acceptance Criterion Injection
+        self.acceptance_criterion = params.acceptance_criterion
+        if self.acceptance_criterion is None:
+            # Fallback (should not happen if from_config is used)
+            from logic.src.policies.route_construction.acceptance_criteria.factory import AcceptanceCriterionFactory
+
+            self.acceptance_criterion = AcceptanceCriterionFactory.create(
+                name="boltzmann",
+                initial_temp=params.start_temp or self._calculate_dynamic_start_temp(100.0),  # Fallback placeholder
+                alpha=params.cooling_rate,
+                seed=params.seed,
+            )
 
     # ------------------------------------------------------------------
     # Operator registry builders
@@ -529,29 +540,7 @@ class ALNSSolver:
         new_routes = repair_op(new_routes, removed, noise_val)
         return new_routes, d_idx, r_idx
 
-    def _accept_solution(self, current_profit: float, new_profit: float, T: float) -> bool:
-        """
-        Simulated Annealing acceptance criterion for VRPP profit maximization.
-
-        For maximization problems, we accept if:
-        1. new_profit > current_profit (always accept better solutions)
-        2. new_profit <= current_profit with probability exp(-Δ/T)
-           where Δ = current_profit - new_profit >= 0
-
-        Args:
-            current_profit: Current solution profit (revenue - cost)
-            new_profit: New solution profit
-            T: Current temperature
-
-        Returns:
-            bool: True if solution should be accepted
-        """
-        delta = current_profit - new_profit
-        if delta < -1e-6:  # new_profit > current_profit (improvement)
-            return True
-
-        prob = safe_exp(-delta / T) if T > 0 else 0
-        return self.random.random() < prob
+    # Removed _accept_solution in favor of self.acceptance_criterion.accept()
 
     def _update_weights(self, d_idx: int, r_idx: int, score: float) -> None:
         self.destroy_scores[d_idx] += score
@@ -588,29 +577,7 @@ class ALNSSolver:
             self.repair_scores[i] = 0.0
             self.repair_counts[i] = 0
 
-    def _calculate_dynamic_start_temp(self, initial_profit: float, w_percent: float = 0.05) -> float:
-        """
-        Calculate dynamic initial temperature (Ropke & Pisinger 2005, Section 3.5).
-
-        The temperature is set such that a solution that is w% worse than the
-        initial solution is accepted with probability 0.5.
-
-        For maximization:
-            Delta = initial_profit * w
-            T_start = Delta / ln(2)   [from exp(-Delta/T) = 0.5]
-
-        Args:
-            initial_profit: Profit of initial solution
-            w_percent: Percentage worse (default 5%)
-
-        Returns:
-            float: Initial temperature
-        """
-        delta = abs(initial_profit * w_percent)
-        if delta < 1e-9:
-            return 100.0  # Fallback if initial solution has near-zero profit
-        T_start = delta / math.log(2)  # ln(2) ≈ 0.693
-        return max(T_start, 1.0)
+    # Removed _calculate_dynamic_start_temp in favor of criterion.setup()
 
     # ------------------------------------------------------------------
     # Main solve loop
@@ -624,10 +591,7 @@ class ALNSSolver:
         self.visited_solutions.clear()
         self.visited_solutions.add(self._hash_solution(best_routes))  # type: ignore[arg-type]
 
-        if self.params.start_temp > 0:
-            T = self.params.start_temp
-        else:
-            T = self._calculate_dynamic_start_temp(best_profit, w_percent=0.05)
+        self.acceptance_criterion.setup(current_profit)
 
         for _it in range(self.params.max_iterations):
             if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
@@ -641,7 +605,13 @@ class ALNSSolver:
             new_hash = self._hash_solution(new_routes)
             is_new_solution = new_hash not in self.visited_solutions
 
-            accept = self._accept_solution(current_profit, new_profit, T)
+            accept = self.acceptance_criterion.accept(
+                current_obj=current_profit,
+                candidate_obj=new_profit,
+                f_best=best_profit,
+                iteration=_it,
+                max_iterations=self.params.max_iterations,
+            )
 
             # ------------------------------------------------------------------
             # Scoring (Ropke & Pisinger 2005, Section 3.4):
@@ -667,7 +637,14 @@ class ALNSSolver:
             if (_it + 1) % self.segment_size == 0:
                 self._end_segment()
 
-            T *= self.params.cooling_rate
+            self.acceptance_criterion.step(
+                current_obj=current_profit,
+                candidate_obj=new_profit,
+                accepted=accept,
+                f_best=best_profit,
+                iteration=_it,
+                max_iterations=self.params.max_iterations,
+            )
 
             self._viz_record(
                 iteration=_it,
@@ -675,7 +652,7 @@ class ALNSSolver:
                 r_idx=r_idx,
                 best_profit=best_profit,
                 current_profit=current_profit,
-                temperature=T,
+                acceptance_state=self.acceptance_criterion.get_state(),
                 accepted=int(accept),
                 score=score,
             )

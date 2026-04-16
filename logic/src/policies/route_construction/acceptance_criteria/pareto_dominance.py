@@ -6,7 +6,10 @@ from typing import Any, Dict, Sequence
 
 from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
 
+from .base.registry import AcceptanceCriterionRegistry
 
+
+@AcceptanceCriterionRegistry.register("pd")
 class ParetoDominanceAcceptance(IAcceptanceCriterion):
     """
     Accepts a candidate only if it strictly dominates the current solution across

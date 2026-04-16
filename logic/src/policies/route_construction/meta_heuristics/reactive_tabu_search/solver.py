@@ -94,6 +94,9 @@ class RTSSolver:
         best_routes = copy.deepcopy(routes)
         best_profit = profit
 
+        # Setup modular acceptance criterion (Aspiration folding)
+        self.params.acceptance_criterion.setup(profit)
+
         tenure = self.params.initial_tenure
         # Tabu list: deque of (llh_idx, solution_hash) pairs
         tabu_list: Deque[Tuple[int, int]] = deque(maxlen=self.params.max_tenure)
@@ -117,11 +120,13 @@ class RTSSolver:
                 except Exception:
                     continue
 
-                cand_hash = self._hash_routes(cand)
-                is_tabu = any(h == cand_hash for _, h in tabu_list)
+                sol_hash = self._hash_routes(cand)
+                is_tabu = any(h == sol_hash for _, h in tabu_list)
 
-                # Aspiration: override tabu if globally best
-                if is_tabu and cand_profit <= best_profit:
+                # Modular Aspiration: Consult criterion if move is tabu
+                if is_tabu and not self.params.acceptance_criterion.accept(
+                    current_obj=profit, candidate_obj=cand_profit, is_tabu=True, it=iteration
+                ):
                     continue
 
                 if cand_profit > best_cand_profit:
@@ -150,10 +155,17 @@ class RTSSolver:
             while len(tabu_list) > tenure:
                 tabu_list.popleft()
 
-            # Update global best
             if profit > best_profit:
                 best_routes = copy.deepcopy(routes)
                 best_profit = profit
+
+            # Step the criterion after move acceptance
+            self.params.acceptance_criterion.step(
+                current_obj=profit,
+                candidate_obj=best_cand_profit,
+                accepted=True,
+                it=iteration,
+            )
 
             # Reactive tenure adjustment via cycle detection (Battiti & Tecchiolli 1994)
             if sol_hash in hash_history:

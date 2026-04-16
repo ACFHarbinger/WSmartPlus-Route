@@ -8,7 +8,10 @@ from typing import Any, Dict, Optional
 
 from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
 
+from .base.registry import AcceptanceCriterionRegistry
 
+
+@AcceptanceCriterionRegistry.register("bmc")
 class BoltzmannAcceptance(IAcceptanceCriterion):
     """
     Metropolis-Boltzmann acceptance criterion governed by a geometric cooling schedule.

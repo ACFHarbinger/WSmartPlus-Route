@@ -290,6 +290,9 @@ class ILSRVNDSPSolver:
         best_profit = self.calculate_profit(best_routes)
         current_profit = best_profit
 
+        # Setup modular acceptance criterion
+        self.params.acceptance_criterion.setup(best_profit)
+
         self._add_to_pool(best_routes, target_pool)
 
         for iteration in range(max_iterations):
@@ -311,16 +314,31 @@ class ILSRVNDSPSolver:
                 if len(ls_routes) > 0 and (best_profit - ls_profit) / abs(best_profit + 1e-9) <= tolerance:
                     self._add_to_pool(ls_routes, target_pool)
 
-                # ILS Acceptance Criterion (Subramanian 2013):
-                # Accept new local optimum if and only if it strictly improves upon current solution
-                if ls_profit > current_profit + 1e-6:
+                # ILS Acceptance Criterion:
+                # Delegate decision (improve only, SA, GD, etc. based on injection)
+                is_accepted = self.params.acceptance_criterion.accept(
+                    current_obj=current_profit,
+                    candidate_obj=ls_profit,
+                    iteration=iteration * max_ils_iterations + _,
+                    max_iterations=max_iterations * max_ils_iterations,
+                )
+
+                if is_accepted:
                     iter_routes = copy.deepcopy(ls_routes)
                     current_profit = ls_profit
 
-                # Global best update: strict improvement only
+                # Global best update: strict improvement only (always)
                 if ls_profit > best_profit + 1e-6:
                     best_routes = copy.deepcopy(ls_routes)
                     best_profit = ls_profit
+
+                # Step criterion
+                self.params.acceptance_criterion.step(
+                    current_obj=current_profit,
+                    candidate_obj=ls_profit,
+                    accepted=is_accepted,
+                    iteration=iteration * max_ils_iterations + _,
+                )
 
             getattr(self, "_viz_record", lambda **k: None)(
                 iteration=iteration,

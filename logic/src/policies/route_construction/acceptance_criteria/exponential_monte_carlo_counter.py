@@ -3,7 +3,10 @@ from typing import Any, Callable, Dict, Optional, Union
 
 from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
 
+from .base.registry import AcceptanceCriterionRegistry
 
+
+@AcceptanceCriterionRegistry.register("emc_q")
 class EMCQAcceptance(IAcceptanceCriterion):
     """
     Exponential Monte Carlo with Counter (EMC-Q) Acceptance Criterion.

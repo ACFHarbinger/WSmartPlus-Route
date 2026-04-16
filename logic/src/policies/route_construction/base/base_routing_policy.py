@@ -15,7 +15,7 @@ import numpy as np
 
 from logic.src.interfaces.adapter import IPolicyAdapter
 from logic.src.pipeline.simulations.repository import load_area_and_waste_type_params
-from logic.src.policies.travelling_salesman_problem.tsp import get_route_cost
+from logic.src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp import get_route_cost
 from logic.src.tracking.core.run import get_active_run
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 

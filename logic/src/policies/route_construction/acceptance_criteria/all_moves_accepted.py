@@ -6,7 +6,10 @@ from typing import Any, Dict
 
 from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
 
+from .base.registry import AcceptanceCriterionRegistry
 
+
+@AcceptanceCriterionRegistry.register("ama")
 class AllMovesAccepted(IAcceptanceCriterion):
     """
     Trivial acceptance criterion that accepts every generated neighborhood candidate.

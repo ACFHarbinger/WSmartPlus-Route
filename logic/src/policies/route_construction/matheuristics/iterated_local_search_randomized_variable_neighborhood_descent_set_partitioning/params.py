@@ -2,8 +2,11 @@
 ILS-RVND-SP algorithm parameters.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Optional
+
+from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
+from logic.src.policies.route_construction.acceptance_criteria.factory import AcceptanceCriterionFactory
 
 
 @dataclass
@@ -39,10 +42,14 @@ class ILSRVNDSPParams:
     engine: str = "gurobi"
     framework: str = "ortools"
 
+    # Injected Acceptance Criterion
+    acceptance_criterion: IAcceptanceCriterion = field(default_factory=lambda: None)  # type: ignore
+
     @classmethod
     def from_config(cls, config: Any) -> "ILSRVNDSPParams":
         """Build parameters from a configuration object."""
-        return cls(
+        # Build parameters
+        params = cls(
             max_restarts=getattr(config, "max_restarts", 10),
             max_iter_ils=getattr(config, "max_iter_ils", 100),
             perturbation_strength=getattr(config, "perturbation_strength", 2),
@@ -63,3 +70,17 @@ class ILSRVNDSPParams:
             profit_aware_operators=getattr(config, "profit_aware_operators", False),
             local_search_iterations=getattr(config, "local_search_iterations", 500),
         )
+
+        # Handle Acceptance Criterion Injection
+
+        acceptance_cfg = getattr(config, "acceptance", None)
+        if acceptance_cfg:
+            params.acceptance_criterion = AcceptanceCriterionFactory.create(
+                name=acceptance_cfg.method,
+                config=acceptance_cfg.params,
+            )
+        else:
+            # Default to only_improving for standard ILS-RVND-SP
+            params.acceptance_criterion = AcceptanceCriterionFactory.create(name="oi")
+
+        return params
