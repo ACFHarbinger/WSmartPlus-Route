@@ -70,6 +70,7 @@ from .rl_hvpl import RLHVPLConfig
 from .rrt import RRTConfig
 from .rts import RTSConfig
 from .sa import SAConfig
+from .src import SRCConfig
 from .sans import SANSConfig
 from .sca import SCAConfig
 from .schc import SCHCConfig
@@ -168,4 +169,5 @@ __all__ = [
     "ScenarioTreeExtensiveFormConfig",
     "LBBDConfig",
     "CPSATConfig",
+    "SRCConfig",
 ]
