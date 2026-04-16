@@ -8,7 +8,7 @@ from typing import Any, Dict, Optional, cast
 
 from tensordict import TensorDict
 
-from logic.src.envs.base import RL4COEnvBase
+from logic.src.envs.base.base import RL4COEnvBase
 from logic.src.models.common.non_autoregressive.encoder import (
     NonAutoregressiveEncoder,
 )

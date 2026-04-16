@@ -11,7 +11,7 @@ from typing import Any, Callable, Dict, Literal, Optional
 import torch
 from tensordict import TensorDict
 
-from logic.src.envs.base import RL4COEnvBase
+from logic.src.envs.base.base import RL4COEnvBase
 from logic.src.models.common.non_autoregressive.policy import NonAutoregressivePolicy
 from logic.src.models.subnets.modules.glop_factory import get_adapter
 from logic.src.utils.decoding import batchify, unbatchify

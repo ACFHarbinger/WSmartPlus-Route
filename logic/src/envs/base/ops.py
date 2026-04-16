@@ -9,8 +9,6 @@ import torch
 from tensordict import TensorDictBase
 from torchrl.data import DiscreteTensorSpec, TensorSpec, UnboundedContinuousTensorSpec
 
-from logic.src.utils.data.td_state_wrapper import TensorDictStateWrapper
-
 
 class OpsMixin:
     """
@@ -148,6 +146,8 @@ class OpsMixin:
         Create a state wrapper for the environment.
         This provides the API expected by the constructive decoders.
         """
+        from logic.src.utils.data.td_state_wrapper import TensorDictStateWrapper
+
         # If nodes is not already initialized (missing 'current_node' etc), reset it
         tensordict = nodes
         if tensordict is not None and "current_node" not in tensordict.keys():

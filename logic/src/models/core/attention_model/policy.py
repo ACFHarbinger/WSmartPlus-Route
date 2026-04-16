@@ -13,7 +13,7 @@ import torch
 from tensordict import TensorDict
 
 from logic.src.data.processor.transforms import batchify
-from logic.src.envs.base import RL4COEnvBase
+from logic.src.envs.base.base import RL4COEnvBase
 from logic.src.models.common.autoregressive.policy import AutoregressivePolicy
 from logic.src.models.subnets.decoders.glimpse.decoder import GlimpseDecoder
 from logic.src.models.subnets.embeddings import get_init_embedding

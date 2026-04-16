@@ -30,6 +30,17 @@ if not hasattr(typing, "Self"):
         # Fallback to Any if typing_extensions is missing
         typing.Self = typing.Any  # type: ignore[attr-defined]
 
+# Ensure torch.multiprocessing.reductions.ForkingPickler compatibility (for Tensordict + Torch 2.11+)
+try:
+    import torch.multiprocessing.reductions
+
+    if not hasattr(torch.multiprocessing.reductions, "ForkingPickler"):
+        import multiprocessing.reduction
+
+        torch.multiprocessing.reductions.ForkingPickler = multiprocessing.reduction.ForkingPickler  # type: ignore[attr-defined]
+except ImportError:
+    pass
+
 from logic.hydra_dispatch import hydra_entry_point
 from logic.parser_dispatch import parser_entry_point
 from logic.src.cli import parse_params
