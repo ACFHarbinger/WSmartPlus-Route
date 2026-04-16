@@ -20,6 +20,7 @@ from typing import List, Tuple
 import numpy as np
 
 from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
+from logic.src.policies.context.search_context import SearchContext
 from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
 from logic.src.policies.mandatory_selection.base.selection_registry import MandatorySelectionRegistry
 
@@ -30,7 +31,7 @@ class SubmodularGreedySelection(IMandatorySelectionStrategy):
     Selection strategy based on Submodular Facility Location Coverage.
     """
 
-    def select_bins(self, context: SelectionContext) -> List[int]:
+    def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
         """
         Greedily maximize the coverage objective using lazy evaluations.
 
@@ -42,7 +43,7 @@ class SubmodularGreedySelection(IMandatorySelectionStrategy):
         """
         n_bins = len(context.current_fill)
         if n_bins == 0:
-            return []
+            return [], SearchContext.initialize(selection_metrics={"strategy": "SubmodularGreedySelection"})
 
         # 1. Individual revenues
         bin_cap = context.bin_volume * context.bin_density
@@ -65,7 +66,9 @@ class SubmodularGreedySelection(IMandatorySelectionStrategy):
         def get_total_objective(current_min_dists):
             # f(S) = sum max(0, r_i - alpha * d_i)
             vals = revenues - alpha * current_min_dists
-            return np.sum(np.maximum(0, vals))
+            return np.sum(np.maximum(0, vals)), SearchContext.initialize(
+                selection_metrics={"strategy": "SubmodularGreedySelection"}
+            )
 
         # Initial objective value (S = {0})
         current_obj = get_total_objective(min_dist_to_S)
@@ -81,7 +84,7 @@ class SubmodularGreedySelection(IMandatorySelectionStrategy):
             affected = k_dists < current_min_dists
 
             if not np.any(affected):
-                return 0.0
+                return 0.0, SearchContext.initialize(selection_metrics={"strategy": "SubmodularGreedySelection"})
 
             new_d = k_dists[affected]
             old_d = current_min_dists[affected]
@@ -89,7 +92,9 @@ class SubmodularGreedySelection(IMandatorySelectionStrategy):
 
             old_val = np.maximum(0, r - alpha * old_d)
             new_val = np.maximum(0, r - alpha * new_d)
-            return np.sum(new_val - old_val)
+            return np.sum(new_val - old_val), SearchContext.initialize(
+                selection_metrics={"strategy": "SubmodularGreedySelection"}
+            )
 
         for i in range(n_bins):
             gain = compute_marginal_gain(i, min_dist_to_S)
@@ -114,4 +119,6 @@ class SubmodularGreedySelection(IMandatorySelectionStrategy):
             # Update min distances
             min_dist_to_S = np.minimum(min_dist_to_S, dist_mat[bin_idx + 1, 1:])
 
-        return sorted((np.array(selected_set) + 1).tolist())
+        return sorted((np.array(selected_set) + 1).tolist()), SearchContext.initialize(
+            selection_metrics={"strategy": "SubmodularGreedySelection"}
+        )

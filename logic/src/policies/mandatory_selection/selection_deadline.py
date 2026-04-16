@@ -11,11 +11,12 @@ Example:
     >>> bins = strategy.select_bins(context)
 """
 
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 
 from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
+from logic.src.policies.context.search_context import SearchContext
 from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
 from logic.src.policies.mandatory_selection.base.selection_registry import MandatorySelectionRegistry
 
@@ -26,7 +27,7 @@ class DeadlineDrivenSelection(IMandatorySelectionStrategy):
     Temporal selection strategy based on exact day-to-overflow calculation.
     """
 
-    def select_bins(self, context: SelectionContext) -> List[int]:
+    def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
         """
         Selects bins that will reach maximum capacity within the lookahead horizon.
 
@@ -55,4 +56,6 @@ class DeadlineDrivenSelection(IMandatorySelectionStrategy):
         # Select bins whose deadline is within the requested horizon
         mandatory_indices = np.nonzero(days_to_overflow <= horizon_days)[0]
 
-        return (mandatory_indices + 1).tolist()
+        return (mandatory_indices + 1).tolist(), SearchContext.initialize(
+            selection_metrics={"strategy": "DeadlineDrivenSelection"}
+        )

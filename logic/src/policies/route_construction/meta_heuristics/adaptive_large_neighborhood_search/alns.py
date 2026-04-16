@@ -611,7 +611,7 @@ class ALNSSolver:
             if self.acceptance_criterion is None:
                 accept = new_profit > current_profit + 1e-6
             else:
-                accept = self.acceptance_criterion.accept(
+                accept, _ = self.acceptance_criterion.accept(
                     current_obj=current_profit,
                     candidate_obj=new_profit,
                     f_best=best_profit,

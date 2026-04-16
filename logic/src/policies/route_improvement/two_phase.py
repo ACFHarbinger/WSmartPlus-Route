@@ -2,9 +2,10 @@
 Two-Phase Route Improver.
 """
 
-from typing import Any, List
+from typing import Any, List, Tuple
 
 from logic.src.interfaces.route_improvement import IRouteImprovement
+from logic.src.policies.context.search_context import ImprovementMetrics
 
 from .base import RouteImproverRegistry
 
@@ -16,7 +17,7 @@ class TwoPhaseRouteImprover(IRouteImprovement):
     Example: Augmentation phase followed by Improvement phase.
     """
 
-    def process(self, tour: List[int], **kwargs: Any) -> List[int]:
+    def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
         """
         Run two-phase refinement on the tour.
 
@@ -36,8 +37,14 @@ class TwoPhaseRouteImprover(IRouteImprovement):
         # Lazy import of factory to avoid circular dependencies if needed,
         # but factory.py uses Registry, so we can just use RouteImproverRegistry.
 
-        phase_one_name = kwargs.get("phase_one", self.config.get("phase_one", "cheapest_insertion"))
-        phase_two_name = kwargs.get("phase_two", self.config.get("phase_two", "lkh"))
+        phase_one_name = (
+            kwargs.get("phase_one", "")
+            if kwargs.get("phase_one") is not None
+            else self.config.get("phase_one", "cheapest_insertion")
+        )
+        phase_two_name = (
+            kwargs.get("phase_two", "") if kwargs.get("phase_two") is not None else self.config.get("phase_two", "lkh")
+        )
 
         # 1. Phase One
         p1_cls = RouteImproverRegistry.get_route_improver_class(phase_one_name)
@@ -46,7 +53,7 @@ class TwoPhaseRouteImprover(IRouteImprovement):
 
         # Construct sub-processor with reference to full config dict
         p1 = p1_cls(config=self.config)
-        tour = p1.process(tour, **kwargs)
+        tour, p1_metrics = p1.process(tour, **kwargs)
 
         # 2. Phase Two
         p2_cls = RouteImproverRegistry.get_route_improver_class(phase_two_name)
@@ -54,6 +61,11 @@ class TwoPhaseRouteImprover(IRouteImprovement):
             raise ValueError(f"Unknown phase_two strategy: {phase_two_name!r}")
 
         p2 = p2_cls(config=self.config)
-        tour = p2.process(tour, **kwargs)
+        tour, p2_metrics = p2.process(tour, **kwargs)
 
-        return tour
+        metrics: ImprovementMetrics = {
+            "algorithm": "TwoPhaseRouteImprover",
+            "phase_one": p1_metrics,
+            "phase_two": p2_metrics,
+        }
+        return tour, metrics

@@ -13,9 +13,10 @@ Example:
     >>> bins = strategy.select_bins(context)
 """
 
-from typing import List
+from typing import List, Tuple
 
 from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
+from logic.src.policies.context.search_context import SearchContext
 from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
 from logic.src.policies.mandatory_selection.base.selection_registry import (
     MandatorySelectionRegistry,
@@ -31,7 +32,7 @@ class RegularSelection(IMandatorySelectionStrategy):
     Scheduled if (current_day - 1 % frequency) == 0.
     """
 
-    def select_bins(self, context: SelectionContext) -> List[int]:
+    def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
         """
         Select all bins if it is a scheduled collection day.
 
@@ -46,7 +47,7 @@ class RegularSelection(IMandatorySelectionStrategy):
         # where X is the frequency (threshold).
         threshold = getattr(context, "threshold", 1)  # Using threshold as frequency
         if (current_day - 1) % threshold != 0:
-            return []
+            return [], SearchContext.initialize(selection_metrics={"strategy": "RegularSelection"})
 
         # Find bins where current fill >= min_fill
         eligible_bins = []
@@ -57,4 +58,4 @@ class RegularSelection(IMandatorySelectionStrategy):
                     eligible_bins.append(i + 1)  # 1-based indexing for routing
         else:
             eligible_bins = (context.bin_ids + 1).tolist() if hasattr(context, "bin_ids") else []
-        return eligible_bins
+        return eligible_bins, SearchContext.initialize(selection_metrics={"strategy": "RegularSelection"})

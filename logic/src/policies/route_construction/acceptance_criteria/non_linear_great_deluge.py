@@ -1,7 +1,8 @@
 import math
-from typing import Any, Dict
+from typing import Any, Dict, Tuple, cast
 
-from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
+from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion, ObjectiveValue
+from logic.src.policies.context.search_context import AcceptanceMetrics
 
 from .base.registry import AcceptanceCriterionRegistry
 
@@ -47,7 +48,8 @@ class NonLinearGreatDeluge(IAcceptanceCriterion):
         self.t = 0
         self.f_best_ever = float("inf") if not maximization else float("-inf")
 
-    def setup(self, initial_objective: float) -> None:
+    def setup(self, initial_objective: ObjectiveValue) -> None:
+        initial_objective = cast(float, initial_objective)
         if self.maximization:
             self.level_0 = initial_objective * (1.0 - self.initial_tolerance)
             self.f_best_ever = initial_objective
@@ -66,7 +68,11 @@ class NonLinearGreatDeluge(IAcceptanceCriterion):
             return float(f_best)
         return self.f_best_ever
 
-    def accept(self, current_obj: float, candidate_obj: float, **kwargs: Any) -> bool:
+    def accept(
+        self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, **kwargs: Any
+    ) -> Tuple[bool, AcceptanceMetrics]:
+        current_obj = cast(float, current_obj)
+        candidate_obj = cast(float, candidate_obj)
         # f_best tracking for internal fallback
         if self.maximization:
             self.f_best_ever = max(self.f_best_ever, current_obj, candidate_obj)
@@ -74,11 +80,29 @@ class NonLinearGreatDeluge(IAcceptanceCriterion):
             self.f_best_ever = min(self.f_best_ever, current_obj, candidate_obj)
 
         if self.maximization:
-            return candidate_obj >= self.water_level
+            _accepted = bool(candidate_obj >= self.water_level)
+            return _accepted, {
+                "accepted": _accepted,
+                "delta": candidate_obj - current_obj,
+                "water_level": self.water_level,
+                "iteration": self.t,
+                "progress": self.t / self.t_max if self.t_max > 0 else 0.0,
+                "maximization": self.maximization,
+            }
         else:
-            return candidate_obj <= self.water_level
+            _accepted = bool(candidate_obj <= self.water_level)
+            return _accepted, {
+                "accepted": _accepted,
+                "delta": candidate_obj - current_obj,
+                "water_level": self.water_level,
+                "iteration": self.t,
+                "progress": self.t / self.t_max if self.t_max > 0 else 0.0,
+                "maximization": self.maximization,
+            }
 
-    def step(self, current_obj: float, candidate_obj: float, accepted: bool, **kwargs: Any) -> None:
+    def step(self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, accepted: bool, **kwargs: Any) -> None:
+        current_obj = cast(float, current_obj)
+        candidate_obj = cast(float, candidate_obj)
         self.t += 1
         f_best = self._get_f_best(**kwargs)
 

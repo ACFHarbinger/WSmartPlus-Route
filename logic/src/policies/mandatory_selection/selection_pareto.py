@@ -18,11 +18,12 @@ Example:
     >>> bins = strategy.select_bins(context)
 """
 
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 
 from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
+from logic.src.policies.context.search_context import SearchContext
 from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
 from logic.src.policies.mandatory_selection.base.selection_registry import MandatorySelectionRegistry
 
@@ -37,7 +38,7 @@ class ParetoFrontSelection(IMandatorySelectionStrategy):
     A bin $v_i$ dominates $v_j$ if it is strictly more urgent AND closer to the depot.
     """
 
-    def select_bins(self, context: SelectionContext) -> List[int]:
+    def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
         """
         Selects the non-dominated set of bins based on urgency and routing cost.
 
@@ -96,4 +97,4 @@ class ParetoFrontSelection(IMandatorySelectionStrategy):
             if not dominated:
                 mandatory.append(i + 1)
 
-        return mandatory
+        return mandatory, SearchContext.initialize(selection_metrics={"strategy": "ParetoFrontSelection"})

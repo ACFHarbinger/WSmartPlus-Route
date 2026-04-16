@@ -1,7 +1,8 @@
 import math
-from typing import Any, Dict, List, Sequence, Tuple, Union
+from typing import Any, Dict, List, Sequence, Tuple, Union, cast
 
-from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
+from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion, ObjectiveValue
+from logic.src.policies.context.search_context import AcceptanceMetrics
 
 from .base.registry import AcceptanceCriterionRegistry
 
@@ -31,7 +32,7 @@ class EpsilonDominanceCriterion(IAcceptanceCriterion):
         # Archive of (epsilon_box_tuple, objective_vector_tuple)
         self.archive: List[Tuple[Tuple[int, ...], Tuple[float, ...]]] = []
 
-    def setup(self, initial_objective: float) -> None:
+    def setup(self, initial_objective: ObjectiveValue) -> None:
         """
         Initial setup. Note: initial_objective index 0 is used if it's a scalar,
         but typically we expect a sequence for multi-objective.
@@ -67,23 +68,33 @@ class EpsilonDominanceCriterion(IAcceptanceCriterion):
             strictly_less = any(a < b for a, b in zip(box_a, box_b, strict=False))
             return less_or_equal and strictly_less
 
-    def accept(self, current_obj: float, candidate_obj: float, **kwargs: Any) -> bool:
+    def accept(
+        self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, **kwargs: Any
+    ) -> Tuple[bool, AcceptanceMetrics]:
         """
         Args:
             current_obj: Expects Sequence[float]
             candidate_obj: Expects Sequence[float]
         """
-        cand_vec: Sequence[float] = candidate_obj  # type: ignore
+        cand_vec = cast(Sequence[float], candidate_obj)
         cand_box = self._get_epsilon_box(cand_vec)
 
         # A candidate is accepted if its box is not dominated by any box in the archive
-        return all(not (self._dominates(arc_box, cand_box) or arc_box == cand_box) for arc_box, _ in self.archive)
+        _accepted = bool(
+            all(not (self._dominates(arc_box, cand_box) or arc_box == cand_box) for arc_box, _ in self.archive)
+        )
+        return _accepted, {
+            "accepted": _accepted,
+            "archive_size": len(self.archive),
+            "epsilon": self.epsilon,
+            "maximization": self.maximization,
+        }
 
-    def step(self, current_obj: float, candidate_obj: float, accepted: bool, **kwargs: Any) -> None:
+    def step(self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, accepted: bool, **kwargs: Any) -> None:
         if not accepted:
             return
 
-        cand_vec: Sequence[float] = candidate_obj  # type: ignore
+        cand_vec = cast(Sequence[float], candidate_obj)
         cand_box = self._get_epsilon_box(cand_vec)
 
         # Filter out boxes dominated by the new candidate box

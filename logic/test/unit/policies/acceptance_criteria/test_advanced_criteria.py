@@ -21,19 +21,19 @@ class TestAdvancedCriteria(unittest.TestCase):
         criterion = SkewedVNSAcceptance(alpha=0.5, metric=metric, maximization=True)
 
         # 1. Improving move: always accept
-        self.assertTrue(criterion.accept(10.0, 12.0))
+        self.assertTrue(criterion.accept(10.0, 12.0)[0])
 
         # 2. Worsening move but structurally distant
         # f_cur = 12, f_cand = 10, dist = abs(12-10) = 2
         # threshold = 12 - 0.5 * 2 = 11
         # 10 > 11 is False -> Reject
-        self.assertFalse(criterion.accept(12.0, 10.0, current_sol=12, candidate_sol=10))
+        self.assertFalse(criterion.accept(12.0, 10.0, current_sol=12, candidate_sol=10)[0])
 
         # 3. Worsening move with high distance
         # f_cur = 12, f_cand = 10, dist = 10
         # threshold = 12 - 0.5 * 10 = 7
         # 10 > 7 is True -> Accept (Skewed!)
-        self.assertTrue(criterion.accept(12.0, 10.0, current_sol=12, candidate_sol=22))
+        self.assertTrue(criterion.accept(12.0, 10.0, current_sol=12, candidate_sol=22)[0])
 
     def test_epsilon_dominance_maximization(self):
         # epsilon = 1.0. Grid box = floor(obj / 1.0)
@@ -43,13 +43,13 @@ class TestAdvancedCriteria(unittest.TestCase):
         criterion.step(0.0, (10.5, 20.5), accepted=True)
 
         # Candidate inside same box: (10.9, 20.1) -> Box (10, 20) -> Reject
-        self.assertFalse(criterion.accept((10.5, 20.5), (10.9, 20.1)))
+        self.assertFalse(criterion.accept((10.5, 20.5), (10.9, 20.1))[0])
 
         # Candidate in better box: (11.1, 20.5) -> Box (11, 20) -> Accept
-        self.assertTrue(criterion.accept((10.5, 20.5), (11.1, 20.5)))
+        self.assertTrue(criterion.accept((10.5, 20.5), (11.1, 20.5))[0])
 
         # Candidate in dominated box: (9.5, 19.5) -> Box (9, 19) -> Reject
-        self.assertFalse(criterion.accept((10.5, 20.5), (9.5, 19.5)))
+        self.assertFalse(criterion.accept((10.5, 20.5), (9.5, 19.5))[0])
 
     def test_adaptive_boltzmann_scaling(self):
         # p0 = 0.5 (chance of accepting 1-sigma move)

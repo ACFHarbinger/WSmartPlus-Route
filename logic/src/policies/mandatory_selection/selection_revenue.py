@@ -13,11 +13,12 @@ Example:
     >>> bins = strategy.select_bins(context)
 """
 
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 
 from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
+from logic.src.policies.context.search_context import SearchContext
 
 from .base.eoq import resolve_trigger_threshold
 from .base.selection_context import SelectionContext
@@ -30,7 +31,7 @@ class RevenueThresholdSelection(IMandatorySelectionStrategy):
     Revenue-based selection strategy.
     """
 
-    def select_bins(self, context: SelectionContext) -> List[int]:
+    def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
         """
         Select bins where expected revenue exceeds the threshold.
 
@@ -52,4 +53,6 @@ class RevenueThresholdSelection(IMandatorySelectionStrategy):
         else:
             mandatory_indices = np.nonzero(expected_revenue > context.threshold)[0]
 
-        return (mandatory_indices + 1).tolist()
+        return (mandatory_indices + 1).tolist(), SearchContext.initialize(
+            selection_metrics={"strategy": "RevenueThresholdSelection"}
+        )

@@ -2,9 +2,10 @@
 Path Refinement Route Improver.
 """
 
-from typing import Any, List
+from typing import Any, List, Tuple
 
 from logic.src.interfaces import IRouteImprovement
+from logic.src.policies.context.search_context import ImprovementMetrics
 
 from .base import RouteImproverRegistry
 
@@ -16,7 +17,7 @@ class PathRouteImprover(IRouteImprovement):
     stops in the tour, provided they fit within the vehicle capacity.
     """
 
-    def process(self, tour: List[int], **kwargs: Any) -> List[int]:
+    def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
         """
         Refine the tour by picking up convenient bins along the path.
 
@@ -36,7 +37,7 @@ class PathRouteImprover(IRouteImprovement):
             current_fill = getattr(bins, "c", None)
 
         if current_fill is None or paths is None:
-            return tour
+            return tour, {"algorithm": "PathRouteImprover"}
 
         capacity = kwargs.get("max_capacity") or kwargs.get(
             "vehicle_capacity", self.config.get("vehicle_capacity", 100.0)
@@ -75,4 +76,4 @@ class PathRouteImprover(IRouteImprovement):
                         selected_nodes.add(node)
                         new_tour.append(node)
 
-        return new_tour
+        return new_tour, {"algorithm": "PathRouteImprover"}

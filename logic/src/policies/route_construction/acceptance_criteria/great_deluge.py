@@ -2,9 +2,10 @@
 Great Deluge (GD) Acceptance Criterion.
 """
 
-from typing import Any, Dict
+from typing import Any, Dict, Tuple, cast
 
-from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
+from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion, ObjectiveValue
+from logic.src.policies.context.search_context import AcceptanceMetrics
 
 from .base.registry import AcceptanceCriterionRegistry
 
@@ -31,7 +32,8 @@ class GreatDelugeAcceptance(IAcceptanceCriterion):
         self.water_level = 0.0
         self.rain_speed = 0.0
 
-    def setup(self, initial_objective: float) -> None:
+    def setup(self, initial_objective: ObjectiveValue) -> None:
+        initial_objective = cast(float, initial_objective)
         self.water_level = initial_objective
         target_objective = initial_objective * self.target_multiplier
 
@@ -41,10 +43,22 @@ class GreatDelugeAcceptance(IAcceptanceCriterion):
         else:
             self.rain_speed = 0.0
 
-    def accept(self, current_obj: float, candidate_obj: float, **kwargs: Any) -> bool:
-        return candidate_obj >= self.water_level
+    def accept(
+        self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, **kwargs: Any
+    ) -> Tuple[bool, AcceptanceMetrics]:
+        current_obj = cast(float, current_obj)
+        candidate_obj = cast(float, candidate_obj)
+        _accepted = bool(candidate_obj >= self.water_level)
+        return _accepted, {
+            "accepted": _accepted,
+            "delta": candidate_obj - current_obj,
+            "water_level": self.water_level,
+            "rain_speed": self.rain_speed,
+        }
 
-    def step(self, current_obj: float, candidate_obj: float, accepted: bool, **kwargs: Any) -> None:
+    def step(self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, accepted: bool, **kwargs: Any) -> None:
+        current_obj = cast(float, current_obj)
+        candidate_obj = cast(float, candidate_obj)
         self.water_level += self.rain_speed
 
     def get_state(self) -> Dict[str, Any]:

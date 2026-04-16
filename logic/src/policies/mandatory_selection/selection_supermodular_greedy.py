@@ -18,6 +18,7 @@ from typing import List, Tuple
 import numpy as np
 
 from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
+from logic.src.policies.context.search_context import SearchContext
 from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
 from logic.src.policies.mandatory_selection.base.selection_registry import MandatorySelectionRegistry
 
@@ -28,13 +29,13 @@ class SupermodularGreedySelection(IMandatorySelectionStrategy):
     Selection strategy based on Supermodular Greedy maximization (Synergy).
     """
 
-    def select_bins(self, context: SelectionContext) -> List[int]:
+    def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
         """
         Maximizes synergetic profit using greedy selection with re-evaluation.
         """
         n_bins = len(context.current_fill)
         if n_bins == 0:
-            return []
+            return [], SearchContext.initialize(selection_metrics={"strategy": "SupermodularGreedySelection"})
 
         # 1. Pre-compute individual revenues
         bin_cap = context.bin_volume * context.bin_density
@@ -55,7 +56,9 @@ class SupermodularGreedySelection(IMandatorySelectionStrategy):
         # Marginal gain g(i | S) = revenue_i - 2 * alpha * min_{j in S} dist(i, j)
         def get_marginal_gain(idx, S_indices):
             d_to_S = np.min(context.distance_matrix[idx + 1, list(S_indices)])
-            return revenue[idx] - (alpha * 2.0 * d_to_S)
+            return revenue[idx] - (alpha * 2.0 * d_to_S), SearchContext.initialize(
+                selection_metrics={"strategy": "SupermodularGreedySelection"}
+            )
 
         # Heap elements: (-gain, bin_index, version)
         priority_queue: List[Tuple[float, int, int]] = []
@@ -95,4 +98,6 @@ class SupermodularGreedySelection(IMandatorySelectionStrategy):
             current_s.add(bin_idx + 1)
             stalled_count = 0
 
-        return sorted((np.array(selected_set) + 1).tolist())
+        return sorted((np.array(selected_set) + 1).tolist()), SearchContext.initialize(
+            selection_metrics={"strategy": "SupermodularGreedySelection"}
+        )

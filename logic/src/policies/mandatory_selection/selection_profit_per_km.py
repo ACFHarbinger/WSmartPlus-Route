@@ -13,11 +13,12 @@ Example:
     >>> bins = strategy.select_bins(context)
 """
 
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 
 from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
+from logic.src.policies.context.search_context import SearchContext
 
 from .base.eoq import resolve_trigger_threshold
 from .base.selection_context import SelectionContext
@@ -33,7 +34,7 @@ class ProfitPerKmSelection(IMandatorySelectionStrategy):
     Score_i = (Expected Revenue of Bin i) / (2 * Distance from Depot to Bin i)
     """
 
-    def select_bins(self, context: SelectionContext) -> List[int]:
+    def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
         """
         Selects bins whose profit-per-kilometer strictly exceeds a minimum threshold.
 
@@ -49,7 +50,7 @@ class ProfitPerKmSelection(IMandatorySelectionStrategy):
             raise ValueError("ProfitPerKmSelection requires a distance_matrix.")
         if context.revenue_kg <= 0:
             # Short-circuit if there's no economic value configured
-            return []
+            return [], SearchContext.initialize(selection_metrics={"strategy": "ProfitPerKmSelection"})
 
         # Compute total mass capacity of the bin
         bin_cap = context.bin_volume * context.bin_density
@@ -73,4 +74,6 @@ class ProfitPerKmSelection(IMandatorySelectionStrategy):
             # Select bins that pass the required economic threshold
             mandatory_indices = np.nonzero(profit_per_km > context.threshold)[0]
 
-        return (mandatory_indices + 1).tolist()
+        return (mandatory_indices + 1).tolist(), SearchContext.initialize(
+            selection_metrics={"strategy": "ProfitPerKmSelection"}
+        )

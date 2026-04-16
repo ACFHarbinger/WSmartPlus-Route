@@ -40,12 +40,13 @@ Example:
     >>> bins = strategy.select_bins(context)
 """
 
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 from scipy.optimize import Bounds, LinearConstraint, milp
 
 from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
+from logic.src.policies.context.search_context import SearchContext
 from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
 from logic.src.policies.mandatory_selection.base.selection_registry import MandatorySelectionRegistry
 
@@ -54,7 +55,7 @@ from logic.src.policies.mandatory_selection.base.selection_registry import Manda
 class MIPKnapsackSelection(IMandatorySelectionStrategy):
     """Exact 0/1 multiple-knapsack selection via mixed-integer programming."""
 
-    def select_bins(self, context: SelectionContext) -> List[int]:
+    def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
         """
         Solve the 0/1 multiple-knapsack problem and return the selected bins.
 
@@ -64,7 +65,7 @@ class MIPKnapsackSelection(IMandatorySelectionStrategy):
         if context.distance_matrix is None:
             raise ValueError("MIPKnapsackSelection requires a distance_matrix.")
         if context.revenue_kg <= 0:
-            return []
+            return [], SearchContext.initialize(selection_metrics={"strategy": "MIPKnapsackSelection"})
 
         dm = np.asarray(context.distance_matrix)
 
@@ -80,23 +81,25 @@ class MIPKnapsackSelection(IMandatorySelectionStrategy):
         # Eligible = positive mass and positive net profit.
         eligible_idx = np.nonzero((mass_all > 0) & (net_profit_all > 0))[0]
         if eligible_idx.size == 0:
-            return []
+            return [], SearchContext.initialize(selection_metrics={"strategy": "MIPKnapsackSelection"})
 
         n_vehicles = int(getattr(context, "n_vehicles", 1))
 
         # Unbounded knapsacks: no binding constraint, take everything profitable.
         if n_vehicles <= 0:
-            return sorted((eligible_idx + 1).tolist())
+            return sorted((eligible_idx + 1).tolist()), SearchContext.initialize(
+                selection_metrics={"strategy": "MIPKnapsackSelection"}
+            )
 
         capacity = float(context.vehicle_capacity)
         if capacity <= 0:
-            return []
+            return [], SearchContext.initialize(selection_metrics={"strategy": "MIPKnapsackSelection"})
 
         # Dominance prune: drop bins that do not fit any single vehicle.
         fits_any = mass_all[eligible_idx] <= capacity
         eligible_idx = eligible_idx[fits_any]
         if eligible_idx.size == 0:
-            return []
+            return [], SearchContext.initialize(selection_metrics={"strategy": "MIPKnapsackSelection"})
 
         n = int(eligible_idx.size)
         K = n_vehicles
@@ -141,9 +144,11 @@ class MIPKnapsackSelection(IMandatorySelectionStrategy):
         )
 
         if not result.success or result.x is None:
-            return []
+            return [], SearchContext.initialize(selection_metrics={"strategy": "MIPKnapsackSelection"})
 
         x = np.asarray(result.x).reshape(n, K)
         taken_local = np.nonzero(x.sum(axis=1) > 0.5)[0]
         taken_global = eligible_idx[taken_local]
-        return sorted((taken_global + 1).tolist())
+        return sorted((taken_global + 1).tolist()), SearchContext.initialize(
+            selection_metrics={"strategy": "MIPKnapsackSelection"}
+        )

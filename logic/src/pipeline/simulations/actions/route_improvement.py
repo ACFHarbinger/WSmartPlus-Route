@@ -100,7 +100,7 @@ class RouteImprovementAction(SimulationAction):
         for processor in processors:
             try:
                 pf_params = {k: v for k, v in context.items() if k != "tour"}
-                refined_tour = processor.process(tour, **pf_params)
+                refined_tour, metrics = processor.process(tour, **pf_params)
                 if refined_tour != tour:
                     dist_matrix = context.get("distance_matrix")
                     new_cost = get_route_cost(dist_matrix, refined_tour)
@@ -108,5 +108,16 @@ class RouteImprovementAction(SimulationAction):
                     tour = refined_tour
                     context["tour"] = refined_tour
                     context["cost"] = new_cost
+
+                    # Merge into the ledger if active in the simulation context
+                    incoming_ctx = context.get("search_context")
+                    if incoming_ctx is not None:
+                        from logic.src.policies.context.search_context import SearchPhase, merge_context
+
+                        context["search_context"] = merge_context(
+                            incoming_ctx,
+                            phase=SearchPhase.IMPROVEMENT,
+                            improvement_metrics=metrics,
+                        )
             except Exception as e:
                 logger.warning(f"Route improvement skipped due to error: {e}")

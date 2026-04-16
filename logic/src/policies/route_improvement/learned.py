@@ -20,6 +20,7 @@ import torch
 import torch.nn as nn
 
 from logic.src.interfaces.route_improvement import IRouteImprovement
+from logic.src.policies.context.search_context import ImprovementMetrics
 from logic.src.policies.helpers.operators.intensification import (
     two_opt_steepest,
     two_opt_steepest_profit,
@@ -130,10 +131,10 @@ class LearnedRouteImprover(IRouteImprovement):
             logger.warning("learned: failed to load model: %s; falling back.", e)
             self._model = None
 
-    def process(self, tour: List[int], **kwargs: Any) -> List[int]:
+    def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None or not tour:
-            return tour
+            return tour, {"algorithm": "MoveScorer"}
 
         # Parameters
         weights_path = Path(
@@ -163,12 +164,14 @@ class LearnedRouteImprover(IRouteImprovement):
 
         self._lazy_load_model(weights_path)
         if self._model is None:
-            return self._fallback(tour, dm, wastes, capacity, cost_per_km, revenue_kg, **local_kwargs)
+            return self._fallback(tour, dm, wastes, capacity, cost_per_km, revenue_kg, **local_kwargs), {
+                "algorithm": "MoveScorer"
+            }
 
         try:
             routes = split_tour(tour)
             if not routes:
-                return tour
+                return tour, {"algorithm": "MoveScorer"}
 
             # Apply learned move search
             refined = self._apply_learned_moves(
@@ -186,13 +189,15 @@ class LearnedRouteImprover(IRouteImprovement):
             refined_cost = tour_distance(refined, dm)
             input_cost = tour_distance(routes, dm)
             if refined_cost > input_cost + 1e-6:
-                return tour
+                return tour, {"algorithm": "MoveScorer"}
 
-            return assemble_tour(refined)
+            return assemble_tour(refined), {"algorithm": "MoveScorer"}
 
         except Exception as e:
             logger.debug("learned: inference failed (%s); falling back.", e)
-            return self._fallback(tour, dm, wastes, capacity, cost_per_km, revenue_kg, **local_kwargs)
+            return self._fallback(tour, dm, wastes, capacity, cost_per_km, revenue_kg, **local_kwargs), {
+                "algorithm": "MoveScorer"
+            }
 
     def _apply_learned_moves(
         self,

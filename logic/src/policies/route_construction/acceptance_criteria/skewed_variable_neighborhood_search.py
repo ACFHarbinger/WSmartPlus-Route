@@ -1,7 +1,8 @@
-from typing import Any, Dict
+from typing import Any, Dict, Tuple, cast
 
-from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
+from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion, ObjectiveValue
 from logic.src.interfaces.distance_metric import IDistanceMetric
+from logic.src.policies.context.search_context import AcceptanceMetrics
 
 from .base.registry import AcceptanceCriterionRegistry
 
@@ -32,10 +33,15 @@ class SkewedVNSAcceptance(IAcceptanceCriterion):
         self.metric = metric
         self.maximization = maximization
 
-    def setup(self, initial_objective: float) -> None:
+    def setup(self, initial_objective: ObjectiveValue) -> None:
+        initial_objective = cast(float, initial_objective)
         pass
 
-    def accept(self, current_obj: float, candidate_obj: float, **kwargs: Any) -> bool:
+    def accept(
+        self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, **kwargs: Any
+    ) -> Tuple[bool, AcceptanceMetrics]:
+        current_obj = cast(float, current_obj)
+        candidate_obj = cast(float, candidate_obj)
         """
         Args:
             current_obj (float): Objective of the current solution.
@@ -44,26 +50,33 @@ class SkewedVNSAcceptance(IAcceptanceCriterion):
         """
         if self.maximization:
             if candidate_obj > current_obj:
-                return True
+                _accepted = bool(True)
+                return _accepted, {"accepted": _accepted, "delta": candidate_obj - current_obj, "alpha": self.alpha}
         else:
             if candidate_obj < current_obj:
-                return True
+                _accepted = bool(True)
+                return _accepted, {"accepted": _accepted, "delta": candidate_obj - current_obj, "alpha": self.alpha}
 
         current_sol = kwargs.get("current_sol")
         candidate_sol = kwargs.get("candidate_sol")
 
         if current_sol is None or candidate_sol is None:
             # Fallback to only improving if structural data is missing
-            return False
+            _accepted = bool(False)
+            return _accepted, {"accepted": _accepted, "delta": candidate_obj - current_obj, "alpha": self.alpha}
 
         rho = self.metric.compute(current_sol, candidate_sol)
 
         if self.maximization:
-            return candidate_obj > (current_obj - self.alpha * rho)
+            _accepted = bool(candidate_obj > (current_obj - self.alpha * rho))
+            return _accepted, {"accepted": _accepted, "delta": candidate_obj - current_obj, "alpha": self.alpha}
         else:
-            return candidate_obj < (current_obj + self.alpha * rho)
+            _accepted = bool(candidate_obj < (current_obj + self.alpha * rho))
+            return _accepted, {"accepted": _accepted, "delta": candidate_obj - current_obj, "alpha": self.alpha}
 
-    def step(self, current_obj: float, candidate_obj: float, accepted: bool, **kwargs: Any) -> None:
+    def step(self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, accepted: bool, **kwargs: Any) -> None:
+        current_obj = cast(float, current_obj)
+        candidate_obj = cast(float, candidate_obj)
         pass
 
     def get_state(self) -> Dict[str, Any]:

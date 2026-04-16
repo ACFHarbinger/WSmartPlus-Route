@@ -168,7 +168,7 @@ class TSSolver:
                 # Determine if this specific move was accepted (using the same logic as selection)
                 # Note: selection already filtered by acceptance, but we need the flag for step()
                 is_tabu = self._is_tabu(best_move_desc) if best_move_desc else False
-                is_accepted = self.params.acceptance_criterion.accept(
+                is_accepted, _ = self.params.acceptance_criterion.accept(
                     current_obj=current_profit,
                     candidate_obj=best_candidate_profit,
                     is_tabu=is_tabu,
@@ -239,7 +239,7 @@ class TSSolver:
 
             # Accept if not tabu or if aspiration criteria met
             # Delegate decision to injected criterion
-            is_accepted = self.params.acceptance_criterion.accept(
+            is_accepted, _ = self.params.acceptance_criterion.accept(
                 current_obj=current_profit,
                 candidate_obj=candidate_profit,
                 is_tabu=is_tabu,

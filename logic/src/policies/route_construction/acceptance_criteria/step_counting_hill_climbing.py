@@ -2,9 +2,10 @@
 Step Counting Hill Climbing (SCHC) Criterion.
 """
 
-from typing import Any, Dict
+from typing import Any, Dict, Tuple, cast
 
-from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
+from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion, ObjectiveValue
+from logic.src.policies.context.search_context import AcceptanceMetrics
 
 from .base.registry import AcceptanceCriterionRegistry
 
@@ -28,15 +29,28 @@ class StepCountingHillClimbing(IAcceptanceCriterion):
         self.counter = 0
         self.bound = 0.0
 
-    def setup(self, initial_objective: float) -> None:
+    def setup(self, initial_objective: ObjectiveValue) -> None:
+        initial_objective = cast(float, initial_objective)
         self.bound = initial_objective
         self.counter = 0
 
-    def accept(self, current_obj: float, candidate_obj: float, **kwargs: Any) -> bool:
+    def accept(
+        self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, **kwargs: Any
+    ) -> Tuple[bool, AcceptanceMetrics]:
+        current_obj = cast(float, current_obj)
+        candidate_obj = cast(float, candidate_obj)
         # Accept if the candidate is better than the frozen bound
-        return candidate_obj >= self.bound
+        _accepted = bool(candidate_obj >= self.bound)
+        return _accepted, {
+            "accepted": _accepted,
+            "delta": candidate_obj - current_obj,
+            "bound": self.bound,
+            "steps_until_update": self.step_size - self.counter,
+        }
 
-    def step(self, current_obj: float, candidate_obj: float, accepted: bool, **kwargs: Any) -> None:
+    def step(self, current_obj: ObjectiveValue, candidate_obj: ObjectiveValue, accepted: bool, **kwargs: Any) -> None:
+        current_obj = cast(float, current_obj)
+        candidate_obj = cast(float, candidate_obj)
         self.counter += 1
         if self.counter >= self.step_size:
             # Threshold update condition met

@@ -10,6 +10,7 @@ import numpy as np
 from logic.src.configs import MandatorySelectionConfig
 from logic.src.constants import MAX_CAPACITY_PERCENT, ROOT_DIR
 from logic.src.interfaces import IBinContainer, ITraversable
+from logic.src.policies.context.search_context import SearchContext
 from logic.src.policies.mandatory_selection import MandatorySelectionFactory, SelectionContext
 from logic.src.utils.configs.config_loader import load_config
 
@@ -21,7 +22,7 @@ class MandatorySelectionAction(SimulationAction):
     Identifies which bins are targets for collection based on various strategies.
     """
 
-    def execute(self, context: Dict[str, Any]) -> None:
+    def execute(self, context: Dict[str, Any]) -> None:  # noqa: C901
         """
         Execute mandatory selection strategies and update context['mandatory'].
         """
@@ -152,19 +153,26 @@ class MandatorySelectionAction(SimulationAction):
                 # Use structured config
                 m_config = strat_info["config"]
                 strategy = MandatorySelectionFactory.create_from_config(m_config)
-                res = strategy.select_bins(sel_ctx)
+                res, sub_ctx = strategy.select_bins(sel_ctx)
                 s_name = m_config.strategy
             elif s_name == "select_all":
                 res = (sel_ctx.bin_ids + 1).tolist()
+                sub_ctx = SearchContext.initialize(selection_metrics={"strategy": "select_all"})
             else:
                 strategy = MandatorySelectionFactory.create_strategy(str(s_name), **cast(Dict[str, Any], s_params))
-                res = strategy.select_bins(sel_ctx)
+                res, sub_ctx = strategy.select_bins(sel_ctx)
 
             # Ensure list
             if hasattr(res, "tolist"):
                 res = res.tolist()
             elif not isinstance(res, list):
                 res = list(res)
+
+            # Update SearchContext in simulation context
+            if "search_context" not in context:
+                context["search_context"] = sub_ctx
+            else:
+                context["search_context"] = context["search_context"].merge(sub_ctx)
 
             final_mandatory.update(res)
 

@@ -21,12 +21,12 @@ class TestAdvancedAlgorithms(unittest.TestCase):
         self.assertTrue(criterion._warmed_up)
 
         # 1. Accept worsening within credit
-        self.assertTrue(criterion.accept(82, 87)) # delta = 5 <= 10
+        self.assertTrue(criterion.accept(82, 87)[0]) # delta = 5 <= 10
         criterion.step(82, 87, accepted=True)
         self.assertEqual(criterion.demon_credit, 5.0)
 
         # 2. Reject worsening exceeding credit
-        self.assertFalse(criterion.accept(87, 95)) # delta = 8 > 5
+        self.assertFalse(criterion.accept(87, 95)[0]) # delta = 8 > 5
 
         # 3. Recharge on improvement
         criterion.step(87, 80, accepted=True) # delta = -7
@@ -71,25 +71,25 @@ class TestAdvancedAlgorithms(unittest.TestCase):
         self.assertAlmostEqual(criterion.water_level, 90.8, places=1)
 
         # Check acceptance
-        self.assertTrue(criterion.accept(95.0, 90.0, f_best=90.0)) # 90 <= Level
-        self.assertFalse(criterion.accept(95.0, 92.0, f_best=90.0)) # 92 > Level
+        self.assertTrue(criterion.accept(95.0, 90.0, f_best=90.0)[0]) # 90 <= Level
+        self.assertFalse(criterion.accept(95.0, 92.0, f_best=90.0)[0]) # 92 > Level
 
     def test_emcq_acceptance(self):
         # p=0, p_boost=1.0, Q=3
         criterion = EMCQAcceptance(p=0.0, p_boost=1.0, q_threshold=3, maximization=False)
 
         # Start with q=0
-        self.assertFalse(criterion.accept(100, 110)) # p=0
+        self.assertFalse(criterion.accept(100, 110)[0]) # p=0
         criterion.step(100, 110, accepted=False) # q=1
 
-        self.assertFalse(criterion.accept(100, 110)) # p=0
+        self.assertFalse(criterion.accept(100, 110)[0]) # p=0
         criterion.step(100, 110, accepted=False) # q=2
 
-        self.assertFalse(criterion.accept(100, 110)) # p=0
+        self.assertFalse(criterion.accept(100, 110)[0]) # p=0
         criterion.step(100, 110, accepted=False) # q=3
 
         # Now q >= Q, should accept!
-        self.assertTrue(criterion.accept(100, 110)) # p_boost=1
+        self.assertTrue(criterion.accept(100, 110)[0]) # p_boost=1
         criterion.step(100, 110, accepted=True) # q resets to 0
         self.assertEqual(criterion.rejection_counter, 0)
 

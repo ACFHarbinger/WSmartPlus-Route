@@ -12,12 +12,13 @@ Example:
     >>> bins = strategy.select_bins(context)
 """
 
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 from scipy.optimize import linprog
 
 from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
+from logic.src.policies.context.search_context import SearchContext
 from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
 from logic.src.policies.mandatory_selection.base.selection_registry import MandatorySelectionRegistry
 
@@ -28,7 +29,7 @@ class LagrangianSelection(IMandatorySelectionStrategy):
     Selection strategy based on Lagrangian reduced costs.
     """
 
-    def select_bins(self, context: SelectionContext) -> List[int]:
+    def select_bins(self, context: SelectionContext) -> Tuple[List[int], SearchContext]:
         """
         Select bins based on positive Lagrangian reduced cost.
 
@@ -43,7 +44,7 @@ class LagrangianSelection(IMandatorySelectionStrategy):
 
         n_bins = len(context.current_fill)
         if n_bins == 0:
-            return []
+            return [], SearchContext.initialize(selection_metrics={"strategy": "LagrangianSelection"})
 
         # Short-circuit on revenue_kg <= 0 or n_vehicles <= 0
         bin_cap = context.bin_volume * context.bin_density
@@ -51,7 +52,7 @@ class LagrangianSelection(IMandatorySelectionStrategy):
         revenue = mass * context.revenue_kg
 
         if context.revenue_kg <= 0:
-            return []
+            return [], SearchContext.initialize(selection_metrics={"strategy": "LagrangianSelection"})
 
         # Round trip distance to depot
         dist_to_depot = context.distance_matrix[0, 1:]
@@ -62,7 +63,9 @@ class LagrangianSelection(IMandatorySelectionStrategy):
             # that cover their round-trip cost.
             rc = revenue - context.cost_per_km * round_trip
             mandatory_indices = np.nonzero(rc > 0)[0]
-            return sorted((mandatory_indices + 1).tolist())
+            return sorted((mandatory_indices + 1).tolist()), SearchContext.initialize(
+                selection_metrics={"strategy": "LagrangianSelection"}
+            )
 
         # Build the LP relaxation of the Multiple Knapsack Problem
         # Objective: Maximize sum(x_i * r_i) - sum(x_i * cost * dist_i)
@@ -80,7 +83,9 @@ class LagrangianSelection(IMandatorySelectionStrategy):
             # Fallback to simple revenue check if LP fails
             rc = revenue - context.cost_per_km * round_trip
             mandatory_indices = np.nonzero(rc > 0)[0]
-            return sorted((mandatory_indices + 1).tolist())
+            return sorted((mandatory_indices + 1).tolist()), SearchContext.initialize(
+                selection_metrics={"strategy": "LagrangianSelection"}
+            )
 
         # Read dual (shadow price) on the capacity constraint
         # scipy.optimize.linprog returns duals in 'ineqlin' for 'highs' method.
@@ -98,4 +103,6 @@ class LagrangianSelection(IMandatorySelectionStrategy):
         reduced_costs = (revenue - context.cost_per_km * round_trip) - lambda_star * mass
 
         mandatory_indices = np.nonzero(reduced_costs > 0)[0]
-        return sorted((mandatory_indices + 1).tolist())
+        return sorted((mandatory_indices + 1).tolist()), SearchContext.initialize(
+            selection_metrics={"strategy": "LagrangianSelection"}
+        )

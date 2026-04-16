@@ -2,9 +2,10 @@
 Classical Local Search Route Improver.
 """
 
-from typing import Any, List
+from typing import Any, List, Tuple
 
 from logic.src.interfaces import IRouteImprovement
+from logic.src.policies.context.search_context import ImprovementMetrics
 from logic.src.policies.helpers.operators.intensification import INTENSIFICATION_OPERATORS
 
 from .base import RouteImproverRegistry
@@ -19,7 +20,7 @@ class ClassicalLocalSearchRouteImprover(IRouteImprovement):
     iterative improvement.
     """
 
-    def process(self, tour: List[int], **kwargs: Any) -> List[int]:
+    def process(self, tour: List[int], **kwargs: Any) -> Tuple[List[int], ImprovementMetrics]:
         """
         Apply classical local search to the tour.
 
@@ -34,7 +35,7 @@ class ClassicalLocalSearchRouteImprover(IRouteImprovement):
 
         distance_matrix = kwargs.get("distance_matrix", kwargs.get("distancesC"))
         if distance_matrix is None:
-            return tour
+            return tour, {"algorithm": "ClassicalLocalSearchRouteImprover"}
 
         # Get parameters from config (via kwargs) with fallbacks
         max_iter = kwargs.get("iterations", kwargs.get("n_iterations", self.config.get("iterations", 500)))
@@ -50,11 +51,11 @@ class ClassicalLocalSearchRouteImprover(IRouteImprovement):
         dist_matrix = to_numpy(distance_matrix)
 
         if len(tour) < 3:
-            return tour
+            return tour, {"algorithm": "ClassicalLocalSearchRouteImprover"}
 
         routes = split_tour(tour)
         if not routes:
-            return tour
+            return tour, {"algorithm": "ClassicalLocalSearchRouteImprover"}
 
         # Case 1: Steepest-descent intensification operators
         Mapping = {
@@ -73,9 +74,9 @@ class ClassicalLocalSearchRouteImprover(IRouteImprovement):
             op_fn = INTENSIFICATION_OPERATORS[op_key]
             try:
                 refined_routes = op_fn(routes, dist_matrix, wastes, capacity, R=R, C=C, max_iter=max_iter)  # type: ignore[operator]
-                return assemble_tour(refined_routes)
+                return assemble_tour(refined_routes), {"algorithm": "ClassicalLocalSearchRouteImprover"}
             except Exception:
-                return tour
+                return tour, {"algorithm": "ClassicalLocalSearchRouteImprover"}
 
         # Case 2: Multi-move or iterative operators via LocalSearchManager
         from logic.src.policies.helpers.local_search.local_search_manager import LocalSearchManager
@@ -108,8 +109,8 @@ class ClassicalLocalSearchRouteImprover(IRouteImprovement):
                 for _ in range(max_iter):
                     if not op_meth():
                         break
-                return assemble_tour(manager.get_routes())
+                return assemble_tour(manager.get_routes()), {"algorithm": "ClassicalLocalSearchRouteImprover"}
             except Exception:
-                return tour
+                return tour, {"algorithm": "ClassicalLocalSearchRouteImprover"}
 
-        return tour
+        return tour, {"algorithm": "ClassicalLocalSearchRouteImprover"}
