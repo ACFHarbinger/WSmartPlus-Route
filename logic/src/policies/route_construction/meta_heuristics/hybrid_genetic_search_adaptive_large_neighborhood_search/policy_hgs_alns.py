@@ -21,9 +21,24 @@ from .params import HGSALNSParams
 @RouteConstructorRegistry.register("hgs_alns")
 class HGSALNSPolicy(BaseRoutingPolicy):
     """
-    Hybrid HGS-ALNS policy class for the simulator.
+    Hybrid Genetic Search with Adaptive Large Neighborhood Search (HGS-ALNS) Policy.
 
-    Uses ALNS for the intensive education phase of HGS.
+    This policy implements a high-performance hybrid metaheuristic that combines
+    the population-based evolutionary search of HGS with the multi-neighborhood
+    intensification of ALNS.
+
+    Architecture:
+    1.  **Genetic Core**: Maintains a population of high-quality solutions and
+        uses advanced crossover (e.g., SISR-based or Ordered crossover) to
+        generate new offspring.
+    2.  **ALNS Education**: Instead of standard local search, each newly generated
+        offspring undergoes an "education" phase powered by an Adaptive Large
+        Neighborhood Search engine.
+    3.  **Diversity Management**: Continuously monitors population diversity
+        and removes individuals that are too similar or have poor fitness, ensuring
+        a robust exploration of the search space.
+
+    Registry key: ``"hgs_alns"``
     """
 
     def __init__(self, config: Optional[Union[HGSALNSConfig, Dict[str, Any]]] = None):

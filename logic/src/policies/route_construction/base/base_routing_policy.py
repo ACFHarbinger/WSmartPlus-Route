@@ -16,7 +16,6 @@ import numpy as np
 from logic.src.interfaces.route_constructor import IRouteConstructor
 from logic.src.pipeline.simulations.repository import load_area_and_waste_type_params
 from logic.src.policies.context.search_context import ConstructionMetrics, SearchContext, merge_context
-from logic.src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp import get_route_cost
 from logic.src.tracking.core.run import get_active_run
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
@@ -331,6 +330,10 @@ class BaseRoutingPolicy(PolicyVizMixin, IRouteConstructor):
         Returns:
             Total distance cost.
         """
+        from logic.src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp import (
+            get_route_cost,
+        )
+
         return get_route_cost(distance_matrix, tour)
 
     @abstractmethod

@@ -1,12 +1,22 @@
+from __future__ import annotations
+
 import random
 from collections import defaultdict
-from typing import Dict, List, Optional, Set, Tuple
+from typing import TYPE_CHECKING, Dict, List, Optional, Set, Tuple
 
 import numpy as np
 
-from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual import (
-    Individual,
-)
+if TYPE_CHECKING:
+    from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual import (
+        Individual,
+    )
+
+
+def _get_individual_class() -> type:
+    """Lazy import of Individual to avoid circular import at module init."""
+    from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual import Individual
+
+    return Individual
 
 
 def edge_recombination_crossover(
@@ -41,7 +51,7 @@ def edge_recombination_crossover(
     # All nodes in the genotype (visited + unvisited).
     all_nodes = list(set(p1.giant_tour) | set(p2.giant_tour))
     if not all_nodes:
-        return Individual([])
+        return _get_individual_class()([])
 
     adj_table: Dict[int, Set[int]] = defaultdict(set)
 
@@ -92,7 +102,7 @@ def edge_recombination_crossover(
 
         current = next_node
 
-    return Individual(child_gt, expand_pool=p1.expand_pool)
+    return _get_individual_class()(child_gt, expand_pool=p1.expand_pool)
 
 
 def _get_physical_edges(routes: List[List[int]]) -> Set[Tuple[int, int]]:
@@ -127,7 +137,7 @@ def capacity_aware_erx(
         rng = random.Random()
 
     if not p1.routes or not p2.routes:
-        return Individual(p1.giant_tour[:])
+        return _get_individual_class()(p1.giant_tour[:])
 
     # 1. Build Union Adjacency from physical routes
     all_edges = _get_physical_edges(p1.routes) | _get_physical_edges(p2.routes)
@@ -140,7 +150,7 @@ def capacity_aware_erx(
 
     all_nodes = list(set(p1.giant_tour) | set(p2.giant_tour))
     if not all_nodes:
-        return Individual([])
+        return _get_individual_class()([])
 
     child_routes: List[List[int]] = []
     current_route: List[int] = []
@@ -220,4 +230,4 @@ def capacity_aware_erx(
     rng.shuffle(unvisited)
     child_gt = route_nodes + unvisited
 
-    return Individual(child_gt, expand_pool=p1.expand_pool)
+    return _get_individual_class()(child_gt, expand_pool=p1.expand_pool)

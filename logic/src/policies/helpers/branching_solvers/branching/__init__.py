@@ -40,6 +40,8 @@ shortest-path pricing, the RCSPP pricing in VRPP is already weakly NP-hard,
 and node-pair constraints are easily integrated into the DP label extension.
 """
 
+from __future__ import annotations
+
 from .constraints import (
     AnyBranchingConstraint,
     BranchingConstraint,

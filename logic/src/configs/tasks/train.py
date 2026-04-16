@@ -8,7 +8,7 @@ from typing import Any, List, Optional, Union
 from ..envs.graph import GraphConfig
 from ..envs.objective import ObjectiveConfig
 from ..models.decoding import DecodingConfig
-from ..policies.neural import NeuralConfig
+from ..policies.na import NeuralAgentConfig
 
 
 @dataclass
@@ -66,5 +66,5 @@ class TrainConfig:
     graph: GraphConfig = field(default_factory=GraphConfig)
     reward: ObjectiveConfig = field(default_factory=ObjectiveConfig)
     decoding: DecodingConfig = field(default_factory=DecodingConfig)
-    policy: NeuralConfig = field(default_factory=NeuralConfig)
+    policy: NeuralAgentConfig = field(default_factory=NeuralAgentConfig)
     callbacks: Optional[List[Any]] = None

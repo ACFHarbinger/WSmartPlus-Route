@@ -11,6 +11,8 @@ Reference:
     - Jepsen et al. (2008) for Subset-Row Inequalities.
 """
 
+from __future__ import annotations
+
 from logic.src.policies.helpers.branching_solvers.separation.engine import SeparationEngine
 from logic.src.policies.helpers.branching_solvers.separation.inequality import (
     CapacityCut,

@@ -1,5 +1,5 @@
 """
-Configuration dataclass for the Multi-Period ALNS policy (ALNS-MP).
+Configuration dataclass for ALNS with Inter-Period Operators (ALNS-IPO).
 """
 
 from __future__ import annotations
@@ -9,8 +9,8 @@ from typing import Optional
 
 
 @dataclass
-class ALNSMPConfig:
-    """Configuration for the Adaptive Large Neighborhood Search with Inter-Period Operators.
+class ALNSIPOConfig:
+    """Configuration for ALNS with Inter-Period Operators (IPO).
 
     Extends the standard ALNS with horizon-spanning destroy/repair operators that
     reason across the full T-day chromosome, enabling coordinated multi-day scheduling.

@@ -12,7 +12,7 @@ from .other.route_improvement import RouteImprovingConfig
 
 
 @dataclass
-class NeuralConfig:
+class NeuralAgentConfig:
     """Configuration for Neural Agent policy.
 
     Attributes:

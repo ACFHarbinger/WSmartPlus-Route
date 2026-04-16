@@ -1,9 +1,19 @@
-import random
-from typing import List, Optional
+from __future__ import annotations
 
-from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual import (
-    Individual,
-)
+import random
+from typing import TYPE_CHECKING, List, Optional
+
+if TYPE_CHECKING:
+    from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual import (
+        Individual,
+    )
+
+
+def _get_individual_class() -> type:
+    """Lazy import to break circular dependency with meta_heuristics.__init__"""
+    from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual import Individual
+
+    return Individual
 
 
 def ordered_crossover(
@@ -55,7 +65,7 @@ def ordered_crossover(
 
     # Edge case: Empty or small parents
     if n < 2 or len(t2) < 2:
-        return Individual(t1[:] if t1 else t2[:], expand_pool=p1.expand_pool)
+        return _get_individual_class()(t1[:] if t1 else t2[:], expand_pool=p1.expand_pool)
 
     # Strict consistency checks
     assert len(t1) == len(t2), f"Parent tours must have equal length: {len(t1)} vs {len(t2)}"
@@ -107,4 +117,4 @@ def ordered_crossover(
         f"Crossover produced a giant tour missing mandatory nodes: {set(mandatory_nodes) - set(child_tour)}"
     )
 
-    return Individual(giant_tour=child_tour, expand_pool=p1.expand_pool)
+    return _get_individual_class()(giant_tour=child_tour, expand_pool=p1.expand_pool)

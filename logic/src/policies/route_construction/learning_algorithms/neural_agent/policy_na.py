@@ -5,7 +5,7 @@ This module provides the NeuralPolicy class, which adapts deep reinforcement
 learning models to the common IRouteConstructor interface used by the optimization engine.
 
 Attributes:
-    RouteConstructorRegistry: Registry where this policy is automatically registered with key "neural".
+    RouteConstructorRegistry: Registry where this policy is automatically registered with key "na".
 
 Example:
     >>> from logic.src.policies.neural_agent.policy_neural import NeuralPolicy
@@ -29,10 +29,10 @@ from .agent import NeuralAgent
 from .params import NeuralParams
 
 
-@RouteConstructorRegistry.register("neural")
-class NeuralPolicy(BaseRoutingPolicy):
+@RouteConstructorRegistry.register("na")
+class NeuralAgentPolicy(BaseRoutingPolicy):
     """
-    Neural Policy wrapper that executes deep reinforcement learning models.
+    Neural Agent Policy wrapper that executes deep reinforcement learning models.
 
     This class handles the interface between the constructive neural search
     and the local search / simulation environment.
@@ -46,7 +46,9 @@ class NeuralPolicy(BaseRoutingPolicy):
         super().__init__(config)
         self._params_logged = False
 
-    def execute(self, **kwargs: Any) -> Tuple[List[int], float, float, Optional[SearchContext], Optional[MultiDayContext]]:
+    def execute(
+        self, **kwargs: Any
+    ) -> Tuple[List[int], float, float, Optional[SearchContext], Optional[MultiDayContext]]:
         """
         Execute the Neural Policy by performing inference on a DRL model.
 
@@ -88,7 +90,7 @@ class NeuralPolicy(BaseRoutingPolicy):
 
         # 1. Initialize type-safe Params
         # NeuralPolicy typically receives configuration via kwargs["config"] or initialization
-        values = kwargs.get("config", {}).get("neural", {})
+        values = kwargs.get("config", {}).get("na", {})
         params = NeuralParams.from_config(self._config or values)
 
         agent = NeuralAgent(model_env, seed=kwargs.get("seed", params.seed))
@@ -126,7 +128,9 @@ class NeuralPolicy(BaseRoutingPolicy):
 
         # Compute profit: collected revenue - travel cost
         visited = {n for n in tour if n != 0}
-        collected_revenue = sum(float(bins.c[n - 1]) * profit_vars.get("revenue_kg", 1.0) for n in visited if 1 <= n <= len(bins.c))
+        collected_revenue = sum(
+            float(bins.c[n - 1]) * profit_vars.get("revenue_kg", 1.0) for n in visited if 1 <= n <= len(bins.c)
+        )
         profit = collected_revenue - cost * params.cost_weight
 
         return tour, cost, profit, kwargs.get("search_context"), kwargs.get("multi_day_context")
@@ -141,7 +145,7 @@ class NeuralPolicy(BaseRoutingPolicy):
         if run is None:
             return
 
-        policy_name = context.get("policy_name", "neural")
+        policy_name = context.get("policy_name", "na")
         sample_id = context.get("sample_id", 0)
         prefix = f"policy_params/{policy_name}/s{sample_id}"
 

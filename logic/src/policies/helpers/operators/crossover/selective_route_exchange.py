@@ -1,13 +1,23 @@
+from __future__ import annotations
+
 import random
-from typing import Dict, List, Optional, Set, Tuple
+from typing import TYPE_CHECKING, Dict, List, Optional, Set, Tuple
 
 import numpy as np
 
-from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual import (
-    Individual,
-)
-
 from .ordered import ordered_crossover
+
+if TYPE_CHECKING:
+    from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual import (
+        Individual,
+    )
+
+
+def _get_individual_class() -> type:
+    """Lazy import to break circular dependency with meta_heuristics.__init__"""
+    from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual import Individual
+
+    return Individual
 
 
 def _select_initial_child_routes(
@@ -154,9 +164,9 @@ def selective_route_exchange_crossover(
     if not p1.routes or not p2.routes:
         return ordered_crossover(p1, p2, rng, mandatory_nodes=mandatory_nodes)
     if not p1.giant_tour:
-        return Individual(p2.giant_tour[:])
+        return _get_individual_class()(p2.giant_tour[:])
     if not p2.giant_tour:
-        return Individual(p1.giant_tour[:])
+        return _get_individual_class()(p1.giant_tour[:])
 
     # 2. Select initial P1 routes and merge P2 non-conflicting routes
     child_routes, child_nodes = _select_initial_child_routes(p1, rng)
@@ -181,4 +191,4 @@ def selective_route_exchange_crossover(
     rng.shuffle(unvisited)
     child_gt = route_nodes + unvisited
 
-    return Individual(child_gt, expand_pool=p1.expand_pool)
+    return _get_individual_class()(child_gt, expand_pool=p1.expand_pool)

@@ -14,5 +14,6 @@ Example:
 """
 
 from .agent import NeuralAgent
+from .policy_na import NeuralAgentPolicy
 
-__all__ = ["NeuralAgent"]
+__all__ = ["NeuralAgent", "NeuralAgentPolicy"]
