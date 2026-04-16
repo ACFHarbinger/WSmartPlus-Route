@@ -35,7 +35,7 @@ from .route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.poli
     GIHHParams,
     GIHHSolver,
 )
-from .route_construction.learning_algorithms.neural_agent.policy_neural import NeuralAgent
+from .route_construction.learning_algorithms.neural_agent.policy_na import NeuralAgent
 from .route_construction.meta_heuristics.adaptive_large_neighborhood_search.params import ALNSParams
 from .route_construction.meta_heuristics.adaptive_large_neighborhood_search.policy_alns import (
     run_alns,
@@ -51,7 +51,7 @@ from .route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.solve
     MuPlusLambdaESSolver,
 )
 from .route_construction.meta_heuristics.hybrid_genetic_search.policy_hgs import run_hgs
-from .route_construction.meta_heuristics.hybrid_genetic_search_ruin_and_recreate.policy_hgs_rr import (
+from .route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate.policy_hgs_rr import (
     HGSRRParams,
     HGSRRSolver,
 )

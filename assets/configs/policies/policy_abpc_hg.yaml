@@ -1,0 +1,7 @@
+# @package _global_
+policy:
+  _target_: logic.src.policies.route_construction.learning_matheuristic_algorithms.adaptive_branch_and_price_and_cut_with_heuristic_guidance.policy_abpc_hg.ABPCHGPolicy
+  name: "abpc_hg"
+  config:
+    gamma: 0.95
+    seed: 1234

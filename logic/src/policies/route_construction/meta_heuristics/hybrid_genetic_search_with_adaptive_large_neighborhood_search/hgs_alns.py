@@ -8,7 +8,7 @@ Attributes:
     None
 
 Example:
-    >>> from logic.src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search import HGSALNSSolver
+    >>> from logic.src.policies.hybrid_genetic_search_with_adaptive_large_neighborhood_search import HGSALNSSolver
     >>> result = solver.solve()
 """
 

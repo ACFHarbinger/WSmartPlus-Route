@@ -44,46 +44,6 @@ class BPCPolicy(BaseRoutingPolicy):
         """Return config key for BPC."""
         return "bpc"
 
-    def _load_model(self, path: str, model_type: str) -> None:
-        """Lazy load the XGBoost or Torch model."""
-        if getattr(self, "_model_loaded", False):
-            return
-
-        import os
-
-        if not os.path.exists(path):
-            raise RuntimeError(f"BPCPolicy: ADP Model file not found at {path}")
-
-        if model_type == "sklearn":
-            import joblib
-
-            self._model = joblib.load(path)
-        elif model_type == "torch":
-            import torch
-
-            self._model = torch.load(path, map_location="cpu")
-            self._model.eval()
-        else:
-            raise RuntimeError(f"BPCPolicy: Unsupported model_type {model_type}")
-
-        self._model_loaded = True
-
-    def _predict_V(self, features: np.ndarray, model_type: str) -> np.ndarray:
-        """Predict the value (expected future cost or penalty) of the state."""
-        if model_type == "sklearn":
-            if hasattr(self._model, "predict_proba"):
-                return self._model.predict_proba(features)[:, 1]
-            else:
-                return self._model.predict(features)
-        elif model_type == "torch":
-            import torch
-
-            with torch.no_grad():
-                input_tensor = torch.from_numpy(features).float()
-                output = self._model(input_tensor)
-                return output.squeeze().numpy()
-        raise ValueError("Invalid model_type")
-
     def execute(
         self, **kwargs: Any
     ) -> Tuple[Union[List[int], List[List[int]]], float, float, Optional[SearchContext], Optional[MultiDayContext]]:
@@ -91,23 +51,11 @@ class BPCPolicy(BaseRoutingPolicy):
         Execute the Branch-and-Price-and-Cut (BPC) solver logic.
 
         This method coordinates the execution of the BPC algorithm, which is the
-        most advanced exact optimization technique in the framework. It
-        combines column generation (pricing), cutting planes (separation), and
-        branch-and-bound to solve large-scale VRP variants to optimality.
-
-        If `multi_day_mode` is enabled, it integrates with an Approximate
-        Dynamic Programming (ADP) model to augment node prizes with future-value
-        estimates (rho_it), effectively solving a single stage of a multi-period
-        Stochastic VRP.
+        most advanced exact optimization technique in the framework for single-day
+        deterministic routing.
 
         Args:
-            **kwargs: Context dictionary containing:
-                - search_context (Optional[SearchContext]): Context for tracking
-                  recursive solver statistics.
-                - multi_day_context (Optional[MultiDayContext]): Context for
-                  inter-day state propagation.
-                - config (Dict): Optional nested configuration overrides.
-                - model_ls (List): Multi-period model parameters (when multi_day_mode=True).
+            **kwargs: Context dictionary containing parameters needed for the subproblem.
 
         Returns:
             Tuple[Union[List[int], List[List[int]]], float, float, Optional[SearchContext], Optional[MultiDayContext]]:
@@ -118,18 +66,9 @@ class BPCPolicy(BaseRoutingPolicy):
                 - search_context: The enriched search context after BPC execution.
                 - multi_day_context: The final multi-day state metadata.
         """
-        import logging
-
-        logger = logging.getLogger(__name__)
-
         config_dict = kwargs.get("config", {}).get(self._get_config_key(), {})
-        multi_day_mode = config_dict.get("multi_day_mode", False)
 
-        if not multi_day_mode:
-            # Standard single-day mode
-            return super().execute(**kwargs)
-
-        # Multi-day mode (BPC-ADP)
+        # Unpack problem data from kwargs
         dist_matrix = kwargs["model_ls"][1]
         bins = kwargs["bins"]
         profit_vars = kwargs["model_ls"][2]
@@ -144,67 +83,12 @@ class BPCPolicy(BaseRoutingPolicy):
 
         params = BPCParams.from_config(config_dict)
 
-        adp_model_path = config_dict.get("adp_model_path", "")
-        adp_model_type = config_dict.get("adp_model_type", "sklearn")
-
         n_bins = len(bins.c)
         node_prizes: Dict[int, float] = {}
 
-        if adp_model_path:
-            self._load_model(adp_model_path, adp_model_type)
-
-            fill_ratios = np.array(bins.c) / capacity
-            acc_rate = bins.rate if hasattr(bins, "rate") and bins.rate is not None else np.zeros(n_bins)
-            std_dev = getattr(bins, "rate_std", np.zeros(n_bins))
-            dist_to_depot = dist_matrix[0, 1:]
-
-            for i in range(1, n_bins + 1):
-                idx = i - 1
-
-                # Construct S_t+1 | leave bin i
-                leave_fill = min(1.0, fill_ratios[idx] + (acc_rate[idx] / capacity if acc_rate[idx] > 0 else 0))
-                feat_leave = np.array(
-                    [
-                        leave_fill,
-                        acc_rate[idx],
-                        std_dev[idx],
-                        dist_to_depot[idx],
-                        leave_fill * capacity * R,
-                        (1.0 - leave_fill) * capacity / (acc_rate[idx] + 1e-6) if acc_rate[idx] > 0 else 99.0,
-                    ]
-                ).reshape(1, -1)
-
-                v_leave = self._predict_V(feat_leave, adp_model_type)
-                if isinstance(v_leave, (list, np.ndarray)):
-                    v_leave = v_leave[0]
-
-                # Construct S_t+1 | empty bin i
-                empty_fill = min(1.0, 0.0 + (acc_rate[idx] / capacity if acc_rate[idx] > 0 else 0))
-                feat_empty = np.array(
-                    [
-                        empty_fill,
-                        acc_rate[idx],
-                        std_dev[idx],
-                        dist_to_depot[idx],
-                        empty_fill * capacity * R,
-                        (1.0 - empty_fill) * capacity / (acc_rate[idx] + 1e-6) if acc_rate[idx] > 0 else 99.0,
-                    ]
-                ).reshape(1, -1)
-
-                v_empty = self._predict_V(feat_empty, adp_model_type)
-                if isinstance(v_empty, (list, np.ndarray)):
-                    v_empty = v_empty[0]
-
-                # Augmented Node Prize
-                rho_it = float(v_leave - v_empty)
-                base_profit = wastes[i] * R
-                node_prizes[i] = base_profit + rho_it
-        else:
-            logger.warning(
-                "BPCPolicy executing multi-day mode without adp_model_path. Running as standard unaugmented."
-            )
-            for i in range(1, n_bins + 1):
-                node_prizes[i] = wastes[i] * R
+        # Pure Single-Day Mode (base BPC)
+        for i in range(1, n_bins + 1):
+            node_prizes[i] = wastes[i] * R
 
         routes, profit = run_bpc(
             dist_matrix=dist_matrix,

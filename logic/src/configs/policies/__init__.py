@@ -3,6 +3,7 @@ Policy configuration dataclasses.
 """
 
 from .abc import ABCConfig
+from .abpc_hg import ABPCHGConfig
 from .aco_hh import HyperHeuristicACOConfig
 from .aco_ks import KSparseACOConfig
 from .adp import ADPRolloutConfig
@@ -31,6 +32,7 @@ from .gihh import GIHHConfig
 from .gls import GLSConfig
 from .gphh import GPHHConfig
 from .hgs import HGSConfig
+from .hgs_adc import HGSADCConfig
 from .hgs_alns import HGSALNSConfig
 from .hgs_rr import HGSRRConfig
 from .hmm_gd_hh import HMMGDHHConfig
@@ -90,6 +92,7 @@ from .vpl import VPLConfig
 
 __all__ = [
     "AdaptiveKernelSearchConfig",
+    "ABPCHGConfig",
     "ADPRolloutConfig",
     "KSparseACOConfig",
     "HyperHeuristicACOConfig",
@@ -106,6 +109,7 @@ __all__ = [
     "FILOConfig",
     "GIHHConfig",
     "HGSConfig",
+    "HGSADCConfig",
     "HGSALNSConfig",
     "HGSRRConfig",
     "HNAPolicyConfig",
