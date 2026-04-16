@@ -28,13 +28,13 @@ class RecordToRecordTravel(IAcceptanceCriterion):
     def setup(self, initial_objective: float) -> None:
         self.global_best = initial_objective
 
-    def accept(self, current_obj: float, candidate_obj: float) -> bool:
+    def accept(self, current_obj: float, candidate_obj: float, **kwargs: Any) -> bool:
         # Assuming strictly positive profit objectives.
         # Accept if candidate is greater than or equal to 95% of the global best.
         allowable_floor = self.global_best * (1.0 - self.tolerance)
         return candidate_obj >= allowable_floor
 
-    def step(self, current_obj: float, candidate_obj: float, accepted: bool) -> None:
+    def step(self, current_obj: float, candidate_obj: float, accepted: bool, **kwargs: Any) -> None:
         # Update the global best record if the new solution dominates it
         if accepted and current_obj > self.global_best:
             self.global_best = current_obj

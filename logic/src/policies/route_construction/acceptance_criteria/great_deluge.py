@@ -38,10 +38,10 @@ class GreatDelugeAcceptance(IAcceptanceCriterion):
         else:
             self.rain_speed = 0.0
 
-    def accept(self, current_obj: float, candidate_obj: float) -> bool:
+    def accept(self, current_obj: float, candidate_obj: float, **kwargs: Any) -> bool:
         return candidate_obj >= self.water_level
 
-    def step(self, current_obj: float, candidate_obj: float, accepted: bool) -> None:
+    def step(self, current_obj: float, candidate_obj: float, accepted: bool, **kwargs: Any) -> None:
         self.water_level += self.rain_speed
 
     def get_state(self) -> Dict[str, Any]:

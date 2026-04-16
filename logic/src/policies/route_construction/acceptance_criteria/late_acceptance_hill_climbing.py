@@ -30,11 +30,11 @@ class LateAcceptance(IAcceptanceCriterion):
         self.history = [initial_objective] * self.L
         self.pointer = 0
 
-    def accept(self, current_obj: float, candidate_obj: float) -> bool:
+    def accept(self, current_obj: float, candidate_obj: float, **kwargs: Any) -> bool:
         # Accept if improving vs current OR improving vs L steps ago
         return candidate_obj >= current_obj or candidate_obj >= self.history[self.pointer]
 
-    def step(self, current_obj: float, candidate_obj: float, accepted: bool) -> None:
+    def step(self, current_obj: float, candidate_obj: float, accepted: bool, **kwargs: Any) -> None:
         # Always insert the *current accepted state's* cost into the array
         self.history[self.pointer] = current_obj
         self.pointer = (self.pointer + 1) % self.L

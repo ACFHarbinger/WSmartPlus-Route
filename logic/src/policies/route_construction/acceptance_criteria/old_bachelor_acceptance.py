@@ -31,13 +31,13 @@ class OldBachelorAcceptance(IAcceptanceCriterion):
         self.threshold = 0.0  # Start with strict greedy behavior
         self.age = 0
 
-    def accept(self, current_obj: float, candidate_obj: float) -> bool:
+    def accept(self, current_obj: float, candidate_obj: float, **kwargs: Any) -> bool:
         # delta is negative for worsening moves.
         # e.g., candidate=90, current=100 -> delta=-10. If threshold is 15, -10 >= -15 (Accept).
         delta = candidate_obj - current_obj
         return delta >= -self.threshold
 
-    def step(self, current_obj: float, candidate_obj: float, accepted: bool) -> None:
+    def step(self, current_obj: float, candidate_obj: float, accepted: bool, **kwargs: Any) -> None:
         if accepted:
             # Move accepted: Reset rejection streak and tighten standards
             self.age = 0

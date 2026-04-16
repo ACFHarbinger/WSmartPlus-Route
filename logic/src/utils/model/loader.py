@@ -65,7 +65,7 @@ def load_model(path: str, epoch: Optional[int] = None) -> Tuple[nn.Module, Dict[
         "ggac": GGACComponentFactory,
         "mlp": MLPComponentFactory,
         "gcn": GCNComponentFactory,
-    }.get(args.get("encoder", "gat"), None)
+    }.get(args.get("encoder", "gat"))
 
     # Fallback/Check
     if factory_class is None:
