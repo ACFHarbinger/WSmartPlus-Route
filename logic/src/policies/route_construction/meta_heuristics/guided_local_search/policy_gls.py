@@ -7,8 +7,8 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 import numpy as np
 
 from logic.src.configs.policies.gls import GLSConfig
-from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import RouteConstructorRegistry
+from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
+from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
 from .params import GLSParams
 from .solver import GLSSolver
@@ -42,7 +42,7 @@ class GLSPolicy(BaseRoutingPolicy):
         params = GLSParams(
             lambda_param=float(values.get("lambda_param", 1.0)),
             alpha_param=float(values.get("alpha_param", 0.3)),
-            penalty_cycles=int(values.get("penalty_cycles", values.get("max_restarts", 1000))),
+            penalty_cycles=int(values.get("penalty_cycles", 1000)),
             n_removal=int(values.get("n_removal", 2)),
             n_llh=int(values.get("n_llh", 6)),
             inner_iterations=int(values.get("inner_iterations", 100)),

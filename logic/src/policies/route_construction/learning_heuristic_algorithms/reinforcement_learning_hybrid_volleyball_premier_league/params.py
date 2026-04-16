@@ -9,7 +9,7 @@ without the full genetic evolution complexity.
 from dataclasses import dataclass, field
 from typing import Any, Optional, Tuple
 
-from logic.src.configs.policies.helpers import RLConfig
+from logic.src.configs.policies.other import RLConfig
 from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params import ALNSParams
 from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params import KSACOParams
 

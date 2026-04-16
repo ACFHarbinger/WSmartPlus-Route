@@ -10,8 +10,8 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 import numpy as np
 
 from logic.src.configs.policies import MuKappaLambdaESConfig
-from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import RouteConstructorRegistry
+from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
+from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
 from .params import MuKappaLambdaESParams
 from .solver import MuKappaLambdaESSolver
@@ -60,13 +60,14 @@ class MuKappaLambdaESPolicy(BaseRoutingPolicy):
         Returns:
             Tuple of (routes, profit, solver_cost)
         """
+        tau_default: float = 1.0 / (2.0**0.5)
         params = MuKappaLambdaESParams(
             mu=values.get("mu", 10),
             kappa=values.get("kappa", 5),
             lambda_=values.get("lambda_", 5),
             rho=values.get("rho", 2),
-            tau_local=values.get("tau_local", 1.0 / (2.0**0.5)),
-            tau_global=values.get("tau_global", 1.0 / (2.0**0.5)),
+            tau_local=values.get("tau_local", tau_default),
+            tau_global=values.get("tau_global", tau_default),
             initial_sigma=values.get("initial_sigma", 1.0),
             recombination_type=values.get("recombination_type", "intermediate"),
             max_iterations=values.get("max_iterations", 500),

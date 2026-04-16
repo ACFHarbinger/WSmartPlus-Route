@@ -38,8 +38,10 @@ logger = logging.getLogger(__name__)
 
 # Primary: in-house solver
 try:
-    from logic.src.policies.branch_and_price.bp import BranchAndPriceSolver
-    from logic.src.policies.branch_and_price.params import BPParams
+    from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.bp import (
+        BranchAndPriceSolver,
+    )
+    from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.params import BPParams
 
     _HAS_INHOUSE_BP = True
 except ImportError as e:
@@ -57,6 +59,14 @@ try:
     _HAS_VRPY = True
 except ImportError:
     _HAS_VRPY = False
+
+
+if _HAS_VRPY:
+
+    class ProfitableVRP(VehicleRoutingProblem):
+        """Type-safe wrapper for VRPy to satisfy Pyright/Pyrefly static analysis."""
+
+        prize_collection: bool
 
 
 @contextmanager
@@ -95,14 +105,30 @@ class BranchAndPriceRouteImprover(IRouteImprovement):
             return tour
 
         # Problem parameters
-        wastes = kwargs.get("wastes", self.config.get("wastes", {}))
-        capacity = kwargs.get("capacity", self.config.get("capacity", float("inf")))
-        cost_per_km = kwargs.get("cost_per_km", self.config.get("cost_per_km", 0.0))
-        revenue_kg = kwargs.get("revenue_kg", self.config.get("revenue_kg", 0.0))
+        wastes = kwargs.get("wastes", {}) if kwargs.get("wastes") is not None else self.config.get("wastes", {})
+        capacity = (
+            kwargs.get("capacity", float("inf"))
+            if kwargs.get("capacity") is not None
+            else self.config.get("capacity", float("inf"))
+        )
+        cost_per_km = (
+            kwargs.get("cost_per_km", 0.0)
+            if kwargs.get("cost_per_km") is not None
+            else self.config.get("cost_per_km", 0.0)
+        )
+        revenue_kg = (
+            kwargs.get("revenue_kg", 0.0)
+            if kwargs.get("revenue_kg") is not None
+            else self.config.get("revenue_kg", 0.0)
+        )
         mandatory_nodes = resolve_mandatory_nodes(kwargs, self.config) or []
 
         # Wall-clock budget
-        time_limit = kwargs.get("bp_time_limit", self.config.get("bp_time_limit", 120.0))
+        time_limit = (
+            kwargs.get("bp_time_limit", 0.0)
+            if kwargs.get("bp_time_limit") is not None
+            else self.config.get("bp_time_limit", 120.0)
+        )
 
         dm = to_numpy(distance_matrix)
 
@@ -194,30 +220,91 @@ class BranchAndPriceRouteImprover(IRouteImprovement):
         # Note: use_exact_pricing defaults to True here because a route improver
         # called once per episode should use the high-quality pricer, even though
         # the solver's own default is False (for speed inside inner loops).
+        max_iterations = (
+            kwargs.get("bp_max_iterations", 0)
+            if kwargs.get("bp_max_iterations") is not None
+            else self.config.get("bp_max_iterations", 100)
+        )
+        max_routes_per_iteration = (
+            kwargs.get("bp_max_routes_per_iteration", 0)
+            if kwargs.get("bp_max_routes_per_iteration") is not None
+            else self.config.get("bp_max_routes_per_iteration", 10)
+        )
+        optimality_gap = (
+            kwargs.get("bp_optimality_gap", 0.0)
+            if kwargs.get("bp_optimality_gap") is not None
+            else self.config.get("bp_optimality_gap", 1e-4)
+        )
+        branching_strategy = (
+            kwargs.get("bp_branching_strategy", "")
+            if kwargs.get("bp_branching_strategy") is not None
+            else self.config.get("bp_branching_strategy", "edge")
+        )
+        max_branch_nodes = (
+            kwargs.get("bp_max_branch_nodes", 0)
+            if kwargs.get("bp_max_branch_nodes") is not None
+            else self.config.get("bp_max_branch_nodes", 1000)
+        )
+        use_exact_pricing = (
+            kwargs.get("bp_use_exact_pricing", False)
+            if kwargs.get("bp_use_exact_pricing") is not None
+            else self.config.get("bp_use_exact_pricing", True)
+        )
+        use_ng_routes = (
+            kwargs.get("bp_use_ng_routes", False)
+            if kwargs.get("bp_use_ng_routes") is not None
+            else self.config.get("bp_use_ng_routes", True)
+        )
+        ng_neighborhood_size = (
+            kwargs.get("bp_ng_neighborhood_size", 0)
+            if kwargs.get("bp_ng_neighborhood_size") is not None
+            else self.config.get("bp_ng_neighborhood_size", 8)
+        )
+        tree_search_strategy = (
+            kwargs.get("bp_tree_search_strategy", "")
+            if kwargs.get("bp_tree_search_strategy") is not None
+            else self.config.get("bp_tree_search_strategy", "best_first")
+        )
+        vehicle_limit = (
+            kwargs.get("bp_vehicle_limit", 0)
+            if kwargs.get("bp_vehicle_limit") is not None
+            else self.config.get("bp_vehicle_limit", 0)
+        )
+        cleanup_frequency = (
+            kwargs.get("bp_cleanup_frequency", 0)
+            if kwargs.get("bp_cleanup_frequency") is not None
+            else self.config.get("bp_cleanup_frequency", 20)
+        )
+        cleanup_threshold = (
+            kwargs.get("bp_cleanup_threshold", 0.0)
+            if kwargs.get("bp_cleanup_threshold") is not None
+            else self.config.get("bp_cleanup_threshold", -100.0)
+        )
+        early_termination_gap = (
+            kwargs.get("bp_early_termination_gap", 0.0)
+            if kwargs.get("bp_early_termination_gap") is not None
+            else self.config.get("bp_early_termination_gap", 1e-3)
+        )
+        allow_heuristic_ryan_foster = (
+            kwargs.get("bp_allow_heuristic_ryan_foster", False)
+            if kwargs.get("bp_allow_heuristic_ryan_foster") is not None
+            else self.config.get("bp_allow_heuristic_ryan_foster", False)
+        )
         params = BPParams(
-            max_iterations=kwargs.get("bp_max_iterations", self.config.get("bp_max_iterations", 100)),
-            max_routes_per_iteration=kwargs.get(
-                "bp_max_routes_per_iteration", self.config.get("bp_max_routes_per_iteration", 10)
-            ),
-            optimality_gap=kwargs.get("bp_optimality_gap", self.config.get("bp_optimality_gap", 1e-4)),
-            branching_strategy=kwargs.get("bp_branching_strategy", self.config.get("bp_branching_strategy", "edge")),
-            max_branch_nodes=kwargs.get("bp_max_branch_nodes", self.config.get("bp_max_branch_nodes", 1000)),
-            use_exact_pricing=kwargs.get("bp_use_exact_pricing", self.config.get("bp_use_exact_pricing", True)),
-            use_ng_routes=kwargs.get("bp_use_ng_routes", self.config.get("bp_use_ng_routes", True)),
-            ng_neighborhood_size=kwargs.get("bp_ng_neighborhood_size", self.config.get("bp_ng_neighborhood_size", 8)),
-            tree_search_strategy=kwargs.get(
-                "bp_tree_search_strategy", self.config.get("bp_tree_search_strategy", "best_first")
-            ),
-            vehicle_limit=kwargs.get("bp_vehicle_limit", self.config.get("bp_vehicle_limit")),
-            cleanup_frequency=kwargs.get("bp_cleanup_frequency", self.config.get("bp_cleanup_frequency", 20)),
-            cleanup_threshold=kwargs.get("bp_cleanup_threshold", self.config.get("bp_cleanup_threshold", -100.0)),
-            early_termination_gap=kwargs.get(
-                "bp_early_termination_gap", self.config.get("bp_early_termination_gap", 1e-3)
-            ),
-            allow_heuristic_ryan_foster=kwargs.get(
-                "bp_allow_heuristic_ryan_foster",
-                self.config.get("bp_allow_heuristic_ryan_foster", False),
-            ),
+            max_iterations=max_iterations,
+            max_routes_per_iteration=max_routes_per_iteration,
+            optimality_gap=optimality_gap,
+            branching_strategy=branching_strategy,
+            max_branch_nodes=max_branch_nodes,
+            use_exact_pricing=use_exact_pricing,
+            use_ng_routes=use_ng_routes,
+            ng_neighborhood_size=ng_neighborhood_size,
+            tree_search_strategy=tree_search_strategy,
+            vehicle_limit=vehicle_limit,
+            cleanup_frequency=cleanup_frequency,
+            cleanup_threshold=cleanup_threshold,
+            early_termination_gap=early_termination_gap,
+            allow_heuristic_ryan_foster=allow_heuristic_ryan_foster,
         )
 
         solver = BranchAndPriceSolver(
@@ -300,38 +387,59 @@ class BranchAndPriceRouteImprover(IRouteImprovement):
         G.add_node("Source", demand=0)
         G.add_node("Sink", demand=0)
         for n in active_nodes:
-            G.add_node(n, demand=int(wastes.get(n, 0)))
-            G.add_edge("Source", n, cost=float(dm[0, n]))
-            G.add_edge(n, "Sink", cost=float(dm[n, 0]))
+            G.add_node(str(n), demand=int(wastes.get(n, 0)))
+            G.add_edge("Source", str(n), cost=float(dm[0, n]))
+            G.add_edge(str(n), "Sink", cost=float(dm[n, 0]))
         for u in active_nodes:
             for v in active_nodes:
                 if u != v:
-                    G.add_edge(u, v, cost=float(dm[u, v]))
+                    G.add_edge(str(u), str(v), cost=float(dm[u, v]))
 
-        prob = VehicleRoutingProblem(
+        # Apply prize collection logic by modifying edge costs
+        if revenue_kg > 0:
+            for n in active_nodes:
+                node_prize = float(wastes.get(n, 0.0)) * revenue_kg
+                node_str = str(n)
+                # Reduce the cost of entering this node by the value of its prize
+                for predecessor in G.predecessors(node_str):
+                    # Check if cost is indexable (handles potential list/array of costs)
+                    cost_val = G.edges[predecessor, node_str]["cost"]
+                    if isinstance(cost_val, (list, np.ndarray)):
+                        for k in range(len(cost_val)):
+                            cost_val[k] -= node_prize
+                    else:
+                        G.edges[predecessor, node_str]["cost"] -= node_prize
+
+        prob = ProfitableVRP(
             G,
             load_capacity=int(capacity) if capacity != float("inf") else None,
         )
 
         if revenue_kg > 0:
-            for n in active_nodes:
-                G.nodes[n]["collect"] = float(wastes.get(n, 0.0)) * revenue_kg
             prob.prize_collection = True
 
         for m_node in mandatory_nodes:
-            if m_node in G.nodes:
-                G.nodes[m_node]["required"] = True
+            if str(m_node) in G.nodes:
+                G.nodes[str(m_node)]["required"] = True
 
         prob.solve(cspy=cspy, time_limit=time_limit, solver="cbc")
 
-        if prob.best_routes is None or not prob.best_routes:
+        routes_data = prob.best_routes
+        if routes_data is None:
             return None
 
         refined: List[List[int]] = []
-        for _, vrpy_route in prob.best_routes.items():
-            stripped = [n for n in vrpy_route if n not in ("Source", "Sink")]
-            if stripped:
-                refined.append(stripped)
+        # Safely handle both list (actual behavior) and dict (documented behavior)
+        if isinstance(routes_data, list):
+            for _, node_list in enumerate(routes_data, start=1):
+                stripped = [int(n) for n in node_list if n not in ("Source", "Sink")]
+                if stripped:
+                    refined.append(stripped)
+        elif isinstance(routes_data, dict):
+            for _, node_list in routes_data.items():
+                stripped = [int(n) for n in node_list if n not in ("Source", "Sink")]
+                if stripped:
+                    refined.append(stripped)
 
         return refined
 

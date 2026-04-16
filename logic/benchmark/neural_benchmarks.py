@@ -9,9 +9,8 @@ import time
 from typing import Any, Dict, List
 
 import torch
-from tensordict import TensorDict
 
-from logic.src.models.policies.am import AttentionModelPolicy
+from logic.src.models.core.attention_model.policy import AttentionModelPolicy
 from logic.src.tracking.logging.structured_logging import log_benchmark_metric
 
 

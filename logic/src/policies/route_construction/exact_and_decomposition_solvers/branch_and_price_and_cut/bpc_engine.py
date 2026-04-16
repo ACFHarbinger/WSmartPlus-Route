@@ -113,7 +113,6 @@ import gurobipy as gp
 import numpy as np
 from gurobipy import GRB
 
-from logic.src.policies.base.factory import PolicyFactory
 from logic.src.policies.helpers.branching_solvers import (
     AnyBranchingConstraint,
     BranchAndBoundTree,
@@ -131,6 +130,7 @@ from logic.src.policies.helpers.branching_solvers.lagrangian_relaxation.uncapaci
 )
 from logic.src.policies.helpers.branching_solvers.vrpp_model import VRPPModel
 from logic.src.policies.helpers.operators.repair.greedy import greedy_insertion, greedy_profit_insertion
+from logic.src.policies.route_construction.base.factory import PolicyFactory
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
 from .cutting_planes import CuttingPlaneEngine, create_cutting_plane_engine

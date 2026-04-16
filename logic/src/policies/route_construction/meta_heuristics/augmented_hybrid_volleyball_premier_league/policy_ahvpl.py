@@ -10,8 +10,8 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 import numpy as np
 
 from logic.src.configs.policies.ahvpl import AHVPLConfig
-from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import RouteConstructorRegistry
+from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
+from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
 from ..adaptive_large_neighborhood_search.params import ALNSParams
 from ..ant_colony_optimization_k_sparse.params import KSACOParams
@@ -70,7 +70,7 @@ class AHVPLPolicy(BaseRoutingPolicy):
             local_search=values.get("aco_local_search", False),
             local_search_iterations=values.get("aco_local_search_iterations", 0),
             elitist_weight=values.get("aco_elitist_weight", 1.0),
-            time_limit=values.get("aco_time_limit", values.get("time_limit", 60.0)),
+            time_limit=values.get("aco_time_limit", 60.0),
             vrpp=values.get("vrpp", True),
             profit_aware_operators=values.get("profit_aware_operators", False),
             seed=values.get("seed", 42),
@@ -83,14 +83,14 @@ class AHVPLPolicy(BaseRoutingPolicy):
             reaction_factor=values.get("alns_reaction_factor", 0.1),
             min_removal=values.get("alns_min_removal", 1),
             max_removal_pct=values.get("alns_max_removal_pct", 0.2),
-            time_limit=values.get("alns_time_limit", values.get("time_limit", 60.0)),
+            time_limit=values.get("alns_time_limit", 60.0),
             vrpp=values.get("vrpp", True),
             profit_aware_operators=values.get("profit_aware_operators", False),
             seed=values.get("seed", 42),
         )
 
         hgs_params = HGSParams(
-            time_limit=values.get("hgs_time_limit", values.get("time_limit", 60.0)),
+            time_limit=values.get("hgs_time_limit", 60.0),
             mu=values.get("hgs_population_size", 50),
             nb_elite=values.get("hgs_elite_size", 5),
             mutation_rate=values.get("hgs_mutation_rate", 0.2),

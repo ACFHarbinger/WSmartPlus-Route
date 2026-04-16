@@ -20,7 +20,9 @@ from .strategies import (
 )
 
 if TYPE_CHECKING:
-    from logic.src.policies.branch_and_price_and_cut.params import BPCParams
+    from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params import (
+        BPCParams,
+    )
 
     from ..common.route import Route
     from ..vrpp_model import VRPPModel

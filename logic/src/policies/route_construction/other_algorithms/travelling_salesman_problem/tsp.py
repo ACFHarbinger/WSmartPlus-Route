@@ -36,7 +36,8 @@ import torch
 from networkx.algorithms.shortest_paths.weighted import dijkstra_path
 
 from logic.src.constants.routing import SCALE
-from logic.src.policies.route_construction.helpers_algorithms.travelling_salesman_problem.two_opt import solve_tsp_2opt
+
+from .two_opt import solve_tsp_2opt
 
 
 def find_route(C, to_collect, time_limit=2.0, seed=42, engine="fast_tsp"):
