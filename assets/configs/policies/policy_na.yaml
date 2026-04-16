@@ -31,7 +31,7 @@
 #   - Advantage: Consistent fast runtime (no worst-case timeouts)
 # =============================================================================
 
-neural:
+na:
   amgat:
     # ---------------------------------------------------------------------
     # Model Checkpoint

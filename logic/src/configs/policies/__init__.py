@@ -9,7 +9,7 @@ from .adp import ADPRolloutConfig
 from .ahvpl import AHVPLConfig
 from .aks import AdaptiveKernelSearchConfig
 from .alns import ALNSConfig
-from .alns_mp import ALNSMPConfig
+from .alns_ipo import ALNSIPOConfig
 from .bb import BBConfig
 from .bc import BCConfig
 from .bp import BPConfig
@@ -35,7 +35,7 @@ from .hgs_alns import HGSALNSConfig
 from .hgs_rr import HGSRRConfig
 from .hmm_gd_hh import HMMGDHHConfig
 from .hms import HybridMemeticSearchConfig
-from .hrl_irp import HRLIRPPolicyConfig
+from .hna import HNAPolicyConfig
 from .hs import HSConfig
 from .hulk import HULKConfig
 from .hvpl import HVPLConfig
@@ -55,8 +55,7 @@ from .ma import MAConfig
 from .ma_dp import MemeticAlgorithmDualPopulationConfig
 from .ma_im import MemeticAlgorithmIslandModelConfig
 from .ma_ts import MemeticAlgorithmToleranceBasedSelectionConfig
-from .mp_ils_bd import MPILSBDConfig
-from .neural import NeuralConfig
+from .na import NeuralAgentConfig
 from .oba import OBAConfig
 from .oi import OIConfig
 from .other import MandatorySelectionConfig, RouteImprovingConfig
@@ -96,7 +95,7 @@ __all__ = [
     "HyperHeuristicACOConfig",
     "AHVPLConfig",
     "ALNSConfig",
-    "ALNSMPConfig",
+    "ALNSIPOConfig",
     "BBConfig",
     "BCConfig",
     "BPConfig",
@@ -109,13 +108,13 @@ __all__ = [
     "HGSConfig",
     "HGSALNSConfig",
     "HGSRRConfig",
-    "HRLIRPPolicyConfig",
+    "HNAPolicyConfig",
     "ILSRVNDSPConfig",
     "IntegerLShapedBendersConfig",
     "HVPLConfig",
     "KGLSConfig",
     "LKH3Config",
-    "NeuralConfig",
+    "NeuralAgentConfig",
     "RLAHVPLConfig",
     "RLALNSConfig",
     "RLGDHHConfig",
@@ -173,7 +172,6 @@ __all__ = [
     "RTSConfig",
     "ExactSDPConfig",
     "PHConfig",
-    "MPILSBDConfig",
     "ScenarioTreeExtensiveFormConfig",
     "LBBDConfig",
     "CPSATConfig",

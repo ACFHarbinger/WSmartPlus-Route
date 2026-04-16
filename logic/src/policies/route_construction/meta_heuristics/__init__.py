@@ -1,4 +1,7 @@
 from .adaptive_large_neighborhood_search import policy_alns as policy_alns
+from .adaptive_large_neighborhood_search_with_inter_period_operators import (
+    policy_alns_ipo as policy_alns_ipo,
+)
 from .ant_colony_optimization_k_sparse import policy_aco_ks as policy_aco_ks
 from .artificial_bee_colony import policy_abc as policy_abc
 from .augmented_hybrid_volleyball_premier_league import policy_ahvpl as policy_ahvpl
@@ -40,6 +43,7 @@ from .volleyball_premier_league import policy_vpl as policy_vpl
 
 __all__ = [
     "policy_alns",
+    "policy_alns_ipo",
     "policy_aco_ks",
     "policy_abc",
     "policy_ahvpl",

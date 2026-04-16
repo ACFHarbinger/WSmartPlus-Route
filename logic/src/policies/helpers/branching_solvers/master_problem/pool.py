@@ -2,6 +2,8 @@
 Global Cut Pool for Branch-and-Price-and-Cut.
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Dict, FrozenSet, Optional, Set, Tuple
 

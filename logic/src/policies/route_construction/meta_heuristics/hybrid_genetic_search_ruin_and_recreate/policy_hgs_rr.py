@@ -20,10 +20,25 @@ from .params import HGSRRParams
 @RouteConstructorRegistry.register("hgs_rr")
 class HGSRRPolicy(BaseRoutingPolicy):
     """
-    Hybrid Genetic Search with Ruin-and-Recreate policy class.
+    Hybrid Genetic Search with Ruin-and-Recreate (HGS-RR) Policy.
 
-    Combines evolutionary optimization with adaptive destroy/repair operators
-    for solving VRPP.
+    This policy implements an advanced hybrid metaheuristic that replaces the
+    standard local search education in HGS with an Adaptive Ruin-and-Recreate
+    (ALNS-style) phase.
+
+    Algorithm Logic:
+    1.  **Selection & Crossover**: Selects parents from a high-quality population
+        and generates offspring using spatial recombination.
+    2.  **Adaptive Ruin-and-Recreate**: Instead of bit-wise local search, the
+        offspring is "educated" by applying a sequence of stochastic removal
+        (ruin) and greedy/regret insertion (recreate) operators.
+    3.  **Survivor Selection**: Multi-criteria selection (fitness and diversity)
+        to maintain a balanced population and prevent premature convergence.
+
+    HGS-RR is particularly powerful for problems where traditional local search
+    gets trapped in complex basins of attraction.
+
+    Registry key: ``"hgs_rr"``
     """
 
     def __init__(self, config: Optional[Union[HGSRRConfig, Dict[str, Any]]] = None):

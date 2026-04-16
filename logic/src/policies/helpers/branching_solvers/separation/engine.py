@@ -19,6 +19,8 @@ References:
     - Comb inequalities are disabled in favor of Gurobi's internal polyhedral cuts
 """
 
+from __future__ import annotations
+
 from typing import Dict, List, Optional, Set, Tuple
 
 import networkx as nx

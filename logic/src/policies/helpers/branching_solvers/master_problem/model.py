@@ -8,6 +8,8 @@ total collected profit across a finite fleet.
 Theoretical Basis: Barnhart et al. (1998).
 """
 
+from __future__ import annotations
+
 import contextlib
 import logging
 from typing import TYPE_CHECKING, Any, Dict, FrozenSet, List, Optional, Set, Tuple, Union

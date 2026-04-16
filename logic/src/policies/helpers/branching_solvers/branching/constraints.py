@@ -2,6 +2,8 @@
 Branching constraints for VRPP Branch-and-Price.
 """
 
+from __future__ import annotations
+
 from typing import List, Union
 
 from logic.src.policies.helpers.branching_solvers.common.route import Route

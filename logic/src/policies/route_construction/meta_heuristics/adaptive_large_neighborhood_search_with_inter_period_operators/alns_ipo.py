@@ -1,14 +1,14 @@
 """
-Multi-Period Adaptive Large Neighborhood Search (ALNS-MP).
+Adaptive Large Neighborhood Search with Inter-Period Operators (ALNS-IPO).
 
 Extends the standard ``ALNSSolver`` to optimise a full T-day horizon
 chromosome ``horizon_routes: List[List[List[int]]]`` by incorporating
-inter-period destroy/repair operators that can move and remove visits
+inter-period destroy/repair operators (IPO) that can move and remove visits
 across days.
 
 Architecture
 ------------
-``ALNSSolverMP`` is a **subclass** of ``ALNSSolver``.  It:
+``ALNSSolverIPO`` is a **subclass** of ``ALNSSolver``.  It:
 
 1. Inherits the full operator registry (destroy/repair) and the
    segment-based weight update machinery from the parent class.
@@ -22,7 +22,7 @@ Architecture
 
 Chromosome representation
 --------------------------
-The ALNS-MP maintains a **horizon chromosome**::
+The ALNS-IPO maintains a **horizon chromosome**::
 
     horizon_routes: List[List[List[int]]]
     # [day_index][route_index][node_index]
@@ -54,12 +54,12 @@ from logic.src.policies.helpers.operators import (
 )
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
-from .alns import ALNSSolver
-from .params import ALNSParams
+from ..adaptive_large_neighborhood_search.alns import ALNSSolver
+from .params import ALNSIPOParams
 
 
-class ALNSSolverMP(ALNSSolver):
-    """Multi-Period ALNS extending ALNSSolver with a T-day horizon chromosome.
+class ALNSSolverIPO(ALNSSolver):
+    """ALNS with Inter-Period Operators (IPO) for T-day horizon optimization.
 
     Adds inter-period destroy operators (ShiftVisitRemoval, PatternRemoval)
     and the ForwardLookingInsertion repair to the adaptive weight registry.
@@ -74,14 +74,7 @@ class ALNSSolverMP(ALNSSolver):
         capacity: float,
         R: float,
         C: float,
-        params: ALNSParams,
-        horizon: int = 7,
-        stockout_penalty: float = 500.0,
-        forward_looking_depth: int = 3,
-        shift_direction: str = "both",
-        inventory_lambda: float = 1.0,
-        inter_period_weight: float = 1.0,
-        inter_period_operators: bool = True,
+        params: ALNSIPOParams,
         mandatory_nodes: Optional[List[int]] = None,
         recorder: Optional[PolicyStateRecorder] = None,
     ) -> None:
@@ -93,14 +86,7 @@ class ALNSSolverMP(ALNSSolver):
             capacity: Vehicle capacity.
             R: Revenue per unit waste collected.
             C: Cost per unit distance.
-            params: Standard ALNS parameters (inherited from ALNSSolver).
-            horizon: Planning horizon T (number of days).
-            stockout_penalty: Penalty per unit of bin overflow.
-            forward_looking_depth: Lookahead depth H for ForwardLookingInsertion.
-            shift_direction: Direction for ShiftVisitRemoval ("both", "forward", "backward").
-            inventory_lambda: Weight on inventory term in ForwardLookingInsertion.
-            inter_period_weight: Initial roulette weight for inter-period destroy operators.
-            inter_period_operators: If False, disable inter-period operators (ablation).
+            params: ALNS-IPO parameters including multi-period extensions.
             mandatory_nodes: Nodes that must be visited on Day 0.
             recorder: Optional policy state recorder.
         """
@@ -115,16 +101,16 @@ class ALNSSolverMP(ALNSSolver):
             recorder=recorder,
         )
 
-        self.horizon = horizon
-        self.stockout_penalty = stockout_penalty
-        self.forward_looking_depth = forward_looking_depth
-        self.shift_direction = shift_direction
-        self.inventory_lambda = inventory_lambda
-        self.inter_period_weight_init = inter_period_weight
-        self.inter_period_operators_enabled = inter_period_operators
+        self.horizon = params.horizon
+        self.stockout_penalty = params.stockout_penalty
+        self.forward_looking_depth = params.forward_looking_depth
+        self.shift_direction = params.shift_direction
+        self.inventory_lambda = params.inventory_lambda
+        self.inter_period_weight_init = params.inter_period_weight
+        self.inter_period_operators_enabled = params.inter_period_operators
 
         # Append inter-period destroy operators to parent registry
-        if inter_period_operators:
+        if self.inter_period_operators_enabled:
             self._append_inter_period_destroy_ops()
 
         # Forward-looking repair for inter-period re-insertion
@@ -331,9 +317,7 @@ class ALNSSolverMP(ALNSSolver):
 
         return best_horizon, best_profit, best_cost
 
-    def _apply_single_day_ops(
-        self, day_routes: List[List[int]], d_idx: int
-    ) -> Tuple[List[List[int]], List[int]]:
+    def _apply_single_day_ops(self, day_routes: List[List[int]], d_idx: int) -> Tuple[List[List[int]], List[int]]:
         """Apply a single-day destroy operator and greedily repair."""
         destroy_op = self.destroy_ops[d_idx]
         n_nodes = sum(len(r) for r in day_routes)
