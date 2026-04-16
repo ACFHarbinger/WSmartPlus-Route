@@ -4,8 +4,8 @@ Unit tests for the Scenario-Tree Extensive Form (ST-EF) policy.
 
 import numpy as np
 import pytest
-from logic.src.policies.scenario_tree_extensive_form import ScenarioTreeExtensiveFormPolicy
-from logic.src.policies.scenario_tree_extensive_form.st_ef_engine import GUROBI_AVAILABLE
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form import ScenarioTreeExtensiveFormPolicy
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine import GUROBI_AVAILABLE
 
 
 @pytest.mark.skipif(not GUROBI_AVAILABLE, reason="Gurobi not available for ST-EF solver")

@@ -1,8 +1,12 @@
 import numpy as np
 import pytest
 from unittest.mock import MagicMock
-from logic.src.policies.branch_and_price_and_cut.bpc_engine import run_bpc
-from logic.src.policies.branch_and_price_and_cut.cutting_planes import KnapsackCoverEngine, create_cutting_plane_engine
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine import run_bpc
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes import (
+    CompositeCuttingPlaneEngine,
+    KnapsackCoverEngine,
+    create_cutting_plane_engine,
+)
 
 @pytest.fixture
 def bpc_instance():
@@ -47,7 +51,7 @@ def test_knapsack_cover_separation():
     r2 = MagicMock(); r2.node_coverage = {3, 4}
     master.routes = [r1, r2]
     master.add_capacity_cut.return_value = True
-    engine = KnapsackCoverEngine(None, None)
+    engine = KnapsackCoverEngine(MagicMock(), MagicMock())
     added = engine.separate_and_add_cuts(master, max_cuts=1)
     assert added == 1
     master.add_capacity_cut.assert_called()
@@ -57,6 +61,7 @@ def test_create_engine_factory():
     sep_engine = MagicMock()
     engine = create_cutting_plane_engine("all", v_model, sep_engine)
     assert engine.get_name() == "composite"
+    assert isinstance(engine, CompositeCuttingPlaneEngine)
     assert len(engine.engines) == 7  # RCC, SRI, EdgeClique, FleetCover, PhysicalLCI, SaturatedArcLCI, KnapsackCover
 
 def test_bpc_exact_convergence_log(bpc_instance, caplog):

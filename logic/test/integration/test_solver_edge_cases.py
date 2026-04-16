@@ -1,9 +1,8 @@
 import numpy as np
 import pytest
-from logic.src.policies.base import PolicyFactory
 from logic.src.policies import run_hgs
-from logic.src.policies.capacitated_vehicle_routing_problem.cvrp import find_routes, find_routes_ortools
-from logic.src.policies.smart_waste_collection_two_commodity_flow.policy_swc_tcf import run_swc_tcf_optimizer
+from logic.src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.cvrp import find_routes, find_routes_ortools
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.policy_swc_tcf import run_swc_tcf_optimizer
 
 class TestSolverEdgeCases:
     """
@@ -51,7 +50,7 @@ class TestSolverEdgeCases:
                 distance_matrix=data["dist_matrix"],
                 values=data["values"],
                 binsids=data["binsids"],
-                mandatory=[],
+                mandatory_nodes=[],
                 optimizer=backend,
                 time_limit=2
             )
@@ -122,7 +121,7 @@ class TestSolverEdgeCases:
                 distance_matrix=data["dist_matrix"],
                 values=data["values"],
                 binsids=data["binsids"],
-                mandatory=[1],
+                mandatory_nodes=[1],
                 optimizer=backend,
                 time_limit=2
             )
@@ -189,7 +188,7 @@ class TestSolverEdgeCases:
                 distance_matrix=dist_matrix,
                 values={**values, "Q": 1000},
                 binsids=[1,2],
-                mandatory=[1,2],
+                mandatory_nodes=[1,2],
                 optimizer="gurobi",
                 time_limit=10
             )

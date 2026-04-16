@@ -5,8 +5,8 @@ from unittest.mock import patch, MagicMock
 
 import numpy as np
 import pytest
-from logic.src.policies.base.factory import RouteConstructorRegistry
-from logic.src.policies.branch_and_bound.policy_bb import BranchAndBoundPolicy
+from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.policy_bb import BranchAndBoundPolicy
 
 
 class MockBins:
@@ -77,8 +77,10 @@ class TestBBPolicy:
         """Integration test with Gurobi (requires license)."""
         try:
             import gurobipy
-            policy = RouteConstructorRegistry.get("bb")()
-            tour, cost, extra = policy.execute(**bb_test_data)
+            policy = RouteConstructorRegistry.get("bb")
+            assert policy is not None
+            instance = policy()
+            tour, cost, extra = instance.execute(**bb_test_data)
 
             assert isinstance(tour, list)
             assert tour[0] == 0

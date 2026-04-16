@@ -1,10 +1,12 @@
 import numpy as np
 from logic.src.policies.helpers.branching_solvers import MultiEdgePartitionBranching
-from logic.src.policies.branch_and_price_and_cut.cutting_planes import (
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes import (
     EdgeCliqueCutEngine,
     SubsetRowCutEngine,
     create_cutting_plane_engine,
+    CompositeCuttingPlaneEngine,
 )
+from typing import cast
 from logic.src.policies.helpers.branching_solvers import Route
 from logic.src.policies.helpers.branching_solvers import RCSPPSolver
 
@@ -33,7 +35,9 @@ def test_polar_angle_partitioning():
     route_values = {i: lambdas[i] for i in range(len(lambdas))}
 
     brancher = MultiEdgePartitionBranching()
-    d, set1, set2, strength = brancher.find_divergence_node(routes, route_values, node_coords=node_coords)
+    res = brancher.find_divergence_node(routes, route_values, node_coords=cast(np.ndarray, node_coords))
+    assert res is not None
+    d, set1, set2, strength = res
 
     assert d == 0
     # Arcs sorted by angle: (0, 1) [0.78], (0, 3) [1.57], (0, 2) [2.35]
@@ -80,11 +84,15 @@ def test_sri_dual_penalties():
 
     # 2-node route visits 2 of 3 nodes in S: floor(2/2)=1 → penalty 5.
     assert (1, 2) in route_rcs, "Route [1,2] should be generated"
-    assert abs(route_rcs[(1, 2)] - 15.0) < 1e-6, f"Route [1,2] RC should be 15, got {route_rcs[(1, 2)]}"
+    rc_12 = route_rcs[(1, 2)]
+    assert rc_12 is not None
+    assert abs(rc_12 - 15.0) < 1e-6, f"Route [1,2] RC should be 15, got {rc_12}"
 
     # Single-node route visits 1 node in S: floor(1/2)=0 → no penalty.
     assert (1,) in route_rcs, "Route [1] should be generated (max_routes=50 captures it)"
-    assert abs(route_rcs[(1,)] - 10.0) < 1e-6, f"Route [1] RC should be 10, got {route_rcs[(1,)]}"
+    rc_1 = route_rcs[(1,)]
+    assert rc_1 is not None
+    assert abs(rc_1 - 10.0) < 1e-6, f"Route [1] RC should be 10, got {rc_1}"
 
 def test_cutting_plane_engine_composition():
     from unittest.mock import MagicMock
@@ -93,6 +101,7 @@ def test_cutting_plane_engine_composition():
 
     # create_cutting_plane_engine(engine_name, v_model, sep_engine)
     engine = create_cutting_plane_engine("all", mock_model, mock_sep)
+    assert isinstance(engine, CompositeCuttingPlaneEngine)
     assert any(isinstance(e, SubsetRowCutEngine) for e in engine.engines)
     assert any(isinstance(e, EdgeCliqueCutEngine) for e in engine.engines)
 
@@ -145,12 +154,17 @@ def test_edge_clique_dual_penalties():
     # Single-node routes must NOT be penalised (they don't cross edge (1,2)).
     assert (1,) in route_rcs, "Route [1] should be generated"
     assert (2,) in route_rcs, "Route [2] should be generated"
-    assert abs(route_rcs[(1,)] - 10.0) < 1e-6, f"Route [1] RC should be 10, got {route_rcs[(1,)]}"
-    assert abs(route_rcs[(2,)] - 10.0) < 1e-6, f"Route [2] RC should be 10, got {route_rcs[(2,)]}"
+    rc1 = route_rcs[(1,)]
+    rc2 = route_rcs[(2,)]
+    assert rc1 is not None and rc2 is not None
+    assert abs(rc1 - 10.0) < 1e-6, f"Route [1] RC should be 10, got {rc1}"
+    assert abs(rc2 - 10.0) < 1e-6, f"Route [2] RC should be 10, got {rc2}"
 
     # Two-node route traverses edge (1,2) once → penalty of 5.
     if (1, 2) in route_rcs:
-        assert abs(route_rcs[(1, 2)] - 15.0) < 1e-6, (
+        rc12 = route_rcs[(1, 2)]
+        assert rc12 is not None
+        assert abs(rc12 - 15.0) < 1e-6, (
             f"Route [1,2] RC should be 15 (20 revenue - 5 edge-clique penalty), "
-            f"got {route_rcs[(1, 2)]}"
+            f"got {rc12}"
         )

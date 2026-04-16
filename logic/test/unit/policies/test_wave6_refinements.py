@@ -1,11 +1,11 @@
 import pytest
 import numpy as np
-from logic.src.policies.soccer_league_competition.solver import SLCSolver
-from logic.src.policies.soccer_league_competition.params import SLCParams
-from logic.src.policies.volleyball_premier_league.solver import VPLSolver
-from logic.src.policies.volleyball_premier_league.params import VPLParams
-from logic.src.policies.league_championship_algorithm.solver import LCASolver
-from logic.src.policies.league_championship_algorithm.params import LCAParams
+from logic.src.policies.route_construction.meta_heuristics.soccer_league_competition.solver import SLCSolver
+from logic.src.policies.route_construction.meta_heuristics.soccer_league_competition.params import SLCParams
+from logic.src.policies.route_construction.meta_heuristics.volleyball_premier_league.solver import VPLSolver
+from logic.src.policies.route_construction.meta_heuristics.volleyball_premier_league.params import VPLParams
+from logic.src.policies.route_construction.meta_heuristics.league_championship_algorithm.solver import LCASolver
+from logic.src.policies.route_construction.meta_heuristics.league_championship_algorithm.params import LCAParams
 
 @pytest.fixture
 def profitable_problem():

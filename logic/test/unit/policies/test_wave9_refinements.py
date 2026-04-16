@@ -5,9 +5,9 @@ Verification tests for Wave 9 refinements (GA, CFRS, HULK).
 import pytest
 import numpy as np
 import pandas as pd
-from logic.src.policies.genetic_algorithm.solver import GASolver, GAParams
-from logic.src.policies.cluster_first_route_second.solver import fisher_jaikumar_clustering
-from logic.src.policies.hyper_heuristic_us_lk.hulk import HULKSolver, HULKParams
+from logic.src.policies.route_construction.meta_heuristics.genetic_algorithm.solver import GASolver, GAParams
+from logic.src.policies.route_construction.matheuristics.cluster_first_route_second.solver import fisher_jaikumar_clustering
+from logic.src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.hulk import HULKSolver, HULKParams
 
 @pytest.fixture
 def mock_vrpp_data():
@@ -41,7 +41,7 @@ def test_cfrs_seed_selection():
         "Lng": [0.0, 0.0, 0.0, 10.0, -10.0]
     })
     mandatory = [1, 2, 3, 4]
-    wastes = {1: 5, 2: 5, 3: 5, 4: 5}
+    wastes = {1: 5., 2: 5., 3: 5., 4: 5.}
     dist_matrix = np.zeros((5, 5))
     for i in range(5):
         for j in range(5):

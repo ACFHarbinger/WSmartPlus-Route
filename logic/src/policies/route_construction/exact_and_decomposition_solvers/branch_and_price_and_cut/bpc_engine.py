@@ -130,7 +130,7 @@ from logic.src.policies.helpers.branching_solvers.lagrangian_relaxation.uncapaci
 )
 from logic.src.policies.helpers.branching_solvers.vrpp_model import VRPPModel
 from logic.src.policies.helpers.operators.repair.greedy import greedy_insertion, greedy_profit_insertion
-from logic.src.policies.route_construction.base.factory import PolicyFactory
+from logic.src.policies.route_construction.base.factory import RouteConstructorFactory
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
 from .cutting_planes import CuttingPlaneEngine, create_cutting_plane_engine
@@ -473,7 +473,7 @@ def _solve_pricing_step(
     # Task 3: Tiered Heuristic Pricing (SWC-TCF)
     # -------------------------------------------------------------
     if use_swc_tcf_heuristic_pricing:
-        swc_tcf = PolicyFactory.get_adapter("swc_tcf")
+        swc_tcf = RouteConstructorFactory.get_adapter("swc_tcf")
         if swc_tcf is not None:
             # We call the heuristic. It accepts kwargs.
             # We must pass the dual_values dictionary so it modifies profits internally.
@@ -1330,7 +1330,7 @@ def run_bpc(  # noqa: C901
     )
 
     if getattr(params, "use_swc_tcf_initialization", False):
-        swc_tcf = PolicyFactory.get_adapter("swc_tcf")
+        swc_tcf = RouteConstructorFactory.get_adapter("swc_tcf")
         if swc_tcf is not None:
             swc_routes, _, _ = swc_tcf.execute(
                 distance_matrix=dist_matrix,
@@ -1623,7 +1623,7 @@ def run_bpc(  # noqa: C901
         # Task 4: Primal Bounding Heuristic (SWC-TCF)
         # -------------------------------------------------------------
         if getattr(params, "use_swc_tcf_primal_heuristic", False):
-            swc_tcf = PolicyFactory.get_adapter("swc_tcf")
+            swc_tcf = RouteConstructorFactory.get_adapter("swc_tcf")
             if swc_tcf is not None:
                 # Extract forced nodes from branching constraints to guide heuristic
                 forced_nodes_heuristic = set()

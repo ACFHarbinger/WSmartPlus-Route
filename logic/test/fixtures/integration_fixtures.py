@@ -215,9 +215,9 @@ def base_vrpp_data():
         "psi": 0.9,  # Threshold to collect
     }
     binsids = [0, 1, 2, 3, 4, 5]
-    mandatory = [2, 4]  # Bin IDs (index in dist_matrix)
+    mandatory_nodes = [2, 4]  # Bin IDs (index in dist_matrix)
 
-    return {"bins": bins, "dist_matrix": dist_matrix, "values": values, "binsids": binsids, "mandatory": mandatory}
+    return {"bins": bins, "dist_matrix": dist_matrix, "values": values, "binsids": binsids, "mandatory_nodes": mandatory_nodes}
 
 
 @pytest.fixture

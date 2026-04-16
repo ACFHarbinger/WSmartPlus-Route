@@ -9,8 +9,7 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../..")))
 
 import numpy as np
-import pandas as pd
-from logic.src.policies.kernel_search.solver import run_kernel_search_gurobi
+from logic.src.policies.route_construction.matheuristics.kernel_search.solver import run_kernel_search_gurobi
 
 
 def mock_run_ks(dist_matrix, wastes, capacity, R, C, mandatory_nodes, **kwargs):

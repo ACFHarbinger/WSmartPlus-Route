@@ -3,7 +3,7 @@ Branching strategies and heuristics for VRPP Column Generation.
 """
 
 import math
-from typing import TYPE_CHECKING, Dict, List, Optional, Set, Tuple
+from typing import TYPE_CHECKING, Dict, List, Optional, Set, Tuple, Union
 
 import numpy as np
 
@@ -169,7 +169,7 @@ class MultiEdgePartitionBranching:
         routes: List[Route],
         route_values: Dict[int, float],
         tol: float = 1e-5,
-        node_coords: Optional[np.ndarray] = None,
+        node_coords: Optional[Union[np.ndarray, Dict[int, Tuple[float, float]]]] = None,
         n_nodes: int = 0,
     ) -> Optional[Tuple[int, List[Tuple[int, int]], List[Tuple[int, int]], float]]:
         r"""
@@ -357,7 +357,7 @@ class MultiEdgePartitionBranching:
     def find_multiple_divergence_nodes(
         routes: List[Route],
         route_values: Dict[int, float],
-        node_coords: Optional[np.ndarray] = None,
+        node_coords: Optional[Union[np.ndarray, Dict[int, Tuple[float, float]]]] = None,
         limit: int = 5,
         tol: float = 1e-5,
         n_nodes: int = 0,

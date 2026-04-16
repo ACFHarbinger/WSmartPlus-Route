@@ -1,11 +1,11 @@
 import pytest
 import numpy as np
-from logic.src.policies.harmony_search.solver import HSSolver
-from logic.src.policies.harmony_search.params import HSParams
-from logic.src.policies.sine_cosine_algorithm.solver import SCASolver
-from logic.src.policies.sine_cosine_algorithm.params import SCAParams
-from logic.src.policies.guided_indicators_hyper_heuristic.gihh import GIHHSolver
-from logic.src.policies.guided_indicators_hyper_heuristic.params import GIHHParams
+from logic.src.policies.route_construction.meta_heuristics.harmony_search.solver import HSSolver
+from logic.src.policies.route_construction.meta_heuristics.harmony_search.params import HSParams
+from logic.src.policies.route_construction.meta_heuristics.sine_cosine_algorithm.solver import SCASolver
+from logic.src.policies.route_construction.meta_heuristics.sine_cosine_algorithm.params import SCAParams
+from logic.src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.gihh import GIHHSolver
+from logic.src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.params import GIHHParams
 
 @pytest.fixture
 def tiny_vrpp():
@@ -39,8 +39,11 @@ def test_sca_refinement(tiny_vrpp):
 
 def test_gihh_refinement(tiny_vrpp):
     dist, wastes, cap, R, C = tiny_vrpp
-    params = GIHHParams(max_iterations=10, restarts=1, seed=42)
+    params = GIHHParams(max_iterations=10, seed=42)
     solver = GIHHSolver(dist, wastes, cap, R, C, params)
-    routes, profit, cost = solver.solve()
-    assert len(routes) > 0
-    assert profit > 0
+    arch = solver.solve()
+
+    # Select solution with highest scalar profit from the archive
+    best_sol = max(arch, key=lambda s: s.profit)
+    assert len(best_sol.routes) > 0
+    assert best_sol.profit > 0

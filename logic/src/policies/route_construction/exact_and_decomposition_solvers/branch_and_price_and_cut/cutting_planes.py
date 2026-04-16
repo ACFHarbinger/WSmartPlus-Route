@@ -81,6 +81,14 @@ class CuttingPlaneEngine(ABC):
         """Return the engine name for logging."""
         pass
 
+    @property
+    def engines(self) -> List["CuttingPlaneEngine"]:
+        """
+        Return the list of sub-engines if this is a composite engine.
+        Returns an empty list for simple engines.
+        """
+        return []
+
     def _is_orthogonal(self, candidate_vec: np.ndarray, active_vecs: List[np.ndarray], threshold: float = 0.8) -> bool:
         """
         Task 9 (SOTA): Cut Orthogonality filtering.
@@ -625,7 +633,11 @@ class CompositeCuttingPlaneEngine(CuttingPlaneEngine):
     """
 
     def __init__(self, engines: List[CuttingPlaneEngine]) -> None:
-        self.engines = engines
+        self._engines = engines
+
+    @property
+    def engines(self) -> List[CuttingPlaneEngine]:
+        return self._engines
 
     def separate_and_add_cuts(self, master: VRPPMasterProblem, max_cuts: int, **kwargs) -> int:
         per_engine = max(1, max_cuts // len(self.engines))

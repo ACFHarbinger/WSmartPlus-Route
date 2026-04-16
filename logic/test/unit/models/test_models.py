@@ -1,9 +1,11 @@
-"""Tests for high-level neural models."""
+from typing import cast
 
 from unittest.mock import MagicMock
 
 import torch
 import torch.nn as nn
+from torch.utils.data import Dataset
+from tensordict import TensorDict
 from logic.src.data.datasets import BaselineDataset
 from logic.src.envs import problems as problem_module
 from logic.src.envs.problems import CVRPP
@@ -27,7 +29,7 @@ from logic.src.pipeline.rl.common.baselines import (
 from logic.src.pipeline.rl.common.baselines import (
     WarmupBaseline as WarmupBaseline,
 )
-from logic.src.policies.neural_agent import NeuralAgent
+from logic.src.policies.route_construction.learning_algorithms.neural_agent import NeuralAgent
 
 # Patch globals that are expected to be initialized by Dataset
 problem_module.COST_KM = 1.0
@@ -192,18 +194,18 @@ class TestReinforceBaselines:
         assert wb.alpha == 0
 
         # Test alpha update
-        wb.epoch_callback(None, 0)
+        wb.epoch_callback(MagicMock(spec=nn.Module), 0)
         assert wb.alpha == 0.5
 
     def test_exponential_baseline(self):
         """Verifies exponential moving average updates."""
         eb = ExponentialBaseline(beta=0.8)
         c = torch.tensor([10.0, 20.0])
-        v = eb.eval(None, c)
+        v = eb.eval(cast(TensorDict, None), c)
         assert torch.allclose(v, torch.tensor([15.0, 15.0]))
 
         c2 = torch.tensor([20.0, 30.0])  # Mean 25
-        v2 = eb.eval(None, c2)
+        v2 = eb.eval(cast(TensorDict, None), c2)
         # v2 = 0.8 * 15 + 0.2 * 25 = 12 + 5 = 17
         assert torch.allclose(v2, torch.tensor([17.0, 17.0]))
 
@@ -211,7 +213,7 @@ class TestReinforceBaselines:
         """Verifies no-op baseline."""
         nb = NoBaseline()
         reward = torch.tensor([10.0, 20.0])
-        v = nb.eval(None, reward)
+        v = nb.eval(cast(TensorDict, None), reward)
         assert torch.all(v == 0)
 
     def test_critic_baseline(self):
@@ -226,7 +228,7 @@ class TestReinforceBaselines:
         c = torch.tensor([1.0, 2.0])
 
         # Test eval
-        v = cb.eval(x, c)
+        v = cb.eval(cast(TensorDict, x), c)
         assert torch.allclose(v, torch.tensor([1.0, 2.0]))
 
         # Test learnable parameters
@@ -258,7 +260,7 @@ class TestReinforceBaselines:
         mocker.patch.object(rb, "_rollout", return_value=torch.tensor([10.0, 20.0]))
 
         # Test eval
-        td = MagicMock()
+        td = MagicMock(spec=TensorDict)
         reward = torch.tensor([10.0, 20.0])
         v = rb.eval(td, reward, env=MagicMock())
         assert torch.all(v == torch.tensor([10.0, 20.0]))
@@ -266,7 +268,7 @@ class TestReinforceBaselines:
         # Mocking ttest_rel to simulate significant improvement
         mocker.patch("scipy.stats.ttest_rel", return_value=(MagicMock(), 0.001))
         # candidate values mean 15 > baseline values mean 5 (improvement)
-        rb._rollout.side_effect = [torch.tensor([10.0, 20.0]), torch.tensor([5.0, 5.0])]
+        cast(MagicMock, rb._rollout).side_effect = [torch.tensor([10.0, 20.0]), torch.tensor([5.0, 5.0])]
 
         # We want to see if setup is called again
         mock_setup = mocker.patch.object(rb, "setup")
@@ -275,7 +277,8 @@ class TestReinforceBaselines:
 
     def test_baseline_dataset(self):
         """Verifies dataset wrapping."""
-        ds = BaselineDataset([1, 2], [3, 4])
+        # BaselineDataset expects (Dataset, torch.Tensor)
+        ds = BaselineDataset(cast(Dataset, [1, 2]), torch.tensor([3, 4]))
         assert len(ds) == 2
         item = ds[0]
         # BaselineDataset now stores data in 'data' and baseline in 'baseline'

@@ -1,8 +1,8 @@
 import numpy as np
 import pytest
-from logic.src.policies.base import PolicyFactory
-from logic.src.policies.capacitated_vehicle_routing_problem.cvrp import find_routes, find_routes_ortools
-from logic.src.policies.smart_waste_collection_two_commodity_flow.policy_swc_tcf import run_swc_tcf_optimizer
+from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.dispatcher import run_hgs
+from logic.src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.cvrp import find_routes, find_routes_ortools
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.policy_swc_tcf import run_swc_tcf_optimizer
 
 
 class TestSolverParity:
@@ -23,7 +23,7 @@ class TestSolverParity:
                 distance_matrix=data["dist_matrix"],
                 values=data["values"],
                 binsids=data["binsids"],
-                mandatory=data["mandatory"],
+                mandatory_nodes=data["mandatory_nodes"],
                 optimizer="gurobi",
                 time_limit=5
             )
@@ -38,7 +38,7 @@ class TestSolverParity:
                 distance_matrix=data["dist_matrix"],
                 values=data["values"],
                 binsids=data["binsids"],
-                mandatory=data["mandatory"],
+                mandatory_nodes=data["mandatory_nodes"],
                 optimizer="hexaly",
                 time_limit=5
             )

@@ -1,5 +1,5 @@
 import numpy as np
-from logic.src.policies.hybrid_volleyball_premier_league.policy_hvpl import HVPLPolicy
+from logic.src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.policy_hvpl import HVPLPolicy
 
 
 def test_subset_dimensions():

@@ -1,17 +1,17 @@
 
 from unittest.mock import MagicMock, patch
 
-import logic.src.policies.augmented_hybrid_volleyball_premier_league.policy_ahvpl as policy_ahvpl_module
+import logic.src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.policy_ahvpl as policy_ahvpl_module
 import numpy as np
 import pandas as pd
 import pytest
-from logic.src.policies.adaptive_large_neighborhood_search.policy_alns import ALNSPolicy
-from logic.src.policies.augmented_hybrid_volleyball_premier_league.policy_ahvpl import AHVPLPolicy
-from logic.src.policies.base import PolicyFactory
-from logic.src.policies.branch_and_price_and_cut.policy_bpc import BPCPolicy
-from logic.src.policies.hybrid_genetic_search.policy_hgs import HGSPolicy
-from logic.src.policies.simulated_annealing_neighborhood_search.policy_sans import SANSPolicy
-from logic.src.policies.smart_waste_collection_two_commodity_flow.policy_swc_tcf import SWCTCFPolicy
+from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.policy_alns import ALNSPolicy
+from logic.src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.policy_ahvpl import AHVPLPolicy
+from logic.src.policies.route_construction.base.factory import RouteConstructorFactory
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.policy_bpc import BPCPolicy
+from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.policy_hgs import HGSPolicy
+from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.policy_sans import SANSPolicy
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.policy_swc_tcf import SWCTCFPolicy
 
 
 class MockBins:
@@ -73,8 +73,8 @@ def mock_engine_data():
 
 @pytest.mark.unit
 def test_policy_factory_standardized():
-    # Test that PolicyFactory correctly identifies policies from Registry
-    p = PolicyFactory.get_adapter("hgs")
+    # Test that RouteConstructorFactory correctly identifies policies from Registry
+    p = RouteConstructorFactory.get_adapter("hgs")
     assert isinstance(p, HGSPolicy)
 
 @pytest.mark.unit
@@ -82,7 +82,7 @@ def test_bcp_engine_override(mock_engine_data):
     with patch("logic.src.policies.branch_and_price_and_cut.policy_bpc.run_bpc") as mock_run:
         mock_run.return_value = ([[1, 0]], 10.0)
 
-        policy = PolicyFactory.get_adapter("bpc")
+        policy = RouteConstructorFactory.get_adapter("bpc")
         assert isinstance(policy, BPCPolicy)
         policy.execute(**mock_engine_data)
 
@@ -100,7 +100,7 @@ def test_swc_tcf_engine_override(mocker, mock_engine_data):
     with patch("logic.src.policies.smart_waste_collection_two_commodity_flow.policy_swc_tcf.run_swc_tcf_optimizer") as mock_opt:
         mock_opt.return_value = ([0, 1, 0], 10.0, 5.0)
 
-        policy = PolicyFactory.get_adapter("swc_tcf")
+        policy = RouteConstructorFactory.get_adapter("swc_tcf")
         assert isinstance(policy, SWCTCFPolicy)
         policy.execute(**mock_engine_data)
 
@@ -111,7 +111,7 @@ def test_hgs_engine_override(mock_engine_data):
     with patch("logic.src.policies.hybrid_genetic_search.policy_hgs.run_hgs") as mock_run:
         mock_run.return_value = ([[1, 0]], 10.0, 5.0)
 
-        policy = PolicyFactory.get_adapter("hgs")
+        policy = RouteConstructorFactory.get_adapter("hgs")
         assert isinstance(policy, HGSPolicy)
         policy.execute(**mock_engine_data)
 
@@ -125,7 +125,7 @@ def test_alns_engine_override(mock_engine_data):
         # Set specific engine in config
         mock_engine_data["config"]["alns"]["engine"] = "ortools"
 
-        policy = PolicyFactory.get_adapter("alns")
+        policy = RouteConstructorFactory.get_adapter("alns")
         assert isinstance(policy, ALNSPolicy)
         policy.execute(**mock_engine_data)
 
@@ -145,7 +145,7 @@ def test_sans_execution(mock_engine_data):
         mock_load.return_value = (100.0, 1.0, 1.0, 1.0, 1.0)
         mock_sans.return_value = ([[1, 0]], 10.0, 5.0, 2.0, 10.0)
 
-        policy = PolicyFactory.get_adapter("sans")
+        policy = RouteConstructorFactory.get_adapter("sans")
         assert isinstance(policy, SANSPolicy)
         policy.execute(**mock_engine_data)
 
@@ -160,7 +160,7 @@ def test_ahvpl_engine_override(mock_engine_data):
 
         mock_engine_data["config"]["ahvpl"] = {}
 
-        policy = PolicyFactory.get_adapter("ahvpl")
+        policy = RouteConstructorFactory.get_adapter("ahvpl")
         assert isinstance(policy, AHVPLPolicy)
         policy.execute(**mock_engine_data)
 

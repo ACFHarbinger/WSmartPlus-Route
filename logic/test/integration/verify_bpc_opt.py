@@ -1,6 +1,6 @@
 import numpy as np
 import logging
-from logic.src.policies.branch_and_price_and_cut.bpc_engine import run_custom_bpc
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine import run_bpc
 
 # Configure logging to see branching decisions
 logging.basicConfig(level=logging.INFO)
@@ -30,7 +30,7 @@ def run_mini_instance(strategy):
         "search_strategy": "depth_first"
     }
 
-    routes, profit = run_custom_bpc(
+    routes, profit = run_bpc(
         dist_matrix=dist,
         wastes=wastes,
         capacity=capacity,

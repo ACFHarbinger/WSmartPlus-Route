@@ -8,9 +8,14 @@ Branch-and-Price-and-Cut components.
 from logic.src.policies.helpers.branching_solvers.branching import (
     AnyBranchingConstraint,
     BranchAndBoundTree,
+    BranchingConstraint,
     EdgeBranching,
+    EdgeBranchingConstraint,
+    FleetSizeBranchingConstraint,
     MultiEdgePartitionBranching,
+    NodeVisitationBranchingConstraint,
     RyanFosterBranching,
+    RyanFosterBranchingConstraint,
 )
 from logic.src.policies.helpers.branching_solvers.common import BranchNode, Route
 from logic.src.policies.helpers.branching_solvers.master_problem import GlobalCutPool, VRPPMasterProblem
@@ -27,6 +32,11 @@ from .lagrangian_relaxation.uncapacitated_orienteering_problem import solve_unca
 
 __all__ = [
     "AnyBranchingConstraint",
+    "BranchingConstraint",
+    "EdgeBranchingConstraint",
+    "FleetSizeBranchingConstraint",
+    "NodeVisitationBranchingConstraint",
+    "RyanFosterBranchingConstraint",
     "BranchAndBoundTree",
     "BranchNode",
     "EdgeBranching",
