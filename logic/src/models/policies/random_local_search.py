@@ -10,7 +10,7 @@ from typing import Any, Dict, Optional
 import torch
 from tensordict import TensorDict
 
-from logic.src.envs.base import RL4COEnvBase
+from logic.src.envs.base.base import RL4COEnvBase
 from logic.src.models.common.improvement.policy import ImprovementPolicy
 from logic.src.models.policies.local_search import (
     vectorized_relocate,

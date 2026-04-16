@@ -4,14 +4,17 @@ Data Mapper for transformation between raw data and simulation representations.
 
 import json
 import os
-from typing import Any, Dict, List, Optional, Tuple, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, cast
 
 import numpy as np
 import pandas as pd
 import torch
 
 from logic.src.constants import MAX_WASTE
-from logic.src.pipeline.simulations.repository import load_area_and_waste_type_params
+
+if TYPE_CHECKING:
+    pass
+
 from logic.src.utils.graph import (
     adj_to_idx,
     get_adj_knn,
@@ -171,6 +174,8 @@ class SimulationDataMapper:
 
     def _load_profit_vars(self, area: str, waste_type: str) -> Dict[str, float]:
         """Load profit-related variables for the simulation."""
+        from logic.src.pipeline.simulations.repository import load_area_and_waste_type_params
+
         (
             VEHICLE_CAPACITY,
             REVENUE_KG,

@@ -15,7 +15,7 @@ from logic.src.constants import MAX_CAPACITY_PERCENT, MAX_WASTE
 from logic.src.data.generators.waste import generate_waste
 from logic.src.data.processor import process_coordinates
 from logic.src.utils.data.loader import load_focus_coords, load_grid_base
-from logic.src.utils.functions import get_path_until_string
+from logic.src.utils.functions.path import get_path_until_string
 
 
 class VRPInstanceBuilder:

@@ -13,7 +13,7 @@ import torch
 from tensordict import TensorDict
 from torch import nn
 
-from logic.src.envs.base import RL4COEnvBase
+from logic.src.envs.base.base import RL4COEnvBase
 from logic.src.models.core.deepaco.policy import DeepACOPolicy
 from logic.src.models.subnets.decoders.deepaco import ACODecoder
 from logic.src.models.subnets.encoders.gfacs.encoder import GFACSEncoder

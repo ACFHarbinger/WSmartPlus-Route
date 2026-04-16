@@ -15,7 +15,7 @@ import torch
 from tensordict import TensorDict
 from torch import nn
 
-from logic.src.envs.base import RL4COEnvBase
+from logic.src.envs.base.base import RL4COEnvBase
 from logic.src.interfaces.env import IEnv
 from logic.src.models import CriticNetwork as LegacyCriticNetwork
 from logic.src.models.common.autoregressive.constructive import ConstructivePolicy

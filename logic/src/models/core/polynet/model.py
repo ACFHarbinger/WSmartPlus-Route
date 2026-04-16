@@ -13,7 +13,7 @@ from tensordict import TensorDict
 from torch import nn
 from torch.utils.data import DataLoader
 
-from logic.src.envs.base import RL4COEnvBase
+from logic.src.envs.base.base import RL4COEnvBase
 from logic.src.utils.decoding import unbatchify
 
 from .policy import PolyNetPolicy

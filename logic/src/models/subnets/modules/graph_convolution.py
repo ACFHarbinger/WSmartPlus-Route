@@ -4,7 +4,14 @@ import math
 
 import torch
 from torch import nn
-from torch_geometric.utils import scatter
+
+try:
+    from torch_geometric.utils import scatter
+
+    PYG_AVAILABLE = True
+except (ImportError, OSError):
+    PYG_AVAILABLE = False
+    scatter = None
 
 
 class GraphConvolution(nn.Module):
@@ -29,6 +36,11 @@ class GraphConvolution(nn.Module):
             aggregation: Aggregation method ('sum', 'mean', 'max').
             bias: Whether to include a learnable bias term.
         """
+        if not PYG_AVAILABLE and aggregation == "max":
+            raise ImportError(
+                "torch_geometric is required for GraphConvolution with 'max' aggregation. "
+                "The library could not be loaded, possibly due to a CUDA mismatch."
+            )
         super(GraphConvolution, self).__init__()
         self.in_channels = in_channels
         self.out_channels = out_channels

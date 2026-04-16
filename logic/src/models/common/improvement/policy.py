@@ -18,7 +18,7 @@ from tensordict import TensorDict
 from torch import nn
 
 from logic.src.envs import get_env
-from logic.src.envs.base import RL4COEnvBase
+from logic.src.envs.base.base import RL4COEnvBase
 from logic.src.utils.decoding import batchify, unbatchify
 
 from .decoder import ImprovementDecoder

@@ -5,7 +5,8 @@ This module provides RL4CO-style environment abstractions for
 combinatorial optimization problems.
 """
 
-from logic.src.envs.base import ImprovementEnvBase, RL4COEnvBase
+from logic.src.envs.base.base import RL4COEnvBase
+from logic.src.envs.base.improvement import ImprovementEnvBase
 from logic.src.envs.cvrpp import CVRPPEnv
 from logic.src.envs.cwcvrp import CWCVRPEnv
 from logic.src.envs.generators import (

@@ -12,7 +12,7 @@ from __future__ import annotations
 import json
 import os
 import pickle
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -20,11 +20,7 @@ import torch
 import torch.utils.data
 from tensordict import TensorDict
 
-import logic.src.constants as udef
-from logic.src.data.processor import process_coordinates, process_data
-from logic.src.pipeline.simulations.repository import load_depot, load_simulator_data
-from logic.src.pipeline.simulations.wsmart_bin_analysis import GridBase
-from logic.src.utils.functions import get_path_until_string
+# --- Function Definitions (Top-level for circular import safety) ---
 
 
 def collate_fn(batch: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -68,14 +64,20 @@ def load_focus_coords(
     Returns:
         Tuple of (depot, locations, minmax array, index).
     """
+    from logic.src.utils.functions.path import get_path_until_string
+
     focus_graph_dir = get_path_until_string(focus_graph, "wsr_simulator")
     if focus_graph_dir is None:
         raise ValueError(f"Could not find 'wsr_simulator' in path {focus_graph}")
+
+    from logic.src.pipeline.simulations.repository import load_depot, load_simulator_data
 
     depot = load_depot(focus_graph_dir, area)
     data, coords = load_simulator_data(focus_graph_dir, graph_size, area, waste_type)
     with open(focus_graph) as js:
         idx = json.load(js)
+
+    from logic.src.data.processor import process_coordinates, process_data
 
     _, coords = process_data(data, coords, depot, idx[0])
     depot, loc = process_coordinates(coords, method)
@@ -212,8 +214,11 @@ def load_grid_base(
     area: Optional[str] = None,
     data_dir: Optional[str] = None,
 ) -> GridBase:
+    from logic.src.constants.paths import ROOT_DIR
+    from logic.src.pipeline.simulations.wsmart_bin_analysis import GridBase
+
     if data_dir is None:
-        data_dir = os.path.join(udef.ROOT_DIR, "data", "wsr_simulator")
+        data_dir = os.path.join(ROOT_DIR, "data", "wsr_simulator")
 
     src_area = area.translate(str.maketrans("", "", "-_ ")).lower() if area is not None else ""
     waste_csv = f"out_rate_crude[{src_area}].csv"
@@ -239,3 +244,9 @@ def load_grid_base(
         names=[waste_csv, info_csv, None],
         same_file=True,
     )
+
+
+# --- Logic Strategy Imports (Below function definitions) ---
+
+if TYPE_CHECKING:
+    from logic.src.pipeline.simulations.wsmart_bin_analysis import GridBase

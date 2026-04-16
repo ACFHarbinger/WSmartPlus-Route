@@ -12,7 +12,7 @@ from typing import Optional, Union
 import torch
 from tensordict import TensorDict
 
-from logic.src.envs.base import ImprovementEnvBase
+from logic.src.envs.base.improvement import ImprovementEnvBase
 from logic.src.envs.generators import TSPGenerator
 
 
