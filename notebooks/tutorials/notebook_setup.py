@@ -30,9 +30,12 @@ def setup_home_directory(notebook_name):
 
 
 def import_google_colab_libs():
-    from google.colab import drive, files
-
-    return drive, files
+    try:
+        from google.colab import drive, files   # pyright: ignore[reportMissingImports]
+        return drive, files
+    except ImportError:
+        print("Google Colab libraries not found. Are you running in a Colab notebook?")
+        return None, None
 
 
 def setup_google_colab(notebook_name):

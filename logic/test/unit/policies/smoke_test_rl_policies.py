@@ -3,12 +3,12 @@ import numpy as np
 
 def test_rl_alns_solver():
     print("\n=== Testing RLALNSSolver ===")
-    from logic.src.policies.reinforcement_learning_adaptive_large_neighborhood_search.params import RLALNSParams
-    from logic.src.policies.reinforcement_learning_adaptive_large_neighborhood_search.solver import RLALNSSolver
+    from logic.src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params import RLALNSParams
+    from logic.src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.solver import RLALNSSolver
 
     # Mock Data
     dist_matrix = np.array([[0, 10, 20], [10, 0, 15], [20, 15, 0]])
-    wastes = {1: 10, 2: 20}
+    wastes = {1: 10., 2: 20.}
     capacity = 50.0
     R = 1.0
     C = 1.0
@@ -18,7 +18,7 @@ def test_rl_alns_solver():
 
     for algo in algos:
         print(f"Testing with algorithm: {algo}")
-        from logic.src.configs.policies.helpers import RLConfig, BanditConfig
+        from logic.src.configs.policies.other import RLConfig, BanditConfig
         rl_config = RLConfig(
             agent_type="bandit",
             bandit=BanditConfig(algorithm=algo)
@@ -40,21 +40,21 @@ def test_rl_alns_solver():
 
 def test_ahvpl_rl_solver():
     print("\n=== Testing AHVPLRLSolver ===")
-    from logic.src.policies.ant_colony_optimization_k_sparse.params import KSACOParams
-    from logic.src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params import (
+    from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params import KSACOParams
+    from logic.src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params import (
         RLAHVPLParams,
     )
-    from logic.src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.rl_ahvpl import RLAHVPLSolver as AHVPLRLSolver
+    from logic.src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_augmented_hybrid_volleyball_premier_league.rl_ahvpl import RLAHVPLSolver as AHVPLRLSolver
 
     # Mock Data
     dist_matrix = np.array([[0, 10, 20], [10, 0, 15], [20, 15, 0]])
-    wastes = {1: 10, 2: 20}
+    wastes = {1: 10., 2: 20.}
     capacity = 50.0
     R = 1.0
     C = 1.0
 
     aco_params = KSACOParams(max_iterations=5, n_ants=2)
-    from logic.src.configs.policies.helpers import RLConfig, BanditConfig, LinUCBConfig
+    from logic.src.configs.policies.other import RLConfig, BanditConfig, LinUCBConfig
     rl_config = RLConfig(
         agent_type="bandit",
         bandit=BanditConfig(algorithm="linucb"),

@@ -13,9 +13,9 @@ import random
 import numpy as np
 import pandas as pd
 import pytest
-from logic.src.policies.hybrid_genetic_search import evolution, individual
-from logic.src.policies.hybrid_genetic_search import params as hgs_params
-from logic.src.policies.hybrid_genetic_search import split as split_module
+from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search import evolution, individual
+from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search import params as hgs_params
+from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search import split as split_module
 from logic.src.policies.helpers.local_search import local_search_base
 
 # HGS and ALNS auxiliary imports
@@ -24,18 +24,18 @@ from logic.src.policies.helpers.operators import repair as repair_operators
 from logic.src.policies.helpers.operators.crossover import ordered_crossover
 
 # Look-ahead auxiliary imports
-from logic.src.policies.simulated_annealing_neighborhood_search.common.check import (
+from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.check import (
     check_bins_overflowing_feasibility,
     check_solution_admissibility,
 )
-from logic.src.policies.simulated_annealing_neighborhood_search.common.solution_initialization import (
+from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.solution_initialization import (
     compute_initial_solution,
     find_initial_solution,
 )
-from logic.src.policies.simulated_annealing_neighborhood_search.heuristics.sans import (
+from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.sans import (
     improved_simulated_annealing,
 )
-from logic.src.policies.simulated_annealing_neighborhood_search.operators import (
+from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.operators import (
     swap_1_route,
     swap_2_routes,
     swap_n_2_routes_consecutive,
@@ -43,7 +43,7 @@ from logic.src.policies.simulated_annealing_neighborhood_search.operators import
     swap_n_route_consecutive,
     swap_n_route_random,
 )
-from logic.src.policies.simulated_annealing_neighborhood_search.operators.move import (
+from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.operators.move import (
     move_1_route,
     move_2_routes,
     move_n_2_routes_consecutive,
@@ -51,7 +51,7 @@ from logic.src.policies.simulated_annealing_neighborhood_search.operators.move i
     move_n_route_consecutive,
     move_n_route_random,
 )
-from logic.src.policies.simulated_annealing_neighborhood_search.select import (
+from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.select import (
     add_bin,
     add_n_bins_random,
     add_route_random,

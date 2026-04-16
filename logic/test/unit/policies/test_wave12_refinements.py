@@ -1,11 +1,10 @@
 import numpy as np
-import pytest
-from typing import Dict, List, Tuple
-from logic.src.policies.differential_evolution.solver import DESolver
-from logic.src.policies.differential_evolution.params import DEParams
+from logic.src.policies.route_construction.meta_heuristics.differential_evolution.solver import DESolver
+from logic.src.policies.route_construction.meta_heuristics.differential_evolution.params import DEParams
 from logic.src.policies.helpers.operators.unstringing_stringing.unstringing_i import apply_type_i_us
 from logic.src.policies.helpers.operators.unstringing_stringing.unstringing_ii import apply_type_ii_us
 from logic.src.policies.helpers.operators.unstringing_stringing.unstringing_iii import apply_type_iii_us
+from logic.src.policies.helpers.operators.unstringing_stringing.unstringing_iv import apply_type_iv_us
 
 def test_de_binomial_crossover_j_rand():
     """Verify that j_rand component is always inherited from mutant in DE."""
@@ -20,7 +19,7 @@ def test_de_binomial_crossover_j_rand():
 
     # Run crossover multiple times to ensure j_rand works
     for _ in range(10):
-        trial = solver._binomial_crossover(target, mutant, 0.0)
+        trial = solver._binomial_crossover(np.array(target), np.array(mutant), 0.0)
         trial_nodes = set(n for r in trial for n in r)
 
         # for node in all_nodes {1, 2}:
@@ -31,15 +30,6 @@ def test_de_binomial_crossover_j_rand():
         # node 1 inherits (absent) from mutant. node 2 inherits (absent) from target. trial = {}
         # Case 2: j_rand = 2
         # node 2 inherits (present) from mutant. node 1 inherits (present) from target. trial = {1, 2}
-
-        # Wait, the failure in step 3334 showed trial={1}.
-        # Target={1}, Mutant={2}. all_nodes={1, 2}.
-        # If j_rand=1: node 1 is inherited from mutant (absent). node 2 is inherited from target (absent). trial={}.
-        # If j_rand=2: node 2 is inherited from mutant (present). node 1 is inherited from target (present). trial={1, 2}.
-        # Why did it return {1}?
-        # Let's check the greedy_insertion part. If trial_nodes is {2}, it might keep it.
-        # But if CR=0, and j_rand=2, we have {1, 2}.
-
         assert trial_nodes in [set(), {1, 2}, {1}] # Adding {1} as observed in practical test run due to greedy_insertion potentially pruning
 
 def test_hulk_type_i_reconnection():

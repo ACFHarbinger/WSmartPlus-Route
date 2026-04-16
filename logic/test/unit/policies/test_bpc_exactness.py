@@ -1,13 +1,12 @@
-import pytest
 import numpy as np
 import gurobipy as gp
+from typing import cast
 from gurobipy import GRB
-from typing import Set, Dict
 
 from logic.src.policies.helpers.branching_solvers import VRPPMasterProblem, Route
 from logic.src.policies.helpers.branching_solvers import RCSPPSolver
-from logic.src.policies.branch_and_price_and_cut.bpc_engine import _column_generation_loop, BPCPruningException
-from logic.src.policies.branch_and_price_and_cut.cutting_planes import CuttingPlaneEngine
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine import _column_generation_loop, BPCPruningException
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes import CuttingPlaneEngine
 
 def test_set_partitioning_enforcement():
     """Verify that mandatory nodes use == 1.0 and duals are unrestricted."""
@@ -35,7 +34,7 @@ def test_set_partitioning_enforcement():
     # Check constraint sense
     for node in mandatory:
         constr = master.model.getConstrByName(f"coverage_{node}")
-        assert constr.Sense == GRB.EQUAL
+        assert cast(gp.Constr, constr).Sense == GRB.EQUAL
 
     # Solve and check dual extraction
     master.solve_lp_relaxation()

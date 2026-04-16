@@ -71,7 +71,7 @@ class TestIntegrationSimulation:
         """Test basic sequential simulation run."""
         # Ensure we have some policies to test
         sim_opts["policies"] = ["policy_regular_emp"]
-        from logic.src.policies.base.registry import RouteConstructorRegistry
+        from logic.src.policies.route_construction.base.registry import RouteConstructorRegistry
         MockPolicy = MagicMock()
         RouteConstructorRegistry.register("policy_regular_emp")(MockPolicy)
         instance = MockPolicy.return_value
@@ -88,7 +88,7 @@ class TestIntegrationSimulation:
     @patch("logic.src.pipeline.simulations.states.initializing.setup_model")
     def test_sim_policy_neural_mock(self, mock_setup, sim_opts):
         """Test Neural policy integration in simulation."""
-        from logic.src.policies.base.registry import RouteConstructorRegistry
+        from logic.src.policies.route_construction.base.registry import RouteConstructorRegistry
 
         # Register a Mock class that accepts any arguments (like config)
         MockPolicy = MagicMock()

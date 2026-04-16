@@ -4,7 +4,7 @@ Unit tests for Pure Branch-and-Price Solver.
 
 import numpy as np
 import pytest
-from logic.src.policies.branch_and_price.bp import BranchAndPriceSolver
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.bp import BranchAndPriceSolver
 from logic.src.policies.helpers.branching_solvers import VRPPMasterProblem, Route
 
 def test_master_problem_dual_signs():
@@ -12,8 +12,8 @@ def test_master_problem_dual_signs():
     n_nodes = 3
     mandatory_nodes = {1}
     cost_matrix = np.zeros((4, 4))
-    wastes = {1: 10, 2: 10, 3: 10}
-    capacity = 100
+    wastes = {1: 10., 2: 10., 3: 10.}
+    capacity = 100.
 
     mp = VRPPMasterProblem(
         n_nodes=n_nodes,
@@ -58,8 +58,8 @@ def test_bp_solver_small_instance():
         [20, 5, 0, 10],
         [30, 15, 10, 0]
     ])
-    wastes = {1: 10, 2: 20, 3: 15}
-    capacity = 50
+    wastes = {1: 10., 2: 20., 3: 15.}
+    capacity = 50.
     R = 2.0
     C = 1.0
 
@@ -86,8 +86,8 @@ def test_bp_vehicle_limit():
     """Test that vehicle limit is respected and affects duals."""
     n_nodes = 3
     cost_matrix = np.zeros((4, 4))
-    wastes = {1: 100, 2: 100, 3: 100} # Very profitable
-    capacity = 200
+    wastes = {1: 100., 2: 100., 3: 100.} # Very profitable
+    capacity = 200.
     R = 10.0
     C = 1.0
 

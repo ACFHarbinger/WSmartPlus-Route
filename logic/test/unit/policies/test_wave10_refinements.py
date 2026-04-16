@@ -1,10 +1,10 @@
 import numpy as np
 import pytest
-from logic.src.policies.branch_and_price_and_cut.bpc_engine import run_custom_bpc
-from logic.src.policies.quantum_differential_evolution.solver import QDESolver
-from logic.src.policies.quantum_differential_evolution.params import QDEParams
-from logic.src.policies.firefly_algorithm.solver import FASolver
-from logic.src.policies.firefly_algorithm.params import FAParams
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine import run_bpc
+from logic.src.policies.route_construction.meta_heuristics.quantum_differential_evolution.solver import QDESolver
+from logic.src.policies.route_construction.meta_heuristics.quantum_differential_evolution.params import QDEParams
+from logic.src.policies.route_construction.meta_heuristics.firefly_algorithm.solver import FASolver
+from logic.src.policies.route_construction.meta_heuristics.firefly_algorithm.params import FAParams
 
 @pytest.fixture
 def small_instance():
@@ -22,7 +22,7 @@ def small_instance():
 def test_bpc_native_execution(small_instance):
     dist, wastes, cap, R, C = small_instance
     values = {"max_cg_iterations": 5, "max_cuts_per_iteration": 2}
-    routes, cost = run_custom_bpc(dist, wastes, cap, R, C, values)
+    routes, cost = run_bpc(dist, wastes, cap, R, C, values)
     assert len(routes) > 0
     assert cost > 0
 

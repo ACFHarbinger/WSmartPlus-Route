@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
-from logic.src.policies.fast_iterative_localized_optimization.filo import FILOSolver
-from logic.src.policies.fast_iterative_localized_optimization.params import FILOParams
+from logic.src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.filo import FILOSolver
+from logic.src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.params import FILOParams
 
 @pytest.fixture
 def filo_inputs():

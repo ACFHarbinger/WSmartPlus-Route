@@ -3,10 +3,9 @@ Unit tests for Tabu Search (TS) policy.
 """
 
 import numpy as np
-import pytest
 import pandas as pd
-from logic.src.policies.tabu_search.policy_ts import TSPolicy
-from logic.src.policies.tabu_search.solver import TSSolver, TSParams
+from logic.src.policies.route_construction.meta_heuristics.tabu_search.policy_ts import TSPolicy
+from logic.src.policies.route_construction.meta_heuristics.tabu_search.solver import TSSolver, TSParams
 from logic.src.configs.policies.ts import TSConfig
 
 def test_ts_solver_instantiation():
@@ -19,7 +18,7 @@ def test_ts_solver_instantiation():
         use_2opt=True
     )
     dist_matrix = np.zeros((5, 5))
-    wastes = {1: 10, 2: 10, 3: 10, 4: 10}
+    wastes = {1: 10., 2: 10., 3: 10., 4: 10.}
     capacity = 50.0
 
     solver = TSSolver(

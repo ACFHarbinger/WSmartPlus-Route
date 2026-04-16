@@ -2,19 +2,19 @@ import pytest
 import numpy as np
 import gurobipy as gp
 from gurobipy import GRB
-from typing import Dict, Any, Set, List
+from typing import Dict, Any, Set, List, cast, Optional, Tuple, Union
 from unittest.mock import MagicMock, patch, PropertyMock
 
-from logic.src.policies.branch_and_bound.node import Node
-from logic.src.policies.branch_and_bound.mtz import BBSolver
-from logic.src.policies.branch_and_bound.policy_bb import BranchAndBoundPolicy
-from logic.src.policies.branch_and_bound.dfj import _dfj_callback
+from logic.src.policies.helpers.branching_solvers.common.node import Node
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.mtz import BBSolver
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.policy_bb import BranchAndBoundPolicy
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.dfj import _dfj_callback
 
 def test_fix_1_root_initialization():
     """Fix 1: Root node must be initialized with bound=inf."""
     dist_matrix = np.zeros((2, 2))
     wastes = {1: 10.0}
-    solver = BBSolver(dist_matrix, wastes, 100.0, 1.0, 1.0, {"time_limit": 0.001})
+    solver = BBSolver(dist_matrix, wastes, 100.0, 1.0, 1.0, 0.001)
 
     with patch('logic.src.policies.branch_and_bound.mtz.Node') as mock_node:
         try:
@@ -27,7 +27,7 @@ def test_fix_2_pruning_maximization():
     """Fix 2: Correct pruning formula for maximization."""
     dist_matrix = np.zeros((2, 2))
     wastes = {1: 10.0}
-    solver = BBSolver(dist_matrix, wastes, 100.0, 1.0, 1.0, {"mip_gap": 0.0})
+    solver = BBSolver(dist_matrix, wastes, 100.0, 1.0, 1.0, mip_gap=0.0)
 
     solver.incumbent_obj = 10.0
     solver.mip_gap = 0.0
@@ -46,7 +46,7 @@ def test_fix_3_strong_branching_safe_access():
     """
     dist_matrix = np.zeros((3, 3))
     wastes = {1: 10.0, 2: 10.0}
-    solver = BBSolver(dist_matrix, wastes, 100.0, 1.0, 1.0, {"branching_strategy": "strong"})
+    solver = BBSolver(dist_matrix, wastes, 100.0, 1.0, 1.0, branching_strategy="strong")
 
     class ModelMock:
         def __init__(self):
@@ -88,7 +88,7 @@ def test_fix_3_strong_branching_safe_access():
             pass
 
     mock_model = ModelMock()
-    solver.model = mock_model
+    solver.model = cast(gp.Model, mock_model)
     solver.x[(0, 1)] = MagicMock()
     solver.x[(0, 1)].LB = 0.0
     solver.x[(0, 1)].UB = 1.0
@@ -109,7 +109,7 @@ def test_fix_4_u_bounds_reset():
     dist_matrix = np.zeros((3, 3))
     wastes = {1: 10.0, 2: 20.0}
     capacity = 100.0
-    solver = BBSolver(dist_matrix, wastes, capacity, 1.0, 1.0, {})
+    solver = BBSolver(dist_matrix, wastes, capacity, 1.0, 1.0)
 
     u1 = MagicMock()
     u2 = MagicMock()
@@ -118,7 +118,7 @@ def test_fix_4_u_bounds_reset():
     solver.x = {(0, 1): MagicMock()}
     solver.y = {1: MagicMock(), 2: MagicMock()}
 
-    solver.model = MagicMock()
+    solver.model = cast(gp.Model, MagicMock())
     solver.model.Status = GRB.OPTIMAL
 
     node = Node(bound=0.0)
@@ -188,12 +188,12 @@ def test_fix_8_strong_branching_state_restoration():
     """Fix 8: Verify _strong_branching re-solves model at the end."""
     dist_matrix = np.zeros((3, 3))
     wastes = {1: 10.0, 2: 10.0}
-    solver = BBSolver(dist_matrix, wastes, 100.0, 1.0, 1.0, {"branching_strategy": "strong"})
+    solver = BBSolver(dist_matrix, wastes, 100.0, 1.0, 1.0, branching_strategy="strong")
 
     mock_model = MagicMock()
     mock_model.ObjVal = 100.0
     mock_model.Status = GRB.OPTIMAL
-    solver.model = mock_model
+    solver.model = cast(gp.Model, mock_model)
     solver.x[(0, 1)] = MagicMock()
     solver.x[(0, 1)].LB = 0.0
     solver.x[(0, 1)].UB = 1.0
@@ -205,8 +205,8 @@ def test_fix_8_strong_branching_state_restoration():
 def test_fix_10_node_field_comment():
     """Fix 10: Verify node.py field comment reflects maximization."""
     import inspect
-    from logic.src.policies.branch_and_bound import node
-    source = inspect.getsource(node)
+    from logic.src.policies.helpers.branching_solvers.common.node import Node
+    source = inspect.getsource(Node)
     assert "upper bound for maximization" in source.lower()
     assert "field(compare=True)  # LP relaxation value (upper bound for maximization)" in source
 
@@ -214,7 +214,7 @@ def test_fix_12_no_y_branching():
     """Fix 12: Verify _get_branching_variable only returns x variables."""
     dist_matrix = np.zeros((3, 3))
     wastes = {1: 10.0, 2: 10.0}
-    solver = BBSolver(dist_matrix, wastes, 100.0, 1.0, 1.0, {"branching_strategy": "most_fractional"})
+    solver = BBSolver(dist_matrix, wastes, 100.0, 1.0, 1.0, branching_strategy="most_fractional")
 
     # Mock x and y variables
     x_var = MagicMock()
@@ -226,11 +226,12 @@ def test_fix_12_no_y_branching():
     solver.y = {1: y_var}
 
     # Mock model
-    solver.model = MagicMock()
+    solver.model = cast(gp.Model, MagicMock())
     solver.model.Status = GRB.OPTIMAL
 
     result = solver._get_branching_variable()
 
     # Should be the x variable, not y
+    assert result is not None
     assert result[0] == "x"
     assert result[1] == (0, 1)

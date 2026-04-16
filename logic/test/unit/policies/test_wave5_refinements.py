@@ -1,8 +1,8 @@
 import pytest
 import numpy as np
-from logic.src.policies.adaptive_large_neighborhood_search.alns import ALNSSolver
-from logic.src.policies.adaptive_large_neighborhood_search.params import ALNSParams
-from logic.src.policies.cluster_first_route_second.solver import run_cf_rs
+from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns import ALNSSolver
+from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params import ALNSParams
+from logic.src.policies.route_construction.matheuristics.cluster_first_route_second.solver import run_cf_rs
 import pandas as pd
 
 def test_alns_segment_logic():
@@ -12,8 +12,8 @@ def test_alns_segment_logic():
         [10, 0, 5],
         [10, 5, 0]
     ])
-    wastes = {1: 10, 2: 10}
-    capacity = 15
+    wastes = {1: 10., 2: 10.}
+    capacity = 15.
     params = ALNSParams(max_iterations=150, start_temp=100.0) # > 1 segment
 
     solver = ALNSSolver(dist, wastes, capacity, R=100.0, C=1.0, params=params)
@@ -40,8 +40,8 @@ def test_cfrs_fisher_jaikumar():
         for j in range(5):
             dist[i, j] = np.linalg.norm(coords.iloc[i].values - coords.iloc[j].values)
 
-    wastes = {1: 10, 2: 10, 3: 10, 4: 10}
-    capacity = 15
+    wastes = {1: 10., 2: 10., 3: 10., 4: 10.}
+    capacity = 15.
 
     routes, cost, metadata = run_cf_rs(
         coords, mandatory, dist, wastes, capacity, 1.0, 1.0, n_vehicles=2

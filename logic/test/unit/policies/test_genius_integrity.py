@@ -4,8 +4,8 @@ Integration tests for GENIUS solver integrity.
 
 import numpy as np
 import pytest
-from logic.src.policies.genius.solver import GENIUSSolver
-from logic.src.policies.genius.params import GENIUSParams
+from logic.src.policies.route_construction.meta_heuristics.genius.solver import GENIUSSolver
+from logic.src.policies.route_construction.meta_heuristics.genius.params import GENIUSParams
 
 def test_genius_node_conservation():
     """Verify that nodes are not lost during GENIUS US iterations."""
@@ -16,9 +16,9 @@ def test_genius_node_conservation():
         [1, 1, 1, 0], # 3
     ], dtype=float)
 
-    wastes = {1: 10, 2: 10, 3: 10}
+    wastes = {1: 10.0, 2: 10.0, 3: 10.0}
     # Tight capacity: only 2 nodes fit in a route
-    capacity = 25
+    capacity = 25.0
     R = 100.0
     C = 1.0
     params = GENIUSParams(
@@ -46,8 +46,8 @@ def test_genius_mandatory_conservation():
         [1, 1, 1, 0],
     ], dtype=float)
 
-    wastes = {1: 10, 2: 10, 3: 10}
-    capacity = 15 # Only 1 node fit per route
+    wastes = {1: 10.0, 2: 10.0, 3: 10.0}
+    capacity = 15.0 # Only 1 node fit per route
     R = 1.0 # Low revenue
     C = 1000.0 # High cost -> would prefer to drop nodes
 

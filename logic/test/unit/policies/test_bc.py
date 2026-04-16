@@ -7,9 +7,9 @@ Run with: python -m pytest logic/src/policies/branch_and_cut/test_bc.py -v
 import numpy as np
 import pandas as pd
 import pytest
-from logic.src.policies.branch_and_cut import BranchAndCutPolicy, VRPPModel
-from logic.src.policies.branch_and_cut.heuristics import construct_initial_solution
-from logic.src.policies.branch_and_cut.bc import GUROBI_AVAILABLE
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut import BranchAndCutPolicy, VRPPModel
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.heuristics import construct_initial_solution
+from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc import GUROBI_AVAILABLE
 
 
 @pytest.mark.skipif(not GUROBI_AVAILABLE, reason="Gurobi not available")
@@ -20,7 +20,7 @@ def test_vrpp_model_creation():
     cost_matrix = (cost_matrix + cost_matrix.T) / 2  # Make symmetric
     np.fill_diagonal(cost_matrix, 0)
 
-    wastes = {1: 10, 2: 15, 3: 8, 4: 20, 5: 12}
+    wastes = {1: 10., 2: 15., 3: 8., 4: 20., 5: 12.}
     capacity = 50.0
 
     model = VRPPModel(
@@ -52,7 +52,7 @@ def test_heuristic_solution():
         [5.0, 4.5, 3.0, 2.0, 1.0, 0.0],
     ])
 
-    wastes = {1: 10, 2: 15, 3: 8, 4: 20, 5: 12}
+    wastes = {1: 10., 2: 15., 3: 8., 4: 20., 5: 12.}
     capacity = 50.0
 
     model = VRPPModel(

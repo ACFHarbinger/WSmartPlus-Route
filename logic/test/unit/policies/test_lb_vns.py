@@ -10,7 +10,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.
 
 import numpy as np
 import pytest
-from logic.src.policies.local_branching_variable_neighborhood_search.lb_vns import GUROBI_AVAILABLE, run_lb_vns_gurobi
+from logic.src.policies.route_construction.matheuristics.local_branching_variable_neighborhood_search.lb_vns import GUROBI_AVAILABLE, run_lb_vns_gurobi, LBVNSParams
 
 
 def mock_run_lb_vns(dist_matrix, wastes, capacity, R, C, mandatory_nodes, **kwargs):
@@ -35,7 +35,14 @@ def test_lb_vns_basic():
     R = 1.0
     C = 0.5
     mandatory_nodes = [2]
-
+    params = LBVNSParams(
+        k_min=5,
+        k_max=15,
+        k_step=5,
+        time_limit=15.0,
+        time_limit_per_lb=5.0,
+        max_lb_iterations=3,
+    )
     try:
         tour, obj, cost = run_lb_vns_gurobi(
             dist_matrix=dist_matrix,
@@ -44,12 +51,7 @@ def test_lb_vns_basic():
             R=R,
             C=C,
             mandatory_nodes=mandatory_nodes,
-            k_min=5,
-            k_max=15,
-            k_step=5,
-            time_limit=15.0,
-            time_limit_per_lb=5.0,
-            max_lb_iterations=3
+            params=params
         )
     except Exception as e:
         if "License" in str(e) or "license" in str(e):

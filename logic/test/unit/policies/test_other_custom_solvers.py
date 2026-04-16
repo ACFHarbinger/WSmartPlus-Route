@@ -1,8 +1,7 @@
 
 import numpy as np
-import pytest
-from logic.src.policies.capacitated_vehicle_routing_problem.cvrp import find_routes
-from logic.src.policies.travelling_salesman_problem.tsp import find_route
+from logic.src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.cvrp import find_routes
+from logic.src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp import find_route
 
 def test_custom_cvrp_clarke_wright():
     # Simple instance
