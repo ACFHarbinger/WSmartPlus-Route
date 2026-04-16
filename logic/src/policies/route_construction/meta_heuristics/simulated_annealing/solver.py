@@ -58,6 +58,7 @@ class SASolver(LocalSearch):
         self.mandatory_nodes = mandatory_nodes or []
         self.nodes = list(range(1, len(dist_matrix)))
         self.thermal_log: List[Dict[str, Union[float, floating[Any]]]] = []
+        self.acceptance_criterion = params.acceptance_criterion
 
     def _evaluate(self, routes: List[List[int]]) -> float:
         """Calculate net profit: Revenue - Cost."""
@@ -264,15 +265,23 @@ class SASolver(LocalSearch):
             best_routes = [list(r) for r in current_routes]
             best_profit = current_profit
 
-            T_0 = (
-                self._calibrate_initial_temperature(current_routes)
-                if self.params.auto_calibrate_temperature
-                else self.params.initial_temperature
-            )
-            T = T_0
+            if self.params.auto_calibrate_temperature:
+                T_calib = self._calibrate_initial_temperature(current_routes)
+                # If using Boltzmann, update its temperature
+                if hasattr(self.acceptance_criterion, "T"):
+                    self.acceptance_criterion.T = T_calib
+
+            self.acceptance_criterion.setup(current_profit)
             frozen_streak = 0
 
-            while self.params.min_temperature < T and frozen_streak < self.params.frozen_streak_limit:
+            # Use a generic termination condition; some criteria may override this
+            # For now, we continue using T-based termination for compatibility if Boltzmann
+            while frozen_streak < self.params.frozen_streak_limit:
+                # Basic check for termination from criterion if applicable
+                state = self.acceptance_criterion.get_state()
+                T_curr = state.get("temperature", 1.0)  # Fallback to avoid infinite loops if no temp
+                if hasattr(self.acceptance_criterion, "T") and T_curr < self.params.min_temperature:
+                    break
                 if time.time() - start_time >= self.params.time_limit:
                     break
 
@@ -287,14 +296,37 @@ class SASolver(LocalSearch):
                     if time.time() - start_time >= self.params.time_limit:
                         break
 
-                    op, candidate, delta_f = self._perturb(current_routes, T, T_0)
+                    current_state = self.acceptance_criterion.get_state()
+                    T_curr = current_state.get("temperature", 1.0)
+                    T_0_curr = current_state.get("initial_temperature", 1.0)
+
+                    op, candidate, delta_f = self._perturb(current_routes, T_curr, T_0_curr)
                     n_attempts += 1
 
-                    if delta_f > -1e-9 or self.random.random() < math.exp(delta_f / T):
+                    if self.acceptance_criterion.accept(
+                        current_obj=current_profit,
+                        candidate_obj=current_profit + delta_f,
+                        f_best=best_profit,
+                        iteration=n_attempts,
+                        max_iterations=max_attempts,
+                    ):
                         current_routes = candidate
                         current_profit += delta_f
                         n_accepted += 1
+                        accepted_this_move = True
+                    else:
+                        accepted_this_move = False
 
+                    self.acceptance_criterion.step(
+                        current_obj=current_profit,
+                        candidate_obj=current_profit + delta_f,
+                        accepted=accepted_this_move,
+                        f_best=best_profit,
+                        iteration=n_attempts,
+                        max_iterations=max_attempts,
+                    )
+
+                    if accepted_this_move:
                         # Sync LocalSearch state
                         self.routes = current_routes
                         self._update_map(set(range(len(self.routes))))
@@ -313,10 +345,20 @@ class SASolver(LocalSearch):
 
                 if len(energies) > 1:
                     var = np.var(energies)
-                    c_spec = var / (T**2) if T > 0 else 0.0
-                    self.thermal_log.append({"T": T, "mean_f": np.mean(energies), "C": c_spec, "acc": n_accepted})
+                    current_state = self.acceptance_criterion.get_state()
+                    T_diag = current_state.get("temperature", 0.0)
+                    c_spec = var / (T_diag**2) if T_diag > 0 else 0.0
+                    self.thermal_log.append(
+                        {
+                            "T": T_diag,
+                            "mean_f": np.mean(energies),
+                            "C": c_spec,
+                            "acc": n_accepted,
+                            "state": current_state,
+                        }
+                    )
 
-                T *= self.params.cooling_rate
+                # Note: self.acceptance_criterion.step() handles internal cooling or state updates
 
             if best_profit > global_best_profit:
                 global_best_profit = best_profit

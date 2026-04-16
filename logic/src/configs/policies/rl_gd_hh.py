@@ -15,6 +15,8 @@ Paper mappings (Section 3, Table 1):
 from dataclasses import dataclass, field
 from typing import Any, List, Optional
 
+from logic.src.configs.policies.helpers.acceptance_criteria import AcceptanceConfig
+
 
 @dataclass
 class RLGDHHConfig:
@@ -52,6 +54,15 @@ class RLGDHHConfig:
 
     # --- Problem Flags ---
     vrpp: bool = True
+
+    # --- Acceptance Criterion ---
+    # Default to Great Deluge to maintain parity with Ozcan et al. (2010)
+    acceptance: AcceptanceConfig = field(
+        default_factory=lambda: AcceptanceConfig(
+            method="great_deluge",
+            params={"quality_lb": 0.0},
+        )
+    )
 
     # --- Infrastructure Hooks ---
     mandatory_selection: Optional[List[Any]] = field(default_factory=list)

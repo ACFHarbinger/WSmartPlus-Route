@@ -7,8 +7,11 @@ from typing import Any, Dict, Optional
 
 from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
 
+from .base.registry import AcceptanceCriterionRegistry
 
-class TournamentAcceptance(IAcceptanceCriterion):
+
+@AcceptanceCriterionRegistry.register("bta")
+class BinaryTournamentAcceptance(IAcceptanceCriterion):
     """
     Binary Tournament stochastic acceptance.
     Evaluates the current solution against the candidate solution. The superior

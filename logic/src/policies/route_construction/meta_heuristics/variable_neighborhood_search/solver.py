@@ -104,10 +104,15 @@ class VNSSolver:
         start = time.process_time()
         k_max = min(self.params.k_max, len(self._neighborhoods))
 
+        # Initialize solution
         routes = self._build_initial_solution()
         profit = self._evaluate(routes)
+
         best_routes = copy.deepcopy(routes)
         best_profit = profit
+
+        # Setup modular acceptance criterion
+        self.params.acceptance_criterion.setup(profit)
 
         for iteration in range(self.params.max_iterations):
             if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
@@ -128,16 +133,31 @@ class VNSSolver:
                 # === Local search descent phase ===
                 ls_routes, ls_profit = self._local_search(shaken, start)
 
-                # === Move or not (VNS acceptance criterion) ===
-                if ls_profit > profit:
+                # === Move or not (Modular acceptance criterion) ===
+                is_accepted = self.params.acceptance_criterion.accept(
+                    current_obj=profit,
+                    candidate_obj=ls_profit,
+                    iteration=iteration,
+                    max_iterations=self.params.max_iterations,
+                )
+
+                if is_accepted:
                     routes = ls_routes
                     profit = ls_profit
                     if profit > best_profit:
                         best_routes = copy.deepcopy(routes)
                         best_profit = profit
-                    k = 0  # Improvement: restart from the mildest neighborhood
+                    k = 0  # Reset to first neighborhood on acceptance
                 else:
-                    k += 1  # No improvement: try next neighborhood
+                    k += 1  # Advance to next neighborhood on rejection
+
+                # Step the criterion after transition decision
+                self.params.acceptance_criterion.step(
+                    current_obj=profit,
+                    candidate_obj=ls_profit,
+                    accepted=is_accepted,
+                    iteration=iteration,
+                )
 
             getattr(self, "_viz_record", lambda **k: None)(
                 iteration=iteration,

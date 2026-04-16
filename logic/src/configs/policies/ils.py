@@ -5,6 +5,8 @@ ILS (Iterated Local Search) configuration for Hydra.
 from dataclasses import dataclass, field
 from typing import Any, List, Optional
 
+from logic.src.configs.policies.helpers.acceptance_criteria import AcceptanceConfig
+
 
 @dataclass
 class ILSConfig:
@@ -22,3 +24,6 @@ class ILSConfig:
     profit_aware_operators: bool = False
     mandatory_selection: Optional[List[Any]] = field(default_factory=list)
     route_improvement: Optional[List[Any]] = field(default_factory=list)
+
+    # Injected Acceptance Criterion
+    acceptance: AcceptanceConfig = field(default_factory=lambda: AcceptanceConfig(method="only_improving"))

@@ -2,11 +2,12 @@
 ALNS (Adaptive Large Neighborhood Search) configuration.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Optional
 
-from .helpers.mandatory_selection import MandatorySelectionConfig
-from .helpers.route_improvement import RouteImprovingConfig
+from .other.acceptance_criteria import AcceptanceConfig, BoltzmannAcceptanceConfig
+from .other.mandatory_selection import MandatorySelectionConfig
+from .other.route_improvement import RouteImprovingConfig
 
 
 @dataclass
@@ -40,3 +41,8 @@ class ALNSConfig:
     extended_operators: bool = False
     mandatory_selection: Optional[List[MandatorySelectionConfig]] = None
     route_improvement: Optional[List[RouteImprovingConfig]] = None
+    acceptance: AcceptanceConfig = field(
+        default_factory=lambda: AcceptanceConfig(
+            method="boltzmann", params=BoltzmannAcceptanceConfig(initial_temp=100.0, alpha=0.995)
+        )
+    )

@@ -6,7 +6,10 @@ from typing import Any, Dict
 
 from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
 
+from .base.registry import AcceptanceCriterionRegistry
 
+
+@AcceptanceCriterionRegistry.register("oi")
 class OnlyImproving(IAcceptanceCriterion):
     """
     Strictest form of greedy, elitist move acceptance.

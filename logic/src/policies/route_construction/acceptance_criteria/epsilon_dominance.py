@@ -3,7 +3,10 @@ from typing import Any, Dict, List, Sequence, Tuple, Union
 
 from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
 
+from .base.registry import AcceptanceCriterionRegistry
 
+
+@AcceptanceCriterionRegistry.register("edc")
 class EpsilonDominanceCriterion(IAcceptanceCriterion):
     """
     Epsilon-Dominance Acceptance Criterion with Grid Archiving.

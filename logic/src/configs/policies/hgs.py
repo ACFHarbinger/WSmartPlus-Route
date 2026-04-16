@@ -5,6 +5,7 @@ HGS (Hybrid Genetic Search) configuration.
 from dataclasses import dataclass
 from typing import List, Optional
 
+from .helpers.acceptance_criteria import AcceptanceConfig, OnlyImprovingConfig
 from .helpers.mandatory_selection import MandatorySelectionConfig
 from .helpers.route_improvement import RouteImprovingConfig
 
@@ -81,3 +82,4 @@ class HGSConfig:
     profit_aware_operators: bool = False
     mandatory_selection: Optional[List[MandatorySelectionConfig]] = None
     route_improvement: Optional[List[RouteImprovingConfig]] = None
+    acceptance: AcceptanceConfig = AcceptanceConfig(method="only_improving", params=OnlyImprovingConfig())

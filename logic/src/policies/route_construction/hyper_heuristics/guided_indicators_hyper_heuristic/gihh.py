@@ -131,6 +131,9 @@ class GIHHSolver:
         self.ARCH = [initial_sol]
         self.global_best_profit_sol = copy.deepcopy(initial_sol)
 
+        # Setup modular acceptance criterion
+        self.params.acceptance_criterion.setup(initial_sol.profit)
+
         iteration = 1
         iterations_since_last_improvement = 0
 
@@ -160,15 +163,34 @@ class GIHHSolver:
             if candidate_sol.is_feasible() and candidate_sol.profit > self.global_best_profit_sol.profit:
                 self.global_best_profit_sol = copy.deepcopy(candidate_sol)
 
-            # 5. Evaluate Acceptance against Pareto Archive (ARCH)
+            # 5. Evaluate Acceptance
             self.applied_times[selected_operator] += 1
-            is_accepted = self._update_archive(candidate_sol)
+
+            # Use modular criterion to decide acceptance
+            is_accepted = self.params.acceptance_criterion.accept(
+                current_obj=current_sol.profit,
+                candidate_obj=candidate_sol.profit,
+                iteration=iteration,
+                max_iterations=self.params.max_iterations,
+                archive=self.ARCH,
+                candidate_solution=candidate_sol,
+            )
 
             if is_accepted:
+                # Still perform the Pareto archive update logic
+                _arch_updated = self._update_archive(candidate_sol)
                 self.segment_accepted_sols.append(candidate_sol)
                 iterations_since_last_improvement = 0
             else:
                 iterations_since_last_improvement += 1
+
+            # Step the criterion after move selection
+            self.params.acceptance_criterion.step(
+                current_obj=current_sol.profit,
+                candidate_obj=candidate_sol.profit,
+                accepted=is_accepted,
+                iteration=iteration,
+            )
 
             # 6. Update Guidance Indicators
             self.score_a.update(selected_operator, is_accepted)

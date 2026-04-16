@@ -89,11 +89,16 @@ class ILSSolver:
         best_routes = copy.deepcopy(routes)
         best_profit = profit
 
+        # Setup modular acceptance criterion
+        self.params.acceptance_criterion.setup(profit)
+
         for restart in range(self.params.n_restarts):
             if self.params.time_limit > 0 and time.process_time() - start > self.params.time_limit:
                 break
 
-            # === Descent phase ===
+            # The inner loop is the Descent phase
+            inner_routes = copy.deepcopy(routes)
+            inner_profit = profit
             improved = True
             inner_count = 0
             while improved and inner_count < self.params.inner_iterations:
@@ -106,28 +111,46 @@ class ILSSolver:
                 llh = self._llh_pool[llh_idx]
 
                 try:
-                    new_routes = llh(copy.deepcopy(routes), self.params.n_removal)
-                    new_profit = self._evaluate(new_routes)
+                    cand_routes = llh(copy.deepcopy(inner_routes), self.params.n_removal)
+                    cand_profit = self._evaluate(cand_routes)
                 except Exception:
                     continue
 
-                if new_profit > profit:
-                    routes = new_routes
-                    profit = new_profit
+                # Inner descent is strictly greedy
+                if cand_profit > inner_profit:
+                    inner_routes = cand_routes
+                    inner_profit = cand_profit
                     improved = True
 
-                    if profit > best_profit:
-                        best_routes = copy.deepcopy(routes)
-                        best_profit = profit
+            # === Acceptance Phase (Transition between local optima) ===
+            # Decide whether to move from incumbent 'routes' to 'inner_routes'
+            is_accepted = self.params.acceptance_criterion.accept(
+                current_obj=profit,
+                candidate_obj=inner_profit,
+                iteration=restart,
+                max_iterations=self.params.n_restarts,
+            )
 
-            # === Perturbation phase ===
-            perturbed = self._perturb(copy.deepcopy(routes))
-            perturbed_profit = self._evaluate(perturbed)
+            if is_accepted:
+                routes = inner_routes
+                profit = inner_profit
+                if profit > best_profit:
+                    best_routes = copy.deepcopy(routes)
+                    best_profit = profit
 
-            # Hill-climbing acceptance: accept perturbation as starting point
-            # if it leads to better results after another descent
-            routes = perturbed
-            profit = perturbed_profit
+            # Step criterion
+            self.params.acceptance_criterion.step(
+                current_obj=profit,
+                candidate_obj=inner_profit,
+                accepted=is_accepted,
+                iteration=restart,
+            )
+
+            # === Perturbation phase (Diversification for next restart) ===
+            # Perturb the (potentially updated) routes
+            perturbed_routes = self._perturb(copy.deepcopy(routes))
+            routes = perturbed_routes
+            profit = self._evaluate(routes)
 
             getattr(self, "_viz_record", lambda **k: None)(
                 iteration=restart,

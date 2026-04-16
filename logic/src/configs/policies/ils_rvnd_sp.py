@@ -2,7 +2,10 @@
 ILS-RVND-SP (Iterated Local Search - Randomized Variable Neighborhood Descent - Set Partitioning) configuration dataclasses.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import Any, List, Optional
+
+from logic.src.configs.policies.helpers.acceptance_criteria import AcceptanceConfig
 
 from .abc import ABCConfig
 
@@ -38,3 +41,10 @@ class ILSRVNDSPConfig(ABCConfig):
     engine: str = "gurobi"
     framework: str = "ortools"
     local_search_iterations: int = 500
+
+    # Injected Acceptance Criterion
+    acceptance: AcceptanceConfig = field(default_factory=lambda: AcceptanceConfig(method="only_improving"))
+
+    # --- Infrastructure Hooks ---
+    mandatory_selection: Optional[List[Any]] = field(default_factory=list)
+    route_improvement: Optional[List[Any]] = field(default_factory=list)

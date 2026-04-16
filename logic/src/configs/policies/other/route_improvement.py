@@ -8,6 +8,8 @@ mirroring the reinforcement learning configuration pattern.
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
+from .acceptance_criteria import AcceptanceConfig, BoltzmannAcceptanceConfig
+
 
 @dataclass
 class FastTSPPostConfig:
@@ -122,12 +124,14 @@ class GuidedLocalSearchPostConfig:
 
 @dataclass
 class SimulatedAnnealingPostConfig:
-    """Configuration for Simulated Annealing."""
+    """Configuration for Simulated Annealing refinement."""
 
-    sa_iterations: int = 2000
-    sa_t_init: float = 1.0
-    sa_t_min: float = 0.01
-    sa_cooling: float = 0.995
+    acceptance: AcceptanceConfig = field(
+        default_factory=lambda: AcceptanceConfig(
+            method="bmc", params=BoltzmannAcceptanceConfig(initial_temp=1.0, alpha=0.995)
+        )
+    )
+    iterations: int = 2000
     params: Dict[str, float] = field(
         default_factory=lambda: {
             "two_opt": 0.2,
@@ -159,10 +163,9 @@ class InsertionPostConfig:
 class RuinRecreatePostConfig:
     """Configuration for Ruin and Recreate (LNS)."""
 
+    acceptance: AcceptanceConfig = field(default_factory=lambda: AcceptanceConfig(method="oi"))
     lns_iterations: int = 100
     ruin_fraction: float = 0.2
-    lns_acceptance: str = "best"  # "best" or "sa"
-    lns_sa_temperature: float = 1.0
     repair_k: int = 2
     cost_per_km: float = 0.0
     revenue_kg: float = 0.0
@@ -173,6 +176,7 @@ class RuinRecreatePostConfig:
 class AdaptiveLNSPostConfig:
     """Configuration for Adaptive LNS."""
 
+    acceptance: AcceptanceConfig = field(default_factory=lambda: AcceptanceConfig(method="bmc"))
     alns_iterations: int = 200
     ruin_fraction: float = 0.2
     alns_bandit_warm_start_path: Optional[str] = None

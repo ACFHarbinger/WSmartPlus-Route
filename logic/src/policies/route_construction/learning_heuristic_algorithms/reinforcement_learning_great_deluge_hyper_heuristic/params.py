@@ -16,8 +16,11 @@ Paper mappings (Section 3 and Table 1):
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Optional
+
+from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
+from logic.src.policies.route_construction.acceptance_criteria.factory import AcceptanceCriterionFactory
 
 
 @dataclass
@@ -79,10 +82,14 @@ class RLGDHHParams:
     vrpp: bool = True
     profit_aware_operators: bool = False
 
+    # Injected Acceptance Criterion
+    acceptance_criterion: IAcceptanceCriterion = field(default_factory=lambda: None)  # type: ignore
+
     @classmethod
     def from_config(cls, config: Any) -> "RLGDHHParams":
         """Create parameters from a configuration object."""
-        return cls(
+        # Build parameters
+        params = cls(
             max_iterations=getattr(config, "max_iterations", 5000),
             time_limit=getattr(config, "time_limit", 60.0),
             reward_improvement=getattr(config, "reward_improvement", 1.0),
@@ -95,3 +102,21 @@ class RLGDHHParams:
             vrpp=getattr(config, "vrpp", True),
             profit_aware_operators=getattr(config, "profit_aware_operators", False),
         )
+
+        # Handle Acceptance Criterion Injection
+
+        acceptance_cfg = getattr(config, "acceptance", None)
+        if acceptance_cfg:
+            params.acceptance_criterion = AcceptanceCriterionFactory.create(
+                name=acceptance_cfg.method,
+                config=acceptance_cfg.params,
+            )
+        else:
+            # Default to great_deluge (gd) as it's the core of RL-GD-HH
+            params.acceptance_criterion = AcceptanceCriterionFactory.create(
+                name="gd",
+                initial_level=params.quality_lb,  # quality_lb serves as the floor target
+                decay_rate=0.01,
+            )
+
+        return params

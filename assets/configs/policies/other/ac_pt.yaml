@@ -1,0 +1,4 @@
+method: pt
+params:
+  base_prob: 0.5
+  maximization: true

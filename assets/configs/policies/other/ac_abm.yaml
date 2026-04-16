@@ -1,0 +1,8 @@
+method: abm
+params:
+  p0: 0.5
+  window_size: 100
+  alpha: 0.95
+  min_temp: 0.000001
+  seed: 42
+  maximization: true

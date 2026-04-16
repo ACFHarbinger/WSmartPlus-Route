@@ -2,6 +2,7 @@
 Miscellaneous configuration dataclasses.
 """
 
+from .acceptance_criteria import AcceptanceConfig
 from .mandatory_selection import MandatorySelectionConfig
 from .reinforcement_learning import (
     BanditConfig,
@@ -28,4 +29,5 @@ __all__ = [
     "RLConfig",
     "MandatorySelectionConfig",
     "RouteImprovingConfig",
+    "AcceptanceConfig",
 ]

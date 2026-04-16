@@ -7,6 +7,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
 
+from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
+
 if TYPE_CHECKING:
     from logic.src.configs.policies import HGSConfig
 
@@ -79,6 +81,7 @@ class HGSParams:
     vrpp: bool = True
     engine: str = "custom"
     profit_aware_operators: bool = False
+    acceptance_criterion: Optional[IAcceptanceCriterion] = None
 
     @classmethod
     def from_config(cls, config: HGSConfig) -> HGSParams:
@@ -91,7 +94,7 @@ class HGSParams:
             HGSParams instance with values from config.
         """
         # Map config parameters to HGSParams, using defaults for new parameters
-        return cls(
+        params = cls(
             time_limit=getattr(config, "time_limit", 0.0),
             mu=getattr(config, "mu", 25),
             n_offspring=getattr(config, "n_offspring", getattr(config, "lambda_param", 40)),
@@ -119,6 +122,21 @@ class HGSParams:
             engine=getattr(config, "engine", "custom"),
             restart_timer=getattr(config, "restart_timer", 0.0),
         )
+
+        # Handle Acceptance Criterion Injection
+        from logic.src.policies.route_construction.acceptance_criteria.factory import AcceptanceCriterionFactory
+
+        acceptance_cfg = getattr(config, "acceptance", None)
+        if acceptance_cfg:
+            params.acceptance_criterion = AcceptanceCriterionFactory.create(
+                name=acceptance_cfg.method,
+                config=acceptance_cfg.params,
+            )
+        else:
+            # Default to only_improving for standard HGS
+            params.acceptance_criterion = AcceptanceCriterionFactory.create(name="oi")
+
+        return params
 
     @property
     def lambda_param(self) -> int:

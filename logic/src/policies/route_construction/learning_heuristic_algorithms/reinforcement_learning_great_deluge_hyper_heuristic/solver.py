@@ -111,17 +111,8 @@ class RLGDHHSolver:
         best_routes = copy.deepcopy(current_routes)
         best_profit = current_profit
 
-        # Great Deluge: level starts at f0 and declines linearly to quality_lb
-        # (Ozcan et al. 2010, Figure 2, Step 18):
-        #   level(t) = qualityLB + (f0 − qualityLB) × (1 − t / T)
-        f0 = current_profit
-        quality_lb = self.params.quality_lb
-
-        # Pre-compute constant per-iteration decline (maps iteration ↔ time step)
-        # Guard: if f0 <= quality_lb, the water level never moves.
-        decline_rate = (f0 - quality_lb) / self.params.max_iterations if f0 > quality_lb else 0.0
-
-        water_level = f0  # t = 0  →  level = f0
+        # Setup modular acceptance criterion
+        self.params.acceptance_criterion.setup(current_profit)
 
         # --- Main Loop ---
         for iteration in range(self.params.max_iterations):
@@ -136,41 +127,41 @@ class RLGDHHSolver:
             new_routes = llh(current_routes)
             new_profit = self._evaluate(new_routes)
 
-            # (c) Adaptation + (d) Acceptance — strictly following Figure 2 structure
+            # (c) Adaptation + (d) Acceptance
+            is_accepted = self.params.acceptance_criterion.accept(
+                current_obj=current_profit,
+                candidate_obj=new_profit,
+                iteration=iteration,
+                max_iterations=self.params.max_iterations,
+            )
+
             if new_profit > current_profit:
-                # Improving move: reward and always accept (no GD gate)
+                # Improving move: reward and always accept
                 self.utilities[llh_idx] = self._apply_reward(self.utilities[llh_idx])
+            else:
+                # Worsening/Neutral move: punish
+                self.utilities[llh_idx] = self._apply_punishment(self.utilities[llh_idx])
+
+            if is_accepted:
                 current_routes = new_routes
                 current_profit = new_profit
                 # Track global best
                 if current_profit > best_profit:
                     best_routes = copy.deepcopy(current_routes)
                     best_profit = current_profit
-            else:
-                # Neutral or worsening move: punish, then apply GD acceptance gate
-                # (c) RL Adaptation — Figure 2, Steps 14–17 (Ozcan et al. 2010)
-                # Reward on strict improvement; punish on neutral (==) or worsening (<=).
-                # Note: the paper is written for minimisation (ftemp < fcurrent → reward).
-                # For maximisation we invert: ftemp > current_profit → reward.
-                # Neutral moves (ftemp == current_profit) are punished in both contexts.
-                self.utilities[llh_idx] = self._apply_punishment(self.utilities[llh_idx])
-                if new_profit >= water_level:
-                    current_routes = new_routes
-                    current_profit = new_profit
-                    # Track global best: only triggers if GD accepts a worsening move
-                    # and current_profit was previously below best_profit.
-                    if current_profit > best_profit:
-                        best_routes = copy.deepcopy(current_routes)
-                        best_profit = current_profit
 
-            # (e) Update water level — linear decline toward quality_lb
-            water_level = max(quality_lb, water_level - decline_rate)
+            # (e) Update criterion state
+            self.params.acceptance_criterion.step(
+                current_obj=current_profit,
+                candidate_obj=new_profit,
+                accepted=is_accepted,
+                iteration=iteration,
+            )
 
             getattr(self, "_viz_record", lambda **k: None)(
                 iteration=iteration,
                 best_profit=best_profit,
                 current_profit=current_profit,
-                water_level=water_level,
                 selected_llh=llh_idx,
             )
 

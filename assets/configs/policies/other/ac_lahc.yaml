@@ -1,0 +1,4 @@
+method: lahc
+params:
+  history_length: 50
+  maximization: true
