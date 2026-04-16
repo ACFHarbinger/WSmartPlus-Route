@@ -140,7 +140,7 @@ class VectorizedALNS(PolicyVizMixin):
 
             # 2. Destroy & Repair (Fast TSP operators)
             if destroy_op == vectorized_random_removal:
-                partial, removed = destroy_op(current_solutions, n_remove, generator=self.generator)  # type: ignore[operator]
+                partial, removed = destroy_op(current_solutions, int(n_remove), generator=self.generator)  # type: ignore[operator]
             else:
                 partial, removed = destroy_op(current_solutions, self.dist_matrix, n_remove, generator=self.generator)  # type: ignore[operator]
 

@@ -7,7 +7,7 @@ from typing import Any, List, Optional
 
 from .aco_ks import KSparseACOConfig
 from .alns import ALNSConfig
-from .helpers import RLConfig
+from .other import RLConfig
 
 
 @dataclass

@@ -23,6 +23,9 @@ class DeepDecoderPolicy(AutoregressivePolicy):
     RL4CO-style Policy using Deep Decoder architecture.
     """
 
+    encoder: GraphAttentionEncoder
+    decoder: DeepGATDecoder
+
     def __init__(
         self,
         env_name: str,

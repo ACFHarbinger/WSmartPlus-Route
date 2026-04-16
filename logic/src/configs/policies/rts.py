@@ -5,7 +5,7 @@ RTS (Reactive Tabu Search) configuration for Hydra.
 from dataclasses import dataclass, field
 from typing import Any, List, Optional
 
-from .helpers.acceptance_criteria import AcceptanceConfig, AspirationConfig
+from .other.acceptance_criteria import AcceptanceConfig, AspirationConfig
 
 
 @dataclass
@@ -26,4 +26,4 @@ class RTSConfig:
     profit_aware_operators: bool = False
     mandatory_selection: Optional[List[Any]] = field(default_factory=list)
     route_improvement: Optional[List[Any]] = field(default_factory=list)
-    acceptance: AcceptanceConfig = AcceptanceConfig(method="aspiration", params=AspirationConfig())
+    acceptance: AcceptanceConfig = AcceptanceConfig(method="ac", params=AspirationConfig())

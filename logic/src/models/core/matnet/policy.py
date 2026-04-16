@@ -26,6 +26,9 @@ class MatNetPolicy(AutoregressivePolicy):
     Unifies MatNetEncoder and MatNetDecoder with proper initialization.
     """
 
+    encoder: MatNetEncoder
+    decoder: MatNetDecoder
+
     def __init__(
         self,
         embed_dim: int,

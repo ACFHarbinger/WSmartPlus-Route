@@ -4,6 +4,8 @@ Mixture of Experts (MoE) Policy.
 Extends AttentionModelPolicy with MoE Graph Attention Encoder.
 """
 
+from typing import Any, cast
+
 from logic.src.models.core.attention_model import AttentionModelPolicy
 from logic.src.models.subnets.encoders.moe.encoder import MoEGraphAttentionEncoder
 
@@ -42,14 +44,17 @@ class MoEPolicy(AttentionModelPolicy):
         )
 
         # Overwrite encoder with MoE version
-        self.encoder = MoEGraphAttentionEncoder(
-            n_heads=n_heads,
-            embed_dim=embed_dim,
-            feed_forward_hidden=hidden_dim,
-            n_layers=n_encode_layers,
-            normalization=normalization,
-            num_experts=num_experts,
-            k=k,
-            noisy_gating=noisy_gating,
-            **kwargs,
+        self.encoder = cast(
+            Any,
+            MoEGraphAttentionEncoder(
+                n_heads=n_heads,
+                embed_dim=embed_dim,
+                feed_forward_hidden=hidden_dim,
+                n_layers=n_encode_layers,
+                normalization=normalization,
+                num_experts=num_experts,
+                k=k,
+                noisy_gating=noisy_gating,
+                **kwargs,
+            ),
         )

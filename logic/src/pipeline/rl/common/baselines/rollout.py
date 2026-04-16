@@ -5,7 +5,7 @@ Greedy rollout baseline with significance-based updates.
 from __future__ import annotations
 
 import copy
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
 import torch
 from scipy import stats
@@ -111,11 +111,11 @@ class RolloutBaseline(Baseline):
                     td_data = torch.cat([td_data, padding_safe], 0)
 
                 if hasattr(policy, "set_strategy"):
-                    policy.set_strategy("greedy")
-                    res = policy(td_data)
+                    cast(Any, policy).set_strategy("greedy")
+                    res = cast(Any, policy)(td_data)
                     out = {"reward": res[0]} if isinstance(res, tuple) else res
                 else:
-                    out = policy(td_data, env, strategy="greedy")
+                    out = cast(Any, policy)(td_data, env, strategy="greedy")
 
                 # Unpad rewards
                 if real_size != batch_size:
@@ -137,13 +137,13 @@ class RolloutBaseline(Baseline):
         policy.eval()
         with torch.no_grad():
             if hasattr(policy, "set_strategy"):
-                policy.set_strategy("greedy")
-                res = policy(td_copy)
+                cast(Any, policy).set_strategy("greedy")
+                res = cast(Any, policy)(td_copy)
                 out = {"reward": res[0]} if isinstance(res, tuple) else res
             else:
                 if env is None:
                     raise ValueError("Environment (env) is required for RolloutBaseline evaluation")
-                out = policy(td_copy, env, strategy="greedy")
+                out = cast(Any, policy)(td_copy, env, strategy="greedy")
 
         return out["reward"]
 

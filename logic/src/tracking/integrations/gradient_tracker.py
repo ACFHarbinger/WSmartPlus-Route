@@ -22,7 +22,7 @@ from __future__ import annotations
 
 import math
 import warnings
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional, Set, cast
 
 import pytorch_lightning as pl
 import torch.nn as nn
@@ -232,9 +232,13 @@ class GradientTrackerCallback(Callback):
             if not self._should_track(name):
                 continue
             safe = name.replace(".", "/")
-            hist_data[f"{self.prefix}weights/{safe}"] = wandb.Histogram(param.data.detach().cpu().float().numpy())
+            hist_data[f"{self.prefix}weights/{safe}"] = wandb.Histogram(
+                cast(Any, param.data.detach().cpu().float().numpy())
+            )
             if param.grad is not None:
-                hist_data[f"{self.prefix}gradients/{safe}"] = wandb.Histogram(param.grad.detach().cpu().float().numpy())
+                hist_data[f"{self.prefix}gradients/{safe}"] = wandb.Histogram(
+                    cast(Any, param.grad.detach().cpu().float().numpy())
+                )
 
         wandb.log(hist_data, step=step)
 

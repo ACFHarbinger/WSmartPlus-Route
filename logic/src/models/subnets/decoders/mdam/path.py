@@ -147,9 +147,9 @@ class MDAMPath(nn.Module):
             )
             raise e
 
-        glimpse_k = fixed.glimpse_key + glimpse_key_dyn
-        glimpse_v = fixed.glimpse_val + glimpse_val_dyn
-        logit_k = fixed.logit_key + logit_key_dyn
+        glimpse_k = (fixed.glimpse_key or 0.0) + glimpse_key_dyn
+        glimpse_v = (fixed.glimpse_val or 0.0) + glimpse_val_dyn
+        logit_k = (fixed.logit_key or 0.0) + logit_key_dyn
 
         mask = td.get("action_mask", None)
 

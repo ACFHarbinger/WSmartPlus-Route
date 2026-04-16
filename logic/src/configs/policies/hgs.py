@@ -5,9 +5,9 @@ HGS (Hybrid Genetic Search) configuration.
 from dataclasses import dataclass
 from typing import List, Optional
 
-from .helpers.acceptance_criteria import AcceptanceConfig, OnlyImprovingConfig
-from .helpers.mandatory_selection import MandatorySelectionConfig
-from .helpers.route_improvement import RouteImprovingConfig
+from .other.acceptance_criteria import AcceptanceConfig, OnlyImprovingConfig
+from .other.mandatory_selection import MandatorySelectionConfig
+from .other.route_improvement import RouteImprovingConfig
 
 
 @dataclass

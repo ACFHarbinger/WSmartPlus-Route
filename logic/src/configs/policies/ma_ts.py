@@ -7,8 +7,8 @@ Replaces LCA with rigorous GA terminology.
 from dataclasses import dataclass
 from typing import List, Optional
 
-from .helpers.mandatory_selection import MandatorySelectionConfig
-from .helpers.route_improvement import RouteImprovingConfig
+from .other.mandatory_selection import MandatorySelectionConfig
+from .other.route_improvement import RouteImprovingConfig
 
 
 @dataclass
