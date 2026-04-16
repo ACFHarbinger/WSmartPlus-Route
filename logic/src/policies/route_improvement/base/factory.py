@@ -34,6 +34,7 @@ class RouteImproverFactory:
         from ..guided_local_search import GuidedLocalSearchRouteImprover
         from ..lkh import LinKernighanHelsgaunRouteImprover
         from ..local_search import ClassicalLocalSearchRouteImprover
+        from ..multi_phase import MultiPhaseRouteImprover
         from ..or_opt import OrOptRouteImprover
         from ..path import PathRouteImprover
         from ..profitable_detour import ProfitableDetourRouteImprover
@@ -41,7 +42,6 @@ class RouteImproverFactory:
         from ..regret_k_insertion import RegretKInsertionRouteImprover
         from ..ruin_recreate import RuinRecreateRouteImprover
         from ..simulated_annealing import SimulatedAnnealingRouteImprover
-        from ..two_phase import TwoPhaseRouteImprover
 
         cls = RouteImproverRegistry.get_route_improver_class(name)
         if not cls:
@@ -75,8 +75,8 @@ class RouteImproverFactory:
                 return RuinRecreateRouteImprover()
             elif n_lower == "adaptive_large_neighborhood_search":
                 return AdaptiveLargeNeighborhoodSearchRouteImprover()
-            elif n_lower == "two_phase":
-                return TwoPhaseRouteImprover()
+            elif n_lower == "multi_phase":
+                return MultiPhaseRouteImprover()
 
             raise ValueError(f"Unknown route improver: {name}")
         return cls()
@@ -96,6 +96,7 @@ class RouteImproverFactory:
         from ..guided_local_search import GuidedLocalSearchRouteImprover
         from ..lkh import LinKernighanHelsgaunRouteImprover
         from ..local_search import ClassicalLocalSearchRouteImprover
+        from ..multi_phase import MultiPhaseRouteImprover
         from ..or_opt import OrOptRouteImprover
         from ..path import PathRouteImprover
         from ..profitable_detour import ProfitableDetourRouteImprover
@@ -103,7 +104,6 @@ class RouteImproverFactory:
         from ..regret_k_insertion import RegretKInsertionRouteImprover
         from ..ruin_recreate import RuinRecreateRouteImprover
         from ..simulated_annealing import SimulatedAnnealingRouteImprover
-        from ..two_phase import TwoPhaseRouteImprover
 
         processors: List[IRouteImprovement] = []
         if not config.methods:
@@ -214,11 +214,10 @@ class RouteImproverFactory:
                     revenue_kg=config.adaptive_lns.revenue_kg,
                     seed=config.adaptive_lns.seed,
                 )
-            elif method_lower == "two_phase":
-                processor = TwoPhaseRouteImprover(
-                    phase_one=config.two_phase.phase_one,
-                    phase_two=config.two_phase.phase_two,
-                    seed=config.two_phase.seed,
+            elif method_lower == "multi_phase":
+                processor = MultiPhaseRouteImprover(
+                    phases=config.multi_phase.phases,
+                    seed=config.multi_phase.seed,
                 )
             else:
                 # Fallback to registry
