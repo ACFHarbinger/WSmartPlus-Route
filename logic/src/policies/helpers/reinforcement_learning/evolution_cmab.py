@@ -30,8 +30,10 @@ from logic.src.policies.helpers.reinforcement_learning.agents.contextual_bandits
     LinUCBAgent,
 )
 from logic.src.policies.helpers.reinforcement_learning.features.context import ContextFeatureExtractor
-from logic.src.policies.hybrid_genetic_search.individual import Individual
-from logic.src.policies.hybrid_genetic_search.split import LinearSplit
+from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual import (
+    Individual,
+)
+from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.split import LinearSplit
 
 
 class CMABEvolution:

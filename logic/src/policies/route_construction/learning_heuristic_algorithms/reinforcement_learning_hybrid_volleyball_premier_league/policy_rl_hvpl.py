@@ -9,10 +9,10 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
 
-from logic.src.configs.policies.helpers import RLConfig
+from logic.src.configs.policies.other import RLConfig
 from logic.src.configs.policies.rl_hvpl import RLHVPLConfig
-from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import RouteConstructorRegistry
+from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
+from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params import (
     RLHVPLParams,
 )
@@ -80,7 +80,7 @@ class RLHVPLPolicy(BaseRoutingPolicy):
             tau_min=values.get("aco_tau_min", 0.001),
             tau_max=values.get("aco_tau_max", 10.0),
             max_iterations=values.get("aco_iterations", 1),
-            time_limit=values.get("aco_time_limit", values.get("time_limit", 60.0)),
+            time_limit=values.get("aco_time_limit", 60.0),
             local_search=values.get("aco_local_search", True),
             local_search_iterations=values.get("aco_local_search_iterations", 50),
             elitist_weight=values.get("aco_elitist_weight", 1.0),
@@ -96,7 +96,7 @@ class RLHVPLPolicy(BaseRoutingPolicy):
             reaction_factor=values.get("alns_reaction_factor", 0.5),
             min_removal=values.get("alns_min_removal", 1),
             max_removal_pct=values.get("alns_max_removal_pct", 0.3),
-            time_limit=values.get("alns_time_limit", values.get("time_limit", 60.0)),
+            time_limit=values.get("alns_time_limit", 60.0),
             vrpp=vrpp,
             profit_aware_operators=profit_aware_operators,
             seed=seed,

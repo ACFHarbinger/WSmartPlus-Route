@@ -11,8 +11,8 @@ from typing import Any, Dict, List, Optional, Tuple, Type
 import numpy as np
 
 from logic.src.configs.policies import PHConfig
-from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.registry import RouteConstructorRegistry
+from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
+from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.scenario import (
     ScenarioGenerator,
 )

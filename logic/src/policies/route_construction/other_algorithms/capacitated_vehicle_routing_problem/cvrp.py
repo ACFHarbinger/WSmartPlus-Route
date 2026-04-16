@@ -36,10 +36,9 @@ from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 from pyvrp.stop import MaxRuntime
 
 from logic.src.constants.routing import SCALE
-from logic.src.policies.route_construction.helpers_algorithms.capacitated_vehicle_routing_problem.clark_wright import (
-    clarke_wright_solve,
-)
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
+
+from .clark_wright import clarke_wright_solve
 
 
 def find_routes(
@@ -88,7 +87,7 @@ def find_routes(
         original_idx = subset_indices[i]
         d = int(wastes[original_idx - 1])
         # Use delivery for waste
-        clients_list.append(pyvrp.Client(x=0, y=0, delivery=d))
+        clients_list.append(pyvrp.Client(x=0, y=0, delivery=[d]))
 
     depots_list = [pyvrp.Depot(x=0, y=0)]
 
@@ -96,7 +95,7 @@ def find_routes(
     if n_vehicles == 0:
         n_vehicles = len(clients_list)
 
-    vehicle_types_list = [pyvrp.VehicleType(capacity=int(max_caps), num_available=n_vehicles)]
+    vehicle_types_list = [pyvrp.VehicleType(capacity=[int(max_caps)] * n_vehicles, num_available=n_vehicles)]
 
     # Matrix
     # PyVRP expects List[numpy.ndarray[int]]

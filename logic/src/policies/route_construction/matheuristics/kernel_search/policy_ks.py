@@ -9,8 +9,8 @@ It handles configuration parsing, state extraction, and results formatting.
 from typing import Any, Dict, List, Optional, Tuple, Type
 
 from logic.src.configs.policies.ks import KernelSearchConfig
-from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import RouteConstructorRegistry
+from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
+from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.matheuristics.kernel_search.solver import run_kernel_search_gurobi
 
 from .params import KSParams

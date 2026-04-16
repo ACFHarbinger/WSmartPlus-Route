@@ -17,7 +17,6 @@ import numpy as np
 import pandas as pd
 
 from logic.src.data.processor import convert_to_dict
-from logic.src.policies.route_construction.helpers_algorithms.travelling_salesman_problem.tsp import get_route_cost
 from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search import (
     improved_simulated_annealing,
 )
@@ -30,6 +29,7 @@ from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_n
 from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.refinement.route_search import (
     find_solutions,
 )
+from logic.src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp import get_route_cost
 
 from .params import SANSParams
 

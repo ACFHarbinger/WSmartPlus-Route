@@ -6,8 +6,8 @@ from typing import Any, Dict, List, Tuple
 
 import numpy as np
 from logic.src.configs.policies.lbbd import LBBDConfig
-from logic.src.policies.base.base_routing_policy import BaseRoutingPolicy
-from logic.src.policies.base.factory import RouteConstructorRegistry
+from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
+from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
 from .lbbd_engine import LBBDEngine
 
