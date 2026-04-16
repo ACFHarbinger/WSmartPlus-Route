@@ -37,7 +37,29 @@ Bases: {py:obj}`logic.src.models.common.autoregressive.policy.AutoregressivePoli
 ```{autodoc2-docstring} src.models.core.attention_model.deep_decoder_policy.DeepDecoderPolicy.__init__
 ```
 
-````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.RL4COEnvBase, strategy: str = 'sampling', num_starts: int = 1, actions: typing.Optional[torch.Tensor] = None, **kwargs) -> typing.Dict[str, typing.Any]
+````{py:attribute} encoder
+:canonical: src.models.core.attention_model.deep_decoder_policy.DeepDecoderPolicy.encoder
+:type: logic.src.models.subnets.encoders.gat.GraphAttentionEncoder
+:value: >
+   None
+
+```{autodoc2-docstring} src.models.core.attention_model.deep_decoder_policy.DeepDecoderPolicy.encoder
+```
+
+````
+
+````{py:attribute} decoder
+:canonical: src.models.core.attention_model.deep_decoder_policy.DeepDecoderPolicy.decoder
+:type: logic.src.models.subnets.decoders.gat.DeepGATDecoder
+:value: >
+   None
+
+```{autodoc2-docstring} src.models.core.attention_model.deep_decoder_policy.DeepDecoderPolicy.decoder
+```
+
+````
+
+````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.base.RL4COEnvBase, strategy: str = 'sampling', num_starts: int = 1, actions: typing.Optional[torch.Tensor] = None, **kwargs) -> typing.Dict[str, typing.Any]
 :canonical: src.models.core.attention_model.deep_decoder_policy.DeepDecoderPolicy.forward
 
 ```{autodoc2-docstring} src.models.core.attention_model.deep_decoder_policy.DeepDecoderPolicy.forward

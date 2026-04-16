@@ -26,7 +26,7 @@
 `````{py:class} TSPkoptEnv(generator: typing.Optional[logic.src.envs.generators.TSPGenerator] = None, generator_params: typing.Optional[dict] = None, device: typing.Union[str, torch.device] = 'cpu', **kwargs)
 :canonical: src.envs.tsp_kopt.TSPkoptEnv
 
-Bases: {py:obj}`logic.src.envs.base.ImprovementEnvBase`
+Bases: {py:obj}`logic.src.envs.base.improvement.ImprovementEnvBase`
 
 ```{autodoc2-docstring} src.envs.tsp_kopt.TSPkoptEnv
 ```

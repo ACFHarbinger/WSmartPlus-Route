@@ -13,11 +13,13 @@
 :titlesonly:
 :maxdepth: 1
 
-src.interfaces.post_processing
+src.interfaces.acceptance_criterion
+src.interfaces.mandatory
+src.interfaces.distance_metric
+src.interfaces.route_improvement
 src.interfaces.tensor_dict_like
-src.interfaces.adapter
 src.interfaces.policy
-src.interfaces.must_go
+src.interfaces.route_constructor
 src.interfaces.bin_container
 src.interfaces.env
 src.interfaces.model
@@ -43,7 +45,7 @@ src.interfaces.traversable
 ````{py:data} __all__
 :canonical: src.interfaces.__all__
 :value: >
-   ['IPolicyAdapter', 'IEnv', 'IModel', 'IMustGoSelectionStrategy', 'IPolicy', 'IPostProcessor', 'ITens...
+   ['IAcceptanceCriterion', 'IRouteConstructor', 'IEnv', 'IModel', 'IMandatorySelectionStrategy', 'IPol...
 
 ```{autodoc2-docstring} src.interfaces.__all__
 ```

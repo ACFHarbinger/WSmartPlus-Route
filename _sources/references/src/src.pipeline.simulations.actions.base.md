@@ -27,8 +27,8 @@
 :class: autosummary longtable
 :align: left
 
-* - {py:obj}`_find_must_go <src.pipeline.simulations.actions.base._find_must_go>`
-  - ```{autodoc2-docstring} src.pipeline.simulations.actions.base._find_must_go
+* - {py:obj}`_find_mandatory <src.pipeline.simulations.actions.base._find_mandatory>`
+  - ```{autodoc2-docstring} src.pipeline.simulations.actions.base._find_mandatory
     :summary:
     ```
 * - {py:obj}`_flatten_config <src.pipeline.simulations.actions.base._flatten_config>`
@@ -39,10 +39,10 @@
 
 ### API
 
-````{py:function} _find_must_go(d: typing.Any) -> typing.Any
-:canonical: src.pipeline.simulations.actions.base._find_must_go
+````{py:function} _find_mandatory(d: typing.Any) -> typing.Any
+:canonical: src.pipeline.simulations.actions.base._find_mandatory
 
-```{autodoc2-docstring} src.pipeline.simulations.actions.base._find_must_go
+```{autodoc2-docstring} src.pipeline.simulations.actions.base._find_mandatory
 ```
 ````
 

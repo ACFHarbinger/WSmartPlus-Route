@@ -37,6 +37,17 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.subnets.modules.polynet_attention.PolyNetAttention.__init__
 ```
 
+````{py:attribute} binary_vectors
+:canonical: src.models.subnets.modules.polynet_attention.PolyNetAttention.binary_vectors
+:type: torch.Tensor
+:value: >
+   None
+
+```{autodoc2-docstring} src.models.subnets.modules.polynet_attention.PolyNetAttention.binary_vectors
+```
+
+````
+
 ````{py:method} forward(query: torch.Tensor, key: torch.Tensor, value: torch.Tensor, logit_key: torch.Tensor, attn_mask: typing.Optional[torch.Tensor] = None) -> torch.Tensor
 :canonical: src.models.subnets.modules.polynet_attention.PolyNetAttention.forward
 

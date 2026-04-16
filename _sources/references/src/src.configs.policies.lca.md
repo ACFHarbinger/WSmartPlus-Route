@@ -139,24 +139,24 @@
 
 ````
 
-````{py:attribute} must_go
-:canonical: src.configs.policies.lca.LCAConfig.must_go
+````{py:attribute} mandatory_selection
+:canonical: src.configs.policies.lca.LCAConfig.mandatory_selection
 :type: typing.Optional[typing.List[typing.Any]]
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.lca.LCAConfig.must_go
+```{autodoc2-docstring} src.configs.policies.lca.LCAConfig.mandatory_selection
 ```
 
 ````
 
-````{py:attribute} post_processing
-:canonical: src.configs.policies.lca.LCAConfig.post_processing
+````{py:attribute} route_improvement
+:canonical: src.configs.policies.lca.LCAConfig.route_improvement
 :type: typing.Optional[typing.List[typing.Any]]
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.lca.LCAConfig.post_processing
+```{autodoc2-docstring} src.configs.policies.lca.LCAConfig.route_improvement
 ```
 
 ````

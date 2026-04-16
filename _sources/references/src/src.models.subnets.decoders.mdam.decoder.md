@@ -37,7 +37,29 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.subnets.decoders.mdam.decoder.MDAMDecoder.__init__
 ```
 
-````{py:method} forward(td: tensordict.TensorDict, embeddings: typing.Union[torch.Tensor, typing.Tuple[torch.Tensor, ...]], env: logic.src.envs.base.RL4COEnvBase, strategy: str = 'greedy', **kwargs) -> typing.Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]
+````{py:attribute} paths
+:canonical: src.models.subnets.decoders.mdam.decoder.MDAMDecoder.paths
+:type: torch.nn.ModuleList
+:value: >
+   None
+
+```{autodoc2-docstring} src.models.subnets.decoders.mdam.decoder.MDAMDecoder.paths
+```
+
+````
+
+````{py:attribute} W_placeholder
+:canonical: src.models.subnets.decoders.mdam.decoder.MDAMDecoder.W_placeholder
+:type: torch.nn.Parameter
+:value: >
+   None
+
+```{autodoc2-docstring} src.models.subnets.decoders.mdam.decoder.MDAMDecoder.W_placeholder
+```
+
+````
+
+````{py:method} forward(td: tensordict.TensorDict, embeddings: typing.Union[torch.Tensor, typing.Tuple[torch.Tensor, ...]], env: logic.src.envs.base.base.RL4COEnvBase, strategy: str = 'greedy', **kwargs) -> typing.Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]
 :canonical: src.models.subnets.decoders.mdam.decoder.MDAMDecoder.forward
 
 ```{autodoc2-docstring} src.models.subnets.decoders.mdam.decoder.MDAMDecoder.forward
@@ -53,7 +75,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} _decode_path(td: tensordict.TensorDict, h: torch.Tensor, env: logic.src.envs.base.RL4COEnvBase, attn: torch.Tensor, V: torch.Tensor, h_old: torch.Tensor, encoder: typing.Any, path_idx: int, strategy: str) -> typing.Tuple[torch.Tensor, torch.Tensor, torch.Tensor]
+````{py:method} _decode_path(td: tensordict.TensorDict, h: torch.Tensor, env: logic.src.envs.base.base.RL4COEnvBase, attn: torch.Tensor, V: torch.Tensor, h_old: torch.Tensor, encoder: typing.Any, path_idx: int, strategy: str) -> typing.Tuple[torch.Tensor, torch.Tensor, torch.Tensor]
 :canonical: src.models.subnets.decoders.mdam.decoder.MDAMDecoder._decode_path
 
 ```{autodoc2-docstring} src.models.subnets.decoders.mdam.decoder.MDAMDecoder._decode_path

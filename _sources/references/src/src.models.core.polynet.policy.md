@@ -37,7 +37,7 @@ Bases: {py:obj}`logic.src.models.common.autoregressive.policy.AutoregressivePoli
 ```{autodoc2-docstring} src.models.core.polynet.policy.PolyNetPolicy.__init__
 ```
 
-````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.RL4COEnvBase] = None, phase: str = 'train', return_actions: bool = True, num_starts: int = 1, **kwargs) -> typing.Dict[str, typing.Any]
+````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.base.RL4COEnvBase] = None, phase: str = 'train', return_actions: bool = True, num_starts: int = 1, **kwargs) -> typing.Dict[str, typing.Any]
 :canonical: src.models.core.polynet.policy.PolyNetPolicy.forward
 
 ```{autodoc2-docstring} src.models.core.polynet.policy.PolyNetPolicy.forward

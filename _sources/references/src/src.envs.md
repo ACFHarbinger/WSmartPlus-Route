@@ -77,7 +77,7 @@ src.envs.wcvrp
 
 ````
 
-````{py:function} get_env(name: str, **kwargs) -> logic.src.envs.base.RL4COEnvBase
+````{py:function} get_env(name: str, **kwargs) -> logic.src.envs.base.base.RL4COEnvBase
 :canonical: src.envs.get_env
 
 ```{autodoc2-docstring} src.envs.get_env

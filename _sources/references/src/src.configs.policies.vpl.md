@@ -150,24 +150,24 @@
 
 ````
 
-````{py:attribute} must_go
-:canonical: src.configs.policies.vpl.VPLConfig.must_go
+````{py:attribute} mandatory_selection
+:canonical: src.configs.policies.vpl.VPLConfig.mandatory_selection
 :type: typing.List[str]
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.vpl.VPLConfig.must_go
+```{autodoc2-docstring} src.configs.policies.vpl.VPLConfig.mandatory_selection
 ```
 
 ````
 
-````{py:attribute} post_processing
-:canonical: src.configs.policies.vpl.VPLConfig.post_processing
+````{py:attribute} route_improvement
+:canonical: src.configs.policies.vpl.VPLConfig.route_improvement
 :type: typing.List[typing.Any]
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.vpl.VPLConfig.post_processing
+```{autodoc2-docstring} src.configs.policies.vpl.VPLConfig.route_improvement
 ```
 
 ````

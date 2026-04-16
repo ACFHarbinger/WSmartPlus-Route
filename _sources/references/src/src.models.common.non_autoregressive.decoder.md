@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`, {py:obj}`abc.ABC`
 ```{autodoc2-docstring} src.models.common.non_autoregressive.decoder.NonAutoregressiveDecoder.__init__
 ```
 
-````{py:method} forward(td: tensordict.TensorDict, heatmap: torch.Tensor, env: logic.src.envs.base.RL4COEnvBase, **kwargs) -> typing.Tuple[torch.Tensor, torch.Tensor]
+````{py:method} forward(td: tensordict.TensorDict, heatmap: torch.Tensor, env: logic.src.envs.base.base.RL4COEnvBase, **kwargs) -> typing.Tuple[torch.Tensor, torch.Tensor]
 :canonical: src.models.common.non_autoregressive.decoder.NonAutoregressiveDecoder.forward
 :abstractmethod:
 
@@ -46,7 +46,7 @@ Bases: {py:obj}`torch.nn.Module`, {py:obj}`abc.ABC`
 
 ````
 
-````{py:method} construct(td: tensordict.TensorDict, heatmap: torch.Tensor, env: logic.src.envs.base.RL4COEnvBase, **kwargs) -> typing.Dict[str, torch.Tensor]
+````{py:method} construct(td: tensordict.TensorDict, heatmap: torch.Tensor, env: logic.src.envs.base.base.RL4COEnvBase, **kwargs) -> typing.Dict[str, torch.Tensor]
 :canonical: src.models.common.non_autoregressive.decoder.NonAutoregressiveDecoder.construct
 
 ```{autodoc2-docstring} src.models.common.non_autoregressive.decoder.NonAutoregressiveDecoder.construct

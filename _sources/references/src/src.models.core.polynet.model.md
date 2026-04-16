@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} PolyNet(env: logic.src.envs.base.RL4COEnvBase, policy: typing.Optional[src.models.core.polynet.policy.PolyNetPolicy] = None, k: int = 128, val_num_solutions: int = 800, encoder_type: str = 'AM', policy_kwargs: typing.Optional[typing.Dict[str, typing.Any]] = None, num_augment: int = 8, **kwargs)
+`````{py:class} PolyNet(env: logic.src.envs.base.base.RL4COEnvBase, policy: typing.Optional[src.models.core.polynet.policy.PolyNetPolicy] = None, k: int = 128, val_num_solutions: int = 800, encoder_type: str = 'AM', policy_kwargs: typing.Optional[typing.Dict[str, typing.Any]] = None, num_augment: int = 8, **kwargs)
 :canonical: src.models.core.polynet.model.PolyNet
 
 Bases: {py:obj}`torch.nn.Module`
@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.core.polynet.model.PolyNet.__init__
 ```
 
-````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.RL4COEnvBase] = None, phase: str = 'train', **kwargs) -> typing.Dict[str, typing.Any]
+````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.base.RL4COEnvBase] = None, phase: str = 'train', **kwargs) -> typing.Dict[str, typing.Any]
 :canonical: src.models.core.polynet.model.PolyNet.forward
 
 ```{autodoc2-docstring} src.models.core.polynet.model.PolyNet.forward

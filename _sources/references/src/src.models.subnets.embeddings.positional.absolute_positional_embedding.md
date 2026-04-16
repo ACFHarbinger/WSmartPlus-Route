@@ -37,6 +37,17 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.subnets.embeddings.positional.absolute_positional_embedding.AbsolutePositionalEmbedding.__init__
 ```
 
+````{py:attribute} pe
+:canonical: src.models.subnets.embeddings.positional.absolute_positional_embedding.AbsolutePositionalEmbedding.pe
+:type: torch.Tensor
+:value: >
+   None
+
+```{autodoc2-docstring} src.models.subnets.embeddings.positional.absolute_positional_embedding.AbsolutePositionalEmbedding.pe
+```
+
+````
+
 ````{py:method} forward(x: torch.Tensor) -> torch.Tensor
 :canonical: src.models.subnets.embeddings.positional.absolute_positional_embedding.AbsolutePositionalEmbedding.forward
 

@@ -37,7 +37,7 @@ Bases: {py:obj}`logic.src.models.common.autoregressive.policy.AutoregressivePoli
 ```{autodoc2-docstring} src.models.policies.hgs.VectorizedHGS.__init__
 ```
 
-````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.RL4COEnvBase] = None, strategy: str = 'greedy', num_starts: int = 1, max_steps: typing.Optional[int] = None, phase: str = 'train', return_actions: bool = True, **kwargs) -> typing.Dict[str, typing.Any]
+````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.base.RL4COEnvBase] = None, strategy: str = 'greedy', num_starts: int = 1, max_steps: typing.Optional[int] = None, phase: str = 'train', return_actions: bool = True, **kwargs) -> typing.Dict[str, typing.Any]
 :canonical: src.models.policies.hgs.VectorizedHGS.forward
 
 ```{autodoc2-docstring} src.models.policies.hgs.VectorizedHGS.forward
@@ -45,7 +45,7 @@ Bases: {py:obj}`logic.src.models.common.autoregressive.policy.AutoregressivePoli
 
 ````
 
-````{py:method} _compute_reward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.RL4COEnvBase], actions: torch.Tensor) -> torch.Tensor
+````{py:method} _compute_reward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.base.RL4COEnvBase], actions: torch.Tensor) -> torch.Tensor
 :canonical: src.models.policies.hgs.VectorizedHGS._compute_reward
 :staticmethod:
 

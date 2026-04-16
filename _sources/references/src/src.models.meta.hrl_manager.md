@@ -15,7 +15,7 @@
 
 src.models.meta.hrl_manager.gate_head
 src.models.meta.hrl_manager.critic_head
-src.models.meta.hrl_manager.must_go_head
 src.models.meta.hrl_manager.model
 src.models.meta.hrl_manager.temporal_encoder
+src.models.meta.hrl_manager.mandatory_head
 ```

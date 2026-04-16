@@ -1,0 +1,78 @@
+# {py:mod}`src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver`
+
+```{py:module} src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver
+```
+
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver
+:allowtitles:
+```
+
+## Module Contents
+
+### Classes
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`KSparseACOSolver <src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver>`
+  - ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver
+    :summary:
+    ```
+````
+
+### API
+
+`````{py:class} KSparseACOSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams, mandatory_nodes: typing.Optional[typing.List[int]] = None)
+:canonical: src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver
+
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver
+```
+
+```{rubric} Initialization
+```
+
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver.__init__
+```
+
+````{py:method} _nearest_neighbor_cost() -> float
+:canonical: src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver._nearest_neighbor_cost
+
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver._nearest_neighbor_cost
+```
+
+````
+
+````{py:method} _build_candidate_lists() -> typing.Dict[int, typing.List[int]]
+:canonical: src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver._build_candidate_lists
+
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver._build_candidate_lists
+```
+
+````
+
+````{py:method} solve() -> typing.Tuple[typing.List[typing.List[int]], float, float]
+:canonical: src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver.solve
+
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver.solve
+```
+
+````
+
+````{py:method} _global_pheromone_update(best_routes: typing.List[typing.List[int]], best_cost: float) -> None
+:canonical: src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver._global_pheromone_update
+
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver._global_pheromone_update
+```
+
+````
+
+````{py:method} _calculate_cost(routes: typing.List[typing.List[int]]) -> float
+:canonical: src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver._calculate_cost
+
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.KSparseACOSolver._calculate_cost
+```
+
+````
+
+`````

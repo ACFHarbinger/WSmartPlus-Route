@@ -53,7 +53,7 @@ Bases: {py:obj}`logic.src.models.policies.hybrid_volleyball_premier_league.Vecto
 
 ````
 
-````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.RL4COEnvBase] = None, strategy: str = 'greedy', num_starts: int = 1, max_steps: typing.Optional[int] = None, phase: str = 'train', return_actions: bool = True, **kwargs) -> typing.Dict[str, typing.Any]
+````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.base.RL4COEnvBase] = None, strategy: str = 'greedy', num_starts: int = 1, max_steps: typing.Optional[int] = None, phase: str = 'train', return_actions: bool = True, **kwargs) -> typing.Dict[str, typing.Any]
 :canonical: src.models.policies.augmented_hybrid_volleyball_premier_league.VectorizedAHVPL.forward
 
 ```{autodoc2-docstring} src.models.policies.augmented_hybrid_volleyball_premier_league.VectorizedAHVPL.forward

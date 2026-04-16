@@ -194,24 +194,24 @@
 
 ````
 
-````{py:attribute} must_go
-:canonical: src.configs.policies.rl_hvpl.RLHVPLConfig.must_go
+````{py:attribute} mandatory_selection
+:canonical: src.configs.policies.rl_hvpl.RLHVPLConfig.mandatory_selection
 :type: typing.List[str]
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.rl_hvpl.RLHVPLConfig.must_go
+```{autodoc2-docstring} src.configs.policies.rl_hvpl.RLHVPLConfig.mandatory_selection
 ```
 
 ````
 
-````{py:attribute} post_processing
-:canonical: src.configs.policies.rl_hvpl.RLHVPLConfig.post_processing
+````{py:attribute} route_improvement
+:canonical: src.configs.policies.rl_hvpl.RLHVPLConfig.route_improvement
 :type: typing.List[typing.Any]
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.rl_hvpl.RLHVPLConfig.post_processing
+```{autodoc2-docstring} src.configs.policies.rl_hvpl.RLHVPLConfig.route_improvement
 ```
 
 ````

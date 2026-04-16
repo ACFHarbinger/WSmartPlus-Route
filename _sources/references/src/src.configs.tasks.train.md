@@ -194,24 +194,24 @@
 
 ````
 
-````{py:attribute} post_processing_epochs
-:canonical: src.configs.tasks.train.TrainConfig.post_processing_epochs
+````{py:attribute} route_improvement_epochs
+:canonical: src.configs.tasks.train.TrainConfig.route_improvement_epochs
 :type: int
 :value: >
    0
 
-```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.post_processing_epochs
+```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.route_improvement_epochs
 ```
 
 ````
 
-````{py:attribute} lr_post_processing
-:canonical: src.configs.tasks.train.TrainConfig.lr_post_processing
+````{py:attribute} lr_route_improvement
+:canonical: src.configs.tasks.train.TrainConfig.lr_route_improvement
 :type: float
 :value: >
    0.001
 
-```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.lr_post_processing
+```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.lr_route_improvement
 ```
 
 ````

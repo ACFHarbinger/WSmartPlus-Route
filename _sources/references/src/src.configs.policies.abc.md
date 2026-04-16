@@ -128,24 +128,24 @@
 
 ````
 
-````{py:attribute} must_go
-:canonical: src.configs.policies.abc.ABCConfig.must_go
+````{py:attribute} mandatory_selection
+:canonical: src.configs.policies.abc.ABCConfig.mandatory_selection
 :type: typing.Optional[typing.List[typing.Any]]
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.abc.ABCConfig.must_go
+```{autodoc2-docstring} src.configs.policies.abc.ABCConfig.mandatory_selection
 ```
 
 ````
 
-````{py:attribute} post_processing
-:canonical: src.configs.policies.abc.ABCConfig.post_processing
+````{py:attribute} route_improvement
+:canonical: src.configs.policies.abc.ABCConfig.route_improvement
 :type: typing.Optional[typing.List[typing.Any]]
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.abc.ABCConfig.post_processing
+```{autodoc2-docstring} src.configs.policies.abc.ABCConfig.route_improvement
 ```
 
 ````

@@ -73,24 +73,24 @@
 
 ````
 
-````{py:attribute} must_go
-:canonical: src.configs.policies.bpc.BPCConfig.must_go
-:type: typing.Optional[typing.List[src.configs.policies.other.must_go.MustGoConfig]]
+````{py:attribute} mandatory_selection
+:canonical: src.configs.policies.bpc.BPCConfig.mandatory_selection
+:type: typing.Optional[typing.List[src.configs.policies.other.mandatory_selection.MandatorySelectionConfig]]
 :value: >
    None
 
-```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.must_go
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.mandatory_selection
 ```
 
 ````
 
-````{py:attribute} post_processing
-:canonical: src.configs.policies.bpc.BPCConfig.post_processing
-:type: typing.Optional[typing.List[src.configs.policies.other.post_processing.PostProcessingConfig]]
+````{py:attribute} route_improvement
+:canonical: src.configs.policies.bpc.BPCConfig.route_improvement
+:type: typing.Optional[typing.List[src.configs.policies.other.route_improvement.RouteImprovingConfig]]
 :value: >
    None
 
-```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.post_processing
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.route_improvement
 ```
 
 ````
@@ -377,6 +377,83 @@
    False
 
 ```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.use_swc_tcf_primal_heuristic
+```
+
+````
+
+````{py:attribute} lr_pre_pruning
+:canonical: src.configs.policies.bpc.BPCConfig.lr_pre_pruning
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.lr_pre_pruning
+```
+
+````
+
+````{py:attribute} lr_lambda_init
+:canonical: src.configs.policies.bpc.BPCConfig.lr_lambda_init
+:type: float
+:value: >
+   0.0
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.lr_lambda_init
+```
+
+````
+
+````{py:attribute} lr_max_subgradient_iters
+:canonical: src.configs.policies.bpc.BPCConfig.lr_max_subgradient_iters
+:type: int
+:value: >
+   30
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.lr_max_subgradient_iters
+```
+
+````
+
+````{py:attribute} lr_subgradient_theta
+:canonical: src.configs.policies.bpc.BPCConfig.lr_subgradient_theta
+:type: float
+:value: >
+   1.0
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.lr_subgradient_theta
+```
+
+````
+
+````{py:attribute} lr_op_time_limit
+:canonical: src.configs.policies.bpc.BPCConfig.lr_op_time_limit
+:type: float
+:value: >
+   3.0
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.lr_op_time_limit
+```
+
+````
+
+````{py:attribute} lr_pre_pruning_depth_limit
+:canonical: src.configs.policies.bpc.BPCConfig.lr_pre_pruning_depth_limit
+:type: int
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.lr_pre_pruning_depth_limit
+```
+
+````
+
+````{py:attribute} lr_warm_start_cg
+:canonical: src.configs.policies.bpc.BPCConfig.lr_warm_start_cg
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.lr_warm_start_cg
 ```
 
 ````

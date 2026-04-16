@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} DACT(env: logic.src.envs.base.RL4COEnvBase, policy: typing.Optional[src.models.core.dact.policy.DACTPolicy] = None, policy_kwargs: typing.Optional[typing.Dict[str, typing.Any]] = None, baseline: str = 'rollout', **kwargs)
+`````{py:class} DACT(env: logic.src.envs.base.base.RL4COEnvBase, policy: typing.Optional[src.models.core.dact.policy.DACTPolicy] = None, policy_kwargs: typing.Optional[typing.Dict[str, typing.Any]] = None, baseline: str = 'rollout', **kwargs)
 :canonical: src.models.core.dact.model.DACT
 
 Bases: {py:obj}`torch.nn.Module`
@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.core.dact.model.DACT.__init__
 ```
 
-````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.RL4COEnvBase] = None, phase: str = 'test', **kwargs) -> typing.Dict[str, typing.Any]
+````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.base.RL4COEnvBase] = None, phase: str = 'test', **kwargs) -> typing.Dict[str, typing.Any]
 :canonical: src.models.core.dact.model.DACT.forward
 
 ```{autodoc2-docstring} src.models.core.dact.model.DACT.forward

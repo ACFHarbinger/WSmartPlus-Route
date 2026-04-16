@@ -39,7 +39,7 @@
 ```{autodoc2-docstring} src.models.core.dr_alns.ppo_trainer.PPOBuffer.__init__
 ```
 
-````{py:method} reset()
+````{py:method} reset() -> None
 :canonical: src.models.core.dr_alns.ppo_trainer.PPOBuffer.reset
 
 ```{autodoc2-docstring} src.models.core.dr_alns.ppo_trainer.PPOBuffer.reset
@@ -85,7 +85,7 @@
 ```{autodoc2-docstring} src.models.core.dr_alns.ppo_trainer.PPOTrainer.__init__
 ```
 
-````{py:method} collect_experience(n_steps: int, instance_generator: typing.Optional[typing.Callable] = None) -> typing.Dict[str, float]
+````{py:method} collect_experience(n_steps: int, instance_generator: typing.Optional[typing.Callable[..., typing.Any]] = None) -> typing.Dict[str, float]
 :canonical: src.models.core.dr_alns.ppo_trainer.PPOTrainer.collect_experience
 
 ```{autodoc2-docstring} src.models.core.dr_alns.ppo_trainer.PPOTrainer.collect_experience

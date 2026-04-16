@@ -37,7 +37,7 @@ Bases: {py:obj}`logic.src.models.common.non_autoregressive.policy.NonAutoregress
 ```{autodoc2-docstring} src.models.core.deepaco.policy.DeepACOPolicy.__init__
 ```
 
-````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.RL4COEnvBase, num_starts: int = 1, **kwargs) -> typing.Dict[str, typing.Any]
+````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.base.RL4COEnvBase, num_starts: int = 1, **kwargs) -> typing.Dict[str, typing.Any]
 :canonical: src.models.core.deepaco.policy.DeepACOPolicy.forward
 
 ```{autodoc2-docstring} src.models.core.deepaco.policy.DeepACOPolicy.forward

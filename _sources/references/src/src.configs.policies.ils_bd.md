@@ -139,6 +139,17 @@
 
 ````
 
+````{py:attribute} horizon
+:canonical: src.configs.policies.ils_bd.IntegerLShapedBendersConfig.horizon
+:type: int
+:value: >
+   7
+
+```{autodoc2-docstring} src.configs.policies.ils_bd.IntegerLShapedBendersConfig.horizon
+```
+
+````
+
 ````{py:attribute} fill_rate_cv
 :canonical: src.configs.policies.ils_bd.IntegerLShapedBendersConfig.fill_rate_cv
 :type: float
@@ -238,24 +249,24 @@
 
 ````
 
-````{py:attribute} must_go
-:canonical: src.configs.policies.ils_bd.IntegerLShapedBendersConfig.must_go
-:type: typing.Optional[typing.List[src.configs.policies.other.must_go.MustGoConfig]]
+````{py:attribute} mandatory_selection
+:canonical: src.configs.policies.ils_bd.IntegerLShapedBendersConfig.mandatory_selection
+:type: typing.Optional[typing.List[src.configs.policies.other.mandatory_selection.MandatorySelectionConfig]]
 :value: >
    None
 
-```{autodoc2-docstring} src.configs.policies.ils_bd.IntegerLShapedBendersConfig.must_go
+```{autodoc2-docstring} src.configs.policies.ils_bd.IntegerLShapedBendersConfig.mandatory_selection
 ```
 
 ````
 
-````{py:attribute} post_processing
-:canonical: src.configs.policies.ils_bd.IntegerLShapedBendersConfig.post_processing
-:type: typing.Optional[typing.List[src.configs.policies.other.post_processing.PostProcessingConfig]]
+````{py:attribute} route_improvement
+:canonical: src.configs.policies.ils_bd.IntegerLShapedBendersConfig.route_improvement
+:type: typing.Optional[typing.List[src.configs.policies.other.route_improvement.RouteImprovingConfig]]
 :value: >
    None
 
-```{autodoc2-docstring} src.configs.policies.ils_bd.IntegerLShapedBendersConfig.post_processing
+```{autodoc2-docstring} src.configs.policies.ils_bd.IntegerLShapedBendersConfig.route_improvement
 ```
 
 ````

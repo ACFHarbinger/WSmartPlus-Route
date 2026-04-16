@@ -61,10 +61,10 @@
 
 ````
 
-````{py:method} _parse_must_go_config_params(config: logic.src.configs.MustGoConfig) -> str
-:canonical: src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback._parse_must_go_config_params
+````{py:method} _parse_mandatory_config_params(config: logic.src.configs.MandatorySelectionConfig) -> str
+:canonical: src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback._parse_mandatory_config_params
 
-```{autodoc2-docstring} src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback._parse_must_go_config_params
+```{autodoc2-docstring} src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback._parse_mandatory_config_params
 ```
 
 ````
@@ -77,10 +77,10 @@
 
 ````
 
-````{py:method} _extract_post_processing(config: typing.Dict[str, typing.Any]) -> str
-:canonical: src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback._extract_post_processing
+````{py:method} _extract_route_improvement(config: typing.Dict[str, typing.Any]) -> str
+:canonical: src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback._extract_route_improvement
 
-```{autodoc2-docstring} src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback._extract_post_processing
+```{autodoc2-docstring} src.pipeline.callbacks.simulation.policy_summary.PolicySummaryCallback._extract_route_improvement
 ```
 
 ````

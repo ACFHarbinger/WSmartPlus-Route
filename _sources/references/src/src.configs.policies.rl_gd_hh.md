@@ -150,24 +150,35 @@
 
 ````
 
-````{py:attribute} must_go
-:canonical: src.configs.policies.rl_gd_hh.RLGDHHConfig.must_go
-:type: typing.Optional[typing.List[typing.Any]]
+````{py:attribute} acceptance
+:canonical: src.configs.policies.rl_gd_hh.RLGDHHConfig.acceptance
+:type: logic.src.configs.policies.other.acceptance_criteria.AcceptanceConfig
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.rl_gd_hh.RLGDHHConfig.must_go
+```{autodoc2-docstring} src.configs.policies.rl_gd_hh.RLGDHHConfig.acceptance
 ```
 
 ````
 
-````{py:attribute} post_processing
-:canonical: src.configs.policies.rl_gd_hh.RLGDHHConfig.post_processing
+````{py:attribute} mandatory_selection
+:canonical: src.configs.policies.rl_gd_hh.RLGDHHConfig.mandatory_selection
 :type: typing.Optional[typing.List[typing.Any]]
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.rl_gd_hh.RLGDHHConfig.post_processing
+```{autodoc2-docstring} src.configs.policies.rl_gd_hh.RLGDHHConfig.mandatory_selection
+```
+
+````
+
+````{py:attribute} route_improvement
+:canonical: src.configs.policies.rl_gd_hh.RLGDHHConfig.route_improvement
+:type: typing.Optional[typing.List[typing.Any]]
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.policies.rl_gd_hh.RLGDHHConfig.route_improvement
 ```
 
 ````

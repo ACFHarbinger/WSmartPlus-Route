@@ -161,24 +161,35 @@
 
 ````
 
-````{py:attribute} must_go
-:canonical: src.configs.policies.alns.ALNSConfig.must_go
-:type: typing.Optional[typing.List[src.configs.policies.other.must_go.MustGoConfig]]
+````{py:attribute} mandatory_selection
+:canonical: src.configs.policies.alns.ALNSConfig.mandatory_selection
+:type: typing.Optional[typing.List[src.configs.policies.other.mandatory_selection.MandatorySelectionConfig]]
 :value: >
    None
 
-```{autodoc2-docstring} src.configs.policies.alns.ALNSConfig.must_go
+```{autodoc2-docstring} src.configs.policies.alns.ALNSConfig.mandatory_selection
 ```
 
 ````
 
-````{py:attribute} post_processing
-:canonical: src.configs.policies.alns.ALNSConfig.post_processing
-:type: typing.Optional[typing.List[src.configs.policies.other.post_processing.PostProcessingConfig]]
+````{py:attribute} route_improvement
+:canonical: src.configs.policies.alns.ALNSConfig.route_improvement
+:type: typing.Optional[typing.List[src.configs.policies.other.route_improvement.RouteImprovingConfig]]
 :value: >
    None
 
-```{autodoc2-docstring} src.configs.policies.alns.ALNSConfig.post_processing
+```{autodoc2-docstring} src.configs.policies.alns.ALNSConfig.route_improvement
+```
+
+````
+
+````{py:attribute} acceptance
+:canonical: src.configs.policies.alns.ALNSConfig.acceptance
+:type: src.configs.policies.other.acceptance_criteria.AcceptanceConfig
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.policies.alns.ALNSConfig.acceptance
 ```
 
 ````

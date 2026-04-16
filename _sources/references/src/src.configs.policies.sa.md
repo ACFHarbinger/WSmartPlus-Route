@@ -29,68 +29,57 @@
 ```{autodoc2-docstring} src.configs.policies.sa.SAConfig
 ```
 
-````{py:attribute} initial_temp
-:canonical: src.configs.policies.sa.SAConfig.initial_temp
+````{py:attribute} initial_temperature
+:canonical: src.configs.policies.sa.SAConfig.initial_temperature
 :type: float
 :value: >
    100.0
 
-```{autodoc2-docstring} src.configs.policies.sa.SAConfig.initial_temp
+```{autodoc2-docstring} src.configs.policies.sa.SAConfig.initial_temperature
 ```
 
 ````
 
-````{py:attribute} alpha
-:canonical: src.configs.policies.sa.SAConfig.alpha
+````{py:attribute} cooling_rate
+:canonical: src.configs.policies.sa.SAConfig.cooling_rate
 :type: float
 :value: >
-   0.995
+   0.95
 
-```{autodoc2-docstring} src.configs.policies.sa.SAConfig.alpha
+```{autodoc2-docstring} src.configs.policies.sa.SAConfig.cooling_rate
 ```
 
 ````
 
-````{py:attribute} min_temp
-:canonical: src.configs.policies.sa.SAConfig.min_temp
+````{py:attribute} min_temperature
+:canonical: src.configs.policies.sa.SAConfig.min_temperature
 :type: float
 :value: >
    0.01
 
-```{autodoc2-docstring} src.configs.policies.sa.SAConfig.min_temp
+```{autodoc2-docstring} src.configs.policies.sa.SAConfig.min_temperature
 ```
 
 ````
 
-````{py:attribute} max_iterations
-:canonical: src.configs.policies.sa.SAConfig.max_iterations
+````{py:attribute} iterations_per_temp
+:canonical: src.configs.policies.sa.SAConfig.iterations_per_temp
 :type: int
 :value: >
-   500
+   100
 
-```{autodoc2-docstring} src.configs.policies.sa.SAConfig.max_iterations
+```{autodoc2-docstring} src.configs.policies.sa.SAConfig.iterations_per_temp
 ```
 
 ````
 
-````{py:attribute} n_removal
-:canonical: src.configs.policies.sa.SAConfig.n_removal
+````{py:attribute} nb_granular
+:canonical: src.configs.policies.sa.SAConfig.nb_granular
 :type: int
 :value: >
-   2
+   20
 
-```{autodoc2-docstring} src.configs.policies.sa.SAConfig.n_removal
-```
-
-````
-
-````{py:attribute} n_llh
-:canonical: src.configs.policies.sa.SAConfig.n_llh
-:type: int
-:value: >
-   5
-
-```{autodoc2-docstring} src.configs.policies.sa.SAConfig.n_llh
+```{autodoc2-docstring} src.configs.policies.sa.SAConfig.nb_granular
 ```
 
 ````
@@ -110,20 +99,9 @@
 :canonical: src.configs.policies.sa.SAConfig.seed
 :type: typing.Optional[int]
 :value: >
-   None
+   42
 
 ```{autodoc2-docstring} src.configs.policies.sa.SAConfig.seed
-```
-
-````
-
-````{py:attribute} profit_aware_operators
-:canonical: src.configs.policies.sa.SAConfig.profit_aware_operators
-:type: bool
-:value: >
-   True
-
-```{autodoc2-docstring} src.configs.policies.sa.SAConfig.profit_aware_operators
 ```
 
 ````
@@ -139,24 +117,46 @@
 
 ````
 
-````{py:attribute} must_go
-:canonical: src.configs.policies.sa.SAConfig.must_go
-:type: typing.Optional[typing.List[typing.Any]]
+````{py:attribute} profit_aware_operators
+:canonical: src.configs.policies.sa.SAConfig.profit_aware_operators
+:type: bool
 :value: >
-   'field(...)'
+   False
 
-```{autodoc2-docstring} src.configs.policies.sa.SAConfig.must_go
+```{autodoc2-docstring} src.configs.policies.sa.SAConfig.profit_aware_operators
 ```
 
 ````
 
-````{py:attribute} post_processing
-:canonical: src.configs.policies.sa.SAConfig.post_processing
-:type: typing.Optional[typing.List[typing.Any]]
+````{py:attribute} mandatory_selection
+:canonical: src.configs.policies.sa.SAConfig.mandatory_selection
+:type: typing.Optional[typing.List[src.configs.policies.other.mandatory_selection.MandatorySelectionConfig]]
 :value: >
-   'field(...)'
+   None
 
-```{autodoc2-docstring} src.configs.policies.sa.SAConfig.post_processing
+```{autodoc2-docstring} src.configs.policies.sa.SAConfig.mandatory_selection
+```
+
+````
+
+````{py:attribute} route_improvement
+:canonical: src.configs.policies.sa.SAConfig.route_improvement
+:type: typing.Optional[typing.List[src.configs.policies.other.route_improvement.RouteImprovingConfig]]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.policies.sa.SAConfig.route_improvement
+```
+
+````
+
+````{py:attribute} acceptance
+:canonical: src.configs.policies.sa.SAConfig.acceptance
+:type: src.configs.policies.other.acceptance_criteria.AcceptanceConfig
+:value: >
+   'AcceptanceConfig(...)'
+
+```{autodoc2-docstring} src.configs.policies.sa.SAConfig.acceptance
 ```
 
 ````

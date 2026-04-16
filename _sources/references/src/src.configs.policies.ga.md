@@ -139,24 +139,24 @@
 
 ````
 
-````{py:attribute} must_go
-:canonical: src.configs.policies.ga.GAConfig.must_go
+````{py:attribute} mandatory_selection
+:canonical: src.configs.policies.ga.GAConfig.mandatory_selection
 :type: typing.Optional[typing.List[typing.Any]]
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.ga.GAConfig.must_go
+```{autodoc2-docstring} src.configs.policies.ga.GAConfig.mandatory_selection
 ```
 
 ````
 
-````{py:attribute} post_processing
-:canonical: src.configs.policies.ga.GAConfig.post_processing
+````{py:attribute} route_improvement
+:canonical: src.configs.policies.ga.GAConfig.route_improvement
 :type: typing.Optional[typing.List[typing.Any]]
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.ga.GAConfig.post_processing
+```{autodoc2-docstring} src.configs.policies.ga.GAConfig.route_improvement
 ```
 
 ````

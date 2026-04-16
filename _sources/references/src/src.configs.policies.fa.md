@@ -183,24 +183,24 @@
 
 ````
 
-````{py:attribute} must_go
-:canonical: src.configs.policies.fa.FAConfig.must_go
+````{py:attribute} mandatory_selection
+:canonical: src.configs.policies.fa.FAConfig.mandatory_selection
 :type: typing.Optional[typing.List[typing.Any]]
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.fa.FAConfig.must_go
+```{autodoc2-docstring} src.configs.policies.fa.FAConfig.mandatory_selection
 ```
 
 ````
 
-````{py:attribute} post_processing
-:canonical: src.configs.policies.fa.FAConfig.post_processing
+````{py:attribute} route_improvement
+:canonical: src.configs.policies.fa.FAConfig.route_improvement
 :type: typing.Optional[typing.List[typing.Any]]
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.fa.FAConfig.post_processing
+```{autodoc2-docstring} src.configs.policies.fa.FAConfig.route_improvement
 ```
 
 ````

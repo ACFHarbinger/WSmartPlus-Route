@@ -238,24 +238,24 @@
 
 ````
 
-````{py:attribute} must_go
-:canonical: src.configs.policies.lkh3.LKH3Config.must_go
+````{py:attribute} mandatory_selection
+:canonical: src.configs.policies.lkh3.LKH3Config.mandatory_selection
 :type: typing.Optional[typing.List[typing.Any]]
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.lkh3.LKH3Config.must_go
+```{autodoc2-docstring} src.configs.policies.lkh3.LKH3Config.mandatory_selection
 ```
 
 ````
 
-````{py:attribute} post_processing
-:canonical: src.configs.policies.lkh3.LKH3Config.post_processing
+````{py:attribute} route_improvement
+:canonical: src.configs.policies.lkh3.LKH3Config.route_improvement
 :type: typing.Optional[typing.List[typing.Any]]
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.lkh3.LKH3Config.post_processing
+```{autodoc2-docstring} src.configs.policies.lkh3.LKH3Config.route_improvement
 ```
 
 ````

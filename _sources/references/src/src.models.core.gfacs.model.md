@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} GFACS(env: logic.src.envs.base.RL4COEnvBase, policy: typing.Optional[src.models.core.gfacs.policy.GFACSPolicy] = None, baseline: str = 'no', train_with_local_search: bool = True, policy_kwargs: typing.Optional[typing.Dict[str, typing.Any]] = None, baseline_kwargs: typing.Optional[typing.Dict[str, typing.Any]] = None, alpha_min: float = 0.5, alpha_max: float = 1.0, alpha_flat_epochs: int = 5, beta_min: float = 1.0, beta_max: float = 1.0, beta_flat_epochs: int = 5, **kwargs)
+`````{py:class} GFACS(env: logic.src.envs.base.base.RL4COEnvBase, policy: typing.Optional[src.models.core.gfacs.policy.GFACSPolicy] = None, baseline: str = 'no', train_with_local_search: bool = True, policy_kwargs: typing.Optional[typing.Dict[str, typing.Any]] = None, baseline_kwargs: typing.Optional[typing.Dict[str, typing.Any]] = None, alpha_min: float = 0.5, alpha_max: float = 1.0, alpha_flat_epochs: int = 5, beta_min: float = 1.0, beta_max: float = 1.0, beta_flat_epochs: int = 5, **kwargs)
 :canonical: src.models.core.gfacs.model.GFACS
 
 Bases: {py:obj}`torch.nn.Module`
@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.core.gfacs.model.GFACS.__init__
 ```
 
-````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.RL4COEnvBase] = None, phase: str = 'train', **kwargs) -> typing.Dict[str, typing.Any]
+````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.base.RL4COEnvBase] = None, phase: str = 'train', **kwargs) -> typing.Dict[str, typing.Any]
 :canonical: src.models.core.gfacs.model.GFACS.forward
 
 ```{autodoc2-docstring} src.models.core.gfacs.model.GFACS.forward

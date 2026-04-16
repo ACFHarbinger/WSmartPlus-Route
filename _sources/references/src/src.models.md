@@ -39,7 +39,7 @@ src.models.common
 ````{py:data} __all__
 :canonical: src.models.__all__
 :value: >
-   ['AttentionModel', 'TemporalAttentionModel', 'CriticNetwork', 'MustGoManager', 'WeightAdjustmentRNN'...
+   ['AttentionModel', 'TemporalAttentionModel', 'CriticNetwork', 'MandatoryManager', 'WeightAdjustmentR...
 
 ```{autodoc2-docstring} src.models.__all__
 ```

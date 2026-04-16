@@ -27,8 +27,8 @@
   - ```{autodoc2-docstring} src.constants.routing.VEHICLE_SPEED_KMH
     :summary:
     ```
-* - {py:obj}`PENALTY_MUST_GO_MISSED <src.constants.routing.PENALTY_MUST_GO_MISSED>`
-  - ```{autodoc2-docstring} src.constants.routing.PENALTY_MUST_GO_MISSED
+* - {py:obj}`PENALTY_MANDATORY_NODES_MISSED <src.constants.routing.PENALTY_MANDATORY_NODES_MISSED>`
+  - ```{autodoc2-docstring} src.constants.routing.PENALTY_MANDATORY_NODES_MISSED
     :summary:
     ```
 * - {py:obj}`MAX_WASTE <src.constants.routing.MAX_WASTE>`
@@ -118,12 +118,12 @@
 
 ````
 
-````{py:data} PENALTY_MUST_GO_MISSED
-:canonical: src.constants.routing.PENALTY_MUST_GO_MISSED
+````{py:data} PENALTY_MANDATORY_NODES_MISSED
+:canonical: src.constants.routing.PENALTY_MANDATORY_NODES_MISSED
 :value: >
    10000.0
 
-```{autodoc2-docstring} src.constants.routing.PENALTY_MUST_GO_MISSED
+```{autodoc2-docstring} src.constants.routing.PENALTY_MANDATORY_NODES_MISSED
 ```
 
 ````

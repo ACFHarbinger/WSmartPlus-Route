@@ -161,24 +161,35 @@
 
 ````
 
-````{py:attribute} must_go
-:canonical: src.configs.policies.rts.RTSConfig.must_go
+````{py:attribute} mandatory_selection
+:canonical: src.configs.policies.rts.RTSConfig.mandatory_selection
 :type: typing.Optional[typing.List[typing.Any]]
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.rts.RTSConfig.must_go
+```{autodoc2-docstring} src.configs.policies.rts.RTSConfig.mandatory_selection
 ```
 
 ````
 
-````{py:attribute} post_processing
-:canonical: src.configs.policies.rts.RTSConfig.post_processing
+````{py:attribute} route_improvement
+:canonical: src.configs.policies.rts.RTSConfig.route_improvement
 :type: typing.Optional[typing.List[typing.Any]]
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.rts.RTSConfig.post_processing
+```{autodoc2-docstring} src.configs.policies.rts.RTSConfig.route_improvement
+```
+
+````
+
+````{py:attribute} acceptance
+:canonical: src.configs.policies.rts.RTSConfig.acceptance
+:type: src.configs.policies.other.acceptance_criteria.AcceptanceConfig
+:value: >
+   'AcceptanceConfig(...)'
+
+```{autodoc2-docstring} src.configs.policies.rts.RTSConfig.acceptance
 ```
 
 ````

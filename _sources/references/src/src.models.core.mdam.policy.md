@@ -37,7 +37,7 @@ Bases: {py:obj}`logic.src.models.common.autoregressive.policy.AutoregressivePoli
 ```{autodoc2-docstring} src.models.core.mdam.policy.MDAMPolicy.__init__
 ```
 
-````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.RL4COEnvBase, strategy: str = 'sampling', num_starts: int = 1, phase: str = 'train', **kwargs) -> typing.Dict[str, typing.Any]
+````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.base.RL4COEnvBase, strategy: str = 'sampling', num_starts: int = 1, phase: str = 'train', **kwargs) -> typing.Dict[str, typing.Any]
 :canonical: src.models.core.mdam.policy.MDAMPolicy.forward
 
 ```{autodoc2-docstring} src.models.core.mdam.policy.MDAMPolicy.forward

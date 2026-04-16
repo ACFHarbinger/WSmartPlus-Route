@@ -35,8 +35,8 @@
   - ```{autodoc2-docstring} src.pipeline.features.test.config._parse_inner_components
     :summary:
     ```
-* - {py:obj}`_apply_mg_override <src.pipeline.features.test.config._apply_mg_override>`
-  - ```{autodoc2-docstring} src.pipeline.features.test.config._apply_mg_override
+* - {py:obj}`_apply_ms_override <src.pipeline.features.test.config._apply_ms_override>`
+  - ```{autodoc2-docstring} src.pipeline.features.test.config._apply_ms_override
     :summary:
     ```
 * - {py:obj}`_clean_id <src.pipeline.features.test.config._clean_id>`
@@ -82,10 +82,10 @@
 ```
 ````
 
-````{py:function} _apply_mg_override(var_cfg: typing.Any, match_idx: int, mg_item: str) -> None
-:canonical: src.pipeline.features.test.config._apply_mg_override
+````{py:function} _apply_ms_override(var_cfg: typing.Any, match_idx: int, ms_item: str) -> None
+:canonical: src.pipeline.features.test.config._apply_ms_override
 
-```{autodoc2-docstring} src.pipeline.features.test.config._apply_mg_override
+```{autodoc2-docstring} src.pipeline.features.test.config._apply_ms_override
 ```
 ````
 

@@ -139,24 +139,35 @@
 
 ````
 
-````{py:attribute} must_go
-:canonical: src.configs.policies.ils.ILSConfig.must_go
+````{py:attribute} mandatory_selection
+:canonical: src.configs.policies.ils.ILSConfig.mandatory_selection
 :type: typing.Optional[typing.List[typing.Any]]
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.ils.ILSConfig.must_go
+```{autodoc2-docstring} src.configs.policies.ils.ILSConfig.mandatory_selection
 ```
 
 ````
 
-````{py:attribute} post_processing
-:canonical: src.configs.policies.ils.ILSConfig.post_processing
+````{py:attribute} route_improvement
+:canonical: src.configs.policies.ils.ILSConfig.route_improvement
 :type: typing.Optional[typing.List[typing.Any]]
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.ils.ILSConfig.post_processing
+```{autodoc2-docstring} src.configs.policies.ils.ILSConfig.route_improvement
+```
+
+````
+
+````{py:attribute} acceptance
+:canonical: src.configs.policies.ils.ILSConfig.acceptance
+:type: logic.src.configs.policies.other.acceptance_criteria.AcceptanceConfig
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.policies.ils.ILSConfig.acceptance
 ```
 
 ````

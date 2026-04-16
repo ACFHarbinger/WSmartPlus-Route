@@ -84,6 +84,39 @@
 
 ````
 
+````{py:attribute} horizon
+:canonical: src.configs.policies.ph.PHConfig.horizon
+:type: int
+:value: >
+   7
+
+```{autodoc2-docstring} src.configs.policies.ph.PHConfig.horizon
+```
+
+````
+
+````{py:attribute} consensus_scope
+:canonical: src.configs.policies.ph.PHConfig.consensus_scope
+:type: str
+:value: >
+   'day_0'
+
+```{autodoc2-docstring} src.configs.policies.ph.PHConfig.consensus_scope
+```
+
+````
+
+````{py:attribute} stockout_penalty
+:canonical: src.configs.policies.ph.PHConfig.stockout_penalty
+:type: float
+:value: >
+   500.0
+
+```{autodoc2-docstring} src.configs.policies.ph.PHConfig.stockout_penalty
+```
+
+````
+
 ````{py:attribute} time_limit
 :canonical: src.configs.policies.ph.PHConfig.time_limit
 :type: float
@@ -106,24 +139,24 @@
 
 ````
 
-````{py:attribute} must_go
-:canonical: src.configs.policies.ph.PHConfig.must_go
-:type: typing.Optional[typing.List[src.configs.policies.other.must_go.MustGoConfig]]
+````{py:attribute} mandatory_selection
+:canonical: src.configs.policies.ph.PHConfig.mandatory_selection
+:type: typing.Optional[typing.List[src.configs.policies.other.mandatory_selection.MandatorySelectionConfig]]
 :value: >
    None
 
-```{autodoc2-docstring} src.configs.policies.ph.PHConfig.must_go
+```{autodoc2-docstring} src.configs.policies.ph.PHConfig.mandatory_selection
 ```
 
 ````
 
-````{py:attribute} post_processing
-:canonical: src.configs.policies.ph.PHConfig.post_processing
-:type: typing.Optional[typing.List[src.configs.policies.other.post_processing.PostProcessingConfig]]
+````{py:attribute} route_improvement
+:canonical: src.configs.policies.ph.PHConfig.route_improvement
+:type: typing.Optional[typing.List[src.configs.policies.other.route_improvement.RouteImprovingConfig]]
 :value: >
    None
 
-```{autodoc2-docstring} src.configs.policies.ph.PHConfig.post_processing
+```{autodoc2-docstring} src.configs.policies.ph.PHConfig.route_improvement
 ```
 
 ````

@@ -59,7 +59,7 @@ Bases: {py:obj}`pytorch_lightning.LightningModule`
 ```{autodoc2-docstring} src.pipeline.rl.core.dr_alns.DRALNSLitModule.__init__
 ```
 
-````{py:method} reset_buffer()
+````{py:method} reset_buffer() -> None
 :canonical: src.pipeline.rl.core.dr_alns.DRALNSLitModule.reset_buffer
 
 ```{autodoc2-docstring} src.pipeline.rl.core.dr_alns.DRALNSLitModule.reset_buffer

@@ -37,7 +37,7 @@ Bases: {py:obj}`logic.src.models.common.non_autoregressive.policy.NonAutoregress
 ```{autodoc2-docstring} src.models.core.nargnn.policy.NARGNNPolicy.__init__
 ```
 
-````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.RL4COEnvBase] = None, num_starts: int = 1, phase: str = 'test', **kwargs) -> typing.Dict[str, typing.Any]
+````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.base.RL4COEnvBase] = None, num_starts: int = 1, phase: str = 'test', **kwargs) -> typing.Dict[str, typing.Any]
 :canonical: src.models.core.nargnn.policy.NARGNNPolicy.forward
 
 ```{autodoc2-docstring} src.models.core.nargnn.policy.NARGNNPolicy.forward

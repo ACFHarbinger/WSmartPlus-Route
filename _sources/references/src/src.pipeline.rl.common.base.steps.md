@@ -57,10 +57,10 @@
 ```{autodoc2-docstring} src.pipeline.rl.common.base.steps.StepMixin.__init__
 ```
 
-````{py:method} _apply_must_go_selection(td: tensordict.TensorDict) -> tensordict.TensorDict
-:canonical: src.pipeline.rl.common.base.steps.StepMixin._apply_must_go_selection
+````{py:method} _apply_mandatory_selection(td: tensordict.TensorDict) -> tensordict.TensorDict
+:canonical: src.pipeline.rl.common.base.steps.StepMixin._apply_mandatory_selection
 
-```{autodoc2-docstring} src.pipeline.rl.common.base.steps.StepMixin._apply_must_go_selection
+```{autodoc2-docstring} src.pipeline.rl.common.base.steps.StepMixin._apply_mandatory_selection
 ```
 
 ````

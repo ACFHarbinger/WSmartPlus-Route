@@ -13,8 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.configs.policies.other.post_processing
-src.configs.policies.other.must_go
+src.configs.policies.other.acceptance_criteria
+src.configs.policies.other.route_improvement
+src.configs.policies.other.mandatory_selection
 src.configs.policies.other.reinforcement_learning
 ```
 

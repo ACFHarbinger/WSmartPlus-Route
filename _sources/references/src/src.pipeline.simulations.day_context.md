@@ -564,13 +564,13 @@ Bases: {py:obj}`collections.abc.Mapping`
 
 ````
 
-````{py:attribute} must_go
-:canonical: src.pipeline.simulations.day_context.SimulationDayContext.must_go
+````{py:attribute} mandatory
+:canonical: src.pipeline.simulations.day_context.SimulationDayContext.mandatory
 :type: typing.Optional[typing.List[int]]
 :value: >
    None
 
-```{autodoc2-docstring} src.pipeline.simulations.day_context.SimulationDayContext.must_go
+```{autodoc2-docstring} src.pipeline.simulations.day_context.SimulationDayContext.mandatory
 ```
 
 ````

@@ -37,7 +37,40 @@ Bases: {py:obj}`logic.src.models.core.attention_model.policy.AttentionModelPolic
 ```{autodoc2-docstring} src.models.core.temporal_attention_model.policy.TemporalAMPolicy.__init__
 ```
 
-````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.RL4COEnvBase, strategy: str = 'sampling', num_starts: int = 1, actions: typing.Optional[torch.Tensor] = None, **kwargs) -> dict
+````{py:attribute} fill_predictor
+:canonical: src.models.core.temporal_attention_model.policy.TemporalAMPolicy.fill_predictor
+:type: typing.Union[logic.src.models.subnets.helpers.lstm_fill_predictor.LongShortTermMemoryFillPredictor, logic.src.models.subnets.helpers.gru_fill_predictor.GatedRecurrentUnitFillPredictor]
+:value: >
+   None
+
+```{autodoc2-docstring} src.models.core.temporal_attention_model.policy.TemporalAMPolicy.fill_predictor
+```
+
+````
+
+````{py:attribute} temporal_embed
+:canonical: src.models.core.temporal_attention_model.policy.TemporalAMPolicy.temporal_embed
+:type: torch.nn.Linear
+:value: >
+   None
+
+```{autodoc2-docstring} src.models.core.temporal_attention_model.policy.TemporalAMPolicy.temporal_embed
+```
+
+````
+
+````{py:attribute} combine_embeddings
+:canonical: src.models.core.temporal_attention_model.policy.TemporalAMPolicy.combine_embeddings
+:type: torch.nn.Sequential
+:value: >
+   None
+
+```{autodoc2-docstring} src.models.core.temporal_attention_model.policy.TemporalAMPolicy.combine_embeddings
+```
+
+````
+
+````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.base.RL4COEnvBase, strategy: str = 'sampling', num_starts: int = 1, actions: typing.Optional[torch.Tensor] = None, **kwargs) -> dict
 :canonical: src.models.core.temporal_attention_model.policy.TemporalAMPolicy.forward
 
 ```{autodoc2-docstring} src.models.core.temporal_attention_model.policy.TemporalAMPolicy.forward

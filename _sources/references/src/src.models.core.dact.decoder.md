@@ -62,7 +62,7 @@ Bases: {py:obj}`logic.src.models.common.improvement.policy.ImprovementDecoder`
 
 ````
 
-````{py:method} forward(td: tensordict.TensorDict, embeddings: torch.Tensor | typing.Tuple[torch.Tensor, ...], env: logic.src.envs.base.RL4COEnvBase, **kwargs) -> typing.Tuple[torch.Tensor, torch.Tensor]
+````{py:method} forward(td: tensordict.TensorDict, embeddings: torch.Tensor | typing.Tuple[torch.Tensor, ...], env: logic.src.envs.base.base.RL4COEnvBase, **kwargs) -> typing.Tuple[torch.Tensor, torch.Tensor]
 :canonical: src.models.core.dact.decoder.DACTDecoder.forward
 
 ```{autodoc2-docstring} src.models.core.dact.decoder.DACTDecoder.forward

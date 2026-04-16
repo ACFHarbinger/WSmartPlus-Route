@@ -315,24 +315,35 @@
 
 ````
 
-````{py:attribute} must_go
-:canonical: src.configs.policies.hgs.HGSConfig.must_go
-:type: typing.Optional[typing.List[src.configs.policies.other.must_go.MustGoConfig]]
+````{py:attribute} mandatory_selection
+:canonical: src.configs.policies.hgs.HGSConfig.mandatory_selection
+:type: typing.Optional[typing.List[src.configs.policies.other.mandatory_selection.MandatorySelectionConfig]]
 :value: >
    None
 
-```{autodoc2-docstring} src.configs.policies.hgs.HGSConfig.must_go
+```{autodoc2-docstring} src.configs.policies.hgs.HGSConfig.mandatory_selection
 ```
 
 ````
 
-````{py:attribute} post_processing
-:canonical: src.configs.policies.hgs.HGSConfig.post_processing
-:type: typing.Optional[typing.List[src.configs.policies.other.post_processing.PostProcessingConfig]]
+````{py:attribute} route_improvement
+:canonical: src.configs.policies.hgs.HGSConfig.route_improvement
+:type: typing.Optional[typing.List[src.configs.policies.other.route_improvement.RouteImprovingConfig]]
 :value: >
    None
 
-```{autodoc2-docstring} src.configs.policies.hgs.HGSConfig.post_processing
+```{autodoc2-docstring} src.configs.policies.hgs.HGSConfig.route_improvement
+```
+
+````
+
+````{py:attribute} acceptance
+:canonical: src.configs.policies.hgs.HGSConfig.acceptance
+:type: src.configs.policies.other.acceptance_criteria.AcceptanceConfig
+:value: >
+   'AcceptanceConfig(...)'
+
+```{autodoc2-docstring} src.configs.policies.hgs.HGSConfig.acceptance
 ```
 
 ````

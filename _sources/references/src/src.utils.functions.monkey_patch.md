@@ -23,7 +23,7 @@
 
 ### API
 
-````{py:function} load_state_dict(self, state_dict)
+````{py:function} load_state_dict(self: torch.optim.Optimizer, state_dict: typing.Dict[str, typing.Any]) -> None
 :canonical: src.utils.functions.monkey_patch.load_state_dict
 
 ```{autodoc2-docstring} src.utils.functions.monkey_patch.load_state_dict

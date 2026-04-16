@@ -1,0 +1,174 @@
+# {py:mod}`src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective`
+
+```{py:module} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective
+```
+
+```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective
+:allowtitles:
+```
+
+## Module Contents
+
+### Functions
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`is_dummy_depot <src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.is_dummy_depot>`
+  - ```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.is_dummy_depot
+    :summary:
+    ```
+* - {py:obj}`is_any_depot <src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.is_any_depot>`
+  - ```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.is_any_depot
+    :summary:
+    ```
+* - {py:obj}`split_tour_at_dummies <src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.split_tour_at_dummies>`
+  - ```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.split_tour_at_dummies
+    :summary:
+    ```
+* - {py:obj}`calculate_penalty <src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.calculate_penalty>`
+  - ```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.calculate_penalty
+    :summary:
+    ```
+* - {py:obj}`get_score <src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.get_score>`
+  - ```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.get_score
+    :summary:
+    ```
+* - {py:obj}`is_better <src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.is_better>`
+  - ```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.is_better
+    :summary:
+    ```
+* - {py:obj}`penalty_delta <src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.penalty_delta>`
+  - ```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.penalty_delta
+    :summary:
+    ```
+* - {py:obj}`compute_min_1_tree <src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.compute_min_1_tree>`
+  - ```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.compute_min_1_tree
+    :summary:
+    ```
+* - {py:obj}`solve_subgradient <src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.solve_subgradient>`
+  - ```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.solve_subgradient
+    :summary:
+    ```
+* - {py:obj}`_compute_all_pairs_max_edge <src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective._compute_all_pairs_max_edge>`
+  - ```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective._compute_all_pairs_max_edge
+    :summary:
+    ```
+* - {py:obj}`compute_alpha_measures <src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.compute_alpha_measures>`
+  - ```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.compute_alpha_measures
+    :summary:
+    ```
+* - {py:obj}`get_candidate_set <src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.get_candidate_set>`
+  - ```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.get_candidate_set
+    :summary:
+    ```
+````
+
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`DEPOT_NODE <src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.DEPOT_NODE>`
+  - ```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.DEPOT_NODE
+    :summary:
+    ```
+````
+
+### API
+
+````{py:data} DEPOT_NODE
+:canonical: src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.DEPOT_NODE
+:value: >
+   0
+
+```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.DEPOT_NODE
+```
+
+````
+
+````{py:function} is_dummy_depot(node: int, n_original: typing.Optional[int] = None) -> bool
+:canonical: src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.is_dummy_depot
+
+```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.is_dummy_depot
+```
+````
+
+````{py:function} is_any_depot(node: int, n_original: typing.Optional[int] = None) -> bool
+:canonical: src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.is_any_depot
+
+```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.is_any_depot
+```
+````
+
+````{py:function} split_tour_at_dummies(tour: typing.List[int], n_original: typing.Optional[int] = None) -> typing.List[typing.List[int]]
+:canonical: src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.split_tour_at_dummies
+
+```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.split_tour_at_dummies
+```
+````
+
+````{py:function} calculate_penalty(tour: typing.List[int], waste: typing.Optional[numpy.ndarray], capacity: typing.Optional[float], n_original: typing.Optional[int] = None) -> float
+:canonical: src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.calculate_penalty
+
+```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.calculate_penalty
+```
+````
+
+````{py:function} get_score(tour: typing.List[int], distance_matrix: numpy.ndarray, waste: typing.Optional[numpy.ndarray], capacity: typing.Optional[float], n_original: typing.Optional[int] = None) -> typing.Tuple[float, float]
+:canonical: src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.get_score
+
+```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.get_score
+```
+````
+
+````{py:function} is_better(p1: float, c1: float, p2: float, c2: float) -> bool
+:canonical: src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.is_better
+
+```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.is_better
+```
+````
+
+````{py:function} penalty_delta(old_tour: typing.List[int], new_tour: typing.List[int], waste: typing.Optional[numpy.ndarray], capacity: typing.Optional[float], n_original: typing.Optional[int] = None) -> float
+:canonical: src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.penalty_delta
+
+```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.penalty_delta
+```
+````
+
+````{py:function} compute_min_1_tree(distance_matrix: numpy.ndarray, pi: numpy.ndarray) -> typing.Tuple[float, numpy.ndarray, numpy.ndarray]
+:canonical: src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.compute_min_1_tree
+
+```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.compute_min_1_tree
+```
+````
+
+````{py:function} solve_subgradient(distance_matrix: numpy.ndarray, max_iterations: int = 200, n_original: typing.Optional[int] = None, initial_pi: typing.Optional[numpy.ndarray] = None, initial_step: typing.Optional[float] = None) -> numpy.ndarray
+:canonical: src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.solve_subgradient
+
+```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.solve_subgradient
+```
+````
+
+````{py:function} _compute_all_pairs_max_edge(mst_adj: numpy.ndarray, n: int) -> numpy.ndarray
+:canonical: src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective._compute_all_pairs_max_edge
+
+```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective._compute_all_pairs_max_edge
+```
+````
+
+````{py:function} compute_alpha_measures(distance_matrix: numpy.ndarray, pi: typing.Optional[numpy.ndarray] = None) -> numpy.ndarray
+:canonical: src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.compute_alpha_measures
+
+```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.compute_alpha_measures
+```
+````
+
+````{py:function} get_candidate_set(distance_matrix: numpy.ndarray, alpha_measures: numpy.ndarray, max_candidates: int = 5) -> typing.Dict[int, typing.List[int]]
+:canonical: src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.get_candidate_set
+
+```{autodoc2-docstring} src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.get_candidate_set
+```
+````

@@ -106,24 +106,24 @@
 
 ````
 
-````{py:attribute} must_go
-:canonical: src.configs.policies.swc_tcf.SWCTCFConfig.must_go
-:type: typing.Optional[typing.List[src.configs.policies.other.must_go.MustGoConfig]]
+````{py:attribute} mandatory_selection
+:canonical: src.configs.policies.swc_tcf.SWCTCFConfig.mandatory_selection
+:type: typing.Optional[typing.List[src.configs.policies.other.mandatory_selection.MandatorySelectionConfig]]
 :value: >
    None
 
-```{autodoc2-docstring} src.configs.policies.swc_tcf.SWCTCFConfig.must_go
+```{autodoc2-docstring} src.configs.policies.swc_tcf.SWCTCFConfig.mandatory_selection
 ```
 
 ````
 
-````{py:attribute} post_processing
-:canonical: src.configs.policies.swc_tcf.SWCTCFConfig.post_processing
-:type: typing.Optional[typing.List[src.configs.policies.other.post_processing.PostProcessingConfig]]
+````{py:attribute} route_improvement
+:canonical: src.configs.policies.swc_tcf.SWCTCFConfig.route_improvement
+:type: typing.Optional[typing.List[src.configs.policies.other.route_improvement.RouteImprovingConfig]]
 :value: >
    None
 
-```{autodoc2-docstring} src.configs.policies.swc_tcf.SWCTCFConfig.post_processing
+```{autodoc2-docstring} src.configs.policies.swc_tcf.SWCTCFConfig.route_improvement
 ```
 
 ````

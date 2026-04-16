@@ -73,24 +73,24 @@
 
 ````
 
-````{py:attribute} must_go
-:canonical: src.configs.policies.hgs_alns.HGSALNSConfig.must_go
+````{py:attribute} mandatory_selection
+:canonical: src.configs.policies.hgs_alns.HGSALNSConfig.mandatory_selection
 :type: typing.List[str]
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.hgs_alns.HGSALNSConfig.must_go
+```{autodoc2-docstring} src.configs.policies.hgs_alns.HGSALNSConfig.mandatory_selection
 ```
 
 ````
 
-````{py:attribute} post_processing
-:canonical: src.configs.policies.hgs_alns.HGSALNSConfig.post_processing
+````{py:attribute} route_improvement
+:canonical: src.configs.policies.hgs_alns.HGSALNSConfig.route_improvement
 :type: typing.List[typing.Any]
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.hgs_alns.HGSALNSConfig.post_processing
+```{autodoc2-docstring} src.configs.policies.hgs_alns.HGSALNSConfig.route_improvement
 ```
 
 ````

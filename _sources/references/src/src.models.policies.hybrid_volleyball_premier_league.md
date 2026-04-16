@@ -53,7 +53,7 @@ Bases: {py:obj}`logic.src.models.common.autoregressive.policy.AutoregressivePoli
 
 ````
 
-````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.RL4COEnvBase] = None, strategy: str = 'greedy', num_starts: int = 1, max_steps: typing.Optional[int] = None, phase: str = 'train', return_actions: bool = True, **kwargs) -> typing.Dict[str, typing.Any]
+````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.base.RL4COEnvBase] = None, strategy: str = 'greedy', num_starts: int = 1, max_steps: typing.Optional[int] = None, phase: str = 'train', return_actions: bool = True, **kwargs) -> typing.Dict[str, typing.Any]
 :canonical: src.models.policies.hybrid_volleyball_premier_league.VectorizedHVPL.forward
 
 ```{autodoc2-docstring} src.models.policies.hybrid_volleyball_premier_league.VectorizedHVPL.forward
@@ -93,7 +93,7 @@ Bases: {py:obj}`logic.src.models.common.autoregressive.policy.AutoregressivePoli
 
 ````
 
-````{py:method} _format_output(td: tensordict.TensorDict, best_tours: torch.Tensor, dist_matrix: torch.Tensor, waste: torch.Tensor, capacity: torch.Tensor, env: typing.Optional[logic.src.envs.base.RL4COEnvBase] = None) -> typing.Dict[str, typing.Any]
+````{py:method} _format_output(td: tensordict.TensorDict, best_tours: torch.Tensor, dist_matrix: torch.Tensor, waste: torch.Tensor, capacity: torch.Tensor, env: typing.Optional[logic.src.envs.base.base.RL4COEnvBase] = None) -> typing.Dict[str, typing.Any]
 :canonical: src.models.policies.hybrid_volleyball_premier_league.VectorizedHVPL._format_output
 
 ```{autodoc2-docstring} src.models.policies.hybrid_volleyball_premier_league.VectorizedHVPL._format_output

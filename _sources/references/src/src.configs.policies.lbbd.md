@@ -40,6 +40,17 @@
 
 ````
 
+````{py:attribute} stochastic_master
+:canonical: src.configs.policies.lbbd.LBBDConfig.stochastic_master
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.lbbd.LBBDConfig.stochastic_master
+```
+
+````
+
 ````{py:attribute} mean_increment
 :canonical: src.configs.policies.lbbd.LBBDConfig.mean_increment
 :type: float

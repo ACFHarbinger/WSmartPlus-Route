@@ -1,0 +1,1180 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>src.policies.route_construction &#8212; WSmart-Route  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster.custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster.bundle.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-shadow.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-punk.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-noir.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/hoverxref.js"></script>
+    <script src="../../_static/js/tooltipster.bundle.min.js"></script>
+    <script src="../../_static/js/micromodal.min.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.policies.route_construction';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="src.policies.route_construction.meta_heuristics" href="src.policies.route_construction.meta_heuristics.html" />
+    <link rel="prev" title="src.policies.mandatory_selection.selection_lagrangian" href="src.policies.mandatory_selection.selection_lagrangian.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">WSmart-Route  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="src.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.constants.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.testing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.testing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.routing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.stats.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.stats</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.paths.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.paths</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.models</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.system</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.dashboard.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.dashboard</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.metrics.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.metrics</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.tasks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.hpo.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.hpo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.user_interface.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.user_interface</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.waste.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.waste</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.constants.simulation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.simulation</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.pipeline.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.simulations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.features.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.features</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.callbacks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.callbacks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.pipeline.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.rl</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.envs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.generators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.generators</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.base</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.cwcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.cwcvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.swcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.swcvrp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.vrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.vrpp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.cvrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.cvrpp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.wcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.wcvrp</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.ui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.ui.components.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.components</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.ui.pages.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.pages</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.ui.styles.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.styles</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.ui.services.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.services</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.ui.app.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.app</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.output.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.output</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.functions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.ui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.ui</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.tasks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.decoding.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.decoding</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.io.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.docs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.docs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.graph.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.graph</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.validation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.configs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.security.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.security</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.ops.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.ops</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.io_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io_utils</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="src.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="src.policies.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4 current active"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.cli.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.base</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.fs_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.fs_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.gui_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.gui_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.benchmark_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.benchmark_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.registry.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.registry</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.cli.ts_parser.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.ts_parser</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.configs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.envs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.envs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.tasks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.rl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.models</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.configs.tracking.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.tracking</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.interfaces.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.acceptance_criterion.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.acceptance_criterion</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.mandatory.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.mandatory</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.distance_metric.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.distance_metric</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.route_improvement</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.tensor_dict_like.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.tensor_dict_like</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.policy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.policy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.route_constructor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.route_constructor</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.bin_container.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.bin_container</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.env.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.env</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.traversable.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.traversable</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.tracking.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.database.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.database</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.core</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.profiling.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.profiling</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.helpers</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.validation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.validation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.logging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.hooks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.hooks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.integrations.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.integrations</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.tracking.viz_mixin.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.viz_mixin</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.models.subnets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.meta.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.meta</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.core</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.models.common.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.common</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.data.generators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.generators</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.network.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.network</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.processor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.processor</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.datasets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.datasets</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.data.distributions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.data.distributions</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="src.file_system.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.file_system</span></code></a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/references/src/src.policies.route_construction.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>src.policies.route_construction</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#subpackages">Subpackages</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package-contents">Package Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.__all__"><code class="docutils literal notranslate"><span class="pre">__all__</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="module-src.policies.route_construction">
+<span id="src-policies-route-construction"></span><h1><a class="reference internal" href="#module-src.policies.route_construction" title="src.policies.route_construction"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a><a class="headerlink" href="#module-src.policies.route_construction" title="Link to this heading">#</a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.policy_es_mpl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.policy_es_mpl</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.evolution_strategy_mu_plus_lambda.solver</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.volleyball_premier_league</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.volleyball_premier_league.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.volleyball_premier_league.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.volleyball_premier_league.policy_vpl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.volleyball_premier_league.policy_vpl</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.volleyball_premier_league.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.volleyball_premier_league.solver</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.tabu_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.tabu_search</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.tabu_search.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.tabu_search.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.tabu_search.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.tabu_search.solver</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.tabu_search.policy_ts.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.tabu_search.policy_ts</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns_mp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns_mp</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns_package.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns_package</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.dispatcher.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.dispatcher</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.ortools_wrapper.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.ortools_wrapper</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.policy_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.policy_alns</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.html#key-implementation-features">Key Implementation Features:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.html#performance-optimizations">Performance Optimizations:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.html#usage-for-ablation-studies">Usage for Ablation Studies:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns.html#references">References:</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.policy_hvpl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.policy_hvpl</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.solver</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.policy_ma_dp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.policy_ma_dp</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm_dual_population.solver</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_memetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_memetic_search</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_memetic_search.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_memetic_search.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_memetic_search.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_memetic_search.solver</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_memetic_search.policy_hms.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_memetic_search.policy_hms</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.differential_evolution</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.differential_evolution.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.differential_evolution.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.differential_evolution.evolution_strategy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.differential_evolution.evolution_strategy</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.differential_evolution.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.differential_evolution.solver</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.differential_evolution.policy_de.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.differential_evolution.policy_de</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.solver</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.policy_ma_im.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.policy_ma_im</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.league_championship_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.league_championship_algorithm</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.league_championship_algorithm.policy_lca.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.league_championship_algorithm.policy_lca</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.league_championship_algorithm.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.league_championship_algorithm.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.league_championship_algorithm.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.league_championship_algorithm.solver</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.policy_ma_ts.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.policy_ma_ts</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.solver</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal.policy_sisr.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal.policy_sisr</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.slack_induction_by_string_removal.solver</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.artificial_bee_colony.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.artificial_bee_colony</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.artificial_bee_colony.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.artificial_bee_colony.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.artificial_bee_colony.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.artificial_bee_colony.solver</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.artificial_bee_colony.policy_abc.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.artificial_bee_colony.policy_abc</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.particle_swarm_optimization.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.particle_swarm_optimization</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.particle_swarm_optimization.policy_pso.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.particle_swarm_optimization.policy_pso</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.particle_swarm_optimization.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.particle_swarm_optimization.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.particle_swarm_optimization.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.particle_swarm_optimization.solver</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.knowledge_guided_local_search</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.kgls.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.kgls</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.cost_evaluator.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.cost_evaluator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.policy_kgls.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.knowledge_guided_local_search.policy_kgls</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_ruin_and_recreate.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_ruin_and_recreate</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_ruin_and_recreate.policy_hgs_rr.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_ruin_and_recreate.policy_hgs_rr</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_ruin_and_recreate.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_ruin_and_recreate.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_ruin_and_recreate.ruin_recreate.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_ruin_and_recreate.ruin_recreate</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_ruin_and_recreate.hgs_rr.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_ruin_and_recreate.hgs_rr</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.harmony_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.harmony_search</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.harmony_search.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.harmony_search.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.harmony_search.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.harmony_search.solver</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.harmony_search.policy_hs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.harmony_search.policy_hs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.variable_neighborhood_search</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.variable_neighborhood_search.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.variable_neighborhood_search.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.variable_neighborhood_search.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.variable_neighborhood_search.solver</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.variable_neighborhood_search.policy_vns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.variable_neighborhood_search.policy_vns</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.policy_psoma.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.policy_psoma</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.particle.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.particle</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.solver</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.policy_aco_ks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.policy_aco_ks</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.construction</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.pheromones.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.pheromones</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.sine_cosine_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.sine_cosine_algorithm</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.sine_cosine_algorithm.policy_sca.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.sine_cosine_algorithm.policy_sca</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.sine_cosine_algorithm.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.sine_cosine_algorithm.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.sine_cosine_algorithm.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.sine_cosine_algorithm.solver</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.policy_es_mkl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.policy_es_mkl</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.individual.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.individual</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.solver</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.soccer_league_competition.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.soccer_league_competition</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.soccer_league_competition.policy_slc.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.soccer_league_competition.policy_slc</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.soccer_league_competition.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.soccer_league_competition.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.soccer_league_competition.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.soccer_league_competition.solver</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_adaptive_large_neighborhood_search</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_adaptive_large_neighborhood_search.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_adaptive_large_neighborhood_search.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_adaptive_large_neighborhood_search.hgs_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_adaptive_large_neighborhood_search.hgs_alns</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search_adaptive_large_neighborhood_search.policy_hgs_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search_adaptive_large_neighborhood_search.policy_hgs_alns</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.memetic_algorithm.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.memetic_algorithm.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm.solver</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.memetic_algorithm.policy_ma.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.memetic_algorithm.policy_ma</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.quantum_differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.quantum_differential_evolution</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.quantum_differential_evolution.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.quantum_differential_evolution.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.quantum_differential_evolution.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.quantum_differential_evolution.solver</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.quantum_differential_evolution.policy_qde.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.quantum_differential_evolution.policy_qde</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.pyvrp_wrapper.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search.pyvrp_wrapper</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.dispatcher.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search.dispatcher</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.policy_hgs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search.policy_hgs</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search.evolution</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.hybrid_genetic_search.split.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.hybrid_genetic_search.split</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.firefly_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.firefly_algorithm</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.firefly_algorithm.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.firefly_algorithm.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.firefly_algorithm.policy_fa.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.firefly_algorithm.policy_fa</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.firefly_algorithm.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.firefly_algorithm.solver</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.ruin_recreate.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.ruin_recreate</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.filo.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.filo</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.policy_filo.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.policy_filo</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.refinement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.refinement</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.select.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.select</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.operators</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.search</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.policy_sans.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.policy_sans</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.dispatcher.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.dispatcher</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.guided_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.guided_local_search</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.guided_local_search.policy_gls.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.guided_local_search.policy_gls</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.guided_local_search.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.guided_local_search.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.guided_local_search.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.guided_local_search.solver</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_distance_based_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.particle_swarm_optimization_distance_based_algorithm</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_distance_based_algorithm.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.particle_swarm_optimization_distance_based_algorithm.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_distance_based_algorithm.policy_psoda.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.particle_swarm_optimization_distance_based_algorithm.policy_psoda</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.particle_swarm_optimization_distance_based_algorithm.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.particle_swarm_optimization_distance_based_algorithm.solver</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.genetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.genetic_algorithm</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.genetic_algorithm.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.genetic_algorithm.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.genetic_algorithm.policy_ga.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.genetic_algorithm.policy_ga</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.genetic_algorithm.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.genetic_algorithm.solver</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.policy_ahvpl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.policy_ahvpl</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.ahvpl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.ahvpl</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_comma_lambda.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.evolution_strategy_mu_comma_lambda</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_comma_lambda.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.evolution_strategy_mu_comma_lambda.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_comma_lambda.policy_es_mcl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.evolution_strategy_mu_comma_lambda.policy_es_mcl</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.evolution_strategy_mu_comma_lambda.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.evolution_strategy_mu_comma_lambda.solver</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.genius.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.genius</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.genius.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.genius.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.genius.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.genius.solver</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.genius.policy_genius.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.genius.policy_genius</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.iterated_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.iterated_local_search</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.iterated_local_search.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.iterated_local_search.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.iterated_local_search.policy_ils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.iterated_local_search.policy_ils</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.iterated_local_search.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.iterated_local_search.solver</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.reactive_tabu_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.reactive_tabu_search</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.reactive_tabu_search.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.reactive_tabu_search.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.reactive_tabu_search.policy_rts.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.reactive_tabu_search.policy_rts</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.meta_heuristics.reactive_tabu_search.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.reactive_tabu_search.solver</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.route_construction.learning_algorithms.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_algorithms</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.learning_algorithms.neural_agent.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_algorithms.neural_agent</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.learning_algorithms.neural_agent.agent.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_algorithms.neural_agent.agent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.learning_algorithms.neural_agent.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_algorithms.neural_agent.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.learning_algorithms.neural_agent.batch.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_algorithms.neural_agent.batch</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.learning_algorithms.neural_agent.simulation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_algorithms.neural_agent.simulation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.learning_algorithms.neural_agent.policy_neural.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_algorithms.neural_agent.policy_neural</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.policy_bb.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.policy_bb</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.mtz.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.mtz</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.lr_uop.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.lr_uop</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.dispatcher.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.dispatcher</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.dfj.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.dfj</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.cop_evaluator.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.cop_evaluator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.policy_esdp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.policy_esdp</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.esdp_engine.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.esdp_engine</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.state_space.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.exact_stochastic_dynamic_programming.state_space</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.policy_cp_sat.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.policy_cp_sat</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.cp_sat_engine.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.cp_sat_engine</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine.html#paper-to-implementation-mapping-bhv2000">Paper-to-Implementation Mapping (BHV2000)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.policy_bpc.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.policy_bpc</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.search_strategy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.search_strategy</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.pricing_subproblem.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.pricing_subproblem</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.policy_bp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.policy_bp</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.bp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.bp</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.gurobi.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.gurobi</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.pyomo_wrapper.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.pyomo_wrapper</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.dispatcher.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.dispatcher</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.ortools_wrapper.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.ortools_wrapper</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.policy_swc_tcf.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.policy_swc_tcf</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.policy_mp_ils_bd.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.policy_mp_ils_bd</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.subproblem.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.subproblem</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.policy_ils_bd.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.policy_ils_bd</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.master_problem.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.master_problem</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.inventory_master.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.inventory_master</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.ils_bd_engine.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.ils_bd_engine</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.scenario.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.scenario</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.mp_ils_bd_engine.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.mp_ils_bd_engine</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging.ph_engine.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging.ph_engine</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging.policy_ph.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging.policy_ph</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.policy_bc.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.policy_bc</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.heuristics.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.heuristics</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.tree.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.tree</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.policy_st_ef.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.policy_st_ef</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.route_construction.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.base</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.base.base_multi_period_policy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.base.base_multi_period_policy</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.base.factory.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.base.factory</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.base.registry.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.base.registry</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.base.base_routing_policy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.base.base_routing_policy</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.route_construction.learning_heuristic_algorithms.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_heuristic_algorithms</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_augmented_hybrid_volleyball_premier_league</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_augmented_hybrid_volleyball_premier_league.policy_rl_ahvpl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_augmented_hybrid_volleyball_premier_league.policy_rl_ahvpl</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_augmented_hybrid_volleyball_premier_league.rl_ahvpl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_augmented_hybrid_volleyball_premier_league.rl_ahvpl</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.policy_rl_gd_hh.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.policy_rl_gd_hh</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.solver</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.solver</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.policy_rl_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.policy_rl_alns</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.policy_rl_hvpl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.policy_rl_hvpl</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.rl_hvpl.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.rl_hvpl</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.route_construction.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.acceptance_criteria</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.acceptance_criteria.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.acceptance_criteria.base</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.acceptance_criteria.base.factory.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.acceptance_criteria.base.factory</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.acceptance_criteria.base.registry.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.acceptance_criteria.base.registry</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.acceptance_criteria.late_acceptance_hill_climbing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.acceptance_criteria.late_acceptance_hill_climbing</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.acceptance_criteria.aspiration_criterion.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.acceptance_criteria.aspiration_criterion</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.acceptance_criteria.only_improving.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.acceptance_criteria.only_improving</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.acceptance_criteria.epsilon_dominance.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.acceptance_criteria.epsilon_dominance</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.acceptance_criteria.fitness_proportional.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.acceptance_criteria.fitness_proportional</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.acceptance_criteria.adaptive_boltzmann_metropolis.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.acceptance_criteria.adaptive_boltzmann_metropolis</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.acceptance_criteria.probabilistic_transition.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.acceptance_criteria.probabilistic_transition</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.acceptance_criteria.monte_carlo.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.acceptance_criteria.monte_carlo</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.acceptance_criteria.binary_tournament_acceptance.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.acceptance_criteria.binary_tournament_acceptance</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.acceptance_criteria.non_linear_great_deluge.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.acceptance_criteria.non_linear_great_deluge</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.acceptance_criteria.all_moves_accepted.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.acceptance_criteria.all_moves_accepted</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.acceptance_criteria.demon_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.acceptance_criteria.demon_algorithm</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.acceptance_criteria.skewed_variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.acceptance_criteria.skewed_variable_neighborhood_search</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.acceptance_criteria.pareto_dominance.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.acceptance_criteria.pareto_dominance</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.acceptance_criteria.old_bachelor_acceptance.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.acceptance_criteria.old_bachelor_acceptance</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.acceptance_criteria.exponential_monte_carlo_counter.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.acceptance_criteria.exponential_monte_carlo_counter</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.acceptance_criteria.threshold_accepting.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.acceptance_criteria.threshold_accepting</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.acceptance_criteria.step_counting_hill_climbing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.acceptance_criteria.step_counting_hill_climbing</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.acceptance_criteria.boltzmann_metropolis_criterion.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.acceptance_criteria.boltzmann_metropolis_criterion</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.acceptance_criteria.improving_and_equal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.acceptance_criteria.improving_and_equal</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.acceptance_criteria.generalized_tsallis_simulated_annealing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.acceptance_criteria.generalized_tsallis_simulated_annealing</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.acceptance_criteria.record_to_record_travel.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.acceptance_criteria.record_to_record_travel</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.acceptance_criteria.great_deluge.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.acceptance_criteria.great_deluge</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.acceptance_criteria.ensemble_move_acceptance.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.acceptance_criteria.ensemble_move_acceptance</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.indicators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.indicators</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.solution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.solution</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.policy_gihh.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.policy_gihh</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.gihh.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.gihh</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.policy_gphh.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.policy_gphh</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.tree.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.tree</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.solver</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.adaptive_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.adaptive_selection</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.solution</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.operators</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.policy_hulk.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.policy_hulk</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.hulk.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.hyper_heuristic_us_lk.hulk</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.policy_aco_hh.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.policy_aco_hh</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hidden_markov_model_great_deluge_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.hidden_markov_model_great_deluge_hyper_heuristic</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hidden_markov_model_great_deluge_hyper_heuristic.policy_hmm_gd_hh.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.hidden_markov_model_great_deluge_hyper_heuristic.policy_hmm_gd_hh</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hidden_markov_model_great_deluge_hyper_heuristic.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.hidden_markov_model_great_deluge_hyper_heuristic.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.hidden_markov_model_great_deluge_hyper_heuristic.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.hidden_markov_model_great_deluge_hyper_heuristic.solver</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.policy_ss_hh.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.policy_ss_hh</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.solver</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.route_construction.other_algorithms.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.other_algorithms</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.other_algorithms.sequential_route_constructor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.other_algorithms.sequential_route_constructor</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.other_algorithms.sequential_route_constructor.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.other_algorithms.sequential_route_constructor.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.other_algorithms.sequential_route_constructor.policy_src.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.other_algorithms.sequential_route_constructor.policy_src</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.other_algorithms.travelling_salesman_problem.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.other_algorithms.travelling_salesman_problem</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.other_algorithms.travelling_salesman_problem.policy_tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.other_algorithms.travelling_salesman_problem.policy_tsp</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.other_algorithms.travelling_salesman_problem.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.other_algorithms.travelling_salesman_problem.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.other_algorithms.travelling_salesman_problem.two_opt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.other_algorithms.travelling_salesman_problem.two_opt</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.policy_cvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.policy_cvrp</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.clark_wright.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.clark_wright</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.cvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.cvrp</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="src.policies.route_construction.matheuristics.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.matheuristics.cluster_first_route_second.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.cluster_first_route_second</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.cluster_first_route_second.mip_assignment.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.cluster_first_route_second.mip_assignment</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.cluster_first_route_second.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.cluster_first_route_second.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.cluster_first_route_second.greedy_assignment.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.cluster_first_route_second.greedy_assignment</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.cluster_first_route_second.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.cluster_first_route_second.solver</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.cluster_first_route_second.policy_cf_rs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.cluster_first_route_second.policy_cf_rs</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.cluster_first_route_second.tsp_metaheuristics.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.cluster_first_route_second.tsp_metaheuristics</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.matheuristics.local_branching_variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.local_branching_variable_neighborhood_search</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.local_branching_variable_neighborhood_search.lb_vns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.local_branching_variable_neighborhood_search.lb_vns</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.local_branching_variable_neighborhood_search.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.local_branching_variable_neighborhood_search.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.local_branching_variable_neighborhood_search.policy_lb_vns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.local_branching_variable_neighborhood_search.policy_lb_vns</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.policy_popmusic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.policy_popmusic</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_adapter.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_adapter</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.graph_augmentation.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.graph_augmentation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.kopt_topologies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.kopt_topologies</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.load_tracker.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.load_tracker</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_construction</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_improvement</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.lkh3.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.lkh3</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.popmusic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.popmusic</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.policy_lkh3.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.policy_lkh3</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.objective</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.matheuristics.adaptive_kernel_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.adaptive_kernel_search</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.adaptive_kernel_search.policy_aks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.adaptive_kernel_search.policy_aks</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.adaptive_kernel_search.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.adaptive_kernel_search.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.adaptive_kernel_search.aks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.adaptive_kernel_search.aks</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.matheuristics.local_branching.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.local_branching</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.local_branching.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.local_branching.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.local_branching.policy_lb.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.local_branching.policy_lb</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.local_branching.lb.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.local_branching.lb</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.policy_ils_rvnd_sp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.policy_ils_rvnd_sp</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.rvnd.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.rvnd</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.matheuristics.kernel_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.kernel_search</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.kernel_search.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.kernel_search.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.kernel_search.policy_ks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.kernel_search.policy_ks</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.kernel_search.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.kernel_search.solver</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.policies.route_construction.matheuristics.relaxation_enforced_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.relaxation_enforced_neighborhood_search</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.relaxation_enforced_neighborhood_search.params.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.relaxation_enforced_neighborhood_search.params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.relaxation_enforced_neighborhood_search.policy_rens.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.relaxation_enforced_neighborhood_search.policy_rens</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.policies.route_construction.matheuristics.relaxation_enforced_neighborhood_search.solver.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.matheuristics.relaxation_enforced_neighborhood_search.solver</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="package-contents">
+<h2>Package Contents<a class="headerlink" href="#package-contents" title="Link to this heading">#</a></h2>
+<section id="data">
+<h3>Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.__all__" title="src.policies.route_construction.__all__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__all__</span></code></a></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="api">
+<h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
+<dl class="py data">
+<dt class="sig sig-object py" id="src.policies.route_construction.__all__">
+<span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.</span></span><span class="sig-name descname"><span class="pre">__all__</span></span><a class="headerlink" href="#src.policies.route_construction.__all__" title="Link to this definition">#</a></dt>
+<dd><p>[‘acceptance_criteria’, ‘exact_and_decomposition_solvers’, ‘hyper_heuristics’, ‘learning_algorithms’…</p>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="src.policies.mandatory_selection.selection_lagrangian.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection.selection_lagrangian</span></code></p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="src.policies.route_construction.meta_heuristics.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics</span></code></p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#subpackages">Subpackages</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package-contents">Package Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.__all__"><code class="docutils literal notranslate"><span class="pre">__all__</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By ACFHarbinger
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2026, ACFHarbinger.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

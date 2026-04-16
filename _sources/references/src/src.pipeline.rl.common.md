@@ -23,7 +23,7 @@ src.pipeline.rl.common.base
 :titlesonly:
 :maxdepth: 1
 
-src.pipeline.rl.common.post_processing
+src.pipeline.rl.common.route_improvement
 src.pipeline.rl.common.trainer
 src.pipeline.rl.common.epoch
 src.pipeline.rl.common.reward_scaler_batch

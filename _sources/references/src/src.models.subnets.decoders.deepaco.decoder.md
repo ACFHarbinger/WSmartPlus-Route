@@ -62,7 +62,7 @@ Bases: {py:obj}`logic.src.models.common.non_autoregressive.decoder.NonAutoregres
 
 ````
 
-````{py:method} forward(td: tensordict.TensorDict, heatmap: torch.Tensor, env: logic.src.envs.base.RL4COEnvBase, **kwargs) -> tuple[torch.Tensor, torch.Tensor]
+````{py:method} forward(td: tensordict.TensorDict, heatmap: torch.Tensor, env: logic.src.envs.base.base.RL4COEnvBase, **kwargs) -> tuple[torch.Tensor, torch.Tensor]
 :canonical: src.models.subnets.decoders.deepaco.decoder.ACODecoder.forward
 
 ```{autodoc2-docstring} src.models.subnets.decoders.deepaco.decoder.ACODecoder.forward
@@ -70,7 +70,7 @@ Bases: {py:obj}`logic.src.models.common.non_autoregressive.decoder.NonAutoregres
 
 ````
 
-````{py:method} construct(td: tensordict.TensorDict, heatmap: torch.Tensor, env: logic.src.envs.base.RL4COEnvBase, num_starts: int = 1, return_all: bool = False, **kwargs) -> typing.Dict[str, torch.Tensor]
+````{py:method} construct(td: tensordict.TensorDict, heatmap: torch.Tensor, env: logic.src.envs.base.base.RL4COEnvBase, num_starts: int = 1, return_all: bool = False, **kwargs) -> typing.Dict[str, torch.Tensor]
 :canonical: src.models.subnets.decoders.deepaco.decoder.ACODecoder.construct
 
 ```{autodoc2-docstring} src.models.subnets.decoders.deepaco.decoder.ACODecoder.construct
@@ -78,7 +78,7 @@ Bases: {py:obj}`logic.src.models.common.non_autoregressive.decoder.NonAutoregres
 
 ````
 
-````{py:method} _run_ants(prob_matrix: torch.Tensor, dist_matrix: torch.Tensor, td: tensordict.TensorDict, env: logic.src.envs.base.RL4COEnvBase, return_all: bool = False) -> typing.Union[typing.Tuple[torch.Tensor, torch.Tensor, torch.Tensor], typing.Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]]
+````{py:method} _run_ants(prob_matrix: torch.Tensor, dist_matrix: torch.Tensor, td: tensordict.TensorDict, env: logic.src.envs.base.base.RL4COEnvBase, return_all: bool = False) -> typing.Union[typing.Tuple[torch.Tensor, torch.Tensor, torch.Tensor], typing.Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]]
 :canonical: src.models.subnets.decoders.deepaco.decoder.ACODecoder._run_ants
 
 ```{autodoc2-docstring} src.models.subnets.decoders.deepaco.decoder.ACODecoder._run_ants

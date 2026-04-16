@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.core.nargnn.model.NARGNN.__init__
 ```
 
-````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.RL4COEnvBase] = None, **kwargs) -> typing.Dict[str, typing.Any]
+````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.base.RL4COEnvBase] = None, **kwargs) -> typing.Dict[str, typing.Any]
 :canonical: src.models.core.nargnn.model.NARGNN.forward
 
 ```{autodoc2-docstring} src.models.core.nargnn.model.NARGNN.forward

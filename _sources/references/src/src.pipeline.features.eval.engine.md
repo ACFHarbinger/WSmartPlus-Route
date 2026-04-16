@@ -105,7 +105,7 @@
 ```
 ````
 
-````{py:function} _eval_dataset(model: torch.nn.Module, dataset: torch.utils.data.Dataset, beam_width: int, softmax_temp: float, cfg: logic.src.configs.Config, device: torch.device) -> typing.List[typing.Dict[str, typing.Any]]
+````{py:function} _eval_dataset(model: typing.Any, dataset: torch.utils.data.Dataset, beam_width: int, softmax_temp: float, cfg: logic.src.configs.Config, device: torch.device) -> typing.List[typing.Dict[str, typing.Any]]
 :canonical: src.pipeline.features.eval.engine._eval_dataset
 
 ```{autodoc2-docstring} src.pipeline.features.eval.engine._eval_dataset
@@ -126,14 +126,14 @@
 ```
 ````
 
-````{py:function} _eval_singleprocess(model: torch.nn.Module, dataset_path: str, beam_width: int, softmax_temp: float, cfg: logic.src.configs.Config, use_cuda: bool) -> typing.List[typing.Dict[str, typing.Any]]
+````{py:function} _eval_singleprocess(model: typing.Any, dataset_path: str, beam_width: int, softmax_temp: float, cfg: logic.src.configs.Config, use_cuda: bool) -> typing.List[typing.Dict[str, typing.Any]]
 :canonical: src.pipeline.features.eval.engine._eval_singleprocess
 
 ```{autodoc2-docstring} src.pipeline.features.eval.engine._eval_singleprocess
 ```
 ````
 
-````{py:function} _get_eval_output_path(model: torch.nn.Module, dataset_path: str, cfg: logic.src.configs.Config, model_name: str, beam_width: int, softmax_temp: float, num_costs: int) -> str
+````{py:function} _get_eval_output_path(model: typing.Any, dataset_path: str, cfg: logic.src.configs.Config, model_name: str, beam_width: int, softmax_temp: float, num_costs: int) -> str
 :canonical: src.pipeline.features.eval.engine._get_eval_output_path
 
 ```{autodoc2-docstring} src.pipeline.features.eval.engine._get_eval_output_path

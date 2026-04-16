@@ -67,7 +67,7 @@
 ```
 ````
 
-````{py:function} setup_hrl_manager(sim_cfg: typing.Any, device: torch.device, configs: typing.Optional[typing.Dict[str, typing.Any]] = None, policy: typing.Optional[str] = None, base_path: typing.Optional[str] = None, worker_model: typing.Optional[torch.nn.Module] = None) -> typing.Optional[logic.src.models.MustGoManager]
+````{py:function} setup_hrl_manager(sim_cfg: typing.Any, device: torch.device, configs: typing.Optional[typing.Dict[str, typing.Any]] = None, policy: typing.Optional[str] = None, base_path: typing.Optional[str] = None, worker_model: typing.Optional[torch.nn.Module] = None) -> typing.Optional[logic.src.models.MandatoryManager]
 :canonical: src.utils.configs.setup_manager.setup_hrl_manager
 
 ```{autodoc2-docstring} src.utils.configs.setup_manager.setup_hrl_manager

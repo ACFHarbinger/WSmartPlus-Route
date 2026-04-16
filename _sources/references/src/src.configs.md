@@ -195,24 +195,24 @@ src.configs.tracking
 
 ````
 
-````{py:attribute} must_go
-:canonical: src.configs.Config.must_go
-:type: src.configs.policies.other.MustGoConfig
+````{py:attribute} mandatory_selection
+:canonical: src.configs.Config.mandatory_selection
+:type: src.configs.policies.other.MandatorySelectionConfig
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.Config.must_go
+```{autodoc2-docstring} src.configs.Config.mandatory_selection
 ```
 
 ````
 
-````{py:attribute} post_processing
-:canonical: src.configs.Config.post_processing
-:type: src.configs.policies.other.PostProcessingConfig
+````{py:attribute} route_improvement
+:canonical: src.configs.Config.route_improvement
+:type: src.configs.policies.other.RouteImprovingConfig
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.Config.post_processing
+```{autodoc2-docstring} src.configs.Config.route_improvement
 ```
 
 ````

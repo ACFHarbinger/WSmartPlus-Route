@@ -61,7 +61,7 @@ Bases: {py:obj}`logic.src.models.common.autoregressive.policy.AutoregressivePoli
 
 ````
 
-````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.RL4COEnvBase, strategy: str = 'sampling', num_starts: int = 1, **kwargs) -> typing.Dict[str, typing.Any]
+````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.base.RL4COEnvBase, strategy: str = 'sampling', num_starts: int = 1, **kwargs) -> typing.Dict[str, typing.Any]
 :canonical: src.models.policies.ant_colony_system.VectorizedACOPolicy.forward
 
 ```{autodoc2-docstring} src.models.policies.ant_colony_system.VectorizedACOPolicy.forward
@@ -69,7 +69,7 @@ Bases: {py:obj}`logic.src.models.common.autoregressive.policy.AutoregressivePoli
 
 ````
 
-````{py:method} _construct_solutions(dist_matrix: torch.Tensor, tau: torch.Tensor, eta: torch.Tensor, env: typing.Optional[logic.src.envs.base.RL4COEnvBase]) -> typing.Tuple[torch.Tensor, torch.Tensor]
+````{py:method} _construct_solutions(dist_matrix: torch.Tensor, tau: torch.Tensor, eta: torch.Tensor, env: typing.Optional[logic.src.envs.base.base.RL4COEnvBase]) -> typing.Tuple[torch.Tensor, torch.Tensor]
 :canonical: src.models.policies.ant_colony_system.VectorizedACOPolicy._construct_solutions
 
 ```{autodoc2-docstring} src.models.policies.ant_colony_system.VectorizedACOPolicy._construct_solutions

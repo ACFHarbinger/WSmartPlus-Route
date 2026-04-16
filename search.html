@@ -28,7 +28,7 @@
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=eba8b062" />
-    <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/css/tooltipster.custom.css" />
     <link rel="stylesheet" type="text/css" href="_static/css/tooltipster.bundle.min.css" />
@@ -48,7 +48,7 @@
     <script src="_static/jquery.js?v=5d32c60e"></script>
     <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
     <script src="_static/documentation_options.js?v=9eb32ce0"></script>
-    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="_static/copybutton.js?v=f281be69"></script>
@@ -59,14 +59,16 @@
     <script src="_static/design-tabs.js?v=f930bc37"></script>
     <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs"></script>
-    <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs"></script>
-    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
     <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
     <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
 
-const defaultStyle = document.createElement('style');
-defaultStyle.textContent = `pre.mermaid {
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = `pre.mermaid {
     /* Same as .mermaid-container > pre */
     display: block;
     width: 100%;
@@ -77,12 +79,11 @@ pre.mermaid > svg {
     height: 500px;
     width: 100%;
     max-width: 100% !important;
-}
-`;
-document.head.appendChild(defaultStyle);
+}`;
+    document.head.appendChild(defaultStyle);
 
-const fullscreenStyle = document.createElement('style');
-fullscreenStyle.textContent = `.mermaid-container {
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = `.mermaid-container {
     display: flex;
     flex-direction: row;
     width: 100%;
@@ -234,10 +235,32 @@ fullscreenStyle.textContent = `.mermaid-container {
 .mermaid-fullscreen-modal .mermaid-fullscreen-btn {
     display: none !important;
 }`;
-document.head.appendChild(fullscreenStyle);
+    document.head.appendChild(fullscreenStyle);
+}
 
 // Detect if page has dark background
 const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
     const bgColor = window.getComputedStyle(document.body).backgroundColor;
     const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
     if (match) {
@@ -245,15 +268,45 @@ const isDarkTheme = () => {
         const g = parseInt(match[2]);
         const b = parseInt(match[3]);
         const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
         return brightness < 128;
     }
+    // console.log("No dark or light theme detected, defaulting to light theme");
     return false;
 };
 
-const load = async () => {
-    await mermaid.run();
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
 
-    const all_mermaids = document.querySelectorAll(".mermaid");
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        all_mermaids.forEach((el) => {
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+        await mermaid.run();
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
     const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
 
     if ("False" === "True") {
@@ -261,10 +314,10 @@ const load = async () => {
         if(mermaids_to_add_zoom > 0) {
             var svgs = d3.selectAll("");
             if(all_mermaids.length !== mermaids_processed.length) {
-                setTimeout(load, 200);
+                setTimeout(() => runMermaid(false), 200);
                 return;
             } else if(svgs.size() !== mermaids_to_add_zoom) {
-                setTimeout(load, 200);
+                setTimeout(() => runMermaid(false), 200);
                 return;
             } else {
                 svgs.each(function() {
@@ -280,16 +333,21 @@ const load = async () => {
         }
     } else if(all_mermaids.length !== mermaids_processed.length) {
         // Wait for mermaid to process all diagrams
-        setTimeout(load, 200);
+        setTimeout(() => runMermaid(false), 200);
         return;
     }
-
-    const darkTheme = isDarkTheme();
 
     // Stop here if not adding fullscreen capability
     if ("True" !== "True") return;
 
-    const modal = document.createElement('div');
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
     modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
     modal.setAttribute('role', 'dialog');
     modal.setAttribute('aria-modal', 'true');
@@ -300,10 +358,8 @@ const load = async () => {
     `;
     document.body.appendChild(modal);
 
-    const modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
     const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
-
-    let previousScrollOffset = [window.scrollX, window.scrollY];
 
     const closeModal = () => {
         modal.classList.remove('active');
@@ -322,11 +378,14 @@ const load = async () => {
         }
     });
 
-    const allButtons = [];
-
     document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
         if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
             mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
             return;
         }
 
@@ -384,46 +443,58 @@ const load = async () => {
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
         });
-
         container.appendChild(fullscreenBtn);
-        allButtons.push(fullscreenBtn);
-    });
-
-    // Update theme classes when theme changes
-    const updateTheme = () => {
-        const dark = isDarkTheme();
-        allButtons.forEach(btn => {
-            if (dark) {
-                btn.classList.add('dark-theme');
-            } else {
-                btn.classList.remove('dark-theme');
-            }
-        });
-        if (dark) {
-            modal.classList.add('dark-theme');
-            modalContent.classList.add('dark-theme');
-            closeBtn.classList.add('dark-theme');
-        } else {
-            modal.classList.remove('dark-theme');
-            modalContent.classList.remove('dark-theme');
-            closeBtn.classList.remove('dark-theme');
-        }
-    };
-
-    // Watch for theme changes
-    const observer = new MutationObserver(updateTheme);
-    observer.observe(document.documentElement, {
-        attributes: true,
-        attributeFilter: ['class', 'style', 'data-theme']
-    });
-    observer.observe(document.body, {
-        attributes: true,
-        attributeFilter: ['class', 'style']
     });
 };
 
+const load = async () => {
+    initStyles();
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...JSON.parse(
+                    `{"startOnLoad": false}`
+                ),
+                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...JSON.parse(
+        `{"startOnLoad": false}`
+    ),
+    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    }
+);
+
 window.addEventListener("load", load);
-</script>
+window.runMermaid = runMermaid;</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'search';</script>
   <script src="_static/searchtools.js"></script>
   <script src="_static/language_data.js"></script>
@@ -605,88 +676,11 @@ window.addEventListener("load", load);
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="references/src/src.policies.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.evolution_strategy_mu_plus_lambda.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.evolution_strategy_mu_plus_lambda</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.volleyball_premier_league</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.step_counting_hill_climbing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.step_counting_hill_climbing</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.tabu_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.tabu_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.branch_and_bound.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_bound</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.threshold_accepting.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.threshold_accepting</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.guided_indicators_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.guided_indicators_hyper_heuristic</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.simulated_annealing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.simulated_annealing</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_large_neighborhood_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_volleyball_premier_league</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.memetic_algorithm_dual_population.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_dual_population</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.hybrid_memetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_memetic_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.differential_evolution</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.cluster_first_route_second.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.cluster_first_route_second</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.memetic_algorithm_island_model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_island_model</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.improving_and_equal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.improving_and_equal</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.local_branching_variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching_variable_neighborhood_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.genetic_programming_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.genetic_programming_hyper_heuristic</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.league_championship_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.league_championship_algorithm</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.other.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.other</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.memetic_algorithm_tolerance_based_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm_tolerance_based_selection</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.slack_induction_by_string_removal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.slack_induction_by_string_removal</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.artificial_bee_colony.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.artificial_bee_colony</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.exact_stochastic_dynamic_programming.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.exact_stochastic_dynamic_programming</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.particle_swarm_optimization.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.particle_swarm_optimization</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.knowledge_guided_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.knowledge_guided_local_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.hybrid_genetic_search_ruin_and_recreate.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_ruin_and_recreate</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.constraint_programming_with_boolean_satisfiability.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.constraint_programming_with_boolean_satisfiability</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.branch_and_price_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price_and_cut</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.partial_optimization_metaheuristic_under_special_intensification_conditions.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.partial_optimization_metaheuristic_under_special_intensification_conditions</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.harmony_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.harmony_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.branch_and_price.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_price</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.smart_waste_collection_two_commodity_flow.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.smart_waste_collection_two_commodity_flow</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.variable_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.variable_neighborhood_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.particle_swarm_optimization_memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.particle_swarm_optimization_memetic_algorithm</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.integer_l_shaped_benders_decomposition.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.integer_l_shaped_benders_decomposition</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.progressive_hedging.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.progressive_hedging</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.travelling_salesman_problem.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.travelling_salesman_problem</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.ant_colony_optimization_k_sparse.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization_k_sparse</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.sine_cosine_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.sine_cosine_algorithm</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.hyper_heuristic_us_lk.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hyper_heuristic_us_lk</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_augmented_hybrid_volleyball_premier_league</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.evolution_strategy_mu_kappa_lambda.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.evolution_strategy_mu_kappa_lambda</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.lin_kernighan_helsgaun_three.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.lin_kernighan_helsgaun_three</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.adaptive_kernel_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.adaptive_kernel_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.only_improving.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.only_improving</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.base</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.soccer_league_competition.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.soccer_league_competition</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search_adaptive_large_neighborhood_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.memetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.memetic_algorithm</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.quantum_differential_evolution.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.quantum_differential_evolution</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.old_bachelor_acceptance.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.old_bachelor_acceptance</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.great_deluge.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.great_deluge</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.local_branching.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.local_branching</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.ant_colony_optimization_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ant_colony_optimization_hyper_heuristic</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.hybrid_genetic_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hybrid_genetic_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.branch_and_cut.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.branch_and_cut</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.firefly_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.firefly_algorithm</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.fast_iterative_localized_optimization.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.fast_iterative_localized_optimization</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.simulated_annealing_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.simulated_annealing_neighborhood_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.guided_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.guided_local_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.particle_swarm_optimization_distance_based_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.particle_swarm_optimization_distance_based_algorithm</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.genetic_algorithm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.genetic_algorithm</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.record_to_record_travel.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.record_to_record_travel</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.augmented_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.augmented_hybrid_volleyball_premier_league</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.ensemble_move_acceptance.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.ensemble_move_acceptance</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.late_acceptance_hill_climbing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.late_acceptance_hill_climbing</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.hidden_markov_model_great_deluge_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.hidden_markov_model_great_deluge_hyper_heuristic</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.reinforcement_learning_great_deluge_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_great_deluge_hyper_heuristic</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.reinforcement_learning_adaptive_large_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_adaptive_large_neighborhood_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.kernel_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.kernel_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.sequence_based_selection_hyper_heuristic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.sequence_based_selection_hyper_heuristic</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.evolution_strategy_mu_comma_lambda.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.evolution_strategy_mu_comma_lambda</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.scenario_tree_extensive_form.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.scenario_tree_extensive_form</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.relaxation_enforced_neighborhood_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.relaxation_enforced_neighborhood_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.genius.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.genius</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.iterated_local_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.iterated_local_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.neural_agent.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.neural_agent</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.capacitated_vehicle_routing_problem.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.capacitated_vehicle_routing_problem</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.reactive_tabu_search.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reactive_tabu_search</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.reinforcement_learning_hybrid_volleyball_premier_league.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.reinforcement_learning_hybrid_volleyball_premier_league</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="references/src/src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="references/src/src.cli.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -708,11 +702,13 @@ window.addEventListener("load", load);
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="references/src/src.interfaces.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.interfaces.post_processing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.post_processing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="references/src/src.interfaces.acceptance_criterion.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.acceptance_criterion</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="references/src/src.interfaces.mandatory.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.mandatory</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="references/src/src.interfaces.distance_metric.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.distance_metric</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="references/src/src.interfaces.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.route_improvement</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.interfaces.tensor_dict_like.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.tensor_dict_like</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.interfaces.adapter.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.adapter</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.interfaces.policy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.policy</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="references/src/src.interfaces.must_go.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.must_go</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="references/src/src.interfaces.route_constructor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.route_constructor</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.interfaces.bin_container.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.bin_container</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.interfaces.env.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.env</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="references/src/src.interfaces.model.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.model</span></code></a></li>

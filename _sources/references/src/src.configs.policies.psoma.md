@@ -161,24 +161,24 @@
 
 ````
 
-````{py:attribute} must_go
-:canonical: src.configs.policies.psoma.PSOMAConfig.must_go
+````{py:attribute} mandatory_selection
+:canonical: src.configs.policies.psoma.PSOMAConfig.mandatory_selection
 :type: typing.Optional[typing.List[typing.Any]]
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.psoma.PSOMAConfig.must_go
+```{autodoc2-docstring} src.configs.policies.psoma.PSOMAConfig.mandatory_selection
 ```
 
 ````
 
-````{py:attribute} post_processing
-:canonical: src.configs.policies.psoma.PSOMAConfig.post_processing
+````{py:attribute} route_improvement
+:canonical: src.configs.policies.psoma.PSOMAConfig.route_improvement
 :type: typing.Optional[typing.List[typing.Any]]
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.psoma.PSOMAConfig.post_processing
+```{autodoc2-docstring} src.configs.policies.psoma.PSOMAConfig.route_improvement
 ```
 
 ````

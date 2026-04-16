@@ -37,6 +37,14 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.subnets.encoders.nargnn.gnn_layer.GNNLayer.__init__
 ```
 
+````{py:method} _check_dependencies()
+:canonical: src.models.subnets.encoders.nargnn.gnn_layer.GNNLayer._check_dependencies
+
+```{autodoc2-docstring} src.models.subnets.encoders.nargnn.gnn_layer.GNNLayer._check_dependencies
+```
+
+````
+
 ````{py:method} forward(x: torch.Tensor, edge_index: torch.Tensor, edge_attr: torch.Tensor) -> typing.Tuple[torch.Tensor, torch.Tensor]
 :canonical: src.models.subnets.encoders.nargnn.gnn_layer.GNNLayer.forward
 

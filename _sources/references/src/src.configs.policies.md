@@ -44,6 +44,7 @@ src.configs.policies.qde
 src.configs.policies.gphh
 src.configs.policies.lb_vns
 src.configs.policies.ema
+src.configs.policies.mp_ils_bd
 src.configs.policies.es_mkl
 src.configs.policies.tsp
 src.configs.policies.ie
@@ -55,7 +56,9 @@ src.configs.policies.aks
 src.configs.policies.gd
 src.configs.policies.abc
 src.configs.policies.ils_bd
+src.configs.policies.alns_mp
 src.configs.policies.pso
+src.configs.policies.hrl_irp
 src.configs.policies.ma_ts
 src.configs.policies.ph
 src.configs.policies.gihh
@@ -67,7 +70,9 @@ src.configs.policies.rrt
 src.configs.policies.neural
 src.configs.policies.rl_ahvpl
 src.configs.policies.bc
+src.configs.policies.adp
 src.configs.policies.ils
+src.configs.policies.bmc
 src.configs.policies.sans
 src.configs.policies.hulk
 src.configs.policies.ma_im
@@ -86,6 +91,7 @@ src.configs.policies.vns
 src.configs.policies.genius
 src.configs.policies.hgs_rr
 src.configs.policies.ga
+src.configs.policies.src
 src.configs.policies.ils_rvnd_sp
 src.configs.policies.ahvpl
 src.configs.policies.gls
@@ -124,7 +130,7 @@ src.configs.policies.sisr
 ````{py:data} __all__
 :canonical: src.configs.policies.__all__
 :value: >
-   ['AdaptiveKernelSearchConfig', 'KSparseACOConfig', 'HyperHeuristicACOConfig', 'AHVPLConfig', 'ALNSCo...
+   ['AdaptiveKernelSearchConfig', 'ADPRolloutConfig', 'KSparseACOConfig', 'HyperHeuristicACOConfig', 'A...
 
 ```{autodoc2-docstring} src.configs.policies.__all__
 ```

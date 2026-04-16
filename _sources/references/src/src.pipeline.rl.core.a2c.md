@@ -35,7 +35,7 @@
 
 ### API
 
-`````{py:class} A2C(env: logic.src.envs.base.RL4COEnvBase, policy: torch.nn.Module, critic: typing.Optional[torch.nn.Module] = None, actor_optimizer: str = 'adam', actor_lr: float = 0.0001, critic_optimizer: str = 'adam', critic_lr: float = 0.001, entropy_coef: float = 0.01, value_loss_coef: float = 0.5, normalize_advantage: bool = True, **kwargs)
+`````{py:class} A2C(env: logic.src.envs.base.base.RL4COEnvBase, policy: torch.nn.Module, critic: typing.Optional[torch.nn.Module] = None, actor_optimizer: str = 'adam', actor_lr: float = 0.0001, critic_optimizer: str = 'adam', critic_lr: float = 0.001, entropy_coef: float = 0.01, value_loss_coef: float = 0.5, normalize_advantage: bool = True, **kwargs)
 :canonical: src.pipeline.rl.core.a2c.A2C
 
 Bases: {py:obj}`logic.src.pipeline.rl.common.base.RL4COLitModule`

@@ -37,7 +37,7 @@ Bases: {py:obj}`logging.Formatter`
 ```{autodoc2-docstring} src.tracking.logging.json_formatter.JsonFormatter.__init__
 ```
 
-````{py:method} format(record)
+````{py:method} format(record: logging.LogRecord) -> str
 :canonical: src.tracking.logging.json_formatter.JsonFormatter.format
 
 ```{autodoc2-docstring} src.tracking.logging.json_formatter.JsonFormatter.format
