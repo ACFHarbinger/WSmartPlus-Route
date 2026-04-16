@@ -2,9 +2,11 @@
 Training engine for WSmart-Route.
 """
 
+from __future__ import annotations
+
 import contextlib
 import os
-from typing import Any, List, Optional
+from typing import TYPE_CHECKING, Any, List, Optional, cast
 
 import hydra
 import omegaconf
@@ -25,6 +27,9 @@ try:
     from logic.src.tracking.integrations.zenml_bridge import configure_zenml_stack
 except ImportError:
     configure_zenml_stack = None  # type: ignore[assignment]
+
+if TYPE_CHECKING:
+    from logic.src.pipeline.rl.common.base.module import RL4COLitModule
 
 logger = get_pylogger(__name__)
 
@@ -97,7 +102,8 @@ def run_training(cfg: Config, sinks: Optional[List[Any]] = None) -> float:
     if torch.cuda.is_available() and cfg.train.precision in ["16-mixed", "bf16-mixed"]:
         torch.set_float32_matmul_precision("medium")
 
-    model = create_model(cfg)
+    model_raw = create_model(cfg)
+    model = cast("RL4COLitModule", model_raw)
 
     callbacks = _build_callbacks(cfg)
 

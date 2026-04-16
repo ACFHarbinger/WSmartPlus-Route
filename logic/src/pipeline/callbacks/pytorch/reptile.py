@@ -1,13 +1,19 @@
 """Reptile meta-learning callback."""
 
+from __future__ import annotations
+
 import copy
 import math
 import random
+from typing import TYPE_CHECKING, cast
 
 import pytorch_lightning as L
 import torch
 from pytorch_lightning.callbacks import Callback
 from torch.optim import Adam
+
+if TYPE_CHECKING:
+    from logic.src.pipeline.rl.common.base.module import RL4COLitModule
 
 
 class ReptileCallback(Callback):
@@ -74,14 +80,19 @@ class ReptileCallback(Callback):
         """Sample initial task batch and configure the first task."""
         self._sample_task()
 
+        # Cast to RL4COLitModule to access env and generator
+        module = cast("RL4COLitModule", pl_module)
+        if not hasattr(module, "env") or module.env.generator is None:
+            return
+
         if self.data_type == "size_distribution":
-            pl_module.env.generator.loc_distribution = "gaussian_mixture"
-            self.selected_tasks[0] = (pl_module.env.generator.num_loc, 0, 0)
+            module.env.generator.loc_distribution = "gaussian_mixture"
+            self.selected_tasks[0] = (module.env.generator.num_loc, 0, 0)
         elif self.data_type == "size":
-            pl_module.env.generator.loc_distribution = "uniform"
-            self.selected_tasks[0] = (pl_module.env.generator.num_loc,)
+            module.env.generator.loc_distribution = "uniform"
+            self.selected_tasks[0] = (module.env.generator.num_loc,)
         elif self.data_type == "distribution":
-            pl_module.env.generator.loc_distribution = "gaussian_mixture"
+            module.env.generator.loc_distribution = "gaussian_mixture"
             self.selected_tasks[0] = (0, 0)
         self.task_params = self.selected_tasks[0]
 
@@ -108,9 +119,10 @@ class ReptileCallback(Callback):
         new_optimizer = Adam(pl_module.parameters(), lr=old_lr * lr_decay)
         trainer.optimizers = [new_optimizer]
 
-        if self.print_log:
-            if hasattr(pl_module.env.generator, "capacity"):
-                print(f">> Training task: {self.task_params}, capacity: {pl_module.env.generator.capacity}")
+        module = cast("RL4COLitModule", pl_module)
+        if self.print_log and hasattr(module, "env") and module.env.generator is not None:
+            if hasattr(module.env.generator, "capacity"):
+                print(f">> Training task: {self.task_params}, capacity: {module.env.generator.capacity}")
             else:
                 print(f">> Training task: {self.task_params}")
 
@@ -151,26 +163,31 @@ class ReptileCallback(Callback):
     def _load_task(self, pl_module: L.LightningModule, task_idx: int = 0) -> None:
         """Load a task by updating the environment generator parameters."""
         self.task_params = self.selected_tasks[task_idx]
+        module = cast("RL4COLitModule", pl_module)
 
+        if not hasattr(module, "env") or module.env.generator is None:
+            return
+
+        gen = module.env.generator
         if self.data_type == "size_distribution":
             assert len(self.task_params) == 3
-            pl_module.env.generator.num_loc = self.task_params[0]
-            pl_module.env.generator.num_modes = self.task_params[1]
-            pl_module.env.generator.cdist = self.task_params[2]
+            gen.num_loc = self.task_params[0]
+            gen.num_modes = self.task_params[1]
+            gen.cdist = self.task_params[2]
         elif self.data_type == "distribution":
             assert len(self.task_params) == 2
-            pl_module.env.generator.num_modes = self.task_params[0]
-            pl_module.env.generator.cdist = self.task_params[1]
+            gen.num_modes = self.task_params[0]
+            gen.cdist = self.task_params[1]
         elif self.data_type == "size":
             assert len(self.task_params) == 1
-            pl_module.env.generator.num_loc = self.task_params[0]
+            gen.num_loc = self.task_params[0]
 
-        if hasattr(pl_module.env.generator, "capacity") and self.data_type in [
+        if hasattr(gen, "capacity") and self.data_type in [
             "size_distribution",
             "size",
         ]:
             task_capacity = math.ceil(30 + self.task_params[0] / 5) if self.task_params[0] >= 20 else 20
-            pl_module.env.generator.capacity = task_capacity
+            gen.capacity = task_capacity
 
     def _alpha_scheduler(self) -> None:
         """Decay the outer-loop learning rate."""

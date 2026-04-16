@@ -24,9 +24,15 @@ def add_attention_hooks(model_module: nn.Module) -> Dict[str, Any]:
 
     def hook(module: nn.Module, input: Any, output: Any) -> None:
         """Forward hook to capture attention weights."""
-        if hasattr(module, "last_attn") and module.last_attn is not None:
-            graph_masks.append(module.last_attn[-1])
-            attention_weights.append(module.last_attn[0])
+        last_attn = getattr(module, "last_attn", None)
+        if last_attn is not None:
+            # last_attn is expected to be a tuple/list (e.g. from PointerAttention)
+            # where index 0 is weights and index -1 (or 1) is mask
+            try:
+                graph_masks.append(last_attn[-1])
+                attention_weights.append(last_attn[0])
+            except (IndexError, TypeError):
+                pass
 
     # Register hooks on all MHA layers
     hook_data = {"weights": attention_weights, "masks": graph_masks, "handles": []}

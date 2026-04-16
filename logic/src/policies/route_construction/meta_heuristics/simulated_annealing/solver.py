@@ -17,7 +17,7 @@ References:
 
 import math
 import time
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 from logic.src.policies.helpers.local_search.local_search_base import LocalSearch
@@ -27,7 +27,6 @@ from logic.src.policies.helpers.operators import (
     random_removal,
 )
 from logic.src.policies.helpers.operators.heuristics.greedy_initialization import build_greedy_routes
-from numpy import floating
 
 from .params import SAParams
 
@@ -57,7 +56,7 @@ class SASolver(LocalSearch):
         )
         self.mandatory_nodes = mandatory_nodes or []
         self.nodes = list(range(1, len(dist_matrix)))
-        self.thermal_log: List[Dict[str, Union[float, floating[Any]]]] = []
+        self.thermal_log: List[Dict[str, Any]] = []
         self.acceptance_criterion = params.acceptance_criterion
 
     def _evaluate(self, routes: List[List[int]]) -> float:
@@ -237,7 +236,7 @@ class SASolver(LocalSearch):
         best_routes, _, _ = self.solve(initial_solution=solution)
         return best_routes
 
-    def solve(self, initial_solution: Optional[List[List[int]]] = None) -> Tuple[List[List[int]], float, float]:
+    def solve(self, initial_solution: Optional[List[List[int]]] = None) -> Tuple[List[List[int]], float, float]:  # noqa: C901
         """
         Kirkpatrick (1983) Simulated Annealing.
         Adaptive Markov chains, specific heat tracking, and multi-start.
@@ -265,6 +264,7 @@ class SASolver(LocalSearch):
             best_routes = [list(r) for r in current_routes]
             best_profit = current_profit
 
+            assert self.acceptance_criterion is not None, "Acceptance criterion must be provided."
             if self.params.auto_calibrate_temperature:
                 T_calib = self._calibrate_initial_temperature(current_routes)
                 # If using Boltzmann, update its temperature
@@ -345,6 +345,7 @@ class SASolver(LocalSearch):
 
                 if len(energies) > 1:
                     var = np.var(energies)
+                    assert self.acceptance_criterion is not None
                     current_state = self.acceptance_criterion.get_state()
                     T_diag = current_state.get("temperature", 0.0)
                     c_spec = var / (T_diag**2) if T_diag > 0 else 0.0

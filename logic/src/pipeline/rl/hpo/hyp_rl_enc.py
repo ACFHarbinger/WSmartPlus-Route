@@ -42,6 +42,7 @@ class HyperparameterEncoder(nn.Module):
         # Build encoding layers for each parameter
         self.encoders = nn.ModuleDict()
         self.param_names = list(search_space.keys())
+        self.choice_to_idx_maps: Dict[str, Dict[Any, int]] = {}
 
         for name, spec in search_space.items():
             ptype = spec["type"]
@@ -55,9 +56,10 @@ class HyperparameterEncoder(nn.Module):
             elif ptype == "categorical":
                 # Categorical parameters: embedding layer
                 n_choices = len(spec["choices"])
-                self.encoders[name] = nn.Embedding(n_choices, embed_dim)
+                encoding_layer = nn.Embedding(n_choices, embed_dim)
+                self.encoders[name] = encoding_layer
                 # Store mapping from value to index
-                self.encoders[name].choice_to_idx = {choice: idx for idx, choice in enumerate(spec["choices"])}
+                self.choice_to_idx_maps[name] = {choice: idx for idx, choice in enumerate(spec["choices"])}
 
         # Combine all parameter embeddings
         total_dim = len(self.param_names) * embed_dim
@@ -101,8 +103,9 @@ class HyperparameterEncoder(nn.Module):
                 tensor = torch.tensor([[normalized]], dtype=torch.float32, device=self.device)
                 emb = self.encoders[name](tensor).squeeze(0)
             elif ptype == "categorical":
-                # Look up embedding
-                idx = self.encoders[name].choice_to_idx[value]
+                # Look up embedding using structured map
+                choice_to_idx = self.choice_to_idx_maps[name]
+                idx = choice_to_idx[value]
                 tensor = torch.tensor([idx], dtype=torch.long, device=self.device)
                 emb = self.encoders[name](tensor).squeeze(0)
             else:

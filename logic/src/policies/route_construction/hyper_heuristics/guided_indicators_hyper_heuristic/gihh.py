@@ -132,6 +132,7 @@ class GIHHSolver:
         self.global_best_profit_sol = copy.deepcopy(initial_sol)
 
         # Setup modular acceptance criterion
+        assert self.params.acceptance_criterion is not None
         self.params.acceptance_criterion.setup(initial_sol.profit)
 
         iteration = 1
@@ -167,6 +168,7 @@ class GIHHSolver:
             self.applied_times[selected_operator] += 1
 
             # Use modular criterion to decide acceptance
+            assert self.params.acceptance_criterion is not None
             is_accepted = self.params.acceptance_criterion.accept(
                 current_obj=current_sol.profit,
                 candidate_obj=candidate_sol.profit,
@@ -185,6 +187,7 @@ class GIHHSolver:
                 iterations_since_last_improvement += 1
 
             # Step the criterion after move selection
+            assert self.params.acceptance_criterion is not None
             self.params.acceptance_criterion.step(
                 current_obj=current_sol.profit,
                 candidate_obj=candidate_sol.profit,

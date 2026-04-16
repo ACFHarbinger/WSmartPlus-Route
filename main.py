@@ -17,7 +17,18 @@ Key Functions:
 """
 
 import sys
+import typing
 import warnings
+
+# Ensure typing.Self compatibility for Python < 3.11
+if not hasattr(typing, "Self"):
+    try:
+        from typing_extensions import Self
+
+        typing.Self = Self  # type: ignore[attr-defined]
+    except ImportError:
+        # Fallback to Any if typing_extensions is missing
+        typing.Self = typing.Any  # type: ignore[attr-defined]
 
 from logic.hydra_dispatch import hydra_entry_point
 from logic.parser_dispatch import parser_entry_point

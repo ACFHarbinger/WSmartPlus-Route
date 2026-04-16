@@ -189,7 +189,7 @@ class ALNSSolver:
 
             self.acceptance_criterion = AcceptanceCriterionFactory.create(
                 name="boltzmann",
-                initial_temp=params.start_temp or self._calculate_dynamic_start_temp(100.0),  # Fallback placeholder
+                initial_temp=params.start_temp or 100.0,  # Unified fallback
                 alpha=params.cooling_rate,
                 seed=params.seed,
             )
@@ -591,7 +591,8 @@ class ALNSSolver:
         self.visited_solutions.clear()
         self.visited_solutions.add(self._hash_solution(best_routes))  # type: ignore[arg-type]
 
-        self.acceptance_criterion.setup(current_profit)
+        if self.acceptance_criterion is not None:
+            self.acceptance_criterion.setup(current_profit)
 
         for _it in range(self.params.max_iterations):
             if self.params.time_limit > 0 and time.process_time() - start_time > self.params.time_limit:
@@ -605,13 +606,16 @@ class ALNSSolver:
             new_hash = self._hash_solution(new_routes)
             is_new_solution = new_hash not in self.visited_solutions
 
-            accept = self.acceptance_criterion.accept(
-                current_obj=current_profit,
-                candidate_obj=new_profit,
-                f_best=best_profit,
-                iteration=_it,
-                max_iterations=self.params.max_iterations,
-            )
+            if self.acceptance_criterion is None:
+                accept = new_profit > current_profit + 1e-6
+            else:
+                accept = self.acceptance_criterion.accept(
+                    current_obj=current_profit,
+                    candidate_obj=new_profit,
+                    f_best=best_profit,
+                    iteration=_it,
+                    max_iterations=self.params.max_iterations,
+                )
 
             # ------------------------------------------------------------------
             # Scoring (Ropke & Pisinger 2005, Section 3.4):
@@ -637,14 +641,15 @@ class ALNSSolver:
             if (_it + 1) % self.segment_size == 0:
                 self._end_segment()
 
-            self.acceptance_criterion.step(
-                current_obj=current_profit,
-                candidate_obj=new_profit,
-                accepted=accept,
-                f_best=best_profit,
-                iteration=_it,
-                max_iterations=self.params.max_iterations,
-            )
+            if self.acceptance_criterion is not None:
+                self.acceptance_criterion.step(
+                    current_obj=current_profit,
+                    candidate_obj=new_profit,
+                    accepted=accept,
+                    f_best=best_profit,
+                    iteration=_it,
+                    max_iterations=self.params.max_iterations,
+                )
 
             self._viz_record(
                 iteration=_it,
@@ -652,7 +657,7 @@ class ALNSSolver:
                 r_idx=r_idx,
                 best_profit=best_profit,
                 current_profit=current_profit,
-                acceptance_state=self.acceptance_criterion.get_state(),
+                acceptance_state=self.acceptance_criterion.get_state() if self.acceptance_criterion else {},
                 accepted=int(accept),
                 score=score,
             )

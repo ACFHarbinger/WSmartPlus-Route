@@ -28,7 +28,6 @@ from .gd import GDConfig
 from .gihh import GIHHConfig
 from .gls import GLSConfig
 from .gphh import GPHHConfig
-from .helpers import MandatorySelectionConfig, RouteImprovingConfig
 from .hgs import HGSConfig
 from .hgs_alns import HGSALNSConfig
 from .hgs_rr import HGSRRConfig
@@ -56,6 +55,7 @@ from .ma_ts import MemeticAlgorithmToleranceBasedSelectionConfig
 from .neural import NeuralConfig
 from .oba import OBAConfig
 from .oi import OIConfig
+from .other import MandatorySelectionConfig, RouteImprovingConfig
 from .ph import PHConfig
 from .popmusic import POPMUSICConfig
 from .pso import PSOConfig

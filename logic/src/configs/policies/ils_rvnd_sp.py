@@ -5,7 +5,7 @@ ILS-RVND-SP (Iterated Local Search - Randomized Variable Neighborhood Descent - 
 from dataclasses import dataclass, field
 from typing import Any, List, Optional
 
-from logic.src.configs.policies.helpers.acceptance_criteria import AcceptanceConfig
+from logic.src.configs.policies.other.acceptance_criteria import AcceptanceConfig
 
 from .abc import ABCConfig
 

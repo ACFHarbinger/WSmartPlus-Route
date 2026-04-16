@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import os
 import threading
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, Tuple, cast
 
 import torch
 from torch import nn
@@ -80,7 +80,7 @@ def setup_model(
         model.to(device)
         model.eval()
         if hasattr(model, "set_strategy"):
-            model.set_strategy(strategy, temp=temperature)
+            cast(Any, model).set_strategy(strategy, temp=temperature)
         return model, configs
 
     pol_strip: str = policy.rsplit("_", 1)[0]

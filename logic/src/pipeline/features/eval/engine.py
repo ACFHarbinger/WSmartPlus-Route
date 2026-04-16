@@ -12,7 +12,6 @@ from typing import Any, Dict, List, Optional, Tuple, cast
 import numpy as np
 import torch
 from loguru import logger
-from torch import nn
 from torch.utils.data import DataLoader, Dataset
 
 from logic.src.configs import Config
@@ -96,7 +95,8 @@ def eval_dataset_mp(
     if ev.policy and ev.policy.model:
         model_path = ev.policy.model.load_path or ""
 
-    model, _ = load_model(model_path)
+    model_raw, _ = load_model(model_path)
+    model = cast(Any, model_raw)
     val_size = ev.val_size // num_processes
 
     ds_kwargs = _build_dataset_kwargs(cfg)
@@ -109,7 +109,7 @@ def eval_dataset_mp(
 
 
 def _eval_dataset(
-    model: nn.Module,
+    model: Any,
     dataset: Dataset,
     beam_width: int,
     softmax_temp: float,
@@ -245,7 +245,8 @@ def eval_dataset(
         elif hasattr(ev.policy, "model") and ev.policy.model and ev.policy.model.load_path:
             model_path = ev.policy.model.load_path or ""
 
-    model, _ = load_model(str(model_path))
+    model_raw, _ = load_model(str(model_path))
+    model = cast(Any, model_raw)
     use_cuda = torch.cuda.is_available() and not getattr(ev, "no_cuda", False)
     if getattr(cfg, "device", None) == "cpu":
         use_cuda = False
@@ -343,7 +344,7 @@ def _eval_multiprocessing(dataset_path: str, beam_width: int, softmax_temp: floa
 
 
 def _eval_singleprocess(
-    model: nn.Module, dataset_path: str, beam_width: int, softmax_temp: float, cfg: Config, use_cuda: bool
+    model: Any, dataset_path: str, beam_width: int, softmax_temp: float, cfg: Config, use_cuda: bool
 ) -> List[Dict[str, Any]]:
     """Helper for single-process evaluation."""
     device = torch.device("cpu" if not use_cuda else "cuda:0")
@@ -354,7 +355,7 @@ def _eval_singleprocess(
 
 
 def _get_eval_output_path(
-    model: nn.Module,
+    model: Any,
     dataset_path: str,
     cfg: Config,
     model_name: str,

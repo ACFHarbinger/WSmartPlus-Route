@@ -123,7 +123,7 @@ def export_encoder_to_onnx(
         with torch.no_grad():
             torch.onnx.export(
                 wrapped,
-                dummy_input,
+                (dummy_input,),
                 out_path,
                 input_names=["node_embeddings"],
                 output_names=["output"],

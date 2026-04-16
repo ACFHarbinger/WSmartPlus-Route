@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import math
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
 import torch
 from torch import nn
@@ -109,7 +109,13 @@ class DeepGATDecoder(nn.Module):
         cost_weights = kwargs.get("cost_weights")
         dist_matrix = kwargs.get("dist_matrix")
 
-        state = self.problem.make_state(nodes, None, cost_weights, dist_matrix, **kwargs)
+        # Get problem-specific state implementation
+        if hasattr(self, "problem") and self.problem is not None:
+            state = cast(Any, self.problem).make_state(nodes, None, cost_weights, dist_matrix, **kwargs)
+        else:
+            # Fallback or error if problem is missing
+            raise AttributeError("DeepGATDecoder requires 'self.problem' to be set for constructive decoding.")
+
         fixed = self._precompute(embeddings)
 
         strategy = kwargs.get("strategy", "sampling")
@@ -146,8 +152,8 @@ class DeepGATDecoder(nn.Module):
         pi = torch.stack(sequences, 1)
 
         cost = None
-        if hasattr(self.problem, "get_costs"):
-            out_cost = self.problem.get_costs(nodes, pi, None)
+        if hasattr(self, "problem") and hasattr(cast(Any, self.problem), "get_costs"):
+            out_cost = cast(Any, self.problem).get_costs(nodes, pi, None)
             cost = out_cost[0] if isinstance(out_cost, tuple) else out_cost
 
         return _log_p, pi, cost, None

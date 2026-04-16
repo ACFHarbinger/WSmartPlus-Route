@@ -24,6 +24,10 @@ class TemporalAMPolicy(AttentionModelPolicy):
     a Gated Recurrent Fill Predictor.
     """
 
+    fill_predictor: Union[LongShortTermMemoryFillPredictor, GatedRecurrentUnitFillPredictor]
+    temporal_embed: nn.Linear
+    combine_embeddings: nn.Sequential
+
     def __init__(
         self,
         env_name: str,

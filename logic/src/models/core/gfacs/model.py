@@ -7,7 +7,7 @@ GFlowNet Ant Colony System with Trajectory Balance loss.
 from __future__ import annotations
 
 import math
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, cast
 
 import numpy as np
 import scipy.special
@@ -118,7 +118,7 @@ class GFACS(nn.Module):
         if not hasattr(self, "trainer") or self.trainer is None or not hasattr(self.trainer, "max_epochs"):
             return self.alpha_min
         return self.alpha_min + (self.alpha_max - self.alpha_min) * min(
-            self.current_epoch / (self.trainer.max_epochs - self.alpha_flat_epochs),
+            self.current_epoch / (cast(Any, self.trainer).max_epochs - self.alpha_flat_epochs),
             1.0,
         )
 
@@ -128,7 +128,7 @@ class GFACS(nn.Module):
         if not hasattr(self, "trainer") or self.trainer is None or not hasattr(self.trainer, "max_epochs"):
             return self.beta_min
         return self.beta_min + (self.beta_max - self.beta_min) * min(
-            math.log(self.current_epoch + 1) / math.log(self.trainer.max_epochs - self.beta_flat_epochs),
+            math.log(self.current_epoch + 1) / math.log(cast(Any, self.trainer).max_epochs - self.beta_flat_epochs),
             1.0,
         )
 

@@ -31,6 +31,8 @@ class PolyNetAttention(nn.Module):
         Neural Combinatorial Optimization" (2024)
     """
 
+    binary_vectors: torch.Tensor
+
     def __init__(
         self,
         k: int,

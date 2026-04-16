@@ -144,4 +144,7 @@ def get_vectorized_selector(name: str, **kwargs) -> VectorizedSelector:
     if name.lower() not in selectors:
         raise ValueError(f"Unknown selector: {name}. Available: {list(selectors.keys())}")
 
-    return selectors[name.lower()](**kwargs)
+    from typing import Any, cast
+
+    selector_cls = cast(Any, selectors[name.lower()])
+    return cast(VectorizedSelector, selector_cls(**kwargs))

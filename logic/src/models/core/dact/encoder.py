@@ -9,6 +9,8 @@ Example:
 
 from __future__ import annotations
 
+from typing import cast
+
 import torch
 from tensordict import TensorDict
 from torch import nn
@@ -94,7 +96,8 @@ class DACTEncoder(ImprovementEncoder):
         h = self.pos_embedding(h, pos_normalized)
 
         # Pass through transformer layers
-        for layer in self.layers:
+        for layer_module in self.layers:
+            layer = cast(nn.ModuleDict, layer_module)
             # Multi-head attention
             h_attn = layer["mha"](h)
             h = layer["norm1"](h + h_attn)

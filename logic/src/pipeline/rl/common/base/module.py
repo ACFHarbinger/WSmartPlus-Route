@@ -22,6 +22,7 @@ from .optimization import OptimizationMixin
 from .steps import StepMixin
 
 if TYPE_CHECKING:
+    from logic.src.configs import Config
     from logic.src.interfaces.env import IEnv
     from logic.src.interfaces.policy import IPolicy
     from logic.src.models.policies.selection import VectorizedSelector
@@ -34,11 +35,11 @@ class RL4COLitModule(DataMixin, OptimizationMixin, StepMixin, pl.LightningModule
     Base PyTorch Lightning module for RL training.
 
     This module handles:
-    - Training/validation/test loops
-    - Optimizer configuration
-    - Data loading
     - Metric logging
     """
+
+    cfg: Optional[Config] = None
+    baseline: Any
 
     def __init__(
         self,

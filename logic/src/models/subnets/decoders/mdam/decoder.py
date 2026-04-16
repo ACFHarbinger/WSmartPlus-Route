@@ -28,6 +28,9 @@ class MDAMDecoder(nn.Module):
         Solving Vehicle Routing Problems" (AAAI 2021)
     """
 
+    paths: nn.ModuleList
+    W_placeholder: nn.Parameter
+
     def __init__(
         self,
         embed_dim: int = 128,
@@ -163,7 +166,7 @@ class MDAMDecoder(nn.Module):
         dynamic_embed = self.dynamic_embedding(td)
 
         for path_idx in range(self.num_paths):
-            path = self.paths[path_idx]
+            path = cast(MDAMPath, self.paths[path_idx])
             fixed = path.precompute(h)
             logprobs, _ = path.get_logprobs(fixed, td, dynamic_embed, path_idx)
 
@@ -202,7 +205,7 @@ class MDAMDecoder(nn.Module):
         outputs = []
         actions = []
 
-        path = self.paths[path_idx]
+        path = cast(MDAMPath, self.paths[path_idx])
         fixed = path.precompute(h)
         step = 0
 
