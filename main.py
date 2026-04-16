@@ -35,9 +35,9 @@ try:
     import torch.multiprocessing.reductions
 
     if not hasattr(torch.multiprocessing.reductions, "ForkingPickler"):
-        import multiprocessing.reduction
+        import multiprocessing.reduction as reduction
 
-        torch.multiprocessing.reductions.ForkingPickler = multiprocessing.reduction.ForkingPickler  # type: ignore[attr-defined]
+        torch.multiprocessing.reductions.ForkingPickler = reduction.ForkingPickler  # type: ignore[attr-defined]
 except ImportError:
     pass
 

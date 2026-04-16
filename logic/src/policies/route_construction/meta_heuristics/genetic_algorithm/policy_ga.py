@@ -39,6 +39,41 @@ class GAPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
+        """
+        Execute the Genetic Algorithm (GA) solver logic.
+
+        GA is a population-based search heuristic inspired by the process of
+        natural selection. It uses evolutionary operators such as selection,
+        crossover (recombination), and mutation to evolve a population of
+        candidate solutions. In this implementation:
+        - Selection: Tournament selection is used to choose parents.
+        - Crossover: Order-based crossover operators for route sequences.
+        - Mutation: Random swaps or removals to maintain diversity.
+
+        Args:
+            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+                sub-problem nodes.
+            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+                current bin inventory levels.
+            capacity (float): Maximum vehicle collection capacity.
+            revenue (float): Revenue obtained per kilogram of waste collected.
+            cost_unit (float): Monetary cost incurred per kilometer traveled.
+            values (Dict[str, Any]): Merged configuration dictionary containing
+                GA parameters (pop_size, crossover_rate, mutation_rate).
+            mandatory_nodes (List[int]): Local indices of bins that MUST be
+                collected in this period.
+            **kwargs: Additional context, including:
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
+
+        Returns:
+            Tuple[List[List[int]], float, float]: A 3-tuple containing:
+                - routes: Optimized collection routes (list-of-lists, local indices).
+                - profit: Total calculated net profit (Total Revenue - Total Cost).
+                - cost: Total travel cost calculated by the solver.
+        """
         params = GAParams(
             pop_size=int(values.get("pop_size", 30)),
             max_generations=int(values.get("max_generations", 100)),

@@ -20,7 +20,7 @@ class RouteConstructionAction(SimulationAction):
     Executes the routing policy to generate collection tours.
     """
 
-    def execute(self, context: Dict[str, Any]) -> None:
+    def execute(self, context: Dict[str, Any]) -> None:  # noqa: C901
         """Execute the selected routing policy."""
         # Ensure all adapters are imported so the registry is fully populated
         RouteConstructorFactory.ensure_registered()
@@ -98,14 +98,56 @@ class RouteConstructionAction(SimulationAction):
         try:
             adapter = RouteConstructorFactory.get_adapter(solver_key, config=raw_cfg)
 
+            # --- MULTI-PERIOD ENHANCEMENTS ---
+            # 1. Initialize or Retrieve MultiDayContext
+            day_idx = context.get("day", 0)
+            multi_day_context = context.get("multi_day_context")
+            if multi_day_context is None:
+                from logic.src.policies.context.multi_day_context import MultiDayContext
+
+                multi_day_context = MultiDayContext.initialize(day_index=day_idx)
+
+            # 2. Generate Scenario Tree (if configured or requested by policy)
+            # Check if policy inherits from MultiPeriod base or if specifically requested
+            from logic.src.pipeline.simulations.bins.prediction import ScenarioGenerator
+
+            horizon = flat_cfg.get("policy.horizon") or flat_cfg.get("policy.num_days") or 7
+            method = flat_cfg.get("policy.scenario_method") or "stochastic"
+            generator = ScenarioGenerator(method=method, horizon=horizon, seed=seed)
+
+            # Generate tree using bin stats and truth (if method is oracle)
+            bins_state = context.get("bins")
+            if bins_state is not None:
+                bin_stats = {
+                    "means": getattr(bins_state, "u_i", np.zeros(0)),
+                    "stds": np.sqrt(getattr(bins_state, "v_i", np.zeros(0))),
+                }
+            else:
+                bin_stats = {"means": np.zeros(0), "stds": np.zeros(0)}
+            truth_generator = context.get("truth_generator")  # For Perfect Oracle mode
+
+            scenario_tree = generator.generate(
+                current_wastes=bins_state.c if bins_state is not None else np.zeros(0),
+                bin_stats=bin_stats,
+                truth_generator=truth_generator,
+            )
+            # Inject into context for policy consumption
+            context["scenario_tree"] = scenario_tree
+            context["multi_day_context"] = multi_day_context
+
             start_time = time.process_time()
-            tour, cost, extra_output = adapter.execute(**context)
+            # Unpack 5 values now: tour, cost, profit, search_context, multi_day_context
+            results = adapter.execute(**context)
+            tour, cost, profit, extra_output, updated_multi_day = results
             elapsed_time = time.process_time() - start_time
 
             context["tour"] = tour
             context["cost"] = cost
+            context["profit"] = profit
             context["extra_output"] = extra_output
             context["time"] = elapsed_time
+            # Preserve updated multi-day state for the next simulation day
+            context["multi_day_context"] = updated_multi_day
 
             # Legacy caching for regular selection
             if "regular" in full_policy:

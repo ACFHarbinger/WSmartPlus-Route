@@ -54,10 +54,39 @@ class HGSRRPolicy(BaseRoutingPolicy):
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
         """
-        Run HGS-RR solver.
+        Execute the Hybrid Genetic Search with Ruin-and-Recreate (HGS-RR) solver
+        logic.
+
+        HGS-RR is a hybrid metaheuristic that combines the global search
+        capabilities of Hybrid Genetic Search (HGS) with the flexible ruin-and-recreate
+        operators typical of ALNS. This architecture uses HGS as a high-level manager
+        governing crossover and population diversity, while individual solutions are
+        refined using adaptive ruin-and-recreate operators instead of traditional
+        local search, allowing for aggressive leaps across the solution space.
+
+        Args:
+            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+                sub-problem nodes.
+            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+                current bin inventory levels.
+            capacity (float): Maximum vehicle collection capacity.
+            revenue (float): Revenue obtained per kilogram of waste collected.
+            cost_unit (float): Monetary cost incurred per kilometer traveled.
+            values (Dict[str, Any]): Merged configuration dictionary containing
+                HGS-RR parameters, ruin operators, and repair heuristics.
+            mandatory_nodes (List[int]): Local indices of bins that MUST be
+                collected in this period.
+            **kwargs: Additional context, including:
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
 
         Returns:
-            Tuple of (routes, profit, solver_cost)
+            Tuple[List[List[int]], float, float]: A 3-tuple containing:
+                - routes: Optimized collection routes (list-of-lists, local indices).
+                - profit: Total calculated net profit (Total Revenue - Total Cost).
+                - cost: Total travel cost calculated by the solver.
         """
         params = HGSRRParams(
             time_limit=values.get("time_limit", 10),

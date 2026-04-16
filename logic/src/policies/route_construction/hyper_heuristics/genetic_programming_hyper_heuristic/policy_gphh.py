@@ -104,6 +104,41 @@ class GPHHPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
+        """
+        Execute the Genetic Programming Hyper-Heuristic (GPHH) solver logic.
+
+        GPHH evolves a population of expression trees (learned construction
+        heuristics) that decide node insertion priority. These trees are
+        evaluated across multiple synthetic environments to ensure structural
+        generalization across different spatial topologies.
+
+        The best-evolved construction heuristic is then applied to the current
+        problem state to produce the final routing plan.
+
+        Args:
+            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+                sub-problem nodes.
+            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+                current bin inventory levels.
+            capacity (float): Maximum vehicle collection capacity.
+            revenue (float): Revenue obtained per kilogram of waste collected.
+            cost_unit (float): Monetary cost incurred per kilometer traveled.
+            values (Dict[str, Any]): Merged configuration dictionary containing
+                hyperparameters like `gp_pop_size`, `max_gp_generations`, etc.
+            mandatory_nodes (List[int]): Local indices of bins that MUST be
+                collected in this period.
+            **kwargs: Additional context, including:
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
+
+        Returns:
+            Tuple[List[List[int]], float, float]: A 3-tuple containing:
+                - routes: Optimized collection routes for the current day.
+                - profit: Total calculated net profit (Total Revenue - Total Cost).
+                - cost: Total travel cost calculated by the solver.
+        """
         seed = values.get("seed", 42)
         n_envs = int(values.get("n_training_instances", 3))
         n_nodes = len(sub_dist_matrix) - 1

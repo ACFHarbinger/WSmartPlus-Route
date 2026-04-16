@@ -65,10 +65,43 @@ class RLAHVPLPolicy(BaseRoutingPolicy):
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
         """
-        Run RL-AHVPL solver.
+        Execute the Reinforcement Learning Augmented Hybrid Volleyball Premier League
+        (RL-AHVPL) solver logic.
+
+        RL-AHVPL is a highly sophisticated meta-hybrid that orchestrates multiple
+        routing algorithms (ACO, ALNS, HGS, RTS) within a competitive/collaborative
+        Volleyball Premier League framework. It uses an evolutionary CMAB or
+        LinUCB agent to dynamically assign specific solvers or operator
+        sequences to "teams" based on their historical performance on the
+        current problem topology.
+
+        The system incorporates elite coaching (intensification), substitutions
+        (diversification), and various local search refinements to achieve
+        state-of-the-art results for profit-aware VRP.
+
+        Args:
+            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+                sub-problem nodes.
+            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+                current bin inventory levels.
+            capacity (float): Maximum vehicle collection capacity.
+            revenue (float): Revenue obtained per kilogram of waste collected.
+            cost_unit (float): Monetary cost incurred per kilometer traveled.
+            values (Dict[str, Any]): Merged configuration dictionary containing
+                RL configurations and nested parameters for ACO, ALNS, HGS, and RTS.
+            mandatory_nodes (List[int]): Local indices of bins that MUST be
+                collected in this period.
+            **kwargs: Additional context, including:
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
 
         Returns:
-            Tuple of (routes, profit, solver_cost).
+            Tuple[List[List[int]], float, float]: A 3-tuple containing:
+                - routes: Optimized collection routes for the current day.
+                - profit: Total calculated net profit (Total Revenue - Total Cost).
+                - cost: Total travel cost calculated by the solver.
         """
         seed = values.get("seed", 42)
         vrpp = values.get("vrpp", True)

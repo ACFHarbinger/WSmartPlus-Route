@@ -57,10 +57,43 @@ class VPLPolicy(BaseRoutingPolicy):
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
         """
-        Run VPL solver.
+        Execute the Volleyball Premier League (VPL) solver logic.
+
+        VPL is a bio-inspired competition metaheuristic that mimics the
+        interaction of teams in a sports league. In this implementation:
+        - Teams: A set of candidate solutions organized into a league.
+        - Coaching: Solutions interact via peer-to-peer influence (crossover
+          and displacement) weighted by coaching parameters.
+        - Substitution: Low-performing components (nodes or sub-tours) are
+          periodically replaced with better-performing ones to maintain
+          solution quality.
+        The algorithm uses a dual population structure (active league and
+        passive reserves) to balance intensive competition with structural
+        diversity.
+
+        Args:
+            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+                sub-problem nodes.
+            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+                current bin inventory levels.
+            capacity (float): Maximum vehicle collection capacity.
+            revenue (float): Revenue obtained per kilogram of waste collected.
+            cost_unit (float): Monetary cost incurred per kilometer traveled.
+            values (Dict[str, Any]): Merged configuration dictionary containing
+                VPL parameters (n_teams, substitution_rate, coaching_weights).
+            mandatory_nodes (List[int]): Local indices of bins that MUST be
+                collected in this period.
+            **kwargs: Additional context, including:
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
 
         Returns:
-            Tuple of (routes, profit, solver_cost)
+            Tuple[List[List[int]], float, float]: A 3-tuple containing:
+                - routes: Optimized collection routes (list-of-lists, local indices).
+                - profit: Total calculated net profit (Total Revenue - Total Cost).
+                - cost: Total travel cost calculated by the solver.
         """
         params = VPLParams(
             n_teams=values.get("n_teams", 30),

@@ -35,6 +35,8 @@ References:
 import time
 from typing import Any, Dict, List, Tuple
 
+import numpy as np
+
 from logic.src.policies.helpers.branching_solvers.vrpp_model import VRPPModel
 
 from .master_problem import MasterProblem
@@ -99,42 +101,36 @@ class IntegerLShapedEngine:
 
     def solve(
         self,
-        sub_wastes: Dict[int, float],
+        tree: Any,
     ) -> Tuple[List[List[int]], Dict[int, float], float, Dict[str, Any]]:
-        r"""Run the Integer L-Shaped Benders decomposition.
+        r"""Run the Multi-Period Integer L-Shaped Benders decomposition.
 
         Args:
-            sub_wastes: Observed fill levels {local_node_idx: fill_%}.
-                        Used as the Gamma distribution mean for scenario generation.
+            tree: A ScenarioTree object.
 
         Returns:
-            Tuple of (routes, y_hat, profit, stats):
-                routes: Customer-only route lists from the optimal MP solution.
-                y_hat:  Dict {node_idx: 0.0/1.0} binary visit decisions.
-                profit: Deterministic net profit = revenue − travel_cost.
-                        The recourse surrogate θ is intentionally excluded so
-                        that the returned profit matches the deterministic-policy
-                        convention expected by BaseRoutingPolicy.
-                stats:  Solver diagnostics (iterations, cuts, convergence, time).
+            Tuple of (routes, y_hat, profit, stats).
         """
         if not GUROBI_AVAILABLE:
-            raise ImportError(
-                "Gurobi (gurobipy) is required for the Integer L-Shaped solver. "
-                "Ensure gurobipy is installed and a valid licence is available."
-            )
+            raise ImportError("Gurobi (gurobipy) is required for the Integer L-Shaped solver. ")
 
         t_start = time.perf_counter()
 
         # ------------------------------------------------------------------
-        # Step 0: SAA scenario generation
+        # Step 0: Extract Scenario Paths from Tree
         # ------------------------------------------------------------------
-        seed = self.params.seed if self.params.seed is not None else 42
-        scenarios = self._scenario_gen.generate(
-            sub_wastes=sub_wastes,
-            n_scenarios=self.params.n_scenarios,
-            fill_rate_cv=self.params.fill_rate_cv,
-            seed=seed,
-        )
+        from logic.src.pipeline.simulations.bins.prediction import ScenarioTreeNode
+
+        def get_all_paths(node: ScenarioTreeNode, current_path: List[np.ndarray]) -> List[List[np.ndarray]]:
+            new_path = current_path + [node.wastes]
+            if not node.children:
+                return [new_path]
+            paths = []
+            for child in node.children:
+                paths.extend(get_all_paths(child, new_path))
+            return paths
+
+        scenarios = get_all_paths(tree.root, [])
 
         # ------------------------------------------------------------------
         # Step 1: Build master problem (once)

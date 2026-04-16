@@ -53,6 +53,7 @@ class IntegerLShapedBendersConfig:
     overflow_penalty: float = 100.0
     undervisit_penalty: float = 10.0
     collection_threshold: float = 70.0
+    horizon: int = 7
     fill_rate_cv: float = 0.3
     mip_gap: float = 0.01
     theta_lower_bound: float = 0.0

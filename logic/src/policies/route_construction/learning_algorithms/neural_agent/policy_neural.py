@@ -18,6 +18,8 @@ from typing import Any, Dict, List, Optional, Tuple
 import torch
 
 from logic.src.models.policies.selection import get_vectorized_selector
+from logic.src.policies.context.multi_day_context import MultiDayContext
+from logic.src.policies.context.search_context import SearchContext
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 from logic.src.tracking.core.run import get_active_run
@@ -44,14 +46,37 @@ class NeuralPolicy(BaseRoutingPolicy):
         super().__init__(config)
         self._params_logged = False
 
-    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
+    def execute(self, **kwargs: Any) -> Tuple[List[int], float, float, Optional[SearchContext], Optional[MultiDayContext]]:
         """
-        Execute the neural policy.
+        Execute the Neural Policy by performing inference on a DRL model.
 
-        Additional kwargs for mandatory selection:
-            mandatory (List[int] or torch.Tensor): Pre-computed list of mandatory bin IDs or boolean mask.
-            selector_name (str): Name of vectorized selector ('last_minute', 'lookahead', etc.)
-            selector_threshold (float): Threshold for the selector (meaning depends on selector type).
+        The neural policy encodes the current environment state (distance matrix,
+        bin levels, etc.) and uses a Transformer or GNN-based decoder to
+        constructively build routes. It supports Hierarchical RL (HRL) via a
+        manager-worker architecture if provided.
+
+        Args:
+            **kwargs: Context for neural execution, including:
+                - model_env: The RL environment instance.
+                - model_ls: Local search and profit variable data.
+                - bins: The bin collection state.
+                - device: Torch device for inference.
+                - fill: Current bin fill levels.
+                - dm_tensor: Distance matrix as a Torch tensor.
+                - hrl_manager (Optional): HRL manager instance for hierarchical decision-making.
+                - search_context (Optional[SearchContext]): Context for tracking search metrics.
+                - multi_day_context (Optional[MultiDayContext]): Context for inter-day propagation.
+                - mandatory (Optional): Explicit list or mask of mandatory nodes.
+                - selector_name (Optional): Name of a vectorized mandatory selector.
+                - selector_threshold (Optional): Threshold for the mandatory selector.
+
+        Returns:
+            Tuple of:
+                - tour: The constructed daily tour (list of node IDs).
+                - cost: Total travel cost of the neural tour.
+                - profit: Net profit (Revenue - Cost).
+                - Optional[SearchContext]: Updated search context.
+                - Optional[MultiDayContext]: Updated multi-period context.
         """
         model_env = kwargs["model_env"]
         model_ls = kwargs["model_ls"]
@@ -99,7 +124,12 @@ class NeuralPolicy(BaseRoutingPolicy):
         # Log parameters
         self._log_params(kwargs, cost_weights)
 
-        return tour, cost, output_dict
+        # Compute profit: collected revenue - travel cost
+        visited = {n for n in tour if n != 0}
+        collected_revenue = sum(float(bins.c[n - 1]) * profit_vars.get("revenue_kg", 1.0) for n in visited if 1 <= n <= len(bins.c))
+        profit = collected_revenue - cost * params.cost_weight
+
+        return tour, cost, profit, kwargs.get("search_context"), kwargs.get("multi_day_context")
 
     def _log_params(self, context: Dict[str, Any], cost_weights: Dict[str, float]) -> None:
         """Log neural policy parameters to the active tracking run."""

@@ -52,10 +52,40 @@ class KGLSPolicy(BaseRoutingPolicy):
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
         """
-        Run KGLS solver.
+        Execute the Knowledge-Guided Local Search (KGLS) metaheuristic solver logic.
+
+        KGLS is an advanced variant of GLS that incorporates domain-specific
+        structural "knowledge" to guide the search. It penalizes features that
+        are known to be sub-optimal based on geometric or historical problem
+        properties (e.g., edge widths, relative lengths). The search uses a
+        multi-move local search engine (relocate, swap, 2-opt, cross-exchange)
+        and adjusts penalties across cycles to explore different feasible regions
+        while prioritizing structural integrity.
+
+        Args:
+            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+                sub-problem nodes.
+            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+                current bin inventory levels.
+            capacity (float): Maximum vehicle collection capacity.
+            revenue (float): Revenue obtained per kilogram of waste collected.
+            cost_unit (float): Monetary cost incurred per kilometer traveled.
+            values (Dict[str, Any]): Merged configuration dictionary containing
+                KGLS parameters (num_perturbations, neighborhood_size, moves).
+            mandatory_nodes (List[int]): Local indices of bins that MUST be
+                collected in this period.
+            **kwargs: Additional context, including:
+                - data_nodes (Optional[Dict]): Raw nodes data for coordinate mapping.
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
 
         Returns:
-            Tuple of (routes, profit, solver_cost)
+            Tuple[List[List[int]], float, float]: A 3-tuple containing:
+                - routes: Optimized collection routes (list-of-lists, local indices).
+                - profit: Total calculated net profit (Total Revenue - Total Cost).
+                - cost: Total travel cost calculated by the solver.
         """
         params = KGLSParams(
             time_limit=float(values.get("time_limit", 60.0)),

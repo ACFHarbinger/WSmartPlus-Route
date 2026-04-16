@@ -55,10 +55,45 @@ class HGSPolicy(BaseRoutingPolicy):
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
         """
-        Run HGS solver.
+        Execute the Hybrid Genetic Search (HGS) metaheuristic solver logic.
+
+        HGS (specifically HGS-CVRP) is a state-of-the-art genetic algorithm for
+        vehicle routing. It combines:
+        - Advanced Genetic Operators: Pivot-based crossover (PIX) and large
+          neighborhood movements.
+        - Local Search: Intense refinement of offspring using localized local
+          search (SWAP*, 2-OPT).
+        - Diversity Management: Maintains a population of diverse and high-quality
+          solutions, biased towards individuals that contribute to
+          population diversity.
+        This policy projects coordinates to a local plane to ensure correct polar
+        sector angles during neighborhood pruning.
+
+        Args:
+            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+                sub-problem nodes.
+            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+                current bin inventory levels.
+            capacity (float): Maximum vehicle collection capacity.
+            revenue (float): Revenue obtained per kilogram of waste collected.
+            cost_unit (float): Monetary cost incurred per kilometer traveled.
+            values (Dict[str, Any]): Merged configuration dictionary containing
+                HGS parameters (population_size, nb_elite, nb_granular).
+            mandatory_nodes (List[int]): Local indices of bins that MUST be
+                collected in this period.
+            x_coords (Optional[np.ndarray]): Longitude coordinates for sector pruning.
+            y_coords (Optional[np.ndarray]): Latitude coordinates for sector pruning.
+            **kwargs: Additional context, including:
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
 
         Returns:
-            Tuple of (routes, profit, solver_cost)
+            Tuple[List[List[int]], float, float]: A 3-tuple containing:
+                - routes: Optimized collection routes (list-of-lists, local indices).
+                - profit: Total calculated net profit (Total Revenue - Total Cost).
+                - cost: Total travel cost calculated by the solver.
         """
         # Project lat/lng to a local equirectangular plane centred on the depot (index 0).
         # This is required for correct polar sector angles in SWAP* pruning.

@@ -46,6 +46,44 @@ class LCAPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
+        """
+        Execute the League Championship Algorithm (LCA) solver logic.
+
+        LCA is a sports-inspired metaheuristic that mimics the competitive environment
+        of a sports league. In this implementation:
+        - Teams: A population of solutions representing "teams".
+        - Matches: Pairs of teams play matches (solution comparisons). The team
+          with the higher brightness (profit) is the winner.
+        - Tactics: Winning tactics are propagated through the population via
+          probabilistic movements and crossover, while losing teams adapt by
+          exploring new search areas.
+        This provides a structured framework for balancing intensification (among
+        winners) and exploration (among losers).
+
+        Args:
+            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+                sub-problem nodes.
+            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+                current bin inventory levels.
+            capacity (float): Maximum vehicle collection capacity.
+            revenue (float): Revenue obtained per kilogram of waste collected.
+            cost_unit (float): Monetary cost incurred per kilometer traveled.
+            values (Dict[str, Any]): Merged configuration dictionary containing
+                LCA parameters (n_teams, tolerance_pct, crossover_prob).
+            mandatory_nodes (List[int]): Local indices of bins that MUST be
+                collected in this period.
+            **kwargs: Additional context, including:
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
+
+        Returns:
+            Tuple[List[List[int]], float, float]: A 3-tuple containing:
+                - routes: Optimized collection routes (list-of-lists, local indices).
+                - profit: Total calculated net profit (Total Revenue - Total Cost).
+                - cost: Total travel cost calculated by the solver.
+        """
         params = LCAParams(
             n_teams=int(values.get("n_teams", 10)),
             max_iterations=int(values.get("max_iterations", 100)),

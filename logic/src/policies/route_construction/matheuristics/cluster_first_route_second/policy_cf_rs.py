@@ -10,6 +10,8 @@ mapping, data extraction, and result formatting.
 from typing import Any, Dict, List, Optional, Tuple, Type
 
 from logic.src.configs.policies.cf_rs import CFRSConfig
+from logic.src.policies.context.multi_day_context import MultiDayContext
+from logic.src.policies.context.search_context import SearchContext
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
@@ -60,9 +62,40 @@ class ClusterFirstRouteSecondPolicy(BaseRoutingPolicy):
         """Not used - CFRS requires specialized execute()."""
         return [], 0.0, 0.0
 
-    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
+    def execute(
+        self, **kwargs: Any
+    ) -> Tuple[List[int], float, float, Optional[SearchContext], Optional[MultiDayContext]]:
         """
-        Execute the CFRS policy.
+        Execute the Cluster-First Route-Second (CF-RS) policy on the simulation state.
+
+        CF-RS decomposes the VRPP into two sequential stages:
+        1. Clustering: Nodes are grouped into feasible clusters based on
+           proximity and inventory levels.
+        2. Routing: For each cluster, a TSP or VRP is solved to determine the
+           visiting sequence.
+
+        Args:
+            **kwargs: Context for policy execution, including:
+                - distance_matrix (np.ndarray): Full distance matrix for the problem.
+                - wastes (Dict[int, float]): Current bin inventory levels.
+                - capacity (float): Vehicle collection capacity.
+                - mandatory (List[int]): Local indices of mandatory nodes.
+                - R (float): Revenue multiplier.
+                - C (float): Cost multiplier.
+                - number_vehicles (int): Number of available vehicles.
+                - coords (np.ndarray): Spatial coordinates of the nodes.
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
+
+        Returns:
+            Tuple of:
+                - tour: The flattened daily tour containing all visits.
+                - solver_cost: Total calculated travel cost.
+                - profit: Total calculated net profit.
+                - Optional[SearchContext]: Updated search context.
+                - Optional[MultiDayContext]: Updated multi-period context.
         """
         # 1. Initialize type-safe Params
         params = CFRSParams.from_config(self._config or kwargs.get("config", {}).get("cf_rs", {}))
@@ -103,4 +136,5 @@ class ClusterFirstRouteSecondPolicy(BaseRoutingPolicy):
         # Flatten routes for consistent output if necessary
         tour = [node for route in routes for node in route]
 
-        return tour, float(solver_cost), extra_data
+        profit = extra_data.get("profit", 0.0) if isinstance(extra_data, dict) else 0.0
+        return tour, float(solver_cost), profit, kwargs.get("search_context"), kwargs.get("multi_day_context")

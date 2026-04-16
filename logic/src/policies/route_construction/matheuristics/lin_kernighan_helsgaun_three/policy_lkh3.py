@@ -88,24 +88,37 @@ class LKH3Policy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        """Main LKH-3 entry point for the simulator.
+        """
+        Execute the Lin-Kernighan-Helsgaun 3 (LKH-3) solver logic.
 
-        Extracts LKH-3 hyperparameters from the ``values`` dict, builds the
-        demand array, invokes :func:`solve_lkh3`, and reformats the result.
+        LKH-3 is an extremely powerful iterated local search heuristic. It generalizes
+        the classic K-opt Lin-Kernighan move for various constrained TSP and VRP
+        variants. This implementation specifically supports CVRP and VRPP
+        through graph augmentation (dummy nodes/edges) and can use ALNS for
+        intensification within the LKH framework.
 
         Args:
-            sub_dist_matrix: (N × N) distance matrix (local indices).
-            sub_wastes: ``{local_idx: fill_level}`` for nodes 1..M.
-            capacity: Vehicle capacity.
-            revenue: Revenue per unit (scaled).
-            cost_unit: Cost per distance unit.
-            values: Merged config dict from :meth:`BaseRoutingPolicy._load_area_params`.
-            mandatory_nodes: Local indices that **must** be visited.
-            **kwargs: Additional keyword arguments.
+            sub_dist_matrix (np.ndarray): Symmetric distance matrix (local indices).
+            sub_wastes (Dict[int, float]): Mapping of local node indices to
+                current bin inventory levels.
+            capacity (float): Maximum vehicle collection capacity.
+            revenue (float): Revenue obtained per kilogram of waste collected.
+            cost_unit (float): Monetary cost incurred per kilometer traveled.
+            values (Dict[str, Any]): Merged configuration dictionary containing
+                LKH-3 parameters (runs, max_trials, max_k_opt, etc.) and ALNS settings.
+            mandatory_nodes (List[int]): Local indices of bins that MUST be
+                collected in this period.
+            **kwargs: Additional context, including:
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
 
         Returns:
-            ``(routes, profit, cost)`` — routes as list-of-lists (local indices),
-            total profit, and total routing cost.
+            Tuple[List[List[int]], float, float]: A 3-tuple containing:
+                - routes: Optimized collection routes (list-of-lists, local indices).
+                - profit: Total calculated net profit (Total Revenue - Total Cost).
+                - cost: Total travel cost calculated by the solver.
         """
         n_original = len(sub_dist_matrix)
 

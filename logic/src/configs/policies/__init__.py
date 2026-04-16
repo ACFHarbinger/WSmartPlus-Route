@@ -5,9 +5,11 @@ Policy configuration dataclasses.
 from .abc import ABCConfig
 from .aco_hh import HyperHeuristicACOConfig
 from .aco_ks import KSparseACOConfig
+from .adp import ADPRolloutConfig
 from .ahvpl import AHVPLConfig
 from .aks import AdaptiveKernelSearchConfig
 from .alns import ALNSConfig
+from .alns_mp import ALNSMPConfig
 from .bb import BBConfig
 from .bc import BCConfig
 from .bp import BPConfig
@@ -33,6 +35,7 @@ from .hgs_alns import HGSALNSConfig
 from .hgs_rr import HGSRRConfig
 from .hmm_gd_hh import HMMGDHHConfig
 from .hms import HybridMemeticSearchConfig
+from .hrl_irp import HRLIRPPolicyConfig
 from .hs import HSConfig
 from .hulk import HULKConfig
 from .hvpl import HVPLConfig
@@ -52,6 +55,7 @@ from .ma import MAConfig
 from .ma_dp import MemeticAlgorithmDualPopulationConfig
 from .ma_im import MemeticAlgorithmIslandModelConfig
 from .ma_ts import MemeticAlgorithmToleranceBasedSelectionConfig
+from .mp_ils_bd import MPILSBDConfig
 from .neural import NeuralConfig
 from .oba import OBAConfig
 from .oi import OIConfig
@@ -70,12 +74,12 @@ from .rl_hvpl import RLHVPLConfig
 from .rrt import RRTConfig
 from .rts import RTSConfig
 from .sa import SAConfig
-from .src import SRCConfig
 from .sans import SANSConfig
 from .sca import SCAConfig
 from .schc import SCHCConfig
 from .sisr import SISRConfig
 from .slc import SLCConfig
+from .src import SRCConfig
 from .ss_hh import SSHHConfig
 from .st_ef import ScenarioTreeExtensiveFormConfig
 from .swc_tcf import SWCTCFConfig
@@ -87,10 +91,12 @@ from .vpl import VPLConfig
 
 __all__ = [
     "AdaptiveKernelSearchConfig",
+    "ADPRolloutConfig",
     "KSparseACOConfig",
     "HyperHeuristicACOConfig",
     "AHVPLConfig",
     "ALNSConfig",
+    "ALNSMPConfig",
     "BBConfig",
     "BCConfig",
     "BPConfig",
@@ -103,6 +109,7 @@ __all__ = [
     "HGSConfig",
     "HGSALNSConfig",
     "HGSRRConfig",
+    "HRLIRPPolicyConfig",
     "ILSRVNDSPConfig",
     "IntegerLShapedBendersConfig",
     "HVPLConfig",
@@ -166,6 +173,7 @@ __all__ = [
     "RTSConfig",
     "ExactSDPConfig",
     "PHConfig",
+    "MPILSBDConfig",
     "ScenarioTreeExtensiveFormConfig",
     "LBBDConfig",
     "CPSATConfig",

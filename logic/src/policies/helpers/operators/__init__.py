@@ -39,6 +39,7 @@ from .destroy import (
     historical_removal,
     neighbor_profit_removal,
     neighbor_removal,
+    pattern_removal,
     penalized_removal,
     random_removal,
     route_profit_removal,
@@ -46,6 +47,7 @@ from .destroy import (
     sector_removal,
     shaw_profit_removal,
     shaw_removal,
+    shift_visit_removal,
     string_profit_removal,
     string_removal,
     worst_profit_removal,
@@ -124,6 +126,7 @@ from .repair import (
     deep_insertion,
     deep_profit_insertion,
     farthest_insertion,
+    forward_looking_insertion,
     geni_insertion,
     geni_profit_insertion,
     greedy_insertion,
@@ -295,4 +298,8 @@ __all__ = [
     "apply_lns",
     "build_greedy_routes",
     "build_nn_routes",
+    # Inter-period operators (multi-period ALNS)
+    "shift_visit_removal",
+    "pattern_removal",
+    "forward_looking_insertion",
 ]

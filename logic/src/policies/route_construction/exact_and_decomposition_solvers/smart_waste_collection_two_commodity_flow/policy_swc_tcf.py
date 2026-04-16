@@ -9,6 +9,8 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 import numpy as np
 
 from logic.src.configs.policies import SWCTCFConfig
+from logic.src.policies.context.multi_day_context import MultiDayContext
+from logic.src.policies.context.search_context import SearchContext
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
@@ -63,12 +65,44 @@ class SWCTCFPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        """Not used - SWC-TCF requires specialized execute()."""
+        """
+        Legacy single-day solver fallback.
+        SWC-TCF uses a specialized execute() method for historical reasons.
+        """
         return [], 0.0, 0.0
 
-    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
+    def execute(
+        self, **kwargs: Any
+    ) -> Tuple[List[int], float, float, Optional[SearchContext], Optional[MultiDayContext]]:
         """
-        Execute the SWC-TCF policy.
+        Execute the Smart Waste Collection - Two-Commodity Flow (SWC-TCF) solver logic.
+
+        This method coordinates the execution of the SWC-TCF formulation, which
+        uses a flow-based Mixed-Integer Linear Program (MILP) to solve the
+        routing problem. It supports multiple backends (Gurobi, Hexaly, Pyomo)
+        and is specifically tuned for constraints found in the original Ramos
+        et al. (2018) smart waste collection study.
+
+        Args:
+            **kwargs: Context dictionary containing:
+                - area (str): The operational area (e.g., "Rio Maior").
+                - waste_type (str): The type of waste (e.g., "plastic").
+                - bins (BCollection): The bin collection object or fill amounts.
+                - distance_matrix (np.ndarray): Symmetric distance matrix.
+                - mandatory_nodes (List[int]): Bins that MUST be collected.
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
+
+        Returns:
+            Tuple[List[int], float, float, Optional[SearchContext], Optional[MultiDayContext]]:
+                A 5-tuple containing:
+                - route: The optimized collection route (flat list).
+                - cost: Total travel cost calculated based on the route.
+                - profit: Total net profit (Total Revenue - Total Cost).
+                - search_context: The propagated or initialized search context.
+                - multi_day_context: The final multi-day state metadata.
         """
         # 1. Extract context
         area = kwargs.get("area", "Rio Maior")
@@ -111,4 +145,4 @@ class SWCTCFPolicy(BaseRoutingPolicy):
             dual_values=dual_values,
         )
 
-        return route, cost, {"profit": profit}
+        return route, cost, profit, kwargs.get("search_context"), kwargs.get("multi_day_context")

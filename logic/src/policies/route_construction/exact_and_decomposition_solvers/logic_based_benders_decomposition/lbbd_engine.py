@@ -1,8 +1,9 @@
 import time
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List, Tuple
 
 import numpy as np
 from logic.src.configs.policies.lbbd import LBBDConfig
+from logic.src.pipeline.simulations.bins.prediction import ScenarioTree
 
 from .master import LBBDMasterProblem
 from .subproblem import RoutingSubproblem
@@ -17,12 +18,12 @@ class LBBDEngine:
         self,
         config: LBBDConfig,
         distance_matrix: np.ndarray,
-        initial_wastes: Dict[int, float],
+        tree: ScenarioTree,
         capacity: float = 1.0,
     ):
         self.config = config
         self.distance_matrix = distance_matrix
-        self.initial_wastes = initial_wastes
+        self.tree = tree
         self.capacity = capacity
 
         self.num_nodes = distance_matrix.shape[0]
@@ -33,15 +34,15 @@ class LBBDEngine:
 
         self.stats = {"iterations": 0, "cuts_added": 0, "converged": False, "solve_time": 0.0}
 
-    def solve(self) -> Tuple[List[int], float]:
+    def solve(self) -> Tuple[List[List[List[int]]], float, Dict[str, Any]]:
         """
         Runs the LBBD algorithm.
-        Returns (best_route_day1, total_expected_profit).
+        Returns (full_plan, total_expected_profit, stats).
         """
         start_time = time.time()
-        self.master.build(self.initial_wastes, self.distance_matrix)
+        self.master.build(self.tree, self.config.stochastic_master)
 
-        day1_route = [0, 0]
+        full_plan: List[List[List[int]]] = []
         total_profit = 0.0
 
         for iteration in range(1, self.config.max_iterations + 1):
@@ -54,12 +55,17 @@ class LBBDEngine:
 
             converged = True
 
+            current_plan: List[List[List[int]]] = []
+
             # 2. Check each day for subproblem compliance
-            for d in range(1, self.config.num_days + 1):
+            for d in range(1, self.master.current_horizon + 1):
                 nodes_in_d = assignments[d]
 
                 # Solve Routing Subproblem for this assignment
                 is_feasible, dist, route = self.subproblem.solve(nodes_in_d)
+
+                # Store the route even if potentially infeasible (to avoid empty plan)
+                current_plan.append([route] if route else [[0, 0]])
 
                 if not is_feasible:
                     # Add Nogood cut
@@ -73,9 +79,8 @@ class LBBDEngine:
                     self.stats["cuts_added"] += 1
                     converged = False
 
-                # Keep track of Day 1's best found route so far
-                if d == 1:
-                    day1_route = route
+            # Update best plan
+            full_plan = current_plan
 
             if converged:
                 self.stats["converged"] = True
@@ -91,4 +96,4 @@ class LBBDEngine:
         if self.master.model.SolCount > 0:  # type: ignore[union-attr]
             total_profit = self.master.model.ObjVal  # type: ignore[union-attr]
 
-        return day1_route, total_profit
+        return full_plan, total_profit, self.stats

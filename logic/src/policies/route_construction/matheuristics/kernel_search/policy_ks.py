@@ -9,6 +9,8 @@ It handles configuration parsing, state extraction, and results formatting.
 from typing import Any, Dict, List, Optional, Tuple, Type
 
 from logic.src.configs.policies.ks import KernelSearchConfig
+from logic.src.policies.context.multi_day_context import MultiDayContext
+from logic.src.policies.context.search_context import SearchContext
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.matheuristics.kernel_search.solver import run_kernel_search_gurobi
@@ -88,30 +90,42 @@ class KernelSearchPolicy(BaseRoutingPolicy):
         """Not used - KS requires specialized execute()."""
         return [], 0.0, 0.0
 
-    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Any]:
+    def execute(
+        self, **kwargs: Any
+    ) -> Tuple[List[int], float, float, Optional[SearchContext], Optional[MultiDayContext]]:
         """
-        Execute the Kernel Search matheuristic on the provided simulation state.
+        Execute the Kernel Search (KS) matheuristic on the simulation state.
 
-        This method extracts relevant environment data (distance matrices, waste levels,
-        vehicle capacity) and delegates the core optimization to the Gurobi solver.
+        Kernel Search decomposes the MILP model of a VRPP into a sequence of
+        smaller sub-problems. It starts with an initial "Kernel" of variables
+        (selected via LP relaxation) and iteratively adds "Buckets" of
+        remaining variables, solving a series of MIPs to improve the current
+        best feasible solution.
+
+        This implementation uses Gurobi for the MIP solves and manages
+        subtour elimination dynamically.
 
         Args:
-            **kwargs (Any): A dictionary containing the current simulation state.
-                Required keys:
-                    - `distance_matrix` (np.ndarray): Symmetric or asymmetric cost matrix.
-                Optional keys:
-                    - `wastes` (Dict[int, float]): Map of customer IDs to current waste levels.
-                    - `capacity` (float): Maximum vehicle load.
-                    - `mandatory` (List[int]): IDs of customers that MUST be visited.
-                    - `R` (float): Revenue multiplier for the objective function.
-                    - `C` (float): Cost multiplier for the objective function.
-                    - `seed` (int): Random seed for reproducibility.
+            **kwargs: Context for matheuristic execution, including:
+                - distance_matrix (np.ndarray): Symmetric or asymmetric cost matrix.
+                - wastes (Dict[int, float]): Map of customer IDs to current waste levels.
+                - capacity (float): Maximum vehicle load.
+                - mandatory (List[int]): IDs of customers that MUST be visited.
+                - R (float): Revenue multiplier for the objective function.
+                - C (float): Cost multiplier for the objective function.
+                - seed (int): Random seed for reproducibility.
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
 
         Returns:
-            Tuple[List[int], float, Any]: A 3-tuple containing:
-                - `tour` (List[int]): The ordered sequence of visited nodes, starting/ending at 0.
-                - `cost` (float): The total travel distance/cost of the resulting tour.
-                - `extra_data` (Dict[str, Any]): Additional info such as the MILP objective value.
+            Tuple of:
+                - tour: The ordered sequence of visited nodes, starting/ending at 0.
+                - cost: The total travel distance/cost of the resulting tour.
+                - obj_val: The final net profit (Revenue - Cost).
+                - Optional[SearchContext]: Updated search context.
+                - Optional[MultiDayContext]: Updated multi-period context.
         """
         # 1. Initialize parameters
         params = KSParams.from_config(self.config)
@@ -147,4 +161,4 @@ class KernelSearchPolicy(BaseRoutingPolicy):
         )
 
         # 6. Return standard policy results
-        return tour, float(cost), {"obj_val": obj_val}
+        return tour, cost, obj_val, kwargs.get("search_context"), kwargs.get("multi_day_context")

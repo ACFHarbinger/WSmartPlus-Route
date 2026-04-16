@@ -36,20 +36,41 @@ class RLALNSPolicy(BaseRoutingPolicy):
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
         """
-        Instantiate and run the RLALNSSolver.
+        Execute the Reinforcement Learning Adaptive Large Neighborhood Search (RL-ALNS)
+        solver logic.
+
+        RL-ALNS replaces the standard frequency-based weights in ALNS with an
+        online reinforcement learning agent (Multi-Armed Bandit or Temporal
+        Difference learner). The agent selects ruin-and-recreate operators based
+        on their observed performance rewards (e.g., finding a new global best
+        or improving the current solution).
+
+        The search process is controlled by a simulated annealing acceptance
+        criterion to balance intensification and diversification.
 
         Args:
-            sub_dist_matrix: Subset distance matrix.
-            sub_wastes: Local wastes dict.
-            capacity: Vehicle capacity.
-            revenue: Revenue per distance.
-            cost_unit: Cost per distance unit.
-            values: Merged configuration dictionary.
-            mandatory_nodes: Local indices of nodes that MUST be visited.
-            **kwargs: Extra arguments.
+            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+                sub-problem nodes.
+            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+                current bin inventory levels.
+            capacity (float): Maximum vehicle collection capacity.
+            revenue (float): Revenue obtained per kilogram of waste collected.
+            cost_unit (float): Monetary cost incurred per kilometer traveled.
+            values (Dict[str, Any]): Merged configuration dictionary containing
+                RL configurations and ALNS parameters like `start_temp`, `cooling_rate`.
+            mandatory_nodes (List[int]): Local indices of bins that MUST be
+                collected in this period.
+            **kwargs: Additional context, including:
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
 
         Returns:
-            Tuple of (best_routes, best_profit, best_cost).
+            Tuple[List[List[int]], float, float]: A 3-tuple containing:
+                - routes: Optimized collection routes for the current day.
+                - profit: Total calculated net profit (Total Revenue - Total Cost).
+                - cost: Total travel cost calculated by the solver.
         """
         # Handle nested rl_config if present (from new Hydra structure)
         seed = values.get("seed", 42)

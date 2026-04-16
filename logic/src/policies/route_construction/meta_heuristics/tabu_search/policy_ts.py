@@ -38,6 +38,44 @@ class TSPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
+        """
+        Execute the Tabu Search (TS) metaheuristic solver logic.
+
+        TS is a local search-based metaheuristic that uses a flexible memory system
+        to prevent the search from returning to recently visited solutions (tabu
+        list). This implementation features:
+        - Short-term Memory: Prevents cycling using a tabu tenure.
+        - Long-term Memory: Frequency-based diversification to explore new
+          regions and intensification to refine the best known neighborhoods.
+        - Aspiration Criteria: Allows tabu moves if they result in a new global
+          best solution.
+        - Candidate Lists: Restricts the move evaluations to high-potential
+          subsets to improve computational efficiency.
+
+        Args:
+            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+                sub-problem nodes.
+            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+                current bin inventory levels.
+            capacity (float): Maximum vehicle collection capacity.
+            revenue (float): Revenue obtained per kilogram of waste collected.
+            cost_unit (float): Monetary cost incurred per kilometer traveled.
+            values (Dict[str, Any]): Merged configuration dictionary containing
+                TS parameters (tabu_tenure, max_iterations, elite_size).
+            mandatory_nodes (List[int]): Local indices of bins that MUST be
+                collected in this period.
+            **kwargs: Additional context, including:
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
+
+        Returns:
+            Tuple[List[List[int]], float, float]: A 3-tuple containing:
+                - routes: Optimized collection routes (list-of-lists, local indices).
+                - profit: Total calculated net profit (Total Revenue - Total Cost).
+                - cost: Total travel cost calculated by the solver.
+        """
         params = TSParams(
             # Short-term memory
             tabu_tenure=int(values.get("tabu_tenure", 7)),

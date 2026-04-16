@@ -46,6 +46,44 @@ class ABCPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
+        """
+        Execute the Artificial Bee Colony (ABC) solver logic.
+
+        ABC is a population-based metaheuristic inspired by the foraging
+        behavior of honey bees. It maintains a population of solutions
+        (food sources), which are modified by three types of bees:
+        - Employed Bees: Search around known food sources.
+        - Onlooker Bees: Select high-quality food sources and search around
+          them (exploitation).
+        - Scout Bees: Abandon poor sources and find new random ones
+          (exploration).
+        The search process includes local search and removal operators for
+        intensification.
+
+        Args:
+            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+                sub-problem nodes.
+            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+                current bin inventory levels.
+            capacity (float): Maximum vehicle collection capacity.
+            revenue (float): Revenue obtained per kilogram of waste collected.
+            cost_unit (float): Monetary cost incurred per kilometer traveled.
+            values (Dict[str, Any]): Merged configuration dictionary containing
+                ABC parameters (n_sources, limit, iterations).
+            mandatory_nodes (List[int]): Local indices of bins that MUST be
+                collected in this period.
+            **kwargs: Additional context, including:
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
+
+        Returns:
+            Tuple[List[List[int]], float, float]: A 3-tuple containing:
+                - routes: Optimized collection routes (list-of-lists, local indices).
+                - profit: Total calculated net profit (Total Revenue - Total Cost).
+                - cost: Total travel cost calculated by the solver.
+        """
         params = ABCParams(
             n_sources=int(values.get("n_sources", 20)),
             limit=int(values.get("limit", 10)),

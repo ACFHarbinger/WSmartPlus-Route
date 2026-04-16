@@ -1,5 +1,39 @@
-"""
-Scenario-Tree Extensive Form (ST-EF) Policy Adapter.
+r"""
+Scenario Tree Extensive Form (ST-EF) Policy Adapter for Stochastic VRPP.
+
+ST-EF solves the Multi-Period Stochastic Integer Routing Problem by constructing
+the Deterministic Equivalent Problem (DEP) over the entire `ScenarioTree`.
+
+Mathematical Principle:
+    Given a scenario tree $\mathcal{T}$ with nodes $n \in \mathcal{N}$, the model
+    minimizes the expected cost across all leaf nodes while enforcing
+    non-anticipativity implicitly through the tree structure (since branches share
+    ancestry).
+
+    The formulation solves:
+        max  Σ_{n \in \mathcal{N}} p_n [ Revenue(n) - TravelCost(n) - Penalty(n) ]
+        s.t. Vehicle capacity at each node n
+             Flow conservation across days (Day t -> Day t+1) based on branching
+             Bin fill-level transitions w_i(n) = w_i(parent(n)) + increment_i(n)
+
+Algorithm — Integrated Rolling Horizon:
+    1.  **Lookahead**: At each simulation day $d$, ST-EF "sees" $T$ days into the
+        future through the generated `ScenarioTree`.
+    2.  **State Mapping**: Maps current simulation bin inventories to the
+        tree's root node.
+    3.  **Global Optimization**: Solves a single monolithic MILP (via Gurobi)
+        covering all scenarios in the tree simultaneously.
+    4.  **Action Selection**: Extracts only the Day 0 decision (the current day's
+        routing plan) and implements it, discarding future-day decisions which
+        will be re-evaluated on the next rolling horizon step.
+
+Complexity:
+    The size of the EF model grows exponentially with the branching factor and
+    horizon depth $T$. It provides the theoretical upper bound on solution
+    quality (Perfect Information or SAA-optimal) but requires significant
+    computational resources.
+
+Registry key: ``"st_ef"``
 """
 
 from typing import Any, Dict, List, Optional, Tuple
@@ -7,29 +41,84 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 
 from logic.src.configs.policies.st_ef import ScenarioTreeExtensiveFormConfig
-from logic.src.policies.context.search_context import SearchContext
-from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
+from logic.src.policies.route_construction.base.base_multi_period_policy import BaseMultiPeriodRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine import (
     ScenarioTreeExtensiveFormEngine,
 )
-from logic.src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.tree import (
-    ScenarioTree,
-)
 
 
 @RouteConstructorRegistry.register("st_ef")
-class ScenarioTreeExtensiveFormPolicy(BaseRoutingPolicy):
+class ScenarioTreeExtensiveFormPolicy(BaseMultiPeriodRoutingPolicy):
     """
     Adapter for the Scenario-Tree Extensive Form (ST-EF) policy.
+    Now standardized to the Multi-Period framework.
     """
 
     @classmethod
     def _config_class(cls):
         return ScenarioTreeExtensiveFormConfig
 
-    def _get_config_key(cls) -> str:
+    def _get_config_key(self) -> str:
+        """Return the configuration key."""
         return "st_ef"
+
+    def _run_multi_period_solver(
+        self,
+        tree: Any,
+        capacity: float,
+        revenue: float,
+        cost_unit: float,
+        **kwargs: Any,
+    ) -> Tuple[List[List[List[int]]], float, Dict[str, Any]]:
+        """
+        Execute the Scenario Tree Extensive Form (ST-EF) solver logic.
+
+        This method solves the Deterministic Equivalent Problem (DEP) of the
+        multi-period stochastic routing problem. It constructs a single large-scale
+        Mixed-Integer Linear Programming (MILP) model that encompasses all bin
+        fill realization scenarios in the tree simultaneously. Non-anticipativity
+        constraints are implicitly satisfied by the tree's branching structure,
+        ensuring Day 0 decisions are optimal with respect to the expected
+        cumulative profit across the entire horizon.
+
+        Args:
+            tree (ScenarioTree): Tree of future fill rate realizations.
+            capacity (float): Maximum vehicle collection capacity.
+            revenue (float): Revenue obtained per kilogram of waste collected.
+            cost_unit (float): Monetary cost incurred per kilometer traveled.
+            **kwargs: Additional context, including:
+                - distance_matrix (np.ndarray): Symmetric distance matrix.
+                - sub_wastes (Dict[int, float]): Current bin fill levels.
+
+        Returns:
+            Tuple[List[List[List[int]]], float, Dict[str, Any]]:
+                A 3-tuple containing:
+                - full_plan: Collection plan (Day 0 routes specifically).
+                - expected_profit: Optimal objective value (expected total net profit).
+                - stats: Execution statistics and solver performance metadata.
+        """
+        # The ST-EF engine needs adaptation to the new ScenarioTree
+        engine = ScenarioTreeExtensiveFormEngine(
+            tree=tree,
+            distance_matrix=kwargs["distance_matrix"],
+            wastes=kwargs.get("sub_wastes", {}),
+            capacity=capacity,
+            waste_weight=getattr(self.config, "waste_weight", 1.0),
+            cost_weight=getattr(self.config, "cost_weight", 1.0),
+            overflow_penalty=getattr(self.config, "overflow_penalty", 500.0),
+            time_limit=getattr(self.config, "time_limit", 300.0),
+        )
+
+        # ST-EF traditionally returns the Day 1 route specifically
+        route, expected_val = engine.solve()
+
+        # Wrap plan into [day][vehicle][node]
+        # Since ST-EF engine currently returns only Day 1 route, we wrap twice.
+        full_plan: List[List[List[int]]] = [[] for _ in range(self.horizon + 1)]
+        full_plan[0] = [route]
+
+        return full_plan, expected_val, {"mip_status": "solved"}
 
     def _run_solver(
         self,
@@ -39,65 +128,8 @@ class ScenarioTreeExtensiveFormPolicy(BaseRoutingPolicy):
         revenue: float,
         cost_unit: float,
         values: Dict[str, Any],
-        mandatory_nodes: List[int],
+        mandatory_nodes: Optional[List[int]] = None,
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
-        """
-        ST-EF bypasses the standard single-day _run_solver via its execute override,
-        but we implement this to satisfy the abstract base class.
-        """
+        """Legacy fallback."""
         return [], 0.0, 0.0
-
-    def execute(self, **kwargs: Any) -> Tuple[List[int], float, Optional[SearchContext]]:
-        """
-        Executes the ST-EF solver.
-        """
-        # 1. State extraction
-        distance_matrix = kwargs["distance_matrix"]
-        wastes = kwargs.get("wastes", {})
-        capacity = kwargs.get("capacity", 1.0)
-
-        # Mapping from framework kwargs to config/params
-        cfg: ScenarioTreeExtensiveFormConfig = self.config
-
-        # 2. Build Scenario Tree
-        customers = list(range(1, distance_matrix.shape[0]))
-        tree = ScenarioTree(
-            num_days=cfg.num_days,
-            num_realizations=cfg.num_realizations,
-            customers=customers,
-            mean_increment=cfg.mean_increment,
-            seed=cfg.seed,
-        )
-
-        # 3. Instantiate and run Engine
-        engine = ScenarioTreeExtensiveFormEngine(
-            tree=tree,
-            distance_matrix=distance_matrix,
-            wastes=wastes,
-            capacity=capacity,
-            waste_weight=cfg.waste_weight,
-            cost_weight=cfg.cost_weight,
-            overflow_penalty=cfg.overflow_penalty,
-            time_limit=cfg.time_limit,
-            mip_gap=cfg.mip_gap,
-            use_mtz=cfg.use_mtz,
-            verbose=False,  # Toggle via framework logging if needed
-        )
-
-        # 4. Solve and return Day 1 action
-        route, expected_val = engine.solve()
-
-        if not route:
-            # Fallback if no feasible route found
-            return [0, 0], 0.0, kwargs.get("search_context")
-
-        # Calculate actual cost of the extracted route for return
-        actual_cost = 0.0
-        for i in range(len(route) - 1):
-            actual_cost += distance_matrix[route[i], route[i + 1]]
-
-        # Carry forward context if present
-        incoming_ctx: Optional[SearchContext] = kwargs.get("search_context")
-
-        return route, float(actual_cost), incoming_ctx

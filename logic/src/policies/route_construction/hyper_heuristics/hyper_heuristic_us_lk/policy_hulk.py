@@ -41,6 +41,43 @@ class HULKPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
+        """
+        Execute the Hyper-Heuristic Unstringing and Linked-K-opt (HULK) solver logic.
+
+        HULK is a high-performance hyper-heuristic that adaptively selects between
+        diverse unstringing (destroy) and stringing (reconstruct) operators. It
+        leverages a multi-armed bandit (epsilon-greedy) approach with reinforcement
+        learning to prioritize heuristics that contribute to objective improvements
+        or search space exploration.
+
+        The solver incorporates restarts, simulated annealing-style acceptance,
+        and Linked-K-opt local search refinement to achieve near-optimal routing
+        in VRPP instances.
+
+        Args:
+            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+                sub-problem nodes.
+            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+                current bin inventory levels.
+            capacity (float): Maximum vehicle collection capacity.
+            revenue (float): Revenue obtained per kilogram of waste collected.
+            cost_unit (float): Monetary cost incurred per kilometer traveled.
+            values (Dict[str, Any]): Merged configuration dictionary containing
+                hyperparameters like `epsilon`, `weight_learning_rate`, etc.
+            mandatory_nodes (List[int]): Local indices of bins that MUST be
+                collected in this period.
+            **kwargs: Additional context, including:
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
+
+        Returns:
+            Tuple[List[List[int]], float, float]: A 3-tuple containing:
+                - routes: Optimized collection routes for the current day.
+                - profit: Total calculated net profit (Total Revenue - Total Cost).
+                - cost: Total travel cost calculated by the solver.
+        """
         params = HULKParams(
             seed=values.get("seed", 42),
             max_iterations=int(values.get("max_iterations", 1000)),

@@ -62,10 +62,41 @@ class PSOPolicyAdapter(BaseRoutingPolicy):
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
         """
-        Execute PSO to solve the routing problem.
+        Execute the Particle Swarm Optimization (PSO) solver logic.
+
+        PSO is a computational method that optimizes a problem by iteratively
+        trying to improve a candidate solution with regard to a given measure
+        of quality. It solves a problem by having a population of candidate
+        solutions, here dubbed particles, and moving these particles around in
+        the search-space according to simple mathematical formulae over the
+        particle's position and velocity. Each particle's movement is
+        influenced by its local best known position ("pbest") but is also
+        guided toward the best known positions in the search-space ("gbest"),
+        which are updated as better positions are found by other particles.
+
+        Args:
+            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+                sub-problem nodes.
+            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+                current bin inventory levels.
+            capacity (float): Maximum vehicle collection capacity.
+            revenue (float): Revenue obtained per kilogram of waste collected.
+            cost_unit (float): Monetary cost incurred per kilometer traveled.
+            values (Dict[str, Any]): Merged configuration dictionary containing
+                PSO parameters (pop_size, cognitive_coef, social_coef, inertia_weight).
+            mandatory_nodes (List[int]): Local indices of bins that MUST be
+                collected in this period.
+            **kwargs: Additional context, including:
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
 
         Returns:
-            Tuple of (best_routes, best_profit, best_cost).
+            Tuple[List[List[int]], float, float]: A 3-tuple containing:
+                - routes: Optimized collection routes (list-of-lists, local indices).
+                - profit: Total calculated net profit (Total Revenue - Total Cost).
+                - cost: Total travel cost calculated by the solver.
         """
         params = PSOParams(
             pop_size=values.get("pop_size", 30),

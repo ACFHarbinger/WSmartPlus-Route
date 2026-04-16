@@ -37,6 +37,9 @@ class PHConfig:
     convergence_tol: float = 0.01
     sub_solver: str = "bc"
     num_scenarios: int = 10
+    horizon: int = 7
+    consensus_scope: str = "day_0"  # Options: "day_0", "full"
+    stockout_penalty: float = 500.0
     time_limit: float = 300.0
     verbose: bool = True
     mandatory_selection: Optional[List[MandatorySelectionConfig]] = None

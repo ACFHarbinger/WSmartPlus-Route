@@ -10,6 +10,8 @@ class LBBDConfig:
 
     # Multi-day horizon
     num_days: int = 3
+    # Whether to model multiple scenarios explicitly in the Master Problem
+    stochastic_master: bool = False
 
     # Mean fractional increment per day (0.0 to 1.0)
     mean_increment: float = 0.2

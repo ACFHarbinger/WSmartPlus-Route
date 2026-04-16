@@ -45,6 +45,45 @@ class SLCPolicy(BaseRoutingPolicy):
         mandatory_nodes: List[int],
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
+        """
+        Execute the Soccer League Competition (SLC) solver logic.
+
+        SLC is a competition-inspired metaheuristic based on the dynamics of
+        soccer teams in a league. In this implementation:
+        - Teams: A population of solutions organized into "teams".
+        - Competitions (Matches): Teams compete, and individuals within teams
+          interact (via operators like crossover and mutation) to improve their
+          skills (profit).
+        - Promotion/Relegation: Poorly performing solutions are relegated
+          (replaced with new random configurations) to maintain diversity, while
+          top performers are promoted (refined with intensification operators).
+        This hierarchy creates a multi-layered search that efficiently balances
+        global exploration with peer-influenced intensification.
+
+        Args:
+            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
+                sub-problem nodes.
+            sub_wastes (Dict[int, float]): Mapping of local node indices to their
+                current bin inventory levels.
+            capacity (float): Maximum vehicle collection capacity.
+            revenue (float): Revenue obtained per kilogram of waste collected.
+            cost_unit (float): Monetary cost incurred per kilometer traveled.
+            values (Dict[str, Any]): Merged configuration dictionary containing
+                SLC parameters (n_teams, team_size, stagnation_limit).
+            mandatory_nodes (List[int]): Local indices of bins that MUST be
+                collected in this period.
+            **kwargs: Additional context, including:
+                - search_context (Optional[SearchContext]): Context for tracking
+                  recursive solver statistics.
+                - multi_day_context (Optional[MultiDayContext]): Context for
+                  inter-day state propagation.
+
+        Returns:
+            Tuple[List[List[int]], float, float]: A 3-tuple containing:
+                - routes: Optimized collection routes (list-of-lists, local indices).
+                - profit: Total calculated net profit (Total Revenue - Total Cost).
+                - cost: Total travel cost calculated by the solver.
+        """
         params = SLCParams(
             n_teams=int(values.get("n_teams", 5)),
             team_size=int(values.get("team_size", 4)),
