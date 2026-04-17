@@ -7,7 +7,7 @@ from typing import Any, List, Tuple
 import numpy as np
 
 from logic.src.interfaces import IRouteImprovement
-from logic.src.policies.context.search_context import ImprovementMetrics
+from logic.src.interfaces.context.search_context import ImprovementMetrics
 from logic.src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp import find_route
 
 from .base import RouteImproverRegistry

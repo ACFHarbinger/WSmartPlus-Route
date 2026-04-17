@@ -13,7 +13,6 @@ from tensordict import TensorDict
 from torch import nn
 
 from logic.src.envs.base.base import RL4COEnvBase
-from logic.src.utils.decoding import unbatchify
 
 from .policy import GLOPPolicy
 
@@ -111,6 +110,8 @@ class GLOP(nn.Module):
         )
 
         # Reshape reward for n_samples
+        from logic.src.utils.decoding import unbatchify
+
         reward = unbatchify(out["reward"], self.n_samples)
         max_reward, max_idxs = reward.max(dim=-1)
         out["max_reward"] = max_reward
@@ -152,6 +153,8 @@ class GLOP(nn.Module):
         log_likelihood = log_likelihood if log_likelihood is not None else policy_out["log_likelihood"]
 
         # Reshape for multi-sample
+        from logic.src.utils.decoding import unbatchify
+
         reward = unbatchify(reward, self.n_samples)
         log_likelihood = unbatchify(log_likelihood, self.n_samples)
 

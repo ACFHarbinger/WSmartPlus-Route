@@ -112,7 +112,7 @@ class RouteImprovementAction(SimulationAction):
                     # Merge into the ledger if active in the simulation context
                     incoming_ctx = context.get("search_context")
                     if incoming_ctx is not None:
-                        from logic.src.policies.context.search_context import SearchPhase, merge_context
+                        from logic.src.interfaces.context.search_context import SearchPhase, merge_context
 
                         context["search_context"] = merge_context(
                             incoming_ctx,

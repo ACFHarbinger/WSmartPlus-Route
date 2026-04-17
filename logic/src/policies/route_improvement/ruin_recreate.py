@@ -9,8 +9,8 @@ Delegates Simulated Annealing acceptance to the pluggable
 import random
 from typing import Any, List, Tuple
 
+from logic.src.interfaces.context.search_context import AcceptanceMetrics, ImprovementMetrics
 from logic.src.interfaces.route_improvement import IRouteImprovement
-from logic.src.policies.context.search_context import AcceptanceMetrics, ImprovementMetrics
 from logic.src.policies.helpers.operators.heuristics.large_neighborhood_search import (
     apply_lns,
 )

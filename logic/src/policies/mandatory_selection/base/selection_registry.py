@@ -16,7 +16,7 @@ Example:
 
 from typing import Dict, Optional, Type
 
-from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
+from logic.src.interfaces.mandatory_selection import IMandatorySelectionStrategy
 
 
 class MandatorySelectionRegistry:

@@ -10,7 +10,7 @@ the list of selected bin IDs.
 from typing import TYPE_CHECKING, List, Protocol, Tuple, runtime_checkable
 
 if TYPE_CHECKING:
-    from logic.src.policies.context.search_context import SearchContext
+    from logic.src.interfaces.context.search_context import SearchContext
     from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
 
 

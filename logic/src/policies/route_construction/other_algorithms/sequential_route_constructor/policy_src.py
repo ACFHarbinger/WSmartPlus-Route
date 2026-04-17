@@ -9,11 +9,11 @@ import time
 from typing import TYPE_CHECKING, Any, List, Optional, Tuple, Union
 
 if TYPE_CHECKING:
-    from logic.src.policies.context.multi_day_context import MultiDayContext
-    from logic.src.policies.context.search_context import SearchContext
+    from logic.src.interfaces.context.multi_day_context import MultiDayContext
+    from logic.src.interfaces.context.search_context import SearchContext
 
+from logic.src.interfaces.context.search_context import SearchContext
 from logic.src.interfaces.route_constructor import IRouteConstructor
-from logic.src.policies.context.search_context import SearchContext
 
 from ...base.base_routing_policy import BaseRoutingPolicy
 from ...base.registry import RouteConstructorRegistry

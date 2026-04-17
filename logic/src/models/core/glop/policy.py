@@ -14,7 +14,6 @@ from tensordict import TensorDict
 from logic.src.envs.base.base import RL4COEnvBase
 from logic.src.models.common.non_autoregressive.policy import NonAutoregressivePolicy
 from logic.src.models.subnets.modules.glop_factory import get_adapter
-from logic.src.utils.decoding import batchify, unbatchify
 
 # Type for subproblem solvers
 SubProblemSolverType = Callable[[torch.Tensor], torch.Tensor]
@@ -125,6 +124,8 @@ class GLOPPolicy(NonAutoregressivePolicy):
 
         # Calculate reward on final solution
         if calc_reward and env is not None:
+            from logic.src.utils.decoding import batchify
+
             td_repeated = batchify(td, self.n_samples)
             reward = env.get_reward(td_repeated, final_actions)
             out["reward"] = reward.detach()
@@ -149,6 +150,8 @@ class GLOPPolicy(NonAutoregressivePolicy):
         """
         # Reshape for n_samples handling
         # (n_samples * batch) -> (batch * n_samples)
+        from logic.src.utils.decoding import unbatchify
+
         partition_actions_reshaped = (
             unbatchify(partition_actions, self.n_samples)
             .transpose(0, 1)

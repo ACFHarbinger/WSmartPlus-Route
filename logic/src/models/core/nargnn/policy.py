@@ -18,7 +18,6 @@ from logic.src.models.common.non_autoregressive.encoder import NonAutoregressive
 from logic.src.models.common.non_autoregressive.policy import NonAutoregressivePolicy
 from logic.src.models.subnets.decoders.nar import SimpleNARDecoder
 from logic.src.models.subnets.encoders.nargnn import NARGNNEncoder
-from logic.src.utils.decoding import get_log_likelihood
 
 
 class NARGNNPolicy(NonAutoregressivePolicy):
@@ -167,6 +166,8 @@ class NARGNNPolicy(NonAutoregressivePolicy):
         # Constructed outputs
         # Narrow env type to RL4COEnvBase (guaranteed by common_decoding)
         # Post-decoding result preparation
+        from logic.src.utils.decoding import get_log_likelihood
+
         out = {
             "actions": actions,
             "reward": env.get_reward(td, actions) if env is not None else None,

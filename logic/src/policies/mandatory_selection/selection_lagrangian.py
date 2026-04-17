@@ -17,8 +17,8 @@ from typing import List, Tuple
 import numpy as np
 from scipy.optimize import linprog
 
-from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
-from logic.src.policies.context.search_context import SearchContext
+from logic.src.interfaces.context.search_context import SearchContext
+from logic.src.interfaces.mandatory_selection import IMandatorySelectionStrategy
 from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
 from logic.src.policies.mandatory_selection.base.selection_registry import MandatorySelectionRegistry
 
