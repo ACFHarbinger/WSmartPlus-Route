@@ -43,6 +43,9 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 
 from logic.src.configs.policies.cp_sat import CPSATConfig
+from logic.src.interfaces.context.multi_day_context import MultiDayContext
+from logic.src.interfaces.context.problem_context import ProblemContext
+from logic.src.interfaces.context.solution_context import SolutionContext
 from logic.src.policies.route_construction.base.base_multi_period_policy import BaseMultiPeriodRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
@@ -66,12 +69,9 @@ class CPSATPolicy(BaseMultiPeriodRoutingPolicy):
 
     def _run_multi_period_solver(
         self,
-        tree: Any,
-        capacity: float,
-        revenue: float,
-        cost_unit: float,
-        **kwargs: Any,
-    ) -> Tuple[List[List[List[int]]], float, Dict[str, Any]]:
+        problem: ProblemContext,
+        multi_day_ctx: Optional[MultiDayContext],
+    ) -> Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
         """
         Execute the Multi-Period CP-SAT solver.
 
@@ -82,40 +82,45 @@ class CPSATPolicy(BaseMultiPeriodRoutingPolicy):
         profit, accounting for future overflow penalties and collection
         efficiencies.
 
+        It leverages OR-Tools' **Lazy Clause Generation** to prune the search
+        space by learning from conflicts, making it highly robust for
+        combinatorial problems with complex state-transitions that might be
+        difficult to linearize for standard MILP solvers.
+
         Args:
-            tree (ScenarioTree): Tree of future fill rate realization scenarios.
-            capacity (float): Maximum vehicle collection capacity.
-            revenue (float): Revenue obtained per kilogram of waste collected.
-            cost_unit (float): Monetary cost incurred per kilometer traveled.
-            **kwargs: Additional context, including:
-                - distance_matrix (np.ndarray): Symmetric distance matrix.
-                - sub_wastes (Dict[int, float]): Current bin fill levels.
+            problem: The current ProblemContext containing the state, ScenarioTree,
+                and problem constants (capacity, revenue, etc.).
+            multi_day_ctx: Optional context for spanning multiple rolling days.
 
         Returns:
-            Tuple[List[List[List[int]]], float, Dict[str, Any]]:
-                A 3-tuple containing:
-                - full_plan: Collection plan for each day in the horizon.
-                - expected_profit: The optimal objective value (expected profit).
-                - metadata: Execution statistics and status flags.
+            Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
+                - today_solution: Standardized solution context for Day 0.
+                - full_plan: Collection plan (nested list by day and vehicle).
+                - stats: Execution statistics and solver performance metadata.
         """
-        sub_dist_matrix = kwargs["distance_matrix"]
-        sub_wastes = kwargs.get("sub_wastes", {})
+        tree = problem.scenario_tree
+        if tree is None:
+            raise ValueError("CP-SAT requires a ScenarioTree in ProblemContext.")
+            pass
 
         # We pass the tree to the engine.
-        # Note: CPSATEngine might need updates to handle the tree instead of fixed increments.
         engine = CPSATEngine(
-            config=self.config, distance_matrix=sub_dist_matrix, initial_wastes=sub_wastes, capacity=capacity
+            config=self.config,
+            distance_matrix=problem.distance_matrix,
+            initial_wastes=problem.wastes,
+            capacity=problem.capacity,
         )
 
-        # 3. Solve and return Day 1 action
-        full_plan: List[List[List[int]]]
-        route_day_0: List[int]
+        # Solve and return Day 0 action
         route_day_0, expected_val = engine.solve()
 
         # Wrap into full plan
-        full_plan = [[] for _ in range(self.horizon + 1)]
+        full_plan: List[List[List[int]]] = [[] for _ in range(self.horizon + 1)]
         full_plan[0] = [route_day_0]
-        return full_plan, expected_val, {"status": "solved"}
+
+        sol_ctx = SolutionContext.from_problem(problem, route_day_0)
+
+        return sol_ctx, full_plan, {"mip_status": "solved", "expected_profit": expected_val}
 
     def _run_solver(
         self,

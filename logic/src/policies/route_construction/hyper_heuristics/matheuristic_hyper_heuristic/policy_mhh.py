@@ -10,14 +10,31 @@ from logic.src.interfaces.context.solution_context import SolutionContext
 from logic.src.policies.helpers.operators.helpers.llh_pool import LLHPool
 from logic.src.policies.route_construction.base.base_multi_period_policy import BaseMultiPeriodRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
-from logic.src.policies.route_construction.matheuristics.utils import greedy_day_route, route_cost, route_profit
+from logic.src.policies.route_construction.matheuristics.utils import greedy_day_route, route_profit
 
 
 @RouteConstructorRegistry.register("mhh")
-class MatheuristicHHPolicy(BaseMultiPeriodRoutingPolicy):
+class MHHPolicy(BaseMultiPeriodRoutingPolicy):
     """
     Matheuristic Hyper-Heuristic (MHH).
-    Combines LLHs for diversification and exact MIP (Relax and Fix) for intensification.
+
+    MHH is a hybrid search strategy that combines the flexibility of
+    hyper-heuristics with the mathematical rigor of exact solvers. It employs
+    a sequence of Low-Level Heuristics (LLHs) for diversification (exploring
+    different regions of the feasibility space) and periodically invokes an
+    exact matheuristic (such as Relax-and-Fix) for intensification (optimizing
+    the current region).
+
+    Search Logic:
+    1. **Diversification Phase**: Uses stochastic selection of LLHs to perturb
+       the current solution and escape local optima.
+    2. **Intensification Phase**: Leverages the ``RelaxFixOptimizePolicy`` to
+       optimally solve sub-problems or the entire rolling horizon plan,
+       ensuring high-quality local convergence.
+    3. **Hybrid Control**: Manages the balance between heuristic exploration and
+       exact exploitation based on the available computational budget.
+
+    Registry key: ``"mhh"``
     """
 
     def __init__(self, config: Any = None):
@@ -38,8 +55,23 @@ class MatheuristicHHPolicy(BaseMultiPeriodRoutingPolicy):
         return tot
 
     def _run_multi_period_solver(
-        self, problem: ProblemContext, multi_day_ctx: Optional[MultiDayContext]
+        self,
+        problem: ProblemContext,
+        multi_day_ctx: Optional[MultiDayContext],
     ) -> Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
+        """
+        Execute the Matheuristic Hyper-Heuristic solver.
+
+        Args:
+            problem: The current ProblemContext containing state data.
+            multi_day_ctx: Optional context for spanning multiple rolling days.
+
+        Returns:
+            Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
+                - today_solution: Standardized solution context for Day 0.
+                - best_plan: Combined optimized plan.
+                - stats: Execution statistics (iterations, RFO usage).
+        """
         np_rng = np.random.default_rng(self.seed)
 
         # Initial plan
@@ -69,9 +101,6 @@ class MatheuristicHHPolicy(BaseMultiPeriodRoutingPolicy):
 
             # 2. Intensify using exact solver
             if rfo:
-                # We could feed p_div as a warm start or call it in RFO, but for now we just
-                # call RFO to solve based on problem state (RFO does not take warm start plan in its interface natively unless extended).
-                # We simply run RFO directly and use it if it's better.
                 rfo_sol, rfo_plan, _ = rfo._run_multi_period_solver(problem, multi_day_ctx)
                 p_int = rfo_plan
             else:
@@ -87,10 +116,6 @@ class MatheuristicHHPolicy(BaseMultiPeriodRoutingPolicy):
                 cur_plan = copy.deepcopy(p_int)
 
         today_route = best_plan[0][0] if best_plan[0] else []
-        sol = SolutionContext.from_single_route(
-            route=today_route,
-            profit=route_profit(today_route, problem),
-            cost=route_cost(today_route, problem),
-            metadata={"mhh_iters": self.iters},
-        )
-        return sol, best_plan, {"mhh_iters": self.iters}
+        sol = SolutionContext.from_problem(problem, today_route)
+
+        return sol, best_plan, {"mhh_iters": self.iters, "expected_profit": best_prof}

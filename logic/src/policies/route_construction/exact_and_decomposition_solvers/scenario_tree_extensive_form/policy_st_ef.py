@@ -41,6 +41,9 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 
 from logic.src.configs.policies.st_ef import ScenarioTreeExtensiveFormConfig
+from logic.src.interfaces.context.multi_day_context import MultiDayContext
+from logic.src.interfaces.context.problem_context import ProblemContext
+from logic.src.interfaces.context.solution_context import SolutionContext
 from logic.src.policies.route_construction.base.base_multi_period_policy import BaseMultiPeriodRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine import (
@@ -65,12 +68,9 @@ class ScenarioTreeExtensiveFormPolicy(BaseMultiPeriodRoutingPolicy):
 
     def _run_multi_period_solver(
         self,
-        tree: Any,
-        capacity: float,
-        revenue: float,
-        cost_unit: float,
-        **kwargs: Any,
-    ) -> Tuple[List[List[List[int]]], float, Dict[str, Any]]:
+        problem: ProblemContext,
+        multi_day_ctx: Optional[MultiDayContext],
+    ) -> Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
         """
         Execute the Scenario Tree Extensive Form (ST-EF) solver logic.
 
@@ -83,42 +83,41 @@ class ScenarioTreeExtensiveFormPolicy(BaseMultiPeriodRoutingPolicy):
         cumulative profit across the entire horizon.
 
         Args:
-            tree (ScenarioTree): Tree of future fill rate realizations.
-            capacity (float): Maximum vehicle collection capacity.
-            revenue (float): Revenue obtained per kilogram of waste collected.
-            cost_unit (float): Monetary cost incurred per kilometer traveled.
-            **kwargs: Additional context, including:
-                - distance_matrix (np.ndarray): Symmetric distance matrix.
-                - sub_wastes (Dict[int, float]): Current bin fill levels.
+            problem: The current ProblemContext containing all state data.
+            multi_day_ctx: Optional context for spanning multiple days.
 
         Returns:
-            Tuple[List[List[List[int]]], float, Dict[str, Any]]:
-                A 3-tuple containing:
+            Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
+                - today_solution: Standardized solution context for Day 0.
                 - full_plan: Collection plan (Day 0 routes specifically).
-                - expected_profit: Optimal objective value (expected total net profit).
                 - stats: Execution statistics and solver performance metadata.
         """
+        tree = problem.scenario_tree
+        if tree is None:
+            raise ValueError("ST-EF requires a ScenarioTree in ProblemContext.")
+
         # The ST-EF engine needs adaptation to the new ScenarioTree
         engine = ScenarioTreeExtensiveFormEngine(
-            tree=tree,
-            distance_matrix=kwargs["distance_matrix"],
-            wastes=kwargs.get("sub_wastes", {}),
-            capacity=capacity,
+            tree=tree,  # type: ignore[arg-type]
+            distance_matrix=problem.distance_matrix,
+            wastes=problem.wastes,
+            capacity=problem.capacity,
             waste_weight=getattr(self.config, "waste_weight", 1.0),
             cost_weight=getattr(self.config, "cost_weight", 1.0),
             overflow_penalty=getattr(self.config, "overflow_penalty", 500.0),
             time_limit=getattr(self.config, "time_limit", 300.0),
         )
 
-        # ST-EF traditionally returns the Day 1 route specifically
+        # ST-EF traditionally returns the Day 0 route specifically
         route, expected_val = engine.solve()
 
         # Wrap plan into [day][vehicle][node]
-        # Since ST-EF engine currently returns only Day 1 route, we wrap twice.
         full_plan: List[List[List[int]]] = [[] for _ in range(self.horizon + 1)]
         full_plan[0] = [route]
 
-        return full_plan, expected_val, {"mip_status": "solved"}
+        sol_ctx = SolutionContext.from_problem(problem, route)
+
+        return sol_ctx, full_plan, {"mip_status": "solved", "expected_profit": expected_val}
 
     def _run_solver(
         self,

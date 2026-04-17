@@ -39,7 +39,7 @@ class LagrangianHeuristicPolicy(BaseMultiPeriodRoutingPolicy):
         # Since unconstrained PCTSP is still NP-hard, we approximate via our greedy operator
         # but with modified revenue ratios.
 
-        sim_plan = []
+        sim_plan: List[List[List[int]]] = []
         cur_prob = problem
         rng = np.random.default_rng(self.seed)
         for d in range(problem.horizon):
@@ -59,13 +59,16 @@ class LagrangianHeuristicPolicy(BaseMultiPeriodRoutingPolicy):
                 mod_prob = ProblemContext(
                     distance_matrix=cur_prob.distance_matrix,
                     wastes=cur_prob.wastes,
-                    fill_rates=cur_prob.fill_rates,
+                    fill_rate_means=cur_prob.fill_rate_means,
+                    fill_rate_stds=cur_prob.fill_rate_stds,
                     capacity=cur_prob.capacity,  # even if relaxed, greedy bound acts as upper bound
+                    max_fill=cur_prob.max_fill,
                     revenue_per_kg=new_r,
                     cost_per_km=cur_prob.cost_per_km,
                     mandatory=cur_prob.mandatory,
+                    locations=cur_prob.locations,
                     horizon=cur_prob.horizon - d,
-                    current_day=cur_prob.current_day,
+                    day_index=cur_prob.day_index,
                 )
                 rt = greedy_day_route(mod_prob, rng)
                 sim_plan.append([rt])

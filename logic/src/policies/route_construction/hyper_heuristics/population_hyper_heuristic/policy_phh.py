@@ -12,17 +12,34 @@ from logic.src.policies.route_construction.base.base_multi_period_policy import 
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.matheuristics.utils import (
     greedy_day_route,
-    route_cost,
     route_profit,
 )
 
 
 @RouteConstructorRegistry.register("phh")
-class PopulationHHPolicy(BaseMultiPeriodRoutingPolicy):
+class PHHPolicy(BaseMultiPeriodRoutingPolicy):
     """
     Population-based Hyper-Heuristic (PHH).
-    Applies selection hyper-heuristic independently to each individual in a population.
-    Individuals periodically exchange LLH sequences or histories.
+
+    PHH generalizes the concept of a selection hyper-heuristic by maintaining
+    a population of solution/LLH-manager pairs. Each individual in the
+    population independently explores the search space using its own internal
+    selection logic, but periodic interactions (cross-pollination or
+    tournament replacement) allow high-performing operator sequences or
+    solutions to propagate through the population.
+
+    Search Logic:
+    1. **Initialization**: Generates a diverse population of multi-period
+       collection plans using randomized greedy construction.
+    2. **Independent Search**: Each individual undergoes multiple rounds of
+       stochastic improvement using Low-Level Heuristics (LLHs).
+    3. **Interaction**: Periodically performs tournament selection or
+       exchange to replace lower-performing individuals with copies or
+       recombinations of high-performing ones.
+    4. **Diversity Management**: Prevents premature convergence by ensuring the
+       LLH application remains stochastic.
+
+    Registry key: ``"phh"``
     """
 
     def __init__(self, config: Any = None):
@@ -44,12 +61,28 @@ class PopulationHHPolicy(BaseMultiPeriodRoutingPolicy):
         return tot
 
     def _run_multi_period_solver(
-        self, problem: ProblemContext, multi_day_ctx: Optional[MultiDayContext]
+        self,
+        problem: ProblemContext,
+        multi_day_ctx: Optional[MultiDayContext],
     ) -> Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
+        """
+        Execute the Population-based Hyper-Heuristic solver.
+
+        Args:
+            problem: The current ProblemContext containing state data.
+            multi_day_ctx: Optional context for spanning multiple rolling days.
+
+        Returns:
+            Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
+                - today_solution: Standardized solution context for Day 0.
+                - best_plan: The highest-performing multi-day collection plan.
+                - stats: Execution statistics (generations, best fitness).
+        """
         np_rng = np.random.default_rng(self.seed)
 
         pop = []
-        best_plan = None
+        # Initialize with a valid empty structure to satisfy Mypy
+        best_plan: List[List[List[int]]] = [[] for _ in range(problem.horizon)]
         best_prof = -float("inf")
 
         # Init pop
@@ -85,11 +118,7 @@ class PopulationHHPolicy(BaseMultiPeriodRoutingPolicy):
             best_idx = np.argmax(fits)
             pop[worst_idx] = copy.deepcopy(pop[best_idx])
 
-        today_route = best_plan[0][0] if best_plan[0] else []
-        sol = SolutionContext.from_single_route(
-            route=today_route,
-            profit=route_profit(today_route, problem),
-            cost=route_cost(today_route, problem),
-            metadata={"phh_gens": self.gens},
-        )
-        return sol, best_plan, {"phh_gens": self.gens}
+        today_route = best_plan[0][0] if best_plan and best_plan[0] else []
+        sol = SolutionContext.from_problem(problem, today_route)
+
+        return sol, best_plan, {"phh_gens": self.gens, "expected_profit": best_prof}

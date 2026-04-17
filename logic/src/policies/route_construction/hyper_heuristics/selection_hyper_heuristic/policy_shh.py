@@ -12,7 +12,6 @@ from logic.src.policies.route_construction.base.base_multi_period_policy import 
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.matheuristics.utils import (
     greedy_day_route,
-    route_cost,
     route_profit,
 )
 
@@ -45,8 +44,41 @@ class SelectionHHPolicy(BaseMultiPeriodRoutingPolicy):
         return tot
 
     def _run_multi_period_solver(
-        self, problem: ProblemContext, multi_day_ctx: Optional[MultiDayContext]
+        self,
+        problem: ProblemContext,
+        multi_day_ctx: Optional[MultiDayContext],
     ) -> Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
+        """
+        Execute the Selection Hyper-Heuristic (SHH) solver logic.
+
+        SHH is a high-level search methodology that operates on a search space
+        of heuristics (Low-Level Heuristics, or LLHs) rather than directly
+        modifying the routing solution. It manages a pool of operators and
+        learns which LLHs are most effective for the current problem state.
+
+        Search Logic:
+        1. **Selection Mechanism**: Uses a reinforcement learning-like approach
+           (probability matching) to choose an LLH based on its historical
+           performance.
+        2. **Execution**: Applies the selected LLH (e.g., ruin-and-recreate, 2-opt)
+           to the current multi-period collection plan.
+        3. **Acceptance Criterion**: Employs Late Acceptance Hill Climbing (LAHC)
+           to decide whether to accept the new plan, preventing the search from
+           getting trapped in local optima while maintaining efficiency.
+
+        In this implementation, SLH optimizes Day 0 and future days through
+        collaborative operator guidance.
+
+        Args:
+            problem: The current ProblemContext containing state data.
+            multi_day_ctx: Optional context for spanning multiple rolling days.
+
+        Returns:
+            Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
+                - today_solution: Standardized solution context for Day 0.
+                - best_plan: Collection plan (nested list by day and vehicle).
+                - stats: Execution statistics (LLH usage, iterations, etc.).
+        """
         np_rng = np.random.default_rng(self.seed)
 
         cur_plan = []
@@ -97,10 +129,6 @@ class SelectionHHPolicy(BaseMultiPeriodRoutingPolicy):
             la_history[v] = cur_prof
 
         today_route = best_plan[0][0] if best_plan[0] else []
-        sol = SolutionContext.from_single_route(
-            route=today_route,
-            profit=route_profit(today_route, problem),
-            cost=route_cost(today_route, problem),
-            metadata={"shh_iters": self.iters},
-        )
-        return sol, best_plan, {"shh_iters": self.iters}
+        sol = SolutionContext.from_problem(problem, today_route)
+
+        return sol, best_plan, {"shh_iters": self.iters, "expected_profit": best_prof}

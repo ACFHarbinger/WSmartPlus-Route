@@ -48,7 +48,7 @@ class LNSMIPPolicy(BaseMultiPeriodRoutingPolicy):
         days = self.rng.sample(range(problem.horizon), d_destroy)
 
         strategy = self.rng.choice(["random", "proximity", "fill_level"])
-        destroyed = {d: [] for d in days}
+        destroyed: Dict[int, List[int]] = {d: [] for d in days}
         k_per_day = max(1, self.params.k_destroy // d_destroy)
 
         if strategy == "random":
