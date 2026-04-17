@@ -12,9 +12,9 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union, cast
 
 import numpy as np
 
+from logic.src.interfaces.context.multi_day_context import MultiDayContext
+from logic.src.interfaces.context.search_context import SearchContext
 from logic.src.pipeline.simulations.bins.prediction import ScenarioTree
-from logic.src.policies.context.multi_day_context import MultiDayContext
-from logic.src.policies.context.search_context import SearchContext
 
 if TYPE_CHECKING:
     pass

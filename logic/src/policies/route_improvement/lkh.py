@@ -7,7 +7,7 @@ from typing import Any, List, Tuple
 import numpy as np
 
 from logic.src.interfaces import IRouteImprovement
-from logic.src.policies.context.search_context import ImprovementMetrics
+from logic.src.interfaces.context.search_context import ImprovementMetrics
 from logic.src.policies.helpers.operators.heuristics.lin_kernighan_helsgaun import solve_lkh
 
 from .base import RouteImproverRegistry

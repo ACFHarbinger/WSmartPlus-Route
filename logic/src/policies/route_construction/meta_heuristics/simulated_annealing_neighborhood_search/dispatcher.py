@@ -17,8 +17,8 @@ import numpy as np
 import pandas as pd
 
 from logic.src.data.processor import convert_to_dict
-from logic.src.policies.context.multi_day_context import MultiDayContext
-from logic.src.policies.context.search_context import SearchContext
+from logic.src.interfaces.context.multi_day_context import MultiDayContext
+from logic.src.interfaces.context.search_context import SearchContext
 from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search import (
     improved_simulated_annealing,
 )

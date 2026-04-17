@@ -8,8 +8,8 @@ variant when revenue/cost are configured) to perform chain relocations
 
 from typing import Any, List, Tuple
 
+from logic.src.interfaces.context.search_context import ImprovementMetrics
 from logic.src.interfaces.route_improvement import IRouteImprovement
-from logic.src.policies.context.search_context import ImprovementMetrics
 from logic.src.policies.helpers.operators.intensification import (
     or_opt_steepest,
     or_opt_steepest_profit,

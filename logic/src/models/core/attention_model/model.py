@@ -24,7 +24,6 @@ from logic.src.models.subnets.embeddings import (
     WCVRPContextEmbedder,
 )
 from logic.src.models.subnets.factories import NeuralComponentFactory
-from logic.src.utils.decoding import CachedLookup
 from logic.src.utils.functions.problem import is_tsp_problem, is_vrpp_problem, is_wc_problem
 
 from .decoding import DecodingMixin
@@ -370,6 +369,8 @@ class AttentionModel(DecodingMixin, nn.Module):
         Returns:
             CachedLookup: A cached lookup object containing precomputed decoder state.
         """
+        from logic.src.utils.decoding import CachedLookup
+
         embeddings, init_context = self._get_initial_embeddings(input)
         out = self.decoder(input, embeddings, init_context, None, precompute_only=True)
 

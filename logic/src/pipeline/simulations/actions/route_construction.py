@@ -103,7 +103,7 @@ class RouteConstructionAction(SimulationAction):
             day_idx = context.get("day", 0)
             multi_day_context = context.get("multi_day_context")
             if multi_day_context is None:
-                from logic.src.policies.context.multi_day_context import MultiDayContext
+                from logic.src.interfaces.context.multi_day_context import MultiDayContext
 
                 multi_day_context = MultiDayContext.initialize(day_index=day_idx)
 

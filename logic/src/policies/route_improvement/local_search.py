@@ -5,7 +5,7 @@ Classical Local Search Route Improver.
 from typing import Any, List, Tuple
 
 from logic.src.interfaces import IRouteImprovement
-from logic.src.policies.context.search_context import ImprovementMetrics
+from logic.src.interfaces.context.search_context import ImprovementMetrics
 from logic.src.policies.helpers.operators.intensification import INTENSIFICATION_OPERATORS
 
 from .base import RouteImproverRegistry

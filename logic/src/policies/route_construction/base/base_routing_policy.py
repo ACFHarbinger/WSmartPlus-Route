@@ -13,9 +13,9 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
 
+from logic.src.interfaces.context.search_context import ConstructionMetrics, SearchContext, merge_context
 from logic.src.interfaces.route_constructor import IRouteConstructor
 from logic.src.pipeline.simulations.repository import load_area_and_waste_type_params
-from logic.src.policies.context.search_context import ConstructionMetrics, SearchContext, merge_context
 from logic.src.tracking.core.run import get_active_run
 from logic.src.tracking.viz_mixin import PolicyVizMixin
 
@@ -517,7 +517,7 @@ class BaseRoutingPolicy(PolicyVizMixin, IRouteConstructor):
             "profit": profit,
         }
         if incoming_ctx is not None:
-            from logic.src.policies.context.search_context import SearchPhase
+            from logic.src.interfaces.context.search_context import SearchPhase
 
             out_ctx: Optional[SearchContext] = merge_context(
                 incoming_ctx,

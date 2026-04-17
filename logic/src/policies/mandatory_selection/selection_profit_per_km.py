@@ -17,8 +17,8 @@ from typing import List, Tuple
 
 import numpy as np
 
-from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
-from logic.src.policies.context.search_context import SearchContext
+from logic.src.interfaces.context.search_context import SearchContext
+from logic.src.interfaces.mandatory_selection import IMandatorySelectionStrategy
 
 from .base.eoq import resolve_trigger_threshold
 from .base.selection_context import SelectionContext

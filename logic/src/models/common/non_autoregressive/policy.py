@@ -17,7 +17,6 @@ from tensordict import TensorDict
 from torch import nn
 
 from logic.src.envs.base.base import RL4COEnvBase
-from logic.src.utils.decoding import batchify, get_decoding_strategy
 
 from .decoder import NonAutoregressiveDecoder
 from .encoder import NonAutoregressiveEncoder
@@ -116,6 +115,8 @@ class NonAutoregressivePolicy(nn.Module, ABC):
         if actions is not None:
             strategy = "evaluate"
             decoding_kwargs["actions"] = actions
+
+        from logic.src.utils.decoding import batchify, get_decoding_strategy
 
         strategy_obj = get_decoding_strategy(strategy, **decoding_kwargs)
 

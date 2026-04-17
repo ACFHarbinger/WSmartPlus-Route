@@ -9,11 +9,11 @@ metrics that flow immutably through the three-phase pipeline:
   Phase 3 — Route Improvement    : appends ``ImprovementMetrics``
 """
 
-from .multi_day_context import MultiDayContext
-from .search_context import (
+from logic.src.interfaces.context import (
     AcceptanceMetrics,
     ConstructionMetrics,
     ImprovementMetrics,
+    MultiDayContext,
     SearchContext,
     SearchPhase,
     SelectionMetrics,
