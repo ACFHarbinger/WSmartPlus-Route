@@ -78,30 +78,49 @@ A highly sophisticated meta-heuristic where operator selection is governed dynam
 
 ---
 
-## Exact & Matheuristic Solvers
-Hybrid architectures combining the speed of local search with the rigorous mathematical bounding capabilities of Mixed-Integer Linear Programming (MILP).
-
-### Set-Partitioning (Pool-Restricted Exact)
-A matheuristic that automatically constructs a massive pool of candidate routes through diverse generation strategies (e.g., LNS perturbations, Held-Karp sequence optimization, mandatory singletons). Following canonical deduplication, a restricted Set Partitioning MILP model is solved to global optimality over the pool.
+## Exact Solvers
+Algorithms that evaluate localized or restricted state spaces using rigorous mathematical bounding, guaranteeing absolute optimality for the subproblems they are presented with.
 
 ### Set-Partitioning Polish
-An exact mathematical refinement that acts strictly on a pre-supplied pool of high-quality routes, utilizing a commercial MILP solver (e.g., Gurobi) to extract the optimal combination of routes while enforcing capacity and visit constraints.
+An exact mathematical refinement that acts strictly on a pre-supplied pool of high-quality routes, utilizing a commercial Mixed-Integer Linear Programming (MILP) solver (e.g., Gurobi) to extract the optimal combination of routes while enforcing capacity and visit constraints.
 
 ### Branch-and-Price (B&P) Refinement
-An exact column-generation matheuristic applied as a localized improver. It formulates the routing state as a Set Partitioning Master Problem. To iteratively populate the Restricted Master Problem with improving routes, it solves an Exact Resource-Constrained Shortest Path Problem (RCSPP) utilizing $ng$-route relaxation and Lagrangian bounding, guaranteeing integrality via Ryan-Foster branching.
+An exact column-generation solver applied as a localized improver. It formulates the routing state as a Set Partitioning Master Problem. To iteratively populate the Restricted Master Problem with improving routes, it solves an Exact Resource-Constrained Shortest Path Problem (RCSPP) utilizing $ng$-route relaxation and Lagrangian bounding, guaranteeing integrality via Ryan-Foster branching.
+
+---
+
+## Matheuristics
+Hybrid architectures explicitly combining the speed and trajectory logic of heuristic search with the mathematical bounding capabilities of MILP formulations.
+
+### Set-Partitioning (Pool-Restricted Exact)
+A matheuristic that automatically constructs a massive pool of candidate routes through diverse generation strategies (e.g., LNS perturbations, Held-Karp sequence optimization, mandatory singletons). Following canonical deduplication, a restricted Set Partitioning MILP model is solved to global optimality over the heuristically generated pool.
 
 ### Fix-and-Optimize Matheuristic
 A decomposition-based exact strategy. It permanently "fixes" (locks) a subset of high-performing routes, while nodes belonging to the remaining "free" routes are passed to an MILP solver. The solver exactly re-optimizes this restricted sub-MIP, circumventing the intractability of solving the global graph simultaneously.
 
+### MIP Large Neighborhood Search (Exact Ruin and Recreate)
+A matheuristic variant of the LNS paradigm. It disrupts the routing architecture using a spatial or randomized ruin operator, but instead of relying on greedy heuristics for repair, it isolates the destroyed components and delegates them to an exact MILP solver. This sub-MIP optimally re-inserts the fragmented nodes into the remaining locked routes, bridging rapid exploration with mathematical exactness.
+
 ---
 
-## Neural & Meta-Algorithmic Orchestrators
-Advanced algorithmic management systems that sequence operators or utilize deep learning to map the combinatorial search space.
+## Neural Algorithms
+Approaches that integrate deep learning architectures directly into the routing or operator selection processes to map the combinatorial search space.
 
 ### Learned Route Improver (Neural Operator)
 A machine-learning-augmented operator utilizing a pre-trained Graph Neural Network (GNN) to bypass the $\mathcal{O}(n^k)$ computational bottleneck of exhaustive $k$-opt evaluations. Using multi-layer perceptron (MLP) node/edge encoders, a neural "move head" directly predicts expected objective improvements of topological permutations, executing the highest-scoring moves sequentially.
 
+### Neural Operator Selector (Neural Orchestrator)
+A machine-learning-driven framework that utilizes a deep neural network policy to actively dictate the trajectory search. Instead of evaluating moves itself, it extracts a localized state vector (encoding optimality gap, search progress, and stagnation epochs) and performs a forward pass to predict a probability distribution over a suite of classical operators. This allows the solver to dynamically adapt its perturbation strategy to the real-time geometry of the landscape.
+
+---
+
+## Meta-Algorithmic Orchestrators
+Advanced algorithmic management systems designed to sequence, govern, or dynamically weight the execution of entire improvement algorithms rather than low-level topological moves.
+
 ### Multi-Phase Composition
 A meta-algorithmic architecture pipelining multiple distinct refinement strategies into a sequential execution graph. It constructs complex life-cycles—e.g., executing a greedy augmentation phase, followed by inter-route SA local search, concluding with an exact LKH polish—while tracking granular metrics across discrete transitions.
+
+### Adaptive Ensemble Route Improver (Meta-ALNS)
+A sophisticated orchestrator that manages a portfolio of high-level route improvers (e.g., LKH, Simulated Annealing, Ruin-Recreate). It employs a dynamic Roulette Wheel selection mechanism driven by an Exponential Moving Average (EMA) of historical objective improvements. The algorithm continuously learns and re-weights which heavy-duty refinement strategies are most effective, adapting its macro-level strategy to the current phase of the search.
 
 ---
