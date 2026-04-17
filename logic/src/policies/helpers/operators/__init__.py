@@ -15,6 +15,10 @@ organized by category:
 - Heuristics: Complex local search heuristics (initialization, LKH).
 - Intensification: Steepest-descent local search loops, Held-Karp DP route
   re-optimisation, Fix-and-Optimize sub-MIP, and Set-Partitioning Polish.
+- Evolutionary Mutation: Post-crossover GA/DE mutation primitives (swap,
+  inversion, scramble, random 2-opt, DE/rand/1, DE/best/1).
+- Sequence Merging: Hyper-heuristic operator-sequence construction and
+  evolution (ACO, Markov Chain, SS-HH, sequence crossover/mutation).
 """
 
 # Intensification operators
@@ -184,12 +188,54 @@ from .recreate_repair import (
     stochastic_aware_insertion,
 )
 
+# Evolutionary mutation operators
+from .evolutionary_mutation import (
+    EVOLUTIONARY_MUTATION_NAMES,
+    EVOLUTIONARY_MUTATION_OPERATORS,
+    de_best_1_mutation,
+    de_rand_1_mutation,
+    inversion_mutation,
+    inversion_mutation_profit,
+    random_2opt_mutation,
+    random_2opt_mutation_profit,
+    scramble_mutation,
+    scramble_mutation_profit,
+    swap_mutation,
+    swap_mutation_profit,
+)
+
 # Heuristics
 from .search_heuristics import (
     apply_ges,
     apply_lns,
     solve_lk,
     solve_lkh,
+)
+
+# Sequence merging (hyper-heuristic operator sequencing)
+from .sequence_merging import (
+    AcoSequenceState,
+    MarkovSequenceState,
+    SsHhState,
+    aco_best_sequence,
+    aco_build_sequence,
+    aco_update_pheromones,
+    markov_fit_from_log,
+    markov_sample_sequence,
+    markov_stationary_distribution,
+    markov_update,
+    sequence_deletion_mutation,
+    sequence_insertion_mutation,
+    sequence_order_preserving_crossover,
+    sequence_single_point_crossover,
+    sequence_substitution_mutation,
+    sequence_transposition_mutation,
+    sequence_uniform_crossover,
+    ss_hh_build_sequence,
+    ss_hh_decay_scores,
+    ss_hh_rank_operators,
+    ss_hh_select,
+    ss_hh_update,
 )
 
 # Solution initialization
@@ -351,4 +397,40 @@ __all__ = [
     "greedy_horizon_insertion",
     "regret_k_temporal_insertion",
     "stochastic_aware_insertion",
+    # Evolutionary mutation
+    "EVOLUTIONARY_MUTATION_NAMES",
+    "EVOLUTIONARY_MUTATION_OPERATORS",
+    "swap_mutation",
+    "swap_mutation_profit",
+    "inversion_mutation",
+    "inversion_mutation_profit",
+    "scramble_mutation",
+    "scramble_mutation_profit",
+    "random_2opt_mutation",
+    "random_2opt_mutation_profit",
+    "de_rand_1_mutation",
+    "de_best_1_mutation",
+    # Sequence merging (hyper-heuristic)
+    "AcoSequenceState",
+    "aco_build_sequence",
+    "aco_update_pheromones",
+    "aco_best_sequence",
+    "MarkovSequenceState",
+    "markov_sample_sequence",
+    "markov_update",
+    "markov_fit_from_log",
+    "markov_stationary_distribution",
+    "sequence_single_point_crossover",
+    "sequence_uniform_crossover",
+    "sequence_order_preserving_crossover",
+    "sequence_substitution_mutation",
+    "sequence_insertion_mutation",
+    "sequence_deletion_mutation",
+    "sequence_transposition_mutation",
+    "SsHhState",
+    "ss_hh_select",
+    "ss_hh_update",
+    "ss_hh_build_sequence",
+    "ss_hh_rank_operators",
+    "ss_hh_decay_scores",
 ]
