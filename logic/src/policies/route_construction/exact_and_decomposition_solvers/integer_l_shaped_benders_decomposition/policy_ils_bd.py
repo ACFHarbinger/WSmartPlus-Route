@@ -45,6 +45,9 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 import numpy as np
 
 from logic.src.configs.policies import IntegerLShapedBendersConfig
+from logic.src.interfaces.context.multi_day_context import MultiDayContext
+from logic.src.interfaces.context.problem_context import ProblemContext
+from logic.src.interfaces.context.solution_context import SolutionContext
 from logic.src.policies.helpers.branching_solvers.vrpp_model import VRPPModel
 from logic.src.policies.route_construction.base.base_multi_period_policy import BaseMultiPeriodRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
@@ -105,45 +108,53 @@ class IntegerLShapedPolicy(BaseMultiPeriodRoutingPolicy):
 
     def _run_multi_period_solver(
         self,
-        tree: Any,
-        capacity: float,
-        revenue: float,
-        cost_unit: float,
-        **kwargs: Any,
-    ) -> Tuple[List[List[List[int]]], float, Dict[str, Any]]:
+        problem: ProblemContext,
+        multi_day_ctx: Optional[MultiDayContext],
+    ) -> Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
         """
         Execute the Integer L-Shaped Benders Decomposition solver logic.
 
+        This method solves the Multi-Period Stochastic Integer Routing Problem by
+        formulating it as a Two-Stage Stochastic Integer Program (2-SIP). It
+        implements the methodology of Laporte & Louveaux (1993), decomposing the
+        problem into a Master Problem (deciding Day 0 visits and routing) and a
+        Recourse Subproblem (evaluating expected penalties and future costs across
+        the Scenario Tree).
+
+        It iteratively adds:
+        1. **Optimality Cuts**: When the expected recourse for a given visit pattern
+           is higher than the Master Problem's surrogate estimate.
+        2. **Feasibility Cuts**: To avoid visit patterns that cannot satisfy
+           capacity or flow constraints in any scenario.
+        3. **Combinatorial Cuts**: To exploit the binary nature of the visit
+           decisions for rapid convergence.
+
         Args:
-            tree (ScenarioTree): Tree of future fill rate realization scenarios.
-            capacity (float): Maximum vehicle collection capacity.
-            revenue (float): Revenue obtained per kilogram of waste collected.
-            cost_unit (float): Monetary cost incurred per kilometer traveled.
-            **kwargs: Additional context, including:
-                - distance_matrix (np.ndarray): Symmetric distance matrix.
-                - sub_wastes (Dict[int, float]): Current bin fill levels.
-                - mandatory (List[int]): Bins that MUST be collected today.
+            problem: The current ProblemContext containing the state, ScenarioTree,
+                and problem constants (capacity, revenue, etc.).
+            multi_day_ctx: Optional context for spanning multiple rolling days.
 
         Returns:
-            Tuple[List[List[List[int]]], float, Dict[str, Any]]:
-                A 3-tuple containing:
-                - full_plan: Collection plan (nested list by day and vehicle).
-                - expected_profit: Optimal objective value (expected total net profit).
-                - metadata: Execution statistics, including the number of Benders cuts.
+            Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
+                - today_solution: Standardized solution context for the Day 0 routing.
+                - full_plan: Collection plan containing Day 0 routes and placeholders
+                  for future days evaluated by the engine.
+                - stats: Execution statistics, including the number of Benders cuts
+                  and Gurobi solver metadata.
         """
-        sub_dist_matrix = kwargs["distance_matrix"]
-        sub_wastes = kwargs.get("sub_wastes", {})
-        mandatory_nodes = kwargs.get("mandatory", [])
+        tree = problem.scenario_tree
+        if tree is None:
+            raise ValueError("Integer L-Shaped requires a ScenarioTree in ProblemContext.")
 
-        n_nodes = len(sub_dist_matrix)
+        n_nodes = len(problem.distance_matrix)
         vrpp_model = VRPPModel(
             n_nodes=n_nodes,
-            cost_matrix=sub_dist_matrix,
-            wastes=sub_wastes,  # Day 0 observed
-            capacity=capacity,
-            revenue_per_kg=revenue,
-            cost_per_km=cost_unit,
-            mandatory_nodes=set(mandatory_nodes),
+            cost_matrix=problem.distance_matrix,
+            wastes=problem.wastes,  # Day 0 observed
+            capacity=problem.capacity,
+            revenue_per_kg=problem.revenue_per_kg,
+            cost_per_km=problem.cost_per_km,
+            mandatory_nodes=set(problem.mandatory),
         )
 
         # Merge config
@@ -157,7 +168,7 @@ class IntegerLShapedPolicy(BaseMultiPeriodRoutingPolicy):
         bin_caps = None
         if params.horizon > 1:
             customers = list(vrpp_model.customers)
-            init_inv = np.array([float(sub_wastes.get(i, 0.0)) for i in customers])
+            init_inv = np.array([float(problem.wastes.get(i, 0.0)) for i in customers])
             # Assuming 100% capacity for all containers unless specified
             bin_caps = np.full(len(customers), 100.0)
 
@@ -168,16 +179,13 @@ class IntegerLShapedPolicy(BaseMultiPeriodRoutingPolicy):
         )
 
         # Build T-period plan snapshot
-        # For ILS-BD, we extract the first-stage route and future days are in stats
         full_plan: List[List[List[int]]] = [[] for _ in range(params.horizon + 1)]
         full_plan[0] = routes
 
-        # If we have an inventory plan, it means the master problem reason about day t > 0
-        if "inventory_plan" in stats and "collection_plan" in stats:
-            # Note: The master problem only yields first-stage variables in standard Benders.
-            # But in the inventory-linked version, we have q_{it}.
-            # However, we don't have routing variables x_{ijt} for t > 0.
-            # We skip filling future routes since they are not explicitly solved.
-            pass
+        # Standardized return
+        today_route = routes[0] if routes else []
+        sol_ctx = SolutionContext.from_problem(problem, today_route)
 
-        return full_plan, profit, stats
+        return sol_ctx, full_plan, stats
+        # Note: If we have an inventory plan, it means the master problem reason about day t > 0
+        # But in the inventory-linked version, we don't necessarily have x_{ijt} for t > 0.

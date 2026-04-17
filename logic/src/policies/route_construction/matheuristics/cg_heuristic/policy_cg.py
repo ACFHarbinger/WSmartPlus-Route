@@ -54,7 +54,7 @@ class CGHeuristicPolicy(BaseMultiPeriodRoutingPolicy):
             rt = []
             cand = list(range(1, len(problem.distance_matrix)))
             rng.shuffle(cand)
-            w_sum = 0
+            w_sum = 0.0
             for v in cand:
                 if w_sum + problem.wastes.get(v, 0.0) <= problem.capacity:
                     rt.append(v)
@@ -76,7 +76,7 @@ class CGHeuristicPolicy(BaseMultiPeriodRoutingPolicy):
         N = len(problem.distance_matrix)
 
         # initial columns: single nodes + empty
-        columns = [[]] + [[i] for i in range(1, N) if problem.wastes.get(i, 0.0) <= problem.capacity]
+        columns: List[List[int]] = [[]] + [[i] for i in range(1, N) if problem.wastes.get(i, 0.0) <= problem.capacity]
 
         # Add greedy
         columns.append(greedy_day_route(problem, rng))
@@ -90,7 +90,7 @@ class CGHeuristicPolicy(BaseMultiPeriodRoutingPolicy):
         vars_by_col = []
 
         for i in range(1, N):
-            constrs[i] = model.addConstr(0 <= 1, name=f"cov_{i}")  # dummy initial
+            constrs[i] = model.addConstr(gp.quicksum([]) >= 0, name=f"cov_{i}")  # dummy initial
 
         def _add_col(rt):
             prof = route_profit(rt, problem)

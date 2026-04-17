@@ -65,6 +65,22 @@ from .destroy_ruin import (
     worst_removal,
 )
 
+# Evolutionary mutation operators
+from .evolutionary_mutation import (
+    EVOLUTIONARY_MUTATION_NAMES,
+    EVOLUTIONARY_MUTATION_OPERATORS,
+    de_best_1_mutation,
+    de_rand_1_mutation,
+    inversion_mutation,
+    inversion_mutation_profit,
+    random_2opt_mutation,
+    random_2opt_mutation_profit,
+    scramble_mutation,
+    scramble_mutation_profit,
+    swap_mutation,
+    swap_mutation_profit,
+)
+
 # Generalized Insertion and Deletion operators
 # Includes Unstringing and Stringing (US)
 from .generalized_insertion_and_deletion import (
@@ -186,22 +202,6 @@ from .recreate_repair import (
     savings_insertion,
     savings_profit_insertion,
     stochastic_aware_insertion,
-)
-
-# Evolutionary mutation operators
-from .evolutionary_mutation import (
-    EVOLUTIONARY_MUTATION_NAMES,
-    EVOLUTIONARY_MUTATION_OPERATORS,
-    de_best_1_mutation,
-    de_rand_1_mutation,
-    inversion_mutation,
-    inversion_mutation_profit,
-    random_2opt_mutation,
-    random_2opt_mutation_profit,
-    scramble_mutation,
-    scramble_mutation_profit,
-    swap_mutation,
-    swap_mutation_profit,
 )
 
 # Heuristics

@@ -1,3 +1,3 @@
-from .policy_phh import PopulationHHPolicy
+from .policy_phh import PHHPolicy
 
-__all__ = ["PopulationHHPolicy"]
+__all__ = ["PHHPolicy"]

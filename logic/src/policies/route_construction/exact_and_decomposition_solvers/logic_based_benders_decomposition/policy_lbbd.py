@@ -1,14 +1,18 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, List, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
 
 import numpy as np
+
 from logic.src.configs.policies.lbbd import LBBDConfig
+from logic.src.interfaces.context.multi_day_context import MultiDayContext
+from logic.src.interfaces.context.problem_context import ProblemContext
+from logic.src.interfaces.context.solution_context import SolutionContext
 from logic.src.policies.route_construction.base.base_multi_period_policy import BaseMultiPeriodRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
 if TYPE_CHECKING:
-    from logic.src.pipeline.simulations.bins.prediction import ScenarioTree
+    pass
 
 from .lbbd_engine import LBBDEngine
 
@@ -29,12 +33,9 @@ class LBBDPolicy(BaseMultiPeriodRoutingPolicy):
 
     def _run_multi_period_solver(
         self,
-        tree: ScenarioTree,
-        capacity: float,
-        revenue: float,
-        cost_unit: float,
-        **kwargs: Any,
-    ) -> Tuple[List[List[List[int]]], float, Dict[str, Any]]:
+        problem: ProblemContext,
+        multi_day_ctx: Optional[MultiDayContext],
+    ) -> Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
         """
         Execute the Logic-Based Benders Decomposition (LBBD) solver logic.
 
@@ -46,30 +47,38 @@ class LBBDPolicy(BaseMultiPeriodRoutingPolicy):
         expected longer-term resource availability across scenarios.
 
         Args:
-            tree (ScenarioTree): Tree of future fill rate realization scenarios.
-            capacity (float): Maximum vehicle collection capacity.
-            revenue (float): Revenue obtained per kilogram of waste collected.
-            cost_unit (float): Monetary cost incurred per kilometer traveled.
-            **kwargs: Additional context, including:
-                - distance_matrix (np.ndarray): Symmetric distance matrix.
+            problem: The current ProblemContext containing all state data.
+            multi_day_ctx: Optional context for spanning multiple days.
 
         Returns:
-            Tuple[List[List[List[int]]], float, Dict[str, Any]]:
-                A 3-tuple containing:
+            Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
+                - today_solution: Standardized solution context for Day 0.
                 - full_plan: Collection plan (nested list by day and vehicle).
-                - profit: The optimal objective value (cumulative net profit).
                 - stats: Execution statistics and decomposition iterations.
         """
-        distance_matrix = kwargs["distance_matrix"]
+        tree = problem.scenario_tree
+        if tree is None:
+            raise ValueError("LBBD requires a ScenarioTree in ProblemContext.")
+
+        distance_matrix = problem.distance_matrix
         cfg: LBBDConfig = self.config
 
         # Instantiate and run Engine
-        engine = LBBDEngine(config=cfg, distance_matrix=distance_matrix, tree=tree, capacity=capacity)
+        engine = LBBDEngine(
+            config=cfg,
+            distance_matrix=distance_matrix,
+            tree=tree,
+            capacity=problem.capacity,
+        )
 
         # Solve for the full horizon T
         full_plan, profit, stats = engine.solve()
 
-        return full_plan, profit, stats
+        # Extract Day 0 route
+        today_route = full_plan[0][0] if full_plan and full_plan[0] else []
+        sol_ctx = SolutionContext.from_problem(problem, today_route)
+
+        return sol_ctx, full_plan, stats
 
     def _run_solver(
         self,

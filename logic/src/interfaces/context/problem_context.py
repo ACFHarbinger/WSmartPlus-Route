@@ -62,6 +62,16 @@ class ProblemContext:
     day_index: int = 0
     extra: Dict[str, Any] = field(default_factory=dict)
 
+    @property
+    def current_day(self) -> int:
+        """Alias for day_index (legacy compatibility)."""
+        return self.day_index
+
+    @property
+    def fill_rates(self) -> np.ndarray:
+        """Alias for fill_rate_means (legacy compatibility)."""
+        return self.fill_rate_means
+
     @classmethod
     def from_kwargs(
         cls, kwargs: Dict[str, Any], capacity: float, revenue_per_kg: float, cost_per_km: float
