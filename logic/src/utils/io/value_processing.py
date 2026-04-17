@@ -4,7 +4,7 @@ Recursive traversal utilities for JSON-like data structures.
 
 from typing import Any, List, Optional, Tuple, Union
 
-from logic.src.interfaces import ITraversable
+from logic.src.interfaces.traversable import ITraversable
 
 
 def find_single_input_values(

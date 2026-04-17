@@ -10,7 +10,7 @@ from typing import Any, Dict, Optional, Tuple, cast
 import torch
 from torch import nn
 
-from logic.src.interfaces import ITraversable
+from logic.src.interfaces.traversable import ITraversable
 
 
 def torch_load_cpu(load_path: str) -> Any:

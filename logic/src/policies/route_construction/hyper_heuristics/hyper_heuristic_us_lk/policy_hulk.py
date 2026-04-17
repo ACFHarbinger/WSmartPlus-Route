@@ -9,6 +9,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 import numpy as np
 
 from logic.src.configs.policies.hulk import HULKConfig
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
@@ -16,6 +17,12 @@ from .hulk import HULKSolver
 from .params import HULKParams
 
 
+@GlobalRegistry.register(
+    PolicyTag.HYPER_HEURISTIC,
+    PolicyTag.ORCHESTRATOR,
+    PolicyTag.CONSTRUCTION,
+    PolicyTag.PROFIT_AWARE,
+)
 @RouteConstructorRegistry.register("hulk")
 class HULKPolicy(BaseRoutingPolicy):
     """HULK hyper-heuristic policy class."""

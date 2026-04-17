@@ -18,6 +18,7 @@ Reference:
 from typing import Any, Dict, List, Optional, Tuple, Type
 
 from logic.src.configs.policies.rens import RENSConfig
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.interfaces.context.multi_day_context import MultiDayContext
 from logic.src.interfaces.context.search_context import SearchContext
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
@@ -27,6 +28,12 @@ from .params import RENSParams
 from .solver import run_rens_gurobi
 
 
+@GlobalRegistry.register(
+    PolicyTag.MATHEURISTIC,
+    PolicyTag.MATH_PROGRAMMING,
+    PolicyTag.LOCAL_SEARCH,
+    PolicyTag.PROFIT_AWARE,
+)
 @RouteConstructorRegistry.register("rens")
 class RENSPolicy(BaseRoutingPolicy):
     """

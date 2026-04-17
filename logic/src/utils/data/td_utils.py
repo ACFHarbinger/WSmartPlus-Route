@@ -9,7 +9,7 @@ import torch
 from packaging import version
 from tensordict.tensordict import TensorDict
 
-from logic.src.interfaces import ITraversable
+from logic.src.interfaces.traversable import ITraversable
 
 # Version check for tensordict
 td_kwargs: Dict[str, Any] = (

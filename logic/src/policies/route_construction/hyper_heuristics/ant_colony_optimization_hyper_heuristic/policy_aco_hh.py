@@ -10,6 +10,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 import numpy as np
 
 from logic.src.configs.policies import HyperHeuristicACOConfig
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.policies.helpers.operators.solution_initialization.greedy_si import build_greedy_routes
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
@@ -24,6 +25,12 @@ from logic.src.policies.route_construction.hyper_heuristics.ant_colony_optimizat
 )
 
 
+@GlobalRegistry.register(
+    PolicyTag.HYPER_HEURISTIC,
+    PolicyTag.SWARM_INTELLIGENCE,
+    PolicyTag.CONSTRUCTION,
+    PolicyTag.PROFIT_AWARE,
+)
 @RouteConstructorRegistry.register("aco_hh")
 class HyperACOPolicy(BaseRoutingPolicy):
     """

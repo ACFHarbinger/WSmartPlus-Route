@@ -4,7 +4,7 @@ Dictionary and list processing utilities for JSON-like data.
 
 from typing import Any, Callable, Dict, List, Optional, Union, cast
 
-from logic.src.interfaces import ITraversable
+from logic.src.interfaces.traversable import ITraversable
 
 
 def process_dict_of_dicts(

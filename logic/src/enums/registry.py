@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, List, Set, Type, Union, Optional
+from typing import Any, Callable, Dict, List, Optional, Set, Type, Union
 
 from .environment_tags import EnvironmentTag
 from .model_tags import ModelTag

@@ -45,6 +45,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 import numpy as np
 
 from logic.src.configs.policies import IntegerLShapedBendersConfig
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.interfaces.context.multi_day_context import MultiDayContext
 from logic.src.interfaces.context.problem_context import ProblemContext
 from logic.src.interfaces.context.solution_context import SolutionContext
@@ -56,6 +57,12 @@ from .ils_bd_engine import IntegerLShapedEngine
 from .params import ILSBDParams
 
 
+@GlobalRegistry.register(
+    PolicyTag.EXACT,
+    PolicyTag.DECOMPOSITION,
+    PolicyTag.MATH_PROGRAMMING,
+    PolicyTag.MULTI_PERIOD,
+)
 @RouteConstructorRegistry.register("ils_bd")
 class IntegerLShapedPolicy(BaseMultiPeriodRoutingPolicy):
     r"""Two-Stage Stochastic MPVRP via the Integer L-Shaped Method.

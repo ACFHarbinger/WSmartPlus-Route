@@ -17,6 +17,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import torch
 
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.interfaces.context.multi_day_context import MultiDayContext
 from logic.src.interfaces.context.search_context import SearchContext
 from logic.src.models.policies.selection import get_vectorized_selector
@@ -29,6 +30,13 @@ from .agent import NeuralAgent
 from .params import NeuralParams
 
 
+@GlobalRegistry.register(
+    PolicyTag.REINFORCEMENT_LEARNING,
+    PolicyTag.NEURAL_COMBINATORIAL_OPTIMIZATION,
+    PolicyTag.CONSTRUCTION,
+    PolicyTag.PROFIT_AWARE,
+    PolicyTag.GPU_ACCELERATED,
+)
 @RouteConstructorRegistry.register("na")
 class NeuralAgentPolicy(BaseRoutingPolicy):
     """

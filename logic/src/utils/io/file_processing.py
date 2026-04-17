@@ -7,7 +7,7 @@ import json
 import os
 from typing import Any, Callable, Optional, Tuple, Union
 
-from logic.src.interfaces import ITraversable
+from logic.src.interfaces.traversable import ITraversable
 
 from .dict_processing import process_dict_of_dicts, process_dict_two_inputs
 

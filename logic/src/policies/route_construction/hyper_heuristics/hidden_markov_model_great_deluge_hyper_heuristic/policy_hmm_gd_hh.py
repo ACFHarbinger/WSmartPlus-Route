@@ -11,6 +11,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 import numpy as np
 
 from logic.src.configs.policies.hmm_gd_hh import HMMGDHHConfig
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.policies.helpers.operators.solution_initialization.greedy_si import build_greedy_routes
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
@@ -22,6 +23,13 @@ from logic.src.policies.route_construction.hyper_heuristics.hidden_markov_model_
 )
 
 
+@GlobalRegistry.register(
+    PolicyTag.HYPER_HEURISTIC,
+    PolicyTag.REINFORCEMENT_LEARNING,
+    PolicyTag.TRAJECTORY_BASED,
+    PolicyTag.CONSTRUCTION,
+    PolicyTag.PROFIT_AWARE,
+)
 @RouteConstructorRegistry.register("hmm_gd_hh")
 class HMMGDHHPolicy(BaseRoutingPolicy):
     """
