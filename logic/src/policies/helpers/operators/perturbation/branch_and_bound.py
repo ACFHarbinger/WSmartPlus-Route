@@ -57,8 +57,8 @@ from typing import Dict, List, Optional
 
 import numpy as np
 
-from ..destroy.branch_bound import bb_profit_removal, bb_removal
-from ..repair.branch_bound import bb_insertion, bb_profit_insertion
+from ..destroy.branch_and_bound import bb_profit_removal, bb_removal
+from ..repair.branch_and_bound import bb_insertion, bb_profit_insertion
 
 
 def bb_perturbation(

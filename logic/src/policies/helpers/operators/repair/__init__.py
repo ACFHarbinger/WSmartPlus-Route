@@ -12,7 +12,7 @@ Example:
     >>> routes = bb_insertion(routes, removed, dist_matrix, wastes, capacity)
 """
 
-from .branch_bound import bb_insertion, bb_profit_insertion
+from .branch_and_bound import bb_insertion, bb_profit_insertion
 from .deep import deep_insertion, deep_profit_insertion
 from .farthest import farthest_insertion, farthest_profit_insertion
 from .forward_looking import forward_looking_insertion
@@ -58,17 +58,6 @@ __all__ = [
     "savings_profit_insertion",
     "deep_insertion",
     "deep_profit_insertion",
-    # Stringing repair
-    "apply_type_i_s",
-    "apply_type_ii_s",
-    "apply_type_iii_s",
-    "apply_type_iv_s",
-    "apply_type_i_s_profit",
-    "apply_type_ii_s_profit",
-    "apply_type_iii_s_profit",
-    "apply_type_iv_s_profit",
-    "stringing_insertion",
-    "stringing_profit_insertion",
     # Inter-period / forward-looking
     "forward_looking_insertion",
     "greedy_horizon_insertion",

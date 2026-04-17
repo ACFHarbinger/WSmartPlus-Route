@@ -20,7 +20,7 @@ Example:
 """
 
 # Unstringing/Stringing imports removed to avoid circularity with ..unstringing_stringing
-from .branch_bound import bb_profit_removal, bb_removal
+from .branch_and_bound import bb_profit_removal, bb_removal
 from .cluster import cluster_profit_removal, cluster_removal
 from .guided import penalized_removal
 from .historical import historical_profit_removal, historical_removal
@@ -64,18 +64,6 @@ __all__ = [
     "neighbor_profit_removal",
     "string_profit_removal",
     "sector_profit_removal",
-    # Unstringing destroy operators
-    "apply_type_i_us",
-    "apply_type_ii_us",
-    "apply_type_iii_us",
-    "apply_type_iv_us",
-    "apply_type_i_us_profit",
-    "apply_type_ii_us_profit",
-    "apply_type_iii_us_profit",
-    "apply_type_iv_us_profit",
-    # Automated wrappers
-    "unstringing_removal",
-    "unstringing_profit_removal",
     # Inter-period operators
     "shift_visit_removal",
     "pattern_removal",
