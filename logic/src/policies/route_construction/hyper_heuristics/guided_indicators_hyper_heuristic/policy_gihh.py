@@ -10,6 +10,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 import numpy as np
 
 from logic.src.configs.policies import GIHHConfig
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
@@ -17,6 +18,12 @@ from .gihh import GIHHSolver
 from .params import GIHHParams
 
 
+@GlobalRegistry.register(
+    PolicyTag.HYPER_HEURISTIC,
+    PolicyTag.TRAJECTORY_BASED,
+    PolicyTag.CONSTRUCTION,
+    PolicyTag.PROFIT_AWARE,
+)
 @RouteConstructorRegistry.register("gihh")
 class GIHHPolicy(BaseRoutingPolicy):
     """

@@ -9,6 +9,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 import numpy as np
 
 from logic.src.configs.policies import ILSRVNDSPConfig
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.ils_rvnd_sp import (
@@ -19,6 +20,12 @@ from logic.src.policies.route_construction.matheuristics.iterated_local_search_r
 )
 
 
+@GlobalRegistry.register(
+    PolicyTag.MATHEURISTIC,
+    PolicyTag.LOCAL_SEARCH,
+    PolicyTag.DECOMPOSITION,
+    PolicyTag.PROFIT_AWARE,
+)
 @RouteConstructorRegistry.register("ils_rvnd_sp")
 class ILSRVNDSPPolicy(BaseRoutingPolicy):
     """

@@ -20,6 +20,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 import numpy as np
 
 from logic.src.configs.policies import BPConfig
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.interfaces.context.multi_day_context import MultiDayContext
 from logic.src.interfaces.context.search_context import SearchContext
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
@@ -29,6 +30,13 @@ from .bp import BranchAndPriceSolver
 from .params import BPParams
 
 
+@GlobalRegistry.register(
+    PolicyTag.EXACT,
+    PolicyTag.DECOMPOSITION,
+    PolicyTag.MATH_PROGRAMMING,
+    PolicyTag.SOLVER,
+    PolicyTag.PROFIT_AWARE,
+)
 @RouteConstructorRegistry.register("bp")
 class BranchAndPricePolicy(BaseRoutingPolicy):
     """

@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, Union
 import numpy as np
 
 from logic.src.configs.policies import CVRPConfig
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
@@ -23,6 +24,10 @@ from .cvrp import find_routes, find_routes_ortools
 from .params import CVRPParams
 
 
+@GlobalRegistry.register(
+    PolicyTag.HEURISTIC,
+    PolicyTag.CONSTRUCTION,
+)
 @RouteConstructorRegistry.register("cvrp")
 class CVRPPolicy(BaseRoutingPolicy):
     """

@@ -7,12 +7,20 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 import numpy as np
 
 from logic.src.configs.policies.ts import TSConfig
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.meta_heuristics.tabu_search.params import TSParams
 from logic.src.policies.route_construction.meta_heuristics.tabu_search.solver import TSSolver
 
 
+@GlobalRegistry.register(
+    PolicyTag.META_HEURISTIC,
+    PolicyTag.TRAJECTORY_BASED,
+    PolicyTag.LOCAL_SEARCH,
+    PolicyTag.CONSTRUCTION,
+    PolicyTag.PROFIT_AWARE,
+)
 @RouteConstructorRegistry.register("ts")
 class TSPolicy(BaseRoutingPolicy):
     """

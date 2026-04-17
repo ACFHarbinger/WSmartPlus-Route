@@ -13,6 +13,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 import numpy as np
 
 from logic.src.configs.policies.gphh import GPHHConfig
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.params import GPHHParams
@@ -72,6 +73,12 @@ def _make_synthetic_training_envs(
 # ---------------------------------------------------------------------------
 
 
+@GlobalRegistry.register(
+    PolicyTag.HYPER_HEURISTIC,
+    PolicyTag.EVOLUTIONARY_ALGORITHM,
+    PolicyTag.CONSTRUCTION,
+    PolicyTag.PROFIT_AWARE,
+)
 @RouteConstructorRegistry.register("gphh")
 class GPHHPolicy(BaseRoutingPolicy):
     """

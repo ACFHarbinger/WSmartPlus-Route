@@ -15,6 +15,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 import numpy as np
 
 from logic.src.configs.policies.rl_gd_hh import RLGDHHConfig
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
@@ -22,6 +23,13 @@ from .params import RLGDHHParams
 from .solver import RLGDHHSolver
 
 
+@GlobalRegistry.register(
+    PolicyTag.REINFORCEMENT_LEARNING,
+    PolicyTag.HYPER_HEURISTIC,
+    PolicyTag.TRAJECTORY_BASED,
+    PolicyTag.CONSTRUCTION,
+    PolicyTag.PROFIT_AWARE,
+)
 @RouteConstructorRegistry.register("rl_gd_hh")
 class RLGDHHPolicy(BaseRoutingPolicy):
     """

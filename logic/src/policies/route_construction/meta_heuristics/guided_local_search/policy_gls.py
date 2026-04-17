@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 import numpy as np
 
 from logic.src.configs.policies.gls import GLSConfig
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
@@ -14,6 +15,13 @@ from .params import GLSParams
 from .solver import GLSSolver
 
 
+@GlobalRegistry.register(
+    PolicyTag.META_HEURISTIC,
+    PolicyTag.TRAJECTORY_BASED,
+    PolicyTag.LOCAL_SEARCH,
+    PolicyTag.CONSTRUCTION,
+    PolicyTag.PROFIT_AWARE,
+)
 @RouteConstructorRegistry.register("gls")
 class GLSPolicy(BaseRoutingPolicy):
     """Guided Large Neighborhood Search (G-LNS) policy class."""

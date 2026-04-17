@@ -7,7 +7,7 @@ import sys
 
 import yaml
 
-from logic.src.interfaces import ITraversable
+from logic.src.interfaces.traversable import ITraversable
 
 
 def to_bash_value(value):

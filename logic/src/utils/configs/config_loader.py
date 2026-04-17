@@ -14,7 +14,7 @@ from typing import Any, Dict, List, Union
 
 import yaml
 
-from logic.src.interfaces import ITraversable
+from logic.src.interfaces.traversable import ITraversable
 
 
 def load_yaml_config(config_path: str) -> dict[str, Any]:

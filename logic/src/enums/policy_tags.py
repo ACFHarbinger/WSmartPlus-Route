@@ -7,6 +7,7 @@ class PolicyTag(Enum):
     # 1. PARADIGM (The overarching mathematical philosophy)
     # ==========================================
     EXACT = auto()  # Provably optimal (Branch & Bound, Set Partitioning)
+    SOLVER = auto()  # Solvers (Branch & Bound, Set Partitioning)
     DECOMPOSITION = auto()  # Decomposition methods (Column Generation, Branch & Price, Lagrangian Relaxation)
     HEURISTIC = auto()  # Rule-based approximations (Greedy, Clarke-Wright)
     META_HEURISTIC = auto()  # High-level search frameworks (ALNS, HGS, Tabu Search)
@@ -28,18 +29,14 @@ class PolicyTag(Enum):
     NEIGHBORHOOD_SEARCH = auto()  # Neighborhood search algorithms (Variable Neighborhood Search, etc.)
     LARGE_NEIGHBORHOOD_SEARCH = auto()  # Large neighborhood search algorithms (LNS, ALNS, Ruin & Recreate variants)
     MEMETIC_SEARCH = auto()  # Memetic search algorithms (Genetic Algorithms + Local Search)
+    ADAPTIVE_ALGORITHM = auto()  # Adaptive Algorithms
 
     # ==========================================
     # 3. PIPELINE PHASE (What role does this play in the lifecycle?)
     # ==========================================
     SELECTION = auto()  # Selects mandatory nodes to serve
-    CONSTRUCTIVE = auto()  # Builds solutions from scratch (Initialization)
-    IMPROVEMENT = auto()  # Descent-based local search (2-Opt, Relocate)
-    PERTURBATION = auto()  # Shaking/Diversification (Double Bridge, Kick)
-    DESTRUCTIVE = auto()  # Removals (Shaw, Worst, Random)
-    RECOMBINATION = auto()  # Crossovers (OX, Edge Recombination)
-    CONTROLLER = auto()  # Orchestrators (Bandits, ALNS Roulettes, RL Managers)
-    SOLVER = auto()  # Solvers (Branch & Bound, Set Partitioning)
+    CONSTRUCTION = auto()  # Builds routes from scratch (Initialization)
+    IMPROVEMENT = auto()  # Improves routes (Local Search, etc.)
     OPERATOR = auto()  # Operators (2-Opt, Relocate, Cross Exchange, etc.)
     ACCEPTANCE = auto()  # Acceptance criteria (Metropolis-Hastings, Simulated Annealing, etc.)
 

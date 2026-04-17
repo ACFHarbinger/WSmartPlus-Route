@@ -10,6 +10,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 import numpy as np
 
 from logic.src.configs.policies.ss_hh import SSHHConfig
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
@@ -17,6 +18,12 @@ from .params import SSHHParams
 from .solver import SSHHSolver
 
 
+@GlobalRegistry.register(
+    PolicyTag.HYPER_HEURISTIC,
+    PolicyTag.TRAJECTORY_BASED,
+    PolicyTag.CONSTRUCTION,
+    PolicyTag.PROFIT_AWARE,
+)
 @RouteConstructorRegistry.register("ss_hh")
 class SSHHPolicy(BaseRoutingPolicy):
     """

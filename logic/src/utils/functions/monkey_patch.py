@@ -14,7 +14,7 @@ from typing import Any, Dict
 
 import torch
 
-from logic.src.interfaces import ITraversable
+from logic.src.interfaces.traversable import ITraversable
 
 
 # Attention, Learn to Solve Routing Problems

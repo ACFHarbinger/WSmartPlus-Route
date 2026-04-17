@@ -5,7 +5,7 @@ from typing import Dict, List, Optional, Set, Tuple
 import gurobipy as gp
 import numpy as np
 
-from logic.src.policies.route_construction.matheuristics.aks.aks import (
+from logic.src.policies.route_construction.matheuristics.adaptive_kernel_search.aks import (
     _assess_difficulty,
     _get_feasible,
     _get_partitioned_vars_aks,
