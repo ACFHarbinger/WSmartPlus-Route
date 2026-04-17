@@ -1,3 +1,3 @@
-from .policy_mhh import MatheuristicHHPolicy
+from .policy_mhh import MHHPolicy
 
-__all__ = ["MatheuristicHHPolicy"]
+__all__ = ["MHHPolicy"]

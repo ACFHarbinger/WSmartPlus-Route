@@ -9,9 +9,10 @@ registry key ``"adp_rollout"``.
 from dataclasses import asdict
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
-import numpy as np
-
 from logic.src.configs.policies import ADPRolloutConfig
+from logic.src.interfaces.context.multi_day_context import MultiDayContext
+from logic.src.interfaces.context.problem_context import ProblemContext
+from logic.src.interfaces.context.solution_context import SolutionContext
 from logic.src.policies.route_construction.base.base_multi_period_policy import BaseMultiPeriodRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
@@ -55,44 +56,44 @@ class ADPRolloutPolicy(BaseMultiPeriodRoutingPolicy):
 
     def _run_multi_period_solver(
         self,
-        tree: Any,
-        capacity: float,
-        revenue: float,
-        cost_unit: float,
-        **kwargs: Any,
-    ) -> Tuple[List[List[List[int]]], float, Dict[str, Any]]:
-        """Execute the ADP rollout over the T-day horizon.
+        problem: ProblemContext,
+        multi_day_ctx: Optional[MultiDayContext],
+    ) -> Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
+        """
+        Execute the ADP rollout over the T-day horizon using Powell's framework.
 
         Args:
-            tree: ScenarioTree for demand simulation.
-            capacity: Vehicle capacity.
-            revenue: Revenue per unit waste (R).
-            cost_unit: Cost per unit distance (C).
-            **kwargs: Additional context (distance_matrix, sub_wastes, mandatory, etc.).
+            problem: State data including current bin levels and scenario projections.
+            multi_day_ctx: Context for multi-day optimization state.
 
         Returns:
-            Tuple of (full_plan[day][route][node], total_expected_profit, metadata).
+            Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
+                - today_solution: Policy decisions for Day 0.
+                - full_plan: Collection plan spanning the entire horizon.
+                - stats: Metadata about candidate sets, rollout scores, and convergence.
         """
-        cfg: ADPRolloutConfig = self.config  # type: ignore[assignment]
-        sub_dist_matrix: np.ndarray = kwargs["distance_matrix"]
-        sub_wastes: Dict[int, float] = kwargs.get("sub_wastes", {})
-        mandatory_nodes: List[int] = kwargs.get("mandatory", [])
+        tree = problem.scenario_tree
+        if tree is None:
+            raise ValueError("ADP requires a ScenarioTree in ProblemContext.")
 
-        params = ADPRolloutParams.from_config(asdict(cfg))
+        params = ADPRolloutParams.from_config(asdict(self.config))  # type: ignore[arg-type]
 
         engine = ADPRolloutEngine(
-            dist_matrix=sub_dist_matrix,
-            wastes=sub_wastes,
-            capacity=capacity,
-            R=revenue,
-            C=cost_unit,
+            dist_matrix=problem.distance_matrix,
+            wastes=problem.wastes,
+            capacity=problem.capacity,
+            R=problem.revenue_per_kg,
+            C=problem.cost_per_km,
             params=params,
-            mandatory_nodes=mandatory_nodes,
+            mandatory_nodes=problem.mandatory,
         )
 
         full_plan, total_profit, metadata = engine.solve(
             scenario_tree=tree,
-            horizon=cfg.horizon,
+            horizon=problem.horizon,
         )
 
-        return full_plan, total_profit, metadata
+        today_route = full_plan[0][0] if full_plan and full_plan[0] else []
+        sol = SolutionContext.from_problem(problem, today_route)
+
+        return sol, full_plan, metadata

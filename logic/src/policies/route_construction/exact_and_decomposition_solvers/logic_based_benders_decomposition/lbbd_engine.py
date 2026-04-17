@@ -2,6 +2,7 @@ import time
 from typing import Any, Dict, List, Tuple
 
 import numpy as np
+
 from logic.src.configs.policies.lbbd import LBBDConfig
 from logic.src.pipeline.simulations.bins.prediction import ScenarioTree
 

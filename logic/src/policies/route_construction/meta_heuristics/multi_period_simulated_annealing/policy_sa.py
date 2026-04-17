@@ -12,13 +12,12 @@ from logic.src.policies.route_construction.base.base_multi_period_policy import 
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.matheuristics.utils import (
     greedy_day_route,
-    route_cost,
     route_profit,
     two_opt,
 )
 
 
-@RouteConstructorRegistry.register("mp_sa")
+@RouteConstructorRegistry.register("mp_bmc")
 class SimulatedAnnealingPolicy(BaseMultiPeriodRoutingPolicy):
     """
     Simulated Annealing metaheuristic.
@@ -75,8 +74,39 @@ class SimulatedAnnealingPolicy(BaseMultiPeriodRoutingPolicy):
         return new_plan
 
     def _run_multi_period_solver(
-        self, problem: ProblemContext, multi_day_ctx: Optional[MultiDayContext]
+        self,
+        problem: ProblemContext,
+        multi_day_ctx: Optional[MultiDayContext],
     ) -> Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
+        """
+        Execute the Simulated Annealing (SA) metaheuristic solver logic.
+
+        SA is a probabilistic technique for approximating the global optimum of
+        a given function. Specifically, it is a metaheuristic inspired by the
+        metallurgical process of heating and controlled cooling to achieve a
+        low-energy state.
+
+        Search Logic:
+        1. **Initial Solution**: Generated via greedy construction and 2-opt.
+        2. **Neighbor Generation**: Proposes small, stochastic modifications to
+           the multi-day plan (e.g., node swap/add/drop).
+        3. **Acceptance Criterion**: Employs the Boltzmann-Metropolis condition.
+           It always accepts improving moves and accepts deteriorating moves
+           with a probability P = exp(delta / T), where delta is the loss in
+           profit and T is the current temperature.
+        4. **Cooling Schedule**: Systematically reduces T over time,
+           transitioning the search from exploration to intensification.
+
+        Args:
+            problem: The current ProblemContext containing state data.
+            multi_day_ctx: Optional context for spanning multiple rolling days.
+
+        Returns:
+            Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
+                - today_solution: Standardized solution context for Day 0.
+                - full_plan: Collection plan (nested list by day and vehicle).
+                - stats: Execution statistics (iterations, cost, profit).
+        """
         np_rng = np.random.default_rng(self.seed)
 
         cur_plan = []
@@ -108,10 +138,6 @@ class SimulatedAnnealingPolicy(BaseMultiPeriodRoutingPolicy):
             temp *= self.cooling_rate
 
         today_route = best_plan[0][0] if best_plan[0] else []
-        sol = SolutionContext.from_single_route(
-            route=today_route,
-            profit=route_profit(today_route, problem),
-            cost=route_cost(today_route, problem),
-            metadata={"sa_iters": self.max_iter},
-        )
-        return sol, best_plan, {"sa_iters": self.max_iter}
+        sol = SolutionContext.from_problem(problem, today_route)
+
+        return sol, best_plan, {"sa_iters": self.max_iter, "expected_profit": best_prof}

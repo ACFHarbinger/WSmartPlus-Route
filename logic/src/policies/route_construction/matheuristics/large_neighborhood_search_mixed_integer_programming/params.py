@@ -1,4 +1,4 @@
-from dataclasses import dataclass, fields
+from dataclasses import MISSING, dataclass, fields
 from typing import Any
 
 
@@ -16,6 +16,11 @@ class LNSMIPParams:
 
     @classmethod
     def from_config(cls, config: Any) -> "LNSMIPParams":
-        if isinstance(config, dict):
-            return cls(**{k: v for k, v in config.items() if k in {f.name for f in fields(cls)}})
-        return cls(**{f.name: getattr(config, f.name, f.default) for f in fields(cls)})
+        params = {}
+        for f in fields(cls):
+            val = getattr(config, f.name, f.default)
+            # Handle MISSING from dataclasses fields or OmegaConf
+            if str(val) == "MISSING" or val is MISSING:
+                continue
+            params[f.name] = val
+        return cls(**params)

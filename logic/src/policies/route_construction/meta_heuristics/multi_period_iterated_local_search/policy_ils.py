@@ -11,7 +11,6 @@ from logic.src.policies.route_construction.base.base_multi_period_policy import 
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.matheuristics.utils import (
     greedy_day_route,
-    route_cost,
     route_profit,
     two_opt,
 )
@@ -83,8 +82,37 @@ class ILSPolicy(BaseMultiPeriodRoutingPolicy):
         return new_plan
 
     def _run_multi_period_solver(
-        self, problem: ProblemContext, multi_day_ctx: Optional[MultiDayContext]
+        self,
+        problem: ProblemContext,
+        multi_day_ctx: Optional[MultiDayContext],
     ) -> Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
+        """
+        Execute the Iterated Local Search (ILS) metaheuristic solver logic.
+
+        ILS is a simple yet powerful metaheuristic that iteratively applies a
+        local search to a perturbed solution. It operates in a loop:
+        1. **Initial Solution**: A greedy construction followed by local refinement.
+        2. **Perturbation**: The current solution is modified (e.g., via ruin-and-recreate
+           or random moves) to escape the current local optimum.
+        3. **Local Search**: The perturbed solution is refined using local search
+           operators (such as 2-opt) until a new local optimum is found.
+        4. **Acceptance**: The new local optimum is accepted if it improves upon
+           the current or best-known objective value.
+
+        In this multi-period implementation, the search optimizes a schedule
+        of routes over the provides horizon T, accounting for inventory
+        transitions and expected profits across multiple days.
+
+        Args:
+            problem: The current ProblemContext containing state data.
+            multi_day_ctx: Optional context for spanning multiple rolling days.
+
+        Returns:
+            Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
+                - today_solution: Standardized solution context for Day 0.
+                - full_plan: Collection plan for all days in the horizon.
+                - stats: Execution statistics (iterations, cost, profit).
+        """
         D = problem.horizon
         np_rng = np.random.default_rng(self.seed)
 
@@ -117,10 +145,6 @@ class ILSPolicy(BaseMultiPeriodRoutingPolicy):
                     best_prof = imp_prof
 
         today_route = best_plan[0][0] if best_plan[0] else []
-        sol = SolutionContext.from_single_route(
-            route=today_route,
-            profit=route_profit(today_route, problem),
-            cost=route_cost(today_route, problem),
-            metadata={"ils_iters": self.max_iter},
-        )
-        return sol, best_plan, {"ils_iters": self.max_iter}
+        sol = SolutionContext.from_problem(problem, today_route)
+
+        return sol, best_plan, {"ils_iters": self.max_iter, "expected_profit": best_prof}

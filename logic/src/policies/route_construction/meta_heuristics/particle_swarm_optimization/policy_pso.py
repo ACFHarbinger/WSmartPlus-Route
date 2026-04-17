@@ -1,15 +1,13 @@
-"""
-Policy adapter for Particle Swarm Optimization (PSO).
-
-**Replaces SCA** - Proper PSO with velocity momentum.
-"""
-
+from dataclasses import asdict
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
 
-from logic.src.configs.policies.pso import PSOConfig
-from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
+from logic.src.configs.policies import PSOConfig
+from logic.src.interfaces.context.multi_day_context import MultiDayContext
+from logic.src.interfaces.context.problem_context import ProblemContext
+from logic.src.interfaces.context.solution_context import SolutionContext
+from logic.src.policies.route_construction.base.base_multi_period_policy import BaseMultiPeriodRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
 from .params import PSOParams
@@ -17,7 +15,7 @@ from .solver import PSOSolver
 
 
 @RouteConstructorRegistry.register("pso")
-class PSOPolicyAdapter(BaseRoutingPolicy):
+class PSOPolicyAdapter(BaseMultiPeriodRoutingPolicy):
     """
     Policy adapter for Particle Swarm Optimization with velocity momentum.
 
@@ -50,17 +48,11 @@ class PSOPolicyAdapter(BaseRoutingPolicy):
     def _get_config_key(self) -> str:
         return "pso"
 
-    def _run_solver(
+    def _run_multi_period_solver(
         self,
-        sub_dist_matrix: np.ndarray,
-        sub_wastes: Dict[int, float],
-        capacity: float,
-        revenue: float,
-        cost_unit: float,
-        values: Dict[str, Any],
-        mandatory_nodes: List[int],
-        **kwargs: Any,
-    ) -> Tuple[List[List[int]], float, float]:
+        problem: ProblemContext,
+        multi_day_ctx: Optional[MultiDayContext],
+    ) -> Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
         """
         Execute the Particle Swarm Optimization (PSO) solver logic.
 
@@ -75,29 +67,18 @@ class PSOPolicyAdapter(BaseRoutingPolicy):
         which are updated as better positions are found by other particles.
 
         Args:
-            sub_dist_matrix (np.ndarray): Symmetric distance matrix for the current
-                sub-problem nodes.
-            sub_wastes (Dict[int, float]): Mapping of local node indices to their
-                current bin inventory levels.
-            capacity (float): Maximum vehicle collection capacity.
-            revenue (float): Revenue obtained per kilogram of waste collected.
-            cost_unit (float): Monetary cost incurred per kilometer traveled.
-            values (Dict[str, Any]): Merged configuration dictionary containing
-                PSO parameters (pop_size, cognitive_coef, social_coef, inertia_weight).
-            mandatory_nodes (List[int]): Local indices of bins that MUST be
-                collected in this period.
-            **kwargs: Additional context, including:
-                - search_context (Optional[SearchContext]): Context for tracking
-                  recursive solver statistics.
-                - multi_day_context (Optional[MultiDayContext]): Context for
-                  inter-day state propagation.
+            problem: The current ProblemContext containing the state, inventory,
+                and distance matrices.
+            multi_day_ctx: Optional context for inter-day state propagation.
 
         Returns:
-            Tuple[List[List[int]], float, float]: A 3-tuple containing:
-                - routes: Optimized collection routes (list-of-lists, local indices).
-                - profit: Total calculated net profit (Total Revenue - Total Cost).
-                - cost: Total travel cost calculated by the solver.
+            Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
+                - today_solution: Standardized solution context for Day 0.
+                - full_plan: Collection plan (nested list by day and vehicle).
+                - stats: Execution statistics and PSO solver metadata.
         """
+        values = asdict(self.config) if self.config else {}
+
         params = PSOParams(
             pop_size=values.get("pop_size", 30),
             inertia_weight_start=values.get("inertia_weight_start", 0.9),
@@ -115,15 +96,40 @@ class PSOPolicyAdapter(BaseRoutingPolicy):
         )
 
         solver = PSOSolver(
-            dist_matrix=sub_dist_matrix,
-            wastes=sub_wastes,
-            capacity=capacity,
-            R=revenue,
-            C=cost_unit,
+            dist_matrix=problem.distance_matrix,
+            wastes=problem.wastes,
+            capacity=problem.capacity,
+            R=problem.revenue_per_kg,
+            C=problem.cost_per_km,
             params=params,
-            mandatory_nodes=mandatory_nodes,
+            mandatory_nodes=problem.mandatory,
         )
-        return solver.solve()
+
+        routes, profit, cost = solver.solve()
+
+        # Wrap plan
+        full_plan: List[List[List[int]]] = [[] for _ in range(self.horizon + 1)]
+        full_plan[0] = routes
+
+        # Extract primary route
+        today_route = routes[0] if routes else []
+        sol_ctx = SolutionContext.from_problem(problem, today_route)
+
+        return sol_ctx, full_plan, {"cost": cost, "profit": profit}
+
+    def _run_solver(
+        self,
+        sub_dist_matrix: np.ndarray,
+        sub_wastes: Dict[int, float],
+        capacity: float,
+        revenue: float,
+        cost_unit: float,
+        values: Dict[str, Any],
+        mandatory_nodes: List[int],
+        **kwargs: Any,
+    ) -> Tuple[List[List[int]], float, float]:
+        """Legacy fallback."""
+        return [], 0.0, 0.0
 
     def get_name(self) -> str:
         """Return policy name."""

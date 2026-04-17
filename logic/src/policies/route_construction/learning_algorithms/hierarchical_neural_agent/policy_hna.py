@@ -13,6 +13,9 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 import numpy as np
 
 from logic.src.configs.policies import HNAPolicyConfig
+from logic.src.interfaces.context.multi_day_context import MultiDayContext
+from logic.src.interfaces.context.problem_context import ProblemContext
+from logic.src.interfaces.context.solution_context import SolutionContext
 from logic.src.policies.helpers.operators import greedy_insertion
 from logic.src.policies.route_construction.base.base_multi_period_policy import BaseMultiPeriodRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
@@ -142,39 +145,41 @@ class HierarchicalNeuralAgentPolicy(BaseMultiPeriodRoutingPolicy):
 
     def _run_multi_period_solver(
         self,
-        tree: Any,
-        capacity: float,
-        revenue: float,
-        cost_unit: float,
-        **kwargs: Any,
-    ) -> Tuple[List[List[List[int]]], float, Dict[str, Any]]:
-        """Execute the HRL-IRP policy over the T-day horizon.
+        problem: ProblemContext,
+        multi_day_ctx: Optional[MultiDayContext],
+    ) -> Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
+        """
+        Execute the Hierarchical Neural Agent (HNA) policy.
 
         Args:
-            tree: ScenarioTree for demand simulation.
-            capacity: Vehicle capacity.
-            revenue: Revenue per unit waste (R).
-            cost_unit: Cost per unit distance (C).
-            **kwargs: Additional context (distance_matrix, sub_wastes, mandatory).
+            problem: Current ProblemContext containing state data.
+            multi_day_ctx: Optional context for spanning multiple days.
 
         Returns:
-            Tuple of (full_plan[day][route][node], total_profit, metadata).
+            Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
+                - today_solution: Standardized solution context for Day 0.
+                - full_plan: Collection plan spanning the entire horizon.
+                - stats: Execution statistics and checkpoint usage metadata.
         """
         cfg: HNAPolicyConfig = self.config  # type: ignore[assignment]
-        sub_dist_matrix: np.ndarray = kwargs["distance_matrix"]
-        sub_wastes: Dict[int, float] = kwargs.get("sub_wastes", {})
-        mandatory_base: List[int] = kwargs.get("mandatory", [])
-        locs: Optional[np.ndarray] = kwargs.get("locs")
+        sub_dist_matrix = problem.distance_matrix
+        sub_wastes = problem.wastes
+        mandatory_base = problem.mandatory
+        locs = getattr(problem, "locs", None)
+        tree = problem.scenario_tree
+        capacity = problem.capacity
+        revenue = problem.revenue_per_kg
+        cost_unit = problem.cost_per_km
 
         full_plan: List[List[List[int]]] = []
         total_profit = 0.0
         rolling_wastes = dict(sub_wastes)
 
-        for t in range(cfg.horizon):
+        for t in range(problem.horizon):
             # Manager: select node subset for this day
             mandatory_selected = self._select_mandatory_nodes(rolling_wastes, locs)
             # Always include base mandatory nodes
-            mandatory_today = sorted(set(mandatory_selected) | set(mandatory_base))
+            mandatory_today = sorted(set(mandatory_selected) | set(mandatory_base if t == 0 else []))
 
             if mandatory_today:
                 routes = greedy_insertion(
@@ -210,21 +215,24 @@ class HierarchicalNeuralAgentPolicy(BaseMultiPeriodRoutingPolicy):
                 if n in visited:
                     rolling_wastes[n] = 0.0
             # Demand transition (use scenario tree or uniform noise)
-            if tree is not None and hasattr(tree, "get_scenarios_at_day") and t + 1 < cfg.horizon:
-                scenarios = tree.get_scenarios_at_day(t + 1)
-                if scenarios:
-                    sc = scenarios[0]
-                    for n in rolling_wastes:
-                        if hasattr(sc, "wastes") and n - 1 < len(sc.wastes):
-                            rolling_wastes[n] = min(rolling_wastes[n] + float(sc.wastes[n - 1]), 200.0)
+            if tree is not None and t + 1 < problem.horizon:
+                # Use mean fill rates from ProblemContext for rolling prediction
+                fill_rates = problem.fill_rate_means
+                for n in rolling_wastes:
+                    rolling_wastes[n] = min(rolling_wastes[n] + float(fill_rates[n - 1]), 200.0)
 
             if cfg.verbose:
                 print(f"[HRL-IRP] Day {t}: profit={day_profit:.2f}, visited={visited}")
 
-        metadata: Dict[str, Any] = {
-            "total_profit": total_profit,
-            "horizon": cfg.horizon,
-            "checkpoint_used": cfg.checkpoint_path is not None and self._module is not None,
-        }
+        today_route = full_plan[0][0] if full_plan and full_plan[0] else []
+        sol = SolutionContext.from_problem(problem, today_route)
 
-        return full_plan, total_profit, metadata
+        return (
+            sol,
+            full_plan,
+            {
+                "total_profit": total_profit,
+                "horizon": problem.horizon,
+                "checkpoint_used": cfg.checkpoint_path is not None and self._module is not None,
+            },
+        )

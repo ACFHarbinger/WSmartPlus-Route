@@ -56,10 +56,15 @@ def double_bridge(ls_or_plan: Any, r_idx: int, rng: Optional[Any] = None) -> boo
     # 2. Generate 3 sorted cut points
     # Logic handles both random.Random (LS) and numpy.Generator (LLH Pools)
     if hasattr(rng, "sample"):
+        # random.Random
         cuts = sorted(rng.sample(range(1, n), 3))
     else:
-        # numpy.random.Generator
-        cuts = sorted(rng.choice(range(1, n), size=3, replace=False).tolist())
+        # numpy.random.Generator or numpy.random.  Use getattr to satisfy Mypy
+        # which thinks rng must be random.Random from the earlier import.
+        choice_func: Any = rng.choice
+        choice_res = choice_func(n - 1, size=3, replace=False)
+        # Shift results to [1, n)
+        cuts = sorted([int(x) + 1 for x in choice_res])
 
     if len(cuts) < 3:
         return False

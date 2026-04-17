@@ -12,12 +12,34 @@ from logic.src.policies.route_construction.base.factory import RouteConstructorR
 
 @RouteConstructorRegistry.register("rfo")
 class RelaxFixOptimizePolicy(BaseMultiPeriodRoutingPolicy):
-    """
-    Relax-and-Fix Meta-heuristic.
-    Given a horizon D, iterate over time windows.
-    In each step, variables before the window are FIXED,
-    variables in the window are INTEGER,
-    and variables after the window are RELAXED (Continuous).
+    r"""
+    Relax-and-Fix (R&F) with Local Optimization for MPVRPP.
+
+    RFO is a mathematical programming-based heuristic for multi-period
+    optimization with integer variables. It decomposes the planning horizon
+    into three overlapping regions to manage the trade-off between immediate
+    optimality and future feasibility.
+
+    Mathematical Principles:
+    1.  **Decomposition**: The horizon $T$ is partitioned into a set of windows
+        $W$. Let $T_{fixed} < T_{int} < T_{rel}$ be the time indices.
+    2.  **Relax-and-Fix Step**:
+        - For $t \in T_{fixed}$: Bin-visit variables $y_{i,t}$ are fixed to their
+          previous optimal values.
+        - For $t \in T_{int}$: Variables are constrained to be binary (integer).
+        - For $t \in T_{rel}$: Variables are relaxed to $y_{i,t} \in [0, 1]$.
+    3.  **Rolling Strategy**: The integer window $T_{int}$ slides forward by
+        `step_size` days after each MILP solve. This ensures that Day 0 (the
+        decision day) is always solved to integer optimality while considering
+        the long-term relaxed impact of future scenarios.
+
+    Algorithm Logic:
+    - **Step 1**: Construct a monolithic MILP with discretized bin fill rates.
+    - **Step 2**: Solve the R&F subproblems iteratively until the integer window
+      covers the entire execution day.
+    - **Step 3**: Extractions the resulting routing plan for the current day.
+
+    Registry key: ``"rfo"``
     """
 
     def __init__(self, config: Any = None):

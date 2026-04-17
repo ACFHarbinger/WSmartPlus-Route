@@ -7,7 +7,9 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.pipeline.simulations.bins.prediction import ScenarioTree
+from logic.src.interfaces.context.multi_day_context import MultiDayContext
+from logic.src.interfaces.context.problem_context import ProblemContext
+from logic.src.interfaces.context.solution_context import SolutionContext
 from logic.src.policies.helpers.local_search.local_search_manager import LocalSearchManager
 from logic.src.policies.helpers.operators.crossover_recombination.pattern_and_itinerary_crossover import (
     pattern_itinerary_crossover,
@@ -25,8 +27,30 @@ from .split import compute_daily_loads, split_day
 @RouteConstructorRegistry.register("hgs_adc")
 class PolicyHGSADC(BaseMultiPeriodRoutingPolicy):
     """
-    MPVRP Solver using Hybrid Genetic Search with Adaptive Diversity Control.
-    Implements a generation loop with open unconstrained patterns and split algorithm.
+    Hybrid Genetic Search with Adaptive Diversity Control (HGS-ADC).
+
+    HGS-ADC is a state-of-the-art meta-heuristic for the Vehicle Routing Problem
+    and its variants (Vidal et al., 2012). It combines the exploration power of
+    Genetic Algorithms with the intensification of Local Search.
+
+    Mathematical Principles:
+    1.  **Unified Solution Representation**: Solutions are represented as giant
+        tours (permutations of nodes) which are split into vehicle-feasible
+        routes using an optimal Split procedure (Davis et al., 2003).
+    2.  **Adaptive Diversity Control**: Instead of simple elitism, HGS-ADC
+        maintains a population biased towards individuals that contribute
+        the most to the population's structural diversity.
+        Bias(B) = Rank(Cost(B)) + (1 - nb_elite / nb_total) * Rank(Diversity(B)).
+    3.  **Feasibility Management**: The algorithm explores both feasible and
+        infeasible solution spaces (penalizing capacity/duration violations)
+        to bypass narrow corridors of feasibility.
+
+    Registry key: ``"hgs_adc"``
+
+    References:
+        Vidal, T., et al. (2012). "A hybrid genetic algorithm with adaptive
+        diversity management for a large class of vehicle routing problems with
+        time windows". Computers & Operations Research, 39(9), 2125-2136.
     """
 
     def __init__(self, config: Any = None):
@@ -34,12 +58,46 @@ class PolicyHGSADC(BaseMultiPeriodRoutingPolicy):
 
     def _run_multi_period_solver(
         self,
-        tree: ScenarioTree,
-        capacity: float,
-        revenue: float,
-        cost_unit: float,
-        **kwargs: Any,
-    ) -> Tuple[List[List[List[int]]], float, Dict[str, Any]]:
+        problem: ProblemContext,
+        multi_day_ctx: Optional[MultiDayContext],
+    ) -> Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
+        """
+        Execute the Hybrid Genetic Search with Adaptive Diversity Control (HGS-ADC).
+
+        HGS-ADC is a state-of-the-art metaheuristic for Vehicle Routing Problems.
+        It combines the power of genetic algorithms (exploring the space of
+        giant tours) with a "Split" algorithm (optimally partitioning tours
+        into daily vehicle routes) and a diverse local search (education).
+
+        Algorithmic Principles:
+        1. **Individual Representation**: Encodes each solution as a sequence
+           of daily giant tours (permutations of nodes).
+        2. **Adaptive Diversity Control**: Manages two sub-populations (feasible
+           and infeasible) based on objective value AND contribution to
+           population diversity. This prevents premature convergence.
+        3. **Split Algorithm**: Uses a dynamic programming approach to find the
+           optimal vehicle routes for a given giant tour, ensuring maximum
+           profit/minimum cost within capacity constraints.
+        4. **Education (LS)**: Refines every child solution using local search
+           operators (2-opt, SWAP*) to reach a local optimum.
+
+        Args:
+            problem: The current ProblemContext containing state data.
+            multi_day_ctx: Optional context for spanning multiple rolling days.
+
+        Returns:
+            Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
+                - today_solution: Standardized solution context for Day 0.
+                - full_plan: Collection plan for the provided horizon.
+                - stats: Execution statistics (generations, fitness).
+        """
+        tree = problem.scenario_tree
+        if tree is None:
+            raise ValueError("HGS-ADC requires a ScenarioTree in ProblemContext.")
+
+        capacity = problem.capacity
+        dist_matrix = problem.distance_matrix
+
         T = tree.horizon
         base_wastes = tree.root.wastes.copy()
         N = len(base_wastes)
@@ -55,19 +113,15 @@ class PolicyHGSADC(BaseMultiPeriodRoutingPolicy):
                 daily_increments[t - 1] = np.maximum(0, current_wastes - previous_wastes)
                 previous_wastes = current_wastes
 
-        dist_matrix = kwargs.get("distance_matrix")
-
-        best_ind = self._construct_multi_period_routes(
-            T, base_wastes, daily_increments, np.array(dist_matrix), capacity, **kwargs
-        )
+        best_ind = self._construct_multi_period_routes(T, base_wastes, daily_increments, dist_matrix, capacity)
 
         if best_ind is None:
-            return [[[0, 0]]] * T, 0.0, {}
+            return SolutionContext.empty(), [[[0, 0]]] * T, {}
 
         full_plan = []
         for t in range(T):
             routes = best_ind.routes[t]
-            day_plan = []
+            day_plan: List[List[int]] = []
             for r in routes:
                 if len(r) > 0:
                     day_plan.append([0] + list(r) + [0])
@@ -75,8 +129,12 @@ class PolicyHGSADC(BaseMultiPeriodRoutingPolicy):
                 day_plan = [[0, 0]]
             full_plan.append(day_plan)
 
-        expected_profit = -best_ind.fit
-        return full_plan, expected_profit, {"generations": getattr(self.config, "generations", 50)}
+        today_route = full_plan[0][0] if full_plan[0] else []
+        # Filter depot 0
+        today_route = [v for v in today_route if v != 0]
+        sol = SolutionContext.from_problem(problem, today_route)
+
+        return sol, full_plan, {"generations": getattr(self.config, "generations", 50)}
 
     def _construct_multi_period_routes(
         self,

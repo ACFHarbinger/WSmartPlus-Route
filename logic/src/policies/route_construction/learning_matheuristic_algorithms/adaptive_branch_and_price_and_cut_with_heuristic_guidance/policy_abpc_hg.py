@@ -1,7 +1,9 @@
 from typing import Any, Dict, List, Optional, Tuple, Type
 
 from logic.src.configs.policies.abpc_hg import ABPCHGConfig
-from logic.src.pipeline.simulations.bins.prediction import ScenarioTree
+from logic.src.interfaces.context.multi_day_context import MultiDayContext
+from logic.src.interfaces.context.problem_context import ProblemContext
+from logic.src.interfaces.context.solution_context import SolutionContext
 from logic.src.policies.route_construction.base.base_multi_period_policy import BaseMultiPeriodRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
@@ -31,15 +33,29 @@ class ABPCHGPolicy(BaseMultiPeriodRoutingPolicy):
 
     def _run_multi_period_solver(
         self,
-        tree: ScenarioTree,
-        capacity: float,
-        revenue: float,
-        cost_unit: float,
-        **kwargs: Any,
-    ) -> Tuple[List[List[List[int]]], float, Dict[str, Any]]:
+        problem: ProblemContext,
+        multi_day_ctx: Optional[MultiDayContext],
+    ) -> Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
         """
         Execute the ABPC-HG pipeline for the multi-day horizon.
+
+        Args:
+            problem: Current ProblemContext containing state data.
+            multi_day_ctx: Optional context for spanning multiple days.
+
+        Returns:
+            Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
+                - today_solution: Standardized solution context for Day 0.
+                - full_plan: Collection plan spanning the entire horizon.
+                - stats: Execution statistics and Benders iteration metadata.
         """
+        tree = problem.scenario_tree
+        if tree is None:
+            raise ValueError("ABPC-HG requires a ScenarioTree in ProblemContext.")
+
+        capacity = problem.capacity
+        revenue = problem.revenue_per_kg
+        cost_unit = problem.cost_per_km
         # Step 1: Initialize the ScenarioTree (already passed in via context)
 
         # Step 2: Compute scenario-augmented node prizes (managed by the engine)
@@ -65,11 +81,16 @@ class ABPCHGPolicy(BaseMultiPeriodRoutingPolicy):
         # - DiveAndPricePrimalHeuristic for upper bounds.
         # - FixAndOptimizeRefiner for polishing.
 
-        raw_plan, total_expected_profit = coordinator.solve(**kwargs)
+        raw_plan, total_expected_profit = coordinator.solve(**problem.extra)
 
-        metadata = {
-            "policy": "abpc_hg",
-            "expected_profit": total_expected_profit,
-        }
+        today_route = raw_plan[0][0] if raw_plan and raw_plan[0] else []
+        sol = SolutionContext.from_problem(problem, today_route)
 
-        return raw_plan, total_expected_profit, metadata
+        return (
+            sol,
+            raw_plan,
+            {
+                "policy": "abpc_hg",
+                "expected_profit": total_expected_profit,
+            },
+        )
