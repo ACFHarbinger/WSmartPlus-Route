@@ -27,6 +27,7 @@ class RouteImproverFactory:
         """
         Create a route improver instance by name.
         """
+        from ..adaptive_ensemble import AdaptiveEnsembleRouteImprover
         from ..adaptive_large_neighborhood_search import AdaptiveLargeNeighborhoodSearchRouteImprover
         from ..branch_and_price import BranchAndPriceRouteImprover
         from ..cheapest_insertion import CheapestInsertionRouteImprover
@@ -38,7 +39,9 @@ class RouteImproverFactory:
         from ..learned import LearnedRouteImprover
         from ..lkh import LinKernighanHelsgaunRouteImprover
         from ..local_search import ClassicalLocalSearchRouteImprover
+        from ..mip_lns import MIPLNSRouteImprover
         from ..multi_phase import MultiPhaseRouteImprover
+        from ..neural_selector import NeuralSelectorRouteImprover
         from ..node_exchange_steepest import NodeExchangeSteepestRouteImprover
         from ..or_opt import OrOptRouteImprover
         from ..or_opt_steepest import OrOptSteepestRouteImprover
@@ -104,6 +107,12 @@ class RouteImproverFactory:
                 return SetPartitioningPolishRouteImprover()
             elif n_lower == "steepest_two_opt":
                 return SteepestTwoOptRouteImprover()
+            elif n_lower == "mip_lns":
+                return MIPLNSRouteImprover()
+            elif n_lower == "neural_selector":
+                return NeuralSelectorRouteImprover(config=None)
+            elif n_lower == "adaptive_ensemble":
+                return AdaptiveEnsembleRouteImprover()
 
             raise ValueError(f"Unknown route improver: {name}")
         return cls()
@@ -116,6 +125,7 @@ class RouteImproverFactory:
         Args:
             config: RouteImprovingConfig instance.
         """
+        from ..adaptive_ensemble import AdaptiveEnsembleRouteImprover
         from ..adaptive_large_neighborhood_search import AdaptiveLargeNeighborhoodSearchRouteImprover
         from ..branch_and_price import BranchAndPriceRouteImprover
         from ..cheapest_insertion import CheapestInsertionRouteImprover
@@ -127,7 +137,9 @@ class RouteImproverFactory:
         from ..learned import LearnedRouteImprover
         from ..lkh import LinKernighanHelsgaunRouteImprover
         from ..local_search import ClassicalLocalSearchRouteImprover
+        from ..mip_lns import MIPLNSRouteImprover
         from ..multi_phase import MultiPhaseRouteImprover
+        from ..neural_selector import NeuralSelectorRouteImprover
         from ..node_exchange_steepest import NodeExchangeSteepestRouteImprover
         from ..or_opt import OrOptRouteImprover
         from ..or_opt_steepest import OrOptSteepestRouteImprover
@@ -322,6 +334,12 @@ class RouteImproverFactory:
                 processor = OrOptSteepestRouteImprover()
             elif method_lower == "steepest_two_opt":
                 processor = SteepestTwoOptRouteImprover()
+            elif method_lower == "mip_lns":
+                processor = MIPLNSRouteImprover()
+            elif method_lower == "neural_selector":
+                processor = NeuralSelectorRouteImprover(config=config)
+            elif method_lower == "adaptive_ensemble":
+                processor = AdaptiveEnsembleRouteImprover()
             else:
                 # Fallback to registry
                 processor = cls.create(method)
