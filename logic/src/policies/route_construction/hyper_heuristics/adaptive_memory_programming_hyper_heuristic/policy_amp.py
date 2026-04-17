@@ -1,0 +1,103 @@
+import copy
+import random
+from typing import Any, Dict, List, Optional, Tuple
+
+import numpy as np
+
+from logic.src.interfaces.context.multi_day_context import MultiDayContext
+from logic.src.interfaces.context.problem_context import ProblemContext
+from logic.src.interfaces.context.solution_context import SolutionContext
+from logic.src.policies.helpers.operators.helpers.llh_pool import LLHPool
+from logic.src.policies.route_construction.base.base_multi_period_policy import BaseMultiPeriodRoutingPolicy
+from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
+from logic.src.policies.route_construction.matheuristics.utils import greedy_day_route, route_cost, route_profit
+
+
+@RouteConstructorRegistry.register("amp_hh")
+class AMPHHPolicy(BaseMultiPeriodRoutingPolicy):
+    """
+    Adaptive Memory Programming Hyper-Heuristic (AMPHH).
+    Stores components of high quality solutions in memory.
+    Constructs new solutions by combining memory components,
+    then applies LLHs to improve them.
+    """
+
+    def __init__(self, config: Any = None):
+        super().__init__(config)
+        cfg = config or {}
+        self.mem_size = getattr(cfg, "mem_size", 10)
+        self.iters = getattr(cfg, "iters", 50)
+        self.seed = getattr(cfg, "seed", 42)
+        self.rng = random.Random(self.seed)
+        self.llhs = LLHPool.get_all()
+        # Memory structure: stores evaluated entire plans
+        self.memory: List[Tuple[float, List[List[List[int]]]]] = []
+
+    def _evaluate(self, plan: List[List[List[int]]], problem: ProblemContext) -> float:
+        tot = 0.0
+        cur_prob = problem
+        for d in range(problem.horizon):
+            rt = plan[d][0] if plan[d] else []
+            tot += route_profit(rt, cur_prob)
+            cur_prob = cur_prob.advance(rt)
+        return tot
+
+    def _update_memory(self, prof: float, plan: List[List[List[int]]]):
+        self.memory.append((prof, copy.deepcopy(plan)))
+        self.memory.sort(key=lambda x: x[0], reverse=True)
+        if len(self.memory) > self.mem_size:
+            self.memory.pop()
+
+    def _run_multi_period_solver(
+        self, problem: ProblemContext, multi_day_ctx: Optional[MultiDayContext]
+    ) -> Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
+        np_rng = np.random.default_rng(self.seed)
+
+        # Initialize memory with some greedy runs + perturbations
+        for _ in range(self.mem_size):
+            cur_plan = []
+            cur_prob = problem
+            for _d in range(problem.horizon):
+                rt = greedy_day_route(cur_prob, np_rng)
+                cand = [v for v in rt if v not in problem.mandatory]
+                if cand and self.rng.random() < 0.5:
+                    rt.remove(self.rng.choice(cand))  # mild perturb
+                cur_plan.append([rt])
+                cur_prob = cur_prob.advance(rt)
+            prof = self._evaluate(cur_plan, problem)
+            self._update_memory(prof, cur_plan)
+
+        best_plan = self.memory[0][1]
+        best_prof = self.memory[0][0]
+
+        for _ in range(self.iters):
+            # Combine components from memory uniformly at random for each day
+            # (Just doing simple day-wise combination for approximation)
+            child = []
+            cur_prob = problem
+            for d in range(problem.horizon):
+                parent_idx = self.rng.randint(0, len(self.memory) - 1)
+                parent_plan = self.memory[parent_idx][1]
+                rt = parent_plan[d][0] if parent_plan[d] else []
+                child.append([rt])
+                cur_prob = cur_prob.advance(rt)
+
+            # Apply LLH
+            llh = self.rng.choice(self.llhs)
+            child = llh(child, problem, self.rng)
+
+            prof = self._evaluate(child, problem)
+            self._update_memory(prof, child)
+
+            if prof > best_prof:
+                best_prof = prof
+                best_plan = copy.deepcopy(child)
+
+        today_route = best_plan[0][0] if best_plan[0] else []
+        sol = SolutionContext.from_single_route(
+            route=today_route,
+            profit=route_profit(today_route, problem),
+            cost=route_cost(today_route, problem),
+            metadata={"amp_iters": self.iters},
+        )
+        return sol, best_plan, {"amp_iters": self.iters}
