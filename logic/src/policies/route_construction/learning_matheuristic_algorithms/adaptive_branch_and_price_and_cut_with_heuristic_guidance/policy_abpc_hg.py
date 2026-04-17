@@ -1,6 +1,7 @@
 from typing import Any, Dict, List, Optional, Tuple, Type
 
 from logic.src.configs.policies.abpc_hg import ABPCHGConfig
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.interfaces.context.multi_day_context import MultiDayContext
 from logic.src.interfaces.context.problem_context import ProblemContext
 from logic.src.interfaces.context.solution_context import SolutionContext
@@ -11,6 +12,13 @@ from .scenario_prize_engine import ScenarioPrizeEngine
 from .temporal_benders import TemporalBendersCoordinator
 
 
+@GlobalRegistry.register(
+    PolicyTag.MATHEURISTIC,
+    PolicyTag.DECOMPOSITION,
+    PolicyTag.REINFORCEMENT_LEARNING,
+    PolicyTag.MULTI_PERIOD,
+    PolicyTag.PROFIT_AWARE,
+)
 @RouteConstructorRegistry.register("abpc_hg")
 class ABPCHGPolicy(BaseMultiPeriodRoutingPolicy):
     """

@@ -43,6 +43,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 
 from logic.src.configs.policies.cp_sat import CPSATConfig
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.interfaces.context.multi_day_context import MultiDayContext
 from logic.src.interfaces.context.problem_context import ProblemContext
 from logic.src.interfaces.context.solution_context import SolutionContext
@@ -52,6 +53,13 @@ from logic.src.policies.route_construction.base.factory import RouteConstructorR
 from .cp_sat_engine import CPSATEngine
 
 
+@GlobalRegistry.register(
+    PolicyTag.EXACT,
+    PolicyTag.MATH_PROGRAMMING,
+    PolicyTag.SOLVER,
+    PolicyTag.PROFIT_AWARE,
+    PolicyTag.MULTI_PERIOD,
+)
 @RouteConstructorRegistry.register("cp_sat")
 class CPSATPolicy(BaseMultiPeriodRoutingPolicy):
     """

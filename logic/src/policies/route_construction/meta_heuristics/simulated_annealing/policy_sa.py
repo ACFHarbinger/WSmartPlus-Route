@@ -8,6 +8,7 @@ to permit unified execution by the factory manager.
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
@@ -15,6 +16,13 @@ from .params import SAParams
 from .solver import SASolver
 
 
+@GlobalRegistry.register(
+    PolicyTag.META_HEURISTIC,
+    PolicyTag.TRAJECTORY_BASED,
+    PolicyTag.LOCAL_SEARCH,
+    PolicyTag.CONSTRUCTION,
+    PolicyTag.PROFIT_AWARE,
+)
 @RouteConstructorRegistry.register("sa")
 class SAPolicy(BaseRoutingPolicy):
     r"""

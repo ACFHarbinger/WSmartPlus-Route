@@ -9,6 +9,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 import numpy as np
 
 from logic.src.configs.policies import SWCTCFConfig
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.interfaces.context.multi_day_context import MultiDayContext
 from logic.src.interfaces.context.search_context import SearchContext
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
@@ -18,6 +19,12 @@ from .dispatcher import run_swc_tcf_optimizer
 from .params import SWCTCFParams
 
 
+@GlobalRegistry.register(
+    PolicyTag.EXACT,
+    PolicyTag.MATH_PROGRAMMING,
+    PolicyTag.SOLVER,
+    PolicyTag.PROFIT_AWARE,
+)
 @RouteConstructorRegistry.register("swc_tcf")
 class SWCTCFPolicy(BaseRoutingPolicy):
     """

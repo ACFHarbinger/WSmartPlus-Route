@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 import numpy as np
 
 from logic.src.configs.policies.ga import GAConfig
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
@@ -14,6 +15,13 @@ from .params import GAParams
 from .solver import GASolver
 
 
+@GlobalRegistry.register(
+    PolicyTag.META_HEURISTIC,
+    PolicyTag.POPULATION_BASED,
+    PolicyTag.EVOLUTIONARY_ALGORITHM,
+    PolicyTag.CONSTRUCTION,
+    PolicyTag.PROFIT_AWARE,
+)
 @RouteConstructorRegistry.register("ga")
 class GAPolicy(BaseRoutingPolicy):
     """

@@ -9,6 +9,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 import numpy as np
 
 from logic.src.configs.policies import SISRConfig
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
@@ -16,6 +17,13 @@ from .params import SISRParams
 from .solver import SISRSolver
 
 
+@GlobalRegistry.register(
+    PolicyTag.META_HEURISTIC,
+    PolicyTag.TRAJECTORY_BASED,
+    PolicyTag.LARGE_NEIGHBORHOOD_SEARCH,
+    PolicyTag.CONSTRUCTION,
+    PolicyTag.PROFIT_AWARE,
+)
 @RouteConstructorRegistry.register("sisr")
 class SISRPolicy(BaseRoutingPolicy):
     """

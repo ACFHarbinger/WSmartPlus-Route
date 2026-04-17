@@ -11,12 +11,22 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 import numpy as np
 
 from logic.src.configs.policies import HGSConfig
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
 from .dispatcher import run_hgs
 
 
+@GlobalRegistry.register(
+    PolicyTag.META_HEURISTIC,
+    PolicyTag.POPULATION_BASED,
+    PolicyTag.EVOLUTIONARY_ALGORITHM,
+    PolicyTag.MEMETIC_SEARCH,
+    PolicyTag.CONSTRUCTION,
+    PolicyTag.PROFIT_AWARE,
+    PolicyTag.PARALLELIZABLE,
+)
 @RouteConstructorRegistry.register("hgs")
 class HGSPolicy(BaseRoutingPolicy):
     """

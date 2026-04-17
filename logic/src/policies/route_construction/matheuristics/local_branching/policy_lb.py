@@ -5,6 +5,7 @@ Simulator adapter for the Local Branching (LB) matheuristic.
 from typing import Any, Dict, List, Optional, Tuple, Type
 
 from logic.src.configs.policies.lb import LocalBranchingConfig
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.interfaces.context.multi_day_context import MultiDayContext
 from logic.src.interfaces.context.search_context import SearchContext
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
@@ -13,6 +14,12 @@ from logic.src.policies.route_construction.matheuristics.local_branching.lb impo
 from logic.src.policies.route_construction.matheuristics.local_branching.params import LBParams
 
 
+@GlobalRegistry.register(
+    PolicyTag.MATHEURISTIC,
+    PolicyTag.LOCAL_SEARCH,
+    PolicyTag.MATH_PROGRAMMING,
+    PolicyTag.PROFIT_AWARE,
+)
 @RouteConstructorRegistry.register("lb")
 class LocalBranchingPolicy(BaseRoutingPolicy):
     """

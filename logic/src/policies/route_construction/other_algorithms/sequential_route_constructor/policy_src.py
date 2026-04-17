@@ -12,16 +12,23 @@ if TYPE_CHECKING:
     from logic.src.interfaces.context.multi_day_context import MultiDayContext
     from logic.src.interfaces.context.search_context import SearchContext
 
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.interfaces.context.search_context import SearchContext
 from logic.src.interfaces.route_constructor import IRouteConstructor
+from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
+from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
-from ...base.base_routing_policy import BaseRoutingPolicy
-from ...base.registry import RouteConstructorRegistry
 from .params import SRCParams
 
 logger = logging.getLogger(__name__)
 
 
+@GlobalRegistry.register(
+    PolicyTag.HEURISTIC,
+    PolicyTag.CONSTRUCTION,
+    PolicyTag.PROFIT_AWARE,
+    PolicyTag.ORCHESTRATOR,
+)
 @RouteConstructorRegistry.register("src")
 class SequentialRouteConstructor(BaseRoutingPolicy):
     """

@@ -20,6 +20,7 @@ from logic.src.configs.policies.other import (
     TDLearningConfig,
 )
 from logic.src.configs.policies.rl_ahvpl import RLAHVPLConfig
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_augmented_hybrid_volleyball_premier_league.params import (
@@ -34,6 +35,13 @@ from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search
 from logic.src.policies.route_construction.meta_heuristics.reactive_tabu_search.params import RTSParams
 
 
+@GlobalRegistry.register(
+    PolicyTag.REINFORCEMENT_LEARNING,
+    PolicyTag.META_HEURISTIC,
+    PolicyTag.POPULATION_BASED,
+    PolicyTag.CONSTRUCTION,
+    PolicyTag.PROFIT_AWARE,
+)
 @RouteConstructorRegistry.register("rl_ahvpl")
 class RLAHVPLPolicy(BaseRoutingPolicy):
     """

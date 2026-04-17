@@ -10,6 +10,7 @@ from dataclasses import asdict
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 from logic.src.configs.policies import ADPRolloutConfig
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.interfaces.context.multi_day_context import MultiDayContext
 from logic.src.interfaces.context.problem_context import ProblemContext
 from logic.src.interfaces.context.solution_context import SolutionContext
@@ -20,6 +21,11 @@ from .adp_engine import ADPRolloutEngine
 from .params import ADPRolloutParams
 
 
+@GlobalRegistry.register(
+    PolicyTag.REINFORCEMENT_LEARNING,
+    PolicyTag.MULTI_PERIOD,
+    PolicyTag.CONSTRUCTION,
+)
 @RouteConstructorRegistry.register("adp_rollout")
 class ADPRolloutPolicy(BaseMultiPeriodRoutingPolicy):
     r"""Approximate Dynamic Programming (ADP) Rollout policy for stochastic IRP.

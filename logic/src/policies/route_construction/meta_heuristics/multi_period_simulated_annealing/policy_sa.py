@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.interfaces.context.multi_day_context import MultiDayContext
 from logic.src.interfaces.context.problem_context import ProblemContext
 from logic.src.interfaces.context.solution_context import SolutionContext
@@ -17,6 +18,14 @@ from logic.src.policies.route_construction.matheuristics.utils import (
 )
 
 
+@GlobalRegistry.register(
+    PolicyTag.META_HEURISTIC,
+    PolicyTag.TRAJECTORY_BASED,
+    PolicyTag.LOCAL_SEARCH,
+    PolicyTag.CONSTRUCTION,
+    PolicyTag.PROFIT_AWARE,
+    PolicyTag.MULTI_PERIOD,
+)
 @RouteConstructorRegistry.register("mp_bmc")
 class SimulatedAnnealingPolicy(BaseMultiPeriodRoutingPolicy):
     """

@@ -9,6 +9,7 @@ from logic.src.configs.policies.other import (
     RLConfig,
     TDLearningConfig,
 )
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
@@ -16,6 +17,13 @@ from ..reinforcement_learning_adaptive_large_neighborhood_search.params import R
 from ..reinforcement_learning_adaptive_large_neighborhood_search.solver import RLALNSSolver
 
 
+@GlobalRegistry.register(
+    PolicyTag.REINFORCEMENT_LEARNING,
+    PolicyTag.META_HEURISTIC,
+    PolicyTag.LARGE_NEIGHBORHOOD_SEARCH,
+    PolicyTag.ORCHESTRATOR,
+    PolicyTag.PROFIT_AWARE,
+)
 @RouteConstructorRegistry.register("rl_alns")
 class RLALNSPolicy(BaseRoutingPolicy):
     """

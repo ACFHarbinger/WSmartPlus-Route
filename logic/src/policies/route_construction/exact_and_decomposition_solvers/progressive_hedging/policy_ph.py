@@ -42,6 +42,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type
 import numpy as np
 
 from logic.src.configs.policies import PHConfig
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.interfaces.context.multi_day_context import MultiDayContext
 from logic.src.interfaces.context.problem_context import ProblemContext
 from logic.src.interfaces.context.solution_context import SolutionContext
@@ -51,6 +52,12 @@ from logic.src.policies.route_construction.base.factory import RouteConstructorR
 from .ph_engine import ProgressiveHedgingEngine
 
 
+@GlobalRegistry.register(
+    PolicyTag.DECOMPOSITION,
+    PolicyTag.STOCHASTIC,
+    PolicyTag.MULTI_PERIOD,
+    PolicyTag.PROFIT_AWARE,
+)
 @RouteConstructorRegistry.register("ph")
 class ProgressiveHedgingPolicy(BaseMultiPeriodRoutingPolicy):
     """Policy adapter for Progressive Hedging decomposition.
