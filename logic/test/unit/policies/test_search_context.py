@@ -3,7 +3,7 @@ Unit tests for functional SearchContext tracking.
 """
 
 import pytest
-from logic.src.policies.context.search_context import (
+from logic.src.interfaces.context.search_context import (
     SearchContext,
     SearchPhase,
     merge_context,

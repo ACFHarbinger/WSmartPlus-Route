@@ -1,7 +1,7 @@
 """
 Steepest Node Exchange Route Improver.
 
-Delegates to operators.intensification.node_exchange_steepest (or its
+Delegates to operators.improvement_descent.node_exchange_steepest (or its
 profit variant when revenue/cost are configured) to perform pairwise
 node swaps until a local minimum is reached.
 """
@@ -10,7 +10,7 @@ from typing import Any, List, Tuple
 
 from logic.src.interfaces.context.search_context import ImprovementMetrics
 from logic.src.interfaces.route_improvement import IRouteImprovement
-from logic.src.policies.helpers.operators.intensification import (
+from logic.src.policies.helpers.operators.improvement_descent import (
     node_exchange_steepest,
     node_exchange_steepest_profit,
 )

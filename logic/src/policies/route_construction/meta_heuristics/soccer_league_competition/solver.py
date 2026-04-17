@@ -35,8 +35,8 @@ from logic.src.policies.helpers.operators import (
     greedy_profit_insertion,
     random_removal,
 )
-from logic.src.policies.helpers.operators.destroy.shaw import shaw_profit_removal
-from logic.src.policies.helpers.operators.heuristics.nearest_neighbor_initialization import (
+from logic.src.policies.helpers.operators.destroy_ruin.shaw import shaw_profit_removal
+from logic.src.policies.helpers.operators.solution_initialization.nearest_neighbor_si import (
     build_nn_routes,
 )
 

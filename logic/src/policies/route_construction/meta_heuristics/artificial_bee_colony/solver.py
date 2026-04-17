@@ -32,7 +32,7 @@ from logic.src.policies.helpers.operators import (
     worst_profit_removal,
     worst_removal,
 )
-from logic.src.policies.helpers.operators.heuristics.greedy_initialization import build_greedy_routes
+from logic.src.policies.helpers.operators.solution_initialization.greedy_si import build_greedy_routes
 
 from ..ant_colony_optimization_k_sparse.params import KSACOParams
 from .params import ABCParams

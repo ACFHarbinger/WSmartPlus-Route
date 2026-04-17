@@ -5,6 +5,7 @@ Adapts the ALNS-IPO solver (``ALNSSolverIPO``) to the ``BaseMultiPeriodRoutingPo
 interface, enabling it to be invoked via ``test_sim`` with the key ``"alns_ipo"``.
 """
 
+from dataclasses import asdict
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
@@ -73,8 +74,6 @@ class ALNSInterPeriodOperatorsPolicy(BaseMultiPeriodRoutingPolicy):
         mandatory_nodes: List[int] = kwargs.get("mandatory", [])
 
         # Initialize type-safe Params
-        from dataclasses import asdict
-
         params = ALNSIPOParams.from_config(asdict(self.config))
 
         # Inject Boltzmann acceptance criterion (if not already handled by from_config)

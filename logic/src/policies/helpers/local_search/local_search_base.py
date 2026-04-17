@@ -25,7 +25,7 @@ import numpy as np
 
 from logic.src.interfaces import IAcceptanceCriterion
 
-from ..operators.inter_route import (
+from ..operators.inter_route_local_search import (
     move_2opt_star,
     move_cross,
     move_swap_star,
@@ -33,11 +33,15 @@ from ..operators.inter_route import (
     swap_2_1,
     swap_2_2,
 )
-from ..operators.inter_route.cross_exchange import cross_exchange, improved_cross_exchange, lambda_interchange
-from ..operators.inter_route.cyclic_transfer import cyclic_transfer
-from ..operators.inter_route.ejection_chain import ejection_chain
-from ..operators.inter_route.exchange_chain import exchange_2_0, exchange_2_1
-from ..operators.intra_route import (
+from ..operators.inter_route_local_search.cross_exchange import (
+    cross_exchange,
+    improved_cross_exchange,
+    lambda_interchange,
+)
+from ..operators.inter_route_local_search.cyclic_transfer import cyclic_transfer
+from ..operators.inter_route_local_search.ejection_chain import ejection_chain
+from ..operators.inter_route_local_search.exchange_chain import exchange_2_0, exchange_2_1
+from ..operators.intra_route_local_search import (
     move_2opt_intra,
     move_3opt_intra,
     move_or_opt,
@@ -45,7 +49,7 @@ from ..operators.intra_route import (
     move_swap,
     relocate_chain,
 )
-from ..operators.intra_route.k_permutation import three_permutation
+from ..operators.intra_route_local_search.k_permutation import three_permutation
 
 
 class LocalSearch(ABC):

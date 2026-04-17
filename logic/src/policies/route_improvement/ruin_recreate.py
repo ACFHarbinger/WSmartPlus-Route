@@ -11,7 +11,7 @@ from typing import Any, List, Tuple
 
 from logic.src.interfaces.context.search_context import AcceptanceMetrics, ImprovementMetrics
 from logic.src.interfaces.route_improvement import IRouteImprovement
-from logic.src.policies.helpers.operators.heuristics.large_neighborhood_search import (
+from logic.src.policies.helpers.operators.search_heuristics.large_neighborhood_search import (
     apply_lns,
 )
 

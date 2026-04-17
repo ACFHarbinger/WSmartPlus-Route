@@ -31,7 +31,7 @@ from logic.src.policies.helpers.operators import (
     greedy_profit_insertion_with_blinks,
     string_removal,
 )
-from logic.src.policies.helpers.operators.heuristics.greedy_initialization import (
+from logic.src.policies.helpers.operators.solution_initialization.greedy_si import (
     build_greedy_routes,
 )
 

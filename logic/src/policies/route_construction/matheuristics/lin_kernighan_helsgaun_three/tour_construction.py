@@ -71,7 +71,7 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 from scipy.optimize import linear_sum_assignment
 
-from logic.src.policies.helpers.operators.perturbation.double_bridge import double_bridge
+from logic.src.policies.helpers.operators.perturbation_shaking.double_bridge import double_bridge
 from logic.src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.tour_adapter import TourAdapter
 
 logger = logging.getLogger(__name__)

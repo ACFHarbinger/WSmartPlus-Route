@@ -35,8 +35,8 @@ from logic.src.policies.helpers.operators import (
     worst_profit_removal,
     worst_removal,
 )
-from logic.src.policies.helpers.operators.destroy.cluster import cluster_removal
-from logic.src.policies.helpers.operators.heuristics.greedy_initialization import (
+from logic.src.policies.helpers.operators.destroy_ruin import cluster_removal
+from logic.src.policies.helpers.operators.solution_initialization.greedy_si import (
     build_greedy_routes,
 )
 
