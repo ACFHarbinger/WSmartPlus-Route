@@ -33,6 +33,8 @@ from .crossover import (
 
 # Destroy operators
 from .destroy import (
+    bb_profit_removal,
+    bb_removal,
     cluster_profit_removal,
     cluster_removal,
     historical_profit_removal,
@@ -45,6 +47,7 @@ from .destroy import (
     random_removal,
     route_profit_removal,
     route_removal,
+    sector_profit_removal,
     sector_removal,
     shaw_horizon_removal,
     shaw_profit_removal,
@@ -65,6 +68,8 @@ from .heuristics import (
     build_greedy_routes,
     build_nn_routes,
 )
+
+# Intensification operators
 from .intensification import (
     INTENSIFICATION_NAMES,
     INTENSIFICATION_OPERATORS,
@@ -115,6 +120,8 @@ from .intra_route import (
 
 # Perturbation operators
 from .perturbation import (
+    bb_perturbation,
+    bb_profit_perturbation,
     double_bridge,
     evolutionary_perturbation,
     evolutionary_perturbation_profit,
@@ -127,6 +134,8 @@ from .perturbation import (
 
 # Repair operators
 from .repair import (
+    bb_insertion,
+    bb_profit_insertion,
     deep_insertion,
     deep_profit_insertion,
     farthest_insertion,
@@ -223,6 +232,8 @@ __all__ = [
     "historical_profit_removal",
     "sector_profit_removal",
     "penalized_removal",
+    "bb_profit_removal",
+    "bb_removal",
     # Repair
     "greedy_insertion",
     "greedy_profit_insertion",
@@ -245,6 +256,8 @@ __all__ = [
     "geni_profit_insertion",
     "nearest_insertion",
     "nearest_profit_insertion",
+    "bb_insertion",
+    "bb_profit_insertion",
     # Intra-route
     "move_relocate",
     "move_swap",
@@ -278,6 +291,8 @@ __all__ = [
     "genetic_transformation_profit",
     "evolutionary_perturbation",
     "evolutionary_perturbation_profit",
+    "bb_perturbation",
+    "bb_profit_perturbation",
     # Unstringing and stringing (US)
     "apply_type_i_us",
     "apply_type_i_us_profit",

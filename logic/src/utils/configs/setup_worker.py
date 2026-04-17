@@ -73,7 +73,7 @@ def setup_model(
                 model_path = root_joined
 
         with lock:
-            from logic.src.utils.functions import load_model
+            from logic.src.utils.model.loader import load_model
 
             model, configs = load_model(model_path)
 

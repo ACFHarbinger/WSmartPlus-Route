@@ -64,12 +64,38 @@ class MandatorySelectionAction(SimulationAction):
         final_mandatory: set = set()
 
         for strat_info in strategies:
-            s_name = strat_info["name"]
-            s_params = strat_info["params"]
+            # 1. Normalize name and parameters
+            if "config" in strat_info:
+                m_config = strat_info["config"]
+                s_name = m_config.strategy
+                if s_name is None:
+                    continue
 
-            # Extract threshold and frequency parameters
-            # Handle both ITraversable (OmegaConf) and standard dicts
-            if isinstance(s_params, (dict, ITraversable)) or hasattr(s_params, "get"):
+                # Extract sub-config parameters for SelectionContext
+                from dataclasses import asdict
+
+                s_params = m_config.params.copy()
+
+                # Find the sub-config attribute name
+                from logic.src.policies.mandatory_selection.base.selection_factory import CONFIG_MAPPING
+
+                attr_name = CONFIG_MAPPING.get(s_name.lower())
+                if attr_name and hasattr(m_config, attr_name):
+                    sub_config = getattr(m_config, attr_name)
+                    if hasattr(sub_config, "__dataclass_fields__"):
+                        s_params.update(asdict(sub_config))
+                    elif isinstance(sub_config, dict):
+                        s_params.update(sub_config)
+            else:
+                s_name = strat_info.get("name")
+                s_params = strat_info.get("params", {})
+
+            if not s_name:
+                continue
+
+            # 2. Extract threshold and frequency parameters
+            thresh = None
+            if hasattr(s_params, "get"):
                 thresh = (
                     s_params.get("threshold")
                     if s_params.get("threshold") is not None
@@ -79,17 +105,20 @@ class MandatorySelectionAction(SimulationAction):
                     if s_params.get("current_collection_day") is not None
                     else s_params.get("confidence_factor")
                     if s_params.get("confidence_factor") is not None
+                    # Fallback for learned strategy
+                    else s_params.get("learned_threshold")
+                    if s_params.get("learned_threshold") is not None
                     # Fallback to context/global thresh if not in strategy params
                     else context.get("threshold")
                 )
-            else:
-                # Fallback for simple string-based strategies
+
+            if thresh is None:
                 thresh = context.get("threshold")
 
             # Basic sanitization
             final_thresh = float(thresh) if thresh is not None else 0.0
 
-            # Extract optional advanced parameters from strategy params (avoids closure-in-loop)
+            # Extract optional advanced parameters from strategy params
             _p = s_params if hasattr(s_params, "get") else {}
 
             def _pf(key: str, default: float, _params: Any = _p) -> float:
@@ -114,7 +143,7 @@ class MandatorySelectionAction(SimulationAction):
                 revenue_kg=context.get("revenue_kg", 1.0),
                 bin_density=context.get("bin_density", 1.0),
                 bin_volume=context.get("bin_volume", 2.5),
-                max_fill=MAX_CAPACITY_PERCENT,
+                max_fill=context.get("max_fill") or context.get("config", {}).get("max_fill") or MAX_CAPACITY_PERCENT,
                 # New fields for advanced strategies
                 horizon_days=_pi("horizon_days", 3),
                 critical_threshold=_pf("critical_threshold", 0.90),
@@ -147,6 +176,7 @@ class MandatorySelectionAction(SimulationAction):
                 dispatcher_mode=_p.get("dispatcher_mode", "union") if hasattr(_p, "get") else "union",
                 wasserstein_radius=_pf("wasserstein_radius", 0.1),
                 wasserstein_p=_pi("wasserstein_p", 1),
+                overflow_penalty_frac=_pf("overflow_penalty_frac", 1.0),
             )
 
             if "config" in strat_info:
@@ -154,7 +184,7 @@ class MandatorySelectionAction(SimulationAction):
                 m_config = strat_info["config"]
                 strategy = MandatorySelectionFactory.create_from_config(m_config)
                 res, sub_ctx = strategy.select_bins(sel_ctx)
-                s_name = m_config.strategy
+                # s_name is already normalized above
             elif s_name == "select_all":
                 res = (sel_ctx.bin_ids + 1).tolist()
                 sub_ctx = SearchContext.initialize(selection_metrics={"strategy": "select_all"})
