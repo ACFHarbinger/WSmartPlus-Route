@@ -31,7 +31,7 @@ from logic.src.policies.helpers.operators import (
     greedy_profit_insertion,
     random_removal,
 )
-from logic.src.policies.helpers.operators.heuristics.nearest_neighbor_initialization import build_nn_routes
+from logic.src.policies.helpers.operators.solution_initialization.nearest_neighbor_si import build_nn_routes
 
 from ..ant_colony_optimization_k_sparse.params import KSACOParams
 from .params import VPLParams

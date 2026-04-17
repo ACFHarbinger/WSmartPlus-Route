@@ -18,7 +18,7 @@ from logic.src.policies.helpers.operators import (
     shaw_removal,
     string_removal,
 )
-from logic.src.policies.helpers.operators.unstringing_stringing import (
+from logic.src.policies.helpers.operators.generalized_insertion_and_deletion import (
     stringing_insertion,
     stringing_profit_insertion,
     unstringing_profit_removal,

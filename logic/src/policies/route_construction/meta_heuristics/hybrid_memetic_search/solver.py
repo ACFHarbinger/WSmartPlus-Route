@@ -50,7 +50,7 @@ from logic.src.policies.helpers.operators import (
     worst_profit_removal,
     worst_removal,
 )
-from logic.src.policies.helpers.operators.heuristics.nearest_neighbor_initialization import build_nn_routes
+from logic.src.policies.helpers.operators.solution_initialization.nearest_neighbor_si import build_nn_routes
 
 from ..adaptive_large_neighborhood_search.alns import ALNSSolver
 from ..ant_colony_optimization_k_sparse.solver import KSparseACOSolver

@@ -21,7 +21,7 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.policies.helpers.operators.crossover import ordered_crossover
+from logic.src.policies.helpers.operators.crossover_recombination import ordered_crossover
 
 from ..adaptive_large_neighborhood_search.alns import ALNSSolver
 from ..ant_colony_optimization_k_sparse.solver import KSparseACOSolver

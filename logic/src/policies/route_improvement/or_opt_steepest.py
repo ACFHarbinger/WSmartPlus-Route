@@ -1,7 +1,7 @@
 """
 Steepest Or-opt Route Improver.
 
-Delegates to operators.intensification.or_opt_steepest (or its profit
+Delegates to operators.improvement_descent.or_opt_steepest (or its profit
 variant when revenue/cost are configured) to perform chain relocations
 (lengths 1, 2, 3) until a local minimum is reached.
 """
@@ -10,7 +10,7 @@ from typing import Any, List, Tuple
 
 from logic.src.interfaces.context.search_context import ImprovementMetrics
 from logic.src.interfaces.route_improvement import IRouteImprovement
-from logic.src.policies.helpers.operators.intensification import (
+from logic.src.policies.helpers.operators.improvement_descent import (
     or_opt_steepest,
     or_opt_steepest_profit,
 )

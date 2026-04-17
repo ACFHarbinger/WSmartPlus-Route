@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 import numpy as np
 
 from logic.src.configs.policies import HyperHeuristicACOConfig
-from logic.src.policies.helpers.operators.heuristics.greedy_initialization import build_greedy_routes
+from logic.src.policies.helpers.operators.solution_initialization.greedy_si import build_greedy_routes
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco import (
