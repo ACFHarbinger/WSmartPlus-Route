@@ -17,6 +17,7 @@ from .guided_local_search import GuidedLocalSearchRouteImprover
 from .learned import LearnedRouteImprover
 from .lkh import LinKernighanHelsgaunRouteImprover
 from .local_search import ClassicalLocalSearchRouteImprover
+from .multi_phase import MultiPhaseRouteImprover
 from .node_exchange_steepest import NodeExchangeSteepestRouteImprover
 from .or_opt import OrOptRouteImprover
 from .or_opt_steepest import OrOptSteepestRouteImprover
@@ -29,7 +30,6 @@ from .set_partitioning import SetPartitioningRouteImprover
 from .set_partitioning_polish import SetPartitioningPolishRouteImprover
 from .simulated_annealing import SimulatedAnnealingRouteImprover
 from .steepest_two_opt import SteepestTwoOptRouteImprover
-from .two_phase import TwoPhaseRouteImprover
 
 __all__ = [
     "IRouteImprovement",
@@ -49,7 +49,7 @@ __all__ = [
     "RegretKInsertionRouteImprover",
     "RuinRecreateRouteImprover",
     "SimulatedAnnealingRouteImprover",
-    "TwoPhaseRouteImprover",
+    "MultiPhaseRouteImprover",
     "SteepestTwoOptRouteImprover",
     "OrOptSteepestRouteImprover",
     "NodeExchangeSteepestRouteImprover",

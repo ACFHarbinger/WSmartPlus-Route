@@ -8,75 +8,81 @@
 # =============================================================================
 
 defaults:
-  - /policies@p.alns: policy_alns
-  - /policies@p.bpc: policy_bpc
-  - /policies@p.cvrp: policy_cvrp
-  - /policies@p.hgs: policy_hgs
-  - /policies@p.hgs_alns: policy_hgs_alns
+  - /policies@p.hgs_adc: policy_hgs_adc
+  - /policies@p.abc: policy_abc
+  - /policies@p.abpc_hg: policy_abpc_hg
   - /policies@p.aco_hh: policy_aco_hh
   - /policies@p.aco_ks: policy_aco_ks
-  - /policies@p.neural: policy_neural
-  - /policies@p.sans: policy_sans
-  - /policies@p.sisr: policy_sisr
-  - /policies@p.tsp: policy_tsp
-  - /policies@p.swc_tcf: policy_swc_tcf
   - /policies@p.ahvpl: policy_ahvpl
-  - /policies@p.hvpl: policy_hvpl
-  - /policies@p.qde: policy_qde
-  - /policies@p.psoma: policy_psoma
-  - /policies@p.abc: policy_abc
-  - /policies@p.fa: policy_fa
-  - /policies@p.sca: policy_sca
-  - /policies@p.hs: policy_hs
-  - /policies@p.slc: policy_slc
-  - /policies@p.lca: policy_lca
-  - /policies@p.gphh: policy_gphh
-  - /policies@p.ss_hh: policy_ss_hh
-  - /policies@p.lahc: policy_lahc
-  - /policies@p.rrt: policy_rrt
-  - /policies@p.oba: policy_oba
-  - /policies@p.gls: policy_gls
-  - /policies@p.rts: policy_rts
-  - /policies@p.ga: policy_ga
-  - /policies@p.sa: policy_sa
-  - /policies@p.ils: policy_ils
-  - /policies@p.rl_ahvpl: policy_rl_ahvpl
-  - /policies@p.rl_alns: policy_rl_alns
-  - /policies@p.vns: policy_vns
-  - /policies@p.ma_im: policy_ma_im
-  - /policies@p.ma_ts: policy_ma_ts
-  - /policies@p.ma_dp: policy_ma_dp
-  - /policies@p.es_mpl: policy_es_mpl
-  - /policies@p.es_mcl: policy_es_mcl
-  - /policies@p.psoda: policy_psoda
-  - /policies@p.hms: policy_hms
   - /policies@p.aks: policy_aks
+  - /policies@p.alns: policy_alns
+  - /policies@p.alns_ipo: policy_alns_ipo
   - /policies@p.bb: policy_bb
+  - /policies@p.bc: policy_bc
+  - /policies@p.bp: policy_bp
+  - /policies@p.bpc: policy_bpc
   - /policies@p.cf_rs: policy_cf_rs
+  - /policies@p.cp_sat: policy_cp_sat
+  - /policies@p.cvrp: policy_cvrp
   - /policies@p.de: policy_de
-  - /policies@p.ema: policy_ema
+  - /policies@p.es_mcl: policy_es_mcl
   - /policies@p.es_mkl: policy_es_mkl
+  - /policies@p.es_mpl: policy_es_mpl
+  - /policies@p.esdp: policy_esdp
+  - /policies@p.fa: policy_fa
   - /policies@p.filo: policy_filo
-  - /policies@p.gd: policy_gd
+  - /policies@p.ga: policy_ga
+  - /policies@p.genius: policy_genius
   - /policies@p.gihh: policy_gihh
+  - /policies@p.gls: policy_gls
+  - /policies@p.gphh: policy_gphh
+  - /policies@p.hgs: policy_hgs
+  - /policies@p.hgs_alns: policy_hgs_alns
   - /policies@p.hgs_rr: policy_hgs_rr
   - /policies@p.hmm_gd_hh: policy_hmm_gd_hh
+  - /policies@p.hms: policy_hms
+  - /policies@p.hna: policy_hna
+  - /policies@p.hs: policy_hs
   - /policies@p.hulk: policy_hulk
-  - /policies@p.ie: policy_ie
+  - /policies@p.hvpl: policy_hvpl
+  - /policies@p.ils: policy_ils
+  - /policies@p.ils_bd: policy_ils_bd
   - /policies@p.ils_rvnd_sp: policy_ils_rvnd_sp
   - /policies@p.kgls: policy_kgls
   - /policies@p.ks: policy_ks
   - /policies@p.lb: policy_lb
   - /policies@p.lb_vns: policy_lb_vns
+  - /policies@p.lbbd: policy_lbbd
+  - /policies@p.lca: policy_lca
   - /policies@p.ma: policy_ma
-  - /policies@p.oi: policy_oi
+  - /policies@p.ma_dp: policy_ma_dp
+  - /policies@p.ma_im: policy_ma_im
+  - /policies@p.ma_ts: policy_ma_ts
+  - /policies@p.na: policy_na
+  - /policies@p.ph: policy_ph
   - /policies@p.popmusic: policy_popmusic
   - /policies@p.pso: policy_pso
+  - /policies@p.psoda: policy_psoda
+  - /policies@p.psoma: policy_psoma
+  - /policies@p.qde: policy_qde
   - /policies@p.rens: policy_rens
+  - /policies@p.rl_ahvpl: policy_rl_ahvpl
+  - /policies@p.rl_alns: policy_rl_alns
   - /policies@p.rl_gd_hh: policy_rl_gd_hh
   - /policies@p.rl_hvpl: policy_rl_hvpl
-  - /policies@p.schc: policy_schc
-  - /policies@p.ta: policy_ta
+  - /policies@p.rts: policy_rts
+  - /policies@p.sa: policy_sa
+  - /policies@p.sans: policy_sans
+  - /policies@p.sca: policy_sca
+  - /policies@p.sisr: policy_sisr
+  - /policies@p.slc: policy_slc
+  - /policies@p.src: policy_src
+  - /policies@p.ss_hh: policy_ss_hh
+  - /policies@p.st_ef: policy_st_ef
+  - /policies@p.swc_tcf: policy_swc_tcf
+  - /policies@p.ts: policy_ts
+  - /policies@p.tsp: policy_tsp
+  - /policies@p.vns: policy_vns
   - /policies@p.vpl: policy_vpl
   - _self_
   - override /tracking: test_sim
@@ -84,7 +90,6 @@ defaults:
 # General Configuration
 task: test_sim
 seed: 42
-#load_dataset: "data/wsr_simulator/datasets/${sim.graph.area}${sim.graph.num_loc}_${sim.data_distribution}_wsr${sim.days}_N${sim.n_samples}_seed${sim.seed}.npz"
 load_dataset: "data/wsr_simulator/datasets/riomaior100_gamma3_wsr30_N1_seed42.npz"
 
 # Simulation Configuration
@@ -99,7 +104,6 @@ sim:
   checkpoint_dir: "checkpoints"
   checkpoint_days: 0
   data_distribution: "gamma3"
-  #stats_filepath: "datasets/april_2024_summary_with_coords.csv"
 
   # Relative to ROOT/data/wsr_simulator/
   graph:
@@ -112,71 +116,79 @@ sim:
 
   # Policies to run
   policies:
-    - hgs: ${p.hgs.hgs}
-    - sans: ${p.sans.sans}
-    - alns: ${p.alns.alns}
-    - swc_tcf: ${p.swc_tcf.swc_tcf}
-    - hgs_alns: ${p.hgs_alns.hgs_alns}
-    - sisr: ${p.sisr.sisr}
-    - tsp: ${p.tsp.tsp}
-    - cvrp: ${p.cvrp.cvrp}
-    - bpc: ${p.bpc.bpc}
-    - neural: ${p.neural.neural}
-    - aco_ks: ${p.aco_ks.aco_ks}
-    - aco_hh: ${p.aco_hh.aco_hh}
-    - qde: ${p.qde.qde}
-    - psoma: ${p.psoma.psoma}
+    - hgs_adc: ${p.hgs_adc.hgs_adc}
     - abc: ${p.abc.abc}
-    - fa: ${p.fa.fa}
-    - sca: ${p.sca.sca}
-    - hs: ${p.hs.hs}
-    - slc: ${p.slc.slc}
-    - lca: ${p.lca.lca}
-    - gphh: ${p.gphh.gphh}
-    - ss_hh: ${p.ss_hh.ss_hh}
-    - lahc: ${p.lahc.lahc}
-    - rrt: ${p.rrt.rrt}
-    - oba: ${p.oba.oba}
-    - gls: ${p.gls.gls}
-    - rts: ${p.rts.rts}
-    - ga: ${p.ga.ga}
-    - sa: ${p.sa.sa}
-    - ils: ${p.ils.ils}
-    - vns: ${p.vns.vns}
-    - rl_alns: ${p.rl_alns.rl_alns}
-    - rl_ahvpl: ${p.rl_ahvpl.rl_ahvpl}
-    - ma_im: ${p.ma_im.ma_im}
-    - ma_ts: ${p.ma_ts.ma_ts}
-    - ma_dp: ${p.ma_dp.ma_dp}
-    - es_mpl: ${p.es_mpl.es_mpl}
-    - es_mcl: ${p.es_mcl.es_mcl}
-    - psoda: ${p.psoda.psoda}
-    - hms: ${p.hms.hms}
+    - abpc_hg: ${p.abpc_hg.abpc_hg}
+    - aco_hh: ${p.aco_hh.aco_hh}
+    - aco_ks: ${p.aco_ks.aco_ks}
+    - ahvpl: ${p.ahvpl.ahvpl}
     - aks: ${p.aks.aks}
+    - alns: ${p.alns.alns}
+    - alns_ipo: ${p.alns_ipo.alns_ipo}
     - bb: ${p.bb.bb}
+    - bc: ${p.bc.bc}
+    - bp: ${p.bp.bp}
+    - bpc: ${p.bpc.bpc}
     - cf_rs: ${p.cf_rs.cf_rs}
+    - cp_sat: ${p.cp_sat.cp_sat}
+    - cvrp: ${p.cvrp.cvrp}
     - de: ${p.de.de}
-    - ema: ${p.ema.ema}
+    - es_mcl: ${p.es_mcl.es_mcl}
     - es_mkl: ${p.es_mkl.es_mkl}
+    - es_mpl: ${p.es_mpl.es_mpl}
+    - esdp: ${p.esdp.esdp}
+    - fa: ${p.fa.fa}
     - filo: ${p.filo.filo}
-    - gd: ${p.gd.gd}
+    - ga: ${p.ga.ga}
+    - genius: ${p.genius.genius}
     - gihh: ${p.gihh.gihh}
+    - gls: ${p.gls.gls}
+    - gphh: ${p.gphh.gphh}
+    - hgs: ${p.hgs.hgs}
+    - hgs_alns: ${p.hgs_alns.hgs_alns}
     - hgs_rr: ${p.hgs_rr.hgs_rr}
     - hmm_gd_hh: ${p.hmm_gd_hh.hmm_gd_hh}
+    - hms: ${p.hms.hms}
+    - hna: ${p.hna.hna}
+    - hs: ${p.hs.hs}
     - hulk: ${p.hulk.hulk}
-    - ie: ${p.ie.ie}
+    - hvpl: ${p.hvpl.hvpl}
+    - ils: ${p.ils.ils}
+    - ils_bd: ${p.ils_bd.ils_bd}
     - ils_rvnd_sp: ${p.ils_rvnd_sp.ils_rvnd_sp}
     - kgls: ${p.kgls.kgls}
     - ks: ${p.ks.ks}
     - lb: ${p.lb.lb}
     - lb_vns: ${p.lb_vns.lb_vns}
+    - lbbd: ${p.lbbd.lbbd}
+    - lca: ${p.lca.lca}
     - ma: ${p.ma.ma}
-    - oi: ${p.oi.oi}
+    - ma_dp: ${p.ma_dp.ma_dp}
+    - ma_im: ${p.ma_im.ma_im}
+    - ma_ts: ${p.ma_ts.ma_ts}
+    - na: ${p.na.na}
+    - ph: ${p.ph.ph}
     - popmusic: ${p.popmusic.popmusic}
     - pso: ${p.pso.pso}
+    - psoda: ${p.psoda.psoda}
+    - psoma: ${p.psoma.psoma}
+    - qde: ${p.qde.qde}
     - rens: ${p.rens.rens}
+    - rl_ahvpl: ${p.rl_ahvpl.rl_ahvpl}
+    - rl_alns: ${p.rl_alns.rl_alns}
     - rl_gd_hh: ${p.rl_gd_hh.rl_gd_hh}
     - rl_hvpl: ${p.rl_hvpl.rl_hvpl}
-    - schc: ${p.schc.schc}
-    - ta: ${p.ta.ta}
+    - rts: ${p.rts.rts}
+    - sa: ${p.sa.sa}
+    - sans: ${p.sans.sans}
+    - sca: ${p.sca.sca}
+    - sisr: ${p.sisr.sisr}
+    - slc: ${p.slc.slc}
+    - src: ${p.src.src}
+    - ss_hh: ${p.ss_hh.ss_hh}
+    - st_ef: ${p.st_ef.st_ef}
+    - swc_tcf: ${p.swc_tcf.swc_tcf}
+    - ts: ${p.ts.ts}
+    - tsp: ${p.tsp.tsp}
+    - vns: ${p.vns.vns}
     - vpl: ${p.vpl.vpl}

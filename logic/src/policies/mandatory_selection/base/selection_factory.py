@@ -14,7 +14,7 @@ Example:
 
 from typing import Any, Optional, Type, cast
 
-from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
+from logic.src.interfaces.mandatory_selection import IMandatorySelectionStrategy
 
 from .selection_registry import MandatorySelectionRegistry
 

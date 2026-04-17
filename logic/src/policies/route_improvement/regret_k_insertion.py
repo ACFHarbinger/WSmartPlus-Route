@@ -1,7 +1,7 @@
 from typing import Any, List, Tuple
 
+from logic.src.interfaces.context.search_context import ImprovementMetrics
 from logic.src.interfaces.route_improvement import IRouteImprovement
-from logic.src.policies.context.search_context import ImprovementMetrics
 from logic.src.policies.helpers.operators.repair.regret import (
     regret_k_insertion,
     regret_k_profit_insertion,

@@ -16,8 +16,8 @@ from logic.src.policies.route_construction.base.base_routing_policy import BaseR
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
 if TYPE_CHECKING:
-    from logic.src.policies.context.multi_day_context import MultiDayContext
-    from logic.src.policies.context.search_context import SearchContext
+    from logic.src.interfaces.context.multi_day_context import MultiDayContext
+    from logic.src.interfaces.context.search_context import SearchContext
 
 from .cvrp import find_routes, find_routes_ortools
 from .params import CVRPParams

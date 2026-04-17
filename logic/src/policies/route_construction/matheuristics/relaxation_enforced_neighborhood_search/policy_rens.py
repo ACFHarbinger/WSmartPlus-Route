@@ -18,8 +18,8 @@ Reference:
 from typing import Any, Dict, List, Optional, Tuple, Type
 
 from logic.src.configs.policies.rens import RENSConfig
-from logic.src.policies.context.multi_day_context import MultiDayContext
-from logic.src.policies.context.search_context import SearchContext
+from logic.src.interfaces.context.multi_day_context import MultiDayContext
+from logic.src.interfaces.context.search_context import SearchContext
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
