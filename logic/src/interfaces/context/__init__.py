@@ -1,4 +1,5 @@
 from .multi_day_context import MultiDayContext
+from .problem_context import ProblemContext
 from .search_context import (
     AcceptanceMetrics,
     ConstructionMetrics,
@@ -8,6 +9,7 @@ from .search_context import (
     SelectionMetrics,
     merge_context,
 )
+from .solution_context import SolutionContext
 
 __all__ = [
     "SearchContext",
@@ -18,4 +20,6 @@ __all__ = [
     "ImprovementMetrics",
     "merge_context",
     "MultiDayContext",
+    "ProblemContext",
+    "SolutionContext",
 ]

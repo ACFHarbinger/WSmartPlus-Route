@@ -3,37 +3,93 @@
 In trajectory-based meta-heuristics, the acceptance criterion defines the mathematical rule determining whether the search transitions from a current solution $s$ to a generated candidate solution $s'$. Assuming an objective function $f(\cdot)$ subject to minimization, the following rigorous acceptance rules are formally defined:
 
 ## Strict & Elitist Criteria
-* **Only Improving (OI):** The strictest form of greedy, elitist move acceptance. The search trajectory is monotonically non-increasing, accepting a candidate only if it yields a strict objective reduction: $f(s') < f(s)$.
-* **Improving and Equal (IE):** A weakly elitist strategy that accepts solutions of equal or superior quality ($f(s') \le f(s)$). Unlike OI, this allows the algorithm to perform random walks across neutral plateaus (valleys) in the objective landscape, preventing premature stagnation in flat regions.
-* **Aspiration Criterion (AC):** Primarily utilized in Tabu Search architectures. It serves as an override mechanism that accepts a mathematically forbidden (tabu) candidate if its objective value strictly surpasses the global best-known solution: $f(s') < f(s^*)$.
-* **All Moves Accepted (AMA):** A naive baseline or extreme diversification mechanism (equivalent to a pure random walk) where every generated candidate is deterministically accepted regardless of objective deterioration: $P(\text{accept } s') = 1$.
+
+### Only Improving (OI)
+The strictest form of greedy, elitist move acceptance. The search trajectory is monotonically non-increasing, accepting a candidate only if it yields a strict objective reduction: $f(s') < f(s)$.
+
+### Improving and Equal (IE)
+A weakly elitist strategy that accepts solutions of equal or superior quality ($f(s') \le f(s)$). Unlike OI, this allows the algorithm to perform random walks across neutral plateaus (valleys) in the objective landscape, preventing premature stagnation in flat regions.
+
+### Aspiration Criterion (AC)
+Primarily utilized in Tabu Search architectures. It serves as an override mechanism that accepts a mathematically forbidden (tabu) candidate if its objective value strictly surpasses the global best-known solution: $f(s') < f(s^*)$.
+
+### All Moves Accepted (AMA)
+A naive baseline or extreme diversification mechanism (equivalent to a pure random walk) where every generated candidate is deterministically accepted regardless of objective deterioration: $P(\text{accept } s') = 1$.
+
+---
 
 ## Thermodynamic & Stochastic Criteria
-* **Boltzmann / Metropolis Criterion (BMC):** A stochastic thermodynamic criterion originally derived from statistical mechanics. Improving moves ($\Delta f = f(s') - f(s) \le 0$) are accepted deterministically. Deteriorating moves ($\Delta f > 0$) are accepted with a probability defined by the Boltzmann distribution, which decays as the artificial temperature parameter $T$ cools over time: $P(\text{accept } s') = \exp\left(-\frac{\Delta f}{T}\right)$.
-* **Adaptive Boltzmann Metropolis (ABMC):** An advanced variant of BMC where the temperature parameter $T$ or the cooling schedule is not strictly monotonic. Instead, it dynamically adapts based on real-time landscape feedback, such as recent variance in objective values or a target acceptance rate.
-* **Generalized Tsallis Simulated Annealing (GTSA):** Grounded in non-extensive Tsallis statistical mechanics, this criterion replaces the standard exponential Boltzmann distribution with a generalized $q$-exponential function. This permits a heavier-tailed probability distribution for accepting deteriorating moves, enhancing global exploration: $P(\text{accept } s') = \left[1 - (1-q)\frac{\Delta f}{T}\right]^{\frac{1}{1-q}}$.
-* **Monte Carlo (MC):** A foundational stochastic acceptance rule. In practice, it either acts as a static-temperature Metropolis acceptance or applies a fixed, parameterized probability $p$ to tolerate specific worsening moves without a time-dependent schedule.
-* **Exponential Monte Carlo Counter (EMCC):** A stochastic mechanism that modulates the acceptance probability of deteriorating moves using an exponentially decaying counter or tolerance phase. It serves as a computationally lighter alternative to full simulated annealing, evaluating bounds via $P(\text{accept } s') = \exp(-\Delta f / c)$ where $c$ is a dynamic step-counter.
-* **Probabilistic Transition (PT):** A generic stochastic rule defining acceptance via a dynamic Markov transition matrix or state-dependent function $P(s \to s')$, often utilized to bias the search trajectory toward historically promising sub-regions.
-* **Fitness Proportional (FP):** A stochastic acceptance model (often utilized in evolutionary local search) where the probability of transitioning to $s'$ is directly proportional to a normalized transformation of its fitness relative to the incumbent $s$ or a local pool: $P(\text{accept } s') = \frac{F(s')}{F(s) + F(s')}$.
+
+### Boltzmann / Metropolis Criterion (BMC)
+A stochastic thermodynamic criterion originally derived from statistical mechanics. Improving moves ($\Delta f = f(s') - f(s) \le 0$) are accepted deterministically. Deteriorating moves ($\Delta f > 0$) are accepted with a probability defined by the Boltzmann distribution, which decays as the artificial temperature parameter $T$ cools over time: $P(\text{accept } s') = \exp\left(-\frac{\Delta f}{T}\right)$.
+
+### Adaptive Boltzmann Metropolis (ABMC)
+An advanced variant of BMC where the temperature parameter $T$ or the cooling schedule is not strictly monotonic. Instead, it dynamically adapts based on real-time landscape feedback, such as recent variance in objective values or a target acceptance rate.
+
+### Generalized Tsallis Simulated Annealing (GTSA)
+Grounded in non-extensive Tsallis statistical mechanics, this criterion replaces the standard exponential Boltzmann distribution with a generalized $q$-exponential function. This permits a heavier-tailed probability distribution for accepting deteriorating moves, enhancing global exploration: $P(\text{accept } s') = \left[1 - (1-q)\frac{\Delta f}{T}\right]^{\frac{1}{1-q}}$.
+
+### Monte Carlo (MC)
+A foundational stochastic acceptance rule. In practice, it either acts as a static-temperature Metropolis acceptance or applies a fixed, parameterized probability $p$ to tolerate specific worsening moves without a time-dependent schedule.
+
+### Exponential Monte Carlo Counter (EMCC)
+A stochastic mechanism that modulates the acceptance probability of deteriorating moves using an exponentially decaying counter or tolerance phase. It serves as a computationally lighter alternative to full simulated annealing, evaluating bounds via $P(\text{accept } s') = \exp(-\Delta f / c)$ where $c$ is a dynamic step-counter.
+
+### Probabilistic Transition (PT)
+A generic stochastic rule defining acceptance via a dynamic Markov transition matrix or state-dependent function $P(s \to s')$, often utilized to bias the search trajectory toward historically promising sub-regions.
+
+### Fitness Proportional (FP)
+A stochastic acceptance model (often utilized in evolutionary local search) where the probability of transitioning to $s'$ is directly proportional to a normalized transformation of its fitness relative to the incumbent $s$ or a local pool: $P(\text{accept } s') = \frac{F(s')}{F(s) + F(s')}$.
+
+---
 
 ## Threshold & Bounded-Deterioration Criteria
-* **Threshold Accepting (TA):** A deterministic analogue to Simulated Annealing. It explicitly bounds the allowable deterioration using a threshold parameter $\tau$. A candidate is accepted if the objective degradation is within the permissible bound: $f(s') - f(s) \le \tau$. The threshold $\tau$ is monotonically decreased toward zero as the search progresses.
-* **Record-to-Record Travel (RRT):** A deterministic, bounded-deviation rule relative to the global optimum. Instead of comparing the candidate strictly to the current solution, RRT accepts $s'$ if its cost is within a fixed scalar margin $\delta$ of the best-known solution $s^*$: $f(s') \le f(s^*) + \delta$.
-* **Great Deluge (GD):** A deterministic, non-elitist criterion that utilizes an absolute cost ceiling known as the "water level" $W$. A candidate is accepted strictly if its objective value remains submerged below this boundary ($f(s') \le W$). To force convergence, $W$ is monotonically decreased at a specific decay rate $\Delta W$ at each iteration.
-* **Non-Linear Great Deluge (NLGD):** Extends the standard GD algorithm by decaying the water boundary $W$ non-linearly (e.g., exponentially or logarithmically) rather than by a fixed scalar. This facilitates rapid initial exploration that asymptotically tightens as the search converges.
-* **Demon Algorithm (DA):** A deterministic, bounded-deterioration strategy. It utilizes a conceptual "demon" possessing an energy credit $D$. Worsening moves ($\Delta f > 0$) are accepted strictly if $\Delta f \le D$, after which the demon's energy is depleted ($D \leftarrow D - \Delta f$). Improving moves ($\Delta f < 0$) replenish the demon's energy.
-* **Skewed Variable Neighborhood Search (SVNS):** An extension of VNS that permits acceptance of deteriorating moves if the candidate solution is located at a sufficient structural distance from the incumbent. It evaluates acceptance using a distance metric $\rho(s, s')$ and an asymmetry parameter $\alpha$: $f(s') - \alpha \cdot \rho(s, s') < f(s)$.
+
+### Threshold Accepting (TA)
+A deterministic analogue to Simulated Annealing. It explicitly bounds the allowable deterioration using a threshold parameter $\tau$. A candidate is accepted if the objective degradation is within the permissible bound: $f(s') - f(s) \le \tau$. The threshold $\tau$ is monotonically decreased toward zero as the search progresses.
+
+### Record-to-Record Travel (RRT)
+A deterministic, bounded-deviation rule relative to the global optimum. Instead of comparing the candidate strictly to the current solution, RRT accepts $s'$ if its cost is within a fixed scalar margin $\delta$ of the best-known solution $s^*$: $f(s') \le f(s^*) + \delta$.
+
+### Great Deluge (GD)
+A deterministic, non-elitist criterion that utilizes an absolute cost ceiling known as the "water level" $W$. A candidate is accepted strictly if its objective value remains submerged below this boundary ($f(s') \le W$). To force convergence, $W$ is monotonically decreased at a specific decay rate $\Delta W$ at each iteration.
+
+### Non-Linear Great Deluge (NLGD)
+Extends the standard GD algorithm by decaying the water boundary $W$ non-linearly (e.g., exponentially or logarithmically) rather than by a fixed scalar. This facilitates rapid initial exploration that asymptotically tightens as the search converges.
+
+### Demon Algorithm (DA)
+A deterministic, bounded-deterioration strategy. It utilizes a conceptual "demon" possessing an energy credit $D$. Worsening moves ($\Delta f > 0$) are accepted strictly if $\Delta f \le D$, after which the demon's energy is depleted ($D \leftarrow D - \Delta f$). Improving moves ($\Delta f < 0$) replenish the demon's energy.
+
+### Skewed Variable Neighborhood Search (SVNS)
+An extension of VNS that permits acceptance of deteriorating moves if the candidate solution is located at a sufficient structural distance from the incumbent. It evaluates acceptance using a distance metric $\rho(s, s')$ and an asymmetry parameter $\alpha$: $f(s') - \alpha \cdot \rho(s, s') < f(s)$.
+
+---
 
 ## Memory & History-Based Criteria
-* **Late Acceptance Hill-Climbing (LAHC):** A threshold-based memory criterion that mitigates the need for explicit cooling schedules. It maintains a finite circular array of the costs from the last $L$ iterations. A candidate is accepted if it is better than or equal to the cost encountered exactly $L$ steps ago, naturally adapting the threshold to the current region of the search landscape: $f(s') \le f(s_{i-L})$.
-* **Step Counting Hill Climbing (SCHC):** A discrete memory-based criterion that utilizes a single static cost bound $B$. The bound remains fixed for a predefined step-limit $L$, allowing the search to explore locally. A candidate is accepted if $f(s') \le B$. Once $L$ steps are exhausted, the bound is explicitly updated to match the current incumbent's cost ($B \leftarrow f(s)$).
-* **Old Bachelor Acceptance (OBA):** A dynamic, non-monotone threshold strategy. It utilizes an acceptance threshold that automatically adjusts based on recent search history. If a move is accepted, the threshold is aggressively tightened (mimicking high standards); if a series of moves are rejected, the threshold is gradually relaxed (lowering standards) to force diversification and escape local minima.
+
+### Late Acceptance Hill-Climbing (LAHC)
+A threshold-based memory criterion that mitigates the need for explicit cooling schedules. It maintains a finite circular array of the costs from the last $L$ iterations. A candidate is accepted if it is better than or equal to the cost encountered exactly $L$ steps ago, naturally adapting the threshold to the current region of the search landscape: $f(s') \le f(s_{i-L})$.
+
+### Step Counting Hill Climbing (SCHC)
+A discrete memory-based criterion that utilizes a single static cost bound $B$. The bound remains fixed for a predefined step-limit $L$, allowing the search to explore locally. A candidate is accepted if $f(s') \le B$. Once $L$ steps are exhausted, the bound is explicitly updated to match the current incumbent's cost ($B \leftarrow f(s)$).
+
+### Old Bachelor Acceptance (OBA)
+A dynamic, non-monotone threshold strategy. It utilizes an acceptance threshold that automatically adjusts based on recent search history. If a move is accepted, the threshold is aggressively tightened (mimicking high standards); if a series of moves are rejected, the threshold is gradually relaxed (lowering standards) to force diversification and escape local minima.
+
+---
 
 ## Multi-Objective & Ensemble Criteria
-* **Pareto Dominance (PD):** The foundational strict acceptance criterion for multi-objective landscapes. A candidate $s'$ is accepted (or supersedes $s$) if it strictly dominates the incumbent, meaning $f_i(s') \le f_i(s)$ for all objectives $i$, and $f_j(s') < f_j(s)$ for at least one objective $j$.
-* **Epsilon Dominance ($\epsilon$-Dominance):** A relaxed multi-objective criterion that accelerates convergence. A candidate $s'$ is accepted if it $\epsilon$-dominates the incumbent, requiring that $(1-\epsilon)f_i(s') \le f_i(s)$ for all minimized objectives $i$, preventing mathematically negligible improvements from stalling the search or cluttering Pareto archives.
-* **Tournament Acceptance:** The candidate $s'$ is evaluated not just against the incumbent $s$, but against a randomized localized pool of solutions. It is accepted into the active trajectory if it mathematically outranks a defined subset of those competitors.
-* **Ensemble Move Acceptance (EMA):** A meta-decision architecture that evaluates a candidate move through a portfolio of heterogeneous criteria (e.g., SA, GD, and IE concurrently). The final acceptance decision is aggregated using logical ensemble rules, such as G-AND (strict consensus/minority rule), G-OR (authority rule where a single positive vote accepts), G-VOT (majority vote), or G-PVO (probabilistic voting based on criteria confidence).
+
+### Pareto Dominance (PD)
+The foundational strict acceptance criterion for multi-objective landscapes. A candidate $s'$ is accepted (or supersedes $s$) if it strictly dominates the incumbent, meaning $f_i(s') \le f_i(s)$ for all objectives $i$, and $f_j(s') < f_j(s)$ for at least one objective $j$.
+
+### Epsilon Dominance ($\epsilon$-Dominance)
+A relaxed multi-objective criterion that accelerates convergence. A candidate $s'$ is accepted if it $\epsilon$-dominates the incumbent, requiring that $(1-\epsilon)f_i(s') \le f_i(s)$ for all minimized objectives $i$, preventing mathematically negligible improvements from stalling the search or cluttering Pareto archives.
+
+### Tournament Acceptance
+The candidate $s'$ is evaluated not just against the incumbent $s$, but against a randomized localized pool of solutions. It is accepted into the active trajectory if it mathematically outranks a defined subset of those competitors.
+
+### Ensemble Move Acceptance (EMA)
+A meta-decision architecture that evaluates a candidate move through a portfolio of heterogeneous criteria (e.g., SA, GD, and IE concurrently). The final acceptance decision is aggregated using logical ensemble rules, such as G-AND (strict consensus/minority rule), G-OR (authority rule where a single positive vote accepts), G-VOT (majority vote), or G-PVO (probabilistic voting based on criteria confidence).
 
 ---

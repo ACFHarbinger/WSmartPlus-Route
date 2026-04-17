@@ -8,12 +8,14 @@ over a scenario tree, rather than myopic single-day routing.
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
 from logic.src.interfaces.context.multi_day_context import MultiDayContext
+from logic.src.interfaces.context.problem_context import ProblemContext
 from logic.src.interfaces.context.search_context import SearchContext
+from logic.src.interfaces.context.solution_context import SolutionContext
 from logic.src.pipeline.simulations.bins.prediction import ScenarioTree
 
 if TYPE_CHECKING:
@@ -97,17 +99,22 @@ class BaseMultiPeriodRoutingPolicy(BaseRoutingPolicy):
     @abstractmethod
     def _run_multi_period_solver(
         self,
-        tree: ScenarioTree,
-        capacity: float,
-        revenue: float,
-        cost_unit: float,
-        **kwargs: Any,
-    ) -> Tuple[List[List[List[int]]], float, Dict[str, Any]]:
+        problem: "ProblemContext",
+        multi_day_ctx: Optional[MultiDayContext],
+    ) -> Tuple["SolutionContext", List[List[List[int]]], Dict[str, Any]]:
         """
         Solve the T-period optimization problem.
 
+        Args:
+            problem:       Fully typed problem descriptor for today.
+            multi_day_ctx: Current multi-day state (may be None on day 0).
+
         Returns:
-            Tuple of (plan[day][route][node], expected_profit, metadata).
+            Tuple of:
+                solution   – SolutionContext for today's routes only.
+                full_plan  – List[day][vehicle][node] for the whole horizon
+                             (to be stored in MultiDayContext.full_plan_snapshot).
+                metadata   – Solver telemetry dict.
         """
         pass
 
@@ -134,88 +141,34 @@ class BaseMultiPeriodRoutingPolicy(BaseRoutingPolicy):
     def execute(
         self, **kwargs: Any
     ) -> Tuple[Union[List[int], List[List[int]]], float, float, Optional[SearchContext], Optional[MultiDayContext]]:
-        """
-        Execute the multi-period routing policy with scenario-based lookahead.
+        from logic.src.interfaces.context.problem_context import ProblemContext
 
-        Unlike standard myopic policies, multi-period policies evaluate
-        decisions over a $T$-day horizon using a scenario tree. This allows
-        the solver to anticipate future bin overflows and optimize the
-        expected long-term profit.
-
-        The execution flow is:
-        1. Environment & Parameter Extraction: Load area-specific constants
-           and the scenario tree from the simulation context.
-        2. Multi-Period Optimization: Solve the $T$-period problem to generate
-           a full collection plan for the entire horizon.
-        3. Decision Extraction: Extract the optimized routes for Day 0 (the
-           current physical stage) to be returned to the simulator.
-        4. Context Update: Update the `MultiDayContext` with the snapshots of
-           the full plan for future reference.
-
-        Args:
-            **kwargs: Context dictionary containing:
-                - scenario_tree (ScenarioTree): Tree of future bin fill rate realizations.
-                - distance_matrix (np.ndarray): Localized distance matrix.
-                - search_context (Optional[SearchContext]): Context for tracking
-                  recursive solver statistics.
-                - multi_day_context (Optional[MultiDayContext]): Context for
-                  inter-day state propagation.
-
-        Returns:
-            Tuple[Union[List[int], List[List[int]]], float, float, Optional[SearchContext], Optional[MultiDayContext]]:
-                A 5-tuple containing:
-                - tour: Optimized collection routes for Day 0.
-                - cost: Total travel cost of the Day 0 routes.
-                - profit: Expected cumulative profit over the $T$-day horizon
-                  (as calculated by the multi-period solver).
-                - search_context: The propagated or initialized search context.
-                - multi_day_context: The updated multi-day state metadata.
-        """
-        # 1. Standard parameter loading from BaseRoutingPolicy
+        # 1. Load area params (unchanged — uses existing _load_area_params)
         capacity, revenue, cost_unit, values = self._load_area_params(
             kwargs.get("area", "Rio Maior"),
             kwargs.get("waste_type", "plastic"),
             kwargs.get("config", {}),
         )
 
-        tree = self._get_scenario_tree(kwargs)
+        # 2. Build typed problem descriptor
+        problem = ProblemContext.from_kwargs(kwargs, capacity, revenue, cost_unit)
+
         multi_day_ctx: Optional[MultiDayContext] = kwargs.get("multi_day_context")
         search_ctx: Optional[SearchContext] = kwargs.get("search_context")
 
-        # 2. Run Multi-Period Solver
-        # This returns a full plan for T days
-        full_plan, profit, solver_metadata = self._run_multi_period_solver(
-            tree=tree,
-            capacity=capacity,
-            revenue=revenue,
-            cost_unit=cost_unit,
-            **kwargs,
-        )
+        # 3. Solve
+        solution, full_plan, solver_metadata = self._run_multi_period_solver(problem, multi_day_ctx)
 
-        # 3. Extract Day 0 Tour
-        day_0_tours = full_plan[0] if full_plan else [[0, 0]]
-        # If it's a single vehicle solver, return as a flat list if needed
-        # but the interface allows List[List[int]].
-        tour = day_0_tours if len(day_0_tours) > 1 else day_0_tours[0]
-
-        # 4. Compute Day 0 Cost
-        distance_matrix = kwargs["distance_matrix"]
-        cost = 0.0
-        if tour and isinstance(tour[0], list):
-            # Narrow to List[List[int]] for multiple vehicles
-            for r in cast(List[List[int]], tour):
-                for i in range(len(r) - 1):
-                    cost += distance_matrix[r[i], r[i + 1]]
-        elif tour:
-            # Narrow to List[int] for single vehicle
-            tour_flat = cast(List[int], tour)
-            for i in range(len(tour_flat) - 1):
-                cost += distance_matrix[tour_flat[i], tour_flat[i + 1]]
-
-        # 5. Update MultiDayContext
-        if multi_day_ctx:
+        # 4. Update MultiDayContext with full plan snapshot
+        if multi_day_ctx is not None:
             multi_day_ctx = multi_day_ctx.update(
-                full_plan_snapshot=full_plan, extra={**multi_day_ctx.extra, **solver_metadata}
+                full_plan_snapshot=full_plan,
+                extra={**multi_day_ctx.extra, **solver_metadata},
             )
+
+        # 5. Return in the existing 5-tuple format
+        tour = solution.to_flat_tour()
+        cost = solution.total_cost
+        profit = solution.total_profit
 
         return tour, cost, profit, search_ctx, multi_day_ctx

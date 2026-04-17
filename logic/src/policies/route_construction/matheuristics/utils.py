@@ -143,3 +143,24 @@ def route_cost(route: List[int], problem: ProblemContext) -> float:
     """Compute c_km·dist for a single route."""
     path = [0] + route + [0]
     return problem.cost_per_km * sum(problem.distance_matrix[path[k]][path[k + 1]] for k in range(len(path) - 1))
+
+
+def greedy_day_route(problem: ProblemContext, rng: np.random.Generator) -> List[int]:
+    """
+    Greedy nearest-profit-ratio construction for a single day.
+    """
+    import random as _stdlib_random
+
+    _rng = _stdlib_random.Random(int(rng.integers(0, 2**31)))
+    routes = _build_single_day_routes(problem, _rng, rng, "greedy")
+    # flatten
+    return [node for route in routes for node in route]
+
+
+def two_opt(route: List[int], dist_matrix: np.ndarray, max_iter: int = 100) -> List[int]:
+    """Standard 2-opt improvement on a single route (depot excluded)."""
+    from logic.src.policies.helpers.operators.improvement_descent.steepest_two_opt import two_opt_steepest
+
+    # two_opt_steepest expects List[List[int]]
+    res = two_opt_steepest([route], dist_matrix, {}, 1e9, C=1.0, max_iter=max_iter)
+    return res[0] if res else []

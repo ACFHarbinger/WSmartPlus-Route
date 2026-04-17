@@ -1,5 +1,7 @@
 # logic/src/policies/helpers/operators/helpers/llh_pool.py
 
+import copy
+import random
 from typing import Callable, List, Tuple
 
 import numpy as np
@@ -16,6 +18,10 @@ from logic.src.policies.helpers.operators.perturbation_shaking import (
     day_merge_split,
     day_shuffle,
     double_bridge,
+)
+from logic.src.policies.route_construction.matheuristics.utils import (
+    greedy_day_route,
+    two_opt,
 )
 
 Plan = List[List[int]]
@@ -117,3 +123,82 @@ LLH_POOL: List[Tuple[str, LLH]] = [
     ("double_bridge", _make_double_bridge()),
     ("day_shuffle", _make_day_shuffle()),
 ]
+
+
+class LLHPool:
+    """
+    Low-Level Heuristic Pool for hyper-heuristics.
+    Contains different perturbation/LS operators that the HH can select from.
+    All LLHs take (plan, problem_context, rng) and return a new plan.
+    """
+
+    @staticmethod
+    def llh_swap(plan: List[List[List[int]]], problem: ProblemContext, rng: random.Random) -> List[List[List[int]]]:
+        """Swaps two random adjacent nodes in a random route."""
+        new_plan = copy.deepcopy(plan)
+        D = problem.horizon
+        d = rng.randint(0, D - 1)
+        rt = new_plan[d][0] if new_plan[d] else []
+        if len(rt) >= 2:
+            i = rng.randint(0, len(rt) - 2)
+            rt[i], rt[i + 1] = rt[i + 1], rt[i]
+            new_plan[d] = [rt]
+        return new_plan
+
+    @staticmethod
+    def llh_drop_add(plan: List[List[List[int]]], problem: ProblemContext, rng: random.Random) -> List[List[List[int]]]:
+        """Drops a node and adds a new one on a random day."""
+        new_plan = copy.deepcopy(plan)
+        D = problem.horizon
+        d = rng.randint(0, D - 1)
+        rt = new_plan[d][0] if new_plan[d] else []
+
+        if rt:
+            # drop non-mandatory
+            cand_rem = [v for v in rt if v not in problem.mandatory]
+            if cand_rem:
+                rt.remove(rng.choice(cand_rem))
+
+        # add valid
+        cand_add = [v for v in range(1, len(problem.distance_matrix)) if v not in rt]
+        if cand_add:
+            v_add = rng.choice(cand_add)
+            w_sum = sum(problem.wastes.get(n, 0.0) for n in rt)
+            if w_sum + problem.wastes.get(v_add, 0.0) <= problem.capacity:
+                rt.append(v_add)
+
+        new_plan[d] = [rt]
+        return new_plan
+
+    @staticmethod
+    def llh_2opt_all(plan: List[List[List[int]]], problem: ProblemContext, rng: random.Random) -> List[List[List[int]]]:
+        """Applies 2-opt to all days."""
+        new_plan = []
+        for d in range(problem.horizon):
+            rt = plan[d][0] if plan[d] else []
+            new_plan.append([two_opt(list(rt), problem.distance_matrix)])
+        return new_plan
+
+    @staticmethod
+    def llh_ruin_recreate_day(
+        plan: List[List[List[int]]], problem: ProblemContext, rng: random.Random
+    ) -> List[List[List[int]]]:
+        """Completely reconstructs a random day."""
+        new_plan = copy.deepcopy(plan)
+        D = problem.horizon
+        d = rng.randint(0, D - 1)
+
+        # Advance context to day d
+        cur_prob = problem
+        for i in range(d):
+            r = new_plan[i][0] if new_plan[i] else []
+            cur_prob = cur_prob.advance(r)
+
+        np_rng = np.random.default_rng(rng.randint(0, 2**31))
+        rt = greedy_day_route(cur_prob, np_rng)
+        new_plan[d] = [rt]
+        return new_plan
+
+    @classmethod
+    def get_all(cls) -> List[Callable]:
+        return [cls.llh_swap, cls.llh_drop_add, cls.llh_2opt_all, cls.llh_ruin_recreate_day]
