@@ -7,7 +7,7 @@ import pytest
 import random
 import numpy as np
 
-from logic.src.policies.helpers.operators.heuristics.greedy_initialization import build_greedy_routes
+from logic.src.policies.helpers.operators.solution_initialization import build_greedy_routes
 from logic.src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.solver import GPHHSolver
 from logic.src.policies.route_construction.hyper_heuristics.genetic_programming_hyper_heuristic.params import GPHHParams
 from logic.src.policies.route_construction.hyper_heuristics.sequence_based_selection_hyper_heuristic.solver import SSHHSolver

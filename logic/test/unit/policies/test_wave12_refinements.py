@@ -1,10 +1,12 @@
 import numpy as np
 from logic.src.policies.route_construction.meta_heuristics.differential_evolution.solver import DESolver
 from logic.src.policies.route_construction.meta_heuristics.differential_evolution.params import DEParams
-from logic.src.policies.helpers.operators.unstringing_stringing.unstringing_i import apply_type_i_us
-from logic.src.policies.helpers.operators.unstringing_stringing.unstringing_ii import apply_type_ii_us
-from logic.src.policies.helpers.operators.unstringing_stringing.unstringing_iii import apply_type_iii_us
-from logic.src.policies.helpers.operators.unstringing_stringing.unstringing_iv import apply_type_iv_us
+from logic.src.policies.helpers.operators.generalized_insertion_and_deletion import (
+    apply_type_i_us,
+    apply_type_ii_us,
+    apply_type_iii_us,
+    apply_type_iv_us,
+)
 
 def test_de_binomial_crossover_j_rand():
     """Verify that j_rand component is always inherited from mutant in DE."""

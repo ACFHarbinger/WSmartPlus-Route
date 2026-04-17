@@ -31,7 +31,7 @@ from logic.src.policies.helpers.operators import (
     regret_2_profit_insertion,
     worst_removal,
 )
-from logic.src.policies.helpers.operators.heuristics.nearest_neighbor_initialization import build_nn_routes
+from logic.src.policies.helpers.operators.solution_initialization.nearest_neighbor_si import build_nn_routes
 
 from .params import GLSParams
 

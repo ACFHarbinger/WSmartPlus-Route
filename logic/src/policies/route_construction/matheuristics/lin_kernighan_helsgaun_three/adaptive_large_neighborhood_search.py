@@ -44,45 +44,45 @@ from typing import Callable, Dict, List, Optional, Tuple
 import numpy as np
 
 # solve_lkh3 imported locally in _optimize_routes or solve() to break circularity
-from logic.src.policies.helpers.operators.destroy.historical import (
+from logic.src.policies.helpers.operators.destroy_ruin.historical import (
     historical_profit_removal,
     historical_removal,
 )
-from logic.src.policies.helpers.operators.destroy.neighbor import (
+from logic.src.policies.helpers.operators.destroy_ruin.neighbor import (
     neighbor_profit_removal,
     neighbor_removal,
 )
 
 # Destroy operators
-from logic.src.policies.helpers.operators.destroy.route import (
+from logic.src.policies.helpers.operators.destroy_ruin.route import (
     route_profit_removal,
     route_removal,
 )
-from logic.src.policies.helpers.operators.destroy.sector import (
+from logic.src.policies.helpers.operators.destroy_ruin.sector import (
     sector_profit_removal,
     sector_removal,
 )
-from logic.src.policies.helpers.operators.perturbation.evolutionary import (
+from logic.src.policies.helpers.operators.perturbation_shaking.evolutionary import (
     evolutionary_perturbation,
     evolutionary_perturbation_profit,
 )
 
 # Perturbation operators
-from logic.src.policies.helpers.operators.perturbation.genetic_transformation import (
+from logic.src.policies.helpers.operators.perturbation_shaking.genetic_transformation import (
     genetic_transformation,
     genetic_transformation_profit,
 )
 
 # Repair operators
-from logic.src.policies.helpers.operators.repair.deep import (
+from logic.src.policies.helpers.operators.recreate_repair.deep import (
     deep_insertion,
     deep_profit_insertion,
 )
-from logic.src.policies.helpers.operators.repair.nearest import (
+from logic.src.policies.helpers.operators.recreate_repair.nearest import (
     nearest_insertion,
     nearest_profit_insertion,
 )
-from logic.src.policies.helpers.operators.repair.savings import (
+from logic.src.policies.helpers.operators.recreate_repair.savings import (
     savings_insertion,
     savings_profit_insertion,
 )

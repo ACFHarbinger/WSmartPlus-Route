@@ -29,7 +29,7 @@ from logic.src.policies.helpers.operators import (
     greedy_profit_insertion,
     random_removal,
 )
-from logic.src.policies.helpers.operators.heuristics.greedy_initialization import build_greedy_routes
+from logic.src.policies.helpers.operators.solution_initialization.greedy_si import build_greedy_routes
 
 from ..adaptive_large_neighborhood_search.alns import ALNSSolver
 from ..ant_colony_optimization_k_sparse.solver import KSparseACOSolver

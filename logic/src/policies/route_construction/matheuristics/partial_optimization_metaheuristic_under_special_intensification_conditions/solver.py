@@ -22,8 +22,8 @@ from scipy.spatial import KDTree
 
 from logic.src.configs.policies.alns import ALNSConfig
 from logic.src.configs.policies.hgs import HGSConfig
-from logic.src.policies.helpers.operators.heuristics.greedy_initialization import build_greedy_routes
-from logic.src.policies.helpers.operators.heuristics.nearest_neighbor_initialization import build_nn_routes
+from logic.src.policies.helpers.operators.solution_initialization.greedy_si import build_greedy_routes
+from logic.src.policies.helpers.operators.solution_initialization.nearest_neighbor_si import build_nn_routes
 from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns import ALNSSolver
 from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params import ALNSParams
 from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.hgs import HGSSolver

@@ -19,7 +19,7 @@ organized by category:
 
 # Intensification operators
 # Crossover operators
-from .crossover import (
+from .crossover_recombination import (
     CROSSOVER_NAMES,
     CROSSOVER_OPERATORS,
     capacity_aware_erx,
@@ -32,7 +32,7 @@ from .crossover import (
 )
 
 # Destroy operators
-from .destroy import (
+from .destroy_ruin import (
     bb_profit_removal,
     bb_removal,
     cluster_profit_removal,
@@ -61,34 +61,55 @@ from .destroy import (
     worst_removal,
 )
 
-# Heuristics
-from .heuristics import (
-    apply_ges,
-    apply_lns,
-    build_greedy_routes,
-    build_nn_routes,
+# Generalized Insertion and Deletion operators
+# Includes Unstringing and Stringing (US)
+from .generalized_insertion_and_deletion import (
+    apply_type_i_s,
+    apply_type_i_s_profit,
+    apply_type_i_us,
+    apply_type_i_us_profit,
+    apply_type_ii_s,
+    apply_type_ii_s_profit,
+    apply_type_ii_us,
+    apply_type_ii_us_profit,
+    apply_type_iii_s,
+    apply_type_iii_s_profit,
+    apply_type_iii_us,
+    apply_type_iii_us_profit,
+    apply_type_iv_s,
+    apply_type_iv_s_profit,
+    apply_type_iv_us,
+    apply_type_iv_us_profit,
+    stringing_insertion,
+    stringing_profit_insertion,
+    unstringing_profit_removal,
+    unstringing_removal,
+)
+
+# Improvement operators
+from .improvement_descent import (
+    node_exchange_steepest,
+    node_exchange_steepest_profit,
+    or_opt_steepest,
+    or_opt_steepest_profit,
+    two_opt_steepest,
+    two_opt_steepest_profit,
 )
 
 # Intensification operators
-from .intensification import (
+from .intensification_fixing import (
     INTENSIFICATION_NAMES,
     INTENSIFICATION_OPERATORS,
     dp_route_reopt,
     dp_route_reopt_profit,
     fix_and_optimize,
     fix_and_optimize_profit,
-    node_exchange_steepest,
-    node_exchange_steepest_profit,
-    or_opt_steepest,
-    or_opt_steepest_profit,
     set_partitioning_polish,
     set_partitioning_polish_profit,
-    two_opt_steepest,
-    two_opt_steepest_profit,
 )
 
 # Inter-route operators
-from .inter_route import (
+from .inter_route_local_search import (
     cross_exchange,
     cyclic_transfer,
     ejection_chain,
@@ -105,7 +126,7 @@ from .inter_route import (
 )
 
 # Intra-route operators
-from .intra_route import (
+from .intra_route_local_search import (
     apply_intra_route_cross_exchange,
     k_permutation,
     move_2opt_intra,
@@ -119,7 +140,7 @@ from .intra_route import (
 )
 
 # Perturbation operators
-from .perturbation import (
+from .perturbation_shaking import (
     bb_perturbation,
     bb_profit_perturbation,
     double_bridge,
@@ -133,7 +154,7 @@ from .perturbation import (
 )
 
 # Repair operators
-from .repair import (
+from .recreate_repair import (
     bb_insertion,
     bb_profit_insertion,
     deep_insertion,
@@ -163,28 +184,21 @@ from .repair import (
     stochastic_aware_insertion,
 )
 
-# Unstringing and stringing (US)
-from .unstringing_stringing import (
-    apply_type_i_s,
-    apply_type_i_s_profit,
-    apply_type_i_us,
-    apply_type_i_us_profit,
-    apply_type_ii_s,
-    apply_type_ii_s_profit,
-    apply_type_ii_us,
-    apply_type_ii_us_profit,
-    apply_type_iii_s,
-    apply_type_iii_s_profit,
-    apply_type_iii_us,
-    apply_type_iii_us_profit,
-    apply_type_iv_s,
-    apply_type_iv_s_profit,
-    apply_type_iv_us,
-    apply_type_iv_us_profit,
-    stringing_insertion,
-    stringing_profit_insertion,
-    unstringing_profit_removal,
-    unstringing_removal,
+# Heuristics
+from .search_heuristics import (
+    apply_ges,
+    apply_lns,
+    solve_lk,
+    solve_lkh,
+)
+
+# Solution initialization
+from .solution_initialization import (
+    build_grasp_routes,
+    build_greedy_routes,
+    build_nn_routes,
+    build_regret_routes,
+    build_savings_routes,
 )
 
 __all__ = [
@@ -268,6 +282,7 @@ __all__ = [
     "k_permutation",
     "relocate_chain",
     "three_permutation",
+    "apply_intra_route_cross_exchange",
     # Inter-route
     "move_swap_star",
     "move_2opt_star",
@@ -316,10 +331,15 @@ __all__ = [
     "unstringing_profit_removal",
     # Heuristics
     "apply_ges",
-    "apply_intra_route_cross_exchange",
     "apply_lns",
+    "solve_lk",
+    "solve_lkh",
+    # Solution initialization
     "build_greedy_routes",
     "build_nn_routes",
+    "build_savings_routes",
+    "build_regret_routes",
+    "build_grasp_routes",
     # Inter-period operators (multi-period ALNS)
     "shift_visit_removal",
     "pattern_removal",

@@ -95,7 +95,7 @@ def test_mde_full_solve(instance_data):
     assert profit >= 0 # Should be at least 0 for this instance if it finds anything
 
 def test_gaussian_initialization(instance_data):
-    from logic.src.policies.helpers.operators.heuristics.greedy_initialization import build_greedy_routes
+    from logic.src.policies.helpers.operators.solution_initialization import build_greedy_routes
     dist_matrix, wastes, capacity = instance_data
     # Use NP=10 to have n_seeded=1 (10% of 10)
     params = DEParams(pop_size=10, seed=42)

@@ -8,7 +8,7 @@ from logic.src.policies.route_construction.meta_heuristics.augmented_hybrid_voll
 from logic.src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.params import AHVPLParams
 from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual import Individual
 from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.params import HGSParams
-from logic.src.policies.helpers.operators.crossover import ordered_crossover
+from logic.src.policies.helpers.operators.crossover_recombination import ordered_crossover
 
 
 def _fast_params() -> AHVPLParams:

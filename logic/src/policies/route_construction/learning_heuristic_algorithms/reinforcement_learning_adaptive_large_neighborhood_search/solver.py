@@ -27,9 +27,9 @@ from logic.src.policies.helpers.operators import (
     worst_profit_removal,
     worst_removal,
 )
-from logic.src.policies.helpers.operators.destroy.shaw import shaw_removal
-from logic.src.policies.helpers.operators.destroy.string import string_removal
-from logic.src.policies.helpers.operators.heuristics.nearest_neighbor_initialization import build_nn_routes
+from logic.src.policies.helpers.operators.destroy_ruin.shaw import shaw_removal
+from logic.src.policies.helpers.operators.destroy_ruin.string import string_removal
+from logic.src.policies.helpers.operators.solution_initialization.nearest_neighbor_si import build_nn_routes
 from logic.src.policies.helpers.reinforcement_learning.agents.bandits import (
     DiscountedUCBBandit as DiscountedUCBAgent,
 )

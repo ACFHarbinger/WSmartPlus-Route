@@ -16,7 +16,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.policies.helpers.operators.crossover import ordered_crossover
+from logic.src.policies.helpers.operators.crossover_recombination import ordered_crossover
 from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search import Individual
 from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.evolution import (
     evaluate,

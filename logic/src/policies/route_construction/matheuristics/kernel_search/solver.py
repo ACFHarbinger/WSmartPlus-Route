@@ -20,7 +20,7 @@ import networkx as nx
 import numpy as np
 from gurobipy import GRB, quicksum
 
-from logic.src.policies.helpers.operators.heuristics.greedy_initialization import build_greedy_routes
+from logic.src.policies.helpers.operators.solution_initialization.greedy_si import build_greedy_routes
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
 

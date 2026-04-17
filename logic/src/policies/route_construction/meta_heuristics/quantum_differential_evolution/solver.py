@@ -19,7 +19,7 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 
 from logic.src.policies.helpers.local_search.local_search_aco import ACOLocalSearch
-from logic.src.policies.helpers.operators.repair.greedy import (
+from logic.src.policies.helpers.operators.recreate_repair.greedy import (
     greedy_insertion,
     greedy_profit_insertion,
 )

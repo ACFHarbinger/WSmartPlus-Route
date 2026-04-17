@@ -111,6 +111,26 @@ class BaseMultiPeriodRoutingPolicy(BaseRoutingPolicy):
         """
         pass
 
+    def _run_solver(
+        self,
+        sub_dist_matrix: np.ndarray,
+        sub_wastes: Dict[int, float],
+        capacity: float,
+        revenue: float,
+        cost_unit: float,
+        values: Dict[str, Any],
+        mandatory_nodes: List[int],
+        **kwargs: Any,
+    ) -> Tuple[List[List[int]], float, float]:
+        """
+        Dummy implementation of the single-period solver.
+
+        Multi-period policies override the execute() method directly (or rely on
+        the BaseMultiPeriodRoutingPolicy override) to call _run_multi_period_solver,
+        so this method is never invoked in the SIRP workflow.
+        """
+        return [], 0.0, 0.0
+
     def execute(
         self, **kwargs: Any
     ) -> Tuple[Union[List[int], List[List[int]]], float, float, Optional[SearchContext], Optional[MultiDayContext]]:

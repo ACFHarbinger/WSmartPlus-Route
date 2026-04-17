@@ -13,7 +13,7 @@ from typing import Dict, List, Optional, Set, Tuple
 import gurobipy as gp
 import numpy as np
 
-from logic.src.policies.helpers.operators.heuristics.greedy_initialization import build_greedy_routes
+from logic.src.policies.helpers.operators.solution_initialization.greedy_si import build_greedy_routes
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
 from ..kernel_search.solver import (

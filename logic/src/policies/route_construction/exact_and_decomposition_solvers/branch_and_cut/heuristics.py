@@ -12,14 +12,14 @@ from random import Random
 from typing import List, Tuple
 
 from logic.src.policies.helpers.branching_solvers.vrpp_model import VRPPModel
-from logic.src.policies.helpers.operators.heuristics.greedy_initialization import build_greedy_routes
-from logic.src.policies.helpers.operators.heuristics.nearest_neighbor_initialization import build_nn_routes
-from logic.src.policies.helpers.operators.repair.farthest import (
+from logic.src.policies.helpers.operators.recreate_repair.farthest import (
     farthest_insertion as operator_farthest_insertion,
 )
-from logic.src.policies.helpers.operators.repair.farthest import (
+from logic.src.policies.helpers.operators.recreate_repair.farthest import (
     farthest_profit_insertion as operator_farthest_profit_insertion,
 )
+from logic.src.policies.helpers.operators.solution_initialization.greedy_si import build_greedy_routes
+from logic.src.policies.helpers.operators.solution_initialization.nearest_neighbor_si import build_nn_routes
 
 
 def construct_initial_solution(model: VRPPModel, seed: int = 42) -> Tuple[List[int], float]:
