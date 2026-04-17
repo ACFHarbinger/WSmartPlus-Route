@@ -125,7 +125,7 @@ def setup_hrl_manager(
     shared_encoder_flag: bool = _get_cfg_attr(sim_cfg, "shared_encoder", True)
 
     # --- Load state dict ---
-    from logic.src.utils.functions import torch_load_cpu
+    from logic.src.utils.model.checkpoint_utils import torch_load_cpu
 
     load_data: Any = torch_load_cpu(hrl_path)
     state_dict: Dict[str, torch.Tensor] = (

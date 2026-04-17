@@ -161,17 +161,30 @@ class PolicySummaryCallback:
         """Extract formatted parameters from a MandatorySelectionConfig object."""
         strategy = config.strategy
         if strategy == "regular":
-            return f"(freq={config.frequency})"
+            return f"(freq={config.regular.frequency})"
         if strategy == "revenue":
-            return f"(thresh={config.revenue_threshold})"
+            return f"(thresh={config.revenue.revenue_threshold})"
         if strategy == "service_level":
-            return f"(cf={config.confidence_factor})"
-        if strategy in ("deadline", "multi_day_prob"):
-            return f"(horizon={config.horizon_days}, t={config.threshold})"
-        if strategy in ("pareto_front", "profit_per_km", "stochastic_regret", "last_minute", "lookahead"):
-            return f"(t={config.threshold})"
+            return f"(cf={config.service_level.confidence_factor})"
+        if strategy == "deadline":
+            return f"(horizon={config.deadline.horizon_days}, t={config.deadline.threshold})"
+        if strategy == "multi_day_prob":
+            return f"(horizon={config.multi_day_prob.horizon_days}, t={config.multi_day_prob.threshold})"
+        if strategy == "last_minute":
+            return f"(t={config.last_minute.threshold})"
+        if strategy == "lookahead":
+            return f"(t={config.lookahead.threshold})"
+        if strategy == "pareto_front":
+            return f"(t={config.pareto_front.threshold})"
+        if strategy == "profit_per_km":
+            return f"(t={config.profit_per_km.threshold})"
+        if strategy == "stochastic_regret":
+            return f"(t={config.stochastic_regret.threshold})"
         if strategy == "spatial_synergy":
-            return f"(crit={config.critical_threshold}, syn={config.synergy_threshold}, r={config.radius})"
+            s = config.spatial_synergy
+            return f"(crit={s.critical_threshold}, syn={s.synergy_threshold}, r={s.radius})"
+        if strategy == "mip_knapsack":
+            return f"(v={config.mip_knapsack.n_vehicles}, p={config.mip_knapsack.overflow_penalty_frac})"
         return ""
 
     def _parse_traversable_params(self, item: ITraversable) -> str:

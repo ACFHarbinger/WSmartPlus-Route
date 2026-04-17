@@ -17,7 +17,7 @@ Example:
     >>> kick(context, destroy_ratio=0.2)
 """
 
-from .branch_bound import bb_perturbation, bb_profit_perturbation
+from .branch_and_bound import bb_perturbation, bb_profit_perturbation
 from .double_bridge import double_bridge
 from .evolutionary import (
     evolutionary_perturbation,

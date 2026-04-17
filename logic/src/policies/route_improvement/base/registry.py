@@ -38,3 +38,8 @@ class RouteImproverRegistry:
     def get_route_improver_class(cls, name: str) -> Optional[Type[IRouteImprovement]]:
         """Retrieve a route improver by name."""
         return cls._strategies.get(name.lower())
+
+    @classmethod
+    def list_improvers(cls) -> list:
+        """List all registered improver names."""
+        return list(cls._strategies.keys())

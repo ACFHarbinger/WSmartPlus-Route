@@ -39,6 +39,7 @@ class SelectionContext:
     bin_density: float = 0.0
     bin_volume: float = 0.0
     max_fill: float = 100.0
+    overflow_penalty_frac: float = 1.0  # default to 100% of bin waste capacity
 
     # --- New fields for advanced strategies ---
     # DeadlineDrivenSelection / MultiDayOverflowSelection
@@ -91,3 +92,9 @@ class SelectionContext:
     # --- Distributionally robust ---
     wasserstein_radius: float = 0.1
     wasserstein_p: int = 1  # only p=1 is implemented
+
+    # --- Stochastic scenario tree ---
+    # Optional ScenarioTree (pipeline.simulations.bins.prediction.ScenarioTree) injected
+    # by the simulation engine before calling select_bins().  Strategies that do not
+    # consume it simply ignore the field.
+    scenario_tree: Optional[Any] = None
