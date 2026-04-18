@@ -1,5 +1,5 @@
 import numpy as np
-from logic.src.policies.helpers.branching_solvers import MultiEdgePartitionBranching
+from logic.src.policies.helpers.solvers_and_matheuristics import MultiEdgePartitionBranching
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes import (
     EdgeCliqueCutEngine,
     SubsetRowCutEngine,
@@ -7,8 +7,8 @@ from logic.src.policies.route_construction.exact_and_decomposition_solvers.branc
     CompositeCuttingPlaneEngine,
 )
 from typing import cast
-from logic.src.policies.helpers.branching_solvers import Route
-from logic.src.policies.helpers.branching_solvers import RCSPPSolver
+from logic.src.policies.helpers.solvers_and_matheuristics import Route
+from logic.src.policies.helpers.solvers_and_matheuristics import RCSPPSolver
 
 
 def test_polar_angle_partitioning():
@@ -126,7 +126,7 @@ def test_edge_clique_dual_penalties():
     Without the fix (edge_clique_duals never reaching _extend_label), route
     [1, 2] would show RC = 20 instead of 15, and the cut would be ignored.
     """
-    from logic.src.policies.helpers.branching_solvers import RCSPPSolver
+    from logic.src.policies.helpers.solvers_and_matheuristics import RCSPPSolver
 
     # Zero cost matrix so travel is free; revenue dominates.
     cost_matrix = np.zeros((3, 3))

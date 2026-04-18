@@ -11,11 +11,11 @@ from logic.src.interfaces.context.solution_context import SolutionContext
 from logic.src.policies.route_construction.base.base_multi_period_policy import BaseMultiPeriodRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.matheuristics.lagrangian_relaxation_heuristic.params import LRHParams
-from logic.src.utils.helpers.routes import (
+from logic.src.utils.policy.routes import (
     route_cost,
     route_profit,
 )
-from logic.src.utils.helpers.wrappers import (
+from logic.src.utils.policy.wrappers import (
     greedy_day_route,
 )
 

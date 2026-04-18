@@ -13,7 +13,7 @@ from logic.src.policies.route_construction.base.factory import RouteConstructorR
 from logic.src.policies.route_construction.meta_heuristics.multi_period_ant_colony_optimization.params import (
     MP_ACO_Params,
 )
-from logic.src.utils.helpers.routes import route_cost, route_profit
+from logic.src.utils.policy.routes import route_cost, route_profit
 
 
 @GlobalRegistry.register(

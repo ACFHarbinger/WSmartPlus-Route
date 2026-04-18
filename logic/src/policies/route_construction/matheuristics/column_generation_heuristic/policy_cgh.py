@@ -10,8 +10,8 @@ from logic.src.interfaces.context.solution_context import SolutionContext
 from logic.src.policies.route_construction.base.base_multi_period_policy import BaseMultiPeriodRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.matheuristics.column_generation_heuristic.params import CGHParams
-from logic.src.utils.helpers.routes import route_cost, route_profit
-from logic.src.utils.helpers.wrappers import greedy_day_route, two_opt
+from logic.src.utils.policy.routes import route_cost, route_profit
+from logic.src.utils.policy.wrappers import greedy_day_route, two_opt
 
 
 @GlobalRegistry.register(

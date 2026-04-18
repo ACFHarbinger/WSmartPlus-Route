@@ -12,10 +12,10 @@ from logic.src.interfaces.context.solution_context import SolutionContext
 from logic.src.policies.route_construction.base.base_multi_period_policy import BaseMultiPeriodRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.meta_heuristics.multi_period_simulated_annealing.params import MP_BMC_Params
-from logic.src.utils.helpers.routes import (
+from logic.src.utils.policy.routes import (
     route_profit,
 )
-from logic.src.utils.helpers.wrappers import (
+from logic.src.utils.policy.wrappers import (
     greedy_day_route,
     two_opt,
 )

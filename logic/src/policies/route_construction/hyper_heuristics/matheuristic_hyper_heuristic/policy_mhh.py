@@ -11,9 +11,9 @@ from logic.src.interfaces.context.solution_context import SolutionContext
 from logic.src.policies.route_construction.base.base_multi_period_policy import BaseMultiPeriodRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.hyper_heuristics.matheuristic_hyper_heuristic.params import MHHParams
-from logic.src.utils.helpers.llh_pool import LLHPool
-from logic.src.utils.helpers.routes import route_profit
-from logic.src.utils.helpers.wrappers import greedy_day_route
+from logic.src.utils.policy.llh_pool import LLHPool
+from logic.src.utils.policy.routes import route_profit
+from logic.src.utils.policy.wrappers import greedy_day_route
 
 
 @GlobalRegistry.register(

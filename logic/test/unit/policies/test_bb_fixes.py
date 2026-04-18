@@ -5,7 +5,7 @@ from gurobipy import GRB
 from typing import Dict, Any, Set, List, cast, Optional, Tuple, Union
 from unittest.mock import MagicMock, patch, PropertyMock
 
-from logic.src.policies.helpers.branching_solvers.common.node import Node
+from logic.src.policies.helpers.solvers_and_matheuristics.common.node import Node
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.mtz import BBSolver
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.policy_bb import BranchAndBoundPolicy
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.dfj import _dfj_callback
@@ -205,7 +205,7 @@ def test_fix_8_strong_branching_state_restoration():
 def test_fix_10_node_field_comment():
     """Fix 10: Verify node.py field comment reflects maximization."""
     import inspect
-    from logic.src.policies.helpers.branching_solvers.common.node import Node
+    from logic.src.policies.helpers.solvers_and_matheuristics.common.node import Node
     source = inspect.getsource(Node)
     assert "upper bound for maximization" in source.lower()
     assert "field(compare=True)  # LP relaxation value (upper bound for maximization)" in source

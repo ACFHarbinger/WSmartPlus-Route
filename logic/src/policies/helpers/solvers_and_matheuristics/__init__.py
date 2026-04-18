@@ -5,7 +5,7 @@ Provides high-performance, mathematically rigorous implementations of
 Branch-and-Price-and-Cut components.
 """
 
-from logic.src.policies.helpers.branching_solvers.branching import (
+from logic.src.policies.helpers.solvers_and_matheuristics.branching import (
     AnyBranchingConstraint,
     BranchAndBoundTree,
     BranchingConstraint,
@@ -17,10 +17,10 @@ from logic.src.policies.helpers.branching_solvers.branching import (
     RyanFosterBranching,
     RyanFosterBranchingConstraint,
 )
-from logic.src.policies.helpers.branching_solvers.common import BranchNode, Route
-from logic.src.policies.helpers.branching_solvers.master_problem import GlobalCutPool, VRPPMasterProblem
-from logic.src.policies.helpers.branching_solvers.pricing import Label, RCSPPSolver
-from logic.src.policies.helpers.branching_solvers.separation import (
+from logic.src.policies.helpers.solvers_and_matheuristics.common import BranchNode, Route
+from logic.src.policies.helpers.solvers_and_matheuristics.master_problem import GlobalCutPool, VRPPMasterProblem
+from logic.src.policies.helpers.solvers_and_matheuristics.pricing import Label, RCSPPSolver
+from logic.src.policies.helpers.solvers_and_matheuristics.separation import (
     CapacityCut,
     CombInequality,
     PCSubtourEliminationCut,

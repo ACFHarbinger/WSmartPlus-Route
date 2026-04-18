@@ -49,7 +49,7 @@ from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.interfaces.context.multi_day_context import MultiDayContext
 from logic.src.interfaces.context.problem_context import ProblemContext
 from logic.src.interfaces.context.solution_context import SolutionContext
-from logic.src.policies.helpers.branching_solvers.vrpp_model import VRPPModel
+from logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model import VRPPModel
 from logic.src.policies.route_construction.base.base_multi_period_policy import BaseMultiPeriodRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
