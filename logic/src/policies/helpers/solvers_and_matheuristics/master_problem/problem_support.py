@@ -13,9 +13,9 @@ import numpy as np
 from gurobipy import GRB
 
 if TYPE_CHECKING:
-    from logic.src.policies.helpers.branching_solvers.branching.constraints import AnyBranchingConstraint
-    from logic.src.policies.helpers.branching_solvers.common.route import Route
-    from logic.src.policies.helpers.branching_solvers.master_problem.pool import GlobalCutPool
+    from logic.src.policies.helpers.solvers_and_matheuristics.branching.constraints import AnyBranchingConstraint
+    from logic.src.policies.helpers.solvers_and_matheuristics.common.route import Route
+    from logic.src.policies.helpers.solvers_and_matheuristics.master_problem.pool import GlobalCutPool
 
 logger = logging.getLogger(__name__)
 

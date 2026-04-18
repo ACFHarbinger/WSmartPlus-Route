@@ -10,7 +10,7 @@ from logic.src.interfaces.context.solution_context import SolutionContext
 from logic.src.policies.route_construction.base.base_multi_period_policy import BaseMultiPeriodRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.matheuristics.relax_and_fix_and_optimize.params import RFOParams
-from logic.src.utils.helpers.routes import route_cost, route_profit
+from logic.src.utils.policy.routes import route_cost, route_profit
 
 
 @GlobalRegistry.register(

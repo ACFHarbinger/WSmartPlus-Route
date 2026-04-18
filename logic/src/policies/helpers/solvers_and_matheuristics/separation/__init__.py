@@ -13,8 +13,8 @@ Reference:
 
 from __future__ import annotations
 
-from logic.src.policies.helpers.branching_solvers.separation.engine import SeparationEngine
-from logic.src.policies.helpers.branching_solvers.separation.inequality import (
+from logic.src.policies.helpers.solvers_and_matheuristics.separation.engine import SeparationEngine
+from logic.src.policies.helpers.solvers_and_matheuristics.separation.inequality import (
     CapacityCut,
     CombInequality,
     Inequality,

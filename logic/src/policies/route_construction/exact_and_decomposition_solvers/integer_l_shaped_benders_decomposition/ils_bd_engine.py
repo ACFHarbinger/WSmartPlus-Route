@@ -37,7 +37,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.policies.helpers.branching_solvers.vrpp_model import VRPPModel
+from logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model import VRPPModel
 
 from .master_problem import InventoryMasterProblem, MasterProblem
 from .params import ILSBDParams
@@ -63,7 +63,7 @@ class IntegerLShapedEngine:
 
     Usage example::
 
-        from logic.src.policies.helpers.branching_solvers.vrpp_model import VRPPModel
+        from logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model import VRPPModel
         from logic.src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.ils_bd_engine import IntegerLShapedEngine
         from logic.src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.params import ILSBDParams
 

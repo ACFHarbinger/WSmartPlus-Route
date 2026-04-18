@@ -12,7 +12,7 @@ import numpy as np
 
 from logic.src.configs.policies import BCConfig
 from logic.src.enums import GlobalRegistry, PolicyTag
-from logic.src.policies.helpers.branching_solvers.vrpp_model import VRPPModel
+from logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model import VRPPModel
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 

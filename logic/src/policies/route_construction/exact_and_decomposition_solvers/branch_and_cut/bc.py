@@ -19,12 +19,12 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 
 import numpy as np
 
-from logic.src.policies.helpers.branching_solvers import (
+from logic.src.policies.helpers.solvers_and_matheuristics import (
     CapacityCut,
     PCSubtourEliminationCut,
     SeparationEngine,
 )
-from logic.src.policies.helpers.branching_solvers.vrpp_model import VRPPModel
+from logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model import VRPPModel
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.heuristics import (
     construct_initial_solution,
     construct_nn_solution,

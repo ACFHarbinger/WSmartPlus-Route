@@ -35,10 +35,10 @@ from typing import Dict, List, Optional, Set, Tuple
 
 import numpy as np
 
-from logic.src.utils.helpers.neighborhood import (
+from logic.src.utils.policy.neighborhood import (
     get_p_neighborhood,
 )
-from logic.src.utils.helpers.routes import (
+from logic.src.utils.policy.routes import (
     prune_unprofitable_routes,
 )
 
