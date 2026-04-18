@@ -22,8 +22,8 @@ The VRPP is defined over a complete directed graph ![][image1]. Let ![][image2] 
 
 Each node ![][image6] is characterized by a tuple of deterministic parameters:
 
-* ![][image7]: The profit collected upon visiting node ![][image8] (where ![][image9] for ![][image10] if the objective only scales optional profit, or ![][image11] to heavily weight mandatory inclusion).  
-* ![][image12]: The required service time at node ![][image8].  
+* ![][image7]: The profit collected upon visiting node ![][image8] (where ![][image9] for ![][image10] if the objective only scales optional profit, or ![][image11] to heavily weight mandatory inclusion).
+* ![][image12]: The required service time at node ![][image8].
 * ![][image13]: The physical load demand required at node ![][image8].
 
 Let ![][image14] represent the edge set. Each directed edge ![][image15] incurs a travel cost ![][image16] (often distance or fuel expenditure) and a travel time ![][image17]. It is critical to avoid the Euclidean assumption; in real-world road networks, ![][image18] due to asymmetric traffic patterns and one-way thoroughfares.16
@@ -34,35 +34,35 @@ A fleet of ![][image19] homogeneous vehicles is stationed at the depot. Each veh
 
 The optimization model requires three sets of decision variables to map the routing sequences and the subset selections:
 
-1. **Routing Variables:** ![][image22], where ![][image23] if vehicle ![][image24] traverses edge ![][image25], and 0 otherwise.  
-2. **Selection Variables:** ![][image26], where ![][image27] if node ![][image28] is visited by vehicle ![][image24], and 0 otherwise.  
+1. **Routing Variables:** ![][image22], where ![][image23] if vehicle ![][image24] traverses edge ![][image25], and 0 otherwise.
+2. **Selection Variables:** ![][image26], where ![][image27] if node ![][image28] is visited by vehicle ![][image24], and 0 otherwise.
 3. **State Variables:** ![][image29], a continuous variable representing the accumulated load of vehicle ![][image30] immediately upon departing node ![][image8]. This variable is essential for subtour elimination.
 
 ### **2.3 The Integer Linear Programming (ILP) Objective and Constraints**
 
 The objective function of the VRPP seeks to maximize the net systemic profit, formulated as the total collected optional profits minus the total routing expenditures, scaled by a balancing parameter ![][image31]:
 
-![][image32]  
+![][image32]
 This objective function is subject to a rigid framework of mathematical constraints that dictate topological and physical feasibility:
 
 **1\. Mandatory Node Fulfillment:** Every mandatory node must be serviced exactly once by exactly one vehicle in the fleet. This is an absolute equality constraint.5
 
-![][image33]  
+![][image33]
 **2\. Optional Node Restriction:** Every optional node may be visited at most once. The solver may choose to leave optional nodes unvisited if the routing cost outweighs the profit.3
 
-![][image34]  
+![][image34]
 **3\. Flow Conservation and Degree Constraints:** If a vehicle arrives at a node, it must subsequently depart from that exact node. This guarantees continuous, unbroken trajectories.9
 
-![][image35]  
-![][image36]  
+![][image35]
+![][image36]
 **4\. Depot Origination and Termination:** Each active vehicle must initiate its route at the depot and terminate its route at the depot.5
 
-![][image37]  
-![][image38]  
+![][image37]
+![][image38]
 **5\. Payload Capacity and Subtour Elimination:** Adapted from the foundational Miller-Tucker-Zemlin (MTZ) formulation, these constraints strictly enforce the maximum payload ![][image20] and simultaneously prevent the formation of disconnected, floating subtours in the graph space. ![][image39] represents an arbitrarily large constant (Big-M method).9
 
-![][image40]  
-![][image41]  
+![][image40]
+![][image41]
 **6\. Maximum Route Duration Horizon:** The cumulative sum of travel times and service times for any single vehicle must not exceed the operational horizon limits ![][image21].5
 
 ![][image42]
@@ -83,7 +83,7 @@ These models heavily utilize encoder-decoder architectures relying on Attention 
 
 The MDP formulation for construction models dictates that the policy network ![][image46] learns to factorize the joint probability of constructing a complete route ![][image47] given an input graph ![][image48] via the mathematical chain rule:
 
-![][image49]  
+![][image49]
 The primary advantage of construction models is their inference velocity; once the network weights ![][image50] are trained via policy gradients (e.g., REINFORCE), evaluating a new graph requires only a single forward pass, making it highly suitable for real-time deployment.20 However, their greedy, autoregressive nature restricts their look-ahead capabilities, meaning they frequently become trapped in local optima or are forced to execute massive detours at the end of a sequence to satisfy capacity constraints.26
 
 ### **3.2 Improvement-Type Models**
@@ -134,24 +134,24 @@ Standard node embedding techniques treat all vertices homogeneously, creating la
 
 Let the initial, raw feature vector for node ![][image8] be defined as ![][image56]. The categorical parameter ![][image57] acts as the token identifier, explicitly denoting whether the node is the depot, mandatory, or optional. These raw features are linearly projected into a high-dimensional continuous latent space (![][image58]):
 
-![][image59]  
+![][image59]
 To capture the complex spatial, temporal, and economic relationships across the graph—for instance, recognizing that a tight cluster of low-profit optional nodes might be collectively more efficient to service than a single, distant high-profit node—the architecture utilizes a Multi-Head Attention (MHA) Graph Neural Network (GNN) encoder.20
 
 For each attention head ![][image60], the query, key, and value tensors are computed via learned weight matrices:
 
-![][image61]  
+![][image61]
 Crucially, the standard dot-product attention must be augmented to process the edge costs ![][image62] (distance or time) directly. Failure to inject edge features results in a severe loss of topological awareness, particularly in non-Euclidean environments.7 The token-specific attention weights are therefore calculated as:
 
-![][image63]  
+![][image63]
 The output embeddings ![][image64] produced after ![][image65] attention layers contain a rich, deeply contextualized representation of the node's individual profit value weighed against its geographic isolation and the surrounding topological constraints.
 
 ### **5.2 The Selection Policy MDP**
 
 The node selection process is formulated mathematically as an episodic Markov Decision Process (MDP) operating specifically over the set of optional nodes ![][image5].
 
-* **State Space ![][image66]:** The state ![][image67] at evaluation step ![][image68] consists of the global graph embeddings ![][image69], an aggregate representation of the current remaining fleet capacity ![][image70], the remaining global time budget ![][image71], and a binary mask vector ![][image72] indicating which optional nodes have already been evaluated and processed.  
-* **Action Space ![][image73]:** The action space is strictly binary. The action ![][image74] dictates whether the currently attended optional node ![][image8] is added to ![][image75].  
-* **Transition Dynamics ![][image76]:** Upon taking an action, the state transitions deterministically. If ![][image77] (node selected), the expected systemic capacity and time budgets are heuristically decremented based on the node's demand ![][image78] and the minimum spanning tree approximation of travel time. If ![][image79] (node rejected), the budgets remain unchanged. In both cases, the mask vector ![][image80] is updated to mark node ![][image8] as evaluated.  
+* **State Space ![][image66]:** The state ![][image67] at evaluation step ![][image68] consists of the global graph embeddings ![][image69], an aggregate representation of the current remaining fleet capacity ![][image70], the remaining global time budget ![][image71], and a binary mask vector ![][image72] indicating which optional nodes have already been evaluated and processed.
+* **Action Space ![][image73]:** The action space is strictly binary. The action ![][image74] dictates whether the currently attended optional node ![][image8] is added to ![][image75].
+* **Transition Dynamics ![][image76]:** Upon taking an action, the state transitions deterministically. If ![][image77] (node selected), the expected systemic capacity and time budgets are heuristically decremented based on the node's demand ![][image78] and the minimum spanning tree approximation of travel time. If ![][image79] (node rejected), the budgets remain unchanged. In both cases, the mask vector ![][image80] is updated to mark node ![][image8] as evaluated.
 * **Reward Function ![][image81]:** The step reward directly reflects the objective function. ![][image82] if ![][image77]. However, if the total cumulative demand of the selected nodes exceeds the absolute fleet bounds (![][image83]), a massive terminal penalty ![][image84] is applied, completely destroying the episode's reward and forcing the policy network to learn conservative, mathematically safe selection thresholds.
 
 The policy network ![][image85] is trained utilizing Proximal Policy Optimization (PPO), ensuring that the updates to the selection thresholds remain stable.7
@@ -168,7 +168,7 @@ With the active graph ![][image89] firmly defined and stripped of unprofitable t
 
 Phase 2 treats route construction as an autoregressive sequence generation task. Operating identically to a natural language processing model predicting the next token in a sentence, the DRL agent must factor the joint probability of a complete route ![][image90] via the probabilistic chain rule 19:
 
-![][image91]  
+![][image91]
 The architecture utilizes a Dual-Aspect Collaborative Transformer (DACT).20 DACT architectures are highly preferred for routing tasks because they compute embeddings for static node features (coordinates, total demand) separately from dynamic positional features (the current load of the vehicle, the remaining time). Fusing these inputs prematurely creates incompatible correlations and topological noise. By keeping them separated in a dual-stream encoder until the final decoding step, DACT prevents the corruption of the spatial geometry during the sequential generation process.20
 
 ### **6.2 The Decoding Mechanism and Pointer Network**
@@ -177,7 +177,7 @@ At decoding step ![][image68], the network must decide which node in ![][image92
 
 A context query vector ![][image97] is generated via a linear projection of ![][image93]. This query is then projected against the key matrices ![][image98] of all nodes in the graph to calculate a raw compatibility score (logit) using a Pointer Network mechanism:
 
-![][image99]  
+![][image99]
 Here, ![][image100] is a scaling hyperparameter (typically 10\) that prevents the logits from exploding and saturating the gradients. The raw scores are passed through a Softmax activation function to generate a valid probability distribution over the available nodes:
 
 ![][image101]
@@ -188,7 +188,7 @@ A systemic flaw in early end-to-end DRL routing algorithms is the reliance on "s
 
 To ensure absolute adherence to the VRPP ILP constraints defined in Section 2, Phase 2 implements a rigorous, deterministic **Dynamic Masking Mechanism**. Let ![][image102] be the current accumulated payload of the vehicle, and ![][image103] be the current elapsed time at step ![][image68]. An unvisited node ![][image104] is mathematically masked and forced to a probability of zero (![][image105]) if taking that action would violate a hard constraint:
 
-1. **Capacity Violation:** ![][image106]. The node's demand exceeds the available space.  
+1. **Capacity Violation:** ![][image106]. The node's demand exceeds the available space.
 2. **Time Horizon Violation:** ![][image107]. The travel time to the node, plus the required service time, plus the mandatory travel time to return to the depot exceeds the maximum horizon. The required return leg (![][image108]) must be calculated continuously to prevent vehicles from being stranded in the graph.
 
 If all remaining customer nodes in ![][image92] fail the feasibility audit at step ![][image68], the only valid, unmasked action is to return to the depot (![][image109]). Upon selecting the depot, the vehicle state is reset (![][image110], ![][image111]), a new vehicle from the fleet ![][image19] is deployed, and the decoding process resumes.
@@ -199,7 +199,7 @@ The Phase 2 network parameters ![][image112] are updated using the REINFORCE alg
 
 Let ![][image113] be the objective cost of the generated route. Because Phase 1 already optimized the collected profit, Phase 2 defines ![][image113] strictly as the total routing distance or travel time. The loss gradient is mathematically formulated as:
 
-![][image114]  
+![][image114]
 The baseline scalar ![][image115] represents the cost of a route generated by a deterministic, greedy execution of the current best-performing historical policy. If the actively training stochastic policy consistently outperforms the deterministic baseline over a validation epoch, the baseline network weights are updated via a paired, one-sided T-test. This mechanism ensures monotonic improvement of the construction algorithm.
 
 ## **7\. Phase 3: Route Improvement**
@@ -212,9 +212,9 @@ Phase 3 serves as the crucial refinement layer, executing DRL-augmented Local Se
 
 Improvement models iteratively refine a complete topological sequence using established operations research operators. The Phase 3 architecture is fundamentally structured around learning *which* operator to apply, and *where* to apply it, based on the current state of the route.20
 
-* **State Space ![][image116]:** The state ![][image117] at iteration ![][image30] is the complete, multi-vehicle sequence of the current route ![][image118]. Because vehicle routes necessarily begin and end at the depot, the mathematical structure of the solution is a cyclic sequence. Standard Transformers degrade when processing cyclic structures because positional encodings (sine/cosine) assume linear beginnings and ends. To resolve this, Phase 3 utilizes Cyclic Positional Encoding (CPE).20 CPE injects circular continuous geometry into the embeddings, ensuring the network recognizes that the first node visited after leaving the depot is adjacent to the depot, just as the final node is.  
-* **Action Space ![][image119]:** The action space is discrete and multidimensional. An action consists of selecting an operator ![][image120] and selecting the precise node indices upon which the operator will act. The operator pool ![][image121] contains intra-route heuristics (e.g., 2-opt, 3-opt, node relocation) and inter-route heuristics (e.g., swapping a node between Vehicle A and Vehicle B to rebalance capacities).8  
-* **Transition Dynamics ![][image122]:** The transition is purely deterministic. The selected operator modifies the route, generating ![][image123].  
+* **State Space ![][image116]:** The state ![][image117] at iteration ![][image30] is the complete, multi-vehicle sequence of the current route ![][image118]. Because vehicle routes necessarily begin and end at the depot, the mathematical structure of the solution is a cyclic sequence. Standard Transformers degrade when processing cyclic structures because positional encodings (sine/cosine) assume linear beginnings and ends. To resolve this, Phase 3 utilizes Cyclic Positional Encoding (CPE).20 CPE injects circular continuous geometry into the embeddings, ensuring the network recognizes that the first node visited after leaving the depot is adjacent to the depot, just as the final node is.
+* **Action Space ![][image119]:** The action space is discrete and multidimensional. An action consists of selecting an operator ![][image120] and selecting the precise node indices upon which the operator will act. The operator pool ![][image121] contains intra-route heuristics (e.g., 2-opt, 3-opt, node relocation) and inter-route heuristics (e.g., swapping a node between Vehicle A and Vehicle B to rebalance capacities).8
+* **Transition Dynamics ![][image122]:** The transition is purely deterministic. The selected operator modifies the route, generating ![][image123].
 * **Reward Function ![][image124]:** The step reward is the exact marginal improvement in the objective function: ![][image125]. If an operator application degrades the solution quality, the reward is strictly negative.
 
 ### **7.2 Proximal Policy Optimization (PPO) in Discrete Spaces**
@@ -223,10 +223,10 @@ Training the Phase 3 improvement policy requires exceptional sample efficiency a
 
 PPO prevents these destructive policy collapses by bounding the probability ratio of the new policy to the old policy. Let ![][image126] denote this ratio:
 
-![][image127]  
+![][image127]
 The clipped surrogate objective function for Phase 3 is mathematically defined as:
 
-![][image128]  
+![][image128]
 Here, ![][image129] is the Generalized Advantage Estimator (GAE), representing how much better the chosen action was compared to the expected baseline value of that state. The hyperparameter ![][image130] (typically set to 0.2) strictly limits the step size of the stochastic gradient ascent. If the probability ratio exceeds ![][image131] or falls below ![][image132], the gradient is clipped, neutralizing the update. By combining this tightly bounded gradient ascent with the inherent capability of local search operators to escape local optima, Phase 3 relentlessly forces the routing solution toward the global optimum.20
 
 ### **7.3 Synergetic Node Injection and Ejection**
@@ -247,8 +247,8 @@ To enforce stable, synergistic training across the three interconnected neural n
 
 The curriculum is divided into three distinct evolutionary stages:
 
-* **Curriculum Phase A (Topological Simplicity):** The networks are initially trained on extremely small, dense graphs (![][image135]) where all nodes are designated as mandatory (![][image136]) and capacity constraints are set to infinity. In this environment, Phase 1 is functionally bypassed. Phase 2 and Phase 3 focus exclusively on learning standard TSP-level Euclidean routing representations, mastering the basics of distance minimization and sequence construction without the overwhelming noise of knapsack subset selection.7  
-* **Curriculum Phase B (Constraint Introduction):** Fleet capacity ![][image20] and maximum time limit constraints ![][image21] are aggressively introduced. The deterministic dynamic masking protocols in Phase 2 (Section 6.3) are activated. Phase 3 is forced to train on capacity-aware inter-route swaps, learning to balance loads between multiple vehicles.  
+* **Curriculum Phase A (Topological Simplicity):** The networks are initially trained on extremely small, dense graphs (![][image135]) where all nodes are designated as mandatory (![][image136]) and capacity constraints are set to infinity. In this environment, Phase 1 is functionally bypassed. Phase 2 and Phase 3 focus exclusively on learning standard TSP-level Euclidean routing representations, mastering the basics of distance minimization and sequence construction without the overwhelming noise of knapsack subset selection.7
+* **Curriculum Phase B (Constraint Introduction):** Fleet capacity ![][image20] and maximum time limit constraints ![][image21] are aggressively introduced. The deterministic dynamic masking protocols in Phase 2 (Section 6.3) are activated. Phase 3 is forced to train on capacity-aware inter-route swaps, learning to balance loads between multiple vehicles.
 * **Curriculum Phase C (The Complete VRPP Environment):** Optional nodes ![][image5] and highly heterogeneous profit distributions ![][image134] are introduced. Phase 1 is fully activated to learn the TS-DRL selection policy. The full tri-phase pipeline begins end-to-end execution, optimizing the dual-objective profit/distance function.7
 
 The transition between these curricula must be governed by strict mathematical thresholds rather than arbitrary epoch counts. Curriculum advancement occurs exclusively when the rolling average of the validation optimality gap (compared against a highly optimized heuristic baseline like ALNS) falls below an acceptable epsilon boundary (e.g., ![][image137]).
@@ -287,46 +287,46 @@ By anchoring the neural learning mechanisms firmly within the rigid, uncompromis
 
 #### **Works cited**
 
-1. Deep Reinforcement Learning for Multi-Truck Vehicle Routing Problems with Multi-Leg Demand Routes \- arXiv, accessed April 16, 2026, [https://arxiv.org/html/2401.08669v1](https://arxiv.org/html/2401.08669v1)  
-2. Recent Advances in Deep Learning for Routing Problems \- The ICLR Blog Track, accessed April 16, 2026, [https://iclr-blog-track.github.io/2022/03/25/deep-learning-for-routing-problems/](https://iclr-blog-track.github.io/2022/03/25/deep-learning-for-routing-problems/)  
-3. Distance approximation to support customer selection in vehicle routing problems, accessed April 16, 2026, [https://d-nb.info/1260864545/34](https://d-nb.info/1260864545/34)  
-4. Large-Scale Dynamic Observation Planning for Unmanned Surface Vessels \- DSpace@MIT, accessed April 16, 2026, [https://dspace.mit.edu/bitstream/handle/1721.1/40388/191222917-MIT.pdf?sequence=2\&isAllowed=y](https://dspace.mit.edu/bitstream/handle/1721.1/40388/191222917-MIT.pdf?sequence=2&isAllowed=y)  
-5. Heuristic approaches for a new variant of the Team Orienteering Problem \- arXiv, accessed April 16, 2026, [https://arxiv.org/pdf/2507.06012](https://arxiv.org/pdf/2507.06012)  
-6. Enhancing Vehicle Routing Problems With Deep Reinforcement Learning and Metaheuristics \- DZone, accessed April 16, 2026, [https://dzone.com/articles/enhancing-vehicle-routing-problems](https://dzone.com/articles/enhancing-vehicle-routing-problems)  
-7. A Curriculum-Based Deep Reinforcement Learning Framework for the Electric Vehicle Routing Problem | Request PDF \- ResearchGate, accessed April 16, 2026, [https://www.researchgate.net/publication/399962413\_A\_Curriculum-Based\_Deep\_Reinforcement\_Learning\_Framework\_for\_the\_Electric\_Vehicle\_Routing\_Problem](https://www.researchgate.net/publication/399962413_A_Curriculum-Based_Deep_Reinforcement_Learning_Framework_for_the_Electric_Vehicle_Routing_Problem)  
-8. Improvement of Solution Using Local Search Operators on the Multi-Trip Electric Vehicle Routing Problem Backhaul with Time Window \- ResearchGate, accessed April 16, 2026, [https://www.researchgate.net/publication/374762563\_Improvement\_of\_Solution\_Using\_Local\_Search\_Operators\_on\_the\_Multi-Trip\_Electric\_Vehicle\_Routing\_Problem\_Backhaul\_with\_Time\_Window](https://www.researchgate.net/publication/374762563_Improvement_of_Solution_Using_Local_Search_Operators_on_the_Multi-Trip_Electric_Vehicle_Routing_Problem_Backhaul_with_Time_Window)  
-9. Book of Abstracts ODYSSEUS 2024 Carmona, 19-24 May, 2024, accessed April 16, 2026, [https://pure.itu.dk/ws/portalfiles/portal/108728660/abstracts.pdf](https://pure.itu.dk/ws/portalfiles/portal/108728660/abstracts.pdf)  
-10. The Consistent Vehicle Routing Problem with heterogeneous fleet \- ResearchGate, accessed April 16, 2026, [https://www.researchgate.net/publication/356345284\_The\_Consistent\_Vehicle\_Routing\_Problem\_with\_heterogeneous\_fleet](https://www.researchgate.net/publication/356345284_The_Consistent_Vehicle_Routing_Problem_with_heterogeneous_fleet)  
-11. A hybrid adaptive large neighborhood search heuristic for the team orienteering problem | Request PDF \- ResearchGate, accessed April 16, 2026, [https://www.researchgate.net/publication/342351766\_A\_hybrid\_adaptive\_large\_neighborhood\_search\_heuristic\_for\_the\_team\_orienteering\_problem](https://www.researchgate.net/publication/342351766_A_hybrid_adaptive_large_neighborhood_search_heuristic_for_the_team_orienteering_problem)  
-12. Reinforcement Learning for Pricing Problem Optimization in VRP. \- arXiv, accessed April 16, 2026, [https://arxiv.org/html/2504.02383v1](https://arxiv.org/html/2504.02383v1)  
-13. A Learning-Augmented Dynamic Programming Approach for Orienteering Problem with Time Windows | OpenReview, accessed April 16, 2026, [https://openreview.net/forum?id=OROkRBW6cu](https://openreview.net/forum?id=OROkRBW6cu)  
-14. A survey of the orienteering problem: model evolution, algorithmic advances, and future directions \- arXiv, accessed April 16, 2026, [https://arxiv.org/html/2512.16865v1](https://arxiv.org/html/2512.16865v1)  
-15. Metaheuristics for the bi-objective orienteering problem | Request PDF \- ResearchGate, accessed April 16, 2026, [https://www.researchgate.net/publication/220058920\_Metaheuristics\_for\_the\_bi-objective\_orienteering\_problem](https://www.researchgate.net/publication/220058920_Metaheuristics_for_the_bi-objective_orienteering_problem)  
-16. Granular Tabu Search for the Pickup and Delivery Problem with Time Windows and Electric Vehicles | Request PDF \- ResearchGate, accessed April 16, 2026, [https://www.researchgate.net/publication/333123085\_Granular\_Tabu\_Search\_for\_the\_Pickup\_and\_Delivery\_Problem\_with\_Time\_Windows\_and\_Electric\_Vehicles](https://www.researchgate.net/publication/333123085_Granular_Tabu_Search_for_the_Pickup_and_Delivery_Problem_with_Time_Windows_and_Electric_Vehicles)  
-17. A Deep Reinforcement Learning Model to Solve the Stochastic Capacitated Vehicle Routing Problem with Service Times and Deadlines \- MDPI, accessed April 16, 2026, [https://www.mdpi.com/2227-7390/13/18/3050](https://www.mdpi.com/2227-7390/13/18/3050)  
-18. \[1802.04240\] Reinforcement Learning for Solving the Vehicle Routing Problem \- arXiv, accessed April 16, 2026, [https://arxiv.org/abs/1802.04240](https://arxiv.org/abs/1802.04240)  
-19. Deep Reinforcement Learning for Vehicle Routing Problems \- LION \- intelligent-optimization.org, accessed April 16, 2026, [https://www.intelligent-optimization.org/lion18/LION\_18\_Keynote\_DRL4VRP-1.pdf](https://www.intelligent-optimization.org/lion18/LION_18_Keynote_DRL4VRP-1.pdf)  
-20. Token-specific deep reinforcement learning for energy-efficient ..., accessed April 16, 2026, [https://www.researchgate.net/publication/396058276\_Token-specific\_deep\_reinforcement\_learning\_for\_energy-efficient\_capacitated\_electric\_vehicle\_routing\_problems](https://www.researchgate.net/publication/396058276_Token-specific_deep_reinforcement_learning_for_energy-efficient_capacitated_electric_vehicle_routing_problems)  
-21. Vehicle dispatching and routing of on-demand intercity ride-pooling services: A multi-agent hierarchical reinforcement learning approach \- IDEAS/RePEc, accessed April 16, 2026, [https://ideas.repec.org/a/eee/transe/v186y2024ics136655452400142x.html](https://ideas.repec.org/a/eee/transe/v186y2024ics136655452400142x.html)  
-22. Hierarchical Reinforcement Learning Empowered Task Offloading in V2I Networks \- arXiv, accessed April 16, 2026, [https://arxiv.org/html/2405.11352v1](https://arxiv.org/html/2405.11352v1)  
-23. Workshop of the EURO Working Group on Vehicle Routing and Logistics optimization (VeRoLog) \- Sciencesconf.org, accessed April 16, 2026, [https://verolog2019.sciencesconf.org/data/Book\_of\_Abstracts.pdf](https://verolog2019.sciencesconf.org/data/Book_of_Abstracts.pdf)  
-24. The Cumulative Capacitated Vehicle Routing Problem: New Formulations and Iterated Greedy algorithms | Request PDF \- ResearchGate, accessed April 16, 2026, [https://www.researchgate.net/publication/326332887\_The\_Cumulative\_Capacitated\_Vehicle\_Routing\_Problem\_New\_Formulations\_and\_Iterated\_Greedy\_algorithms](https://www.researchgate.net/publication/326332887_The_Cumulative_Capacitated_Vehicle_Routing_Problem_New_Formulations_and_Iterated_Greedy_algorithms)  
-25. 43rd ANNUAL CONFERENCE \- Operations Research Society of New Zealand, accessed April 16, 2026, [https://orsnz.org.nz/conf43/content/ORSNZ08\_conference\_proceedings.pdf](https://orsnz.org.nz/conf43/content/ORSNZ08_conference_proceedings.pdf)  
-26. A Deep Reinforcement-Learning-Based Route Optimization Model for Multi-Compartment Cold Chain Distribution \- MDPI, accessed April 16, 2026, [https://www.mdpi.com/2227-7390/13/13/2039](https://www.mdpi.com/2227-7390/13/13/2039)  
-27. An Overview and Experimental Study of Learning-Based Optimization Algorithms for the Vehicle Routing Problem, accessed April 16, 2026, [https://www.ieee-jas.net/article/doi/10.1109/JAS.2022.105677?pageType=en](https://www.ieee-jas.net/article/doi/10.1109/JAS.2022.105677?pageType=en)  
-28. A Hybrid of Deep Reinforcement Learning and Local Search for the Vehicle Routing Problems | Request PDF \- ResearchGate, accessed April 16, 2026, [https://www.researchgate.net/publication/342969604\_A\_Hybrid\_of\_Deep\_Reinforcement\_Learning\_and\_Local\_Search\_for\_the\_Vehicle\_Routing\_Problems](https://www.researchgate.net/publication/342969604_A_Hybrid_of_Deep_Reinforcement_Learning_and_Local_Search_for_the_Vehicle_Routing_Problems)  
-29. DeepLS: Local Search for Network Optimization based on Lightweight Deep Reinforcement Learning \- Re.Public@polimi.it, accessed April 16, 2026, [https://re.public.polimi.it/bitstream/11311/1255179/3/\_TNSM\_2023\_\_DeepLS\_\_Local\_Search\_for\_Network\_Optimization\_based\_on\_Lightweight\_Deep\_Reinforcement\_Learning.pdf](https://re.public.polimi.it/bitstream/11311/1255179/3/_TNSM_2023__DeepLS__Local_Search_for_Network_Optimization_based_on_Lightweight_Deep_Reinforcement_Learning.pdf)  
-30. Handbook of Digital Games 1118328035, 9781118328033 \- DOKUMEN.PUB, accessed April 16, 2026, [https://dokumen.pub/handbook-of-digital-games-1118328035-9781118328033.html](https://dokumen.pub/handbook-of-digital-games-1118328035-9781118328033.html)  
-31. Token-specific deep reinforcement learning for energy-efficient capacitated electric vehicle routing problems \- IDEAS/RePEc, accessed April 16, 2026, [https://ideas.repec.org/a/eee/appene/v396y2025ics030626192501044x.html](https://ideas.repec.org/a/eee/appene/v396y2025ics030626192501044x.html)  
-32. Improved Federated Learning Incentive Mechanism Algorithm Based on Explainable DAG Similarity Evaluation \- MDPI, accessed April 16, 2026, [https://www.mdpi.com/2227-7390/13/21/3507](https://www.mdpi.com/2227-7390/13/21/3507)  
-33. Appl. Sci., Volume 15, Issue 5 (March-1 2025\) – 623 articles \- MDPI, accessed April 16, 2026, [https://www.mdpi.com/2076-3417/15/5](https://www.mdpi.com/2076-3417/15/5)  
-34. The Min-Max Close-Enough Arc Routing Problem \- ResearchGate, accessed April 16, 2026, [https://www.researchgate.net/publication/355522258\_The\_Min-Max\_Close-Enough\_Arc\_Routing\_Problem](https://www.researchgate.net/publication/355522258_The_Min-Max_Close-Enough_Arc_Routing_Problem)  
-35. Deep Reinforcement Learning Approach to Solve Dynamic Vehicle Routing Problem with Stochastic Customers, accessed April 16, 2026, [https://cdn.aaai.org/ojs/6685/6685-40-9914-1-10-20200521.pdf](https://cdn.aaai.org/ojs/6685/6685-40-9914-1-10-20200521.pdf)  
-36. A dynamic vehicle routing problem with multiple delivery routes | Request PDF, accessed April 16, 2026, [https://www.researchgate.net/publication/226714458\_A\_dynamic\_vehicle\_routing\_problem\_with\_multiple\_delivery\_routes](https://www.researchgate.net/publication/226714458_A_dynamic_vehicle_routing_problem_with_multiple_delivery_routes)  
-37. Combinatorial Optimization-Enriched Machine Learning to Solve the Dynamic Vehicle Routing Problem with Time Windows | Request PDF \- ResearchGate, accessed April 16, 2026, [https://www.researchgate.net/publication/378219610\_Combinatorial\_Optimization-Enriched\_Machine\_Learning\_to\_Solve\_the\_Dynamic\_Vehicle\_Routing\_Problem\_with\_Time\_Windows](https://www.researchgate.net/publication/378219610_Combinatorial_Optimization-Enriched_Machine_Learning_to_Solve_the_Dynamic_Vehicle_Routing_Problem_with_Time_Windows)  
-38. Reinforcement Learning Approaches for the Orienteering Problem with Stochastic and Dynamic Release Dates | Transportation Science \- PubsOnLine, accessed April 16, 2026, [https://pubsonline.informs.org/doi/10.1287/trsc.2022.0366](https://pubsonline.informs.org/doi/10.1287/trsc.2022.0366)  
-39. Combining the A\* Algorithm with Neural Networks to Solve the Team Orienteering Problem with Obstacles and Environmental Factors \- MDPI, accessed April 16, 2026, [https://www.mdpi.com/1999-4893/18/6/309](https://www.mdpi.com/1999-4893/18/6/309)  
-40. Adversarial Heterogeneous Agent Learning for Robotic Systems: A Framework for Coordinated Competitive Behaviors \- DigitalCommons@USU, accessed April 16, 2026, [https://digitalcommons.usu.edu/cgi/viewcontent.cgi?article=1711\&context=etd2023](https://digitalcommons.usu.edu/cgi/viewcontent.cgi?article=1711&context=etd2023)  
+1. Deep Reinforcement Learning for Multi-Truck Vehicle Routing Problems with Multi-Leg Demand Routes \- arXiv, accessed April 16, 2026, [https://arxiv.org/html/2401.08669v1](https://arxiv.org/html/2401.08669v1)
+2. Recent Advances in Deep Learning for Routing Problems \- The ICLR Blog Track, accessed April 16, 2026, [https://iclr-blog-track.github.io/2022/03/25/deep-learning-for-routing-problems/](https://iclr-blog-track.github.io/2022/03/25/deep-learning-for-routing-problems/)
+3. Distance approximation to support customer selection in vehicle routing problems, accessed April 16, 2026, [https://d-nb.info/1260864545/34](https://d-nb.info/1260864545/34)
+4. Large-Scale Dynamic Observation Planning for Unmanned Surface Vessels \- DSpace@MIT, accessed April 16, 2026, [https://dspace.mit.edu/bitstream/handle/1721.1/40388/191222917-MIT.pdf?sequence=2\&isAllowed=y](https://dspace.mit.edu/bitstream/handle/1721.1/40388/191222917-MIT.pdf?sequence=2&isAllowed=y)
+5. Heuristic approaches for a new variant of the Team Orienteering Problem \- arXiv, accessed April 16, 2026, [https://arxiv.org/pdf/2507.06012](https://arxiv.org/pdf/2507.06012)
+6. Enhancing Vehicle Routing Problems With Deep Reinforcement Learning and Metaheuristics \- DZone, accessed April 16, 2026, [https://dzone.com/articles/enhancing-vehicle-routing-problems](https://dzone.com/articles/enhancing-vehicle-routing-problems)
+7. A Curriculum-Based Deep Reinforcement Learning Framework for the Electric Vehicle Routing Problem | Request PDF \- ResearchGate, accessed April 16, 2026, [https://www.researchgate.net/publication/399962413\_A\_Curriculum-Based\_Deep\_Reinforcement\_Learning\_Framework\_for\_the\_Electric\_Vehicle\_Routing\_Problem](https://www.researchgate.net/publication/399962413_A_Curriculum-Based_Deep_Reinforcement_Learning_Framework_for_the_Electric_Vehicle_Routing_Problem)
+8. Improvement of Solution Using Local Search Operators on the Multi-Trip Electric Vehicle Routing Problem Backhaul with Time Window \- ResearchGate, accessed April 16, 2026, [https://www.researchgate.net/publication/374762563\_Improvement\_of\_Solution\_Using\_Local\_Search\_Operators\_on\_the\_Multi-Trip\_Electric\_Vehicle\_Routing\_Problem\_Backhaul\_with\_Time\_Window](https://www.researchgate.net/publication/374762563_Improvement_of_Solution_Using_Local_Search_Operators_on_the_Multi-Trip_Electric_Vehicle_Routing_Problem_Backhaul_with_Time_Window)
+9. Book of Abstracts ODYSSEUS 2024 Carmona, 19-24 May, 2024, accessed April 16, 2026, [https://pure.itu.dk/ws/portalfiles/portal/108728660/abstracts.pdf](https://pure.itu.dk/ws/portalfiles/portal/108728660/abstracts.pdf)
+10. The Consistent Vehicle Routing Problem with heterogeneous fleet \- ResearchGate, accessed April 16, 2026, [https://www.researchgate.net/publication/356345284\_The\_Consistent\_Vehicle\_Routing\_Problem\_with\_heterogeneous\_fleet](https://www.researchgate.net/publication/356345284_The_Consistent_Vehicle_Routing_Problem_with_heterogeneous_fleet)
+11. A hybrid adaptive large neighborhood search heuristic for the team orienteering problem | Request PDF \- ResearchGate, accessed April 16, 2026, [https://www.researchgate.net/publication/342351766\_A\_hybrid\_adaptive\_large\_neighborhood\_search\_heuristic\_for\_the\_team\_orienteering\_problem](https://www.researchgate.net/publication/342351766_A_hybrid_adaptive_large_neighborhood_search_heuristic_for_the_team_orienteering_problem)
+12. Reinforcement Learning for Pricing Problem Optimization in VRP. \- arXiv, accessed April 16, 2026, [https://arxiv.org/html/2504.02383v1](https://arxiv.org/html/2504.02383v1)
+13. A Learning-Augmented Dynamic Programming Approach for Orienteering Problem with Time Windows | OpenReview, accessed April 16, 2026, [https://openreview.net/forum?id=OROkRBW6cu](https://openreview.net/forum?id=OROkRBW6cu)
+14. A survey of the orienteering problem: model evolution, algorithmic advances, and future directions \- arXiv, accessed April 16, 2026, [https://arxiv.org/html/2512.16865v1](https://arxiv.org/html/2512.16865v1)
+15. Metaheuristics for the bi-objective orienteering problem | Request PDF \- ResearchGate, accessed April 16, 2026, [https://www.researchgate.net/publication/220058920\_Metaheuristics\_for\_the\_bi-objective\_orienteering\_problem](https://www.researchgate.net/publication/220058920_Metaheuristics_for_the_bi-objective_orienteering_problem)
+16. Granular Tabu Search for the Pickup and Delivery Problem with Time Windows and Electric Vehicles | Request PDF \- ResearchGate, accessed April 16, 2026, [https://www.researchgate.net/publication/333123085\_Granular\_Tabu\_Search\_for\_the\_Pickup\_and\_Delivery\_Problem\_with\_Time\_Windows\_and\_Electric\_Vehicles](https://www.researchgate.net/publication/333123085_Granular_Tabu_Search_for_the_Pickup_and_Delivery_Problem_with_Time_Windows_and_Electric_Vehicles)
+17. A Deep Reinforcement Learning Model to Solve the Stochastic Capacitated Vehicle Routing Problem with Service Times and Deadlines \- MDPI, accessed April 16, 2026, [https://www.mdpi.com/2227-7390/13/18/3050](https://www.mdpi.com/2227-7390/13/18/3050)
+18. \[1802.04240\] Reinforcement Learning for Solving the Vehicle Routing Problem \- arXiv, accessed April 16, 2026, [https://arxiv.org/abs/1802.04240](https://arxiv.org/abs/1802.04240)
+19. Deep Reinforcement Learning for Vehicle Routing Problems \- LION \- intelligent-optimization.org, accessed April 16, 2026, [https://www.intelligent-optimization.org/lion18/LION\_18\_Keynote\_DRL4VRP-1.pdf](https://www.intelligent-optimization.org/lion18/LION_18_Keynote_DRL4VRP-1.pdf)
+20. Token-specific deep reinforcement learning for energy-efficient ..., accessed April 16, 2026, [https://www.researchgate.net/publication/396058276\_Token-specific\_deep\_reinforcement\_learning\_for\_energy-efficient\_capacitated\_electric\_vehicle\_routing\_problems](https://www.researchgate.net/publication/396058276_Token-specific_deep_reinforcement_learning_for_energy-efficient_capacitated_electric_vehicle_routing_problems)
+21. Vehicle dispatching and routing of on-demand intercity ride-pooling services: A multi-agent hierarchical reinforcement learning approach \- IDEAS/RePEc, accessed April 16, 2026, [https://ideas.repec.org/a/eee/transe/v186y2024ics136655452400142x.html](https://ideas.repec.org/a/eee/transe/v186y2024ics136655452400142x.html)
+22. Hierarchical Reinforcement Learning Empowered Task Offloading in V2I Networks \- arXiv, accessed April 16, 2026, [https://arxiv.org/html/2405.11352v1](https://arxiv.org/html/2405.11352v1)
+23. Workshop of the EURO Working Group on Vehicle Routing and Logistics optimization (VeRoLog) \- Sciencesconf.org, accessed April 16, 2026, [https://verolog2019.sciencesconf.org/data/Book\_of\_Abstracts.pdf](https://verolog2019.sciencesconf.org/data/Book_of_Abstracts.pdf)
+24. The Cumulative Capacitated Vehicle Routing Problem: New Formulations and Iterated Greedy algorithms | Request PDF \- ResearchGate, accessed April 16, 2026, [https://www.researchgate.net/publication/326332887\_The\_Cumulative\_Capacitated\_Vehicle\_Routing\_Problem\_New\_Formulations\_and\_Iterated\_Greedy\_algorithms](https://www.researchgate.net/publication/326332887_The_Cumulative_Capacitated_Vehicle_Routing_Problem_New_Formulations_and_Iterated_Greedy_algorithms)
+25. 43rd ANNUAL CONFERENCE \- Operations Research Society of New Zealand, accessed April 16, 2026, [https://orsnz.org.nz/conf43/content/ORSNZ08\_conference\_proceedings.pdf](https://orsnz.org.nz/conf43/content/ORSNZ08_conference_proceedings.pdf)
+26. A Deep Reinforcement-Learning-Based Route Optimization Model for Multi-Compartment Cold Chain Distribution \- MDPI, accessed April 16, 2026, [https://www.mdpi.com/2227-7390/13/13/2039](https://www.mdpi.com/2227-7390/13/13/2039)
+27. An Overview and Experimental Study of Learning-Based Optimization Algorithms for the Vehicle Routing Problem, accessed April 16, 2026, [https://www.ieee-jas.net/article/doi/10.1109/JAS.2022.105677?pageType=en](https://www.ieee-jas.net/article/doi/10.1109/JAS.2022.105677?pageType=en)
+28. A Hybrid of Deep Reinforcement Learning and Local Search for the Vehicle Routing Problems | Request PDF \- ResearchGate, accessed April 16, 2026, [https://www.researchgate.net/publication/342969604\_A\_Hybrid\_of\_Deep\_Reinforcement\_Learning\_and\_Local\_Search\_for\_the\_Vehicle\_Routing\_Problems](https://www.researchgate.net/publication/342969604_A_Hybrid_of_Deep_Reinforcement_Learning_and_Local_Search_for_the_Vehicle_Routing_Problems)
+29. DeepLS: Local Search for Network Optimization based on Lightweight Deep Reinforcement Learning \- Re.Public@polimi.it, accessed April 16, 2026, [https://re.public.polimi.it/bitstream/11311/1255179/3/\_TNSM\_2023\_\_DeepLS\_\_Local\_Search\_for\_Network\_Optimization\_based\_on\_Lightweight\_Deep\_Reinforcement\_Learning.pdf](https://re.public.polimi.it/bitstream/11311/1255179/3/_TNSM_2023__DeepLS__Local_Search_for_Network_Optimization_based_on_Lightweight_Deep_Reinforcement_Learning.pdf)
+30. Handbook of Digital Games 1118328035, 9781118328033 \- DOKUMEN.PUB, accessed April 16, 2026, [https://dokumen.pub/handbook-of-digital-games-1118328035-9781118328033.html](https://dokumen.pub/handbook-of-digital-games-1118328035-9781118328033.html)
+31. Token-specific deep reinforcement learning for energy-efficient capacitated electric vehicle routing problems \- IDEAS/RePEc, accessed April 16, 2026, [https://ideas.repec.org/a/eee/appene/v396y2025ics030626192501044x.html](https://ideas.repec.org/a/eee/appene/v396y2025ics030626192501044x.html)
+32. Improved Federated Learning Incentive Mechanism Algorithm Based on Explainable DAG Similarity Evaluation \- MDPI, accessed April 16, 2026, [https://www.mdpi.com/2227-7390/13/21/3507](https://www.mdpi.com/2227-7390/13/21/3507)
+33. Appl. Sci., Volume 15, Issue 5 (March-1 2025\) – 623 articles \- MDPI, accessed April 16, 2026, [https://www.mdpi.com/2076-3417/15/5](https://www.mdpi.com/2076-3417/15/5)
+34. The Min-Max Close-Enough Arc Routing Problem \- ResearchGate, accessed April 16, 2026, [https://www.researchgate.net/publication/355522258\_The\_Min-Max\_Close-Enough\_Arc\_Routing\_Problem](https://www.researchgate.net/publication/355522258_The_Min-Max_Close-Enough_Arc_Routing_Problem)
+35. Deep Reinforcement Learning Approach to Solve Dynamic Vehicle Routing Problem with Stochastic Customers, accessed April 16, 2026, [https://cdn.aaai.org/ojs/6685/6685-40-9914-1-10-20200521.pdf](https://cdn.aaai.org/ojs/6685/6685-40-9914-1-10-20200521.pdf)
+36. A dynamic vehicle routing problem with multiple delivery routes | Request PDF, accessed April 16, 2026, [https://www.researchgate.net/publication/226714458\_A\_dynamic\_vehicle\_routing\_problem\_with\_multiple\_delivery\_routes](https://www.researchgate.net/publication/226714458_A_dynamic_vehicle_routing_problem_with_multiple_delivery_routes)
+37. Combinatorial Optimization-Enriched Machine Learning to Solve the Dynamic Vehicle Routing Problem with Time Windows | Request PDF \- ResearchGate, accessed April 16, 2026, [https://www.researchgate.net/publication/378219610\_Combinatorial\_Optimization-Enriched\_Machine\_Learning\_to\_Solve\_the\_Dynamic\_Vehicle\_Routing\_Problem\_with\_Time\_Windows](https://www.researchgate.net/publication/378219610_Combinatorial_Optimization-Enriched_Machine_Learning_to_Solve_the_Dynamic_Vehicle_Routing_Problem_with_Time_Windows)
+38. Reinforcement Learning Approaches for the Orienteering Problem with Stochastic and Dynamic Release Dates | Transportation Science \- PubsOnLine, accessed April 16, 2026, [https://pubsonline.informs.org/doi/10.1287/trsc.2022.0366](https://pubsonline.informs.org/doi/10.1287/trsc.2022.0366)
+39. Combining the A\* Algorithm with Neural Networks to Solve the Team Orienteering Problem with Obstacles and Environmental Factors \- MDPI, accessed April 16, 2026, [https://www.mdpi.com/1999-4893/18/6/309](https://www.mdpi.com/1999-4893/18/6/309)
+40. Adversarial Heterogeneous Agent Learning for Robotic Systems: A Framework for Coordinated Competitive Behaviors \- DigitalCommons@USU, accessed April 16, 2026, [https://digitalcommons.usu.edu/cgi/viewcontent.cgi?article=1711\&context=etd2023](https://digitalcommons.usu.edu/cgi/viewcontent.cgi?article=1711&context=etd2023)
 41. Hierarchical Role-Based Multi-Agent Reinforcement Learning for UHF Radiation Source Localization with Heterogeneous UAV Swarms \- MDPI, accessed April 16, 2026, [https://www.mdpi.com/2504-446X/10/1/54](https://www.mdpi.com/2504-446X/10/1/54)
 
 [image1]: <data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAAAYCAYAAAAF6fiUAAAFPUlEQVR4XtWZa8hmUxTH12HG/RIZMRK5lZnwQW98GNciIpeSkDAajRBiopnGNYVIMW6pERHJZCL3McaUXBMlaSZMMSOXDy6FxqSx/nvt8+y91177nP1cTPnVes5z/mvttdfZ7z777PO8RFuMRgsDYk85KuBiagId1YF1TDhdPaVRKn03qAkt6f8Paqrvi4mnV1+sSV2jEFWOL3toOtsytn21I2Gcy4ipTmAG3sB2oRaHx8hdGkQjdNI8xJ2clUp1vWY1x82yFJkwoOzJ2IptFdsJ2jECjXQcPnqpi6pEkl3A9kLqGJeeCZQJnpKecyDb92w7p7JKEJ3ux3YzyV/uG7b32fk5Hy/1/nvZjvPftySYTRu4zlOUfg7bZ2ybvW3kmEfSEJpi+9n7/2ZbmboV9uDuRDImv5PkWc+2gu0tNozPT16HLVUpXuKcC1LJ7uQmtj/ZPiW50G29vjU3uJ2PH3v/dk61c3g6nWWMZl46g+2rcJrxEcnF7+/O8qjz2V5h21U7hgSTE/1crB3MTO73PZKYuAZM3g0sbJOX5WHH4ySJbyWZbZppbN9x4Ks4KSYa0B8BXFRd6FNsS7QouATL+ID65ygdh+358xO2vYMvELqvKgSzHv3MwEnWoqEb+fM8pR7kaztR6QOupjD4EVn619mu06IjCx1qcGtYw3aVFiPuIbkGa9dxJ8lSNUQ9ZiDW8Y1s77aCj7qDZIkCt7FNGa3XsV2vRbAn229sX1NYclIGE4nu4sMhiU/0mPvJDUTTrofB3CxoNjepvrptaBTdgmUDsWdqR8QVfpYtDJLLOIvtiaCNxWkkddwSaUeSW5rDIBV4g+1B903F3EeSdDCzyznGZPTER5DUeKx2RLSDEy9T/Oxyu6aR1n2j3LtJT6q8TzJbEj3H9qwWwZckSQ7XjkKiarLWmVDNlJ/dh2lHxGyS63gx0nDL+3V39M4jPiDZZeGZ0oIH+9nReYnHuAY8P5JSpvkL+yNICdiG6r82dkOCcU1OCh+Tor0DcCyxA0kMHrYA+2/MWLMUQwrYzj1I8ustLP4Au/hG+/ABmwUrxaNsb2sRYA+7qYl2Pkbjb0n2z4e2zniMVXz5GWDbKt+uC/zsgNiuJQhgb47nGYrCBct2Oca4uErOJalhcZDSZI28I52ciAEsP8u1CJAQiY9XesvRJP7lobvSVZT0GP9GPRw7ktRwunYoVpPEXcad4OWrht24nrkkzwvBLvBhktzHaIfQHEDyLmK3JnqN7YFw2oY1bn+PJ/QvJFs43Lr4wQsvX6eSrHt/8feLfIuRKFXVz6DlOrZrIofFUpJBSrfKLoVRgUhPk7S5NvEpGrm7fiV5H9IcTLL0zZNToy+itWyXa7EFy898bof97Y8kBeG4pJG1Dw+Z3aP4iRFKTYvOLqFxL4oYrC4WkdwF1otkCezh/2F7xugV14wH5zskY7KJY1Y0orX2offhpwg8hyz2Iok5SjsmTnYJBjUxBnO5JS5y+qgJ7GZOxSR7Ujm6sZN5ssmE95cvEhFqHNaZbxxqEtfEuJ0G/UDyMFTUJegAA+SWj9KYuO/hw6CkOw/u3MISl/WSYkgE1dYnRTH7lWwvazGl2LYEGrxJ8ovAfwGeD9hp5juyjJ7ae9xUE6EptSjoWNvxZntSKvfMIk8hCi9q+ifuSYF6sfuZ1VEW6Pa2uKi6UEVdo8IAafAW+jzbzI4Yg57oys7rGCRYyN8viRzC2PkV/X+YTqdBXXxdVCXjJKtpGw9S/4C1GEGGNFGq85cCS7onc2fCEMT/pjXI9FT4F8Pv1q4M0vFoAAAAAElFTkSuQmCC>
