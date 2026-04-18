@@ -139,6 +139,8 @@ gui:
 dashboard:
     uv run streamlit run dashboard.py
 
+# --- Codebase Validation ---
+
 # Count lines of code and comments
 count-loc:
     uv run python logic/src/utils/validation/count_loc.py logic/src
@@ -163,6 +165,10 @@ check-multi-classes:
 # Check for nested imports
 check-nested-imports:
     uv run python logic/src/utils/validation/check_nested_imports.py logic/src --exclude pipeline/simulations/wsmart_bin_analysis/test --ignore_factories
+
+# Create a graph with exported and imported dependencies (function, classes, etc.)
+dependency-graph target_file="logic/src/utils/helpers/wrappers.py" target_name="greedy_day_route":
+    uv run python logic/src/utils/validation/trace_dependencies.py logic/src {{ target_file }} {{ target_name }}
 
 # --- Advanced Testing & Benchmarks ---
 

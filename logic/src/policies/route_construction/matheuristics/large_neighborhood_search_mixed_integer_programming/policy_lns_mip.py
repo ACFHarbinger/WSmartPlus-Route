@@ -17,7 +17,8 @@ from logic.src.policies.route_construction.matheuristics.kernel_search.solver im
     _reconstruct_tour,
     _setup_ks_model,
 )
-from logic.src.policies.route_construction.matheuristics.utils import greedy_day_route, route_cost, route_profit
+from logic.src.utils.helpers.routes import route_cost, route_profit
+from logic.src.utils.helpers.wrappers import greedy_day_route
 
 from .params import LNSMIPParams
 

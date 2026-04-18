@@ -8,12 +8,15 @@ from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.interfaces.context.multi_day_context import MultiDayContext
 from logic.src.interfaces.context.problem_context import ProblemContext
 from logic.src.interfaces.context.solution_context import SolutionContext
-from logic.src.policies.helpers.operators.helpers.llh_pool import LLHPool
 from logic.src.policies.route_construction.base.base_multi_period_policy import BaseMultiPeriodRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
-from logic.src.policies.route_construction.matheuristics.utils import (
-    greedy_day_route,
+from logic.src.policies.route_construction.hyper_heuristics.selection_hyper_heuristic.params import SHHParams
+from logic.src.utils.helpers.llh_pool import LLHPool
+from logic.src.utils.helpers.routes import (
     route_profit,
+)
+from logic.src.utils.helpers.wrappers import (
+    greedy_day_route,
 )
 
 
@@ -31,14 +34,16 @@ class SelectionHHPolicy(BaseMultiPeriodRoutingPolicy):
     Controls a set of Low-Level Heuristics (LLHs).
     Uses a reinforcement learning-like mechanism (UCB or simple probability updates)
     to select the next LLH to apply, then accepts or rejects using Late Acceptance.
+
+    Registry key: ``"shh"``
     """
 
     def __init__(self, config: Any = None):
         super().__init__(config)
-        cfg = config or {}
-        self.iters = getattr(cfg, "iters", 200)
-        self.history_len = getattr(cfg, "history_len", 10)
-        self.seed = getattr(cfg, "seed", 42)
+        self.params = SHHParams.from_config(config)
+        self.iters = self.params.iters
+        self.history_len = self.params.history_len
+        self.seed = self.params.seed
         self.rng = random.Random(self.seed)
         self.llhs = LLHPool.get_all()
 

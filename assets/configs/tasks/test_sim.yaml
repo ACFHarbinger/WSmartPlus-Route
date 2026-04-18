@@ -15,12 +15,14 @@ defaults:
   - /policies@p.aco_ks: policy_aco_ks
   - /policies@p.ahvpl: policy_ahvpl
   - /policies@p.aks: policy_aks
+  - /policies@p.amphh: policy_amphh
   - /policies@p.alns: policy_alns
   - /policies@p.alns_ipo: policy_alns_ipo
   - /policies@p.bb: policy_bb
   - /policies@p.bc: policy_bc
   - /policies@p.bp: policy_bp
   - /policies@p.bpc: policy_bpc
+  - /policies@p.cgh: policy_cgh
   - /policies@p.cf_rs: policy_cf_rs
   - /policies@p.cp_sat: policy_cp_sat
   - /policies@p.cvrp: policy_cvrp
@@ -36,6 +38,7 @@ defaults:
   - /policies@p.gihh: policy_gihh
   - /policies@p.gls: policy_gls
   - /policies@p.gphh: policy_gphh
+  - /policies@p.gpmphh: policy_gpmphh
   - /policies@p.hgs: policy_hgs
   - /policies@p.hgs_alns: policy_hgs_alns
   - /policies@p.hgs_rr: policy_hgs_rr
@@ -54,24 +57,33 @@ defaults:
   - /policies@p.lb_vns: policy_lb_vns
   - /policies@p.lbbd: policy_lbbd
   - /policies@p.lca: policy_lca
+  - /policies@p.lrh: policy_lrh
   - /policies@p.ma: policy_ma
   - /policies@p.ma_dp: policy_ma_dp
   - /policies@p.ma_im: policy_ma_im
   - /policies@p.ma_ts: policy_ma_ts
+  - /policies@p.mhh: policy_mhh
+  - /policies@p.mp_aco: policy_mp_aco
+  - /policies@p.mp_bmc: policy_mp_bmc
+  - /policies@p.mp_ils: policy_mp_ils
+  - /policies@p.mp_pso: policy_mp_pso
   - /policies@p.na: policy_na
   - /policies@p.ph: policy_ph
+  - /policies@p.phh: policy_phh
   - /policies@p.popmusic: policy_popmusic
   - /policies@p.pso: policy_pso
   - /policies@p.psoda: policy_psoda
   - /policies@p.psoma: policy_psoma
   - /policies@p.qde: policy_qde
   - /policies@p.rens: policy_rens
+  - /policies@p.rfo: policy_rfo
   - /policies@p.rl_ahvpl: policy_rl_ahvpl
   - /policies@p.rl_alns: policy_rl_alns
   - /policies@p.rl_gd_hh: policy_rl_gd_hh
   - /policies@p.rl_hvpl: policy_rl_hvpl
   - /policies@p.rts: policy_rts
   - /policies@p.sa: policy_sa
+  - /policies@p.shh: policy_shh
   - /policies@p.sans: policy_sans
   - /policies@p.sca: policy_sca
   - /policies@p.sisr: policy_sisr
@@ -123,12 +135,14 @@ sim:
     - aco_ks: ${p.aco_ks.aco_ks}
     - ahvpl: ${p.ahvpl.ahvpl}
     - aks: ${p.aks.aks}
+    - amphh: ${p.amphh.amphh}
     - alns: ${p.alns.alns}
     - alns_ipo: ${p.alns_ipo.alns_ipo}
     - bb: ${p.bb.bb}
     - bc: ${p.bc.bc}
     - bp: ${p.bp.bp}
     - bpc: ${p.bpc.bpc}
+    - cgh: ${p.cgh.cgh}
     - cf_rs: ${p.cf_rs.cf_rs}
     - cp_sat: ${p.cp_sat.cp_sat}
     - cvrp: ${p.cvrp.cvrp}
@@ -144,6 +158,7 @@ sim:
     - gihh: ${p.gihh.gihh}
     - gls: ${p.gls.gls}
     - gphh: ${p.gphh.gphh}
+    - gpmphh: ${p.gpmphh.gpmphh}
     - hgs: ${p.hgs.hgs}
     - hgs_alns: ${p.hgs_alns.hgs_alns}
     - hgs_rr: ${p.hgs_rr.hgs_rr}
@@ -162,24 +177,33 @@ sim:
     - lb_vns: ${p.lb_vns.lb_vns}
     - lbbd: ${p.lbbd.lbbd}
     - lca: ${p.lca.lca}
+    - lrh: ${p.lrh.lrh}
     - ma: ${p.ma.ma}
     - ma_dp: ${p.ma_dp.ma_dp}
     - ma_im: ${p.ma_im.ma_im}
     - ma_ts: ${p.ma_ts.ma_ts}
+    - mhh: ${p.mhh.mhh}
+    - mp_aco: ${p.mp_aco.mp_aco}
+    - mp_bmc: ${p.mp_bmc.mp_bmc}
+    - mp_ils: ${p.mp_ils.mp_ils}
+    - mp_pso: ${p.mp_pso.mp_pso}
     - na: ${p.na.na}
     - ph: ${p.ph.ph}
+    - phh: ${p.phh.phh}
     - popmusic: ${p.popmusic.popmusic}
     - pso: ${p.pso.pso}
     - psoda: ${p.psoda.psoda}
     - psoma: ${p.psoma.psoma}
     - qde: ${p.qde.qde}
     - rens: ${p.rens.rens}
+    - rfo: ${p.rfo.rfo}
     - rl_ahvpl: ${p.rl_ahvpl.rl_ahvpl}
     - rl_alns: ${p.rl_alns.rl_alns}
     - rl_gd_hh: ${p.rl_gd_hh.rl_gd_hh}
     - rl_hvpl: ${p.rl_hvpl.rl_hvpl}
     - rts: ${p.rts.rts}
     - sa: ${p.sa.sa}
+    - shh: ${p.shh.shh}
     - sans: ${p.sans.sans}
     - sca: ${p.sca.sca}
     - sisr: ${p.sisr.sisr}

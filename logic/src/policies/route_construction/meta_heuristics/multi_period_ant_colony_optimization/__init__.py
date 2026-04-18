@@ -1,3 +1,3 @@
-from .policy_aco import ACOPolicy
+from .policy_mp_aco import MultiPeriodACOPolicy
 
-__all__ = ["ACOPolicy"]
+__all__ = ["MultiPeriodACOPolicy"]

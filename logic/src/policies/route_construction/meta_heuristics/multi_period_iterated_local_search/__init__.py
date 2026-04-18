@@ -1,3 +1,3 @@
-from .policy_ils import ILSPolicy
+from .policy_mp_ils import MultiPeriodILSPolicy
 
-__all__ = ["ILSPolicy"]
+__all__ = ["MultiPeriodILSPolicy"]
