@@ -11,11 +11,11 @@ from logic.src.interfaces.context.solution_context import SolutionContext
 from logic.src.policies.route_construction.base.base_multi_period_policy import BaseMultiPeriodRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.hyper_heuristics.population_based_hyper_heuristic.params import PHHParams
-from logic.src.utils.helpers.llh_pool import LLHPool
-from logic.src.utils.helpers.routes import (
+from logic.src.utils.policy.llh_pool import LLHPool
+from logic.src.utils.policy.routes import (
     route_profit,
 )
-from logic.src.utils.helpers.wrappers import (
+from logic.src.utils.policy.wrappers import (
     greedy_day_route,
 )
 

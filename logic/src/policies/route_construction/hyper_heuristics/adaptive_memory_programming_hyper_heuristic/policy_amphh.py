@@ -13,9 +13,9 @@ from logic.src.policies.route_construction.base.factory import RouteConstructorR
 from logic.src.policies.route_construction.hyper_heuristics.adaptive_memory_programming_hyper_heuristic.params import (
     AMPHHParams,
 )
-from logic.src.utils.helpers.llh_pool import LLHPool
-from logic.src.utils.helpers.routes import route_profit
-from logic.src.utils.helpers.wrappers import greedy_day_route
+from logic.src.utils.policy.llh_pool import LLHPool
+from logic.src.utils.policy.routes import route_profit
+from logic.src.utils.policy.wrappers import greedy_day_route
 
 
 @GlobalRegistry.register(

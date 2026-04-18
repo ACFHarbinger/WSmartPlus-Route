@@ -13,11 +13,11 @@ from logic.src.policies.route_construction.base.factory import RouteConstructorR
 from logic.src.policies.route_construction.meta_heuristics.multi_period_iterated_local_search.params import (
     MP_ILS_Params,
 )
-from logic.src.utils.helpers.routes import (
+from logic.src.utils.policy.routes import (
     route_profit,
     two_opt,
 )
-from logic.src.utils.helpers.wrappers import (
+from logic.src.utils.policy.wrappers import (
     greedy_day_route,
 )
 

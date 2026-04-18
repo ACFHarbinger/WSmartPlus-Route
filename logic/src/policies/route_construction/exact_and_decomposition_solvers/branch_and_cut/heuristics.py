@@ -11,7 +11,7 @@ Based on Section 4 of Fischetti et al. (1997) and classical VRP heuristics.
 from random import Random
 from typing import List, Tuple
 
-from logic.src.policies.helpers.branching_solvers.vrpp_model import VRPPModel
+from logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model import VRPPModel
 from logic.src.policies.helpers.operators.recreate_repair.farthest import (
     farthest_insertion as operator_farthest_insertion,
 )

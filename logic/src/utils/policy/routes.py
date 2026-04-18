@@ -11,7 +11,7 @@ Attributes:
     None
 
 Example:
-    >>> from logic.src.utils.helpers.routes import prune_unprofitable_routes
+    >>> from logic.src.utils.policy.routes import prune_unprofitable_routes
     >>> valid_routes = prune_unprofitable_routes(routes, dist_matrix, wastes, R, C, mandatory_set)
 """
 
