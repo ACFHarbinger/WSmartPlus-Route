@@ -16,8 +16,8 @@ The synthesis of exact mathematical programming and heuristic search birthed the
 
 This report classifies and deeply analyzes state-of-the-art matheuristics into three primary operational architectures:
 
-1. **Decomposition Approaches:** The global routing problem is dynamically partitioned into smaller, mathematically tractable subproblems, which are subsequently optimized using an exact MILP solver.11  
-2. **Restricted Search and Improvement Heuristics:** An MILP is invoked to systematically explore a mathematically restricted region of the variable space to improve an incumbent solution.11  
+1. **Decomposition Approaches:** The global routing problem is dynamically partitioned into smaller, mathematically tractable subproblems, which are subsequently optimized using an exact MILP solver.11
+2. **Restricted Search and Improvement Heuristics:** An MILP is invoked to systematically explore a mathematically restricted region of the variable space to improve an incumbent solution.11
 3. **Learning-Augmented Column Generation:** Heuristics and modern artificial intelligence (neural networks) are utilized to generate columns or predict branching decisions within an exact Branch-and-Price (B\&P) framework.11
 
 ## **2\. Mathematical Foundations and Rigorous Formulations**
@@ -28,8 +28,8 @@ A prerequisite for developing algorithms suitable for top-tier AI venues is an u
 
 The VRPP encompasses several distinct variants, each defined by unique objective functions and structural constraints. It is an amalgamation of routing and subset selection.6
 
-* **The Orienteering Problem (OP):** The objective is to maximize the profit collected from visited nodes, strictly subject to an upper bound on the total route length or travel time.13  
-* **The Prize-Collecting TSP (PCTSP):** The objective is inverted; the algorithm seeks to minimize the total travel distance, subject to a lower bound constraint mandating a minimum amount of profit that must be collected.13  
+* **The Orienteering Problem (OP):** The objective is to maximize the profit collected from visited nodes, strictly subject to an upper bound on the total route length or travel time.13
+* **The Prize-Collecting TSP (PCTSP):** The objective is inverted; the algorithm seeks to minimize the total travel distance, subject to a lower bound constraint mandating a minimum amount of profit that must be collected.13
 * **The Profitable Tour Problem (PTP):** The objective integrates both dimensions, seeking to maximize the net revenue, defined as the total profit collected minus the total travel costs. This formulation assumes that profits and travel costs share a common unit of measure.13
 
 ### **2.2 Mathematical Formulation of the Team Orienteering Problem (TOP)**
@@ -40,29 +40,29 @@ The Team Orienteering Problem (TOP) extends the OP to a multi-vehicle scenario. 
 
 The flow-based MILP formulation utilizes a binary decision variable ![][image11] which equals ![][image12] if a vehicle travels directly from node ![][image13] to node ![][image14], and ![][image4] otherwise. An auxiliary variable ![][image15] indicates whether node ![][image13] is visited.
 
-![][image16]  
+![][image16]
 Subject to:
 
-![][image17]  
-![][image18]  
-![][image19]  
-![][image20]  
-![][image21]  
+![][image17]
+![][image18]
+![][image19]
+![][image20]
+![][image21]
 To eliminate disconnected subtours, the formulation requires Miller-Tucker-Zemlin (MTZ) constraints. Let ![][image22] be a continuous variable representing the position of node ![][image13] in the route:
 
-![][image23]  
+![][image23]
 **Critique of Flow-Based Models:** While mathematically correct, the flow-based formulation is notoriously weak. The MTZ subtour elimination constraints destroy the tightness of the linear relaxation. When the integrality constraints on ![][image11] are relaxed to $X\_{ij} \\in $, the solver can satisfy the MTZ constraints with highly fractional flows, resulting in a theoretical upper bound that is far higher than the true integer optimum. Consequently, relying on flow-based formulations within a matheuristic for large instances is a methodological error.
 
 #### **Route-Based Set Partitioning Formulation**
 
 Modern matheuristics strictly favor Set Partitioning models. Let ![][image24] represent the set of all feasible routes that begin and end at the depot, respect the time limit ![][image25], and contain no subtours. Let ![][image26] denote the total profit collected by route ![][image27], and ![][image28] be a decision variable indicating if route ![][image29] is selected.16 The parameter ![][image30] specifies if node ![][image13] is visited by route ![][image29].
 
-![][image31]  
+![][image31]
 Subject to:
 
-![][image32]  
-![][image33]  
-![][image34]  
+![][image32]
+![][image33]
+![][image34]
 This formulation shifts the combinatorial complexity from the constraints to the variable space (since ![][image35] grows exponentially). Matheuristics resolve this by strategically managing the subset of ![][image24] that the solver is allowed to evaluate.6
 
 ## **3\. Historical Evolution of VRP Matheuristics**
@@ -97,9 +97,9 @@ To successfully implement POPMUSIC for top-tier conference evaluation, the archi
 
 **Parameters:**
 
-* **![][image29]**: Base subproblem size (e.g., 25 customers).  
-* ![][image36]: Maximum subproblem size (e.g., 200 customers).  
-* ![][image37]: Initial feasible solution (generated via a fast metaheuristic like Hybrid Genetic Search).  
+* **![][image29]**: Base subproblem size (e.g., 25 customers).
+* ![][image36]: Maximum subproblem size (e.g., 200 customers).
+* ![][image37]: Initial feasible solution (generated via a fast metaheuristic like Hybrid Genetic Search).
 * ![][image38]: Exact Branch-Cut-and-Price solver function.
 
 Algorithm 1: POPMUSIC Framework for Vehicle Routing
@@ -193,8 +193,8 @@ Kernel Search implicitly guarantees structural feasibility because the search op
 
 **Parameters:**
 
-* **![][image43]**: Number of buckets.  
-* ![][image44]: Maximum execution time per bucket evaluation.  
+* **![][image43]**: Number of buckets.
+* ![][image44]: Maximum execution time per bucket evaluation.
 * ![][image45]: Function to sort zero-valued variables based on heuristic frequency and reduced costs.
 
 Algorithm 2: Enhanced Kernel Search for TOP
@@ -255,7 +255,7 @@ Local Branching operates dynamically within a Branch-and-Bound tree. Let ![][ima
 
 The local branching constraint is formally integrated into the MILP formulation as:
 
-![][image48]  
+![][image48]
 Here, ![][image37] is the set of variable indices where ![][image49], and ![][image50] is the maximum allowed Hamming distance—representing the maximum number of variable flips, or "edge changes," permitted in a single iteration.28 By introducing this singular asymmetric linear constraint, the exact solver is forced to evaluate only solutions that share a massive degree of structural similarity with the incumbent, thereby pruning millions of nodes from the Branch-and-Bound tree instantaneously.29
 
 ### **6.2 Integration with VNS and Tabu Mechanisms**
@@ -264,7 +264,7 @@ Local Branching is highly effective when hybridized with Variable Neighborhood S
 
 If ![][image51] was evaluated in a previous iteration, a reverse constraint is added:
 
-![][image52]  
+![][image52]
 Relaxation Induced Neighborhood Search (RINS) operates on a parallel philosophy. Rather than utilizing Hamming distance, RINS fixes all variables where the continuous LP relaxation precisely matches the value of the integer incumbent, and then executes the MILP solver strictly on the remaining unfixed variables.27 Both Local Branching and RINS represent the apex of exploiting commercial solvers (e.g., Gurobi, CPLEX) as black-box heuristic operators.
 
 ## **7\. Exact-Heuristic Hybrids: Branch-and-Price and Column Generation**
@@ -315,7 +315,7 @@ If a paper claims that an algorithm is "robust" or "state-of-the-art," but only 
 
 A frequent flaw in ML-for-routing literature is comparing a highly optimized, GPU-accelerated neural solver against an improperly configured exact solver or an outdated metaheuristic. Papers often state, "Our RL model solves the problem in 0.5 seconds, whereas Gurobi takes 1 hour." This comparison is fundamentally flawed and lacks rigor.
 
-1. Exact solvers (like Gurobi or CPLEX) are designed to *prove optimality*, not just find heuristic bounds. Comparing the time it takes an RL model to find an approximation against the time it takes an MILP solver to close the dual gap to 0.00% is mathematically dishonest.  
+1. Exact solvers (like Gurobi or CPLEX) are designed to *prove optimality*, not just find heuristic bounds. Comparing the time it takes an RL model to find an approximation against the time it takes an MILP solver to close the dual gap to 0.00% is mathematically dishonest.
 2. The relevant comparison for a neural solver is a state-of-the-art *matheuristic* (like POPMUSIC or Hybrid Genetic Search), configured to terminate in a comparable timeframe.
 
 **Direct Improvement:** A rigorous paper must report the Pareto frontier of solution quality versus computational time. When comparing against exact solvers, the paper must explicitly state the hardware configuration (CPU threads used), the presolve settings, and the specific time limits applied to the solver.39 Multi-threading impacts exact solvers massively; omitting this detail renders the experimental results entirely irreproducible.
@@ -343,45 +343,45 @@ The contemporary vanguard of routing optimization is currently defined by the co
 
 #### **Works cited**
 
-1. A Comprehensive Survey of Methods and Challenges of Vehicle Routing Problem with Uncertainties \- MDPI, accessed March 16, 2026, [https://www.mdpi.com/2227-7390/13/23/3782](https://www.mdpi.com/2227-7390/13/23/3782)  
-2. A Survey on the Vehicle Routing Problem and Its Variants \- Scirp.org., accessed March 16, 2026, [https://www.scirp.org/journal/paperinformation?paperid=19355](https://www.scirp.org/journal/paperinformation?paperid=19355)  
-3. Vehicle routing problems with profits | Request PDF \- ResearchGate, accessed March 16, 2026, [https://www.researchgate.net/publication/313244628\_Vehicle\_routing\_problems\_with\_profits](https://www.researchgate.net/publication/313244628_Vehicle_routing_problems_with_profits)  
-4. Vehicle Routing Problem with Vector Profits (VRPVP) with Max-Min Criterion \- arXiv, accessed March 16, 2026, [https://arxiv.org/pdf/1710.10550](https://arxiv.org/pdf/1710.10550)  
-5. The Team Orienteering Problem with Service Times and Mandatory & Incompatible Nodes, accessed March 16, 2026, [https://iris.unito.it/retrieve/49491918-d3f7-45f2-98f2-a9a9e75fdddc/PhD-thesis.pdf](https://iris.unito.it/retrieve/49491918-d3f7-45f2-98f2-a9a9e75fdddc/PhD-thesis.pdf)  
-6. A survey of the orienteering problem: model evolution ... \- arXiv, accessed March 16, 2026, [https://arxiv.org/pdf/2512.16865](https://arxiv.org/pdf/2512.16865)  
-7. The Team Orienteering Problem with Service Times and Mandatory & Incompatible Nodes, accessed March 16, 2026, [https://tesidottorato.depositolegale.it/bitstream/20.500.14242/303837/1/PhD-thesis.pdf](https://tesidottorato.depositolegale.it/bitstream/20.500.14242/303837/1/PhD-thesis.pdf)  
-8. Metaheuristic Approaches for Vehicle Routing Problems \- ResearchGate, accessed March 16, 2026, [https://www.researchgate.net/publication/281060530\_Metaheuristic\_Approaches\_for\_Vehicle\_Routing\_Problems](https://www.researchgate.net/publication/281060530_Metaheuristic_Approaches_for_Vehicle_Routing_Problems)  
-9. Matheuristics and Column Generation for a Basic Technician Routing Problem \- MDPI, accessed March 16, 2026, [https://www.mdpi.com/1999-4893/14/11/313](https://www.mdpi.com/1999-4893/14/11/313)  
-10. (PDF) A survey on matheuristics for routing problems \- ResearchGate, accessed March 16, 2026, [https://www.researchgate.net/publication/264470887\_A\_survey\_on\_matheuristics\_for\_routing\_problems](https://www.researchgate.net/publication/264470887_A_survey_on_matheuristics_for_routing_problems)  
-11. Michele Vindigni vindigni@eco.unibs.it Dipartimento Metodi ..., accessed March 16, 2026, [https://www.sintef.no/contentassets/cfb19ab9b7c74d03904c7746ee1d8e77/matheuristics\_routing\_verolog2014\_new.pdf](https://www.sintef.no/contentassets/cfb19ab9b7c74d03904c7746ee1d8e77/matheuristics_routing_verolog2014_new.pdf)  
-12. Two-Stage Learning to Branch in Branch-Price-and-Cut Algorithms for Solving Vehicle Routing Problems Exactly | Operations Research \- PubsOnLine, accessed March 16, 2026, [https://pubsonline.informs.org/doi/10.1287/opre.2023.0615](https://pubsonline.informs.org/doi/10.1287/opre.2023.0615)  
-13. TSP with revenue maximization \- Operations Research Stack Exchange, accessed March 16, 2026, [https://or.stackexchange.com/questions/3059/tsp-with-revenue-maximization](https://or.stackexchange.com/questions/3059/tsp-with-revenue-maximization)  
-14. \[2210.11881\] Solving the Probabilistic Profitable Tour Problem on a Tree \- arXiv.org, accessed March 16, 2026, [https://arxiv.org/abs/2210.11881](https://arxiv.org/abs/2210.11881)  
-15. Robust Team Orienteering Problem with Decreasing Profits \- Optimization Online, accessed March 16, 2026, [https://optimization-online.org/wp-content/uploads/2021/07/RTOP\_Cheng\_merged.pdf](https://optimization-online.org/wp-content/uploads/2021/07/RTOP_Cheng_merged.pdf)  
-16. The Set Team Orienteering Problem \- VIASM, accessed March 16, 2026, [https://viasm.edu.vn/Cms\_Data/Contents/viasm/Media/tienanpham2024/9-The\_Set\_Team\_Orienteering\_Problem-1.pdf](https://viasm.edu.vn/Cms_Data/Contents/viasm/Media/tienanpham2024/9-The_Set_Team_Orienteering_Problem-1.pdf)  
-17. A POPMUSIC matheuristic for the capacitated vehicle routing ..., accessed March 16, 2026, [https://www.researchgate.net/publication/353256770\_A\_POPMUSIC\_matheuristic\_for\_the\_capacitated\_vehicle\_routing\_problem](https://www.researchgate.net/publication/353256770_A_POPMUSIC_matheuristic_for_the_capacitated_vehicle_routing_problem)  
-18. Decomposition strategies for vehicle routing heuristics | Optimization Online, accessed March 16, 2026, [https://optimization-online.org/wp-content/uploads/2021/03/Decomposition\_Strategies\_for\_Vehicle\_Routing\_Heuristics.pdf](https://optimization-online.org/wp-content/uploads/2021/03/Decomposition_Strategies_for_Vehicle_Routing_Heuristics.pdf)  
-19. (PDF) Kernel Search for the Capacitated Vehicle Routing Problem, accessed March 16, 2026, [https://www.researchgate.net/publication/365315103\_Kernel\_Search\_for\_the\_Capacitated\_Vehicle\_Routing\_Problem](https://www.researchgate.net/publication/365315103_Kernel_Search_for_the_Capacitated_Vehicle_Routing_Problem)  
-20. ALNS-KS versus ALNS-noKS for NRP-ISD. Average, best, and worst... \- ResearchGate, accessed March 16, 2026, [https://www.researchgate.net/figure/ALNS-KS-versus-ALNS-noKS-for-NRP-ISD-Average-best-and-worst-objective-function-gap\_fig6\_358756503](https://www.researchgate.net/figure/ALNS-KS-versus-ALNS-noKS-for-NRP-ISD-Average-best-and-worst-objective-function-gap_fig6_358756503)  
-21. (PDF) Kernel search for the capacitated facility location problem \- ResearchGate, accessed March 16, 2026, [https://www.researchgate.net/publication/235333501\_Kernel\_search\_for\_the\_capacitated\_facility\_location\_problem](https://www.researchgate.net/publication/235333501_Kernel_search_for_the_capacitated_facility_location_problem)  
-22. A Collection of Literature Review on Vehicle Routing Problem and Reflections \- Semantic Scholar, accessed March 16, 2026, [https://pdfs.semanticscholar.org/eca4/2c862fdd403ec9820364719389e722505bf6.pdf](https://pdfs.semanticscholar.org/eca4/2c862fdd403ec9820364719389e722505bf6.pdf)  
-23. Heuristics for Vehicle Routing Problem: A Survey and ... \- arXiv.org, accessed March 16, 2026, [https://arxiv.org/pdf/2303.04147](https://arxiv.org/pdf/2303.04147)  
-24. Orienteering Problems: Models and Algorithms for Vehicle Routing Problems with Profits, accessed March 16, 2026, [https://www.researchgate.net/publication/335520693\_Orienteering\_Problems\_Models\_and\_Algorithms\_for\_Vehicle\_Routing\_Problems\_with\_Profits](https://www.researchgate.net/publication/335520693_Orienteering_Problems_Models_and_Algorithms_for_Vehicle_Routing_Problems_with_Profits)  
-25. (PDF) The Collaborative Consistent Vehicle Routing Problem with Workload Balance, accessed March 16, 2026, [https://www.researchgate.net/publication/348398641\_The\_Collaborative\_Consistent\_Vehicle\_Routing\_Problem\_with\_Workload\_Balance](https://www.researchgate.net/publication/348398641_The_Collaborative_Consistent_Vehicle_Routing_Problem_with_Workload_Balance)  
-26. Matheuristics: using mathematics for heuristic design \- Unipd, accessed March 16, 2026, [http://www.dei.unipd.it/\~fisch/ricop/OR2/Matheuristics\_survey\_Boschetti\_Maniezzo.pdf](http://www.dei.unipd.it/~fisch/ricop/OR2/Matheuristics_survey_Boschetti_Maniezzo.pdf)  
-27. Contemporary approaches in matheuristics an updated survey \- Unibo, accessed March 16, 2026, [https://cris.unibo.it/retrieve/c5a44943-581b-4cb5-80c6-9c3b7aaebbef/31-Matheuristics-Annals-s10479-024-06302-z.pdf](https://cris.unibo.it/retrieve/c5a44943-581b-4cb5-80c6-9c3b7aaebbef/31-Matheuristics-Annals-s10479-024-06302-z.pdf)  
-28. A Matheuristic for the Electric Vehicle Routing Problem with Time Windows \- arXiv.org, accessed March 16, 2026, [https://arxiv.org/pdf/1506.00211](https://arxiv.org/pdf/1506.00211)  
-29. A Local Branching Matheuristic for the Multi-Vehicle Routing Problem with Stochastic Demand \- Cirrelt, accessed March 16, 2026, [https://www.cirrelt.ca/documentstravail/cirrelt-2016-67.pdf](https://www.cirrelt.ca/documentstravail/cirrelt-2016-67.pdf)  
-30. A set-covering based heuristic algorithm for the periodic vehicle routing problem \- PMC, accessed March 16, 2026, [https://pmc.ncbi.nlm.nih.gov/articles/3990422/](https://pmc.ncbi.nlm.nih.gov/articles/3990422/)  
-31. A survey of the orienteering problem: model evolution, algorithmic advances, and future directions \- Semantic Scholar, accessed March 16, 2026, [https://www.semanticscholar.org/paper/A-survey-of-the-orienteering-problem%3A-model-and-Shen-Zhou/b53368a0557b31c93a6bb101a98ad6b6dc60bf24](https://www.semanticscholar.org/paper/A-survey-of-the-orienteering-problem%3A-model-and-Shen-Zhou/b53368a0557b31c93a6bb101a98ad6b6dc60bf24)  
-32. A survey of the orienteering problem: model evolution, algorithmic advances, and future directions \- arXiv.org, accessed March 16, 2026, [https://arxiv.org/html/2512.16865v1](https://arxiv.org/html/2512.16865v1)  
-33. (PDF) Metaheuristics for the team orienteering problem \- ResearchGate, accessed March 16, 2026, [https://www.researchgate.net/publication/220403497\_Metaheuristics\_for\_the\_team\_orienteering\_problem](https://www.researchgate.net/publication/220403497_Metaheuristics_for_the_team_orienteering_problem)  
-34. TOP-Former: A Multi-Agent Transformer Approach for the Team Orienteering Problem \- IEEE Xplore, accessed March 16, 2026, [https://ieeexplore.ieee.org/iel8/6979/11178161/11000447.pdf](https://ieeexplore.ieee.org/iel8/6979/11178161/11000447.pdf)  
-35. NeurIPS Poster SVRPBench: A Realistic Benchmark for Stochastic Vehicle Routing Problem, accessed March 16, 2026, [https://neurips.cc/virtual/2025/poster/121384](https://neurips.cc/virtual/2025/poster/121384)  
-36. NeurIPS Poster A Learning-Augmented Dynamic Programming Approach for Orienteering Problem with Time Windows, accessed March 16, 2026, [https://neurips.cc/virtual/2025/poster/118291](https://neurips.cc/virtual/2025/poster/118291)  
-37. LITERATURE REVIEW ON THE VEHICLE ROUTING PROBLEM IN THE GREEN TRANSPORTATION CONTEXT \- Redalyc, accessed March 16, 2026, [https://www.redalyc.org/journal/3217/321744162017/html/](https://www.redalyc.org/journal/3217/321744162017/html/)  
-38. A Review of the Vehicle Routing Problem and the Current Routing Services in Smart Cities, accessed March 16, 2026, [https://www.mdpi.com/2813-2203/2/1/1](https://www.mdpi.com/2813-2203/2/1/1)  
-39. Hexaly, Gurobi, OR-Tools on the Team Orienteering Problem (TOP), accessed March 16, 2026, [https://www.hexaly.com/benchmarks/hexaly-gurobi-or-tools-team-orienteering-problem-top](https://www.hexaly.com/benchmarks/hexaly-gurobi-or-tools-team-orienteering-problem-top)  
+1. A Comprehensive Survey of Methods and Challenges of Vehicle Routing Problem with Uncertainties \- MDPI, accessed March 16, 2026, [https://www.mdpi.com/2227-7390/13/23/3782](https://www.mdpi.com/2227-7390/13/23/3782)
+2. A Survey on the Vehicle Routing Problem and Its Variants \- Scirp.org., accessed March 16, 2026, [https://www.scirp.org/journal/paperinformation?paperid=19355](https://www.scirp.org/journal/paperinformation?paperid=19355)
+3. Vehicle routing problems with profits | Request PDF \- ResearchGate, accessed March 16, 2026, [https://www.researchgate.net/publication/313244628\_Vehicle\_routing\_problems\_with\_profits](https://www.researchgate.net/publication/313244628_Vehicle_routing_problems_with_profits)
+4. Vehicle Routing Problem with Vector Profits (VRPVP) with Max-Min Criterion \- arXiv, accessed March 16, 2026, [https://arxiv.org/pdf/1710.10550](https://arxiv.org/pdf/1710.10550)
+5. The Team Orienteering Problem with Service Times and Mandatory & Incompatible Nodes, accessed March 16, 2026, [https://iris.unito.it/retrieve/49491918-d3f7-45f2-98f2-a9a9e75fdddc/PhD-thesis.pdf](https://iris.unito.it/retrieve/49491918-d3f7-45f2-98f2-a9a9e75fdddc/PhD-thesis.pdf)
+6. A survey of the orienteering problem: model evolution ... \- arXiv, accessed March 16, 2026, [https://arxiv.org/pdf/2512.16865](https://arxiv.org/pdf/2512.16865)
+7. The Team Orienteering Problem with Service Times and Mandatory & Incompatible Nodes, accessed March 16, 2026, [https://tesidottorato.depositolegale.it/bitstream/20.500.14242/303837/1/PhD-thesis.pdf](https://tesidottorato.depositolegale.it/bitstream/20.500.14242/303837/1/PhD-thesis.pdf)
+8. Metaheuristic Approaches for Vehicle Routing Problems \- ResearchGate, accessed March 16, 2026, [https://www.researchgate.net/publication/281060530\_Metaheuristic\_Approaches\_for\_Vehicle\_Routing\_Problems](https://www.researchgate.net/publication/281060530_Metaheuristic_Approaches_for_Vehicle_Routing_Problems)
+9. Matheuristics and Column Generation for a Basic Technician Routing Problem \- MDPI, accessed March 16, 2026, [https://www.mdpi.com/1999-4893/14/11/313](https://www.mdpi.com/1999-4893/14/11/313)
+10. (PDF) A survey on matheuristics for routing problems \- ResearchGate, accessed March 16, 2026, [https://www.researchgate.net/publication/264470887\_A\_survey\_on\_matheuristics\_for\_routing\_problems](https://www.researchgate.net/publication/264470887_A_survey_on_matheuristics_for_routing_problems)
+11. Michele Vindigni vindigni@eco.unibs.it Dipartimento Metodi ..., accessed March 16, 2026, [https://www.sintef.no/contentassets/cfb19ab9b7c74d03904c7746ee1d8e77/matheuristics\_routing\_verolog2014\_new.pdf](https://www.sintef.no/contentassets/cfb19ab9b7c74d03904c7746ee1d8e77/matheuristics_routing_verolog2014_new.pdf)
+12. Two-Stage Learning to Branch in Branch-Price-and-Cut Algorithms for Solving Vehicle Routing Problems Exactly | Operations Research \- PubsOnLine, accessed March 16, 2026, [https://pubsonline.informs.org/doi/10.1287/opre.2023.0615](https://pubsonline.informs.org/doi/10.1287/opre.2023.0615)
+13. TSP with revenue maximization \- Operations Research Stack Exchange, accessed March 16, 2026, [https://or.stackexchange.com/questions/3059/tsp-with-revenue-maximization](https://or.stackexchange.com/questions/3059/tsp-with-revenue-maximization)
+14. \[2210.11881\] Solving the Probabilistic Profitable Tour Problem on a Tree \- arXiv.org, accessed March 16, 2026, [https://arxiv.org/abs/2210.11881](https://arxiv.org/abs/2210.11881)
+15. Robust Team Orienteering Problem with Decreasing Profits \- Optimization Online, accessed March 16, 2026, [https://optimization-online.org/wp-content/uploads/2021/07/RTOP\_Cheng\_merged.pdf](https://optimization-online.org/wp-content/uploads/2021/07/RTOP_Cheng_merged.pdf)
+16. The Set Team Orienteering Problem \- VIASM, accessed March 16, 2026, [https://viasm.edu.vn/Cms\_Data/Contents/viasm/Media/tienanpham2024/9-The\_Set\_Team\_Orienteering\_Problem-1.pdf](https://viasm.edu.vn/Cms_Data/Contents/viasm/Media/tienanpham2024/9-The_Set_Team_Orienteering_Problem-1.pdf)
+17. A POPMUSIC matheuristic for the capacitated vehicle routing ..., accessed March 16, 2026, [https://www.researchgate.net/publication/353256770\_A\_POPMUSIC\_matheuristic\_for\_the\_capacitated\_vehicle\_routing\_problem](https://www.researchgate.net/publication/353256770_A_POPMUSIC_matheuristic_for_the_capacitated_vehicle_routing_problem)
+18. Decomposition strategies for vehicle routing heuristics | Optimization Online, accessed March 16, 2026, [https://optimization-online.org/wp-content/uploads/2021/03/Decomposition\_Strategies\_for\_Vehicle\_Routing\_Heuristics.pdf](https://optimization-online.org/wp-content/uploads/2021/03/Decomposition_Strategies_for_Vehicle_Routing_Heuristics.pdf)
+19. (PDF) Kernel Search for the Capacitated Vehicle Routing Problem, accessed March 16, 2026, [https://www.researchgate.net/publication/365315103\_Kernel\_Search\_for\_the\_Capacitated\_Vehicle\_Routing\_Problem](https://www.researchgate.net/publication/365315103_Kernel_Search_for_the_Capacitated_Vehicle_Routing_Problem)
+20. ALNS-KS versus ALNS-noKS for NRP-ISD. Average, best, and worst... \- ResearchGate, accessed March 16, 2026, [https://www.researchgate.net/figure/ALNS-KS-versus-ALNS-noKS-for-NRP-ISD-Average-best-and-worst-objective-function-gap\_fig6\_358756503](https://www.researchgate.net/figure/ALNS-KS-versus-ALNS-noKS-for-NRP-ISD-Average-best-and-worst-objective-function-gap_fig6_358756503)
+21. (PDF) Kernel search for the capacitated facility location problem \- ResearchGate, accessed March 16, 2026, [https://www.researchgate.net/publication/235333501\_Kernel\_search\_for\_the\_capacitated\_facility\_location\_problem](https://www.researchgate.net/publication/235333501_Kernel_search_for_the_capacitated_facility_location_problem)
+22. A Collection of Literature Review on Vehicle Routing Problem and Reflections \- Semantic Scholar, accessed March 16, 2026, [https://pdfs.semanticscholar.org/eca4/2c862fdd403ec9820364719389e722505bf6.pdf](https://pdfs.semanticscholar.org/eca4/2c862fdd403ec9820364719389e722505bf6.pdf)
+23. Heuristics for Vehicle Routing Problem: A Survey and ... \- arXiv.org, accessed March 16, 2026, [https://arxiv.org/pdf/2303.04147](https://arxiv.org/pdf/2303.04147)
+24. Orienteering Problems: Models and Algorithms for Vehicle Routing Problems with Profits, accessed March 16, 2026, [https://www.researchgate.net/publication/335520693\_Orienteering\_Problems\_Models\_and\_Algorithms\_for\_Vehicle\_Routing\_Problems\_with\_Profits](https://www.researchgate.net/publication/335520693_Orienteering_Problems_Models_and_Algorithms_for_Vehicle_Routing_Problems_with_Profits)
+25. (PDF) The Collaborative Consistent Vehicle Routing Problem with Workload Balance, accessed March 16, 2026, [https://www.researchgate.net/publication/348398641\_The\_Collaborative\_Consistent\_Vehicle\_Routing\_Problem\_with\_Workload\_Balance](https://www.researchgate.net/publication/348398641_The_Collaborative_Consistent_Vehicle_Routing_Problem_with_Workload_Balance)
+26. Matheuristics: using mathematics for heuristic design \- Unipd, accessed March 16, 2026, [http://www.dei.unipd.it/\~fisch/ricop/OR2/Matheuristics\_survey\_Boschetti\_Maniezzo.pdf](http://www.dei.unipd.it/~fisch/ricop/OR2/Matheuristics_survey_Boschetti_Maniezzo.pdf)
+27. Contemporary approaches in matheuristics an updated survey \- Unibo, accessed March 16, 2026, [https://cris.unibo.it/retrieve/c5a44943-581b-4cb5-80c6-9c3b7aaebbef/31-Matheuristics-Annals-s10479-024-06302-z.pdf](https://cris.unibo.it/retrieve/c5a44943-581b-4cb5-80c6-9c3b7aaebbef/31-Matheuristics-Annals-s10479-024-06302-z.pdf)
+28. A Matheuristic for the Electric Vehicle Routing Problem with Time Windows \- arXiv.org, accessed March 16, 2026, [https://arxiv.org/pdf/1506.00211](https://arxiv.org/pdf/1506.00211)
+29. A Local Branching Matheuristic for the Multi-Vehicle Routing Problem with Stochastic Demand \- Cirrelt, accessed March 16, 2026, [https://www.cirrelt.ca/documentstravail/cirrelt-2016-67.pdf](https://www.cirrelt.ca/documentstravail/cirrelt-2016-67.pdf)
+30. A set-covering based heuristic algorithm for the periodic vehicle routing problem \- PMC, accessed March 16, 2026, [https://pmc.ncbi.nlm.nih.gov/articles/3990422/](https://pmc.ncbi.nlm.nih.gov/articles/3990422/)
+31. A survey of the orienteering problem: model evolution, algorithmic advances, and future directions \- Semantic Scholar, accessed March 16, 2026, [https://www.semanticscholar.org/paper/A-survey-of-the-orienteering-problem%3A-model-and-Shen-Zhou/b53368a0557b31c93a6bb101a98ad6b6dc60bf24](https://www.semanticscholar.org/paper/A-survey-of-the-orienteering-problem%3A-model-and-Shen-Zhou/b53368a0557b31c93a6bb101a98ad6b6dc60bf24)
+32. A survey of the orienteering problem: model evolution, algorithmic advances, and future directions \- arXiv.org, accessed March 16, 2026, [https://arxiv.org/html/2512.16865v1](https://arxiv.org/html/2512.16865v1)
+33. (PDF) Metaheuristics for the team orienteering problem \- ResearchGate, accessed March 16, 2026, [https://www.researchgate.net/publication/220403497\_Metaheuristics\_for\_the\_team\_orienteering\_problem](https://www.researchgate.net/publication/220403497_Metaheuristics_for_the_team_orienteering_problem)
+34. TOP-Former: A Multi-Agent Transformer Approach for the Team Orienteering Problem \- IEEE Xplore, accessed March 16, 2026, [https://ieeexplore.ieee.org/iel8/6979/11178161/11000447.pdf](https://ieeexplore.ieee.org/iel8/6979/11178161/11000447.pdf)
+35. NeurIPS Poster SVRPBench: A Realistic Benchmark for Stochastic Vehicle Routing Problem, accessed March 16, 2026, [https://neurips.cc/virtual/2025/poster/121384](https://neurips.cc/virtual/2025/poster/121384)
+36. NeurIPS Poster A Learning-Augmented Dynamic Programming Approach for Orienteering Problem with Time Windows, accessed March 16, 2026, [https://neurips.cc/virtual/2025/poster/118291](https://neurips.cc/virtual/2025/poster/118291)
+37. LITERATURE REVIEW ON THE VEHICLE ROUTING PROBLEM IN THE GREEN TRANSPORTATION CONTEXT \- Redalyc, accessed March 16, 2026, [https://www.redalyc.org/journal/3217/321744162017/html/](https://www.redalyc.org/journal/3217/321744162017/html/)
+38. A Review of the Vehicle Routing Problem and the Current Routing Services in Smart Cities, accessed March 16, 2026, [https://www.mdpi.com/2813-2203/2/1/1](https://www.mdpi.com/2813-2203/2/1/1)
+39. Hexaly, Gurobi, OR-Tools on the Team Orienteering Problem (TOP), accessed March 16, 2026, [https://www.hexaly.com/benchmarks/hexaly-gurobi-or-tools-team-orienteering-problem-top](https://www.hexaly.com/benchmarks/hexaly-gurobi-or-tools-team-orienteering-problem-top)
 40. Experimental evaluation of a linear programming model for solving the vehicle routing problem (VRP) \- University of St. Thomas, accessed March 16, 2026, [https://researchonline.stthomas.edu/esploro/outputs/journalArticle/Experimental-evaluation-of-a-linear-programming/991015166271103691](https://researchonline.stthomas.edu/esploro/outputs/journalArticle/Experimental-evaluation-of-a-linear-programming/991015166271103691)
 
 [image1]: <data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAF8AAAAYCAYAAACcESEhAAAFEklEQVR4Xs2Ye+hmQxjHn+N+Ca0kl+wql7KyW8rlD7lFu5vNIhS2bdclQmhJEdKmECmXjZSNbCSyue4iti1akSi5xm65hf1D/kBW2/o+88z7nplnnpkz8+7P5VPf3znv93nmmTnznt+cOS9RQBd+0BhBw/qHaO2pNd9T3aw68f9KeAG58xgXyYcLTNQoprVEa75FUiMxYgbC1QzU2RF6DjpIB5iBtlND3f1yI7RQm2PsdrZbh2+bK5Hz21gOnaXNkMm7iVsmdZyRuDm2g9Yi/xQd8FQX8tTk1+R4GlI9F0LPu7P2tgl2CdsdMxBWHAL9AO3RW+UCM6DbyH1rtAFaD30MXezj90In+fMsfRdGZ4ZVAd9J30NzlX8u9BG0FYUh+hN6mANBN8dAmySHNsN/sw+1EA/cf+IJ3oTzWZHb8yJ0A58U5wTcCv0OfUhykTt7f3toGZq87+O7eP/f5EwM+ivKjBzmeySTe7AKjbgAegXaSwdqSDrtDZ5c7ndekiPwTcs3zU7Kj9JXdFLkdpK7TLMD9C30auQaPRrW5Lhi7s+T0INRLIYfwjz+E3QA7Ap9AO3vPvma4Z1YM+Yw33MRyV3N/V4yDsccShI/VQfIF7oGBzfx/bWarEFwaRJOjHDOjOBEdF/gz9XaDerfQ3KRxg6ju7OT5Un70SE5L8PLzQJoPkm/t8ThiI3Q9dpk9oV+hb4mt8zEvaux3AUdPv5kD/R+ksFs7fyRZC3Oad2oYQFeKjh3gd2l40qSnJtCE/kzcXjcnOgcuZzYv9Qf+XnC/fIuLMdr0EPaZO4jabxUByYjN3LPQDjDbP9FnqgDAWeQ5PRLU+eeVbw7Gljnmwd1HrSfP5/hxya7MJtnoKe1yXxG0niWeXck44qNYtgoF2KkujPDH91dRwUhXfhIkpwXAo//1a21Nsbo0MYFD4AWB+ZuJP3yrjDHo9Ab2uSHKDf8LTSD/jd0epnoaFkfngTj6gxLMZukfz7mGE0CP1gZXpPv7sOtZAe1pp+TaDn9Jk7rQf4jOLylfYb38H8hJd3h+P47KbwZOiIMZ5A1Xx7gNVrr2xXo+KcEzi0tO8x3JM8vhi842RJnp7SOy6DTtAk+h7aQVV4cXnJWWVF+SvNkncyZaZyO99/wqsg1EqeecSe7k0z+/HK/3TqSPJ4kXqpMVIlp0BKSd5kS09GSt7sW75D0e6Cu7j+thh5IXJKlh5/Gv5Bs0/jflX+84sHMg96F/oAWuezixXtyOd63w7YbsBG6VpuKx0gmId48hKWTbrqVJG2u05EAfmDz+80cHfDlXoJ4d3dsFOz5ErpCm0LnXqouh96GfiIpxEfeOewDnQ3t3TeYjOS621gB8UQFJN/mzSRb12AJLc48cwe0BZGndIBk2eJ6/EzkL4h/ojg6iJ9D8iDlt37Eu09JXgZDeFfEbY9TfgXmeBUuJ5mImJxvkJmuJdDPJP+VUw3fYE80DLEFfhH7JLZUT5kL1mkGbdnbwJ7Qj9D5Ld1UpvIEjV6aTOyrtF31aWVXXtLqqbmYJCcxYgbCIVdBL2uzzGB1Tni9kzd9Rb5tPkI+6P4cRrKbTHZdeYqV/wP68fBazm+Spyu/gWRHxy9h+mfqLA1d8lh5l8M/b5Sxi9puifYWQyQV+RfKZ0neNOtISni8n4QTI08hlX9jWqzNDMZIjMrOMvwirfk5Wusk+cldb1LMKQYnoFivGMyRa5Tza9iWtnUM9zCcUcvfVS3I5Otqbg0AAAAASUVORK5CYII=>

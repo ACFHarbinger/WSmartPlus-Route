@@ -26,9 +26,9 @@ The MP-VRPP introduces a dual-objective nature. The dispatcher is mandated to vi
 
 The decision variables are defined as follows:
 
-* **Routing:** ![][image18], taking the value 1 if vehicle ![][image9] traverses edge ![][image19] during period ![][image1], and 0 otherwise.15  
-* **Node Selection:** ![][image20], taking the value 1 if customer ![][image15] is serviced by vehicle ![][image9] during period ![][image1].19  
-* **Delivery Quantity:** ![][image21], representing the continuous volume of product delivered to node ![][image15] at period ![][image1].17  
+* **Routing:** ![][image18], taking the value 1 if vehicle ![][image9] traverses edge ![][image19] during period ![][image1], and 0 otherwise.15
+* **Node Selection:** ![][image20], taking the value 1 if customer ![][image15] is serviced by vehicle ![][image9] during period ![][image1].19
+* **Delivery Quantity:** ![][image21], representing the continuous volume of product delivered to node ![][image15] at period ![][image1].17
 * **Arrival Time:** ![][image22], representing the exact time at which a vehicle arrives at node ![][image15] during period ![][image1].19
 
 ### **2.2. Objective Function Formulation**
@@ -45,24 +45,24 @@ The optimization is subjected to strict topological, temporal, and physical cons
 
 Each selected node must be visited exactly once per period by a single vehicle:
 
-![][image29]  
-![][image30]  
+![][image29]
+![][image30]
 **2\. Heterogeneous Vehicle Capacity:**
 
 The total quantity delivered by vehicle ![][image9] must not exceed its capacity:
 
-![][image31]  
+![][image31]
 **3\. Temporal Bounds and Route Duration (Time Windows):**
 
 Let ![][image32] be the service duration at node ![][image15]. Subtour elimination and time-window constraints are enforced via the arrival time variables:
 
-![][image33]  
-![][image34]  
+![][image33]
+![][image34]
 **4\. Inter-Temporal Inventory System Dynamics:**
 
 Inventory balances carry forward deterministically given a realized demand ![][image13]:
 
-![][image35]  
+![][image35]
 ![][image36]
 
 ### **2.4. Candid Critique of Standard OR Formulations**
@@ -85,7 +85,7 @@ However, RNN-based architectures inherently suffer from vanishing gradients over
 
 The TFE-HCM applies a multi-head self-attention mechanism explicitly to the time domain. Let ![][image47] be the historical feature matrix for node ![][image15] over the past ![][image48] periods. The inter-temporal attention is computed mathematically as:
 
-![][image49]  
+![][image49]
 Here, ![][image50], ![][image51], and ![][image52] represent the queries, keys, and values, respectively, via learned projection matrices ![][image53]. The term ![][image54] is a strictly lower-triangular temporal masking matrix enforcing causality, preventing the network from attending to unrevealed future states.26
 
 This mechanism empowers the DRL agent to selectively prioritize temporally critical observations—such as a sudden acceleration in demand variance—optimizing the node selection policy by recognizing that a stockout is imminent despite a seemingly stable current inventory level.29
@@ -94,7 +94,7 @@ This mechanism empowers the DRL agent to selectively prioritize temporally criti
 
 Simultaneously, the spatial topology is encoded using Graph Attention Networks (GATv2) with adaptive gating. Let ![][image55] be the feature vector of node ![][image15] at layer ![][image56]. The message passing is defined as:
 
-![][image57]  
+![][image57]
 where the attention coefficients ![][image58] represent the learned relevance between nodes ![][image15] and ![][image59], effectively embedding the non-Euclidean travel times ![][image24] and customer proximity into a latent high-dimensional state representation.31 This unified spatial-temporal embedding is the critical foundation upon which multi-phase decoders operate.
 
 | Feature Domain | Traditional Method | State-of-the-Art Neural Counterpart | Advantage in MP-VRPP |
@@ -117,7 +117,7 @@ The optimization of the construction policy fundamentally relies on the REINFORC
 
 The shared baseline ![][image61] is computed dynamically as the mean reward of these diverse rollouts, drastically sharpening the advantage function ![][image62].8 The policy gradient update rule is mathematically formalized as:
 
-![][image63]  
+![][image63]
 This phase rapidly converges to identify a high-quality topological draft, projecting the problem state into a shared latent space that perfectly primes the subsequent improvement phase.
 
 ### **4.2. Phase 2: Iterative Refinement via Shared-Encoder Architecture**
@@ -128,7 +128,7 @@ The graph embeddings and temporal features learned during construction—which i
 
 To prevent catastrophic policy collapse during the prolonged training required for iterative search, Phase 2 is trained using **Proximal Policy Optimization (PPO)**. PPO restricts the magnitude of policy updates using a clipped surrogate objective function:
 
-![][image64]  
+![][image64]
 where the probability ratio is ![][image65]. The true synergy of this architecture lies in curriculum learning: the construction module learns to generate structured "drafts" explicitly tailored for the specific perturbation operators available in the second phase. This represents a significant theoretical breakthrough in DRL scalability.8
 
 ## **5\. Three-Phase Hierarchical Deep Reinforcement Learning Architectures**
@@ -155,7 +155,7 @@ Given the active subset ![][image68], the problem reduces to a constrained spati
 
 The dual-decoder mechanism completely bifurcates the sequential action step into two distinct components:
 
-1. **Vehicle/Fleet Decoder:** Analyzes the active fleet state and selects the optimal vehicle ![][image9], strictly accounting for heterogeneous capacities ![][image10] and remaining shift durations ![][image11].22  
+1. **Vehicle/Fleet Decoder:** Analyzes the active fleet state and selects the optimal vehicle ![][image9], strictly accounting for heterogeneous capacities ![][image10] and remaining shift durations ![][image11].22
 2. **Node/Waypoint Decoder:** Conditioned linearly on the chosen vehicle ![][image9], this secondary module autoregressively selects the next node ![][image69] to append to the tour. It rigorously evaluates the TFE-HCM temporal embeddings to ensure the geographical step does not trigger downstream time-window violations.11
 
 By mathematically decoupling vehicle selection from node selection, the DRL agent avoids the compounding dimensional explosion associated with modeling the joint probability distribution of ![][image70].11 Furthermore, contemporary models like POMO-DC (Dynamic Context) continuously inject the vehicle's real-time cumulative travel time into the decoder's context vector, allowing the active policy to adapt instantaneously to stochastic traffic delays.13
@@ -181,7 +181,7 @@ Inventory management and vehicle routing are classically treated as competing, a
 
 To resolve this conflict, the **Multi-Task Proximal Policy Optimization (MTPPO)** algorithm establishes a shared neural architecture equipped with distinct, specialized policy heads.16
 
-* **Head 1 (Inventory Replenishment):** Learns replenishment quantities ![][image71] directly from time-series inventory status data, mapping predictions to a continuous action space.  
+* **Head 1 (Inventory Replenishment):** Learns replenishment quantities ![][image71] directly from time-series inventory status data, mapping predictions to a continuous action space.
 * **Head 2 (Routing Strategy):** Utilizes Graph Isomorphism Networks (GINs) to process the geographic topology and sequence the physical nodes.16
 
 MTPPO leverages a dynamic **Particle Filter (PF)** mechanism to continuously adjust task weights during the training loop. This ensures that the massive gradient updates originating from the routing loss do not overwhelm and destabilize the gradient updates from the inventory loss. This results in highly robust, Pareto-balanced policies that reduce overall supply chain costs by approximately 6-8% compared to isolated heuristic planners.16
@@ -212,53 +212,53 @@ The following structural overview outlines the necessary PyTorch components to c
 
 Python
 
-import torch  
-import torch.nn as nn  
+import torch
+import torch.nn as nn
 import torch.nn.functional as F
 
-class MP\_VRPP\_ThreePhaseModel(nn.Module):  
-    def \_\_init\_\_(self, embed\_dim, num\_heads, num\_layers):  
-        super().\_\_init\_\_()  
-        \# Phase 1 & 2 Encoders  
-        self.spatial\_encoder \= GATv2Encoder(embed\_dim, num\_heads, num\_layers)  
-        self.temporal\_encoder \= TFE\_HCM\_Encoder(embed\_dim, num\_heads)  
-          
-        \# Phase 1: Node Selection (NAR)  
-        self.node\_selector \= nn.Sequential(  
-            nn.Linear(embed\_dim \* 2, embed\_dim),  
-            nn.ReLU(),  
-            nn.Linear(embed\_dim, 1) \# Outputs selection logits  
-        )  
-          
-        \# Phase 2: Dual-Decoder (AR)  
-        self.vehicle\_decoder \= TransformerDecoder(embed\_dim, num\_heads)  
-        self.node\_decoder \= TransformerDecoder(embed\_dim, num\_heads)  
-          
-    def forward(self, spatial\_graph, historical\_inventory, fleet\_state):  
-        \# 1\. Encode State  
-        h\_spatial \= self.spatial\_encoder(spatial\_graph)  
-        h\_temporal \= self.temporal\_encoder(historical\_inventory)  
-        h\_combined \= torch.cat(\[h\_spatial, h\_temporal\], dim=-1)  
-          
-        \# 2\. Phase 1: Global Node Selection  
-        selection\_logits \= self.node\_selector(h\_combined)  
-        \# Gumbel-Softmax for differentiable discrete sampling  
-        active\_nodes\_mask \= F.gumbel\_softmax(selection\_logits, tau=1.0, hard=True)   
-          
-        \# 3\. Phase 2: Route Construction (Simplified step logic)  
-        context \= self.\_compute\_context(h\_combined, active\_nodes\_mask, fleet\_state)  
-          
-        \# Vehicle selection probability  
-        vehicle\_logits \= self.vehicle\_decoder(context, fleet\_state)  
-        selected\_vehicle \= torch.distributions.Categorical(logits=vehicle\_logits).sample()  
-          
-        \# Condition context on selected vehicle  
-        context\_v \= context \+ fleet\_state\[selected\_vehicle\]  
-          
-        \# Mask out invalid nodes (CRL Constraint Enforcement)  
-        node\_logits \= self.node\_decoder(context\_v, h\_combined)  
-        node\_logits\[\~active\_nodes\_mask.bool()\] \= \-float('inf')   
-          
+class MP\_VRPP\_ThreePhaseModel(nn.Module):
+    def \_\_init\_\_(self, embed\_dim, num\_heads, num\_layers):
+        super().\_\_init\_\_()
+        \# Phase 1 & 2 Encoders
+        self.spatial\_encoder \= GATv2Encoder(embed\_dim, num\_heads, num\_layers)
+        self.temporal\_encoder \= TFE\_HCM\_Encoder(embed\_dim, num\_heads)
+
+        \# Phase 1: Node Selection (NAR)
+        self.node\_selector \= nn.Sequential(
+            nn.Linear(embed\_dim \* 2, embed\_dim),
+            nn.ReLU(),
+            nn.Linear(embed\_dim, 1) \# Outputs selection logits
+        )
+
+        \# Phase 2: Dual-Decoder (AR)
+        self.vehicle\_decoder \= TransformerDecoder(embed\_dim, num\_heads)
+        self.node\_decoder \= TransformerDecoder(embed\_dim, num\_heads)
+
+    def forward(self, spatial\_graph, historical\_inventory, fleet\_state):
+        \# 1\. Encode State
+        h\_spatial \= self.spatial\_encoder(spatial\_graph)
+        h\_temporal \= self.temporal\_encoder(historical\_inventory)
+        h\_combined \= torch.cat(\[h\_spatial, h\_temporal\], dim=-1)
+
+        \# 2\. Phase 1: Global Node Selection
+        selection\_logits \= self.node\_selector(h\_combined)
+        \# Gumbel-Softmax for differentiable discrete sampling
+        active\_nodes\_mask \= F.gumbel\_softmax(selection\_logits, tau=1.0, hard=True)
+
+        \# 3\. Phase 2: Route Construction (Simplified step logic)
+        context \= self.\_compute\_context(h\_combined, active\_nodes\_mask, fleet\_state)
+
+        \# Vehicle selection probability
+        vehicle\_logits \= self.vehicle\_decoder(context, fleet\_state)
+        selected\_vehicle \= torch.distributions.Categorical(logits=vehicle\_logits).sample()
+
+        \# Condition context on selected vehicle
+        context\_v \= context \+ fleet\_state\[selected\_vehicle\]
+
+        \# Mask out invalid nodes (CRL Constraint Enforcement)
+        node\_logits \= self.node\_decoder(context\_v, h\_combined)
+        node\_logits\[\~active\_nodes\_mask.bool()\] \= \-float('inf')
+
         return vehicle\_logits, node\_logits
 
 *Candid Implementation Feedback:* A common pitfall in implementing the dual-decoder is the failure to detach the computational graph between the vehicle decoder and the node decoder during PPO updates. Because the node selection is strictly conditioned on the vehicle selection, gradients flowing backward from the node decoder can destabilize the vehicle decoder's entropy. Researchers must implement independent advantage tracking for both heads to ensure stable convergence.
@@ -269,37 +269,37 @@ To rigorously validate the optimality gaps of the DRL model, small-scale instanc
 
 Python
 
-import gurobipy as gp  
+import gurobipy as gp
 from gurobipy import GRB
 
-def build\_mp\_vrpp\_baseline(N, K, H, demands, profits, costs, capacities):  
-    model \= gp.Model("MP\_VRPP\_Exact")  
-      
-    \# Decision Variables  
-    x \= model.addVars(N+1, N+1, K, H, vtype=GRB.BINARY, name="x")  
-    y \= model.addVars(N+1, K, H, vtype=GRB.BINARY, name="y")  
-    q \= model.addVars(N+1, H, vtype=GRB.CONTINUOUS, name="q")  
-    inv \= model.addVars(N+1, H, vtype=GRB.CONTINUOUS, name="inv")  
-      
-    \# Objective: Maximize Profit \- Cost  
-    obj \= gp.quicksum(profits\[i,t\] \* y\[i,k,t\] for i in range(1, N+1) for k in range(K) for t in range(H)) \\  
-        \- gp.quicksum(costs\[i,j,t\] \* x\[i,j,k,t\] for i in range(N+1) for j in range(N+1) for k in range(K) for t in range(H))  
-    model.setObjective(obj, GRB.MAXIMIZE)  
-      
-    \# Flow Conservation  
-    model.addConstrs((gp.quicksum(x\[i,j,k,t\] for j in range(N+1) if j\!= i) \== y\[i,k,t\]   
-                      for i in range(1, N+1) for k in range(K) for t in range(H)), "Degree")  
-                        
-    \# Inter-Temporal Inventory Balance  
-    for i in range(1, N+1):  
-        for t in range(1, H):  
-            model.addConstr(inv\[i,t\] \== inv\[i,t-1\] \+ q\[i,t\] \- demands\[i,t\], "InvBal")  
-              
-    \# Vehicle Capacity  
-    model.addConstrs((gp.quicksum(q\[i,t\] \* y\[i,k,t\] for i in range(1, N+1)) \<= capacities\[k\]   
-                      for k in range(K) for t in range(H)), "Capacity")  
-                        
-    model.optimize()  
+def build\_mp\_vrpp\_baseline(N, K, H, demands, profits, costs, capacities):
+    model \= gp.Model("MP\_VRPP\_Exact")
+
+    \# Decision Variables
+    x \= model.addVars(N+1, N+1, K, H, vtype=GRB.BINARY, name="x")
+    y \= model.addVars(N+1, K, H, vtype=GRB.BINARY, name="y")
+    q \= model.addVars(N+1, H, vtype=GRB.CONTINUOUS, name="q")
+    inv \= model.addVars(N+1, H, vtype=GRB.CONTINUOUS, name="inv")
+
+    \# Objective: Maximize Profit \- Cost
+    obj \= gp.quicksum(profits\[i,t\] \* y\[i,k,t\] for i in range(1, N+1) for k in range(K) for t in range(H)) \\
+        \- gp.quicksum(costs\[i,j,t\] \* x\[i,j,k,t\] for i in range(N+1) for j in range(N+1) for k in range(K) for t in range(H))
+    model.setObjective(obj, GRB.MAXIMIZE)
+
+    \# Flow Conservation
+    model.addConstrs((gp.quicksum(x\[i,j,k,t\] for j in range(N+1) if j\!= i) \== y\[i,k,t\]
+                      for i in range(1, N+1) for k in range(K) for t in range(H)), "Degree")
+
+    \# Inter-Temporal Inventory Balance
+    for i in range(1, N+1):
+        for t in range(1, H):
+            model.addConstr(inv\[i,t\] \== inv\[i,t-1\] \+ q\[i,t\] \- demands\[i,t\], "InvBal")
+
+    \# Vehicle Capacity
+    model.addConstrs((gp.quicksum(q\[i,t\] \* y\[i,k,t\] for i in range(1, N+1)) \<= capacities\[k\]
+                      for k in range(K) for t in range(H)), "Capacity")
+
+    model.optimize()
     return model
 
 ### **7.3. Experimental Setup and Tuning**
@@ -318,49 +318,49 @@ To guarantee mathematical feasibility in volatile real-world environments charac
 
 #### **Works cited**
 
-1. Two-Stage Learning to Branch in Branch-Price-and-Cut Algorithms for Solving Vehicle Routing Problems Exactly | Operations Research \- PubsOnLine, accessed April 16, 2026, [https://pubsonline.informs.org/doi/10.1287/opre.2023.0615](https://pubsonline.informs.org/doi/10.1287/opre.2023.0615)  
-2. A Review: Machine Learning for Combinatorial Optimization Problems in Energy Areas, accessed April 16, 2026, [https://www.mdpi.com/1999-4893/15/6/205](https://www.mdpi.com/1999-4893/15/6/205)  
-3. Vehicle routing problems with profits | Request PDF \- ResearchGate, accessed April 16, 2026, [https://www.researchgate.net/publication/313244628\_Vehicle\_routing\_problems\_with\_profits](https://www.researchgate.net/publication/313244628_Vehicle_routing_problems_with_profits)  
-4. Distance approximation to support customer selection in vehicle routing problems, accessed April 16, 2026, [https://d-nb.info/1260864545/34](https://d-nb.info/1260864545/34)  
-5. UNIVERSIDADE DE LISBOA INSTITUTO SUPERIOR TÉCNICO, accessed April 16, 2026, [https://scholar.tecnico.ulisboa.pt/api/records/fncCBZYuodInjUz0GrWF58MlSJ6uLoAruSh6/file/7009d85103996fadb0c4fa0070b8b30cb4c69d938981c55283978967a04b3707.pdf](https://scholar.tecnico.ulisboa.pt/api/records/fncCBZYuodInjUz0GrWF58MlSJ6uLoAruSh6/file/7009d85103996fadb0c4fa0070b8b30cb4c69d938981c55283978967a04b3707.pdf)  
-6. Inventory Routing: A Strategic Management Accounting Perspective \- HELDA, accessed April 16, 2026, [https://helda.helsinki.fi/server/api/core/bitstreams/b4b7fae5-600e-411b-a277-36dc3af227f0/content](https://helda.helsinki.fi/server/api/core/bitstreams/b4b7fae5-600e-411b-a277-36dc3af227f0/content)  
-7. online learning and optimization with irreversible decisions \- Harvard Business School, accessed April 16, 2026, [https://www.hbs.edu/ris/Publication%20Files/2406.14777v1\_bd1aabfa-5be9-48da-9319-2c0406071b4e.pdf](https://www.hbs.edu/ris/Publication%20Files/2406.14777v1_bd1aabfa-5be9-48da-9319-2c0406071b4e.pdf)  
-8. Two-Phase DRL for Vehicle Routing Problems.md  
-9. NeurIPS Poster Improving Generalization of Neural Combinatorial Optimization for Vehicle Routing Problems via Test-Time Projection Learning, accessed April 16, 2026, [https://neurips.cc/virtual/2025/poster/118137](https://neurips.cc/virtual/2025/poster/118137)  
-10. Token-specific deep reinforcement learning for energy-efficient capacitated electric vehicle routing problems | Request PDF \- ResearchGate, accessed April 16, 2026, [https://www.researchgate.net/publication/396058276\_Token-specific\_deep\_reinforcement\_learning\_for\_energy-efficient\_capacitated\_electric\_vehicle\_routing\_problems](https://www.researchgate.net/publication/396058276_Token-specific_deep_reinforcement_learning_for_energy-efficient_capacitated_electric_vehicle_routing_problems)  
-11. A Unified Deep Reinforcement Learning Approach for Close Enough Traveling Salesman Problem \- arXiv, accessed April 16, 2026, [https://arxiv.org/pdf/2510.03065](https://arxiv.org/pdf/2510.03065)  
-12. Drone Routing Optimizer for Aerial Inspections of Energy and Railway Infrastructures, accessed April 16, 2026, [https://elib.dlr.de/189092/1/Drone\_Routing\_Optimizer\_for\_Aerial\_Inspections\_of\_Energy\_and\_Railway\_Infrastructures.pdf](https://elib.dlr.de/189092/1/Drone_Routing_Optimizer_for_Aerial_Inspections_of_Energy_and_Railway_Infrastructures.pdf)  
-13. A Deep Reinforcement Learning Model to Solve the Stochastic Capacitated Vehicle Routing Problem with Service Times and Deadlines \- MDPI, accessed April 16, 2026, [https://www.mdpi.com/2227-7390/13/18/3050](https://www.mdpi.com/2227-7390/13/18/3050)  
-14. A Deep Reinforcement Learning-Based Adaptive Search for Solving Time-Dependent Green Vehicle Routing Problem \- IEEE Xplore, accessed April 16, 2026, [https://ieeexplore.ieee.org/iel7/6287639/10380310/10444557.pdf](https://ieeexplore.ieee.org/iel7/6287639/10380310/10444557.pdf)  
-15. The Dynamic Multi-Period Vehicle Routing Problem, accessed April 16, 2026, [https://backend.orbit.dtu.dk/ws/files/4004165/Report\_2009\_5.pdf](https://backend.orbit.dtu.dk/ws/files/4004165/Report_2009_5.pdf)  
-16. Enhanced multi-task deep reinforcement learning for the integrated inventory-routing problem under VMI mode \- ResearchGate, accessed April 16, 2026, [https://www.researchgate.net/publication/396080568\_Enhanced\_multi-task\_deep\_reinforcement\_learning\_for\_the\_integrated\_inventory-routing\_problem\_under\_VMI\_mode](https://www.researchgate.net/publication/396080568_Enhanced_multi-task_deep_reinforcement_learning_for_the_integrated_inventory-routing_problem_under_VMI_mode)  
-17. Multi-Period Vehicle Routing Problem with Due Dates \- Cirrelt, accessed April 16, 2026, [https://www.cirrelt.ca/documentstravail/cirrelt-2014-41.pdf](https://www.cirrelt.ca/documentstravail/cirrelt-2014-41.pdf)  
-18. Constrained Reinforcement Learning for the Dynamic Inventory Routing Problem under Stochastic Supply and Demand \- arXiv, accessed April 16, 2026, [https://arxiv.org/pdf/2503.05276](https://arxiv.org/pdf/2503.05276)  
-19. The Vehicle Routing Problem with Profits and Consistency Constraints, accessed April 16, 2026, [https://researchonline.ljmu.ac.uk/id/eprint/9410/7/The%20Vehicle%20Routing%20Problem%20with%20Profits%20and%20Consistency%20Constraints.pdf](https://researchonline.ljmu.ac.uk/id/eprint/9410/7/The%20Vehicle%20Routing%20Problem%20with%20Profits%20and%20Consistency%20Constraints.pdf)  
-20. Deep Reinforcement Learning for One-Warehouse Multi-Retailer inventory management, accessed April 16, 2026, [https://www.researchgate.net/publication/375586925\_Deep\_Reinforcement\_Learning\_for\_One-Warehouse\_Multi-Retailer\_inventory\_management](https://www.researchgate.net/publication/375586925_Deep_Reinforcement_Learning_for_One-Warehouse_Multi-Retailer_inventory_management)  
-21. 1 Introduction \- arXiv.org, accessed April 16, 2026, [https://arxiv.org/html/2503.05276v2](https://arxiv.org/html/2503.05276v2)  
-22. \[2503.04085\] SED2AM: Solving Multi-Trip Time-Dependent Vehicle Routing Problem using Deep Reinforcement Learning \- arXiv, accessed April 16, 2026, [https://arxiv.org/abs/2503.04085](https://arxiv.org/abs/2503.04085)  
-23. \[2503.05276\] Constrained Reinforcement Learning for the Dynamic Inventory Routing Problem under Stochastic Supply and Demand \- arXiv, accessed April 16, 2026, [https://arxiv.org/abs/2503.05276](https://arxiv.org/abs/2503.05276)  
-24. Multi-Agent Deep Reinforcement Learning Approach for Temporally Coordinated Demand Response in Microgrids \- ResearchGate, accessed April 16, 2026, [https://www.researchgate.net/publication/394956013\_Multi-Agent\_Deep\_Reinforcement\_Learning\_Approach\_for\_Temporally\_Coordinated\_Demand\_Response\_in\_Microgrids](https://www.researchgate.net/publication/394956013_Multi-Agent_Deep_Reinforcement_Learning_Approach_for_Temporally_Coordinated_Demand_Response_in_Microgrids)  
-25. Robust and Efficient Communication in Multi-Agent Reinforcement Learning \- arXiv, accessed April 16, 2026, [https://arxiv.org/html/2511.11393v1](https://arxiv.org/html/2511.11393v1)  
-26. Spatial–Temporal-Correlation-Constrained Dynamic Graph Convolutional Network for Traffic Flow Forecasting \- MDPI, accessed April 16, 2026, [https://www.mdpi.com/2227-7390/12/19/3159](https://www.mdpi.com/2227-7390/12/19/3159)  
-27. Full article: An LSTM network-based genetic algorithm for integrated procurement and scheduling optimisation \- Taylor & Francis, accessed April 16, 2026, [https://www.tandfonline.com/doi/full/10.1080/00207543.2024.2434948](https://www.tandfonline.com/doi/full/10.1080/00207543.2024.2434948)  
-28. A Survey on Graph Neural Networks for Time Series: Forecasting, Classification, Imputation, and Anomaly Detection \- arXiv, accessed April 16, 2026, [https://arxiv.org/html/2307.03759v3](https://arxiv.org/html/2307.03759v3)  
-29. AST3DRNet: Attention-Based Spatio-Temporal 3D Residual Neural Networks for Traffic Congestion Prediction \- PMC, accessed April 16, 2026, [https://pmc.ncbi.nlm.nih.gov/articles/PMC10892531/](https://pmc.ncbi.nlm.nih.gov/articles/PMC10892531/)  
-30. A Multimodal Deep Fusion Method for Stock Movement Prediction Using Heterogeneous Data Source \- IEEE Xplore, accessed April 16, 2026, [https://ieeexplore.ieee.org/iel8/6287639/11323511/11354495.pdf](https://ieeexplore.ieee.org/iel8/6287639/11323511/11354495.pdf)  
-31. A Hybrid Deep Reinforcement Learning Framework for Vehicle Path Optimization with Time Windows \- MDPI, accessed April 16, 2026, [https://www.mdpi.com/1999-4893/19/2/149](https://www.mdpi.com/1999-4893/19/2/149)  
-32. Temporal Graph Learning Reading Group \- Shenyang Huang, accessed April 16, 2026, [https://shenyanghuang.github.io/rg.html](https://shenyanghuang.github.io/rg.html)  
-33. University of Nottingham Automated Design of Local Search Algorithms for Vehicle Routing Problems with Time Windows \- Weiyao Meng, accessed April 16, 2026, [https://weiyaomeng.github.io/files/thesis/Weiyao\_Thesis202309.pdf](https://weiyaomeng.github.io/files/thesis/Weiyao_Thesis202309.pdf)  
-34. A Unified Deep Reinforcement Learning Approach for Close Enough Traveling Salesman Problem \- arXiv, accessed April 16, 2026, [https://arxiv.org/html/2510.03065v1](https://arxiv.org/html/2510.03065v1)  
-35. International Journal of Industrial Engineering Computations A hybrid expert system, clustering and ant colony optimization appr \- Growing Science, accessed April 16, 2026, [https://www.growingscience.com/ijiec/Vol9/IJIEC\_2017\_26.pdf](https://www.growingscience.com/ijiec/Vol9/IJIEC_2017_26.pdf)  
-36. Blockchain-enabled wireless communications: a new paradigm towards 6G \- PMC \- NIH, accessed April 16, 2026, [https://pmc.ncbi.nlm.nih.gov/articles/PMC8433085/](https://pmc.ncbi.nlm.nih.gov/articles/PMC8433085/)  
-37. Multi-Period Profit-Oriented Location Routing Problem in Multi-User Warehouses with Backordering and Order Acceptance, accessed April 16, 2026, [https://www.worldscientific.com/doi/pdf/10.1142/S0217595924500180?download=true](https://www.worldscientific.com/doi/pdf/10.1142/S0217595924500180?download=true)  
-38. A two-phase algorithm for the dynamic time-dependent green vehicle routing problem in decoration waste collection | Request PDF \- ResearchGate, accessed April 16, 2026, [https://www.researchgate.net/publication/385117203\_A\_two-phase\_algorithm\_for\_the\_dynamic\_time-dependent\_green\_vehicle\_routing\_problem\_in\_decoration\_waste\_collection](https://www.researchgate.net/publication/385117203_A_two-phase_algorithm_for_the_dynamic_time-dependent_green_vehicle_routing_problem_in_decoration_waste_collection)  
-39. SED2AM: Solving Multi-Trip Time-Dependent Vehicle Routing Problem using Deep Reinforcement Learning \- CoLab.ws, accessed April 16, 2026, [https://colab.ws/articles/10.1145%2F3721983](https://colab.ws/articles/10.1145%2F3721983)  
-40. Variable neighborhood search for consistent vehicle routing problem \- ResearchGate, accessed April 16, 2026, [https://www.researchgate.net/publication/326180887\_Variable\_neighborhood\_search\_for\_consistent\_vehicle\_routing\_problem](https://www.researchgate.net/publication/326180887_Variable_neighborhood_search_for_consistent_vehicle_routing_problem)  
-41. A Green Vehicle Routing Problem with Time-Varying Speeds and Joint Distribution \- MDPI, accessed April 16, 2026, [https://www.mdpi.com/2071-1050/17/16/7515](https://www.mdpi.com/2071-1050/17/16/7515)  
-42. Enhanced multi-task deep reinforcement learning for the integrated inventory-routing problem under VMI mode | Semantic Scholar, accessed April 16, 2026, [https://www.semanticscholar.org/paper/Enhanced-multi-task-deep-reinforcement-learning-for-Lu-Wan/327672340b50ff63c96f60868f06e5a2c8b6844d](https://www.semanticscholar.org/paper/Enhanced-multi-task-deep-reinforcement-learning-for-Lu-Wan/327672340b50ff63c96f60868f06e5a2c8b6844d)  
-43. MTPPO-PF: multi-task proximal policy optimization with particle filters for efficient hyperparameter optimization \- ResearchGate, accessed April 16, 2026, [https://www.researchgate.net/publication/399960226\_MTPPO-PF\_multi-task\_proximal\_policy\_optimization\_with\_particle\_filters\_for\_efficient\_hyperparameter\_optimization](https://www.researchgate.net/publication/399960226_MTPPO-PF_multi-task_proximal_policy_optimization_with_particle_filters_for_efficient_hyperparameter_optimization)  
+1. Two-Stage Learning to Branch in Branch-Price-and-Cut Algorithms for Solving Vehicle Routing Problems Exactly | Operations Research \- PubsOnLine, accessed April 16, 2026, [https://pubsonline.informs.org/doi/10.1287/opre.2023.0615](https://pubsonline.informs.org/doi/10.1287/opre.2023.0615)
+2. A Review: Machine Learning for Combinatorial Optimization Problems in Energy Areas, accessed April 16, 2026, [https://www.mdpi.com/1999-4893/15/6/205](https://www.mdpi.com/1999-4893/15/6/205)
+3. Vehicle routing problems with profits | Request PDF \- ResearchGate, accessed April 16, 2026, [https://www.researchgate.net/publication/313244628\_Vehicle\_routing\_problems\_with\_profits](https://www.researchgate.net/publication/313244628_Vehicle_routing_problems_with_profits)
+4. Distance approximation to support customer selection in vehicle routing problems, accessed April 16, 2026, [https://d-nb.info/1260864545/34](https://d-nb.info/1260864545/34)
+5. UNIVERSIDADE DE LISBOA INSTITUTO SUPERIOR TÉCNICO, accessed April 16, 2026, [https://scholar.tecnico.ulisboa.pt/api/records/fncCBZYuodInjUz0GrWF58MlSJ6uLoAruSh6/file/7009d85103996fadb0c4fa0070b8b30cb4c69d938981c55283978967a04b3707.pdf](https://scholar.tecnico.ulisboa.pt/api/records/fncCBZYuodInjUz0GrWF58MlSJ6uLoAruSh6/file/7009d85103996fadb0c4fa0070b8b30cb4c69d938981c55283978967a04b3707.pdf)
+6. Inventory Routing: A Strategic Management Accounting Perspective \- HELDA, accessed April 16, 2026, [https://helda.helsinki.fi/server/api/core/bitstreams/b4b7fae5-600e-411b-a277-36dc3af227f0/content](https://helda.helsinki.fi/server/api/core/bitstreams/b4b7fae5-600e-411b-a277-36dc3af227f0/content)
+7. online learning and optimization with irreversible decisions \- Harvard Business School, accessed April 16, 2026, [https://www.hbs.edu/ris/Publication%20Files/2406.14777v1\_bd1aabfa-5be9-48da-9319-2c0406071b4e.pdf](https://www.hbs.edu/ris/Publication%20Files/2406.14777v1_bd1aabfa-5be9-48da-9319-2c0406071b4e.pdf)
+8. Two-Phase DRL for Vehicle Routing Problems.md
+9. NeurIPS Poster Improving Generalization of Neural Combinatorial Optimization for Vehicle Routing Problems via Test-Time Projection Learning, accessed April 16, 2026, [https://neurips.cc/virtual/2025/poster/118137](https://neurips.cc/virtual/2025/poster/118137)
+10. Token-specific deep reinforcement learning for energy-efficient capacitated electric vehicle routing problems | Request PDF \- ResearchGate, accessed April 16, 2026, [https://www.researchgate.net/publication/396058276\_Token-specific\_deep\_reinforcement\_learning\_for\_energy-efficient\_capacitated\_electric\_vehicle\_routing\_problems](https://www.researchgate.net/publication/396058276_Token-specific_deep_reinforcement_learning_for_energy-efficient_capacitated_electric_vehicle_routing_problems)
+11. A Unified Deep Reinforcement Learning Approach for Close Enough Traveling Salesman Problem \- arXiv, accessed April 16, 2026, [https://arxiv.org/pdf/2510.03065](https://arxiv.org/pdf/2510.03065)
+12. Drone Routing Optimizer for Aerial Inspections of Energy and Railway Infrastructures, accessed April 16, 2026, [https://elib.dlr.de/189092/1/Drone\_Routing\_Optimizer\_for\_Aerial\_Inspections\_of\_Energy\_and\_Railway\_Infrastructures.pdf](https://elib.dlr.de/189092/1/Drone_Routing_Optimizer_for_Aerial_Inspections_of_Energy_and_Railway_Infrastructures.pdf)
+13. A Deep Reinforcement Learning Model to Solve the Stochastic Capacitated Vehicle Routing Problem with Service Times and Deadlines \- MDPI, accessed April 16, 2026, [https://www.mdpi.com/2227-7390/13/18/3050](https://www.mdpi.com/2227-7390/13/18/3050)
+14. A Deep Reinforcement Learning-Based Adaptive Search for Solving Time-Dependent Green Vehicle Routing Problem \- IEEE Xplore, accessed April 16, 2026, [https://ieeexplore.ieee.org/iel7/6287639/10380310/10444557.pdf](https://ieeexplore.ieee.org/iel7/6287639/10380310/10444557.pdf)
+15. The Dynamic Multi-Period Vehicle Routing Problem, accessed April 16, 2026, [https://backend.orbit.dtu.dk/ws/files/4004165/Report\_2009\_5.pdf](https://backend.orbit.dtu.dk/ws/files/4004165/Report_2009_5.pdf)
+16. Enhanced multi-task deep reinforcement learning for the integrated inventory-routing problem under VMI mode \- ResearchGate, accessed April 16, 2026, [https://www.researchgate.net/publication/396080568\_Enhanced\_multi-task\_deep\_reinforcement\_learning\_for\_the\_integrated\_inventory-routing\_problem\_under\_VMI\_mode](https://www.researchgate.net/publication/396080568_Enhanced_multi-task_deep_reinforcement_learning_for_the_integrated_inventory-routing_problem_under_VMI_mode)
+17. Multi-Period Vehicle Routing Problem with Due Dates \- Cirrelt, accessed April 16, 2026, [https://www.cirrelt.ca/documentstravail/cirrelt-2014-41.pdf](https://www.cirrelt.ca/documentstravail/cirrelt-2014-41.pdf)
+18. Constrained Reinforcement Learning for the Dynamic Inventory Routing Problem under Stochastic Supply and Demand \- arXiv, accessed April 16, 2026, [https://arxiv.org/pdf/2503.05276](https://arxiv.org/pdf/2503.05276)
+19. The Vehicle Routing Problem with Profits and Consistency Constraints, accessed April 16, 2026, [https://researchonline.ljmu.ac.uk/id/eprint/9410/7/The%20Vehicle%20Routing%20Problem%20with%20Profits%20and%20Consistency%20Constraints.pdf](https://researchonline.ljmu.ac.uk/id/eprint/9410/7/The%20Vehicle%20Routing%20Problem%20with%20Profits%20and%20Consistency%20Constraints.pdf)
+20. Deep Reinforcement Learning for One-Warehouse Multi-Retailer inventory management, accessed April 16, 2026, [https://www.researchgate.net/publication/375586925\_Deep\_Reinforcement\_Learning\_for\_One-Warehouse\_Multi-Retailer\_inventory\_management](https://www.researchgate.net/publication/375586925_Deep_Reinforcement_Learning_for_One-Warehouse_Multi-Retailer_inventory_management)
+21. 1 Introduction \- arXiv.org, accessed April 16, 2026, [https://arxiv.org/html/2503.05276v2](https://arxiv.org/html/2503.05276v2)
+22. \[2503.04085\] SED2AM: Solving Multi-Trip Time-Dependent Vehicle Routing Problem using Deep Reinforcement Learning \- arXiv, accessed April 16, 2026, [https://arxiv.org/abs/2503.04085](https://arxiv.org/abs/2503.04085)
+23. \[2503.05276\] Constrained Reinforcement Learning for the Dynamic Inventory Routing Problem under Stochastic Supply and Demand \- arXiv, accessed April 16, 2026, [https://arxiv.org/abs/2503.05276](https://arxiv.org/abs/2503.05276)
+24. Multi-Agent Deep Reinforcement Learning Approach for Temporally Coordinated Demand Response in Microgrids \- ResearchGate, accessed April 16, 2026, [https://www.researchgate.net/publication/394956013\_Multi-Agent\_Deep\_Reinforcement\_Learning\_Approach\_for\_Temporally\_Coordinated\_Demand\_Response\_in\_Microgrids](https://www.researchgate.net/publication/394956013_Multi-Agent_Deep_Reinforcement_Learning_Approach_for_Temporally_Coordinated_Demand_Response_in_Microgrids)
+25. Robust and Efficient Communication in Multi-Agent Reinforcement Learning \- arXiv, accessed April 16, 2026, [https://arxiv.org/html/2511.11393v1](https://arxiv.org/html/2511.11393v1)
+26. Spatial–Temporal-Correlation-Constrained Dynamic Graph Convolutional Network for Traffic Flow Forecasting \- MDPI, accessed April 16, 2026, [https://www.mdpi.com/2227-7390/12/19/3159](https://www.mdpi.com/2227-7390/12/19/3159)
+27. Full article: An LSTM network-based genetic algorithm for integrated procurement and scheduling optimisation \- Taylor & Francis, accessed April 16, 2026, [https://www.tandfonline.com/doi/full/10.1080/00207543.2024.2434948](https://www.tandfonline.com/doi/full/10.1080/00207543.2024.2434948)
+28. A Survey on Graph Neural Networks for Time Series: Forecasting, Classification, Imputation, and Anomaly Detection \- arXiv, accessed April 16, 2026, [https://arxiv.org/html/2307.03759v3](https://arxiv.org/html/2307.03759v3)
+29. AST3DRNet: Attention-Based Spatio-Temporal 3D Residual Neural Networks for Traffic Congestion Prediction \- PMC, accessed April 16, 2026, [https://pmc.ncbi.nlm.nih.gov/articles/PMC10892531/](https://pmc.ncbi.nlm.nih.gov/articles/PMC10892531/)
+30. A Multimodal Deep Fusion Method for Stock Movement Prediction Using Heterogeneous Data Source \- IEEE Xplore, accessed April 16, 2026, [https://ieeexplore.ieee.org/iel8/6287639/11323511/11354495.pdf](https://ieeexplore.ieee.org/iel8/6287639/11323511/11354495.pdf)
+31. A Hybrid Deep Reinforcement Learning Framework for Vehicle Path Optimization with Time Windows \- MDPI, accessed April 16, 2026, [https://www.mdpi.com/1999-4893/19/2/149](https://www.mdpi.com/1999-4893/19/2/149)
+32. Temporal Graph Learning Reading Group \- Shenyang Huang, accessed April 16, 2026, [https://shenyanghuang.github.io/rg.html](https://shenyanghuang.github.io/rg.html)
+33. University of Nottingham Automated Design of Local Search Algorithms for Vehicle Routing Problems with Time Windows \- Weiyao Meng, accessed April 16, 2026, [https://weiyaomeng.github.io/files/thesis/Weiyao\_Thesis202309.pdf](https://weiyaomeng.github.io/files/thesis/Weiyao_Thesis202309.pdf)
+34. A Unified Deep Reinforcement Learning Approach for Close Enough Traveling Salesman Problem \- arXiv, accessed April 16, 2026, [https://arxiv.org/html/2510.03065v1](https://arxiv.org/html/2510.03065v1)
+35. International Journal of Industrial Engineering Computations A hybrid expert system, clustering and ant colony optimization appr \- Growing Science, accessed April 16, 2026, [https://www.growingscience.com/ijiec/Vol9/IJIEC\_2017\_26.pdf](https://www.growingscience.com/ijiec/Vol9/IJIEC_2017_26.pdf)
+36. Blockchain-enabled wireless communications: a new paradigm towards 6G \- PMC \- NIH, accessed April 16, 2026, [https://pmc.ncbi.nlm.nih.gov/articles/PMC8433085/](https://pmc.ncbi.nlm.nih.gov/articles/PMC8433085/)
+37. Multi-Period Profit-Oriented Location Routing Problem in Multi-User Warehouses with Backordering and Order Acceptance, accessed April 16, 2026, [https://www.worldscientific.com/doi/pdf/10.1142/S0217595924500180?download=true](https://www.worldscientific.com/doi/pdf/10.1142/S0217595924500180?download=true)
+38. A two-phase algorithm for the dynamic time-dependent green vehicle routing problem in decoration waste collection | Request PDF \- ResearchGate, accessed April 16, 2026, [https://www.researchgate.net/publication/385117203\_A\_two-phase\_algorithm\_for\_the\_dynamic\_time-dependent\_green\_vehicle\_routing\_problem\_in\_decoration\_waste\_collection](https://www.researchgate.net/publication/385117203_A_two-phase_algorithm_for_the_dynamic_time-dependent_green_vehicle_routing_problem_in_decoration_waste_collection)
+39. SED2AM: Solving Multi-Trip Time-Dependent Vehicle Routing Problem using Deep Reinforcement Learning \- CoLab.ws, accessed April 16, 2026, [https://colab.ws/articles/10.1145%2F3721983](https://colab.ws/articles/10.1145%2F3721983)
+40. Variable neighborhood search for consistent vehicle routing problem \- ResearchGate, accessed April 16, 2026, [https://www.researchgate.net/publication/326180887\_Variable\_neighborhood\_search\_for\_consistent\_vehicle\_routing\_problem](https://www.researchgate.net/publication/326180887_Variable_neighborhood_search_for_consistent_vehicle_routing_problem)
+41. A Green Vehicle Routing Problem with Time-Varying Speeds and Joint Distribution \- MDPI, accessed April 16, 2026, [https://www.mdpi.com/2071-1050/17/16/7515](https://www.mdpi.com/2071-1050/17/16/7515)
+42. Enhanced multi-task deep reinforcement learning for the integrated inventory-routing problem under VMI mode | Semantic Scholar, accessed April 16, 2026, [https://www.semanticscholar.org/paper/Enhanced-multi-task-deep-reinforcement-learning-for-Lu-Wan/327672340b50ff63c96f60868f06e5a2c8b6844d](https://www.semanticscholar.org/paper/Enhanced-multi-task-deep-reinforcement-learning-for-Lu-Wan/327672340b50ff63c96f60868f06e5a2c8b6844d)
+43. MTPPO-PF: multi-task proximal policy optimization with particle filters for efficient hyperparameter optimization \- ResearchGate, accessed April 16, 2026, [https://www.researchgate.net/publication/399960226\_MTPPO-PF\_multi-task\_proximal\_policy\_optimization\_with\_particle\_filters\_for\_efficient\_hyperparameter\_optimization](https://www.researchgate.net/publication/399960226_MTPPO-PF_multi-task_proximal_policy_optimization_with_particle_filters_for_efficient_hyperparameter_optimization)
 44. Full article: Inventory replenishment and fulfilment decisions for an omnichannel retailer: a reinforcement learning-based method \- Taylor & Francis, accessed April 16, 2026, [https://www.tandfonline.com/doi/full/10.1080/00207543.2025.2520596](https://www.tandfonline.com/doi/full/10.1080/00207543.2025.2520596)
 
 [image1]: <data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAaCAYAAAB7GkaWAAAA3UlEQVR4XnVSsRHCMAyUdkgBdxQswA6ZAo6KhpoqczADAzAAHQ09bVZgBKrwlt6ynRx/55NeL79lJyIB5SqMNBc1eqq2khpdsPBpvbgzeWlI7W4rGfaLKoUzktdMCJMb1nUmGtbIJsSunC1yRDaBJMEWtBRt1wqhR/ZgQ6/OKSssrdtsS92hBxdlzLVaf4tZ6skp4aJyIN14RXf1c0+o3ZlfID75MdKdbJARsUtR7M4FA5q+iB+sbS1U4MvEgXZNjmWzRDGTGuWb+jieNg1tXFoQf48I5A7mdZz9nYYf7JodDJoS9SsAAAAASUVORK5CYII=>
