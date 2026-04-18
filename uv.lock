@@ -11909,6 +11909,9 @@ tracking = [
     { name = "zenml", version = "0.90.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
     { name = "zenml", version = "0.94.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
 ]
+web = [
+    { name = "jinja2" },
+]
 
 [package.dev-dependencies]
 dev = [
@@ -11960,6 +11963,7 @@ requires-dist = [
     { name = "hexaly", marker = "extra == 'solvers'", specifier = ">=14.0.20251008", index = "https://pip.hexaly.com/" },
     { name = "hydra-colorlog", specifier = ">=1.2.0" },
     { name = "hydra-core", specifier = ">=1.3.0" },
+    { name = "jinja2", marker = "extra == 'web'", specifier = ">=3.1.6" },
     { name = "joblib", specifier = ">=1.5.1" },
     { name = "loguru", specifier = ">=0.7.3" },
     { name = "loss-landscapes", marker = "extra == 'analysis'", specifier = ">=3.0.6" },
@@ -12025,7 +12029,7 @@ requires-dist = [
     { name = "wandb", specifier = ">=0.16.0" },
     { name = "zenml", marker = "extra == 'tracking'", specifier = ">=0.60.0" },
 ]
-provides-extras = ["gpu", "geo", "solvers", "gui", "hpo", "tracking", "analysis", "docs"]
+provides-extras = ["gpu", "geo", "solvers", "gui", "hpo", "tracking", "analysis", "docs", "web"]
 
 [package.metadata.requires-dev]
 dev = [

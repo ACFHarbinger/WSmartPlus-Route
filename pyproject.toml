@@ -128,6 +128,9 @@ docs = [
     "sphinx-rtd-theme>=2.0.0",
     "sphinxcontrib-mermaid>=1.2.3",
 ]
+web = [
+    "jinja2>=3.1.6",
+]
 
 # Note: project.optional-dependencies.docs is for users building docs.
 # The 'docs' below is redundant or can be removed if moved to project.optional-dependencies.

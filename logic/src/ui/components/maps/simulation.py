@@ -3,9 +3,11 @@ Folium map renderer for simulation tours.
 """
 
 import contextlib
+import os
 from typing import Any, Dict, List, Optional, Tuple, cast
 
 import folium
+import jinja2
 import pandas as pd
 
 from logic.src.constants.dashboard import BIN_COLORS, ROUTE_COLORS
@@ -16,6 +18,12 @@ from logic.src.data.network import (
     haversine_distance,
 )
 from logic.src.utils.ui.maps_utils import get_map_center
+
+# 1. Set up Jinja2 templates globally
+template_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "templates")
+jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir))
+DEPOT_POPUP_TEMPLATE = jinja_env.get_template("depot_popup.html")
+BIN_POPUP_TEMPLATE = jinja_env.get_template("bin_popup.html")
 
 
 def _add_bin_marker(
@@ -79,13 +87,15 @@ def _add_bin_marker(
 
     # Build popup
     popup_text = point.get("popup", f"Bin {bin_id}")
-    enhanced_popup = f"{popup_text}<br>Lat: {lat:.4f}<br>Lng: {lng:.4f}<br>Fill: {fill_level:.1f}%"
-    if is_mandatory:
-        enhanced_popup += "<br><b style='color: #fd7e14;'>Mandatory</b>"
-    if is_served:
-        enhanced_popup += "<br><b style='color: #28a745;'>Served</b>"
-    if not is_toured:
-        enhanced_popup += "<br><i>Not in route</i>"
+    enhanced_popup = BIN_POPUP_TEMPLATE.render(
+        popup_text=popup_text,
+        lat=f"{lat:.4f}",
+        lng=f"{lng:.4f}",
+        fill_level=f"{fill_level:.1f}",
+        is_mandatory=is_mandatory,
+        is_served=is_served,
+        is_toured=is_toured,
+    )
 
     folium.CircleMarker(
         location=[lat, lng],
@@ -168,9 +178,13 @@ def create_simulation_map(  # noqa: C901
             continue
         lat, lng = point["lat"], point["lng"]
         popup_text = point.get("popup", "Depot")
+
+        # Render the depot popup using the template
+        depot_popup = DEPOT_POPUP_TEMPLATE.render(popup_text=popup_text, lat=f"{lat:.4f}", lng=f"{lng:.4f}")
+
         folium.Marker(
             location=[lat, lng],
-            popup=f"{popup_text}<br>Lat: {lat:.4f}<br>Lng: {lng:.4f}",
+            popup=depot_popup,
             icon=folium.Icon(color="blue", icon="home", prefix="fa"),
         ).add_to(m)
 

@@ -1,0 +1,31 @@
+/* Status indicators */
+.status-good { color: #0d904f; font-weight: bold; }
+.status-warning { color: #e37400; font-weight: bold; }
+.status-error { color: #c5221f; font-weight: bold; }
+
+/* Status pills */
+.status-pill {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+.status-pill.good { background: #e8f5e9; color: #2e7d32; }
+.status-pill.warning { background: #fff3e0; color: #e65100; }
+.status-pill.error { background: #ffebee; color: #c62828; }
+.status-pill.info { background: #e3f2fd; color: #1565c0; }
+
+/* Dark mode support for Status Indicators */
+@media (prefers-color-scheme: dark) {
+    .status-good { color: #34d058; }
+    .status-warning { color: #ffdf5d; }
+    .status-error { color: #f97583; }
+
+    .status-pill.good { background: #1b3a1f; color: #34d058; }
+    .status-pill.warning { background: #3a2e1b; color: #ffdf5d; }
+    .status-pill.error { background: #3a1b1b; color: #f97583; }
+    .status-pill.info { background: #1b2a3a; color: #58a6ff; }
+}

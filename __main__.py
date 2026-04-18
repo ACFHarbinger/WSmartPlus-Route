@@ -10,7 +10,7 @@ invoked via ``python main.py <command>`` instead.
 import sys
 import warnings
 
-from logic.hydra_dispatch import hydra_entry_point
+from logic.controller.hydra_dispatch import hydra_entry_point
 
 warnings.filterwarnings(
     "ignore",

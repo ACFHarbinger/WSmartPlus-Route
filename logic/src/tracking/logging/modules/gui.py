@@ -3,14 +3,21 @@ GUI communication for simulation logs and daily stats.
 """
 
 import json
+import os
 import threading
 from typing import Any, Dict, List, Optional, Sequence, Union
 
+import jinja2
 import pandas as pd
 from omegaconf import OmegaConf
 
 import logic.src.constants as udef
 from logic.src.utils.configs.setup_utils import deep_sanitize
+
+# Set up Jinja environment and pre-load the template for performance
+template_dir = os.path.dirname(os.path.abspath(__file__))
+jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir))
+POPUP_TEMPLATE = jinja_env.get_template("popup.html")
 
 
 def send_daily_output_to_gui(
@@ -140,7 +147,7 @@ def _process_tour_point(node_idx: int, coords_lookup: Optional[pd.DataFrame]) ->
     except (ValueError, TypeError):
         return {"id": node_idx}
 
-    gui_id = node_idx_int - 1  # Default fallback
+    gui_id = node_idx_int - 1
     dataset_id = gui_id
     if coords_lookup is not None and 0 <= node_idx_int < len(coords_lookup):
         row = coords_lookup.iloc[node_idx_int]
@@ -163,6 +170,9 @@ def _process_tour_point(node_idx: int, coords_lookup: Optional[pd.DataFrame]) ->
         if lat is not None and lon is not None:
             point_data["lat"] = float(lat)
             point_data["lng"] = float(lon)
-            point_data["popup"] = f"<b>{p_label}</b><br>Dataset ID: {dataset_id}"
+
+            # 2. Render the popup using the pre-loaded template
+            # This removes the hardcoded HTML tags from the Python file
+            point_data["popup"] = POPUP_TEMPLATE.render(p_label=p_label, dataset_id=dataset_id)
 
     return point_data

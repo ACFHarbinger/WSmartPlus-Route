@@ -4,6 +4,9 @@ MLflow explorer section for the Experiment Tracker page.
 Extracted from ``experiment_tracker.py`` to keep module sizes under 400 LoC.
 """
 
+import os
+
+import jinja2
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
@@ -14,6 +17,11 @@ from logic.src.ui.services.tracking_service import (
     load_mlflow_metric_history,
     load_mlflow_runs,
 )
+
+# Set up template loader
+template_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "templates")
+jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir))
+HOVER_TEMPLATE = jinja_env.get_template("plotly_hover.html")
 
 _PALETTE = [
     "#667eea",
@@ -107,7 +115,7 @@ def _render_mlflow_explorer(tracking_uri: str, experiment_name: str) -> None:
                 name=key,
                 marker=dict(size=4, color=color),
                 line=dict(color=color),
-                hovertemplate=f"<b>{key}</b><br>Step: %{{x}}<br>Value: %{{y:.4f}}<extra></extra>",
+                hovertemplate=HOVER_TEMPLATE.render(label=key),
             )
         )
 

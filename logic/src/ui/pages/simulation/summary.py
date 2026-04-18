@@ -18,7 +18,7 @@ import pandas as pd
 import streamlit as st
 
 from logic.src.constants import ROOT_DIR
-from logic.src.ui.pages.simulation_summary_sections import (
+from logic.src.ui.pages.simulation.summary_sections import (
     _render_daily_timeseries,
     _render_distribution_comparison,
     _render_kpi_overview,
