@@ -1,3 +1,3 @@
-from .policy_sa import SimulatedAnnealingPolicy
+from .policy_mp_sa import MultiPeriodSimulatedAnnealingPolicy
 
-__all__ = ["SimulatedAnnealingPolicy"]
+__all__ = ["MultiPeriodSimulatedAnnealingPolicy"]

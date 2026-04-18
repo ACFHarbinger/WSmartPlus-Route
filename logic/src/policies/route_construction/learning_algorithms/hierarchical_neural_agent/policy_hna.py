@@ -11,6 +11,7 @@ Registry key: ``"hna"``
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
+import torch
 
 from logic.src.configs.policies import HNAPolicyConfig
 from logic.src.enums import GlobalRegistry, PolicyTag
@@ -20,6 +21,7 @@ from logic.src.interfaces.context.solution_context import SolutionContext
 from logic.src.policies.helpers.operators import greedy_insertion
 from logic.src.policies.route_construction.base.base_multi_period_policy import BaseMultiPeriodRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
+from logic.src.policies.route_construction.learning_algorithms.hierarchical_neural_agent.params import HNAParams
 
 
 @GlobalRegistry.register(
@@ -47,7 +49,7 @@ class HierarchicalNeuralAgentPolicy(BaseMultiPeriodRoutingPolicy):
     it falls back to a greedy threshold heuristic (nodes with fill % above
     ``greedy_threshold``).
 
-    The policy utilizes the ``BaseMultiPeriodRoutingPolicy`` template to
+    The policy utilizes the "BaseMultiPeriodRoutingPolicy" template to
     propagate multi-day plans and scenario transitions through the simulator.
 
     Registry key: ``"hna"``
@@ -59,6 +61,7 @@ class HierarchicalNeuralAgentPolicy(BaseMultiPeriodRoutingPolicy):
     ) -> None:
         """Initialise the HRL-IRP simulator policy."""
         super().__init__(config)
+        self.params = HNAParams.from_config(config)
         self._module: Optional[Any] = None  # loaded lazily from checkpoint
         self._module_loaded: bool = False
 
@@ -74,21 +77,20 @@ class HierarchicalNeuralAgentPolicy(BaseMultiPeriodRoutingPolicy):
         if self._module_loaded:
             return
 
-        cfg: HNAPolicyConfig = self.config  # type: ignore[assignment]
-
-        if cfg.checkpoint_path is not None:
+        params = self.params
+        if params.checkpoint_path is not None:
             try:
                 from logic.src.pipeline.rl.meta.hrl_irp import HRLIRPModule
 
                 self._module = HRLIRPModule.load_from_checkpoint(
-                    cfg.checkpoint_path,
-                    map_location=cfg.device,
+                    params.checkpoint_path,
+                    map_location=params.device,
                 )
                 self._module.eval()
-                if cfg.verbose:
-                    print(f"[HRL-IRP] Loaded checkpoint from {cfg.checkpoint_path}")
+                if params.verbose:
+                    print(f"[HRL-IRP] Loaded checkpoint from {params.checkpoint_path}")
             except Exception as exc:
-                if cfg.verbose:
+                if params.verbose:
                     print(f"[HRL-IRP] Checkpoint load failed: {exc}. Using threshold fallback.")
                 self._module = None
         else:
@@ -105,32 +107,17 @@ class HierarchicalNeuralAgentPolicy(BaseMultiPeriodRoutingPolicy):
         wastes: Dict[int, float],
         locs: Optional[np.ndarray] = None,
     ) -> List[int]:
-        """Select mandatory nodes for the current day.
-
-        If a trained module is available, uses the Manager network.
-        Otherwise, uses the threshold heuristic.
-
-        Args:
-            wastes: Current fill levels {node_id: fill_%}.
-            locs: Node coordinates (optional, for neural inference).
-
-        Returns:
-            List of selected mandatory node IDs.
-        """
-        cfg: HNAPolicyConfig = self.config  # type: ignore[assignment]
+        """Select mandatory nodes for the current day."""
+        params = self.params
         self._load_module()
-
         if self._module is not None and locs is not None:
             try:
-                import torch
-
-                device = cfg.device
+                device = params.device
                 nodes = sorted(wastes.keys())
                 len(nodes)
                 fill_tensor = torch.tensor([wastes[n] for n in nodes], dtype=torch.float32, device=device).unsqueeze(0)
                 locs_tensor = torch.tensor(locs, dtype=torch.float32, device=device).unsqueeze(0)
                 mgr_obs = torch.cat([locs_tensor.view(1, -1), fill_tensor, torch.zeros(1, 1, device=device)], dim=-1)
-
                 with torch.no_grad():
                     if hasattr(self._module, "manager") and self._module.manager is not None:
                         logits = self._module.manager(mgr_obs)
@@ -144,7 +131,7 @@ class HierarchicalNeuralAgentPolicy(BaseMultiPeriodRoutingPolicy):
                 pass  # Fall through to threshold
 
         # Threshold fallback
-        return [n for n, fill in wastes.items() if fill >= cfg.greedy_threshold]
+        return [n for n, fill in wastes.items() if fill >= params.greedy_threshold]
 
     # ------------------------------------------------------------------
     # Multi-period solver
@@ -168,7 +155,7 @@ class HierarchicalNeuralAgentPolicy(BaseMultiPeriodRoutingPolicy):
                 - full_plan: Collection plan spanning the entire horizon.
                 - stats: Execution statistics and checkpoint usage metadata.
         """
-        cfg: HNAPolicyConfig = self.config  # type: ignore[assignment]
+        params = HNAParams.from_config(self.config)
         sub_dist_matrix = problem.distance_matrix
         sub_wastes = problem.wastes
         mandatory_base = problem.mandatory
@@ -228,7 +215,7 @@ class HierarchicalNeuralAgentPolicy(BaseMultiPeriodRoutingPolicy):
                 for n in rolling_wastes:
                     rolling_wastes[n] = min(rolling_wastes[n] + float(fill_rates[n - 1]), 200.0)
 
-            if cfg.verbose:
+            if params.verbose:
                 print(f"[HRL-IRP] Day {t}: profit={day_profit:.2f}, visited={visited}")
 
         today_route = full_plan[0][0] if full_plan and full_plan[0] else []
@@ -240,6 +227,6 @@ class HierarchicalNeuralAgentPolicy(BaseMultiPeriodRoutingPolicy):
             {
                 "total_profit": total_profit,
                 "horizon": problem.horizon,
-                "checkpoint_used": cfg.checkpoint_path is not None and self._module is not None,
+                "checkpoint_used": params.checkpoint_path is not None and self._module is not None,
             },
         )

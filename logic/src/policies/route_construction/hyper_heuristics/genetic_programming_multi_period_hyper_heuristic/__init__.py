@@ -1,3 +1,3 @@
-from .policy_gphh import GPHHPolicy
+from .policy_gp_mp_hh import GPMPHHPolicy
 
-__all__ = ["GPHHPolicy"]
+__all__ = ["GPMPHHPolicy"]

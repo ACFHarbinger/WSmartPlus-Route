@@ -1,3 +1,3 @@
-from .policy_pso import PSOPolicy
+from .policy_mp_pso import MultiPeriodPSOPolicy
 
-__all__ = ["PSOPolicy"]
+__all__ = ["MultiPeriodPSOPolicy"]

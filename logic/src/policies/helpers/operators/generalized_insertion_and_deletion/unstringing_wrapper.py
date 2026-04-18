@@ -31,8 +31,7 @@ from logic.src.policies.helpers.operators.generalized_insertion_and_deletion.uns
     apply_type_iv_us,
     apply_type_iv_us_profit,
 )
-
-from ..helpers.neighborhood import get_p_neighborhood
+from logic.src.utils.helpers.neighborhood import get_p_neighborhood
 
 
 def _evaluate_routes(routes: List[List[int]], dist_matrix: np.ndarray) -> float:
