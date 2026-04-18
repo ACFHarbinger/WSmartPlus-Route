@@ -5,7 +5,10 @@ KPI card HTML generation and number formatting utilities.
 Provides functions to create styled KPI card HTML with optional deltas and sparklines.
 """
 
+import os
 from typing import Dict, Optional, Tuple, Union
+
+import jinja2
 
 from logic.src.ui.styles.colors import KPI_COLORS, KPI_FALLBACK_COLORS
 
@@ -44,6 +47,27 @@ def _delta_css_class(delta: float) -> str:
     return "neutral"
 
 
+class KPIRenderer:
+    def __init__(self):
+        # Setup Jinja environment to look in the same directory as this file
+        template_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "templates")
+        self.env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir))
+        self.card_template = self.env.get_template("kpi_card.html")
+        self.row_template = self.env.get_template("kpi_row.html")
+
+    def render_card(self, label: str, value: str, **kwargs) -> str:
+        """Renders a single KPI card using the HTML template."""
+        return self.card_template.render(label=label, value=value, **kwargs)
+
+    def render_row(self, cards_html: list) -> str:
+        """Wraps multiple card strings into a flex container."""
+        return self.row_template.render(cards=cards_html)
+
+
+# Global renderer instance
+renderer = KPIRenderer()
+
+
 def create_kpi_html(
     label: str,
     value: str,
@@ -53,67 +77,36 @@ def create_kpi_html(
     delta_class: str = "neutral",
     sparkline_svg: str = "",
 ) -> str:
-    """
-    Create HTML for a single KPI card.
-
-    Args:
-        label: Metric label.
-        value: Formatted value string.
-        color: Background gradient start color.
-        color_end: Background gradient end color.
-        delta: Optional formatted delta string (e.g., "▲ +1.5").
-        delta_class: CSS class for delta coloring ("positive", "negative", "neutral").
-        sparkline_svg: Optional inline SVG string for a sparkline.
-
-    Returns:
-        HTML string.
-    """
-    delta_html = ""
-    if delta is not None:
-        delta_html = f'<div class="delta {delta_class}">{delta}</div>'
-
-    sparkline_html = ""
-    if sparkline_svg:
-        sparkline_html = f'<div class="sparkline">{sparkline_svg}</div>'
-
-    return (
-        f'<div class="kpi-card" style="background: linear-gradient(135deg, {color} 0%, {color_end} 100%);">'
-        f'<div class="label">{label}</div>'
-        f'<div class="value">{value}</div>'
-        f"{delta_html}"
-        f"{sparkline_html}"
-        f"</div>"
+    """Wrapper function that now uses the template renderer."""
+    return renderer.render_card(
+        label=label,
+        value=value,
+        color=color,
+        color_end=color_end,
+        delta=delta,
+        delta_class=delta_class,
+        sparkline_svg=sparkline_svg,
     )
 
 
 def create_kpi_row(metrics: dict, prefix: str = "") -> str:
-    """
-    Create HTML for a row of KPI cards with semantic colors.
-
-    Args:
-        metrics: Dict of label -> value.
-        prefix: Optional prefix for display names.
-
-    Returns:
-        HTML string for the row.
-    """
+    """Logic for color selection stays in Python, but HTML generation moves to templates."""
     cards = []
-
     for i, (label, value) in enumerate(metrics.items()):
         display_label = f"{prefix}{label}" if prefix else label
 
+        # Color resolution logic from original kpi.py
         if display_label in KPI_COLORS:
             color, color_end = KPI_COLORS[display_label]
         elif label in KPI_COLORS:
             color, color_end = KPI_COLORS[label]
         else:
-            fallback = KPI_FALLBACK_COLORS[i % len(KPI_FALLBACK_COLORS)]
-            color, color_end = fallback
+            color, color_end = KPI_FALLBACK_COLORS[i % len(KPI_FALLBACK_COLORS)]
 
         formatted = format_number(value) if isinstance(value, float) else str(value)
         cards.append(create_kpi_html(display_label, formatted, color, color_end))
 
-    return f'<div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;">{"".join(cards)}</div>'
+    return renderer.render_row(cards)
 
 
 def create_kpi_row_with_deltas(
@@ -128,29 +121,44 @@ def create_kpi_row_with_deltas(
         sparklines: Optional dict of label -> SVG string for sparkline.
 
     Returns:
-        HTML string for the row.
+        HTML string for the row container.
     """
     cards = []
 
     for i, (label, (value, delta)) in enumerate(metrics.items()):
+        # 1. Resolve colors based on global registries or positional fallbacks
         if label in KPI_COLORS:
             color, color_end = KPI_COLORS[label]
         else:
             fallback = KPI_FALLBACK_COLORS[i % len(KPI_FALLBACK_COLORS)]
             color, color_end = fallback
 
+        # 2. Format the primary value
         formatted = format_number(value) if isinstance(value, float) else str(value)
 
+        # 3. Process delta indicators and their corresponding CSS classes
         delta_str: Optional[str] = None
         delta_class = "neutral"
         if delta is not None:
             delta_str = _format_delta(delta)
             delta_class = _delta_css_class(delta)
 
+        # 4. Extract sparkline SVG if provided for this specific label
         sparkline_svg = ""
         if sparklines and label in sparklines:
             sparkline_svg = sparklines[label]
 
-        cards.append(create_kpi_html(label, formatted, color, color_end, delta_str, delta_class, sparkline_svg))
+        # 5. Render individual card using the external template
+        card_html = renderer.render_card(
+            label=label,
+            value=formatted,
+            color=color,
+            color_end=color_end,
+            delta=delta_str,
+            delta_class=delta_class,
+            sparkline_svg=sparkline_svg,
+        )
+        cards.append(card_html)
 
-    return f'<div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;">{"".join(cards)}</div>'
+    # 6. Finalize the row by wrapping all cards in the flex container template
+    return renderer.render_row(cards)

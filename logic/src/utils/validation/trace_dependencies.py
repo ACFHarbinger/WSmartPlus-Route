@@ -9,6 +9,8 @@ import os
 from collections import defaultdict
 from typing import Dict, List, Optional, Set, Tuple
 
+import jinja2
+
 try:
     from pyvis.network import Network
 except ImportError:
@@ -111,6 +113,10 @@ class DependencyGrapher:
 
         self.nodes: Set[Tuple[str, str]] = set()
         self.edges: List[Tuple[str, str, str]] = []
+
+        # Load templates from the script's directory
+        script_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "html")
+        self.jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(script_dir))
 
     def _python_path_to_filepath(self, module_path: str) -> Optional[str]:
         target_suffix = module_path.replace(".", os.sep) + ".py"
@@ -219,91 +225,34 @@ class DependencyGrapher:
                     self.nodes.add((filepath, "usage"))
                     self.edges.extend(path_edges)
 
-    def _render_defs_html(self, children: List[Dict], limit=10, is_top=True) -> str:
-        """Recursively formats the nested definitions into HTML lists with details tags."""
-        if not children:
-            return "<li><i>(None)</i></li>" if is_top else ""
-
-        html = ""
-        for i, child in enumerate(children):
-            if i == limit:
-                html += f"<details><summary>... (+{len(children) - limit} more)</summary><ul class='uml-list'>"
-
-            html += f"<li><span class='bullet'>+</span> {child['name']}"
-            if child["children"]:
-                html += "<ul>" + self._render_defs_html(child["children"], limit=50, is_top=False) + "</ul>"
-            html += "</li>"
-
-        if len(children) > limit:
-            html += "</ul></details>"
-        return html
-
-    def _render_imports_html(self, direct: List[str], grouped: Dict[str, List[str]], limit=10) -> str:
-        """Formats the imports grouped by module with details tags."""
-        items = []
-        for imp in direct:
-            items.append(f"<li><span class='bullet'>+</span> import {imp}</li>")
-
-        for prefix, names in grouped.items():
-            group_html = f"<li><span class='bullet'>+</span> from <b>{prefix}</b>:<ul>"
-            for name in names:
-                group_html += f"<li><span class='bullet'>-</span> import {name}</li>"
-            group_html += "</ul></li>"
-            items.append(group_html)
-
-        if not items:
-            return "<li><i>(None)</i></li>"
-
-        html = ""
-        for i, item in enumerate(items):
-            if i == limit:
-                html += f"<details><summary>... (+{len(items) - limit} more items)</summary><ul class='uml-list'>"
-            html += item
-        if len(items) > limit:
-            html += "</ul></details>"
-        return html
-
     def _build_node_uml(self, filepath: str) -> str:
+        template = self.jinja_env.get_template("node_template.html")
+
         if filepath.startswith("External:"):
-            name = filepath.replace("External: ", "")
-            return f"<div class='uml-header'>&lt;&lt;external_library&gt;&gt;<br/><b>{name}</b></div><div class='uml-body'><div class='uml-section'>Third-party or built-in module.</div></div>"
+            return template.render(is_external=True, name=filepath.replace("External: ", ""))
 
         display_path = os.path.relpath(filepath, self.project_root)
-
-        # Data
         defs_tree = self.ui_definitions.get(filepath, {"children": []})
         direct_imps = self.ui_imports_direct.get(filepath, [])
         grouped_imps = self.ui_imports_grouped.get(filepath, {})
 
-        # HTML Gen
-        html = f"<div class='uml-header'>&lt;&lt;module&gt;&gt;<br/><b>{os.path.basename(filepath)}</b></div>"
-        html += "<div class='uml-body'>"
-        html += f"<div class='uml-section'><b>Path:</b><br/>{display_path}</div>"
-
-        html += "<div class='uml-section-title'>+ defines:</div><ul class='uml-list'>"
-        html += self._render_defs_html(defs_tree["children"], limit=10)
-        html += "</ul>"
-
-        html += "<div class='uml-section-title'>+ imports:</div><ul class='uml-list'>"
-        html += self._render_imports_html(direct_imps, grouped_imps, limit=8)
-        html += "</ul></div>"
-
-        return html
+        return template.render(
+            is_external=False,
+            filename=os.path.basename(filepath),
+            display_path=display_path,
+            defs_tree=defs_tree["children"],
+            direct_imps=direct_imps,
+            grouped_imps=grouped_imps,
+            imports_limit=8,
+        )
 
     def _build_edge_uml(self, source: str, target: str, direction: str) -> str:
+        template = self.jinja_env.get_template("edge_template.html")
+
         src_label = os.path.relpath(source, self.project_root) if not source.startswith("External:") else source
         tgt_label = os.path.relpath(target, self.project_root) if not target.startswith("External:") else target
 
-        html = "<div class='uml-header'>&lt;&lt;import_dependency&gt;&gt;<br/><b>Connection</b></div>"
-        html += "<div class='uml-body'>"
-        if direction == "backward":
-            html += f"<div class='uml-section'>+ <b>Importer:</b><br>{src_label}</div>"
-            html += f"<div class='uml-section'>+ <b>Provider:</b><br>{tgt_label}</div>"
-        else:
-            html += f"<div class='uml-section'>+ <b>Provider:</b><br>{src_label}</div>"
-            html += f"<div class='uml-section'>+ <b>Importer:</b><br>{tgt_label}</div>"
-        html += "</div>"
-        return html
+        return template.render(direction=direction, src_label=src_label, tgt_label=tgt_label)
 
     def generate_graph(self, target_file: str, target_name: str):
         print("Scanning project...")
@@ -356,93 +305,30 @@ class DependencyGrapher:
         print(f"\nSuccess! Interactive graph saved to: {output_file}")
 
     def _inject_uml_panel(self, filepath: str):
+        # 1. Read the generated HTML from Pyvis
         with open(filepath, "r", encoding="utf-8") as f:
             html_content = f.read()
 
-        injection = """
-        <style>
-        #uml-panel {
-            display: none;
-            position: absolute;
-            top: 30px;
-            right: 30px;
-            width: 420px;
-            max-height: 90vh;
-            overflow-y: auto;
-            background-color: #ffffff;
-            border: 2px solid #000;
-            font-family: 'Consolas', 'Courier New', monospace;
-            color: #000;
-            box-shadow: 6px 6px 15px rgba(0,0,0,0.6);
-            z-index: 1000;
-        }
-        .uml-header {
-            text-align: center;
-            font-weight: bold;
-            padding: 8px;
-            border-bottom: 2px solid #000;
-            background-color: #5ab3d9;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        .uml-body { padding: 12px; background-color: #ffffff; }
-        .uml-section { margin-bottom: 10px; border-bottom: 1px dashed #444; padding-bottom: 5px; word-wrap: break-word;}
-        .uml-section-title { font-weight: bold; margin-top: 10px; }
-        .uml-list { margin-top: 5px; font-size: 0.9em; list-style-type: none; margin-left: 0; padding-left: 0; white-space: nowrap;}
-        .uml-list ul { list-style-type: none; padding-left: 18px; margin: 2px 0 6px 0; border-left: 1px dashed #ccc; }
-        .bullet { font-weight: bold; color: #333; margin-right: 4px; }
-        details { margin: 2px 0; }
-        details > summary {
-            cursor: pointer;
-            color: #0066cc;
-            font-weight: bold;
-            list-style: none;
-            margin-top: 4px;
-        }
-        details > summary::-webkit-details-marker { display: none; }
-        details > summary:hover { text-decoration: underline; }
-        #close-btn {
-            position: absolute; right: 5px; top: 5px;
-            cursor: pointer; font-weight: bold; color: #000; z-index: 20;
-        }
-        </style>
-        <div id="uml-panel">
-            <span id="close-btn" onclick="document.getElementById('uml-panel').style.display='none'">X</span>
-            <div id="uml-content"></div>
-        </div>
+        # 2. Safely resolve the path to our new template file
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        template_path = os.path.join(script_dir, "html", "uml_panel.html")
 
-        <script type="text/javascript">
-        setTimeout(function() {
-            if (typeof network !== 'undefined') {
-                network.on("click", function(params) {
-                    var panel = document.getElementById("uml-panel");
-                    var content = document.getElementById("uml-content");
-                    if (params.nodes.length > 0) {
-                        var nodeId = params.nodes[0];
-                        var node = nodes.get(nodeId);
-                        if (node && node.uml) {
-                            content.innerHTML = node.uml;
-                            panel.style.display = "block";
-                        }
-                    } else if (params.edges.length > 0) {
-                        var edgeId = params.edges[0];
-                        var edge = edges.get(edgeId);
-                        if (edge && edge.uml) {
-                            content.innerHTML = edge.uml;
-                            panel.style.display = "block";
-                        }
-                    } else {
-                        panel.style.display = "none";
-                    }
-                });
-            }
-        }, 1000);
-        </script>
-        """
-        html_content = html_content.replace("</body>", injection + "</body>")
-        with open(filepath, "w", encoding="utf-8") as f:
-            f.write(html_content)
+        # 3. Read the template and inject it
+        try:
+            with open(template_path, "r", encoding="utf-8") as template_file:
+                injection = template_file.read()
+
+            # Replace the closing body tag with our injection + the closing body tag
+            html_content = html_content.replace("</body>", injection + "\n</body>")
+
+            # Write the final combined code back to the output file
+            with open(filepath, "w", encoding="utf-8") as f:
+                f.write(html_content)
+
+        except FileNotFoundError:
+            print(f"\nWarning: Could not find '{template_path}'.")
+            print("The graph was generated, but the UML panel won't be interactive.")
+            print("Please ensure 'uml_panel.html' is in the same directory as this script.")
 
 
 def main():

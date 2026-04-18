@@ -170,6 +170,10 @@ check-nested-imports:
 dependency-graph target_file="logic/src/utils/helpers/wrappers.py" target_name="greedy_day_route":
     uv run python logic/src/utils/validation/trace_dependencies.py logic/src {{ target_file }} {{ target_name }}
 
+# Check for embedded languages in the Python source code
+check-embedded-languages:
+    uv run python logic/src/utils/validation/check_embedded_languages.py logic/src
+
 # --- Advanced Testing & Benchmarks ---
 
 # Run mutation tests using mutmut

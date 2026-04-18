@@ -1,0 +1,10 @@
+{% if stats_parts %}
+<div style="text-align: center; color: #5f6368; font-size: 12px; background: #f1f3f4; border-radius: 8px; padding: 8px; margin-bottom: 8px;">
+    {{ stats_parts | join('&nbsp;&bull;&nbsp;') | safe }}
+</div>
+{% endif %}
+
+<div style="text-align: center; color: #9aa0a6; font-size: 11px;">
+    <p style="margin: 0;">WSmart+ Route</p>
+    <p style="margin: 2px 0 0 0;">MLOps Control Tower v{{ version }}</p>
+</div>
