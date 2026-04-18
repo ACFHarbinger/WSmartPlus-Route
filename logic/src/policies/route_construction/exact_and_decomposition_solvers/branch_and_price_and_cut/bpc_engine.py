@@ -107,6 +107,7 @@ References:
 import logging
 import time
 import warnings
+from types import SimpleNamespace
 from typing import Any, Dict, List, Optional, Set, Tuple, Union, cast
 
 import gurobipy as gp
@@ -764,8 +765,6 @@ def _compute_lr_bound_at_node(
     # Create a temporary BBParams-compatible object to call run_subgradient.
     # run_subgradient accepts a params object with these specific fields; we
     # use a SimpleNamespace to avoid a hard dependency on BBParams in bpc_engine.
-    from types import SimpleNamespace
-
     lr_params = SimpleNamespace(
         lr_lambda_init=params.lr_lambda_init,
         lr_max_subgradient_iters=params.lr_max_subgradient_iters,

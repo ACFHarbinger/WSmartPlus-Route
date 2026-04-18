@@ -86,7 +86,7 @@ class SequentialRouteConstructor(BaseRoutingPolicy):
         if self._initialized:
             return
 
-        from ...base.factory import RouteConstructorFactory
+        from logic.src.policies.route_construction.base.factory import RouteConstructorFactory
 
         # resolve names from params
         constructor_names = self.params.constructors

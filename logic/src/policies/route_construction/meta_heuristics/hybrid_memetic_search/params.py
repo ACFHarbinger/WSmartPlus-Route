@@ -3,8 +3,12 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
-from ..adaptive_large_neighborhood_search import ALNSParams
-from ..ant_colony_optimization_k_sparse.params import KSACOParams
+from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params import (
+    ALNSParams,
+)
+from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params import (
+    KSACOParams,
+)
 
 
 @dataclass

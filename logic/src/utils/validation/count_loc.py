@@ -1,5 +1,4 @@
-"""count_loc.py module.
-
+"""
 Attributes:
     MODULE_VAR (Type): Description of module level variable.
 
@@ -10,7 +9,8 @@ Example:
 import argparse
 import ast
 import os
-from typing import Dict, Set
+from collections import defaultdict
+from typing import Dict, List, Set
 
 from rich.console import Console
 from rich.table import Table
@@ -79,16 +79,34 @@ def analyze_file(filepath: str) -> Dict[str, int]:
     return {"code": n_code, "comment": n_comments, "docstring": n_docs, "total": n_code + n_comments + n_docs}
 
 
+def group_by_directory(file_data: List[Dict], depth: int) -> List[Dict]:
+    """Aggregate file stats into buckets by the first `depth` directory components."""
+    groups: Dict[str, Dict[str, int]] = defaultdict(lambda: {"code": 0, "comment": 0, "docstring": 0, "total": 0})
+    for d in file_data:
+        parts = d["path"].replace("\\", "/").split("/")
+        key = "/".join(parts[:depth]) if len(parts) > depth else d["path"]
+        for metric in ("code", "comment", "docstring", "total"):
+            groups[key][metric] += d[metric]
+    return [{"path": k, **v} for k, v in sorted(groups.items())]
+
+
 def main():
     """Main."""
     parser = argparse.ArgumentParser()
     parser.add_argument("path", nargs="?", default=".")
     parser.add_argument("--sort", choices=["code", "comment", "docstring", "total"], default="total")
     parser.add_argument("--limit", type=int, default=30, help="Number of files to show")
+    parser.add_argument(
+        "--group-by-dir",
+        type=int,
+        default=0,
+        metavar="N",
+        help="Aggregate stats by first N directory levels instead of per-file",
+    )
     args = parser.parse_args()
 
     console = Console()
-    file_data = []
+    file_data: List[Dict] = []
     skip_dirs = {".git", "__pycache__", "venv", ".venv", "node_modules"}
 
     with console.status("[bold green]Analyzing codebase...", spinner="dots"):
@@ -102,25 +120,28 @@ def main():
                     if metrics["total"] > 0:
                         file_data.append({"path": rel_path, **metrics})
 
-    file_data.sort(key=lambda x: x[args.sort], reverse=True)
+    display_data = group_by_directory(file_data, args.group_by_dir) if args.group_by_dir > 0 else file_data
+    display_data.sort(key=lambda x: x[args.sort], reverse=True)
 
-    # Create the Rich Table
+    view_label = f"grouped by top-{args.group_by_dir} dir" if args.group_by_dir > 0 else "per file"
     table = Table(
-        title=f"Codebase Analysis (Sorted by {args.sort.upper()})", title_style="bold magenta", show_footer=True
+        title=f"Codebase Analysis — sorted by {args.sort.upper()}  ({view_label})",
+        title_style="bold magenta",
+        show_footer=True,
     )
 
-    table.add_column("File Path", style="cyan", no_wrap=False, footer="TOTALS")
+    table.add_column("Path", style="cyan", no_wrap=False, footer="TOTALS")
     table.add_column("Code", justify="right", style="green", footer=str(sum(d["code"] for d in file_data)))
     table.add_column("Comments", justify="right", style="yellow", footer=str(sum(d["comment"] for d in file_data)))
     table.add_column("Docstrings", justify="right", style="blue", footer=str(sum(d["docstring"] for d in file_data)))
     table.add_column("Total", justify="right", style="bold white", footer=str(sum(d["total"] for d in file_data)))
 
-    for d in file_data[: args.limit]:
+    for d in display_data[: args.limit]:
         table.add_row(d["path"], str(d["code"]), str(d["comment"]), str(d["docstring"]), str(d["total"]))
 
     console.print(table)
-    if len(file_data) > args.limit:
-        console.print(f"[dim]... and {len(file_data) - args.limit} more files.[/dim]")
+    if len(display_data) > args.limit:
+        console.print(f"[dim]... and {len(display_data) - args.limit} more entries.[/dim]")
 
 
 if __name__ == "__main__":

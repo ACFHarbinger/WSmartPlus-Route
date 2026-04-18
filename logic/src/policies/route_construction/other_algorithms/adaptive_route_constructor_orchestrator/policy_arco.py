@@ -158,7 +158,7 @@ class AdaptiveRouteConstructorOrchestrator(BaseRoutingPolicy):
         if self._initialized:
             return
 
-        from ...base.factory import RouteConstructorFactory
+        from logic.src.policies.route_construction.base.factory import RouteConstructorFactory
 
         names: List[str] = self.params.constructors
         self.constructors = [RouteConstructorFactory.get_adapter(name) for name in names]

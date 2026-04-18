@@ -15,7 +15,9 @@ Example:
 import os
 from typing import Any, List, Optional, Tuple
 
+import joblib
 import numpy as np
+import torch
 
 from logic.src.interfaces.context.search_context import SearchContext
 from logic.src.interfaces.mandatory_selection import IMandatorySelectionStrategy
@@ -42,13 +44,9 @@ class LearnedSelection(IMandatorySelectionStrategy):
 
         ext = os.path.splitext(path)[1].lower()
         if ext == ".pkl":
-            import joblib
-
             self._model = joblib.load(path)
             self._model_type = "sklearn"
         elif ext == ".pt":
-            import torch
-
             self._model = torch.load(path, map_location="cpu")
             self._model.eval()
             self._model_type = "torch"
@@ -108,8 +106,6 @@ class LearnedSelection(IMandatorySelectionStrategy):
             else:
                 probs = self._model.predict(features)
         elif self._model_type == "torch":
-            import torch
-
             with torch.no_grad():
                 input_tensor = torch.from_numpy(features).float()
                 # Assuming the model returns probabilities or logits

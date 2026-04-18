@@ -37,6 +37,7 @@ Implementation:
 Registry key: ``"esdp"``
 """
 
+import itertools
 from dataclasses import asdict
 from typing import Any, Dict, List, Optional, Tuple, Type
 
@@ -144,8 +145,6 @@ class ExactSDPPolicy(BaseMultiPeriodRoutingPolicy):
                 optimal_subset.append(mn)
 
         # 4. Extract Tour (Simple TSP over subset)
-        import itertools
-
         best_cost = float("inf")
         best_tour = [0, 0]
         for perm in itertools.permutations(optimal_subset):

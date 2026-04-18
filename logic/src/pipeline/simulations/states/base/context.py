@@ -21,15 +21,13 @@ from omegaconf import DictConfig
 from logic.src.constants import (
     ROOT_DIR,
 )
+from logic.src.pipeline.simulations.states.base.base import SimState
+from logic.src.pipeline.simulations.states.initializing import InitializingState
 from logic.src.utils.configs.setup_utils import deep_sanitize, get_pol_name
-
-from ..initializing import InitializingState
-from .base import SimState
 
 if TYPE_CHECKING:
     from logic.src.configs import Config
-
-    from ...checkpoints import SimulationCheckpoint
+    from logic.src.pipeline.simulations.checkpoints import SimulationCheckpoint
 
 
 class SimulationContext:

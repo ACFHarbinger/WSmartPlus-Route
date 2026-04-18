@@ -13,9 +13,9 @@ import numpy as np
 from gurobipy import GRB
 
 if TYPE_CHECKING:
-    from ..branching.constraints import AnyBranchingConstraint
-    from .model import Route
-    from .pool import GlobalCutPool
+    from logic.src.policies.helpers.branching_solvers.branching.constraints import AnyBranchingConstraint
+    from logic.src.policies.helpers.branching_solvers.common.route import Route
+    from logic.src.policies.helpers.branching_solvers.master_problem.pool import GlobalCutPool
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +34,7 @@ class MasterProblemSupport(Protocol):
     R: float
     C: float
     vehicle_limit: Optional[int]
-    global_cut_pool: GlobalCutPool
+    global_cut_pool: "GlobalCutPool"
     BIG_M: float
 
     model: gp.Model
@@ -119,7 +119,7 @@ class MasterProblemSupport(Protocol):
         edge_clique_duals: Dict[Tuple[int, int], float],
         lci_duals: Optional[Dict[FrozenSet[int], float]] = None,
         lci_node_alphas: Optional[Dict[FrozenSet[int], Dict[int, float]]] = None,
-        branching_constraints: Optional[List[AnyBranchingConstraint]] = None,
+        branching_constraints: Optional[List["AnyBranchingConstraint"]] = None,
         rc_tolerance: float = 1e-5,
     ) -> int: ...
 
@@ -204,7 +204,7 @@ class VRPPMasterProblemSupportMixin:
         edge_clique_duals: Dict[Tuple[int, int], float],
         lci_duals: Optional[Dict[FrozenSet[int], float]] = None,
         lci_node_alphas: Optional[Dict[FrozenSet[int], Dict[int, float]]] = None,
-        branching_constraints: Optional[List[AnyBranchingConstraint]] = None,
+        branching_constraints: Optional[List["AnyBranchingConstraint"]] = None,
         rc_tolerance: float = 1e-5,
     ) -> int:
         """

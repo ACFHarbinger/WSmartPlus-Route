@@ -36,9 +36,18 @@ except ImportError:
     gp: Any = None  # type: ignore[assignment,no-redef]
     GRB: Any = None  # type: ignore[misc,assignment,no-redef]
 
-from ..kernel_search.solver import _dfj_subtour_elimination_callback, _reconstruct_tour, _set_mip_start, _setup_ks_model
-from ..local_branching.lb import _add_local_branching_constraint
-from .params import LBVNSParams
+from logic.src.policies.route_construction.matheuristics.kernel_search.solver import (
+    _dfj_subtour_elimination_callback,
+    _reconstruct_tour,
+    _set_mip_start,
+    _setup_ks_model,
+)
+from logic.src.policies.route_construction.matheuristics.local_branching.lb import (
+    _add_local_branching_constraint,
+)
+from logic.src.policies.route_construction.matheuristics.local_branching_variable_neighborhood_search.params import (
+    LBVNSParams,
+)
 
 
 def _shake_solution_gurobi(

@@ -2,6 +2,7 @@
 RL4CO Base Environment.
 """
 
+from abc import ABC, abstractmethod
 from typing import Any, Optional, Union
 
 import torch
@@ -11,7 +12,7 @@ from .batch import BatchMixin
 from .ops import OpsMixin
 
 
-class RL4COEnvBase(BatchMixin, OpsMixin, EnvBase):
+class RL4COEnvBase(BatchMixin, OpsMixin, EnvBase, ABC):
     """
     Base environment class for combinatorial optimization problems.
 
@@ -89,3 +90,23 @@ class RL4COEnvBase(BatchMixin, OpsMixin, EnvBase):
     def __repr__(self) -> str:
         """String representation of the environment."""
         return f"{self.__class__.__name__}(name={self.name}, device={self.device})"
+
+    @abstractmethod
+    def _reset_instance(self, td: torch.Tensor) -> torch.Tensor:
+        """Reset the environment for a specific problem instance."""
+        pass
+
+    @abstractmethod
+    def _step(self, td: torch.Tensor) -> torch.Tensor:
+        """Perform a transition in the environment."""
+        pass
+
+    @abstractmethod
+    def _get_reward(self, td: torch.Tensor, actions: torch.Tensor) -> torch.Tensor:
+        """Compute the reward for a specific action sequence."""
+        pass
+
+    @abstractmethod
+    def _get_action_mask(self, td: torch.Tensor) -> torch.Tensor:
+        """Return the valid action mask for the current state."""
+        pass

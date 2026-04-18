@@ -5,9 +5,9 @@ Model Config module.
 from dataclasses import dataclass, field
 from typing import Optional
 
-from ..envs.objective import ObjectiveConfig
-from .decoder import DecoderConfig
-from .encoder import EncoderConfig
+from logic.src.configs.envs.objective import ObjectiveConfig
+from logic.src.configs.models.decoder import DecoderConfig
+from logic.src.configs.models.encoder import EncoderConfig
 
 
 @dataclass

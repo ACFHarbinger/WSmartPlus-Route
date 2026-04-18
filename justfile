@@ -141,9 +141,9 @@ dashboard:
 
 # --- Codebase Validation ---
 
-# Count lines of code and comments
-count-loc:
-    uv run python logic/src/utils/validation/count_loc.py logic/src
+# Count lines of code and comments (use --group-by-dir N to aggregate by directory depth)
+count-loc group_by="0":
+    uv run python logic/src/utils/validation/count_loc.py logic/src --group-by-dir {{ group_by }}
 
 # Tree view of lines of code and comments
 tree-loc:
@@ -162,9 +162,43 @@ check-google-docs:
 check-multi-classes:
     uv run python logic/src/utils/validation/check_multi_classes.py logic/src --exclude pipeline/simulations/wsmart_bin_analysis/test
 
-# Check for nested imports
+# Find all relative imports (from .module import ...) with optional stats or exclude_same_package=true
+check-relative-imports exclude_same_package="":
+    uv run python logic/src/utils/validation/check_relative_imports.py logic/src \
+        --exclude pipeline/simulations/wsmart_bin_analysis/test --stats \
+        {{ if exclude_same_package != "" { "--exclude-same-package" } else { "" } }}
+
+# Check for nested imports (add --stats for a per-package summary table)
 check-nested-imports:
     uv run python logic/src/utils/validation/check_nested_imports.py logic/src --exclude pipeline/simulations/wsmart_bin_analysis/test --ignore_factories
+
+# Check for nested imports with a per-package summary table
+check-nested-imports-stats:
+    uv run python logic/src/utils/validation/check_nested_imports.py logic/src --exclude pipeline/simulations/wsmart_bin_analysis/test --ignore_factories --stats
+
+# Detect circular import chains using Tarjan's SCC algorithm
+check-circular-imports html="":
+    uv run python logic/src/utils/validation/check_circular_imports.py logic/src \
+        --exclude pipeline/simulations/wsmart_bin_analysis/test \
+        {{ if html != "" { "--html " + html } else { "" } }}
+
+# Check that all concrete classes fully implement their ABC/Protocol interface contracts
+check-interface-compliance:
+    uv run python logic/src/utils/validation/check_interface_compliance.py logic/src
+
+# Measure type annotation coverage per file (worst-coverage files shown first)
+check-type-coverage sort="coverage" limit="40":
+    uv run python logic/src/utils/validation/check_type_coverage.py logic/src \
+        --sort {{ sort }} --limit {{ limit }}
+
+# Generate interactive module-level import graph (opens in browser)
+# Scans from repo root so logic/gui layers are correctly distinguished.
+
+# Use depth=N to collapse to top-N package levels; set html= to change output path.
+module-graph html="module_graph.html" depth="3":
+    uv run python logic/src/utils/validation/visualize_module_graph.py . \
+        --exclude .venv venv node_modules \
+        --html {{ html }} --depth {{ depth }}
 
 # Create a graph with exported and imported dependencies (function, classes, etc.)
 dependency-graph target_file="logic/src/utils/helpers/wrappers.py" target_name="greedy_day_route":

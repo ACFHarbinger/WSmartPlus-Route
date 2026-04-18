@@ -26,9 +26,10 @@ import numpy as np
 
 from logic.src.policies.helpers.local_search.local_search_aco import ACOLocalSearch
 from logic.src.policies.helpers.operators import build_greedy_routes
-
-from ..ant_colony_optimization_k_sparse.params import KSACOParams
-from .params import HSParams
+from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params import (
+    KSACOParams,
+)
+from logic.src.policies.route_construction.meta_heuristics.harmony_search.params import HSParams
 
 
 class HSSolver:

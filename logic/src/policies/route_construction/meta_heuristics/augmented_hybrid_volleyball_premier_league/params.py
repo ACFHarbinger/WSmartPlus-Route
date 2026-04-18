@@ -8,9 +8,13 @@ for diversity-driven population management and genetic crossover operators.
 from dataclasses import dataclass, field
 from typing import Optional
 
-from ..adaptive_large_neighborhood_search.params import ALNSParams
-from ..ant_colony_optimization_k_sparse.params import KSACOParams
-from ..hybrid_genetic_search.params import HGSParams
+from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params import (
+    ALNSParams,
+)
+from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params import (
+    KSACOParams,
+)
+from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.params import HGSParams
 
 
 @dataclass

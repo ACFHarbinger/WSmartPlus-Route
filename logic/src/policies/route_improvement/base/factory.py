@@ -27,33 +27,35 @@ class RouteImproverFactory:
         """
         Create a route improver instance by name.
         """
-        from ..adaptive_ensemble import AdaptiveEnsembleRouteImprover
-        from ..adaptive_large_neighborhood_search import AdaptiveLargeNeighborhoodSearchRouteImprover
-        from ..branch_and_price import BranchAndPriceRouteImprover
-        from ..cheapest_insertion import CheapestInsertionRouteImprover
-        from ..cross_exchange import CrossExchangeRouteImprover
-        from ..dp_route_reopt import DPRouteReoptRouteImprover
-        from ..fast_tsp import FastTSPRouteImprover
-        from ..fix_and_optimize import FixAndOptimizeRouteImprover
-        from ..guided_local_search import GuidedLocalSearchRouteImprover
-        from ..learned import LearnedRouteImprover
-        from ..lkh import LinKernighanHelsgaunRouteImprover
-        from ..local_search import ClassicalLocalSearchRouteImprover
-        from ..mip_lns import MIPLNSRouteImprover
-        from ..multi_phase import MultiPhaseRouteImprover
-        from ..neural_selector import NeuralSelectorRouteImprover
-        from ..node_exchange_steepest import NodeExchangeSteepestRouteImprover
-        from ..or_opt import OrOptRouteImprover
-        from ..or_opt_steepest import OrOptSteepestRouteImprover
-        from ..path import PathRouteImprover
-        from ..profitable_detour import ProfitableDetourRouteImprover
-        from ..random_local_search import RandomLocalSearchRouteImprover
-        from ..regret_k_insertion import RegretKInsertionRouteImprover
-        from ..ruin_recreate import RuinRecreateRouteImprover
-        from ..set_partitioning import SetPartitioningRouteImprover
-        from ..set_partitioning_polish import SetPartitioningPolishRouteImprover
-        from ..simulated_annealing import SimulatedAnnealingRouteImprover
-        from ..steepest_two_opt import SteepestTwoOptRouteImprover
+        from logic.src.policies.route_improvement.adaptive_ensemble import AdaptiveEnsembleRouteImprover
+        from logic.src.policies.route_improvement.adaptive_large_neighborhood_search import (
+            AdaptiveLargeNeighborhoodSearchRouteImprover,
+        )
+        from logic.src.policies.route_improvement.branch_and_price import BranchAndPriceRouteImprover
+        from logic.src.policies.route_improvement.cheapest_insertion import CheapestInsertionRouteImprover
+        from logic.src.policies.route_improvement.cross_exchange import CrossExchangeRouteImprover
+        from logic.src.policies.route_improvement.dp_route_reopt import DPRouteReoptRouteImprover
+        from logic.src.policies.route_improvement.fast_tsp import FastTSPRouteImprover
+        from logic.src.policies.route_improvement.fix_and_optimize import FixAndOptimizeRouteImprover
+        from logic.src.policies.route_improvement.guided_local_search import GuidedLocalSearchRouteImprover
+        from logic.src.policies.route_improvement.learned import LearnedRouteImprover
+        from logic.src.policies.route_improvement.lkh import LinKernighanHelsgaunRouteImprover
+        from logic.src.policies.route_improvement.local_search import ClassicalLocalSearchRouteImprover
+        from logic.src.policies.route_improvement.mip_lns import MIPLNSRouteImprover
+        from logic.src.policies.route_improvement.multi_phase import MultiPhaseRouteImprover
+        from logic.src.policies.route_improvement.neural_selector import NeuralSelectorRouteImprover
+        from logic.src.policies.route_improvement.node_exchange_steepest import NodeExchangeSteepestRouteImprover
+        from logic.src.policies.route_improvement.or_opt import OrOptRouteImprover
+        from logic.src.policies.route_improvement.or_opt_steepest import OrOptSteepestRouteImprover
+        from logic.src.policies.route_improvement.path import PathRouteImprover
+        from logic.src.policies.route_improvement.profitable_detour import ProfitableDetourRouteImprover
+        from logic.src.policies.route_improvement.random_local_search import RandomLocalSearchRouteImprover
+        from logic.src.policies.route_improvement.regret_k_insertion import RegretKInsertionRouteImprover
+        from logic.src.policies.route_improvement.ruin_recreate import RuinRecreateRouteImprover
+        from logic.src.policies.route_improvement.set_partitioning import SetPartitioningRouteImprover
+        from logic.src.policies.route_improvement.set_partitioning_polish import SetPartitioningPolishRouteImprover
+        from logic.src.policies.route_improvement.simulated_annealing import SimulatedAnnealingRouteImprover
+        from logic.src.policies.route_improvement.steepest_two_opt import SteepestTwoOptRouteImprover
 
         cls = RouteImproverRegistry.get_route_improver_class(name)
         if not cls:
@@ -125,33 +127,35 @@ class RouteImproverFactory:
         Args:
             config: RouteImprovingConfig instance.
         """
-        from ..adaptive_ensemble import AdaptiveEnsembleRouteImprover
-        from ..adaptive_large_neighborhood_search import AdaptiveLargeNeighborhoodSearchRouteImprover
-        from ..branch_and_price import BranchAndPriceRouteImprover
-        from ..cheapest_insertion import CheapestInsertionRouteImprover
-        from ..cross_exchange import CrossExchangeRouteImprover
-        from ..dp_route_reopt import DPRouteReoptRouteImprover
-        from ..fast_tsp import FastTSPRouteImprover
-        from ..fix_and_optimize import FixAndOptimizeRouteImprover
-        from ..guided_local_search import GuidedLocalSearchRouteImprover
-        from ..learned import LearnedRouteImprover
-        from ..lkh import LinKernighanHelsgaunRouteImprover
-        from ..local_search import ClassicalLocalSearchRouteImprover
-        from ..mip_lns import MIPLNSRouteImprover
-        from ..multi_phase import MultiPhaseRouteImprover
-        from ..neural_selector import NeuralSelectorRouteImprover
-        from ..node_exchange_steepest import NodeExchangeSteepestRouteImprover
-        from ..or_opt import OrOptRouteImprover
-        from ..or_opt_steepest import OrOptSteepestRouteImprover
-        from ..path import PathRouteImprover
-        from ..profitable_detour import ProfitableDetourRouteImprover
-        from ..random_local_search import RandomLocalSearchRouteImprover
-        from ..regret_k_insertion import RegretKInsertionRouteImprover
-        from ..ruin_recreate import RuinRecreateRouteImprover
-        from ..set_partitioning import SetPartitioningRouteImprover
-        from ..set_partitioning_polish import SetPartitioningPolishRouteImprover
-        from ..simulated_annealing import SimulatedAnnealingRouteImprover
-        from ..steepest_two_opt import SteepestTwoOptRouteImprover
+        from logic.src.policies.route_improvement.adaptive_ensemble import AdaptiveEnsembleRouteImprover
+        from logic.src.policies.route_improvement.adaptive_large_neighborhood_search import (
+            AdaptiveLargeNeighborhoodSearchRouteImprover,
+        )
+        from logic.src.policies.route_improvement.branch_and_price import BranchAndPriceRouteImprover
+        from logic.src.policies.route_improvement.cheapest_insertion import CheapestInsertionRouteImprover
+        from logic.src.policies.route_improvement.cross_exchange import CrossExchangeRouteImprover
+        from logic.src.policies.route_improvement.dp_route_reopt import DPRouteReoptRouteImprover
+        from logic.src.policies.route_improvement.fast_tsp import FastTSPRouteImprover
+        from logic.src.policies.route_improvement.fix_and_optimize import FixAndOptimizeRouteImprover
+        from logic.src.policies.route_improvement.guided_local_search import GuidedLocalSearchRouteImprover
+        from logic.src.policies.route_improvement.learned import LearnedRouteImprover
+        from logic.src.policies.route_improvement.lkh import LinKernighanHelsgaunRouteImprover
+        from logic.src.policies.route_improvement.local_search import ClassicalLocalSearchRouteImprover
+        from logic.src.policies.route_improvement.mip_lns import MIPLNSRouteImprover
+        from logic.src.policies.route_improvement.multi_phase import MultiPhaseRouteImprover
+        from logic.src.policies.route_improvement.neural_selector import NeuralSelectorRouteImprover
+        from logic.src.policies.route_improvement.node_exchange_steepest import NodeExchangeSteepestRouteImprover
+        from logic.src.policies.route_improvement.or_opt import OrOptRouteImprover
+        from logic.src.policies.route_improvement.or_opt_steepest import OrOptSteepestRouteImprover
+        from logic.src.policies.route_improvement.path import PathRouteImprover
+        from logic.src.policies.route_improvement.profitable_detour import ProfitableDetourRouteImprover
+        from logic.src.policies.route_improvement.random_local_search import RandomLocalSearchRouteImprover
+        from logic.src.policies.route_improvement.regret_k_insertion import RegretKInsertionRouteImprover
+        from logic.src.policies.route_improvement.ruin_recreate import RuinRecreateRouteImprover
+        from logic.src.policies.route_improvement.set_partitioning import SetPartitioningRouteImprover
+        from logic.src.policies.route_improvement.set_partitioning_polish import SetPartitioningPolishRouteImprover
+        from logic.src.policies.route_improvement.simulated_annealing import SimulatedAnnealingRouteImprover
+        from logic.src.policies.route_improvement.steepest_two_opt import SteepestTwoOptRouteImprover
 
         processors: List[IRouteImprovement] = []
         if not config.methods:

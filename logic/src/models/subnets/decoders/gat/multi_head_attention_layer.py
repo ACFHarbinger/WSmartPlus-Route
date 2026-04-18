@@ -8,13 +8,12 @@ from torch import nn
 
 from logic.src.configs.models.activation_function import ActivationConfig
 from logic.src.configs.models.normalization import NormalizationConfig
+from logic.src.models.subnets.decoders.common import FeedForwardSubLayer
 from logic.src.models.subnets.modules import (
     MultiHeadAttention,
     Normalization,
     SkipConnection,
 )
-
-from ..common import FeedForwardSubLayer
 
 
 class MultiHeadAttentionLayer(nn.Module):

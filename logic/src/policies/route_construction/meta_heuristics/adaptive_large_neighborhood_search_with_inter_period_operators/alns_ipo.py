@@ -59,10 +59,13 @@ from logic.src.policies.helpers.operators import (
     urgency_aware_removal,
     worst_profit_horizon_removal,
 )
+from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns import (
+    ALNSSolver,
+)
+from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search_with_inter_period_operators.params import (
+    ALNSIPOParams,
+)
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
-
-from ..adaptive_large_neighborhood_search.alns import ALNSSolver
-from .params import ALNSIPOParams
 
 
 class ALNSSolverIPO(ALNSSolver):
