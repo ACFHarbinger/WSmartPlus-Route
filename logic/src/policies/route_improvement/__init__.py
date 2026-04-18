@@ -16,7 +16,9 @@ from .fast_tsp import FastTSPRouteImprover
 from .fix_and_optimize import FixAndOptimizeRouteImprover
 from .guided_local_search import GuidedLocalSearchRouteImprover
 from .learned import LearnedRouteImprover
+from .lk import LinKernighanRouteImprover
 from .lkh import LinKernighanHelsgaunRouteImprover
+from .lkh2 import LinKernighanHelsgaunTwoRouteImprover
 from .local_search import ClassicalLocalSearchRouteImprover
 from .mip_lns import MIPLNSRouteImprover
 from .multi_phase import MultiPhaseRouteImprover
@@ -48,7 +50,9 @@ __all__ = [
     "FixAndOptimizeRouteImprover",
     "GuidedLocalSearchRouteImprover",
     "LearnedRouteImprover",
+    "LinKernighanRouteImprover",
     "LinKernighanHelsgaunRouteImprover",
+    "LinKernighanHelsgaunTwoRouteImprover",
     "ClassicalLocalSearchRouteImprover",
     "MIPLNSRouteImprover",
     "MultiPhaseRouteImprover",

@@ -114,6 +114,7 @@ import gurobipy as gp
 import numpy as np
 from gurobipy import GRB
 
+from logic.src.policies.helpers.operators.recreate_repair.greedy import greedy_insertion, greedy_profit_insertion
 from logic.src.policies.helpers.solvers_and_matheuristics import (
     AnyBranchingConstraint,
     BranchAndBoundTree,
@@ -130,7 +131,6 @@ from logic.src.policies.helpers.solvers_and_matheuristics.lagrangian_relaxation.
     solve_uncapacitated_op,
 )
 from logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model import VRPPModel
-from logic.src.policies.helpers.operators.recreate_repair.greedy import greedy_insertion, greedy_profit_insertion
 from logic.src.policies.route_construction.base.factory import RouteConstructorFactory
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
