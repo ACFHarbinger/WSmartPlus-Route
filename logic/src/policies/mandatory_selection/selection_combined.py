@@ -21,7 +21,6 @@ from logic.src.interfaces.context.search_context import SearchContext
 from logic.src.interfaces.mandatory_selection import IMandatorySelectionStrategy
 
 from .base.selection_context import SelectionContext
-from .base.selection_factory import MandatorySelectionFactory
 from .base.selection_registry import MandatorySelectionRegistry
 
 
@@ -64,6 +63,8 @@ class CombinedSelection(IMandatorySelectionStrategy):
             return [], SearchContext.initialize(selection_metrics={"strategy": "CombinedSelection"})
 
         # Instantiate strategies
+        from .base.selection_factory import MandatorySelectionFactory
+
         strategies = []
         for config in self.strategy_configs:
             name = config.get("name")

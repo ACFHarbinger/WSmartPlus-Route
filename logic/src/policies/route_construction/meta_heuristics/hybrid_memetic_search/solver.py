@@ -51,10 +51,15 @@ from logic.src.policies.helpers.operators import (
     worst_removal,
 )
 from logic.src.policies.helpers.operators.solution_initialization.nearest_neighbor_si import build_nn_routes
-
-from ..adaptive_large_neighborhood_search.alns import ALNSSolver
-from ..ant_colony_optimization_k_sparse.solver import KSparseACOSolver
-from .params import HybridMemeticSearchParams
+from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns import (
+    ALNSSolver,
+)
+from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver import (
+    KSparseACOSolver,
+)
+from logic.src.policies.route_construction.meta_heuristics.hybrid_memetic_search.params import (
+    HybridMemeticSearchParams,
+)
 
 
 class HybridMemeticSearchSolver:

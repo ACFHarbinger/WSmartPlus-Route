@@ -135,9 +135,7 @@ def greedy_day_route(problem: ProblemContext, rng: np.random.Generator) -> List[
     """
     Greedy nearest-profit-ratio construction for a single day.
     """
-    import random as _stdlib_random
-
-    _rng = _stdlib_random.Random(int(rng.integers(0, 2**31)))
+    _rng = random.Random(int(rng.integers(0, 2**31)))
     routes = _build_single_day_routes(problem, _rng, rng, "greedy")
     # flatten
     return [node for route in routes for node in route]

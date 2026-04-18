@@ -5,8 +5,7 @@ Core components for Container management.
 from typing import Optional
 
 import pandas as pd
-
-from ..enums.tag import TAG
+from logic.src.pipeline.simulations.wsmart_bin_analysis.Deliverables.enums.tag import TAG
 
 
 class DataMixin:

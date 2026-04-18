@@ -10,11 +10,10 @@ from torch import nn
 
 from logic.src.constants.models import NUMERICAL_EPSILON
 from logic.src.envs.base.base import RL4COEnvBase
+from logic.src.models.subnets.decoders.common import AttentionDecoderCache
 from logic.src.models.subnets.embeddings import CONTEXT_EMBEDDING_REGISTRY
 from logic.src.models.subnets.embeddings.dynamic import DynamicEmbedding
 from logic.src.models.subnets.modules.polynet_attention import PolyNetAttention
-
-from ..common import AttentionDecoderCache
 
 
 class PolyNetDecoder(nn.Module):

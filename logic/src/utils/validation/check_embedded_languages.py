@@ -1,6 +1,4 @@
 """
-check_embedded_languages.py
-
 An AST-based utility to detect embedded HTML, CSS, JavaScript, or SQL
 inside Python source files.
 """

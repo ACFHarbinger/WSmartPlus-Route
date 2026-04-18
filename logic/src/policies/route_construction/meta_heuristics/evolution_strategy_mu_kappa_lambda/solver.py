@@ -34,10 +34,15 @@ from logic.src.policies.helpers.operators import (
     greedy_profit_insertion,
     random_removal,
 )
-
-from ..ant_colony_optimization_k_sparse.params import KSACOParams
-from .individual import Individual
-from .params import MuKappaLambdaESParams
+from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params import (
+    KSACOParams,
+)
+from logic.src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.individual import (
+    Individual,
+)
+from logic.src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.params import (
+    MuKappaLambdaESParams,
+)
 
 
 class MuKappaLambdaESSolver:

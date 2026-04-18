@@ -1,5 +1,4 @@
-"""check_multi_classes.py module.
-
+"""
 Attributes:
     MODULE_VAR (Type): Description of module level variable.
 

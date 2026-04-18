@@ -8,8 +8,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from ..Deliverables import simulation
-from ..Deliverables.container import Container
+from logic.src.pipeline.simulations.wsmart_bin_analysis.Deliverables import simulation
+from logic.src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container import Container
 
 
 @pytest.fixture

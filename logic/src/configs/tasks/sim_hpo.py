@@ -5,7 +5,7 @@ Simulation HPO Config module.
 from dataclasses import dataclass, field
 from typing import Any, Dict
 
-from ..envs.graph import GraphConfig
+from logic.src.configs.envs.graph import GraphConfig
 
 
 @dataclass

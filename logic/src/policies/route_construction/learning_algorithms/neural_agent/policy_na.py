@@ -274,3 +274,16 @@ class NeuralAgentPolicy(BaseRoutingPolicy):
             return mask
 
         return torch.zeros(1, num_bins + 1, dtype=torch.bool, device=device)
+
+    def _run_solver(
+        self,
+        tour: List[int],
+        cost: float,
+        profit: float,
+        search_context: SearchContext,
+        multi_day_context: Any,
+    ) -> Tuple[List[int], float, float, SearchContext, Any]:
+        """
+        Stub to satisfy BaseRoutingPolicy as NeuralAgentPolicy overrides execute().
+        """
+        return [], 0.0, 0.0, search_context, multi_day_context

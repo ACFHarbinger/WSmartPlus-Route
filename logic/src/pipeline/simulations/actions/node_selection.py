@@ -3,6 +3,7 @@ Action for mandatory bin selection.
 """
 
 import os
+from dataclasses import asdict
 from typing import Any, Dict, List, cast
 
 import numpy as np
@@ -72,8 +73,6 @@ class MandatorySelectionAction(SimulationAction):
                     continue
 
                 # Extract sub-config parameters for SelectionContext
-                from dataclasses import asdict
-
                 s_params = m_config.params.copy()
 
                 # Find the sub-config attribute name

@@ -21,6 +21,7 @@ import signal
 from contextlib import contextmanager
 from typing import Any, Dict, List, Optional, Tuple
 
+import networkx as nx
 import numpy as np
 
 from logic.src.interfaces.context.search_context import ImprovementMetrics
@@ -359,8 +360,6 @@ class BranchAndPriceRouteImprover(IRouteImprovement):
         **kwargs: Any,
     ) -> Optional[List[List[int]]]:
         """Delegate to vrpy (secondary fallback path)."""
-        import networkx as nx
-
         time_limit = kwargs.get("bp_time_limit", self.config.get("bp_time_limit", 120.0))
         cspy = kwargs.get("bp_use_cspy", self.config.get("bp_use_cspy", True))
 

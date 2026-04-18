@@ -39,9 +39,12 @@ from logic.src.policies.helpers.operators.destroy_ruin.shaw import shaw_profit_r
 from logic.src.policies.helpers.operators.solution_initialization.nearest_neighbor_si import (
     build_nn_routes,
 )
-
-from ..ant_colony_optimization_k_sparse.params import KSACOParams
-from .params import SLCParams
+from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params import (
+    KSACOParams,
+)
+from logic.src.policies.route_construction.meta_heuristics.soccer_league_competition.params import (
+    SLCParams,
+)
 
 
 class SLCSolver:

@@ -2,8 +2,8 @@
 Unit tests for data transformation and fixing utilities in the wsmart_bin_analysis module.
 """
 
-from ..Deliverables.container import TAG, Container
-from ..Deliverables.transform import (
+from logic.src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container import TAG, Container
+from logic.src.pipeline.simulations.wsmart_bin_analysis.Deliverables.transform import (
     filter_containers,
     fix_collections_sensor,
     get_overall_sensors_statistics,

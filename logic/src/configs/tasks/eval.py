@@ -5,10 +5,10 @@ Eval Config module.
 from dataclasses import dataclass, field
 from typing import List, Optional
 
-from ..envs.graph import GraphConfig
-from ..envs.objective import ObjectiveConfig
-from ..models.decoding import DecodingConfig
-from ..policies.na import NeuralAgentConfig
+from logic.src.configs.envs.graph import GraphConfig
+from logic.src.configs.envs.objective import ObjectiveConfig
+from logic.src.configs.models.decoding import DecodingConfig
+from logic.src.configs.policies.na import NeuralAgentConfig
 
 
 @dataclass

@@ -4,11 +4,10 @@ Action for simulation logging.
 
 from typing import Any, Dict
 
+from logic.src.pipeline.simulations.actions.base import SimulationAction
+from logic.src.pipeline.simulations.day_context import get_daily_results
 from logic.src.tracking.integrations.simulation import get_sim_tracker
 from logic.src.tracking.logging.log_utils import send_daily_output_to_gui
-
-from ..day_context import get_daily_results
-from .base import SimulationAction
 
 
 class LogAction(SimulationAction):

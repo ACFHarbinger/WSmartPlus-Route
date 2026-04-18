@@ -1,4 +1,5 @@
 import pickle
+from abc import ABC, abstractmethod
 from collections import deque
 from typing import Any, Deque, Dict, Optional
 
@@ -7,7 +8,7 @@ import numpy as np
 from .base import RLAgent
 
 
-class TDAgent(RLAgent):
+class TDAgent(RLAgent, ABC):
     """
     Base class for Temporal Difference (TD) learning agents.
 
@@ -155,6 +156,23 @@ class TDAgent(RLAgent):
         self.q_table = {}
         # We don't necessarily want to reset epsilon to initial value here,
         # but the interface allows it if needed. For now, just clear Q-table.
+
+    @abstractmethod
+    def update(self, state: Any, action: int, reward: float, next_state: Any, done: bool) -> None:
+        """
+        Perform a Temporal Difference update based on a transition.
+
+        This method must be implemented by subclasses to define the specific
+        TD update logic (e.g., Q-Learning, SARSA, Expected SARSA).
+
+        Args:
+            state: Initial state of the transition.
+            action: Action taken in 'state'.
+            reward: Scalar reward observed after taking 'action'.
+            next_state: Resulting state after taking 'action'.
+            done: Boolean flag indicating if the episode has terminated.
+        """
+        pass
 
 
 class QLearningAgent(TDAgent):

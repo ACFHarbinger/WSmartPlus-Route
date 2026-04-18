@@ -11,11 +11,14 @@ import numpy as np
 from logic.src.configs.policies import HGSALNSConfig
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
-
-from ..adaptive_large_neighborhood_search.params import ALNSParams
-from ..hybrid_genetic_search.params import HGSParams
-from .hgs_alns import HGSALNSSolver
-from .params import HGSALNSParams
+from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params import ALNSParams
+from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.params import HGSParams
+from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_large_neighborhood_search.hgs_alns import (
+    HGSALNSSolver,
+)
+from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_adaptive_large_neighborhood_search.params import (
+    HGSALNSParams,
+)
 
 
 @RouteConstructorRegistry.register("hgs_alns")
