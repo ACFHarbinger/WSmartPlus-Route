@@ -6,7 +6,7 @@ Based on Barnhart et al. (1998, 2000) and standard exact VRPP protocols.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, fields
+from dataclasses import MISSING, dataclass, fields
 from typing import Any, Dict, Optional
 
 
@@ -124,8 +124,6 @@ class BPCParams:
     @classmethod
     def from_config(cls, config: Any) -> BPCParams:
         """Create BPCParams from a configuration object or dictionary."""
-        from dataclasses import MISSING, fields
-
         if isinstance(config, dict):
             valid_keys = {f.name for f in fields(cls)}
             return cls(**{k: v for k, v in config.items() if k in valid_keys})  # type: ignore[arg-type]

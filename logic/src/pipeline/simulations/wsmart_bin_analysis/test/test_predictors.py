@@ -4,7 +4,7 @@ Unit tests for the Predictor class in the wsmart_bin_analysis module.
 
 from unittest.mock import patch
 
-from ..Deliverables.predictors import Predictor
+from logic.src.pipeline.simulations.wsmart_bin_analysis.Deliverables.predictors import Predictor
 
 
 class TestPredictors:

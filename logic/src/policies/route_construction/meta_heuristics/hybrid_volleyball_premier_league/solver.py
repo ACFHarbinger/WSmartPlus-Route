@@ -30,10 +30,15 @@ from logic.src.policies.helpers.operators import (
     random_removal,
 )
 from logic.src.policies.helpers.operators.solution_initialization.greedy_si import build_greedy_routes
-
-from ..adaptive_large_neighborhood_search.alns import ALNSSolver
-from ..ant_colony_optimization_k_sparse.solver import KSparseACOSolver
-from .params import HVPLParams
+from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns import (
+    ALNSSolver,
+)
+from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver import (
+    KSparseACOSolver,
+)
+from logic.src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.params import (
+    HVPLParams,
+)
 
 
 class HVPLSolver:

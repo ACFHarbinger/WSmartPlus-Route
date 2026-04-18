@@ -20,6 +20,7 @@ Example:
     >>> success = double_bridge(plan, r_idx=0, rng=rng)
 """
 
+from random import Random
 from typing import Any, Optional
 
 
@@ -40,8 +41,6 @@ def double_bridge(ls_or_plan: Any, r_idx: int, rng: Optional[Any] = None) -> boo
         bool: True if the move was applied, False otherwise.
     """
     if rng is None:
-        from random import Random
-
         rng = Random()
 
     # 1. Determine context and extract routes

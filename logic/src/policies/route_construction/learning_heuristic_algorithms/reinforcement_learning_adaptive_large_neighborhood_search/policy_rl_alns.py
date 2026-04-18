@@ -12,9 +12,12 @@ from logic.src.configs.policies.other import (
 from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
-
-from ..reinforcement_learning_adaptive_large_neighborhood_search.params import RLALNSParams
-from ..reinforcement_learning_adaptive_large_neighborhood_search.solver import RLALNSSolver
+from logic.src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.params import (
+    RLALNSParams,
+)
+from logic.src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_adaptive_large_neighborhood_search.solver import (
+    RLALNSSolver,
+)
 
 
 @GlobalRegistry.register(

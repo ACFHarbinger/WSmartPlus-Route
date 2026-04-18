@@ -26,7 +26,7 @@ from logic.src.policies.helpers.branching_solvers.master_problem.problem_support
 )
 
 if TYPE_CHECKING:
-    from ..common.route import Route
+    from logic.src.policies.helpers.branching_solvers.common.route import Route
 
 logger = logging.getLogger(__name__)
 

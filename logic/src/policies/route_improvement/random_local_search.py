@@ -2,7 +2,7 @@
 Random Local Search Route Improver.
 """
 
-from typing import Any, List, Tuple
+from typing import Any, Callable, List, Tuple
 
 import numpy as np
 
@@ -81,8 +81,6 @@ class RandomLocalSearchRouteImprover(IRouteImprovement):
             seed=seed,
         )
         manager.set_routes(routes)
-
-        from typing import Callable
 
         # Map probabilistic keys to manager methods
         op_map: dict[str, Callable[[], Any]] = {

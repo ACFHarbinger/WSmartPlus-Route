@@ -10,9 +10,8 @@ from torch import nn
 
 from logic.src.configs.models.activation_function import ActivationConfig
 from logic.src.configs.models.normalization import NormalizationConfig
-
-from ..common import AttentionDecoderCache
-from .graph_decoder import GraphAttentionDecoder
+from logic.src.models.subnets.decoders.common import AttentionDecoderCache
+from logic.src.models.subnets.decoders.gat.graph_decoder import GraphAttentionDecoder
 
 
 class DeepGATDecoder(nn.Module):

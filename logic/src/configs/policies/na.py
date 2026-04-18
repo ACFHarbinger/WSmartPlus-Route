@@ -5,10 +5,10 @@ Neural policy configuration.
 from dataclasses import dataclass, field
 from typing import List, Optional
 
-from ..envs.objective import ObjectiveConfig
-from ..models.model import ModelConfig
-from .other.mandatory_selection import MandatorySelectionConfig
-from .other.route_improvement import RouteImprovingConfig
+from logic.src.configs.envs.objective import ObjectiveConfig
+from logic.src.configs.models.model import ModelConfig
+from logic.src.configs.policies.other.mandatory_selection import MandatorySelectionConfig
+from logic.src.configs.policies.other.route_improvement import RouteImprovingConfig
 
 
 @dataclass

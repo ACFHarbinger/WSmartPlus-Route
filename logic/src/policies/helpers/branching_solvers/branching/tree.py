@@ -11,23 +11,21 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, Union, 
 
 import numpy as np
 
-from logic.src.policies.helpers.branching_solvers.common.node import BranchNode
-
-from .strategies import (
+from logic.src.policies.helpers.branching_solvers.branching.strategies import (
     EdgeBranching,
     FleetSizeBranching,
     MultiEdgePartitionBranching,
     NodeVisitationBranching,
     RyanFosterBranching,
 )
+from logic.src.policies.helpers.branching_solvers.common.node import BranchNode
 
 if TYPE_CHECKING:
+    from logic.src.policies.helpers.branching_solvers.common.route import Route
+    from logic.src.policies.helpers.branching_solvers.vrpp_model import VRPPModel
     from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params import (
         BPCParams,
     )
-
-    from ..common.route import Route
-    from ..vrpp_model import VRPPModel
 
 # The type alias will now use the globally unified BranchNode
 FrontierItem = Union[BranchNode, Tuple[float, int, BranchNode]]

@@ -16,11 +16,10 @@ import numpy as np
 from logic.src.configs.policies.hvpl import HVPLConfig
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
-
-from ..adaptive_large_neighborhood_search.params import ALNSParams
-from ..ant_colony_optimization_k_sparse.params import KSACOParams
-from .params import HVPLParams
-from .solver import HVPLSolver
+from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params import ALNSParams
+from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params import KSACOParams
+from logic.src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.params import HVPLParams
+from logic.src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.solver import HVPLSolver
 
 
 @RouteConstructorRegistry.register("hvpl")

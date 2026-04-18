@@ -5,6 +5,7 @@ This module implements the linear-time Split algorithm used to partition
 a giant tour into optimal routes based on vehicle capacity.
 """
 
+import warnings
 from collections import deque
 from typing import Any, Deque, Dict, List, Optional, Tuple
 
@@ -157,8 +158,6 @@ class LinearSplit:
             visited = {node for route in routes for node in route}
             missing = self.mandatory_nodes - visited
             if missing:
-                import warnings
-
                 warnings.warn(
                     f"_fallback_split: mandatory nodes {missing} could not be "
                     f"included in any feasible route. Check capacity constraints.",

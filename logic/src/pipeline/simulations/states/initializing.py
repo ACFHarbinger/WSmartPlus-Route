@@ -26,7 +26,12 @@ from logic.src.data.processor import (
     setup_basedata,
     setup_dist_path_tup,
 )
+from logic.src.pipeline.simulations.actions.base import _flatten_config
+from logic.src.pipeline.simulations.bins import Bins
+from logic.src.pipeline.simulations.checkpoints import SimulationCheckpoint
 from logic.src.pipeline.simulations.repository import load_area_and_waste_type_params
+from logic.src.pipeline.simulations.states.base.base import SimState
+from logic.src.pipeline.simulations.states.running import RunningState
 from logic.src.tracking.logging.log_utils import setup_system_logger
 from logic.src.tracking.logging.logger_writer import setup_logger_redirection
 from logic.src.utils.configs.config_loader import load_config
@@ -34,14 +39,8 @@ from logic.src.utils.configs.setup_env import setup_env
 from logic.src.utils.configs.setup_manager import setup_hrl_manager
 from logic.src.utils.configs.setup_worker import setup_model
 
-from ..actions.base import _flatten_config
-from ..bins import Bins
-from ..checkpoints import SimulationCheckpoint
-from .base import SimState
-from .running import RunningState
-
 if TYPE_CHECKING:
-    from .base import SimulationContext
+    from logic.src.pipeline.simulations.states.base.base import SimulationContext
 
 
 class InitializingState(SimState):

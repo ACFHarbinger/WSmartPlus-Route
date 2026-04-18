@@ -36,9 +36,12 @@ from logic.src.policies.helpers.operators import (
     random_removal,
     shaw_profit_removal,
 )
-
-from ..ant_colony_optimization_k_sparse.params import KSACOParams
-from .params import MuCommaLambdaESParams
+from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params import (
+    KSACOParams,
+)
+from logic.src.policies.route_construction.meta_heuristics.evolution_strategy_mu_comma_lambda.params import (
+    MuCommaLambdaESParams,
+)
 
 
 class MuCommaLambdaESSolver:

@@ -32,9 +32,10 @@ from logic.src.policies.helpers.operators import (
     random_removal,
 )
 from logic.src.policies.helpers.operators.solution_initialization.nearest_neighbor_si import build_nn_routes
-
-from ..ant_colony_optimization_k_sparse.params import KSACOParams
-from .params import VPLParams
+from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params import (
+    KSACOParams,
+)
+from logic.src.policies.route_construction.meta_heuristics.volleyball_premier_league.params import VPLParams
 
 
 class VPLSolver:
