@@ -31,6 +31,7 @@ from .kpi import (
     render_policy_info,
 )
 from .map import reconstruct_tour, render_map_view
+from .summary import render_simulation_summary
 from .tour import render_raw_data_view, render_tour_details
 
 

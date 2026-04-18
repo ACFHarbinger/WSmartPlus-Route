@@ -471,6 +471,6 @@ assets/output/**/*.jsonl
 !assets/model_weights
 !assets/*.out
 !assets/*.pkl
-#!**/fill_history/
 !**/fill_history/enchimentos*
+!logic/src/utils/validation/target
 !logic/src/pipeline/simulations/checkpoints

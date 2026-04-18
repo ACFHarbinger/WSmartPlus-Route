@@ -1,3 +1,5 @@
+import json
+import os
 from typing import Any
 
 import pandas as pd
@@ -5,6 +7,11 @@ import streamlit as st
 
 from logic.src.ui.components.charts import create_stacked_bar_chart
 from logic.src.ui.pages.simulation.map import render_bin_heatmap
+
+# Load styles dynamically
+styles_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "json", "bin_styles.json")
+with open(styles_path, "r", encoding="utf-8") as f:
+    BIN_STYLES = json.load(f)
 
 
 def style_bin_table(df: pd.DataFrame) -> Any:
@@ -17,11 +24,13 @@ def style_bin_table(df: pd.DataFrame) -> Any:
             vmax=120,
         )
         .map(
-            lambda v: "background-color: #ffebee; font-weight: bold" if v else "",
+            # Replaced hardcoded CSS with JSON mapping
+            lambda v: BIN_STYLES["overflow"] if v else "",
             subset=["Overflow"],
         )
         .map(
-            lambda v: "color: #2e7d32; font-weight: bold" if v else "",
+            # Replaced hardcoded CSS with JSON mapping
+            lambda v: BIN_STYLES["collected"] if v else "",
             subset=["Collected"],
         )
         .format(

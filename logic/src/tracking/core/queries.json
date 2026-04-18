@@ -1,0 +1,22 @@
+{
+  "alter_dataset_events": "ALTER TABLE dataset_events ADD COLUMN shape TEXT;",
+  "insert_experiment": "INSERT OR IGNORE INTO experiments (name, created_at, description, tags) VALUES (?, ?, ?, ?)",
+  "get_experiment_id": "SELECT id FROM experiments WHERE name = ?",
+  "list_experiments": "SELECT * FROM experiments ORDER BY created_at DESC",
+  "insert_run": "INSERT INTO runs (id, experiment_id, name, status, run_type, start_time, artifact_dir) VALUES (?, ?, ?, 'running', ?, ?, ?)",
+  "update_run_status": "UPDATE runs SET status = ?, end_time = ?, error_message = ? WHERE id = ?",
+  "get_run": "SELECT * FROM runs WHERE id = ?",
+  "list_runs_base": "SELECT * FROM runs WHERE 1=1",
+  "insert_tag": "INSERT OR REPLACE INTO run_tags (run_id, key, value) VALUES (?, ?, ?)",
+  "get_tags": "SELECT key, value FROM run_tags WHERE run_id = ?",
+  "insert_param": "INSERT OR REPLACE INTO params (run_id, key, value) VALUES (?, ?, ?)",
+  "get_params": "SELECT key, value FROM params WHERE run_id = ?",
+  "insert_metric": "INSERT INTO metrics (run_id, key, value, step, timestamp) VALUES (?, ?, ?, ?, ?)",
+  "get_metric_history": "SELECT value, step, timestamp FROM metrics WHERE run_id = ? AND key = ? ORDER BY step",
+  "get_latest_metrics": "SELECT key, value FROM metrics WHERE id IN (SELECT MAX(id) FROM metrics WHERE run_id = ? GROUP BY key)",
+  "check_artifact": "SELECT id FROM artifacts WHERE run_id = ? AND path = ?",
+  "insert_artifact": "INSERT INTO artifacts (run_id, name, path, artifact_type, file_hash, size_bytes, created_at, metadata) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+  "get_artifacts_base": "SELECT * FROM artifacts WHERE run_id = ?",
+  "insert_dataset_event": "INSERT INTO dataset_events (run_id, event_type, file_path, file_hash, prev_hash, size_bytes, shape, metadata, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+  "get_dataset_events": "SELECT * FROM dataset_events WHERE run_id = ? ORDER BY timestamp"
+}
