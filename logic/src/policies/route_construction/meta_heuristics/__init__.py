@@ -28,10 +28,10 @@ from .memetic_algorithm import policy_ma as policy_ma
 from .memetic_algorithm_dual_population import policy_ma_dp as policy_ma_dp
 from .memetic_algorithm_island_model import policy_ma_im as policy_ma_im
 from .memetic_algorithm_tolerance_based_selection import policy_ma_ts as policy_ma_ts
-from .multi_period_ant_colony_optimization import policy_aco as policy_mp_aco
-from .multi_period_iterated_local_search import policy_ils as policy_mp_ils
-from .multi_period_particle_swarm_optimization import policy_pso as policy_mp_pso
-from .multi_period_simulated_annealing import policy_sa as policy_mp_sa
+from .multi_period_ant_colony_optimization import policy_mp_aco as policy_mp_aco
+from .multi_period_iterated_local_search import policy_mp_ils as policy_mp_ils
+from .multi_period_particle_swarm_optimization import policy_mp_pso as policy_mp_pso
+from .multi_period_simulated_annealing import policy_mp_sa as policy_mp_sa
 from .particle_swarm_optimization import policy_pso as policy_pso
 from .particle_swarm_optimization_distance_based_algorithm import policy_psoda as policy_psoda
 from .particle_swarm_optimization_memetic_algorithm import policy_psoma as policy_psoma

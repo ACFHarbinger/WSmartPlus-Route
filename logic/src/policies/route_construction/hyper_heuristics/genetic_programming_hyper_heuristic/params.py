@@ -1,5 +1,5 @@
 """
-Configuration parameters for the GPHH Constructive Heuristic Generator.
+Configuration parameters for the Genetic Programming Hyper-Heuristic (GP-HH).
 """
 
 from __future__ import annotations

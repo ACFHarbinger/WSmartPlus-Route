@@ -8,10 +8,12 @@ from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.interfaces.context.multi_day_context import MultiDayContext
 from logic.src.interfaces.context.problem_context import ProblemContext
 from logic.src.interfaces.context.solution_context import SolutionContext
-from logic.src.policies.helpers.operators.helpers.llh_pool import LLHPool
 from logic.src.policies.route_construction.base.base_multi_period_policy import BaseMultiPeriodRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
-from logic.src.policies.route_construction.matheuristics.utils import greedy_day_route, route_profit
+from logic.src.policies.route_construction.hyper_heuristics.matheuristic_hyper_heuristic.params import MHHParams
+from logic.src.utils.helpers.llh_pool import LLHPool
+from logic.src.utils.helpers.routes import route_profit
+from logic.src.utils.helpers.wrappers import greedy_day_route
 
 
 @GlobalRegistry.register(
@@ -47,9 +49,9 @@ class MHHPolicy(BaseMultiPeriodRoutingPolicy):
 
     def __init__(self, config: Any = None):
         super().__init__(config)
-        cfg = config or {}
-        self.iters = getattr(cfg, "iters", 10)
-        self.seed = getattr(cfg, "seed", 42)
+        self.params = MHHParams.from_config(config)
+        self.iters = self.params.iters
+        self.seed = self.params.seed
         self.rng = random.Random(self.seed)
         self.llhs = LLHPool.get_all()
 
@@ -94,7 +96,7 @@ class MHHPolicy(BaseMultiPeriodRoutingPolicy):
         best_prof = self._evaluate(best_plan, problem)
 
         try:
-            from logic.src.policies.route_construction.matheuristics.relax_fix_optimize.policy_rfo import (
+            from logic.src.policies.route_construction.matheuristics.relax_and_fix_and_optimize.policy_rfo import (
                 RelaxFixOptimizePolicy,
             )
 
