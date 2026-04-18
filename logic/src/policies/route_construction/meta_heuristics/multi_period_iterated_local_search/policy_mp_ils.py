@@ -15,10 +15,10 @@ from logic.src.policies.route_construction.meta_heuristics.multi_period_iterated
 )
 from logic.src.utils.policy.routes import (
     route_profit,
-    two_opt,
 )
 from logic.src.utils.policy.wrappers import (
     greedy_day_route,
+    two_opt,
 )
 
 

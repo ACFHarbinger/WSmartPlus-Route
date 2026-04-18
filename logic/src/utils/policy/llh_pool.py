@@ -23,11 +23,9 @@ from logic.src.policies.helpers.operators.perturbation_shaking import (
     day_shuffle,
     double_bridge,
 )
-from logic.src.utils.policy.routes import (
-    two_opt,
-)
 from logic.src.utils.policy.wrappers import (
     greedy_day_route,
+    two_opt,
 )
 
 # --- Type Aliases ---
