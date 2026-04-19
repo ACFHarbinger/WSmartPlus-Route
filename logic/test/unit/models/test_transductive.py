@@ -5,9 +5,8 @@ Tests for Transductive Models (Active Search, EAS).
 import pytest
 import torch
 import torch.nn as nn
-from tensordict import TensorDict
 
-from logic.src.envs.vrpp import VRPPEnv
+from logic.src.envs.routing.vrpp import VRPPEnv
 from logic.src.models.core.attention_model import AttentionModel
 from unittest.mock import MagicMock
 from logic.src.models.common.transductive.active_search import ActiveSearch

@@ -88,6 +88,14 @@ from .route_construction.other_algorithms.capacitated_vehicle_routing_problem.cv
     find_routes_ortools,
 )
 from .route_construction.other_algorithms.travelling_salesman_problem.tsp import find_route
+from .selection_and_construction import (
+    JointGreedyParams,
+    JointGreedyPolicy,
+    JointSAParams,
+    JointSAPolicy,
+    NDSBRKGAParams,
+    NDSBRKGAPolicy,
+)
 
 __all__ = [
     "ALNSParams",
@@ -120,4 +128,10 @@ __all__ = [
     "MemeticAlgorithmToleranceBasedSelectionParams",
     "MemeticAlgorithmDualPopulationSolver",
     "MemeticAlgorithmDualPopulationParams",
+    "NDSBRKGAPolicy",
+    "NDSBRKGAParams",
+    "JointSAPolicy",
+    "JointSAParams",
+    "JointGreedyPolicy",
+    "JointGreedyParams",
 ]
