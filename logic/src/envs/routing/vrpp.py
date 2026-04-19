@@ -13,6 +13,7 @@ import torch
 from tensordict import TensorDict
 
 from logic.src.envs.base.base import RL4COEnvBase
+from logic.src.envs.base.ops import OpsMixin
 from logic.src.envs.generators import VRPPGenerator
 
 
@@ -142,6 +143,9 @@ class VRPPEnv(RL4COEnvBase):
         tensordict["tour_length"] = torch.zeros(*bs, device=device)
         tensordict["collected_waste"] = torch.zeros(*bs, device=device)
         return tensordict
+
+    def _step(self, tensordict: TensorDict) -> TensorDict:
+        return OpsMixin._step(self, tensordict)
 
     def _step_instance(self, tensordict: TensorDict) -> TensorDict:
         """

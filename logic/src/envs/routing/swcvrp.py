@@ -14,7 +14,7 @@ import torch
 from tensordict import TensorDict
 
 from logic.src.envs.generators import SCWCVRPGenerator
-from logic.src.envs.wcvrp import WCVRPEnv
+from logic.src.envs.routing.wcvrp import WCVRPEnv
 
 
 class SCWCVRPEnv(WCVRPEnv):

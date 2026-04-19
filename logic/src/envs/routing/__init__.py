@@ -16,6 +16,7 @@ from logic.src.envs.generators import (
     OPGenerator,
     PCTSPGenerator,
     PDPGenerator,
+    ThOPGenerator,
     VRPPGenerator,
     WCVRPGenerator,
     get_generator,
@@ -30,6 +31,7 @@ from logic.src.envs.routing.pctsp import PCTSPEnv
 from logic.src.envs.routing.pdp import PDPEnv
 from logic.src.envs.routing.spctsp import SPCTSPEnv
 from logic.src.envs.routing.swcvrp import SCWCVRPEnv
+from logic.src.envs.routing.thop import ThOPEnv
 from logic.src.envs.routing.tsp import TSPEnv
 from logic.src.envs.routing.vrpp import VRPPEnv
 from logic.src.envs.routing.wcvrp import WCVRPEnv
@@ -44,6 +46,7 @@ ENV_REGISTRY = {
     "scwcvrp": SCWCVRPEnv,
     "tsp": TSPEnv,
     "tsp_kopt": TSPkoptEnv,
+    "thop": ThOPEnv,
     "irp": IRPEnv,
     "atsp": ATSPEnv,
     "cvrp": CVRPEnv,
@@ -88,6 +91,7 @@ __all__ = [
     "OPGenerator",
     "PCTSPGenerator",
     "PDPGenerator",
+    "ThOPGenerator",
     "get_generator",
     "GENERATOR_REGISTRY",
     # Environments
@@ -105,6 +109,7 @@ __all__ = [
     "PCTSPEnv",
     "SPCTSPEnv",
     "PDPEnv",
+    "ThOPEnv",
     # Registry
     "ENV_REGISTRY",
     "get_env",
