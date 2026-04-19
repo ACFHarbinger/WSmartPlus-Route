@@ -10,7 +10,7 @@ from __future__ import annotations
 from typing import Optional, Union
 
 import torch
-from tensordict import TensorDict
+from tensordict import TensorDict, TensorDictBase
 
 from logic.src.envs.base.base import RL4COEnvBase
 from logic.src.envs.generators import TSPGenerator
@@ -43,6 +43,8 @@ class TSPEnv(RL4COEnvBase):
 
     def _reset_instance(self, td: TensorDict) -> TensorDict:
         """Initialize TSP state."""
+        if self.generator is None:
+            raise ValueError(f"Generator for {self.NAME} is not initialized. Initialize with an instance first.")
         device = td.device
         bs = td.batch_size
         num_nodes = td["locs"].shape[-2] + 1  # Customers + Depot
@@ -110,10 +112,9 @@ class TSPEnv(RL4COEnvBase):
 
         return mask
 
-    def _get_reward(self, td: TensorDict, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
+    def _get_reward(self, td: TensorDictBase, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
         """Reward is negative total tour length."""
-        # Add return to depot if needed
-        # (This is handled by last step in autoregressive construction)
+        # actions is unused here as reward is state-based (tour_length)
         return -td["tour_length"]
 
     def _check_done(self, td: TensorDict) -> torch.Tensor:

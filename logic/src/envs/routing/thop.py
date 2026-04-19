@@ -30,7 +30,7 @@ from __future__ import annotations
 from typing import Optional, Union
 
 import torch
-from tensordict import TensorDict
+from tensordict import TensorDict, TensorDictBase
 
 from logic.src.envs.base.base import RL4COEnvBase
 from logic.src.envs.base.ops import OpsMixin
@@ -84,6 +84,8 @@ class ThOPEnv(RL4COEnvBase):
 
         device = td.device
         bs = td.batch_size
+        if self.generator is None:
+            raise ValueError("Generator is not initialized.")
         m = td["item_weights"].shape[-1]  # total number of items
 
         # Thief starts at depot (city 0), nothing picked, no time elapsed
@@ -260,6 +262,6 @@ class ThOPEnv(RL4COEnvBase):
         # Full mask: [B, m+1]
         return torch.cat([depot_valid.unsqueeze(-1), item_mask], dim=-1)
 
-    def _get_reward(self, td: TensorDict, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
+    def _get_reward(self, td: TensorDictBase, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
         """Total profit of all items collected during the episode."""
         return (td["item_profits"] * td["item_picked"].float()).sum(dim=-1)

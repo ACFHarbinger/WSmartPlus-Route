@@ -14,7 +14,7 @@ from __future__ import annotations
 from typing import Optional, Union
 
 import torch
-from tensordict import TensorDict
+from tensordict import TensorDict, TensorDictBase
 
 from logic.src.envs.base.base import RL4COEnvBase
 from logic.src.envs.base.ops import OpsMixin
@@ -54,7 +54,9 @@ class CVRPEnv(RL4COEnvBase):
     # ------------------------------------------------------------------
 
     def _reset_instance(self, td: TensorDict) -> TensorDict:
-        """Initialise CVRP episode state."""
+        """Initialize CVRP episode state."""
+        if self.generator is None:
+            raise ValueError(f"Generator for {self.NAME} is not initialized. Initialize with an instance first.")
         if "visited" in td.keys():
             return td
 
@@ -169,6 +171,6 @@ class CVRPEnv(RL4COEnvBase):
 
         return torch.cat([mask_depot.unsqueeze(-1), mask_cust], dim=-1)  # [B, N+1]
 
-    def _get_reward(self, td: TensorDict, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
+    def _get_reward(self, td: TensorDictBase, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
         """Reward is the negative total tour length."""
         return -td["tour_length"]

@@ -10,7 +10,7 @@ from __future__ import annotations
 from typing import Optional, Union
 
 import torch
-from tensordict import TensorDict
+from tensordict import TensorDict, TensorDictBase
 
 from logic.src.envs.base.base import RL4COEnvBase
 from logic.src.envs.base.ops import OpsMixin
@@ -64,8 +64,7 @@ class WCVRPEnv(RL4COEnvBase):
         self.cost_weight = cost_km if cost_km is not None else cost_weight
 
     def _reset_instance(self, tensordict: TensorDict) -> TensorDict:
-        """
-        Initialize Waste Collection VRP (WCVRP) episode state with capacity tracking.
+        """Initialize Waste Collection VRP (WCVRP) episode state with capacity tracking.
 
         This method extends the base VRPP reset logic to add capacity constraints and overflow
         monitoring for waste collection scenarios. It initializes bin fill levels, vehicle load
@@ -100,6 +99,9 @@ class WCVRPEnv(RL4COEnvBase):
             Overflow counting excludes the depot (index 0) and only considers customer bins.
             The initial overflow count is computed as sum(waste[1:] >= max_waste[1:]).
         """
+        if self.generator is None:
+            raise ValueError(f"Generator for {self.NAME} is not initialized. Initialize with an instance first.")
+
         # If state already initialized (e.g. transductive search resuming), skip coord mod
         if "visited" in tensordict.keys():
             return tensordict
@@ -113,7 +115,9 @@ class WCVRPEnv(RL4COEnvBase):
 
         # Robust N vs N+1 logic
         # gen_n represents customers only. If shape is gen_n + 1, it already has depot.
-        gen_n = getattr(self.generator, "num_loc", None)
+        if self.generator is None:
+            raise ValueError("Generator must be initialized for WCVRP environment.")
+        gen_n = self.generator.num_loc
 
         needs_prepend = False
         if "depot" in tensordict.keys():
@@ -315,7 +319,7 @@ class WCVRPEnv(RL4COEnvBase):
 
         return mask
 
-    def _get_reward(self, tensordict: TensorDict, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
+    def _get_reward(self, tensordict: TensorDictBase, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
         """
         Compute WCVRP reward.
 

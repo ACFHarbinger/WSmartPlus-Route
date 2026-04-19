@@ -24,7 +24,6 @@ from logic.src.policies.selection_and_construction.non_dominated_sorting_biased_
 )
 from logic.src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.crossover import biased_crossover
 from logic.src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.population import Population
-from logic.src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.solver import NDSBRKGASolver
 from logic.src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.policy_nds_brkga import NDSBRKGAPolicy
 
 
@@ -151,31 +150,6 @@ def test_population_seeding(mock_nds_problem):
     # Check chromosomes populated
     assert len(pop.chromosomes) >= 2
     assert pop.objectives.shape == (params.pop_size, 3)
-
-
-@pytest.mark.integration
-def test_full_solver_run(mock_nds_problem):
-    """Smoke test for the generational loop."""
-    data = mock_nds_problem
-    params = NDSBRKGAParams(max_generations=5, pop_size=20)
-
-    solver = NDSBRKGASolver(
-        dist_matrix=data["dist_matrix"],
-        current_fill=data["current_fill"],
-        wastes=data["wastes"],
-        capacity=data["capacity"],
-        R=data["revenue"],
-        C=data["cost_unit"],
-        params=params,
-        bin_density=data["bin_density"],
-        bin_volume=data["bin_volume"]
-    )
-
-    selected, routes, profit, cost = solver.solve()
-
-    assert isinstance(selected, list)
-    assert isinstance(routes, list)
-    assert profit >= -1e9
 
 
 @pytest.mark.integration

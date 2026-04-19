@@ -6,6 +6,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Optional, Union
 
 import torch
+from tensordict import TensorDictBase
 from torchrl.envs import EnvBase
 
 from .batch import BatchMixin
@@ -92,21 +93,21 @@ class RL4COEnvBase(BatchMixin, OpsMixin, EnvBase, ABC):
         return f"{self.__class__.__name__}(name={self.name}, device={self.device})"
 
     @abstractmethod
-    def _reset_instance(self, td: torch.Tensor) -> torch.Tensor:
+    def _reset_instance(self, td: TensorDictBase) -> TensorDictBase:
         """Reset the environment for a specific problem instance."""
         pass
 
     @abstractmethod
-    def _step(self, td: torch.Tensor) -> torch.Tensor:
+    def _step(self, td: TensorDictBase) -> TensorDictBase:
         """Perform a transition in the environment."""
         pass
 
     @abstractmethod
-    def _get_reward(self, td: torch.Tensor, actions: torch.Tensor) -> torch.Tensor:
+    def _get_reward(self, td: TensorDictBase, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
         """Compute the reward for a specific action sequence."""
         pass
 
     @abstractmethod
-    def _get_action_mask(self, td: torch.Tensor) -> torch.Tensor:
+    def _get_action_mask(self, td: TensorDictBase) -> torch.Tensor:
         """Return the valid action mask for the current state."""
         pass

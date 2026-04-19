@@ -277,13 +277,16 @@ class NeuralAgentPolicy(BaseRoutingPolicy):
 
     def _run_solver(
         self,
-        tour: List[int],
-        cost: float,
-        profit: float,
-        search_context: SearchContext,
-        multi_day_context: Any,
-    ) -> Tuple[List[int], float, float, SearchContext, Any]:
+        sub_dist_matrix: Any,
+        sub_wastes: Any,
+        capacity: float,
+        revenue: float,
+        cost_unit: float,
+        values: Any,
+        mandatory_nodes: Any,
+        **kwargs: Any,
+    ) -> Tuple[List[List[int]], float, float]:
         """
         Stub to satisfy BaseRoutingPolicy as NeuralAgentPolicy overrides execute().
         """
-        return [], 0.0, 0.0, search_context, multi_day_context
+        return [[]], 0.0, 0.0
