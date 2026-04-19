@@ -13,6 +13,7 @@ import torch
 from tensordict import TensorDict
 
 from logic.src.envs.base.base import RL4COEnvBase
+from logic.src.envs.base.ops import OpsMixin
 from logic.src.envs.generators import WCVRPGenerator
 
 
@@ -240,15 +241,7 @@ class WCVRPEnv(RL4COEnvBase):
         return tensordict
 
     def _step(self, tensordict: TensorDict) -> TensorDict:
-        """step.
-
-        Args:
-            tensordict (TensorDict): Description of tensordict.
-
-        Returns:
-            Any: Description of return value.
-        """
-        return super(WCVRPEnv, self)._step(tensordict)
+        return OpsMixin._step(self, tensordict)
 
     def _get_action_mask(self, tensordict: TensorDict) -> torch.Tensor:
         """

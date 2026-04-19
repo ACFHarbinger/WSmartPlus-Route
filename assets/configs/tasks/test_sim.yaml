@@ -37,8 +37,8 @@ defaults:
   - /policies@p.genius: policy_genius
   - /policies@p.gihh: policy_gihh
   - /policies@p.gls: policy_gls
-  - /policies@p.gphh: policy_gphh
-  - /policies@p.gpmphh: policy_gpmphh
+  - /policies@p.gphh: policy_gp_hh
+  - /policies@p.gpmphh: policy_gp_mp_hh
   - /policies@p.hgs: policy_hgs
   - /policies@p.hgs_alns: policy_hgs_alns
   - /policies@p.hgs_rr: policy_hgs_rr
@@ -95,6 +95,7 @@ defaults:
   - /policies@p.ts: policy_ts
   - /policies@p.tsp: policy_tsp
   - /policies@p.vns: policy_vns
+  - /policies@p.nds_brkga: policy_nds_brkga
   - /policies@p.vpl: policy_vpl
   - _self_
   - override /tracking: test_sim
@@ -215,4 +216,5 @@ sim:
     - ts: ${p.ts.ts}
     - tsp: ${p.tsp.tsp}
     - vns: ${p.vns.vns}
+    - nds_brkga: ${p.nds_brkga.nds_brkga}
     - vpl: ${p.vpl.vpl}

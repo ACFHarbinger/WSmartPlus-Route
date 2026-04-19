@@ -121,6 +121,98 @@ class Generator(ABC):
                 }
             )
 
+        # For IRP:
+        if hasattr(self, "num_periods"):
+            kwargs.update(
+                {
+                    "num_periods": self.num_periods,  # type: ignore[attr-defined]
+                    "vehicle_capacity": self.vehicle_capacity,  # type: ignore[attr-defined]
+                    "min_demand": self.min_demand,  # type: ignore[attr-defined]
+                    "max_demand": self.max_demand,  # type: ignore[attr-defined]
+                    "demand_distribution": self.demand_distribution,  # type: ignore[attr-defined]
+                    "min_holding_cost": self.min_holding_cost,  # type: ignore[attr-defined]
+                    "max_holding_cost": self.max_holding_cost,  # type: ignore[attr-defined]
+                    "min_init_inventory": self.min_init_inventory,  # type: ignore[attr-defined]
+                    "max_init_inventory": self.max_init_inventory,  # type: ignore[attr-defined]
+                    "node_inventory_capacity": self.node_inventory_capacity,  # type: ignore[attr-defined]
+                    "depot_type": self.depot_type,  # type: ignore[attr-defined]
+                }
+            )
+
+        # For ATSP:
+        if hasattr(self, "min_dist"):
+            kwargs.update(
+                {
+                    "min_dist": self.min_dist,  # type: ignore[attr-defined]
+                    "max_dist": self.max_dist,  # type: ignore[attr-defined]
+                    "tmat_class": self.tmat_class,  # type: ignore[attr-defined]
+                }
+            )
+
+        # For CVRP:
+        if hasattr(self, "min_demand") and not hasattr(self, "num_periods"):
+            kwargs.update(
+                {
+                    "min_demand": self.min_demand,  # type: ignore[attr-defined]
+                    "max_demand": self.max_demand,  # type: ignore[attr-defined]
+                    "vehicle_capacity": self.vehicle_capacity,  # type: ignore[attr-defined]
+                    "capacity": self.capacity,  # type: ignore[attr-defined]
+                    "depot_type": self.depot_type,  # type: ignore[attr-defined]
+                }
+            )
+
+        # For OP:
+        if hasattr(self, "prize_type") and not hasattr(self, "penalty_factor"):
+            kwargs.update(
+                {
+                    "prize_type": self.prize_type,  # type: ignore[attr-defined]
+                    "max_length": self.max_length,  # type: ignore[attr-defined]
+                    "depot_type": self.depot_type,  # type: ignore[attr-defined]
+                }
+            )
+
+        # For PCTSP / SPCTSP:
+        if hasattr(self, "penalty_factor"):
+            kwargs.update(
+                {
+                    "penalty_factor": self.penalty_factor,  # type: ignore[attr-defined]
+                    "prize_required": self.prize_required,  # type: ignore[attr-defined]
+                    "depot_type": self.depot_type,  # type: ignore[attr-defined]
+                }
+            )
+
+        # For PDP:
+        if hasattr(self, "depot_type") and not any(
+            hasattr(self, a)
+            for a in (
+                "min_dist",
+                "min_demand",
+                "prize_type",
+                "penalty_factor",
+                "num_periods",
+                "min_fill",
+                "num_items_per_city",
+            )
+        ):
+            kwargs.update({"depot_type": self.depot_type})  # type: ignore[attr-defined]
+
+        # For ThOP:
+        if hasattr(self, "num_items_per_city"):
+            kwargs.update(
+                {
+                    "num_items_per_city": self.num_items_per_city,  # type: ignore[attr-defined]
+                    "min_weight": self.min_weight,  # type: ignore[attr-defined]
+                    "max_weight": self.max_weight,  # type: ignore[attr-defined]
+                    "min_profit": self.min_profit,  # type: ignore[attr-defined]
+                    "max_profit": self.max_profit,  # type: ignore[attr-defined]
+                    "capacity": self.capacity,  # type: ignore[attr-defined]
+                    "max_time": self.max_time,  # type: ignore[attr-defined]
+                    "v_max": self.v_max,  # type: ignore[attr-defined]
+                    "v_min": self.v_min,  # type: ignore[attr-defined]
+                    "depot_type": self.depot_type,  # type: ignore[attr-defined]
+                }
+            )
+
         return cls(**kwargs)
 
     @abstractmethod

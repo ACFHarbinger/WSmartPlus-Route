@@ -4,7 +4,7 @@ CWCVRP Environment implementation.
 
 from __future__ import annotations
 
-from logic.src.envs.wcvrp import WCVRPEnv
+from logic.src.envs.routing.wcvrp import WCVRPEnv
 
 
 class CWCVRPEnv(WCVRPEnv):

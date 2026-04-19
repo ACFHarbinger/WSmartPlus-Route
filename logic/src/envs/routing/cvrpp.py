@@ -9,7 +9,8 @@ from typing import Optional
 import torch
 from tensordict import TensorDict
 
-from logic.src.envs.vrpp import VRPPEnv
+from logic.src.envs.base.ops import OpsMixin
+from logic.src.envs.routing.vrpp import VRPPEnv
 
 
 class CVRPPEnv(VRPPEnv):
@@ -73,17 +74,7 @@ class CVRPPEnv(VRPPEnv):
         return tensordict
 
     def _step(self, tensordict: TensorDict) -> TensorDict:
-        """step.
-
-        Args:
-            tensordict (TensorDict): Description of tensordict.
-
-        Returns:
-            Any: Description of return value.
-        """
-        # RL4CO base _step calls _step_instance and then _get_action_mask.
-        # Since we use _step_instance above, we just call super().
-        return super(VRPPEnv, self)._step(tensordict)
+        return OpsMixin._step(self, tensordict)
 
     def _get_action_mask(self, tensordict: TensorDict) -> torch.Tensor:
         """

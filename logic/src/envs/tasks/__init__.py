@@ -9,10 +9,19 @@ from logic.src.constants.tasks import (
     VEHICLE_CAPACITY,
 )
 
+from .atsp import ATSP
 from .base import BaseProblem
+from .cvrp import CVRP
 from .cvrpp import CVRPP
 from .cwcvrp import CWCVRP
+from .irp import IRP
+from .op import OP
+from .pctsp import PCTSP
+from .pdp import PDP
 from .scwcvrp import SCWCVRP
+from .spctsp import SPCTSP
+from .thop import ThOP
+from .tsp import TSP
 from .vrpp import VRPP
 from .wcvrp import WCVRP
 
@@ -27,4 +36,13 @@ __all__ = [
     "WCVRP",
     "CWCVRP",
     "SCWCVRP",
+    "IRP",
+    "ATSP",
+    "TSP",
+    "CVRP",
+    "OP",
+    "PCTSP",
+    "SPCTSP",
+    "PDP",
+    "ThOP",
 ]
