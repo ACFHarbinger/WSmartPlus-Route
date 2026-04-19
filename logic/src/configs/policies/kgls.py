@@ -3,7 +3,7 @@ KGLS (Knowledge-Guided Local Search) configuration dataclasses.
 """
 
 from dataclasses import dataclass, field
-from typing import List
+from typing import List, Optional
 
 from .abc import ABCConfig
 
@@ -23,6 +23,6 @@ class KGLSConfig(ABCConfig):
     # Sequence of criteria to evaluate "badness" of an edge
     penalization_cycle: List[str] = field(default_factory=lambda: ["width", "length", "width_length"])
 
-    seed: int = 42
+    seed: Optional[int] = 42
     vrpp: bool = True
     profit_aware_operators: bool = False

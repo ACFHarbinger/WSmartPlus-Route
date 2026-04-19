@@ -51,6 +51,9 @@ class RouteConstructorFactory:
         # Other Algorithms
         import logic.src.policies.route_construction.other_algorithms as other_algorithms  # noqa
 
+        # Joint Selection and Construction Algorithms
+        import logic.src.policies.selection_and_construction as selection_and_construction  # noqa
+
         cls._registered = True
 
     @staticmethod
