@@ -264,7 +264,7 @@ def print_stats_table(all_results: Dict[str, List[Tuple[int, str]]], target_root
     console.print(table)
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description="Find nested/delayed imports in Python files.")
     parser.add_argument("directory", type=str, help="The target directory to scan")
     parser.add_argument("-e", "--exclude", nargs="+", default=[], help="Directories to exclude")

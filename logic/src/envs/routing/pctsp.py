@@ -14,7 +14,7 @@ from __future__ import annotations
 from typing import Optional, Union
 
 import torch
-from tensordict import TensorDict
+from tensordict import TensorDict, TensorDictBase
 
 from logic.src.envs.base.base import RL4COEnvBase
 from logic.src.envs.base.ops import OpsMixin
@@ -55,7 +55,9 @@ class PCTSPEnv(RL4COEnvBase):
     # ------------------------------------------------------------------
 
     def _reset_instance(self, td: TensorDict) -> TensorDict:
-        """Initialise PCTSP episode state."""
+        """Initialize PCTSP episode state."""
+        if self.generator is None:
+            raise ValueError(f"Generator for {self.NAME} is not initialized. Initialize with an instance first.")
         if "visited" in td.keys():
             return td
 
@@ -87,6 +89,8 @@ class PCTSPEnv(RL4COEnvBase):
         # Total penalty = sum of all customer penalties (they're "owed" until visited)
         td["cur_total_penalty"] = td["penalty"][..., 1:].sum(-1)  # [B]
 
+        if self.generator is None:
+            raise ValueError("Generator must be initialized for PCTSP environment.")
         td["prize_required"] = torch.full((*bs,), self.generator.prize_required, device=device, dtype=torch.float32)
 
         td["tour"] = torch.zeros(*bs, 0, dtype=torch.long, device=device)
@@ -174,13 +178,14 @@ class PCTSPEnv(RL4COEnvBase):
 
         return mask
 
-    def _get_reward(self, td: TensorDict, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
+    def _get_reward(self, td: TensorDictBase, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
         """
-        Reward = saved penalties - total tour cost.
+                Compute reward for PCTSP: Prize - Cost - Penalty.
+        ies - total tour cost.
 
-        ``saved_penalties`` are the penalties of visited customer nodes.
-        ``total_tour_cost`` = tour_length + penalties of all unvisited nodes
-        (still "owed").
+                ``saved_penalties`` are the penalties of visited customer nodes.
+                ``total_tour_cost`` = tour_length + penalties of all unvisited nodes
+                (still "owed").
         """
         penalty = td["penalty"]  # [B, N+1] with depot=0
 

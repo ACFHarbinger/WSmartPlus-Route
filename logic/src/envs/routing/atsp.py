@@ -14,7 +14,7 @@ from __future__ import annotations
 from typing import Optional, Union
 
 import torch
-from tensordict import TensorDict
+from tensordict import TensorDict, TensorDictBase
 
 from logic.src.envs.base.base import RL4COEnvBase
 from logic.src.envs.base.ops import OpsMixin
@@ -58,6 +58,8 @@ class ATSPEnv(RL4COEnvBase):
 
         device = td.device
         bs = td.batch_size
+        if self.generator is None:
+            raise ValueError("Generator is not initialized.")
         n = td["cost_matrix"].shape[-1]
 
         td["current_node"] = torch.zeros(*bs, dtype=torch.long, device=device)
@@ -128,7 +130,7 @@ class ATSPEnv(RL4COEnvBase):
         """All unvisited nodes are valid actions."""
         return ~td["visited"]
 
-    def _get_reward(self, td: TensorDict, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
+    def _get_reward(self, td: TensorDictBase, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
         """
         Reward = -(accumulated tour cost + closing edge cost).
 

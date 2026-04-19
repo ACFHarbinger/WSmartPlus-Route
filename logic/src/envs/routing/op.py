@@ -14,7 +14,7 @@ from __future__ import annotations
 from typing import Optional, Union
 
 import torch
-from tensordict import TensorDict
+from tensordict import TensorDict, TensorDictBase
 
 from logic.src.envs.base.base import RL4COEnvBase
 from logic.src.envs.base.ops import OpsMixin
@@ -64,6 +64,8 @@ class OPEnv(RL4COEnvBase):
 
         # Prepend depot to locs when customer-only coords are provided
         locs = td["locs"]
+        if self.generator is None:
+            raise ValueError("Generator is not initialized.")
         gen_n = getattr(self.generator, "num_loc", None)
         if "depot" in td.keys() and (gen_n is None or locs.shape[-2] == gen_n):
             td["locs"] = torch.cat([td["depot"].unsqueeze(-2), locs], dim=-2)
@@ -168,6 +170,6 @@ class OPEnv(RL4COEnvBase):
         mask[..., 0] = True
         return mask
 
-    def _get_reward(self, td: TensorDict, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
+    def _get_reward(self, td: TensorDictBase, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
         """Reward is the total collected prize."""
         return td["current_total_prize"]

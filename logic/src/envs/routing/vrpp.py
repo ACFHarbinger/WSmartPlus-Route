@@ -10,7 +10,7 @@ from __future__ import annotations
 from typing import Optional, Union
 
 import torch
-from tensordict import TensorDict
+from tensordict import TensorDict, TensorDictBase
 
 from logic.src.envs.base.base import RL4COEnvBase
 from logic.src.envs.base.ops import OpsMixin
@@ -62,8 +62,6 @@ class VRPPEnv(RL4COEnvBase):
 
     def _reset_instance(self, tensordict: TensorDict) -> TensorDict:
         """
-        Initialize VRPP episode state with depot prepending and state field initialization.
-
         This method sets up the initial state for a Vehicle Routing Problem with Profits (VRPP)
         episode. It handles depot prepending logic to ensure coordinates are in the correct format
         (N+1 nodes including depot at index 0), and initializes all tracking fields.
@@ -94,6 +92,9 @@ class VRPPEnv(RL4COEnvBase):
             2. No generator hint - check if first location matches depot coordinates
             3. Mismatched waste array - ensure waste has same node count as locations
         """
+        if self.generator is None:
+            raise ValueError(f"Generator for {self.NAME} is not initialized. Initialize with an instance first.")
+
         # If state is already initialized (e.g. transductive search resuming), skip coord mod
         if "visited" in tensordict.keys():
             return tensordict
@@ -107,7 +108,9 @@ class VRPPEnv(RL4COEnvBase):
 
         # Robust N vs N+1 logic
         # gen_n represents customers only. If shape is gen_n + 1, it already has depot.
-        gen_n = getattr(self.generator, "num_loc", None)
+        if self.generator is None:
+            raise ValueError("Generator must be initialized for VRPP environment.")
+        gen_n = self.generator.num_loc
 
         needs_prepend = False
         if "depot" in tensordict.keys():
@@ -277,7 +280,7 @@ class VRPPEnv(RL4COEnvBase):
 
         return mask
 
-    def _get_reward(self, tensordict: TensorDict, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
+    def _get_reward(self, tensordict: TensorDictBase, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
         """
         Compute VRPP reward: waste - cost.
 
