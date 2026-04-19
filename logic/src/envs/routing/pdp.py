@@ -20,7 +20,7 @@ from __future__ import annotations
 from typing import Optional, Union
 
 import torch
-from tensordict import TensorDict
+from tensordict import TensorDict, TensorDictBase
 
 from logic.src.envs.base.base import RL4COEnvBase
 from logic.src.envs.base.ops import OpsMixin
@@ -57,7 +57,22 @@ class PDPEnv(RL4COEnvBase):
     # ------------------------------------------------------------------
 
     def _reset_instance(self, td: TensorDict) -> TensorDict:
-        """Initialise PDP episode state."""
+        """
+        Initialize PDP episode state.
+
+        Args:
+            td (TensorDict): Input tensor dictionary containing:
+                - locs (Tensor): Node coordinates, shape (batch, num_loc, 2)
+                - depot (Tensor): Depot coordinates, shape (batch, 2)
+                - visited (Tensor): Visited mask, shape (batch, num_loc + 1)
+                - current_node (LongTensor): Current position index, shape (batch, 1)
+                - i (LongTensor): Current step, shape (batch, 1)
+
+        Returns:
+            TensorDict: Updated tensor dictionary with initialized state.
+        """
+        if self.generator is None:
+            raise ValueError(f"Generator for {self.NAME} is not initialized. Initialize with an instance first.")
         if "visited" in td.keys():
             return td
 
@@ -114,7 +129,23 @@ class PDPEnv(RL4COEnvBase):
         Execute one PDP action.
 
         After visiting a pickup node i, unlocks its delivery node i + K.
+
+        Args:
+            td (TensorDict): Input tensor dictionary containing:
+                - action (LongTensor): Action to take, shape (batch, 1)
+                - current_node (LongTensor): Current position index, shape (batch, 1)
+                - locs (Tensor): Node coordinates, shape (batch, num_loc, 2)
+                - available (Tensor): Availability mask, shape (batch, num_loc + 1)
+                - to_deliver (Tensor): Delivery eligibility mask, shape (batch, num_loc + 1)
+                - tour (Tensor): Current tour, shape (batch, max_steps)
+                - tour_length (Tensor): Current tour length, shape (batch,)
+
+        Returns:
+            TensorDict: Updated tensor dictionary with new state.
         """
+        if self.generator is None:
+            raise ValueError("Generator must be initialized for PDP environment.")
+
         action = td["action"]
         if action.dim() > 1:
             action = action.squeeze(-1)
@@ -164,7 +195,7 @@ class PDPEnv(RL4COEnvBase):
         """
         return td["available"] & td["to_deliver"]
 
-    def _get_reward(self, td: TensorDict, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
+    def _get_reward(self, td: TensorDictBase, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
         """
         Reward = -(tour length including depot at start and end).
 

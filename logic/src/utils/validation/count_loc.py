@@ -90,7 +90,7 @@ def group_by_directory(file_data: List[Dict], depth: int) -> List[Dict]:
     return [{"path": k, **v} for k, v in sorted(groups.items())]
 
 
-def main():
+def main() -> None:
     """Main."""
     parser = argparse.ArgumentParser()
     parser.add_argument("path", nargs="?", default=".")

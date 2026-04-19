@@ -11,7 +11,7 @@ from __future__ import annotations
 from typing import Optional, Union
 
 import torch
-from tensordict import TensorDict
+from tensordict import TensorDict, TensorDictBase
 
 from logic.src.envs.generators import SCWCVRPGenerator
 from logic.src.envs.routing.wcvrp import WCVRPEnv
@@ -53,7 +53,9 @@ class SCWCVRPEnv(WCVRPEnv):
         )
 
     def _reset_instance(self, td: TensorDict) -> TensorDict:
-        """Initialize SCWCVRP episode state."""
+        """Initialize SWCVRP episode state."""
+        if self.generator is None:
+            raise ValueError(f"Generator for {self.name} is not initialized. Initialize with an instance first.")
         td = super()._reset_instance(td)
 
         # Ensure real_waste is tracked
@@ -98,7 +100,7 @@ class SCWCVRPEnv(WCVRPEnv):
 
         return td
 
-    def _get_reward(self, td: TensorDict, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
+    def _get_reward(self, td: TensorDictBase, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
         """
         Compute SCWCVRP reward based on REAL waste levels and collection.
         """
