@@ -73,7 +73,6 @@ class LinKernighanHelsgaunTwoRouteImprover(IRouteImprovement):
         # 3. Solver parameters
         max_iterations = kwargs.get("max_iterations", self.config.get("max_iterations", 200))
         max_k = kwargs.get("max_k", self.config.get("max_k", 5))
-        n_candidates = kwargs.get("n_candidates", self.config.get("n_candidates", 5))
         seed = kwargs.get("seed", self.config.get("seed", 42))
 
         refined_routes = []

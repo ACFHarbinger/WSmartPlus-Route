@@ -2,7 +2,7 @@ import os
 import shutil
 
 import pytest
-from logic.src.envs.vrpp import VRPPEnv
+from logic.src.envs.routing.vrpp import VRPPEnv
 from logic.src.models.common.critic_network.policy import CriticNetwork as CriticNetworkPolicy
 from logic.src.models.subnets.factories.attention import AttentionComponentFactory
 from logic.src.models.core.attention_model.policy import AttentionModelPolicy

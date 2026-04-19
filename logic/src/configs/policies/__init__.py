@@ -49,6 +49,8 @@ from .ie import IEConfig
 from .ils import ILSConfig
 from .ils_bd import IntegerLShapedBendersConfig
 from .ils_rvnd_sp import ILSRVNDSPConfig
+from .jgo import JointGreedyConfig
+from .jsa import JointSAConfig
 from .kgls import KGLSConfig
 from .ks import KernelSearchConfig
 from .lahc import LAHCConfig
@@ -68,6 +70,7 @@ from .mp_ils import MP_ILS_Config
 from .mp_pso import MP_PSO_Config
 from .mp_sa import MP_SA_Config
 from .na import NeuralAgentConfig
+from .nds_brkga import NDSBRKGAConfig
 from .oba import OBAConfig
 from .oi import OIConfig
 from .other import MandatorySelectionConfig, RouteImprovingConfig
@@ -206,4 +209,7 @@ __all__ = [
     "PHHConfig",
     "RFOConfig",
     "SHHConfig",
+    "NDSBRKGAConfig",
+    "JointSAConfig",
+    "JointGreedyConfig",
 ]

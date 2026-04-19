@@ -13,6 +13,7 @@ from logic.src.interfaces.context import (
     AcceptanceMetrics,
     ConstructionMetrics,
     ImprovementMetrics,
+    JointSelectionConstructionContext,
     MultiDayContext,
     SearchContext,
     SearchPhase,
@@ -29,4 +30,5 @@ __all__ = [
     "ImprovementMetrics",
     "merge_context",
     "MultiDayContext",
+    "JointSelectionConstructionContext",
 ]
