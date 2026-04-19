@@ -61,19 +61,10 @@ $$\sum_{d \in D} z_{id} = 1 \; \forall i \in V_c, \quad \sum_{i \in V_c} q_i z_{
 ### VRP with Backhauls (VRPB) ❌
 Partitions customers into linehaul nodes $L$ (requiring outbound delivery from depot) and backhaul nodes $B$ (requiring inbound pickup to depot). A classical precedence constraint mandates that all linehaul customers on a route are serviced before any backhaul customer, reflecting vehicle loading constraints. The mixed variant (VRPMB) relaxes this ordering. Capacity tracking requires monitoring the net vehicle load as it decreases through linehaul stops and re-increases through backhaul stops.
 
-### Orienteering Problem (OP) ✅
-A selective routing paradigm where nodes carry economic profits and visitation is optional. The fleet operates under a strict temporal or distance budget $T_{\max}$ per vehicle. The objective pivots from cost minimization to profit maximization:
+### Vehicle Routing Problem with Profits (VRPP) ✅
+A selective routing paradigm that bridges the CVRP and the TOP. Like the TOP, a fleet of vehicles collects profits from selectively visited nodes to maximize total network revenue. However, instead of being constrained by individual route distance or time budgets ($T_{\max}$), the vehicles are constrained strictly by **physical load capacity $Q$**. A vehicle may visit as many nodes as possible, provided the sum of the node demands $q_i$ collected on the route does not exceed its physical capacity:
 
-$$\max \sum_{i \in V} p_i y_i \quad \text{s.t.} \quad \sum_{(i,j) \in A} c_{ij} x_{ij} \le T_{\max}, \quad y_i \le \sum_j x_{ji}$$
-
-The single-vehicle variant is the Orienteering Problem; the multi-vehicle version is the Team Orienteering Problem (below).
-
-### VRP with Profits (VRPP) / Team Orienteering Problem (TOP) ✅
-The multi-vehicle extension of the Orienteering Problem. A fleet of $K$ vehicles, each with individual budget $T_{\max}^k$, collectively maximizes total collected profit. Each node may be visited at most once across the entire fleet. The profit of a node is collected only once, even if multiple vehicles pass nearby:
-
-$$\max \sum_{i \in V} p_i y_i \quad \text{s.t.} \quad \sum_{(i,j)} c_{ij} x_{ij}^k \le T_{\max}^k \;\forall k, \quad \sum_k y_{ik} \le 1 \;\forall i$$
-
-TOP directly models multi-vehicle selective collection with shared profit budgets.
+$$\max \sum_{i \in V} p_i y_i \quad \text{s.t.} \quad \sum_{i \in V} q_i y_{ik} \le Q \;\forall k, \quad \sum_k y_{ik} \le 1 \;\forall i$$
 
 ### Split Delivery VRP (SDVRP) ❌
 Relaxes the single-vehicle-per-customer constraint of classical CVRP. A customer demand $q_i > Q$ may be split across multiple vehicles, or splitting may be economically optimal even when $q_i \le Q$. Flow variables $w_{ik}$ represent quantities delivered by vehicle $k$:
@@ -83,7 +74,7 @@ $$\sum_{k=1}^K w_{ik} = q_i \; \forall i \in V_c, \quad \sum_{i \in R_k} w_{ik} 
 ### Heterogeneous Fleet VRP (HFVRP) ❌
 Models a realistic fleet with varying vehicle types, each with distinct capacity $Q_k$, fixed activation cost $f_k$, and variable arc cost $c_{ij}^k$. The objective balances fixed fleet deployment costs against variable routing costs, creating a coupled vehicle assignment and routing problem.
 
-### Periodic VRP (PVRP) ✅
+### Periodic VRP (PVRP) ❌
 A multi-period generalization over horizon $H$. Each customer $i$ requires service frequency $f_i$ times per period and selects from a set of allowable visit-day patterns $P_i$. Let $y_{ip} \in \{0,1\}$ activate pattern $p$ for customer $i$:
 
 $$\sum_{p \in P_i} y_{ip} = 1 \;\forall i, \quad z_{it} = \sum_{p \in P_i} a_{pt} y_{ip}$$
@@ -106,6 +97,29 @@ Routing consists of complex depot-customer-disposal sequences, and node degree c
 
 ### Green VRP / Electric VRP (GVRP / EVRP) ❌
 Extends the CVRP with energy consumption constraints. In the EVRP, each vehicle has a battery capacity $E$ that depletes along arcs proportionally to distance and load, and must be replenished at recharging stations $F \subset V$. Decision variables track both routing $x_{ij}^k$ and battery state $e_{ik}$ at each node. The non-linear energy depletion function — often depending on vehicle speed, gradient, and payload — is typically linearized or approximated. The GVRP uses fuel or emissions budgets in place of electric charge.
+
+---
+
+## The Orienteering Problem (OP) Family
+
+This family models selective routing scenarios where customer visitation is optional, and the goal is to maximize economic profit. The constraints dictating how many nodes a vehicle can visit define the specific problem variant.
+
+### Orienteering Problem (OP) ✅
+A selective routing paradigm for a single vehicle where nodes carry economic profits and visitation is optional. The vehicle operates under a strict temporal or distance budget $T_{\max}$. The objective pivots from cost minimization to profit maximization:
+
+$$\max \sum_{i \in V} p_i y_i \quad \text{s.t.} \quad \sum_{(i,j) \in A} c_{ij} x_{ij} \le T_{\max}, \quad y_i \le \sum_j x_{ji}$$
+
+### Team Orienteering Problem (TOP) ❌
+The multi-vehicle extension of the standard Orienteering Problem. A fleet of $K$ vehicles, each constrained by an individual temporal or distance budget $T_{\max}^k$, collectively maximizes total collected profit. Each node may be visited at most once across the entire fleet:
+
+$$\max \sum_{i \in V} p_i y_i \quad \text{s.t.} \quad \sum_{(i,j) \in A} c_{ij} x_{ij}^k \le T_{\max}^k \;\forall k, \quad \sum_k y_{ik} \le 1 \;\forall i$$
+
+### Thief Orienteering Problem (ThOP) ✅
+A multi-component variant combining the Orienteering Problem with the 0-1 Knapsack Problem. A single agent (the thief) navigates a graph to steal items located at various customer cities and must return to the depot within a strict time budget. Unlike the standard OP, the vehicle's travel speed is not constant; it degrades linearly as the accumulated knapsack weight $w$ increases:
+
+$$v(w) = v_{\max} - \frac{w}{W} (v_{\max} - v_{\min})$$
+
+where $W$ is the maximum knapsack capacity, $v_{\max}$ is the empty travel speed, and $v_{\min}$ is the fully-loaded travel speed. Consequently, the travel time between cities $i$ and $j$ becomes state-dependent: $t(i,j) = d(i,j) / v(w_{\text{current}})$. The objective is to maximize the total profit of collected items without exceeding the dynamic time budget or the weight capacity constraints.
 
 ---
 

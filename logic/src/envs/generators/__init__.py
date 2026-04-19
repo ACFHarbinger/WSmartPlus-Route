@@ -4,8 +4,15 @@ Problem instance generators sub-package.
 
 from typing import Any
 
+from .atsp import ATSPGenerator
 from .base import Generator
+from .cvrp import CVRPGenerator
+from .irp import IRPGenerator
+from .op import OPGenerator
+from .pctsp import PCTSPGenerator
+from .pdp import PDPGenerator
 from .scwcvrp import SCWCVRPGenerator
+from .thop import ThOPGenerator
 from .tsp import TSPGenerator
 from .vrpp import VRPPGenerator
 from .wcvrp import WCVRPGenerator
@@ -18,6 +25,14 @@ GENERATOR_REGISTRY: dict[str, type[Generator]] = {
     "cwcvrp": WCVRPGenerator,
     "scwcvrp": SCWCVRPGenerator,
     "tsp": TSPGenerator,
+    "irp": IRPGenerator,
+    "atsp": ATSPGenerator,
+    "cvrp": CVRPGenerator,
+    "op": OPGenerator,
+    "pctsp": PCTSPGenerator,
+    "spctsp": PCTSPGenerator,  # SPCTSP reuses the PCTSP generator
+    "pdp": PDPGenerator,
+    "thop": ThOPGenerator,
 }
 
 
@@ -26,7 +41,7 @@ def get_generator(name: str, **kwargs: Any) -> Generator:
     Get a generator by name.
 
     Args:
-        name: Generator name (e.g., "vrpp", "wcvrp", "tsp").
+        name: Generator name (e.g., "vrpp", "wcvrp", "tsp", "irp", "atsp", "cvrp").
         **kwargs: Generator configuration parameters.
 
     Returns:
@@ -47,7 +62,13 @@ __all__ = [
     "WCVRPGenerator",
     "SCWCVRPGenerator",
     "TSPGenerator",
-    "TSPGenerator",
+    "IRPGenerator",
+    "ATSPGenerator",
+    "CVRPGenerator",
+    "OPGenerator",
+    "PCTSPGenerator",
+    "PDPGenerator",
+    "ThOPGenerator",
     "GENERATOR_REGISTRY",
     "get_generator",
 ]
