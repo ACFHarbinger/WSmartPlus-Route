@@ -49,6 +49,7 @@ CONFIG_MAPPING = {
     "dispatcher_thompson": "thompson_dispatcher",
     "dispatcher_portfolio": "thompson_dispatcher",
     "lagrangian": "lagrangian",
+    "filter_and_fan": "filter_and_fan",
 }
 
 
@@ -70,6 +71,7 @@ class MandatorySelectionFactory:
         from logic.src.policies.mandatory_selection.selection_deadline import DeadlineDrivenSelection
         from logic.src.policies.mandatory_selection.selection_dispatcher_portfolio import PortfolioDispatcher
         from logic.src.policies.mandatory_selection.selection_dispatcher_thompson import ThompsonDispatcher
+        from logic.src.policies.mandatory_selection.selection_filter_and_fan import FilterAndFanSelection
         from logic.src.policies.mandatory_selection.selection_fractional_knapsack import FractionalKnapsackSelection
         from logic.src.policies.mandatory_selection.selection_lagrangian import LagrangianSelection
         from logic.src.policies.mandatory_selection.selection_last_minute import LastMinuteSelection
@@ -121,6 +123,7 @@ class MandatorySelectionFactory:
             "wasserstein_robust": WassersteinRobustSelection,
             "dispatcher_thompson": ThompsonDispatcher,
             "dispatcher_portfolio": PortfolioDispatcher,
+            "filter_and_fan": FilterAndFanSelection,
         }
 
         # Check explicit registry first
