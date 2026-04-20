@@ -15,7 +15,7 @@
 
 src.policies.helpers.local_search
 src.policies.helpers.reinforcement_learning
-src.policies.helpers.branching_solvers
+src.policies.helpers.solvers_and_matheuristics
 src.policies.helpers.operators
 ```
 
@@ -38,7 +38,7 @@ src.policies.helpers.operators
 ````{py:data} __all__
 :canonical: src.policies.helpers.__all__
 :value: >
-   ['branching_solvers', 'hpo', 'local_search', 'operators', 'reinforcement_learning']
+   ['solvers_and_matheuristics', 'hpo', 'local_search', 'operators', 'reinforcement_learning']
 
 ```{autodoc2-docstring} src.policies.helpers.__all__
 ```

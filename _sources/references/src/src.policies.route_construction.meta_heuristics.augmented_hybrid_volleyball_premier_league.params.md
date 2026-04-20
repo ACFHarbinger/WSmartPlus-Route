@@ -130,7 +130,7 @@
 
 ````{py:attribute} hgs_params
 :canonical: src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.params.AHVPLParams.hgs_params
-:type: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.params.HGSParams
+:type: logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.params.HGSParams
 :value: >
    'field(...)'
 
@@ -141,7 +141,7 @@
 
 ````{py:attribute} aco_params
 :canonical: src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.params.AHVPLParams.aco_params
-:type: src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams
+:type: logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams
 :value: >
    'field(...)'
 
@@ -152,7 +152,7 @@
 
 ````{py:attribute} alns_params
 :canonical: src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.params.AHVPLParams.alns_params
-:type: src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params.ALNSParams
+:type: logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params.ALNSParams
 :value: >
    'field(...)'
 

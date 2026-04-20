@@ -49,7 +49,43 @@
     ```
 ````
 
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`template_dir <src.ui.components.sidebar.template_dir>`
+  - ```{autodoc2-docstring} src.ui.components.sidebar.template_dir
+    :summary:
+    ```
+* - {py:obj}`jinja_env <src.ui.components.sidebar.jinja_env>`
+  - ```{autodoc2-docstring} src.ui.components.sidebar.jinja_env
+    :summary:
+    ```
+````
+
 ### API
+
+````{py:data} template_dir
+:canonical: src.ui.components.sidebar.template_dir
+:value: >
+   'join(...)'
+
+```{autodoc2-docstring} src.ui.components.sidebar.template_dir
+```
+
+````
+
+````{py:data} jinja_env
+:canonical: src.ui.components.sidebar.jinja_env
+:value: >
+   'Environment(...)'
+
+```{autodoc2-docstring} src.ui.components.sidebar.jinja_env
+```
+
+````
 
 ````{py:function} render_mode_selector() -> str
 :canonical: src.ui.components.sidebar.render_mode_selector

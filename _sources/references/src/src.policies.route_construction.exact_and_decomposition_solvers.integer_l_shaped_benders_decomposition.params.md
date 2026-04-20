@@ -33,9 +33,20 @@
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.params.ILSBDParams.time_limit
 :type: float
 :value: >
-   120.0
+   300.0
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.params.ILSBDParams.time_limit
+```
+
+````
+
+````{py:attribute} master_time_limit
+:canonical: src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.params.ILSBDParams.master_time_limit
+:type: float
+:value: >
+   60.0
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.params.ILSBDParams.master_time_limit
 ```
 
 ````
@@ -135,6 +146,61 @@
    70.0
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.params.ILSBDParams.collection_threshold
+```
+
+````
+
+````{py:attribute} horizon
+:canonical: src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.params.ILSBDParams.horizon
+:type: int
+:value: >
+   7
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.params.ILSBDParams.horizon
+```
+
+````
+
+````{py:attribute} stockout_penalty
+:canonical: src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.params.ILSBDParams.stockout_penalty
+:type: float
+:value: >
+   500.0
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.params.ILSBDParams.stockout_penalty
+```
+
+````
+
+````{py:attribute} big_m
+:canonical: src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.params.ILSBDParams.big_m
+:type: float
+:value: >
+   10000.0
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.params.ILSBDParams.big_m
+```
+
+````
+
+````{py:attribute} mean_scenario_only
+:canonical: src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.params.ILSBDParams.mean_scenario_only
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.params.ILSBDParams.mean_scenario_only
+```
+
+````
+
+````{py:attribute} initial_inventory
+:canonical: src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.params.ILSBDParams.initial_inventory
+:type: float
+:value: >
+   0.0
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.params.ILSBDParams.initial_inventory
 ```
 
 ````

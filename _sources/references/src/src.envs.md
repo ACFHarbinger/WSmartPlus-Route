@@ -13,6 +13,7 @@
 :titlesonly:
 :maxdepth: 3
 
+src.envs.routing
 src.envs.generators
 src.envs.tasks
 src.envs.base
@@ -24,15 +25,9 @@ src.envs.base
 :titlesonly:
 :maxdepth: 1
 
-src.envs.cwcvrp
 src.envs.dr_alns
-src.envs.swcvrp
-src.envs.tsp
-src.envs.vrpp
-src.envs.cvrpp
 src.envs.tsp_kopt
 src.envs.problems
-src.envs.wcvrp
 ```
 
 ## Package Contents
@@ -87,7 +82,7 @@ src.envs.wcvrp
 ````{py:data} __all__
 :canonical: src.envs.__all__
 :value: >
-   ['RL4COEnvBase', 'ImprovementEnvBase', 'Generator', 'VRPPGenerator', 'WCVRPGenerator', 'get_generato...
+   ['RL4COEnvBase', 'ImprovementEnvBase', 'Generator', 'VRPPGenerator', 'WCVRPGenerator', 'IRPGenerator...
 
 ```{autodoc2-docstring} src.envs.__all__
 ```

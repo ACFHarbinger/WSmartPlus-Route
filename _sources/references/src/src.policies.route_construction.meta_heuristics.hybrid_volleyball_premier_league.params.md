@@ -152,7 +152,7 @@
 
 ````{py:attribute} aco_params
 :canonical: src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.params.HVPLParams.aco_params
-:type: typing.Optional[src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams]
+:type: typing.Optional[logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams]
 :value: >
    'field(...)'
 
@@ -163,7 +163,7 @@
 
 ````{py:attribute} alns_params
 :canonical: src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.params.HVPLParams.alns_params
-:type: typing.Optional[src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params.ALNSParams]
+:type: typing.Optional[logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params.ALNSParams]
 :value: >
    'field(...)'
 

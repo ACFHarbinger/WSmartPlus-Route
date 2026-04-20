@@ -45,7 +45,7 @@ Bases: {py:obj}`src.policies.helpers.reinforcement_learning.agents.bandits.base.
 
 ````
 
-````{py:method} select_action(state: typing.Any, rng: typing.Optional[numpy.random.Generator] = None) -> int
+````{py:method} select_action(state: typing.Any, rng: numpy.random.Generator) -> int
 :canonical: src.policies.helpers.reinforcement_learning.agents.bandits.epsilon_greedy.EpsilonGreedyBandit.select_action
 
 ```{autodoc2-docstring} src.policies.helpers.reinforcement_learning.agents.bandits.epsilon_greedy.EpsilonGreedyBandit.select_action

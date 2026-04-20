@@ -14,10 +14,10 @@
 :maxdepth: 1
 
 src.policies.route_construction.learning_algorithms.neural_agent.agent
+src.policies.route_construction.learning_algorithms.neural_agent.policy_na
 src.policies.route_construction.learning_algorithms.neural_agent.params
 src.policies.route_construction.learning_algorithms.neural_agent.batch
 src.policies.route_construction.learning_algorithms.neural_agent.simulation
-src.policies.route_construction.learning_algorithms.neural_agent.policy_neural
 ```
 
 ## Package Contents
@@ -39,7 +39,7 @@ src.policies.route_construction.learning_algorithms.neural_agent.policy_neural
 ````{py:data} __all__
 :canonical: src.policies.route_construction.learning_algorithms.neural_agent.__all__
 :value: >
-   ['NeuralAgent']
+   ['NeuralAgent', 'NeuralAgentPolicy']
 
 ```{autodoc2-docstring} src.policies.route_construction.learning_algorithms.neural_agent.__all__
 ```

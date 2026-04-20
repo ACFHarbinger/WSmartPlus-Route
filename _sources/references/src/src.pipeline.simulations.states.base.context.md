@@ -161,7 +161,7 @@
 
 ````
 
-````{py:method} transition_to(state: typing.Optional[src.pipeline.simulations.states.base.base.SimState]) -> None
+````{py:method} transition_to(state: typing.Optional[logic.src.pipeline.simulations.states.base.base.SimState]) -> None
 :canonical: src.pipeline.simulations.states.base.context.SimulationContext.transition_to
 
 ```{autodoc2-docstring} src.pipeline.simulations.states.base.context.SimulationContext.transition_to

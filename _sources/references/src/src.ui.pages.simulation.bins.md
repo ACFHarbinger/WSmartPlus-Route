@@ -33,7 +33,29 @@
     ```
 ````
 
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`styles_path <src.ui.pages.simulation.bins.styles_path>`
+  - ```{autodoc2-docstring} src.ui.pages.simulation.bins.styles_path
+    :summary:
+    ```
+````
+
 ### API
+
+````{py:data} styles_path
+:canonical: src.ui.pages.simulation.bins.styles_path
+:value: >
+   'join(...)'
+
+```{autodoc2-docstring} src.ui.pages.simulation.bins.styles_path
+```
+
+````
 
 ````{py:function} style_bin_table(df: pandas.DataFrame) -> typing.Any
 :canonical: src.ui.pages.simulation.bins.style_bin_table

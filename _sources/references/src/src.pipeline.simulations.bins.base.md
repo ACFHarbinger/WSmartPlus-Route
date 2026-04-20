@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} Bins(n: int, data_dir: str, sample_dist: str = 'gamma', grid: typing.Optional[src.pipeline.simulations.wsmart_bin_analysis.GridBase] = None, area: typing.Optional[str] = None, waste_type: typing.Optional[str] = None, indices: typing.Optional[typing.Union[numpy.ndarray, typing.List[int]]] = None, waste_file: typing.Optional[str] = None, noise_mean: float = 0.0, noise_variance: float = 0.0, n_days: int = 31, n_samples: int = 1, seed: typing.Optional[int] = None)
+`````{py:class} Bins(n: int, data_dir: str, sample_dist: str = 'gamma', grid: typing.Optional[logic.src.pipeline.simulations.wsmart_bin_analysis.GridBase] = None, area: typing.Optional[str] = None, waste_type: typing.Optional[str] = None, indices: typing.Optional[typing.Union[numpy.ndarray, typing.List[int]]] = None, waste_file: typing.Optional[str] = None, noise_mean: float = 0.0, noise_variance: float = 0.0, n_days: int = 31, n_samples: int = 1, seed: typing.Optional[int] = None)
 :canonical: src.pipeline.simulations.bins.base.Bins
 
 ```{autodoc2-docstring} src.pipeline.simulations.bins.base.Bins

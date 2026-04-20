@@ -128,42 +128,42 @@ Bases: {py:obj}`Exception`
 
 ````
 
-````{py:function} _reset_master_constraints(master: logic.src.policies.helpers.branching_solvers.VRPPMasterProblem) -> None
+````{py:function} _reset_master_constraints(master: logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem) -> None
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._reset_master_constraints
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._reset_master_constraints
 ```
 ````
 
-````{py:function} _apply_route_level_branching_filters(master: logic.src.policies.helpers.branching_solvers.VRPPMasterProblem, bc: logic.src.policies.helpers.branching_solvers.AnyBranchingConstraint) -> None
+````{py:function} _apply_route_level_branching_filters(master: logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem, bc: logic.src.policies.helpers.solvers_and_matheuristics.AnyBranchingConstraint) -> None
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._apply_route_level_branching_filters
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._apply_route_level_branching_filters
 ```
 ````
 
-````{py:function} _apply_branching_to_master(master: logic.src.policies.helpers.branching_solvers.VRPPMasterProblem, branching_constraints: typing.List[logic.src.policies.helpers.branching_solvers.AnyBranchingConstraint], branching_strategy: str = 'divergence') -> None
+````{py:function} _apply_branching_to_master(master: logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem, branching_constraints: typing.List[logic.src.policies.helpers.solvers_and_matheuristics.AnyBranchingConstraint], branching_strategy: str = 'divergence') -> None
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._apply_branching_to_master
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._apply_branching_to_master
 ```
 ````
 
-````{py:function} _solve_farkas_pricing_step(master: logic.src.policies.helpers.branching_solvers.VRPPMasterProblem, pricing_solver: logic.src.policies.helpers.branching_solvers.RCSPPSolver, branching_constraints: typing.List[logic.src.policies.helpers.branching_solvers.AnyBranchingConstraint], farkas_duals: typing.Any, max_routes: int = 5) -> typing.Tuple[int, bool]
+````{py:function} _solve_farkas_pricing_step(master: logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem, pricing_solver: logic.src.policies.helpers.solvers_and_matheuristics.RCSPPSolver, branching_constraints: typing.List[logic.src.policies.helpers.solvers_and_matheuristics.AnyBranchingConstraint], farkas_duals: typing.Any, max_routes: int = 5) -> typing.Tuple[int, bool]
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._solve_farkas_pricing_step
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._solve_farkas_pricing_step
 ```
 ````
 
-````{py:function} _separate_cuts(master: logic.src.policies.helpers.branching_solvers.VRPPMasterProblem, cut_engine: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine, max_cuts: int, iteration: int = 0, node_depth: int = 0, cut_orthogonality_threshold: float = 0.8) -> int
+````{py:function} _separate_cuts(master: logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem, cut_engine: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine, max_cuts: int, iteration: int = 0, node_depth: int = 0, cut_orthogonality_threshold: float = 0.8) -> int
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._separate_cuts
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._separate_cuts
 ```
 ````
 
-````{py:function} _solve_pricing_step(master: logic.src.policies.helpers.branching_solvers.VRPPMasterProblem, pricing_solver: logic.src.policies.helpers.branching_solvers.RCSPPSolver, branching_constraints: typing.Optional[typing.List[logic.src.policies.helpers.branching_solvers.AnyBranchingConstraint]] = None, max_routes: int = 5, optimality_gap: float = 0.0001, rc_tolerance: float = 1e-05, use_swc_tcf_heuristic_pricing: bool = False) -> typing.Tuple[int, bool]
+````{py:function} _solve_pricing_step(master: logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem, pricing_solver: logic.src.policies.helpers.solvers_and_matheuristics.RCSPPSolver, branching_constraints: typing.Optional[typing.List[logic.src.policies.helpers.solvers_and_matheuristics.AnyBranchingConstraint]] = None, max_routes: int = 5, optimality_gap: float = 0.0001, rc_tolerance: float = 1e-05, use_swc_tcf_heuristic_pricing: bool = False) -> typing.Tuple[int, bool]
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._solve_pricing_step
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._solve_pricing_step
@@ -177,14 +177,14 @@ Bases: {py:obj}`Exception`
 ```
 ````
 
-````{py:function} _is_solution_integer(routes: typing.List[logic.src.policies.helpers.branching_solvers.Route], route_values: typing.Dict[int, float], tol: float = 1e-06) -> bool
+````{py:function} _is_solution_integer(routes: typing.List[logic.src.policies.helpers.solvers_and_matheuristics.Route], route_values: typing.Dict[int, float], tol: float = 1e-06) -> bool
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._is_solution_integer
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._is_solution_integer
 ```
 ````
 
-````{py:function} _perform_strong_branching(master: logic.src.policies.helpers.branching_solvers.VRPPMasterProblem, candidates: typing.List[typing.Tuple[int, typing.List[typing.Tuple[int, int]], typing.List[typing.Tuple[int, int]], float]], current_node: typing.Optional[logic.src.policies.helpers.branching_solvers.BranchNode] = None, strong_branching_size: int = 5) -> typing.Optional[typing.Tuple[int, typing.List[typing.Tuple[int, int]], typing.List[typing.Tuple[int, int]], float]]
+````{py:function} _perform_strong_branching(master: logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem, candidates: typing.List[typing.Tuple[int, typing.List[typing.Tuple[int, int]], typing.List[typing.Tuple[int, int]], float]], current_node: typing.Optional[logic.src.policies.helpers.solvers_and_matheuristics.BranchNode] = None, strong_branching_size: int = 5) -> typing.Optional[typing.Tuple[int, typing.List[typing.Tuple[int, int]], typing.List[typing.Tuple[int, int]], float]]
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._perform_strong_branching
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._perform_strong_branching
@@ -198,14 +198,14 @@ Bases: {py:obj}`Exception`
 ```
 ````
 
-````{py:function} _extract_forced_sets_from_constraints(branching_constraints: typing.Optional[typing.List[logic.src.policies.helpers.branching_solvers.AnyBranchingConstraint]]) -> typing.Tuple[typing.Set[int], typing.Set[int]]
+````{py:function} _extract_forced_sets_from_constraints(branching_constraints: typing.Optional[typing.List[logic.src.policies.helpers.solvers_and_matheuristics.AnyBranchingConstraint]]) -> typing.Tuple[typing.Set[int], typing.Set[int]]
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._extract_forced_sets_from_constraints
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._extract_forced_sets_from_constraints
 ```
 ````
 
-````{py:function} _column_generation_loop(master: logic.src.policies.helpers.branching_solvers.VRPPMasterProblem, pricing_solver: logic.src.policies.helpers.branching_solvers.RCSPPSolver, cut_engine: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine, branching_constraints: typing.Optional[typing.List[logic.src.policies.helpers.branching_solvers.AnyBranchingConstraint]], max_cg_iterations: int, max_cuts: int, time_limit: typing.Optional[float], start_time: float, max_routes_per_pricing: int = 5, vehicle_limit: typing.Optional[int] = None, optimality_gap: float = 0.0001, early_termination_gap: float = 0.001, parent_basis: typing.Optional[typing.Any] = None, incumbent_value: float = -float('inf'), node_depth: int = 0, rc_tolerance: float = 1e-05, cut_orthogonality_threshold: float = 0.8, exact_mode: bool = False, cg_at_root_only: bool = False, use_swc_tcf_heuristic_pricing: bool = False, branching_strategy: str = 'divergence') -> typing.Tuple[float, typing.Dict[int, float], typing.Optional[typing.Any], bool]
+````{py:function} _column_generation_loop(master: logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem, pricing_solver: logic.src.policies.helpers.solvers_and_matheuristics.RCSPPSolver, cut_engine: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.cutting_planes.CuttingPlaneEngine, branching_constraints: typing.Optional[typing.List[logic.src.policies.helpers.solvers_and_matheuristics.AnyBranchingConstraint]], max_cg_iterations: int, max_cuts: int, time_limit: typing.Optional[float], start_time: float, max_routes_per_pricing: int = 5, vehicle_limit: typing.Optional[int] = None, optimality_gap: float = 0.0001, early_termination_gap: float = 0.001, parent_basis: typing.Optional[typing.Any] = None, incumbent_value: float = -float('inf'), node_depth: int = 0, rc_tolerance: float = 1e-05, cut_orthogonality_threshold: float = 0.8, exact_mode: bool = False, cg_at_root_only: bool = False, use_swc_tcf_heuristic_pricing: bool = False, branching_strategy: str = 'divergence') -> typing.Tuple[float, typing.Dict[int, float], typing.Optional[typing.Any], bool]
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._column_generation_loop
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._column_generation_loop
@@ -219,7 +219,7 @@ Bases: {py:obj}`Exception`
 ```
 ````
 
-````{py:function} _apply_reduced_cost_edge_fixing(master: logic.src.policies.helpers.branching_solvers.VRPPMasterProblem, pricing_solver: logic.src.policies.helpers.branching_solvers.RCSPPSolver, z_ub: float, z_lb: float) -> int
+````{py:function} _apply_reduced_cost_edge_fixing(master: logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem, pricing_solver: logic.src.policies.helpers.solvers_and_matheuristics.RCSPPSolver, z_ub: float, z_lb: float) -> int
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._apply_reduced_cost_edge_fixing
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._apply_reduced_cost_edge_fixing

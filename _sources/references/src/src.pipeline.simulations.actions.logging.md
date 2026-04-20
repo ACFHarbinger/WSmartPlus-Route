@@ -26,7 +26,7 @@
 `````{py:class} LogAction
 :canonical: src.pipeline.simulations.actions.logging.LogAction
 
-Bases: {py:obj}`src.pipeline.simulations.actions.base.SimulationAction`
+Bases: {py:obj}`logic.src.pipeline.simulations.actions.base.SimulationAction`
 
 ```{autodoc2-docstring} src.pipeline.simulations.actions.logging.LogAction
 ```

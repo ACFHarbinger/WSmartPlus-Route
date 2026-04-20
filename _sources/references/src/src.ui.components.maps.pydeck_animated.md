@@ -45,7 +45,71 @@
     ```
 ````
 
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`template_dir <src.ui.components.maps.pydeck_animated.template_dir>`
+  - ```{autodoc2-docstring} src.ui.components.maps.pydeck_animated.template_dir
+    :summary:
+    ```
+* - {py:obj}`tooltip_path <src.ui.components.maps.pydeck_animated.tooltip_path>`
+  - ```{autodoc2-docstring} src.ui.components.maps.pydeck_animated.tooltip_path
+    :summary:
+    ```
+* - {py:obj}`json_dir <src.ui.components.maps.pydeck_animated.json_dir>`
+  - ```{autodoc2-docstring} src.ui.components.maps.pydeck_animated.json_dir
+    :summary:
+    ```
+* - {py:obj}`style_path <src.ui.components.maps.pydeck_animated.style_path>`
+  - ```{autodoc2-docstring} src.ui.components.maps.pydeck_animated.style_path
+    :summary:
+    ```
+````
+
 ### API
+
+````{py:data} template_dir
+:canonical: src.ui.components.maps.pydeck_animated.template_dir
+:value: >
+   'join(...)'
+
+```{autodoc2-docstring} src.ui.components.maps.pydeck_animated.template_dir
+```
+
+````
+
+````{py:data} tooltip_path
+:canonical: src.ui.components.maps.pydeck_animated.tooltip_path
+:value: >
+   'join(...)'
+
+```{autodoc2-docstring} src.ui.components.maps.pydeck_animated.tooltip_path
+```
+
+````
+
+````{py:data} json_dir
+:canonical: src.ui.components.maps.pydeck_animated.json_dir
+:value: >
+   'join(...)'
+
+```{autodoc2-docstring} src.ui.components.maps.pydeck_animated.json_dir
+```
+
+````
+
+````{py:data} style_path
+:canonical: src.ui.components.maps.pydeck_animated.style_path
+:value: >
+   'join(...)'
+
+```{autodoc2-docstring} src.ui.components.maps.pydeck_animated.style_path
+```
+
+````
 
 ````{py:function} render_pydeck_animated_map(bin_locations: typing.List[typing.Dict[str, float]], simulation_log_path: str, policy_name: str = 'gurobi', map_center_lat: float = 51.0, map_center_lon: float = 4.0, initial_zoom: int = 12, map_style: str = 'road', column_radius: int = 50, column_elevation_scale: int = 10, arc_width: int = 3, daily_fill_increment: float = 5.0, height: int = 600, title: str = 'Simulation Animation') -> None
 :canonical: src.ui.components.maps.pydeck_animated.render_pydeck_animated_map

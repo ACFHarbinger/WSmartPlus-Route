@@ -97,7 +97,7 @@
 
 ````{py:attribute} graph
 :canonical: src.configs.tasks.sim_hpo.SimHPOConfig.graph
-:type: src.configs.envs.graph.GraphConfig
+:type: logic.src.configs.envs.graph.GraphConfig
 :value: >
    'field(...)'
 

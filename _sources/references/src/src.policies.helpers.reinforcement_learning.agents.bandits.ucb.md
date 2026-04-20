@@ -45,7 +45,7 @@ Bases: {py:obj}`src.policies.helpers.reinforcement_learning.agents.bandits.base.
 ```{autodoc2-docstring} src.policies.helpers.reinforcement_learning.agents.bandits.ucb.UCBBandit.__init__
 ```
 
-````{py:method} select_action(state: typing.Any, rng: typing.Optional[numpy.random.Generator] = None) -> int
+````{py:method} select_action(state: typing.Any, rng: numpy.random.Generator) -> int
 :canonical: src.policies.helpers.reinforcement_learning.agents.bandits.ucb.UCBBandit.select_action
 
 ```{autodoc2-docstring} src.policies.helpers.reinforcement_learning.agents.bandits.ucb.UCBBandit.select_action
@@ -77,7 +77,7 @@ Bases: {py:obj}`src.policies.helpers.reinforcement_learning.agents.bandits.base.
 ```{autodoc2-docstring} src.policies.helpers.reinforcement_learning.agents.bandits.ucb.DiscountedUCBBandit.__init__
 ```
 
-````{py:method} select_action(state: typing.Any, rng: typing.Optional[numpy.random.Generator] = None) -> int
+````{py:method} select_action(state: typing.Any, rng: numpy.random.Generator) -> int
 :canonical: src.policies.helpers.reinforcement_learning.agents.bandits.ucb.DiscountedUCBBandit.select_action
 
 ```{autodoc2-docstring} src.policies.helpers.reinforcement_learning.agents.bandits.ucb.DiscountedUCBBandit.select_action
@@ -109,7 +109,7 @@ Bases: {py:obj}`src.policies.helpers.reinforcement_learning.agents.bandits.base.
 ```{autodoc2-docstring} src.policies.helpers.reinforcement_learning.agents.bandits.ucb.SlidingWindowUCBBandit.__init__
 ```
 
-````{py:method} select_action(state: typing.Any, rng: typing.Optional[numpy.random.Generator] = None) -> int
+````{py:method} select_action(state: typing.Any, rng: numpy.random.Generator) -> int
 :canonical: src.policies.helpers.reinforcement_learning.agents.bandits.ucb.SlidingWindowUCBBandit.select_action
 
 ```{autodoc2-docstring} src.policies.helpers.reinforcement_learning.agents.bandits.ucb.SlidingWindowUCBBandit.select_action

@@ -26,7 +26,7 @@
 `````{py:class} CombinedSelection(strategies: typing.Optional[typing.List[typing.Dict[str, typing.Any]]] = None, combined_strategies: typing.Optional[typing.List[typing.Dict[str, typing.Any]]] = None, logic: str = 'or')
 :canonical: src.policies.mandatory_selection.selection_combined.CombinedSelection
 
-Bases: {py:obj}`logic.src.interfaces.mandatory.IMandatorySelectionStrategy`
+Bases: {py:obj}`logic.src.interfaces.mandatory_selection.IMandatorySelectionStrategy`
 
 ```{autodoc2-docstring} src.policies.mandatory_selection.selection_combined.CombinedSelection
 ```
@@ -37,7 +37,7 @@ Bases: {py:obj}`logic.src.interfaces.mandatory.IMandatorySelectionStrategy`
 ```{autodoc2-docstring} src.policies.mandatory_selection.selection_combined.CombinedSelection.__init__
 ```
 
-````{py:method} select_bins(context: src.policies.mandatory_selection.base.selection_context.SelectionContext) -> typing.Tuple[typing.List[int], logic.src.policies.context.search_context.SearchContext]
+````{py:method} select_bins(context: src.policies.mandatory_selection.base.selection_context.SelectionContext) -> typing.Tuple[typing.List[int], logic.src.interfaces.context.search_context.SearchContext]
 :canonical: src.policies.mandatory_selection.selection_combined.CombinedSelection.select_bins
 
 ```{autodoc2-docstring} src.policies.mandatory_selection.selection_combined.CombinedSelection.select_bins

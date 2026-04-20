@@ -64,7 +64,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.configs.policies.ils_bd';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.configs.policies.alns_mp" href="src.configs.policies.alns_mp.html" />
+    <link rel="next" title="src.configs.policies.pso" href="src.configs.policies.pso.html" />
     <link rel="prev" title="src.configs.policies.abc" href="src.configs.policies.abc.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -198,18 +198,13 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.envs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.generators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.generators</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.base</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.cwcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.cwcvrp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.swcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.swcvrp</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.vrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.vrpp</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.cvrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.cvrpp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.wcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.wcvrp</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.ui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -226,6 +221,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.utils.ui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.ui</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.decoding.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.decoding</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.policy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.policy</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.io.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.docs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.docs</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.graph.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.graph</span></code></a></li>
@@ -244,6 +240,16 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.enums.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.enums</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.enums.trainer_tags.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.enums.trainer_tags</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.enums.policy_tags.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.enums.policy_tags</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.enums.registry.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.enums.registry</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.enums.model_tags.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.enums.model_tags</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.enums.operator_tags.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.enums.operator_tags</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.enums.environment_tags.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.enums.environment_tags</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.cli.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -265,10 +271,11 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.interfaces.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.interfaces.acceptance_criterion.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.acceptance_criterion</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.interfaces.mandatory.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.mandatory</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.interfaces.distance_metric.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.distance_metric</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.interfaces.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.route_improvement</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.mandatory_selection</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.interfaces.tensor_dict_like.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.tensor_dict_like</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.interfaces.policy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.policy</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.interfaces.route_constructor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.route_constructor</span></code></a></li>
@@ -464,6 +471,7 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig"><code class="docutils literal notranslate"><span class="pre">IntegerLShapedBendersConfig</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig.time_limit"><code class="docutils literal notranslate"><span class="pre">IntegerLShapedBendersConfig.time_limit</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig.master_time_limit"><code class="docutils literal notranslate"><span class="pre">IntegerLShapedBendersConfig.master_time_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig.n_scenarios"><code class="docutils literal notranslate"><span class="pre">IntegerLShapedBendersConfig.n_scenarios</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig.seed"><code class="docutils literal notranslate"><span class="pre">IntegerLShapedBendersConfig.seed</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">IntegerLShapedBendersConfig.vrpp</span></code></a></li>
@@ -474,6 +482,10 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig.undervisit_penalty"><code class="docutils literal notranslate"><span class="pre">IntegerLShapedBendersConfig.undervisit_penalty</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig.collection_threshold"><code class="docutils literal notranslate"><span class="pre">IntegerLShapedBendersConfig.collection_threshold</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig.horizon"><code class="docutils literal notranslate"><span class="pre">IntegerLShapedBendersConfig.horizon</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig.stockout_penalty"><code class="docutils literal notranslate"><span class="pre">IntegerLShapedBendersConfig.stockout_penalty</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig.big_m"><code class="docutils literal notranslate"><span class="pre">IntegerLShapedBendersConfig.big_m</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig.mean_scenario_only"><code class="docutils literal notranslate"><span class="pre">IntegerLShapedBendersConfig.mean_scenario_only</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig.initial_inventory"><code class="docutils literal notranslate"><span class="pre">IntegerLShapedBendersConfig.initial_inventory</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig.fill_rate_cv"><code class="docutils literal notranslate"><span class="pre">IntegerLShapedBendersConfig.fill_rate_cv</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig.mip_gap"><code class="docutils literal notranslate"><span class="pre">IntegerLShapedBendersConfig.mip_gap</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig.theta_lower_bound"><code class="docutils literal notranslate"><span class="pre">IntegerLShapedBendersConfig.theta_lower_bound</span></code></a></li>
@@ -528,6 +540,7 @@ document.write(`
 Program (2-SIP) and solves it via iterative Benders decomposition.</p>
 <p>Attributes:
 time_limit: Maximum wall-clock seconds for the overall Benders solve.
+master_time_limit: Time limit for each master problem solve (seconds).
 n_scenarios: Number of SAA discrete scenarios for recourse approximation.
 seed: Random seed for reproducible scenario generation.
 vrpp: Whether to formulate as VRPP (customer nodes may be skipped).
@@ -540,6 +553,11 @@ undervisit_penalty: Penalty per %-fill unit below the collection threshold
 for visited bins — cost of a wasted trip (€/%-fill).
 collection_threshold: Fill level % at which overflow/undervisit penalties
 are triggered (τ in the mathematical formulation).
+horizon: Planning horizon T (number of days).
+stockout_penalty: Penalty per unit of bin overflow per day.
+big_m: Big-M constant for decoupling collection quantities and visit variables.
+mean_scenario_only: If True, use mean demand for balance constraints in the master problem.
+initial_inventory: Initial fill level (%) for all bins (default 0).
 fill_rate_cv: Coefficient of variation for SAA Gamma scenario generation.
 mip_gap: Relative MIP gap for each Gurobi master problem solve.
 theta_lower_bound: Initial lower bound on the surrogate variable θ.
@@ -554,7 +572,13 @@ route_improvement: List of route improvement operations to apply.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.ils_bd.IntegerLShapedBendersConfig.time_limit">
 <span class="sig-name descname"><span class="pre">time_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig.time_limit" title="Link to this definition">#</a></dt>
-<dd><p>120.0</p>
+<dd><p>300.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.ils_bd.IntegerLShapedBendersConfig.master_time_limit">
+<span class="sig-name descname"><span class="pre">master_time_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig.master_time_limit" title="Link to this definition">#</a></dt>
+<dd><p>60.0</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -615,6 +639,30 @@ route_improvement: List of route improvement operations to apply.</p>
 <dt class="sig sig-object py" id="src.configs.policies.ils_bd.IntegerLShapedBendersConfig.horizon">
 <span class="sig-name descname"><span class="pre">horizon</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig.horizon" title="Link to this definition">#</a></dt>
 <dd><p>7</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.ils_bd.IntegerLShapedBendersConfig.stockout_penalty">
+<span class="sig-name descname"><span class="pre">stockout_penalty</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig.stockout_penalty" title="Link to this definition">#</a></dt>
+<dd><p>500.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.ils_bd.IntegerLShapedBendersConfig.big_m">
+<span class="sig-name descname"><span class="pre">big_m</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig.big_m" title="Link to this definition">#</a></dt>
+<dd><p>10000.0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.ils_bd.IntegerLShapedBendersConfig.mean_scenario_only">
+<span class="sig-name descname"><span class="pre">mean_scenario_only</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig.mean_scenario_only" title="Link to this definition">#</a></dt>
+<dd><p>True</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.ils_bd.IntegerLShapedBendersConfig.initial_inventory">
+<span class="sig-name descname"><span class="pre">initial_inventory</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig.initial_inventory" title="Link to this definition">#</a></dt>
+<dd><p>0.0</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -710,11 +758,11 @@ route_improvement: List of route improvement operations to apply.</p>
       </div>
     </a>
     <a class="right-next"
-       href="src.configs.policies.alns_mp.html"
+       href="src.configs.policies.pso.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.alns_mp</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.pso</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -739,6 +787,7 @@ route_improvement: List of route improvement operations to apply.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig"><code class="docutils literal notranslate"><span class="pre">IntegerLShapedBendersConfig</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig.time_limit"><code class="docutils literal notranslate"><span class="pre">IntegerLShapedBendersConfig.time_limit</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig.master_time_limit"><code class="docutils literal notranslate"><span class="pre">IntegerLShapedBendersConfig.master_time_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig.n_scenarios"><code class="docutils literal notranslate"><span class="pre">IntegerLShapedBendersConfig.n_scenarios</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig.seed"><code class="docutils literal notranslate"><span class="pre">IntegerLShapedBendersConfig.seed</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">IntegerLShapedBendersConfig.vrpp</span></code></a></li>
@@ -749,6 +798,10 @@ route_improvement: List of route improvement operations to apply.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig.undervisit_penalty"><code class="docutils literal notranslate"><span class="pre">IntegerLShapedBendersConfig.undervisit_penalty</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig.collection_threshold"><code class="docutils literal notranslate"><span class="pre">IntegerLShapedBendersConfig.collection_threshold</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig.horizon"><code class="docutils literal notranslate"><span class="pre">IntegerLShapedBendersConfig.horizon</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig.stockout_penalty"><code class="docutils literal notranslate"><span class="pre">IntegerLShapedBendersConfig.stockout_penalty</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig.big_m"><code class="docutils literal notranslate"><span class="pre">IntegerLShapedBendersConfig.big_m</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig.mean_scenario_only"><code class="docutils literal notranslate"><span class="pre">IntegerLShapedBendersConfig.mean_scenario_only</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig.initial_inventory"><code class="docutils literal notranslate"><span class="pre">IntegerLShapedBendersConfig.initial_inventory</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig.fill_rate_cv"><code class="docutils literal notranslate"><span class="pre">IntegerLShapedBendersConfig.fill_rate_cv</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig.mip_gap"><code class="docutils literal notranslate"><span class="pre">IntegerLShapedBendersConfig.mip_gap</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_bd.IntegerLShapedBendersConfig.theta_lower_bound"><code class="docutils literal notranslate"><span class="pre">IntegerLShapedBendersConfig.theta_lower_bound</span></code></a></li>

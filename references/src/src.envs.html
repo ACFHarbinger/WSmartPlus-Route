@@ -64,7 +64,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.envs';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.envs.generators" href="src.envs.generators.html" />
+    <link rel="next" title="src.envs.routing" href="src.envs.routing.html" />
     <link rel="prev" title="src.pipeline.rl.common.reward_scaler" href="src.pipeline.rl.common.reward_scaler.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -198,18 +198,13 @@
 </ul>
 </details></li>
 <li class="toctree-l3 current active has-children"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs</span></code></a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.envs.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.generators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.generators</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.base</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.cwcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.cwcvrp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.swcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.swcvrp</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.vrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.vrpp</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.cvrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.cvrpp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.wcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.wcvrp</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.ui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -226,6 +221,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.utils.ui.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.ui</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.decoding.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.decoding</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.policy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.policy</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.io.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.docs.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.docs</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.graph.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.graph</span></code></a></li>
@@ -244,6 +240,16 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.mandatory_selection</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="src.enums.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.enums</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.enums.trainer_tags.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.enums.trainer_tags</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.enums.policy_tags.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.enums.policy_tags</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.enums.registry.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.enums.registry</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.enums.model_tags.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.enums.model_tags</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.enums.operator_tags.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.enums.operator_tags</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.enums.environment_tags.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.enums.environment_tags</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.cli.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -265,10 +271,11 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="src.interfaces.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces</span></code></a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.interfaces.acceptance_criterion.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.acceptance_criterion</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.interfaces.mandatory.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.mandatory</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.interfaces.distance_metric.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.distance_metric</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.interfaces.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.route_improvement</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.interfaces.mandatory_selection.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.mandatory_selection</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.interfaces.tensor_dict_like.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.tensor_dict_like</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.interfaces.policy.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.policy</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.interfaces.route_constructor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.route_constructor</span></code></a></li>
@@ -492,21 +499,54 @@ combinatorial optimization problems.</p>
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="src.envs.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src.envs.routing.cwcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing.cwcvrp</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.envs.routing.thop.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing.thop</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.envs.routing.atsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing.atsp</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.envs.routing.pctsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing.pctsp</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.envs.routing.swcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing.swcvrp</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.envs.routing.tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing.tsp</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.envs.routing.vrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing.vrpp</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.envs.routing.cvrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing.cvrpp</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.envs.routing.wcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing.wcvrp</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.envs.routing.irp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing.irp</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.envs.routing.spctsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing.spctsp</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.envs.routing.op.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing.op</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.envs.routing.cvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing.cvrp</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.envs.routing.pdp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing.pdp</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="src.envs.generators.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.generators</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src.envs.generators.thop.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.generators.thop</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.envs.generators.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.generators.base</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.envs.generators.atsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.generators.atsp</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.envs.generators.pctsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.generators.pctsp</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.envs.generators.tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.generators.tsp</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.envs.generators.vrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.generators.vrpp</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.envs.generators.wcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.generators.wcvrp</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.envs.generators.irp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.generators.irp</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.envs.generators.scwcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.generators.scwcvrp</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.envs.generators.op.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.generators.op</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.envs.generators.cvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.generators.cvrp</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.envs.generators.pdp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.generators.pdp</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a><ul>
 <li class="toctree-l2"><a class="reference internal" href="src.envs.tasks.cwcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.cwcvrp</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.envs.tasks.thop.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.thop</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.envs.tasks.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.base</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.envs.tasks.atsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.atsp</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.envs.tasks.pctsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.pctsp</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.envs.tasks.tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.tsp</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.envs.tasks.vrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.vrpp</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.envs.tasks.cvrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.cvrpp</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.envs.tasks.wcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.wcvrp</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.envs.tasks.irp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.irp</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.envs.tasks.scwcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.scwcvrp</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.envs.tasks.spctsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.spctsp</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.envs.tasks.op.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.op</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.envs.tasks.cvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.cvrp</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.envs.tasks.pdp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.pdp</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="src.envs.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.base</span></code></a><ul>
@@ -523,15 +563,9 @@ combinatorial optimization problems.</p>
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="src.envs.cwcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.cwcvrp</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="src.envs.swcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.swcvrp</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="src.envs.tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="src.envs.vrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.vrpp</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="src.envs.cvrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.cvrpp</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="src.envs.wcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.wcvrp</span></code></a></li>
 </ul>
 </div>
 </section>
@@ -575,7 +609,7 @@ combinatorial optimization problems.</p>
 <span class="sig-prename descclassname"><span class="pre">src.envs.</span></span><span class="sig-name descname"><span class="pre">get_env</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></span><a class="headerlink" href="#src.envs.get_env" title="Link to this definition">#</a></dt>
 <dd><p>Factory function to get environment by name.</p>
 <p>Args:
-name: Environment name (vrpp, cvrpp, wcvrp, etc.)
+name: Environment name (vrpp, cvrpp, wcvrp, irp, atsp, cvrp, op, etc.)
 **kwargs: Environment configuration parameters.</p>
 <p>Returns:
 Initialized environment instance.</p>
@@ -586,7 +620,7 @@ ValueError: If environment name is not recognized.</p>
 <dl class="py data">
 <dt class="sig sig-object py" id="src.envs.__all__">
 <span class="sig-prename descclassname"><span class="pre">src.envs.</span></span><span class="sig-name descname"><span class="pre">__all__</span></span><a class="headerlink" href="#src.envs.__all__" title="Link to this definition">#</a></dt>
-<dd><p>[‘RL4COEnvBase’, ‘ImprovementEnvBase’, ‘Generator’, ‘VRPPGenerator’, ‘WCVRPGenerator’, ‘get_generato…</p>
+<dd><p>[‘RL4COEnvBase’, ‘ImprovementEnvBase’, ‘Generator’, ‘VRPPGenerator’, ‘WCVRPGenerator’, ‘IRPGenerator…</p>
 </dd></dl>
 
 </section>
@@ -614,11 +648,11 @@ ValueError: If environment name is not recognized.</p>
       </div>
     </a>
     <a class="right-next"
-       href="src.envs.generators.html"
+       href="src.envs.routing.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.generators</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

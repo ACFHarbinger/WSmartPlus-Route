@@ -45,7 +45,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} _precompute_cache(embeddings: torch.Tensor) -> src.models.subnets.decoders.common.AttentionDecoderCache
+````{py:method} _precompute_cache(embeddings: torch.Tensor) -> logic.src.models.subnets.decoders.common.AttentionDecoderCache
 :canonical: src.models.subnets.decoders.polynet.decoder.PolyNetDecoder._precompute_cache
 
 ```{autodoc2-docstring} src.models.subnets.decoders.polynet.decoder.PolyNetDecoder._precompute_cache
@@ -53,7 +53,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} _get_step_logits(cache: src.models.subnets.decoders.common.AttentionDecoderCache, td: tensordict.TensorDict) -> typing.Tuple[torch.Tensor, torch.Tensor]
+````{py:method} _get_step_logits(cache: logic.src.models.subnets.decoders.common.AttentionDecoderCache, td: tensordict.TensorDict) -> typing.Tuple[torch.Tensor, torch.Tensor]
 :canonical: src.models.subnets.decoders.polynet.decoder.PolyNetDecoder._get_step_logits
 
 ```{autodoc2-docstring} src.models.subnets.decoders.polynet.decoder.PolyNetDecoder._get_step_logits

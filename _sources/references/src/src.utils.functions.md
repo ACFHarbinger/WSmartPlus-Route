@@ -44,7 +44,7 @@ src.utils.functions.problem
 ````{py:data} __all__
 :canonical: src.utils.functions.__all__
 :value: >
-   ['get_inner_model', 'load_problem', 'torch_load_cpu', 'load_data', 'move_to', 'load_args', 'load_mod...
+   ['move_to', 'safe_exp', 'run_all_in_pool', 'get_path_until_string', 'compute_in_batches', 'do_batch_...
 
 ```{autodoc2-docstring} src.utils.functions.__all__
 ```

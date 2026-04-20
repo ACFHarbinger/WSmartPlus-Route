@@ -13,24 +13,19 @@
 :titlesonly:
 :maxdepth: 3
 
-src.policies.helpers.operators.intra_route
-src.policies.helpers.operators.inter_route
-src.policies.helpers.operators.heuristics
-src.policies.helpers.operators.destroy
-src.policies.helpers.operators.crossover
-src.policies.helpers.operators.repair
-src.policies.helpers.operators.unstringing_stringing
-src.policies.helpers.operators.perturbation
-src.policies.helpers.operators.intensification
-```
-
-## Submodules
-
-```{toctree}
-:titlesonly:
-:maxdepth: 1
-
-src.policies.helpers.operators.neighborhood
+src.policies.helpers.operators.perturbation_shaking
+src.policies.helpers.operators.sequence_merging
+src.policies.helpers.operators.intra_route_local_search
+src.policies.helpers.operators.search_heuristics
+src.policies.helpers.operators.solution_initialization
+src.policies.helpers.operators.intensification_fixing
+src.policies.helpers.operators.crossover_recombination
+src.policies.helpers.operators.inter_route_local_search
+src.policies.helpers.operators.evolutionary_mutation
+src.policies.helpers.operators.improvement_descent
+src.policies.helpers.operators.recreate_repair
+src.policies.helpers.operators.destroy_ruin
+src.policies.helpers.operators.generalized_insertion_and_deletion
 ```
 
 ## Package Contents

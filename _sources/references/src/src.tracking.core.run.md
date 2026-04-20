@@ -112,7 +112,7 @@
 ```
 ````
 
-`````{py:class} Run(run_id: str, store: src.tracking.core.store.TrackingStore, artifact_dir: str, buffer_size: int = 200)
+`````{py:class} Run(run_id: str, store: logic.src.tracking.core.store.TrackingStore, artifact_dir: str, buffer_size: int = 200)
 :canonical: src.tracking.core.run.Run
 
 ```{autodoc2-docstring} src.tracking.core.run.Run

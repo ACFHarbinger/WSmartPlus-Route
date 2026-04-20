@@ -38,7 +38,7 @@
 `````{py:class} TDAgent(n_states: int, n_actions: int, alpha: float = 0.1, gamma: float = 0.95, epsilon: float = 0.1, epsilon_decay: float = 0.995, epsilon_min: float = 0.05, history_size: int = 100, seed: int = 42)
 :canonical: src.policies.helpers.reinforcement_learning.agents.td_learning.TDAgent
 
-Bases: {py:obj}`src.policies.helpers.reinforcement_learning.agents.base.RLAgent`
+Bases: {py:obj}`src.policies.helpers.reinforcement_learning.agents.base.RLAgent`, {py:obj}`abc.ABC`
 
 ```{autodoc2-docstring} src.policies.helpers.reinforcement_learning.agents.td_learning.TDAgent
 ```
@@ -101,6 +101,15 @@ Bases: {py:obj}`src.policies.helpers.reinforcement_learning.agents.base.RLAgent`
 :canonical: src.policies.helpers.reinforcement_learning.agents.td_learning.TDAgent.reset
 
 ```{autodoc2-docstring} src.policies.helpers.reinforcement_learning.agents.td_learning.TDAgent.reset
+```
+
+````
+
+````{py:method} update(state: typing.Any, action: int, reward: float, next_state: typing.Any, done: bool) -> None
+:canonical: src.policies.helpers.reinforcement_learning.agents.td_learning.TDAgent.update
+:abstractmethod:
+
+```{autodoc2-docstring} src.policies.helpers.reinforcement_learning.agents.td_learning.TDAgent.update
 ```
 
 ````

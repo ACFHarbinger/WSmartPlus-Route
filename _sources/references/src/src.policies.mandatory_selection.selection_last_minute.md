@@ -26,12 +26,12 @@
 `````{py:class} LastMinuteSelection
 :canonical: src.policies.mandatory_selection.selection_last_minute.LastMinuteSelection
 
-Bases: {py:obj}`logic.src.interfaces.mandatory.IMandatorySelectionStrategy`
+Bases: {py:obj}`logic.src.interfaces.mandatory_selection.IMandatorySelectionStrategy`
 
 ```{autodoc2-docstring} src.policies.mandatory_selection.selection_last_minute.LastMinuteSelection
 ```
 
-````{py:method} select_bins(context: src.policies.mandatory_selection.base.selection_context.SelectionContext) -> typing.Tuple[typing.List[int], logic.src.policies.context.search_context.SearchContext]
+````{py:method} select_bins(context: src.policies.mandatory_selection.base.selection_context.SelectionContext) -> typing.Tuple[typing.List[int], logic.src.interfaces.context.search_context.SearchContext]
 :canonical: src.policies.mandatory_selection.selection_last_minute.LastMinuteSelection.select_bins
 
 ```{autodoc2-docstring} src.policies.mandatory_selection.selection_last_minute.LastMinuteSelection.select_bins

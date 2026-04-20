@@ -9,6 +9,18 @@
 
 ## Module Contents
 
+### Functions
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`_load_css <src.ui.styles.css._load_css>`
+  - ```{autodoc2-docstring} src.ui.styles.css._load_css
+    :summary:
+    ```
+````
+
 ### Data
 
 ````{list-table}
@@ -23,9 +35,17 @@
 
 ### API
 
+````{py:function} _load_css() -> str
+:canonical: src.ui.styles.css._load_css
+
+```{autodoc2-docstring} src.ui.styles.css._load_css
+```
+````
+
 ````{py:data} CUSTOM_CSS
 :canonical: src.ui.styles.css.CUSTOM_CSS
-:value: <Multiline-String>
+:value: >
+   '_load_css(...)'
 
 ```{autodoc2-docstring} src.ui.styles.css.CUSTOM_CSS
 ```

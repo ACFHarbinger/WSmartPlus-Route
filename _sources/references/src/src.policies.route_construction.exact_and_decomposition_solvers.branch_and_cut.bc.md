@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} BranchAndCutSolver(model: logic.src.policies.helpers.branching_solvers.vrpp_model.VRPPModel, params: typing.Optional[src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.params.BCParams] = None, scenarios: typing.Optional[typing.List[typing.Dict[int, float]]] = None, **kwargs: typing.Any)
+`````{py:class} BranchAndCutSolver(model: logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel, params: typing.Optional[src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.params.BCParams] = None, scenarios: typing.Optional[typing.List[typing.Dict[int, float]]] = None, **kwargs: typing.Any)
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc.BranchAndCutSolver
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc.BranchAndCutSolver
@@ -91,7 +91,7 @@
 
 ````
 
-````{py:method} _add_pcsec_lazy(model, cut: logic.src.policies.helpers.branching_solvers.PCSubtourEliminationCut)
+````{py:method} _add_pcsec_lazy(model, cut: logic.src.policies.helpers.solvers_and_matheuristics.PCSubtourEliminationCut)
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc.BranchAndCutSolver._add_pcsec_lazy
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc.BranchAndCutSolver._add_pcsec_lazy
@@ -99,7 +99,7 @@
 
 ````
 
-````{py:method} _add_capacity_cut_lazy(model, cut: logic.src.policies.helpers.branching_solvers.CapacityCut)
+````{py:method} _add_capacity_cut_lazy(model, cut: logic.src.policies.helpers.solvers_and_matheuristics.CapacityCut)
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc.BranchAndCutSolver._add_capacity_cut_lazy
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc.BranchAndCutSolver._add_capacity_cut_lazy
@@ -107,7 +107,7 @@
 
 ````
 
-````{py:method} _add_pcsec_user(model, cut: logic.src.policies.helpers.branching_solvers.PCSubtourEliminationCut)
+````{py:method} _add_pcsec_user(model, cut: logic.src.policies.helpers.solvers_and_matheuristics.PCSubtourEliminationCut)
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc.BranchAndCutSolver._add_pcsec_user
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc.BranchAndCutSolver._add_pcsec_user
@@ -115,7 +115,7 @@
 
 ````
 
-````{py:method} _add_capacity_cut_user(model, cut: logic.src.policies.helpers.branching_solvers.CapacityCut)
+````{py:method} _add_capacity_cut_user(model, cut: logic.src.policies.helpers.solvers_and_matheuristics.CapacityCut)
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc.BranchAndCutSolver._add_capacity_cut_user
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc.BranchAndCutSolver._add_capacity_cut_user

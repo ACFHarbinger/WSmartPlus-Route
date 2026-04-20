@@ -105,7 +105,7 @@ Bases: {py:obj}`logic.src.interfaces.route_improvement.IRouteImprovement`
 
 ````
 
-````{py:method} process(tour: typing.List[int], **kwargs: typing.Any) -> typing.Tuple[typing.List[int], logic.src.policies.context.search_context.ImprovementMetrics]
+````{py:method} process(tour: typing.List[int], **kwargs: typing.Any) -> typing.Tuple[typing.List[int], logic.src.interfaces.context.search_context.ImprovementMetrics]
 :canonical: src.policies.route_improvement.learned.LearnedRouteImprover.process
 
 ````

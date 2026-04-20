@@ -33,9 +33,20 @@
 :canonical: src.configs.policies.ils_bd.IntegerLShapedBendersConfig.time_limit
 :type: float
 :value: >
-   120.0
+   300.0
 
 ```{autodoc2-docstring} src.configs.policies.ils_bd.IntegerLShapedBendersConfig.time_limit
+```
+
+````
+
+````{py:attribute} master_time_limit
+:canonical: src.configs.policies.ils_bd.IntegerLShapedBendersConfig.master_time_limit
+:type: float
+:value: >
+   60.0
+
+```{autodoc2-docstring} src.configs.policies.ils_bd.IntegerLShapedBendersConfig.master_time_limit
 ```
 
 ````
@@ -146,6 +157,50 @@
    7
 
 ```{autodoc2-docstring} src.configs.policies.ils_bd.IntegerLShapedBendersConfig.horizon
+```
+
+````
+
+````{py:attribute} stockout_penalty
+:canonical: src.configs.policies.ils_bd.IntegerLShapedBendersConfig.stockout_penalty
+:type: float
+:value: >
+   500.0
+
+```{autodoc2-docstring} src.configs.policies.ils_bd.IntegerLShapedBendersConfig.stockout_penalty
+```
+
+````
+
+````{py:attribute} big_m
+:canonical: src.configs.policies.ils_bd.IntegerLShapedBendersConfig.big_m
+:type: float
+:value: >
+   10000.0
+
+```{autodoc2-docstring} src.configs.policies.ils_bd.IntegerLShapedBendersConfig.big_m
+```
+
+````
+
+````{py:attribute} mean_scenario_only
+:canonical: src.configs.policies.ils_bd.IntegerLShapedBendersConfig.mean_scenario_only
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.policies.ils_bd.IntegerLShapedBendersConfig.mean_scenario_only
+```
+
+````
+
+````{py:attribute} initial_inventory
+:canonical: src.configs.policies.ils_bd.IntegerLShapedBendersConfig.initial_inventory
+:type: float
+:value: >
+   0.0
+
+```{autodoc2-docstring} src.configs.policies.ils_bd.IntegerLShapedBendersConfig.initial_inventory
 ```
 
 ````

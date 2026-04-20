@@ -26,7 +26,7 @@
 `````{py:class} BanditAgent(n_arms: int, seed: typing.Optional[int] = None, history_size: int = 50)
 :canonical: src.policies.helpers.reinforcement_learning.agents.bandits.base.BanditAgent
 
-Bases: {py:obj}`src.policies.helpers.reinforcement_learning.agents.base.RLAgent`
+Bases: {py:obj}`logic.src.policies.helpers.reinforcement_learning.agents.base.RLAgent`, {py:obj}`abc.ABC`
 
 ```{autodoc2-docstring} src.policies.helpers.reinforcement_learning.agents.bandits.base.BanditAgent
 ```
@@ -81,6 +81,15 @@ Bases: {py:obj}`src.policies.helpers.reinforcement_learning.agents.base.RLAgent`
 :canonical: src.policies.helpers.reinforcement_learning.agents.bandits.base.BanditAgent.update
 
 ```{autodoc2-docstring} src.policies.helpers.reinforcement_learning.agents.bandits.base.BanditAgent.update
+```
+
+````
+
+````{py:method} select_action(state: typing.Any, rng: numpy.random.Generator) -> int
+:canonical: src.policies.helpers.reinforcement_learning.agents.bandits.base.BanditAgent.select_action
+:abstractmethod:
+
+```{autodoc2-docstring} src.policies.helpers.reinforcement_learning.agents.bandits.base.BanditAgent.select_action
 ```
 
 ````

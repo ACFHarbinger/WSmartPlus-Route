@@ -23,6 +23,10 @@
   - ```{autodoc2-docstring} src.utils.validation.count_loc.analyze_file
     :summary:
     ```
+* - {py:obj}`group_by_directory <src.utils.validation.count_loc.group_by_directory>`
+  - ```{autodoc2-docstring} src.utils.validation.count_loc.group_by_directory
+    :summary:
+    ```
 * - {py:obj}`main <src.utils.validation.count_loc.main>`
   - ```{autodoc2-docstring} src.utils.validation.count_loc.main
     :summary:
@@ -45,7 +49,14 @@
 ```
 ````
 
-````{py:function} main()
+````{py:function} group_by_directory(file_data: typing.List[typing.Dict], depth: int) -> typing.List[typing.Dict]
+:canonical: src.utils.validation.count_loc.group_by_directory
+
+```{autodoc2-docstring} src.utils.validation.count_loc.group_by_directory
+```
+````
+
+````{py:function} main() -> None
 :canonical: src.utils.validation.count_loc.main
 
 ```{autodoc2-docstring} src.utils.validation.count_loc.main

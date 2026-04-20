@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} IntegerLShapedEngine(model: logic.src.policies.helpers.branching_solvers.vrpp_model.VRPPModel, params: src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.params.ILSBDParams)
+`````{py:class} IntegerLShapedEngine(model: logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel, params: src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.params.ILSBDParams)
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.ils_bd_engine.IntegerLShapedEngine
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.ils_bd_engine.IntegerLShapedEngine
@@ -35,7 +35,7 @@
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.ils_bd_engine.IntegerLShapedEngine.__init__
 ```
 
-````{py:method} solve(tree: typing.Any) -> typing.Tuple[typing.List[typing.List[int]], typing.Dict[int, float], float, typing.Dict[str, typing.Any]]
+````{py:method} solve(tree: typing.Any, demand_matrix: typing.Optional[numpy.ndarray] = None, bin_capacities: typing.Optional[numpy.ndarray] = None, initial_inventory: typing.Optional[numpy.ndarray] = None) -> typing.Tuple[typing.List[typing.List[int]], typing.Dict[int, float], float, typing.Dict[str, typing.Any]]
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.ils_bd_engine.IntegerLShapedEngine.solve
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.ils_bd_engine.IntegerLShapedEngine.solve

@@ -42,7 +42,7 @@
 
 ````{py:attribute} encoder
 :canonical: src.configs.models.model.ModelConfig.encoder
-:type: src.configs.models.encoder.EncoderConfig
+:type: logic.src.configs.models.encoder.EncoderConfig
 :value: >
    'field(...)'
 
@@ -53,7 +53,7 @@
 
 ````{py:attribute} decoder
 :canonical: src.configs.models.model.ModelConfig.decoder
-:type: src.configs.models.decoder.DecoderConfig
+:type: logic.src.configs.models.decoder.DecoderConfig
 :value: >
    'field(...)'
 
@@ -64,7 +64,7 @@
 
 ````{py:attribute} reward
 :canonical: src.configs.models.model.ModelConfig.reward
-:type: src.configs.envs.objective.ObjectiveConfig
+:type: logic.src.configs.envs.objective.ObjectiveConfig
 :value: >
    'field(...)'
 

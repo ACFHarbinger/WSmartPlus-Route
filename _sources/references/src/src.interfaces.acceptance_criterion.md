@@ -62,7 +62,7 @@ Bases: {py:obj}`abc.ABC`
 
 ````
 
-````{py:method} accept(current_obj: src.interfaces.acceptance_criterion.ObjectiveValue, candidate_obj: src.interfaces.acceptance_criterion.ObjectiveValue, **kwargs: typing.Any) -> typing.Tuple[bool, logic.src.policies.context.search_context.AcceptanceMetrics]
+````{py:method} accept(current_obj: src.interfaces.acceptance_criterion.ObjectiveValue, candidate_obj: src.interfaces.acceptance_criterion.ObjectiveValue, **kwargs: typing.Any) -> typing.Tuple[bool, logic.src.interfaces.context.search_context.AcceptanceMetrics]
 :canonical: src.interfaces.acceptance_criterion.IAcceptanceCriterion.accept
 :abstractmethod:
 

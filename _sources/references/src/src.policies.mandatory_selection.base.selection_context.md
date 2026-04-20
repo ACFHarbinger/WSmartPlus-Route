@@ -183,6 +183,17 @@
 
 ````
 
+````{py:attribute} overflow_penalty_frac
+:canonical: src.policies.mandatory_selection.base.selection_context.SelectionContext.overflow_penalty_frac
+:type: float
+:value: >
+   1.0
+
+```{autodoc2-docstring} src.policies.mandatory_selection.base.selection_context.SelectionContext.overflow_penalty_frac
+```
+
+````
+
 ````{py:attribute} horizon_days
 :canonical: src.policies.mandatory_selection.base.selection_context.SelectionContext.horizon_days
 :type: int
@@ -487,6 +498,39 @@
    1
 
 ```{autodoc2-docstring} src.policies.mandatory_selection.base.selection_context.SelectionContext.wasserstein_p
+```
+
+````
+
+````{py:attribute} scenario_tree
+:canonical: src.policies.mandatory_selection.base.selection_context.SelectionContext.scenario_tree
+:type: typing.Optional[typing.Any]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.mandatory_selection.base.selection_context.SelectionContext.scenario_tree
+```
+
+````
+
+````{py:attribute} ff_filter_width
+:canonical: src.policies.mandatory_selection.base.selection_context.SelectionContext.ff_filter_width
+:type: int
+:value: >
+   0
+
+```{autodoc2-docstring} src.policies.mandatory_selection.base.selection_context.SelectionContext.ff_filter_width
+```
+
+````
+
+````{py:attribute} ff_fan_depth
+:canonical: src.policies.mandatory_selection.base.selection_context.SelectionContext.ff_fan_depth
+:type: int
+:value: >
+   3
+
+```{autodoc2-docstring} src.policies.mandatory_selection.base.selection_context.SelectionContext.ff_fan_depth
 ```
 
 ````

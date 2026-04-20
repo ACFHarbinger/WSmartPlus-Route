@@ -26,7 +26,7 @@
 `````{py:class} RunningState
 :canonical: src.pipeline.simulations.states.running.RunningState
 
-Bases: {py:obj}`src.pipeline.simulations.states.base.SimState`
+Bases: {py:obj}`logic.src.pipeline.simulations.states.base.base.SimState`
 
 ```{autodoc2-docstring} src.pipeline.simulations.states.running.RunningState
 ```

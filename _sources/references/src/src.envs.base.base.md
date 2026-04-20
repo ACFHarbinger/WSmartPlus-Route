@@ -26,7 +26,7 @@
 `````{py:class} RL4COEnvBase(generator: typing.Optional[typing.Any] = None, generator_params: typing.Optional[dict] = None, device: typing.Union[str, torch.device] = 'cpu', batch_size: typing.Optional[typing.Union[torch.Size, int]] = None, **kwargs: typing.Any)
 :canonical: src.envs.base.base.RL4COEnvBase
 
-Bases: {py:obj}`src.envs.base.batch.BatchMixin`, {py:obj}`src.envs.base.ops.OpsMixin`, {py:obj}`torchrl.envs.EnvBase`
+Bases: {py:obj}`src.envs.base.batch.BatchMixin`, {py:obj}`src.envs.base.ops.OpsMixin`, {py:obj}`torchrl.envs.EnvBase`, {py:obj}`abc.ABC`
 
 ```{autodoc2-docstring} src.envs.base.base.RL4COEnvBase
 ```
@@ -81,6 +81,42 @@ Bases: {py:obj}`src.envs.base.batch.BatchMixin`, {py:obj}`src.envs.base.ops.OpsM
 :canonical: src.envs.base.base.RL4COEnvBase.__repr__
 
 ```{autodoc2-docstring} src.envs.base.base.RL4COEnvBase.__repr__
+```
+
+````
+
+````{py:method} _reset_instance(td: tensordict.TensorDictBase) -> tensordict.TensorDictBase
+:canonical: src.envs.base.base.RL4COEnvBase._reset_instance
+:abstractmethod:
+
+```{autodoc2-docstring} src.envs.base.base.RL4COEnvBase._reset_instance
+```
+
+````
+
+````{py:method} _step(td: tensordict.TensorDictBase) -> tensordict.TensorDictBase
+:canonical: src.envs.base.base.RL4COEnvBase._step
+:abstractmethod:
+
+```{autodoc2-docstring} src.envs.base.base.RL4COEnvBase._step
+```
+
+````
+
+````{py:method} _get_reward(td: tensordict.TensorDictBase, actions: typing.Optional[torch.Tensor] = None) -> torch.Tensor
+:canonical: src.envs.base.base.RL4COEnvBase._get_reward
+:abstractmethod:
+
+```{autodoc2-docstring} src.envs.base.base.RL4COEnvBase._get_reward
+```
+
+````
+
+````{py:method} _get_action_mask(td: tensordict.TensorDictBase) -> torch.Tensor
+:canonical: src.envs.base.base.RL4COEnvBase._get_action_mask
+:abstractmethod:
+
+```{autodoc2-docstring} src.envs.base.base.RL4COEnvBase._get_action_mask
 ```
 
 ````

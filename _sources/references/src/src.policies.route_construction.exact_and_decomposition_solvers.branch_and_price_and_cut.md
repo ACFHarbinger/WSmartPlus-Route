@@ -39,7 +39,7 @@ src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price
 ````{py:data} __all__
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.__all__
 :value: >
-   ['run_bpc']
+   ['run_bpc', 'policy_bpc']
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.__all__
 ```

@@ -58,4 +58,13 @@
 
 ````
 
+````{py:method} list_improvers() -> list
+:canonical: src.policies.route_improvement.base.registry.RouteImproverRegistry.list_improvers
+:classmethod:
+
+```{autodoc2-docstring} src.policies.route_improvement.base.registry.RouteImproverRegistry.list_improvers
+```
+
+````
+
 `````

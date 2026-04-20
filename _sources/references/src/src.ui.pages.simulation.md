@@ -16,6 +16,8 @@
 src.ui.pages.simulation.tour
 src.ui.pages.simulation.map
 src.ui.pages.simulation.charts
+src.ui.pages.simulation.summary
+src.ui.pages.simulation.summary_sections
 src.ui.pages.simulation.bins
 src.ui.pages.simulation.kpi
 ```

@@ -19,11 +19,15 @@
   - ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.master_problem.MasterProblem
     :summary:
     ```
+* - {py:obj}`InventoryMasterProblem <src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.master_problem.InventoryMasterProblem>`
+  - ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.master_problem.InventoryMasterProblem
+    :summary:
+    ```
 ````
 
 ### API
 
-`````{py:class} MasterProblem(model: logic.src.policies.helpers.branching_solvers.vrpp_model.VRPPModel, params: src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.params.ILSBDParams)
+`````{py:class} MasterProblem(model: logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel, params: src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.params.ILSBDParams)
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.master_problem.MasterProblem
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.master_problem.MasterProblem
@@ -87,6 +91,46 @@
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.master_problem.MasterProblem._extract_routes
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.master_problem.MasterProblem._extract_routes
+```
+
+````
+
+`````
+
+`````{py:class} InventoryMasterProblem(model: logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel, params: src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.params.ILSBDParams, horizon: int = 7, demand_matrix: typing.Optional[numpy.ndarray] = None, bin_capacities: typing.Optional[numpy.ndarray] = None, initial_inventory: typing.Optional[numpy.ndarray] = None, stockout_penalty: float = 500.0, big_m: float = 10000.0)
+:canonical: src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.master_problem.InventoryMasterProblem
+
+Bases: {py:obj}`src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.master_problem.MasterProblem`
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.master_problem.InventoryMasterProblem
+```
+
+```{rubric} Initialization
+```
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.master_problem.InventoryMasterProblem.__init__
+```
+
+````{py:method} build_inventory() -> None
+:canonical: src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.master_problem.InventoryMasterProblem.build_inventory
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.master_problem.InventoryMasterProblem.build_inventory
+```
+
+````
+
+````{py:method} get_inventory_plan() -> typing.Dict[typing.Tuple[int, int], float]
+:canonical: src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.master_problem.InventoryMasterProblem.get_inventory_plan
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.master_problem.InventoryMasterProblem.get_inventory_plan
+```
+
+````
+
+````{py:method} get_collection_plan() -> typing.Dict[typing.Tuple[int, int], float]
+:canonical: src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.master_problem.InventoryMasterProblem.get_collection_plan
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.master_problem.InventoryMasterProblem.get_collection_plan
 ```
 
 ````

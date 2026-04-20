@@ -59,7 +59,7 @@ Bases: {py:obj}`logic.src.policies.route_construction.base.base_routing_policy.B
 
 ````
 
-````{py:method} execute(**kwargs: typing.Any) -> typing.Tuple[typing.Union[typing.List[int], typing.List[typing.List[int]]], float, float, typing.Optional[logic.src.policies.context.search_context.SearchContext], typing.Optional[logic.src.policies.context.multi_day_context.MultiDayContext]]
+````{py:method} execute(**kwargs: typing.Any) -> typing.Tuple[typing.Union[typing.List[int], typing.List[typing.List[int]]], float, float, typing.Optional[logic.src.interfaces.context.search_context.SearchContext], typing.Optional[logic.src.interfaces.context.multi_day_context.MultiDayContext]]
 :canonical: src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.policy_cvrp.CVRPPolicy.execute
 
 ```{autodoc2-docstring} src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.policy_cvrp.CVRPPolicy.execute

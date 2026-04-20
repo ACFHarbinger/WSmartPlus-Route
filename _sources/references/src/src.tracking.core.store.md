@@ -33,18 +33,6 @@
     ```
 ````
 
-### Data
-
-````{list-table}
-:class: autosummary longtable
-:align: left
-
-* - {py:obj}`_SCHEMA_SQL <src.tracking.core.store._SCHEMA_SQL>`
-  - ```{autodoc2-docstring} src.tracking.core.store._SCHEMA_SQL
-    :summary:
-    ```
-````
-
 ### API
 
 ````{py:function} _safe_json_dumps(value: typing.Any) -> str
@@ -52,15 +40,6 @@
 
 ```{autodoc2-docstring} src.tracking.core.store._safe_json_dumps
 ```
-````
-
-````{py:data} _SCHEMA_SQL
-:canonical: src.tracking.core.store._SCHEMA_SQL
-:value: <Multiline-String>
-
-```{autodoc2-docstring} src.tracking.core.store._SCHEMA_SQL
-```
-
 ````
 
 `````{py:class} TrackingStore(db_path: str)

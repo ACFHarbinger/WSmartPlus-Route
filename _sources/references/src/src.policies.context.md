@@ -7,16 +7,6 @@
 :allowtitles:
 ```
 
-## Submodules
-
-```{toctree}
-:titlesonly:
-:maxdepth: 1
-
-src.policies.context.search_context
-src.policies.context.multi_day_context
-```
-
 ## Package Contents
 
 ### Data

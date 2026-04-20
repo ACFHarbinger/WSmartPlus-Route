@@ -61,7 +61,7 @@ Bases: {py:obj}`src.policies.route_construction.base.base_routing_policy.BaseRou
 
 ````
 
-````{py:method} _run_multi_period_solver(tree: logic.src.pipeline.simulations.bins.prediction.ScenarioTree, capacity: float, revenue: float, cost_unit: float, **kwargs: typing.Any) -> typing.Tuple[typing.List[typing.List[typing.List[int]]], float, typing.Dict[str, typing.Any]]
+````{py:method} _run_multi_period_solver(problem: logic.src.interfaces.context.problem_context.ProblemContext, multi_day_ctx: typing.Optional[logic.src.interfaces.context.multi_day_context.MultiDayContext]) -> typing.Tuple[logic.src.interfaces.context.solution_context.SolutionContext, typing.List[typing.List[typing.List[int]]], typing.Dict[str, typing.Any]]
 :canonical: src.policies.route_construction.base.base_multi_period_policy.BaseMultiPeriodRoutingPolicy._run_multi_period_solver
 :abstractmethod:
 
@@ -70,11 +70,16 @@ Bases: {py:obj}`src.policies.route_construction.base.base_routing_policy.BaseRou
 
 ````
 
-````{py:method} execute(**kwargs: typing.Any) -> typing.Tuple[typing.Union[typing.List[int], typing.List[typing.List[int]]], float, float, typing.Optional[logic.src.policies.context.search_context.SearchContext], typing.Optional[logic.src.policies.context.multi_day_context.MultiDayContext]]
-:canonical: src.policies.route_construction.base.base_multi_period_policy.BaseMultiPeriodRoutingPolicy.execute
+````{py:method} _run_solver(sub_dist_matrix: numpy.ndarray, sub_wastes: typing.Dict[int, float], capacity: float, revenue: float, cost_unit: float, values: typing.Dict[str, typing.Any], mandatory_nodes: typing.List[int], **kwargs: typing.Any) -> typing.Tuple[typing.List[typing.List[int]], float, float]
+:canonical: src.policies.route_construction.base.base_multi_period_policy.BaseMultiPeriodRoutingPolicy._run_solver
 
-```{autodoc2-docstring} src.policies.route_construction.base.base_multi_period_policy.BaseMultiPeriodRoutingPolicy.execute
+```{autodoc2-docstring} src.policies.route_construction.base.base_multi_period_policy.BaseMultiPeriodRoutingPolicy._run_solver
 ```
+
+````
+
+````{py:method} execute(**kwargs: typing.Any) -> typing.Tuple[typing.Union[typing.List[int], typing.List[typing.List[int]]], float, float, typing.Optional[logic.src.interfaces.context.search_context.SearchContext], typing.Optional[logic.src.interfaces.context.multi_day_context.MultiDayContext]]
+:canonical: src.policies.route_construction.base.base_multi_period_policy.BaseMultiPeriodRoutingPolicy.execute
 
 ````
 

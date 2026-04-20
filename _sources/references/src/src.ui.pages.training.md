@@ -33,7 +33,57 @@
     ```
 ````
 
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`template_dir <src.ui.pages.training.template_dir>`
+  - ```{autodoc2-docstring} src.ui.pages.training.template_dir
+    :summary:
+    ```
+* - {py:obj}`jinja_env <src.ui.pages.training.jinja_env>`
+  - ```{autodoc2-docstring} src.ui.pages.training.jinja_env
+    :summary:
+    ```
+* - {py:obj}`STATUS_TEMPLATE <src.ui.pages.training.STATUS_TEMPLATE>`
+  - ```{autodoc2-docstring} src.ui.pages.training.STATUS_TEMPLATE
+    :summary:
+    ```
+````
+
 ### API
+
+````{py:data} template_dir
+:canonical: src.ui.pages.training.template_dir
+:value: >
+   'join(...)'
+
+```{autodoc2-docstring} src.ui.pages.training.template_dir
+```
+
+````
+
+````{py:data} jinja_env
+:canonical: src.ui.pages.training.jinja_env
+:value: >
+   'Environment(...)'
+
+```{autodoc2-docstring} src.ui.pages.training.jinja_env
+```
+
+````
+
+````{py:data} STATUS_TEMPLATE
+:canonical: src.ui.pages.training.STATUS_TEMPLATE
+:value: >
+   'get_template(...)'
+
+```{autodoc2-docstring} src.ui.pages.training.STATUS_TEMPLATE
+```
+
+````
 
 ````{py:function} _render_run_overview(selected_runs: typing.List[str]) -> None
 :canonical: src.ui.pages.training._render_run_overview

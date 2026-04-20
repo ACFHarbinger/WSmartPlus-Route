@@ -14,6 +14,7 @@
 :maxdepth: 1
 
 src.pipeline.rl.meta.hypernet_strategy
+src.pipeline.rl.meta.hrl_irp
 src.pipeline.rl.meta.hrl
 src.pipeline.rl.meta.module
 src.pipeline.rl.meta.weight_strategy

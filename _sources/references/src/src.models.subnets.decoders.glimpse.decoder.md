@@ -102,7 +102,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} _precompute(embeddings: torch.Tensor, num_steps: int = 1) -> src.models.subnets.decoders.common.AttentionDecoderCache
+````{py:method} _precompute(embeddings: torch.Tensor, num_steps: int = 1) -> logic.src.models.subnets.decoders.common.AttentionDecoderCache
 :canonical: src.models.subnets.decoders.glimpse.decoder.GlimpseDecoder._precompute
 
 ```{autodoc2-docstring} src.models.subnets.decoders.glimpse.decoder.GlimpseDecoder._precompute
@@ -110,7 +110,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} _get_log_p(fixed: src.models.subnets.decoders.common.AttentionDecoderCache, state: typing.Any, normalize: bool = True, mask_val: float = -math.inf, mask: typing.Optional[torch.Tensor] = None)
+````{py:method} _get_log_p(fixed: logic.src.models.subnets.decoders.common.AttentionDecoderCache, state: typing.Any, normalize: bool = True, mask_val: float = -math.inf, mask: typing.Optional[torch.Tensor] = None)
 :canonical: src.models.subnets.decoders.glimpse.decoder.GlimpseDecoder._get_log_p
 
 ```{autodoc2-docstring} src.models.subnets.decoders.glimpse.decoder.GlimpseDecoder._get_log_p
@@ -134,7 +134,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} propose_expansions(beam: typing.Any, fixed: src.models.subnets.decoders.common.AttentionDecoderCache, expand_size: typing.Optional[int] = None, normalize: bool = False, max_calc_batch_size: int = 4096)
+````{py:method} propose_expansions(beam: typing.Any, fixed: logic.src.models.subnets.decoders.common.AttentionDecoderCache, expand_size: typing.Optional[int] = None, normalize: bool = False, max_calc_batch_size: int = 4096)
 :canonical: src.models.subnets.decoders.glimpse.decoder.GlimpseDecoder.propose_expansions
 
 ```{autodoc2-docstring} src.models.subnets.decoders.glimpse.decoder.GlimpseDecoder.propose_expansions

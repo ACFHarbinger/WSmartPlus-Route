@@ -31,7 +31,7 @@
 
 ````{py:attribute} _strategies
 :canonical: src.policies.mandatory_selection.base.selection_registry.MandatorySelectionRegistry._strategies
-:type: typing.Dict[str, typing.Type[logic.src.interfaces.mandatory.IMandatorySelectionStrategy]]
+:type: typing.Dict[str, typing.Type[logic.src.interfaces.mandatory_selection.IMandatorySelectionStrategy]]
 :value: >
    None
 
@@ -49,7 +49,7 @@
 
 ````
 
-````{py:method} get_strategy_class(name: str) -> typing.Optional[typing.Type[logic.src.interfaces.mandatory.IMandatorySelectionStrategy]]
+````{py:method} get_strategy_class(name: str) -> typing.Optional[typing.Type[logic.src.interfaces.mandatory_selection.IMandatorySelectionStrategy]]
 :canonical: src.policies.mandatory_selection.base.selection_registry.MandatorySelectionRegistry.get_strategy_class
 :classmethod:
 

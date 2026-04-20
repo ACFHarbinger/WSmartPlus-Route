@@ -361,7 +361,7 @@
 
 ````{py:attribute} graph
 :canonical: src.configs.tasks.hpo.HPOConfig.graph
-:type: src.configs.envs.graph.GraphConfig
+:type: logic.src.configs.envs.graph.GraphConfig
 :value: >
    'field(...)'
 
@@ -372,7 +372,7 @@
 
 ````{py:attribute} reward
 :canonical: src.configs.tasks.hpo.HPOConfig.reward
-:type: src.configs.envs.objective.ObjectiveConfig
+:type: logic.src.configs.envs.objective.ObjectiveConfig
 :value: >
    'field(...)'
 

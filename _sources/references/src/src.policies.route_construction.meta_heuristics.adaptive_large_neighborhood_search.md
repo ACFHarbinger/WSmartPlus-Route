@@ -14,7 +14,6 @@
 :maxdepth: 1
 
 src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params
-src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns_mp
 src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns_package
 src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.dispatcher
 src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.ortools_wrapper

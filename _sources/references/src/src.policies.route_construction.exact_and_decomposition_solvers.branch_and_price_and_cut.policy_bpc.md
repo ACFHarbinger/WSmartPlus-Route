@@ -51,23 +51,7 @@ Bases: {py:obj}`logic.src.policies.route_construction.base.base_routing_policy.B
 
 ````
 
-````{py:method} _load_model(path: str, model_type: str) -> None
-:canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.policy_bpc.BPCPolicy._load_model
-
-```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.policy_bpc.BPCPolicy._load_model
-```
-
-````
-
-````{py:method} _predict_V(features: numpy.ndarray, model_type: str) -> numpy.ndarray
-:canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.policy_bpc.BPCPolicy._predict_V
-
-```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.policy_bpc.BPCPolicy._predict_V
-```
-
-````
-
-````{py:method} execute(**kwargs: typing.Any) -> typing.Tuple[typing.Union[typing.List[int], typing.List[typing.List[int]]], float, float, typing.Optional[logic.src.policies.context.search_context.SearchContext], typing.Optional[logic.src.policies.context.multi_day_context.MultiDayContext]]
+````{py:method} execute(**kwargs: typing.Any) -> typing.Tuple[typing.Union[typing.List[int], typing.List[typing.List[int]]], float, float, typing.Optional[logic.src.interfaces.context.search_context.SearchContext], typing.Optional[logic.src.interfaces.context.multi_day_context.MultiDayContext]]
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.policy_bpc.BPCPolicy.execute
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.policy_bpc.BPCPolicy.execute

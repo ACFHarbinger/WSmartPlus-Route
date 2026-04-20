@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} SLCSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.route_construction.meta_heuristics.soccer_league_competition.params.SLCParams, mandatory_nodes: typing.Optional[typing.List[int]] = None)
+`````{py:class} SLCSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: logic.src.policies.route_construction.meta_heuristics.soccer_league_competition.params.SLCParams, mandatory_nodes: typing.Optional[typing.List[int]] = None)
 :canonical: src.policies.route_construction.meta_heuristics.soccer_league_competition.solver.SLCSolver
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.soccer_league_competition.solver.SLCSolver

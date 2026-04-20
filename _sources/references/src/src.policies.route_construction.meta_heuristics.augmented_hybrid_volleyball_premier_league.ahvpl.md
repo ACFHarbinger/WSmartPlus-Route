@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} AHVPLSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.params.AHVPLParams, mandatory_nodes: typing.Optional[typing.List[int]] = None)
+`````{py:class} AHVPLSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: logic.src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.params.AHVPLParams, mandatory_nodes: typing.Optional[typing.List[int]] = None)
 :canonical: src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver
@@ -35,7 +35,7 @@
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver.__init__
 ```
 
-````{py:method} _initialize_population() -> typing.List[src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual]
+````{py:method} _initialize_population() -> typing.List[logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual]
 :canonical: src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver._initialize_population
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver._initialize_population
@@ -43,7 +43,7 @@
 
 ````
 
-````{py:method} _construct_individual() -> typing.Optional[src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual]
+````{py:method} _construct_individual() -> typing.Optional[logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual]
 :canonical: src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver._construct_individual
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver._construct_individual
@@ -59,7 +59,7 @@
 
 ````
 
-````{py:method} _select_parents(population: typing.List[src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual]) -> typing.Tuple[src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual, src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual]
+````{py:method} _select_parents(population: typing.List[logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual]) -> typing.Tuple[logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual, logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual]
 :canonical: src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver._select_parents
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver._select_parents
@@ -67,7 +67,7 @@
 
 ````
 
-````{py:method} _active_crossover(p1: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual, p2: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual) -> src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual
+````{py:method} _active_crossover(p1: logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual, p2: logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual) -> logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual
 :canonical: src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver._active_crossover
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver._active_crossover
@@ -75,7 +75,7 @@
 
 ````
 
-````{py:method} _mutate(ind: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual) -> None
+````{py:method} _mutate(ind: logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual) -> None
 :canonical: src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver._mutate
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver._mutate
@@ -83,7 +83,7 @@
 
 ````
 
-````{py:method} _alns_coaching(ind: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual, iterations: int = 100) -> src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual
+````{py:method} _alns_coaching(ind: logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual, iterations: int = 100) -> logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual.Individual
 :canonical: src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver._alns_coaching
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.ahvpl.AHVPLSolver._alns_coaching

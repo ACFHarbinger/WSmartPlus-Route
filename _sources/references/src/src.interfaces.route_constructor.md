@@ -31,7 +31,7 @@ Bases: {py:obj}`abc.ABC`
 ```{autodoc2-docstring} src.interfaces.route_constructor.IRouteConstructor
 ```
 
-````{py:method} execute(**kwargs: typing.Any) -> typing.Tuple[typing.Union[typing.List[int], typing.List[typing.List[int]]], float, float, typing.Optional[logic.src.policies.context.search_context.SearchContext], typing.Optional[logic.src.policies.context.multi_day_context.MultiDayContext]]
+````{py:method} execute(**kwargs: typing.Any) -> typing.Tuple[typing.Union[typing.List[int], typing.List[typing.List[int]]], float, float, typing.Optional[logic.src.interfaces.context.search_context.SearchContext], typing.Optional[logic.src.interfaces.context.multi_day_context.MultiDayContext]]
 :canonical: src.interfaces.route_constructor.IRouteConstructor.execute
 :abstractmethod:
 

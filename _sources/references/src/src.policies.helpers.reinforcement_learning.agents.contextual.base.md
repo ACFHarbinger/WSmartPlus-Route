@@ -26,7 +26,7 @@
 `````{py:class} ContextualBanditAgent(n_arms: int, feature_dim: int, seed: typing.Optional[int] = None, history_size: int = 50)
 :canonical: src.policies.helpers.reinforcement_learning.agents.contextual.base.ContextualBanditAgent
 
-Bases: {py:obj}`src.policies.helpers.reinforcement_learning.agents.base.RLAgent`
+Bases: {py:obj}`logic.src.policies.helpers.reinforcement_learning.agents.base.RLAgent`
 
 ```{autodoc2-docstring} src.policies.helpers.reinforcement_learning.agents.contextual.base.ContextualBanditAgent
 ```

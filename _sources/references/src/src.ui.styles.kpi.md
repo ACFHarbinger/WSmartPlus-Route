@@ -9,6 +9,18 @@
 
 ## Module Contents
 
+### Classes
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`KPIRenderer <src.ui.styles.kpi.KPIRenderer>`
+  - ```{autodoc2-docstring} src.ui.styles.kpi.KPIRenderer
+    :summary:
+    ```
+````
+
 ### Functions
 
 ````{list-table}
@@ -57,6 +69,10 @@
     ```
 * - {py:obj}`KPIDelta <src.ui.styles.kpi.KPIDelta>`
   - ```{autodoc2-docstring} src.ui.styles.kpi.KPIDelta
+    :summary:
+    ```
+* - {py:obj}`renderer <src.ui.styles.kpi.renderer>`
+  - ```{autodoc2-docstring} src.ui.styles.kpi.renderer
     :summary:
     ```
 ````
@@ -109,6 +125,46 @@
 
 ```{autodoc2-docstring} src.ui.styles.kpi._delta_css_class
 ```
+````
+
+`````{py:class} KPIRenderer()
+:canonical: src.ui.styles.kpi.KPIRenderer
+
+```{autodoc2-docstring} src.ui.styles.kpi.KPIRenderer
+```
+
+```{rubric} Initialization
+```
+
+```{autodoc2-docstring} src.ui.styles.kpi.KPIRenderer.__init__
+```
+
+````{py:method} render_card(label: str, value: str, **kwargs) -> str
+:canonical: src.ui.styles.kpi.KPIRenderer.render_card
+
+```{autodoc2-docstring} src.ui.styles.kpi.KPIRenderer.render_card
+```
+
+````
+
+````{py:method} render_row(cards_html: list) -> str
+:canonical: src.ui.styles.kpi.KPIRenderer.render_row
+
+```{autodoc2-docstring} src.ui.styles.kpi.KPIRenderer.render_row
+```
+
+````
+
+`````
+
+````{py:data} renderer
+:canonical: src.ui.styles.kpi.renderer
+:value: >
+   'KPIRenderer(...)'
+
+```{autodoc2-docstring} src.ui.styles.kpi.renderer
+```
+
 ````
 
 ````{py:function} create_kpi_html(label: str, value: str, color: str = '#667eea', color_end: str = '#5a67d8', delta: typing.Optional[str] = None, delta_class: str = 'neutral', sparkline_svg: str = '') -> str

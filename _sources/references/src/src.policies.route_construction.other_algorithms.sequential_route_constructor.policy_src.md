@@ -48,7 +48,7 @@
 `````{py:class} SequentialRouteConstructor(config: typing.Any = None)
 :canonical: src.policies.route_construction.other_algorithms.sequential_route_constructor.policy_src.SequentialRouteConstructor
 
-Bases: {py:obj}`src.policies.route_construction.base.base_routing_policy.BaseRoutingPolicy`
+Bases: {py:obj}`logic.src.policies.route_construction.base.base_routing_policy.BaseRoutingPolicy`
 
 ```{autodoc2-docstring} src.policies.route_construction.other_algorithms.sequential_route_constructor.policy_src.SequentialRouteConstructor
 ```
@@ -79,7 +79,7 @@ Bases: {py:obj}`src.policies.route_construction.base.base_routing_policy.BaseRou
 
 ````
 
-````{py:method} execute(**kwargs: typing.Any) -> typing.Tuple[typing.Union[typing.List[int], typing.List[typing.List[int]]], float, float, typing.Optional[logic.src.policies.context.search_context.SearchContext], typing.Optional[logic.src.policies.context.multi_day_context.MultiDayContext]]
+````{py:method} execute(**kwargs: typing.Any) -> typing.Tuple[typing.Union[typing.List[int], typing.List[typing.List[int]]], float, float, typing.Optional[logic.src.interfaces.context.search_context.SearchContext], typing.Optional[logic.src.interfaces.context.multi_day_context.MultiDayContext]]
 :canonical: src.policies.route_construction.other_algorithms.sequential_route_constructor.policy_src.SequentialRouteConstructor.execute
 
 ```{autodoc2-docstring} src.policies.route_construction.other_algorithms.sequential_route_constructor.policy_src.SequentialRouteConstructor.execute

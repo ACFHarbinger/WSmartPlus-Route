@@ -21,17 +21,42 @@
     ```
 ````
 
+### Functions
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`_compute_overflow_risk <src.policies.mandatory_selection.selection_mip_knapsack._compute_overflow_risk>`
+  - ```{autodoc2-docstring} src.policies.mandatory_selection.selection_mip_knapsack._compute_overflow_risk
+    :summary:
+    ```
+````
+
 ### API
 
-`````{py:class} MIPKnapsackSelection
+````{py:function} _compute_overflow_risk(current_fill: numpy.ndarray, bin_mass: numpy.ndarray, scenario_tree: typing.Optional[typing.Any], overflow_penalty_frac: float) -> numpy.ndarray
+:canonical: src.policies.mandatory_selection.selection_mip_knapsack._compute_overflow_risk
+
+```{autodoc2-docstring} src.policies.mandatory_selection.selection_mip_knapsack._compute_overflow_risk
+```
+````
+
+`````{py:class} MIPKnapsackSelection(overflow_penalty_frac: float = 1.0)
 :canonical: src.policies.mandatory_selection.selection_mip_knapsack.MIPKnapsackSelection
 
-Bases: {py:obj}`logic.src.interfaces.mandatory.IMandatorySelectionStrategy`
+Bases: {py:obj}`logic.src.interfaces.mandatory_selection.IMandatorySelectionStrategy`
 
 ```{autodoc2-docstring} src.policies.mandatory_selection.selection_mip_knapsack.MIPKnapsackSelection
 ```
 
-````{py:method} select_bins(context: logic.src.policies.mandatory_selection.base.selection_context.SelectionContext) -> typing.Tuple[typing.List[int], logic.src.policies.context.search_context.SearchContext]
+```{rubric} Initialization
+```
+
+```{autodoc2-docstring} src.policies.mandatory_selection.selection_mip_knapsack.MIPKnapsackSelection.__init__
+```
+
+````{py:method} select_bins(context: logic.src.policies.mandatory_selection.base.selection_context.SelectionContext) -> typing.Tuple[typing.List[int], logic.src.interfaces.context.search_context.SearchContext]
 :canonical: src.policies.mandatory_selection.selection_mip_knapsack.MIPKnapsackSelection.select_bins
 
 ```{autodoc2-docstring} src.policies.mandatory_selection.selection_mip_knapsack.MIPKnapsackSelection.select_bins

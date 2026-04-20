@@ -25,7 +25,71 @@
     ```
 ````
 
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`template_dir <src.ui.components.maps.simulation.template_dir>`
+  - ```{autodoc2-docstring} src.ui.components.maps.simulation.template_dir
+    :summary:
+    ```
+* - {py:obj}`jinja_env <src.ui.components.maps.simulation.jinja_env>`
+  - ```{autodoc2-docstring} src.ui.components.maps.simulation.jinja_env
+    :summary:
+    ```
+* - {py:obj}`DEPOT_POPUP_TEMPLATE <src.ui.components.maps.simulation.DEPOT_POPUP_TEMPLATE>`
+  - ```{autodoc2-docstring} src.ui.components.maps.simulation.DEPOT_POPUP_TEMPLATE
+    :summary:
+    ```
+* - {py:obj}`BIN_POPUP_TEMPLATE <src.ui.components.maps.simulation.BIN_POPUP_TEMPLATE>`
+  - ```{autodoc2-docstring} src.ui.components.maps.simulation.BIN_POPUP_TEMPLATE
+    :summary:
+    ```
+````
+
 ### API
+
+````{py:data} template_dir
+:canonical: src.ui.components.maps.simulation.template_dir
+:value: >
+   'join(...)'
+
+```{autodoc2-docstring} src.ui.components.maps.simulation.template_dir
+```
+
+````
+
+````{py:data} jinja_env
+:canonical: src.ui.components.maps.simulation.jinja_env
+:value: >
+   'Environment(...)'
+
+```{autodoc2-docstring} src.ui.components.maps.simulation.jinja_env
+```
+
+````
+
+````{py:data} DEPOT_POPUP_TEMPLATE
+:canonical: src.ui.components.maps.simulation.DEPOT_POPUP_TEMPLATE
+:value: >
+   'get_template(...)'
+
+```{autodoc2-docstring} src.ui.components.maps.simulation.DEPOT_POPUP_TEMPLATE
+```
+
+````
+
+````{py:data} BIN_POPUP_TEMPLATE
+:canonical: src.ui.components.maps.simulation.BIN_POPUP_TEMPLATE
+:value: >
+   'get_template(...)'
+
+```{autodoc2-docstring} src.ui.components.maps.simulation.BIN_POPUP_TEMPLATE
+```
+
+````
 
 ````{py:function} _add_bin_marker(m: folium.Map, point: typing.Dict[str, typing.Any], bin_id: int, bin_states: typing.Optional[typing.List[float]], collected_set: set, mandatory_set: set, toured_ids: set, dataset_id: typing.Optional[int] = None) -> None
 :canonical: src.ui.components.maps.simulation._add_bin_marker

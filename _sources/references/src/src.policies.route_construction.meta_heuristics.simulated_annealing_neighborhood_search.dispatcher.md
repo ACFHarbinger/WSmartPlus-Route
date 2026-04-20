@@ -27,14 +27,14 @@
 
 ### API
 
-````{py:function} execute_new(policy: typing.Any, params: src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.params.SANSParams, **kwargs: typing.Any) -> typing.Tuple[typing.List[int], float, float, typing.Optional[logic.src.policies.context.search_context.SearchContext], typing.Optional[logic.src.policies.context.multi_day_context.MultiDayContext]]
+````{py:function} execute_new(policy: typing.Any, params: src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.params.SANSParams, **kwargs: typing.Any) -> typing.Tuple[typing.List[int], float, float, typing.Optional[logic.src.interfaces.context.search_context.SearchContext], typing.Optional[logic.src.interfaces.context.multi_day_context.MultiDayContext]]
 :canonical: src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.dispatcher.execute_new
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.dispatcher.execute_new
 ```
 ````
 
-````{py:function} execute_og(policy: typing.Any, params: src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.params.SANSParams, **kwargs: typing.Any) -> typing.Tuple[typing.List[int], float, float, typing.Optional[logic.src.policies.context.search_context.SearchContext], typing.Optional[logic.src.policies.context.multi_day_context.MultiDayContext]]
+````{py:function} execute_og(policy: typing.Any, params: src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.params.SANSParams, **kwargs: typing.Any) -> typing.Tuple[typing.List[int], float, float, typing.Optional[logic.src.interfaces.context.search_context.SearchContext], typing.Optional[logic.src.interfaces.context.multi_day_context.MultiDayContext]]
 :canonical: src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.dispatcher.execute_og
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.dispatcher.execute_og

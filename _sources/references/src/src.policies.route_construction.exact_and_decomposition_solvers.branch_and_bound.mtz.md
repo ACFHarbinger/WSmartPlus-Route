@@ -55,7 +55,7 @@
 
 ````
 
-````{py:method} _evaluate_node(node: logic.src.policies.helpers.branching_solvers.common.node.Node) -> float
+````{py:method} _evaluate_node(node: logic.src.policies.helpers.solvers_and_matheuristics.common.node.Node) -> float
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.mtz.BBSolver._evaluate_node
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.mtz.BBSolver._evaluate_node

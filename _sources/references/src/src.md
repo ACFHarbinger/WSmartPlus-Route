@@ -19,6 +19,7 @@ src.envs
 src.ui
 src.utils
 src.policies
+src.enums
 src.cli
 src.configs
 src.interfaces

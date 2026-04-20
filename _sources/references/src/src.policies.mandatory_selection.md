@@ -33,6 +33,7 @@ src.policies.mandatory_selection.selection_mip_knapsack
 src.policies.mandatory_selection.selection_fractional_knapsack
 src.policies.mandatory_selection.selection_submodular_greedy
 src.policies.mandatory_selection.selection_regular
+src.policies.mandatory_selection.selection_filter_and_fan
 src.policies.mandatory_selection.selection_supermodular_greedy
 src.policies.mandatory_selection.selection_wasserstein
 src.policies.mandatory_selection.selection_last_minute

@@ -163,7 +163,7 @@
 
 ````{py:attribute} aco_params
 :canonical: src.policies.route_construction.meta_heuristics.hybrid_memetic_search.params.HybridMemeticSearchParams.aco_params
-:type: typing.Optional[src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams]
+:type: typing.Optional[logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams]
 :value: >
    'field(...)'
 
@@ -174,7 +174,7 @@
 
 ````{py:attribute} alns_params
 :canonical: src.policies.route_construction.meta_heuristics.hybrid_memetic_search.params.HybridMemeticSearchParams.alns_params
-:type: typing.Optional[src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.ALNSParams]
+:type: typing.Optional[logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.params.ALNSParams]
 :value: >
    'field(...)'
 

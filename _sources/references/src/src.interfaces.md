@@ -7,6 +7,15 @@
 :allowtitles:
 ```
 
+## Subpackages
+
+```{toctree}
+:titlesonly:
+:maxdepth: 3
+
+src.interfaces.context
+```
+
 ## Submodules
 
 ```{toctree}
@@ -14,9 +23,9 @@
 :maxdepth: 1
 
 src.interfaces.acceptance_criterion
-src.interfaces.mandatory
 src.interfaces.distance_metric
 src.interfaces.route_improvement
+src.interfaces.mandatory_selection
 src.interfaces.tensor_dict_like
 src.interfaces.policy
 src.interfaces.route_constructor

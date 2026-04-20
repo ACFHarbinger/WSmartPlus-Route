@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} MuKappaLambdaESSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.params.MuKappaLambdaESParams, mandatory_nodes: typing.Optional[typing.List[int]] = None)
+`````{py:class} MuKappaLambdaESSolver(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: logic.src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.params.MuKappaLambdaESParams, mandatory_nodes: typing.Optional[typing.List[int]] = None)
 :canonical: src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.solver.MuKappaLambdaESSolver
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.solver.MuKappaLambdaESSolver
@@ -43,7 +43,7 @@
 
 ````
 
-````{py:method} _initialize_population() -> typing.List[src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.individual.Individual]
+````{py:method} _initialize_population() -> typing.List[logic.src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.individual.Individual]
 :canonical: src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.solver.MuKappaLambdaESSolver._initialize_population
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.solver.MuKappaLambdaESSolver._initialize_population
@@ -51,7 +51,7 @@
 
 ````
 
-````{py:method} _select_parents_for_recombination(parents: typing.List[src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.individual.Individual]) -> typing.List[src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.individual.Individual]
+````{py:method} _select_parents_for_recombination(parents: typing.List[logic.src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.individual.Individual]) -> typing.List[logic.src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.individual.Individual]
 :canonical: src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.solver.MuKappaLambdaESSolver._select_parents_for_recombination
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.solver.MuKappaLambdaESSolver._select_parents_for_recombination
@@ -59,7 +59,7 @@
 
 ````
 
-````{py:method} _recombine(parents: typing.List[src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.individual.Individual]) -> src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.individual.Individual
+````{py:method} _recombine(parents: typing.List[logic.src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.individual.Individual]) -> logic.src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.individual.Individual
 :canonical: src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.solver.MuKappaLambdaESSolver._recombine
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.solver.MuKappaLambdaESSolver._recombine
@@ -67,7 +67,7 @@
 
 ````
 
-````{py:method} _mutate(individual: src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.individual.Individual) -> src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.individual.Individual
+````{py:method} _mutate(individual: logic.src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.individual.Individual) -> logic.src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.individual.Individual
 :canonical: src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.solver.MuKappaLambdaESSolver._mutate
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.solver.MuKappaLambdaESSolver._mutate
@@ -91,7 +91,7 @@
 
 ````
 
-````{py:method} _update_best(population: typing.List[src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.individual.Individual])
+````{py:method} _update_best(population: typing.List[logic.src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.individual.Individual])
 :canonical: src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.solver.MuKappaLambdaESSolver._update_best
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.evolution_strategy_mu_kappa_lambda.solver.MuKappaLambdaESSolver._update_best

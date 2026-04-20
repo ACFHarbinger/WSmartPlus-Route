@@ -27,8 +27,16 @@
   - ```{autodoc2-docstring} src.utils.validation.check_nested_imports.is_suppress_import_error_block
     :summary:
     ```
+* - {py:obj}`is_constant_expression <src.utils.validation.check_nested_imports.is_constant_expression>`
+  - ```{autodoc2-docstring} src.utils.validation.check_nested_imports.is_constant_expression
+    :summary:
+    ```
 * - {py:obj}`is_header_assignment <src.utils.validation.check_nested_imports.is_header_assignment>`
   - ```{autodoc2-docstring} src.utils.validation.check_nested_imports.is_header_assignment
+    :summary:
+    ```
+* - {py:obj}`is_constant_guarded_if <src.utils.validation.check_nested_imports.is_constant_guarded_if>`
+  - ```{autodoc2-docstring} src.utils.validation.check_nested_imports.is_constant_guarded_if
     :summary:
     ```
 * - {py:obj}`is_header_setup_call <src.utils.validation.check_nested_imports.is_header_setup_call>`
@@ -45,6 +53,10 @@
     ```
 * - {py:obj}`analyze_file <src.utils.validation.check_nested_imports.analyze_file>`
   - ```{autodoc2-docstring} src.utils.validation.check_nested_imports.analyze_file
+    :summary:
+    ```
+* - {py:obj}`print_stats_table <src.utils.validation.check_nested_imports.print_stats_table>`
+  - ```{autodoc2-docstring} src.utils.validation.check_nested_imports.print_stats_table
     :summary:
     ```
 * - {py:obj}`main <src.utils.validation.check_nested_imports.main>`
@@ -76,10 +88,24 @@
 ```
 ````
 
+````{py:function} is_constant_expression(node: ast.AST) -> bool
+:canonical: src.utils.validation.check_nested_imports.is_constant_expression
+
+```{autodoc2-docstring} src.utils.validation.check_nested_imports.is_constant_expression
+```
+````
+
 ````{py:function} is_header_assignment(node: ast.stmt) -> bool
 :canonical: src.utils.validation.check_nested_imports.is_header_assignment
 
 ```{autodoc2-docstring} src.utils.validation.check_nested_imports.is_header_assignment
+```
+````
+
+````{py:function} is_constant_guarded_if(node: ast.stmt) -> bool
+:canonical: src.utils.validation.check_nested_imports.is_constant_guarded_if
+
+```{autodoc2-docstring} src.utils.validation.check_nested_imports.is_constant_guarded_if
 ```
 ````
 
@@ -111,7 +137,14 @@
 ```
 ````
 
-````{py:function} main()
+````{py:function} print_stats_table(all_results: typing.Dict[str, typing.List[typing.Tuple[int, str]]], target_root: pathlib.Path) -> None
+:canonical: src.utils.validation.check_nested_imports.print_stats_table
+
+```{autodoc2-docstring} src.utils.validation.check_nested_imports.print_stats_table
+```
+````
+
+````{py:function} main() -> None
 :canonical: src.utils.validation.check_nested_imports.main
 
 ```{autodoc2-docstring} src.utils.validation.check_nested_imports.main

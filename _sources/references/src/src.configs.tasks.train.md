@@ -372,7 +372,7 @@
 
 ````{py:attribute} graph
 :canonical: src.configs.tasks.train.TrainConfig.graph
-:type: src.configs.envs.graph.GraphConfig
+:type: logic.src.configs.envs.graph.GraphConfig
 :value: >
    'field(...)'
 
@@ -383,7 +383,7 @@
 
 ````{py:attribute} reward
 :canonical: src.configs.tasks.train.TrainConfig.reward
-:type: src.configs.envs.objective.ObjectiveConfig
+:type: logic.src.configs.envs.objective.ObjectiveConfig
 :value: >
    'field(...)'
 
@@ -394,7 +394,7 @@
 
 ````{py:attribute} decoding
 :canonical: src.configs.tasks.train.TrainConfig.decoding
-:type: src.configs.models.decoding.DecodingConfig
+:type: logic.src.configs.models.decoding.DecodingConfig
 :value: >
    'field(...)'
 
@@ -405,7 +405,7 @@
 
 ````{py:attribute} policy
 :canonical: src.configs.tasks.train.TrainConfig.policy
-:type: src.configs.policies.neural.NeuralConfig
+:type: logic.src.configs.policies.na.NeuralAgentConfig
 :value: >
    'field(...)'
 

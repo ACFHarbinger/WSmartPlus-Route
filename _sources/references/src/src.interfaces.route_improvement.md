@@ -37,7 +37,7 @@ Bases: {py:obj}`abc.ABC`
 ```{autodoc2-docstring} src.interfaces.route_improvement.IRouteImprovement.__init__
 ```
 
-````{py:method} process(tour: typing.List[int], **kwargs: typing.Any) -> typing.Tuple[typing.List[int], logic.src.policies.context.search_context.ImprovementMetrics]
+````{py:method} process(tour: typing.List[int], **kwargs: typing.Any) -> typing.Tuple[typing.List[int], logic.src.interfaces.context.search_context.ImprovementMetrics]
 :canonical: src.interfaces.route_improvement.IRouteImprovement.process
 :abstractmethod:
 

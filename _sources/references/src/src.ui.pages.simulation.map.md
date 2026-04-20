@@ -33,7 +33,43 @@
     ```
 ````
 
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`template_dir <src.ui.pages.simulation.map.template_dir>`
+  - ```{autodoc2-docstring} src.ui.pages.simulation.map.template_dir
+    :summary:
+    ```
+* - {py:obj}`jinja_env <src.ui.pages.simulation.map.jinja_env>`
+  - ```{autodoc2-docstring} src.ui.pages.simulation.map.jinja_env
+    :summary:
+    ```
+````
+
 ### API
+
+````{py:data} template_dir
+:canonical: src.ui.pages.simulation.map.template_dir
+:value: >
+   'join(...)'
+
+```{autodoc2-docstring} src.ui.pages.simulation.map.template_dir
+```
+
+````
+
+````{py:data} jinja_env
+:canonical: src.ui.pages.simulation.map.jinja_env
+:value: >
+   'Environment(...)'
+
+```{autodoc2-docstring} src.ui.pages.simulation.map.jinja_env
+```
+
+````
 
 ````{py:function} load_custom_matrix(controls: typing.Dict[str, typing.Any]) -> typing.Any
 :canonical: src.ui.pages.simulation.map.load_custom_matrix
