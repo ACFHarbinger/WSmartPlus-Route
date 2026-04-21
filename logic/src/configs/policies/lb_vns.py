@@ -69,6 +69,8 @@ class LocalBranchingVNSConfig:
         route_improvement (Optional[RouteImprovingConfig]): Optional local search or
             heuristics (e.g., node swaps, 2-opt) to be applied to solutions found
             by the matheuristic for further minor refinement.
+
+        acceptance_criterion (AcceptanceConfig): Acceptance criterion config for local search.
     """
 
     time_limit: float = 300.0
@@ -86,6 +88,4 @@ class LocalBranchingVNSConfig:
     framework: str = "ortools"
     mandatory_selection: Optional[MandatorySelectionConfig] = None
     route_improvement: Optional[RouteImprovingConfig] = None
-
-    # Injected Acceptance Criterion
-    acceptance: AcceptanceConfig = field(default_factory=lambda: AcceptanceConfig(method="only_improving"))
+    acceptance_criterion: AcceptanceConfig = field(default_factory=lambda: AcceptanceConfig(method="only_improving"))
