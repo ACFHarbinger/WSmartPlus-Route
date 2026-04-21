@@ -123,19 +123,44 @@ class BPCParams:
 
     @classmethod
     def from_config(cls, config: Any) -> BPCParams:
-        """Create BPCParams from a configuration object or dictionary."""
-        if isinstance(config, dict):
-            valid_keys = {f.name for f in fields(cls)}
-            return cls(**{k: v for k, v in config.items() if k in valid_keys})  # type: ignore[arg-type]
+        """Create BPCParams from a configuration object or dictionary.
 
-        kwargs: Dict[str, Any] = {
-            f.name: getattr(config, f.name, f.default) for f in fields(cls) if f.default is not MISSING
-        }
-        # Fields with default_factory
+        Performs explicit type casting for numeric fields to ensure compatibility
+        with Hydra/YAML scientific notation which might be loaded as strings.
+        """
+        if config is None:
+            return cls()
+
+        raw_data: Dict[str, Any] = {}
+        if isinstance(config, dict):
+            raw_data = config
+        else:
+            # Handle Hydra DictConfig or other object types
+            for f in fields(cls):
+                if hasattr(config, f.name):
+                    raw_data[f.name] = getattr(config, f.name)
+
+        kwargs: Dict[str, Any] = {}
         for f in fields(cls):
-            if f.name not in kwargs:
-                kwargs[f.name] = f.default_factory()  # type: ignore[misc]
-        return cls(**kwargs)  # type: ignore[arg-type]
+            val = raw_data.get(f.name, f.default)
+            if val is MISSING:
+                if f.default_factory is not MISSING:  # type: ignore[comparison-overlap]
+                    val = f.default_factory()  # type: ignore[misc]
+                else:
+                    continue
+
+            # Explicit type casting
+            if val is not None:
+                if f.type is float or f.type == "float":
+                    val = float(val)
+                elif f.type is int or f.type == "int":
+                    val = int(val)
+                elif f.type is bool or f.type == "bool":
+                    val = val.lower() in ("true", "1", "yes") if isinstance(val, str) else bool(val)
+
+            kwargs[f.name] = val
+
+        return cls(**kwargs)
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert BPCParams to a dictionary for backend compatibility."""

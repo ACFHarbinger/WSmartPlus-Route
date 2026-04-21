@@ -18,6 +18,8 @@ import dataclasses
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Dict, Optional, Union
 
+from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
+
 if TYPE_CHECKING:
     from logic.src.configs.policies import KSparseACOConfig
 
@@ -74,6 +76,7 @@ class KSACOParams:
     profit_aware_operators: bool = False
     q0: float = 0.9  # Probability of best-edge selection
     seed: Optional[int] = 42
+    acceptance_criterion: Optional[IAcceptanceCriterion] = None
 
     def __post_init__(self) -> None:
         """Validate parameters after initialization."""
@@ -86,32 +89,58 @@ class KSACOParams:
     def from_config(cls, config: Union[KSparseACOConfig, Dict[str, Any]]) -> KSACOParams:
         """Create KSACOParams from an KSparseACOConfig dataclass or dict.
 
-        Args:
-            config: KSparseACOConfig dataclass or dict with solver parameters.
-
-        Returns:
-            KSACOParams instance with values from config.
+        Performs explicit type casting for numeric fields to ensure consistency.
         """
-        if isinstance(config, dict):
-            return cls(**{k: v for k, v in config.items() if k in {f.name for f in dataclasses.fields(cls)}})
+        if config is None:
+            return cls()
 
-        return cls(
-            n_ants=getattr(config, "n_ants", 20),
-            k_sparse=getattr(config, "k_sparse", 15),
-            alpha=getattr(config, "alpha", 1.0),
-            beta=getattr(config, "beta", 2.0),
-            rho=getattr(config, "rho", 0.1),
-            scale=getattr(config, "scale", 5.0),
-            tau_0=getattr(config, "tau_0", None),
-            tau_min=getattr(config, "tau_min", 0.001),
-            tau_max=getattr(config, "tau_max", 10.0),
-            max_iterations=getattr(config, "max_iterations", 100),
-            time_limit=getattr(config, "time_limit", 30.0),
-            local_search=getattr(config, "local_search", True),
-            local_search_iterations=getattr(config, "local_search_iterations", 100),
-            elitist_weight=getattr(config, "elitist_weight", 1.0),
-            vrpp=getattr(config, "vrpp", True),
-            profit_aware_operators=getattr(config, "profit_aware_operators", False),
-            q0=getattr(config, "q0", 0.9),
-            seed=getattr(config, "seed", 42),
+        raw_data: Dict[str, Any] = {}
+        if isinstance(config, dict):
+            raw_data = config
+        else:
+            for f in dataclasses.fields(cls):
+                if hasattr(config, f.name):
+                    raw_data[f.name] = getattr(config, f.name)
+
+        kwargs: Dict[str, Any] = {}
+        for f in dataclasses.fields(cls):
+            if f.name == "acceptance_criterion":
+                continue
+            val = raw_data.get(f.name, getattr(cls, f.name, f.default))
+            if val is not None:
+                if f.type is float or f.type == "float":
+                    val = float(val)
+                elif f.type is int or f.type == "int":
+                    val = int(val)
+                elif f.type is bool or f.type == "bool":
+                    val = val.lower() in ("true", "1", "yes") if isinstance(val, str) else bool(val)
+            kwargs[f.name] = val
+
+        params = cls(**kwargs)
+
+        # Handle Acceptance Criterion Injection
+        from logic.src.policies.route_construction.acceptance_criteria.base.factory import AcceptanceCriterionFactory
+
+        acceptance_cfg = (
+            raw_data.get("acceptance_criterion")
+            if isinstance(config, dict)
+            else getattr(config, "acceptance_criterion", None)
         )
+        if acceptance_cfg:
+            # acceptance_cfg might be a dict or a Config object
+            if hasattr(acceptance_cfg, "method"):
+                name = acceptance_cfg.method
+                params_cfg = getattr(acceptance_cfg, "params", {})
+            else:
+                name = acceptance_cfg.get("method", "oi")
+                params_cfg = acceptance_cfg.get("params", {})
+
+            params.acceptance_criterion = AcceptanceCriterionFactory.create(
+                name=name,
+                config=params_cfg,
+            )
+        else:
+            # Default to oi (only improving) for standard ACO
+            params.acceptance_criterion = AcceptanceCriterionFactory.create(name="oi")
+
+        return params

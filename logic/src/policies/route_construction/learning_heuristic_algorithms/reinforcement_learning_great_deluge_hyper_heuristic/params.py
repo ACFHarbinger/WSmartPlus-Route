@@ -105,7 +105,7 @@ class RLGDHHParams:
 
         # Handle Acceptance Criterion Injection
 
-        acceptance_cfg = getattr(config, "acceptance", None)
+        acceptance_cfg = getattr(config, "acceptance_criterion", None)
         if acceptance_cfg:
             params.acceptance_criterion = AcceptanceCriterionFactory.create(
                 name=acceptance_cfg.method,

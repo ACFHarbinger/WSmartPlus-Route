@@ -28,17 +28,17 @@ def _run_gurobi_optimizer(  # noqa: C901
 ):
     """Solve the Vehicle Routing Problem with Profits."""
     Omega, delta, psi = values["Omega"], values["delta"], values["psi"]
-    Q, R, B, C, V = values["Q"], values["R"], values["B"], values["C"], values["V"]
+    Q, R, _B, C, _V = values["Q"], values["R"], values["B"], values["C"], values["V"]
 
     n_bins = len(bins)
     nodes = list(range(n_bins + 1))
     idx_deposito = 0
     nodes_real = [i for i in nodes if i != idx_deposito]
 
-    # Data for weight and profit calculations
     enchimentos = np.insert(bins, 0, 0.0)
-    pesos_reais = [(e / 100) * B * V for e in enchimentos]
-    S_dict = {i: pesos_reais[i] for i in nodes}
+    # Use percent fill levels directly. Revenue R is already scaled to Euro per 1% fill
+    # by BaseRoutingPolicy, so (R * percent) gives Euro.
+    S_dict = {i: float(enchimentos[i]) for i in nodes}
 
     # Normalize binsids to only include bin IDs (exclude depot if present)
     pure_binsids = binsids[1:] if len(binsids) == n_bins + 1 else binsids
@@ -46,7 +46,8 @@ def _run_gurobi_optimizer(  # noqa: C901
     for i, bin_id in enumerate(pure_binsids, 1):
         criticos_dict[i] = bin_id in mandatory
 
-    max_dist = 6000
+    # Use a high distance limit or remove it to prevent artificial infeasibility
+    max_dist = 6000000.0  # 6000 KM
     pares_viaveis = [(i, j) for i in nodes for j in nodes if i != j and distance_matrix[i][j] <= max_dist]
 
     mdl = gp.Model("VRPP", env=env) if env else gp.Model("VRPP")
@@ -117,8 +118,6 @@ def _run_gurobi_optimizer(  # noqa: C901
     for i in nodes_real:
         if criticos_dict[i] or enchimentos[i] >= psi * 100:
             mdl.addConstr(g[i] == 1)
-        if enchimentos[i] < 10 and not criticos_dict[i]:
-            g[i].UB = 0
 
     for j in nodes_real:
         mdl.addConstr(quicksum(x[i, j] for i in nodes if (i, j) in x) == g[j])

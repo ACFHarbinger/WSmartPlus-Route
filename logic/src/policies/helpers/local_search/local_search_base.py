@@ -100,7 +100,7 @@ class LocalSearch(ABC):
                 AcceptanceCriterionFactory,
             )
 
-            self.acceptance_criterion = AcceptanceCriterionFactory.create(name="only_improving")
+            self.acceptance_criterion = AcceptanceCriterionFactory.create(name="oi")
 
         if neighbors is not None:
             self.neighbors = neighbors

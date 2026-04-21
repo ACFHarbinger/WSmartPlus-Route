@@ -10,8 +10,6 @@ import numpy as np
 
 from logic.src.configs.policies import BPCConfig
 from logic.src.enums import GlobalRegistry, PolicyTag
-from logic.src.interfaces.context.multi_day_context import MultiDayContext
-from logic.src.interfaces.context.search_context import SearchContext
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine import (
@@ -51,75 +49,6 @@ class BPCPolicy(BaseRoutingPolicy):
     def _get_config_key(self) -> str:
         """Return config key for BPC."""
         return "bpc"
-
-    def execute(
-        self, **kwargs: Any
-    ) -> Tuple[Union[List[int], List[List[int]]], float, float, Optional[SearchContext], Optional[MultiDayContext]]:
-        """
-        Execute the Branch-and-Price-and-Cut (BPC) solver logic.
-
-        This method coordinates the execution of the BPC algorithm, which is the
-        most advanced exact optimization technique in the framework for single-day
-        deterministic routing.
-
-        Args:
-            **kwargs: Context dictionary containing parameters needed for the subproblem.
-
-        Returns:
-            Tuple[Union[List[int], List[List[int]]], float, float, Optional[SearchContext], Optional[MultiDayContext]]:
-                A 5-tuple containing:
-                - tour: The optimized collection routes (flat or nested).
-                - cost: Total travel cost of the routes.
-                - profit: Total net profit (Revenue + Future Value - Cost).
-                - search_context: The enriched search context after BPC execution.
-                - multi_day_context: The final multi-day state metadata.
-        """
-        config_dict = kwargs.get("config", {}).get(self._get_config_key(), {})
-
-        # Unpack problem data from kwargs
-        dist_matrix = kwargs["model_ls"][1]
-        bins = kwargs["bins"]
-        profit_vars = kwargs["model_ls"][2]
-
-        R = profit_vars.get("revenue_kg", 1.0)
-        C = profit_vars.get("cost_km", 1.0)
-        vehicle_limit = profit_vars.get("number_vehicles", None)
-
-        wastes = {i: float(bins.c[i - 1]) for i in range(1, len(bins.c) + 1)}
-        capacity = float(profit_vars.get("bin_capacity", 100.0))
-        mandatory = set(kwargs.get("mandatory", []))
-
-        params = BPCParams.from_config(config_dict)
-
-        n_bins = len(bins.c)
-        node_prizes: Dict[int, float] = {}
-
-        # Pure Single-Day Mode (base BPC)
-        for i in range(1, n_bins + 1):
-            node_prizes[i] = wastes[i] * R
-
-        routes, profit = run_bpc(
-            dist_matrix=dist_matrix,
-            wastes=wastes,
-            capacity=capacity,
-            R=R,
-            C=C,
-            params=params,
-            mandatory_indices=mandatory,
-            vehicle_limit=vehicle_limit,
-            node_prizes=node_prizes,
-        )
-
-        global_route = []
-        if routes:
-            for r in routes:
-                global_route.extend([n for n in r if n != 0])
-                global_route.append(0)
-
-        model_env = kwargs.get("model_env")
-        cost = model_env.compute_route_cost(global_route) if model_env is not None else 0.0
-
-        return global_route, cost, profit, kwargs.get("search_context"), kwargs.get("multi_day_context")
 
     def _run_solver(
         self,

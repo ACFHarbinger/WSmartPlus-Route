@@ -2,6 +2,7 @@
 SANS (Simulated Annealing Neighborhood Search) configuration.
 """
 
+from dataclasses import dataclass
 from typing import List, Optional
 
 from .other.acceptance_criteria import AcceptanceConfig, BoltzmannAcceptanceConfig
@@ -9,6 +10,7 @@ from .other.mandatory_selection import MandatorySelectionConfig
 from .other.route_improvement import RouteImprovingConfig
 
 
+@dataclass
 class SAConfig:
     """
     Configuration for the Simulated Annealing policy.
@@ -29,6 +31,7 @@ class SAConfig:
         profit_aware_operators (bool): Flag to bias ruin/recreate toward high-revenue nodes.
         mandatory_selection: List of mandatory strategy config files.
         route_improvement: List of route improvement operations to apply.
+        acceptance_criterion: Acceptance criterion config for local search.
     """
 
     initial_temperature: float = 100.0
@@ -42,6 +45,6 @@ class SAConfig:
     profit_aware_operators: bool = False
     mandatory_selection: Optional[List[MandatorySelectionConfig]] = None
     route_improvement: Optional[List[RouteImprovingConfig]] = None
-    acceptance: AcceptanceConfig = AcceptanceConfig(
-        method="boltzmann", params=BoltzmannAcceptanceConfig(initial_temp=100.0, alpha=0.95)
+    acceptance_criterion: AcceptanceConfig = AcceptanceConfig(
+        method="bmc", params=BoltzmannAcceptanceConfig(initial_temp=100.0, alpha=0.95)
     )

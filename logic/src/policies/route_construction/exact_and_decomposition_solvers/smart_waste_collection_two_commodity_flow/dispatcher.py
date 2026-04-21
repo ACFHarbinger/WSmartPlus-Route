@@ -14,6 +14,7 @@ from typing import Dict, List, Optional
 import numpy as np
 from numpy.typing import NDArray
 
+from .gurobi import _run_gurobi_optimizer
 from .ortools_wrapper import _run_ortools_tcf_optimizer
 from .pyomo_wrapper import _run_pyomo_tcf_optimizer
 
@@ -73,5 +74,30 @@ def run_swc_tcf_optimizer(
             dual_values=dual_values,
         )
 
+    elif framework in ["gurobi", "native"]:
+        # Direct Gurobi delegation (bypass OR-Tools/Pyomo abstractions)
+        # Note: This requires gurobipy to be installed and license available.
+        return _run_gurobi_optimizer(
+            bins=bins,
+            distance_matrix=distance_matrix,
+            env=None,  # Use default environment
+            values={
+                k: (
+                    float(v)
+                    if isinstance(v, (int, float)) or (isinstance(v, str) and v.replace(".", "", 1).isdigit())
+                    else v
+                )
+                for k, v in values.items()
+            },
+            binsids=binsids,
+            mandatory=mandatory_nodes,
+            number_vehicles=number_vehicles,
+            time_limit=time_limit,
+            seed=seed,
+            dual_values=dual_values,
+        )
+
     else:
-        raise ValueError(f"Unknown optimization framework: '{framework}'. Use 'ortools:<solver>' or 'pyomo:<solver>'.")
+        raise ValueError(
+            f"Unknown optimization framework: '{framework}'. Use 'ortools:<solver>', 'pyomo:<solver>', or 'gurobi'/'native'."
+        )

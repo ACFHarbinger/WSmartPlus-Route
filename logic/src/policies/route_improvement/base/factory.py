@@ -219,8 +219,8 @@ class RouteImproverFactory:
                 # Extract Boltzmann params if present in acceptance config
                 t_init = 10.0
                 alpha = 0.999
-                if config.simulated_annealing.acceptance.method == "bmc":
-                    bmc_cfg = config.simulated_annealing.acceptance.params
+                if config.simulated_annealing.acceptance_criterion.method == "bmc":
+                    bmc_cfg = config.simulated_annealing.acceptance_criterion.params
                     if bmc_cfg:
                         t_init = getattr(bmc_cfg, "initial_temp", t_init)
                         alpha = getattr(bmc_cfg, "alpha", alpha)
@@ -259,7 +259,7 @@ class RouteImproverFactory:
                 processor = RuinRecreateRouteImprover(
                     lns_iterations=config.ruin_recreate.lns_iterations,
                     ruin_fraction=config.ruin_recreate.ruin_fraction,
-                    lns_acceptance=config.ruin_recreate.acceptance.method,
+                    lns_acceptance=config.ruin_recreate.acceptance_criterion.method,
                     repair_k=config.ruin_recreate.repair_k,
                     cost_per_km=config.ruin_recreate.cost_per_km,
                     revenue_kg=config.ruin_recreate.revenue_kg,

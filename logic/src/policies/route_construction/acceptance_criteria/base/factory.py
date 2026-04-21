@@ -69,7 +69,7 @@ class AcceptanceCriterionFactory:
         Instantiate an acceptance criterion.
 
         Args:
-            name: Identifier for the criterion (e.g., 'boltzmann').
+            name: Identifier for the criterion (e.g., 'bmc').
             config: Configuration parameters. Can be a dict or a dataclass instance.
             **kwargs: Fallback parameters if config is not comprehensive.
 

@@ -32,6 +32,7 @@ class GIHHConfig:
 
         mandatory_selection: List of mandatory strategy config files.
         route_improvement: List of route improvement operations to apply.
+        acceptance_criterion: Acceptance criterion config for local search.
     """
 
     time_limit: float = 60.0
@@ -52,4 +53,4 @@ class GIHHConfig:
 
     mandatory_selection: Optional[List[MandatorySelectionConfig]] = None
     route_improvement: Optional[List[RouteImprovingConfig]] = None
-    acceptance: AcceptanceConfig = AcceptanceConfig(method="only_improving", params=OnlyImprovingConfig())
+    acceptance_criterion: AcceptanceConfig = AcceptanceConfig(method="only_improving", params=OnlyImprovingConfig())

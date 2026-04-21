@@ -56,6 +56,4 @@ class TSConfig:
     profit_aware_operators: bool = False
     mandatory_selection: Optional[List[Any]] = field(default_factory=list)
     route_improvement: Optional[List[Any]] = field(default_factory=list)
-
-    # Injected Acceptance Criterion
-    acceptance: AcceptanceConfig = field(default_factory=lambda: AcceptanceConfig(method="tabu_aspiration"))
+    acceptance_criterion: AcceptanceConfig = field(default_factory=lambda: AcceptanceConfig(method="ac"))
