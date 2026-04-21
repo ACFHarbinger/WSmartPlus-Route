@@ -6112,8 +6112,8 @@ name = "onnxsim"
 version = "0.6.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "onnx" },
-    { name = "rich" },
+    { name = "onnx", marker = "python_full_version >= '3.10'" },
+    { name = "rich", marker = "python_full_version >= '3.10'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/10/db/af9133c96186ef212637da4c941c0235c9ba8ed5bc9e5f526856a91be0e1/onnxsim-0.6.2.tar.gz", hash = "sha256:fd458ccbf449dd53d187daf6bf41b284c9d0774049b8517956375e705fdc334a", size = 2727720, upload-time = "2026-02-26T07:15:09.902Z" }
 wheels = [
@@ -6168,14 +6168,14 @@ wheels = [
 
 [[package]]
 name = "opentelemetry-proto"
-version = "1.11.1"
+version = "1.25.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "protobuf", marker = "python_full_version >= '3.10'" },
+    { name = "protobuf" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/c1/b1/2c1d94f379a9fc40144854bbe46609881f1c7bafe355b6f0510595788a3f/opentelemetry-proto-1.11.1.tar.gz", hash = "sha256:5df0ec69510a9e2414c0410d91a698ded5a04d3dd37f7d2a3e119e3c42a30647", size = 49166, upload-time = "2022-04-21T21:02:55.512Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c9/3c/28c9ce40eb8ab287471af81659089ca98ef4f7ce289669e23b19c29f24a8/opentelemetry_proto-1.25.0.tar.gz", hash = "sha256:35b6ef9dc4a9f7853ecc5006738ad40443701e52c26099e197895cbda8b815a3", size = 35062, upload-time = "2024-05-31T01:40:52.737Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b6/ef/52f5a710e68f6f7528a54666bfa4c95d1eda21c9ab967fa9b9451a5c9091/opentelemetry_proto-1.11.1-py3-none-any.whl", hash = "sha256:4d4663123b4777823aa533f478c6cef3ecbcf696d8dc6ac7fd6a90f37a01eafd", size = 66355, upload-time = "2022-04-21T21:02:32.88Z" },
+    { url = "https://files.pythonhosted.org/packages/64/ae/d6b5f11ecbffafe8b6d54130fed0cc78aad3711e00074d63a7359d6dcf3b/opentelemetry_proto-1.25.0-py3-none-any.whl", hash = "sha256:f07e3341c78d835d9b86665903b199893befa5e98866f63d22b00d0b7ca4972f", size = 52450, upload-time = "2024-05-31T01:40:30.987Z" },
 ]
 
 [[package]]
@@ -11861,7 +11861,7 @@ gpu = [
     { name = "gymnasium", version = "1.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
     { name = "nvidia-ml-py" },
     { name = "onnx" },
-    { name = "onnxsim" },
+    { name = "onnxsim", marker = "python_full_version >= '3.10'" },
     { name = "torch-tb-profiler" },
     { name = "triton", version = "2.2.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12' and sys_platform != 'win32'" },
     { name = "triton", version = "3.6.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' and sys_platform != 'win32'" },
@@ -11905,6 +11905,7 @@ solvers = [
 tracking = [
     { name = "mlflow", version = "3.1.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
     { name = "mlflow", version = "3.11.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "opentelemetry-proto" },
     { name = "ray", extra = ["tune"] },
     { name = "zenml", version = "0.90.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
     { name = "zenml", version = "0.94.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
@@ -11976,9 +11977,10 @@ requires-dist = [
     { name = "nvidia-ml-py", marker = "extra == 'gpu'", specifier = ">=13.580.65" },
     { name = "omegaconf", specifier = ">=2.3.0" },
     { name = "onnx", marker = "extra == 'gpu'", specifier = ">=1.19.0" },
-    { name = "onnxsim", marker = "extra == 'gpu'", specifier = ">=0.6.2" },
+    { name = "onnxsim", marker = "python_full_version >= '3.10' and extra == 'gpu'", specifier = ">=0.6.2" },
     { name = "openpyxl", specifier = ">=3.1.5" },
     { name = "openrouteservice", marker = "extra == 'geo'", specifier = ">=2.3.3" },
+    { name = "opentelemetry-proto", marker = "extra == 'tracking'", specifier = ">=1.15.0,<=1.25.0" },
     { name = "optuna", marker = "extra == 'hpo'", specifier = ">=4.5.0" },
     { name = "optuna-integration", extras = ["pytorch-lightning"], marker = "extra == 'hpo'", specifier = ">=4.7.0" },
     { name = "ortools", marker = "extra == 'solvers'", specifier = ">=9.4.1874" },

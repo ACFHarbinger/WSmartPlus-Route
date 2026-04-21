@@ -43,7 +43,6 @@ def setup_dist_path_tup(
     env_filename,
     gapik_file,
     symkey_name,
-    device,
     edge_thresh,
     edge_method,
     focus_idx=None,
@@ -58,7 +57,6 @@ def setup_dist_path_tup(
         env_filename: Environment config file.
         gapik_file: Google API key file.
         symkey_name: Symmetric key name.
-        device: Torch device.
         edge_thresh: Edge filtering threshold.
         edge_method: Edge generation method.
         focus_idx: Optional focus indices.
@@ -77,7 +75,7 @@ def setup_dist_path_tup(
     )
     dist_matrix_edges, shortest_paths, adj_matrix = apply_edges(dist_matrix, edge_thresh, edge_method)
     paths = get_paths_between_states(size + 1, shortest_paths)
-    dm_tensor = torch.from_numpy(dist_matrix_edges / 100.0).to(device)
+    dm_tensor = torch.from_numpy(dist_matrix_edges / 100.0)
     distC = np.round(dist_matrix_edges * 10).astype("int32")
 
     with contextlib.suppress(Exception):

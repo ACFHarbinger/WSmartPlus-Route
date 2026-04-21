@@ -212,7 +212,7 @@ class MandatorySelectionAction(SimulationAction):
         strategies: List[Dict[str, Any]] = []
         raw_cfg = context.get("config", {})
         flat_cfg = _flatten_config(raw_cfg)
-        config_mandatory = flat_cfg.get("mandatory")
+        config_mandatory = flat_cfg.get("mandatory_selection")
 
         if isinstance(config_mandatory, MandatorySelectionConfig):
             strategies.append({"config": config_mandatory})

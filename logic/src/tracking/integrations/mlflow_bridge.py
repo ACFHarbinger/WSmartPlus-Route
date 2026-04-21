@@ -85,14 +85,14 @@ class MLflowBridge:
 
     def log_metric(self, key: str, value: float, step: int) -> None:
         """Forward a scalar metric to MLflow."""
-        if self._active_run is None:
+        if self._mlflow is None or self._active_run is None:
             return
         with contextlib.suppress(Exception):
             self._mlflow.log_metric(key, value, step=step)
 
     def log_params(self, params: Dict[str, Any]) -> None:
         """Forward parameters to MLflow (values coerced to str)."""
-        if self._active_run is None:
+        if self._mlflow is None or self._active_run is None:
             return
         with contextlib.suppress(Exception):
             # MLflow param values must be str; split into chunks of 100
@@ -103,14 +103,14 @@ class MLflowBridge:
 
     def log_artifact(self, path: str) -> None:
         """Forward a local file path as an MLflow artifact."""
-        if self._active_run is None:
+        if self._mlflow is None or self._active_run is None:
             return
         with contextlib.suppress(Exception):
             self._mlflow.log_artifact(path)
 
     def finish(self, status: str = "completed") -> None:
         """End the MLflow run, mapping WSTracker status to MLflow status."""
-        if self._active_run is None:
+        if self._mlflow is None or self._active_run is None:
             return
         with contextlib.suppress(Exception):
             mlflow_status = "FINISHED" if status == "completed" else "FAILED"

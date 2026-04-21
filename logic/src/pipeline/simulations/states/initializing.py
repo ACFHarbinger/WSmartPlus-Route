@@ -274,7 +274,6 @@ class InitializingState(SimState):
             sim.env_file,
             sim.gapik_file,
             sim.symkey_name,
-            ctx.device,
             sim.graph.edge_threshold,
             sim.graph.edge_method,
             ctx.indices,
