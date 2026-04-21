@@ -8,13 +8,13 @@ from typing import Any, Dict, Mapping
 
 def _find_mandatory(d: Any) -> Any:
     """
-    Recursively find the first occurrence of 'mandatory' in a nested structure.
+    Recursively find the first occurrence of 'mandatory_selection' in a nested structure.
     Handles dictionaries, ITraversable objects, and iterable sequences (lists, ListConfig, etc.).
     """
     if isinstance(d, dict) or hasattr(d, "items"):
         d_dict = dict(d) if hasattr(d, "items") else d
-        if "mandatory" in d_dict:
-            return d_dict["mandatory"]
+        if "mandatory_selection" in d_dict:
+            return d_dict["mandatory_selection"]
         for val in d_dict.values():
             res = _find_mandatory(val)
             if res is not None:
@@ -43,7 +43,7 @@ def _flatten_config(cfg: Any) -> dict:
         # Safer key extraction
         key = next(iter(curr.keys()))
 
-        if key in ["mandatory", "policy", "route_improvement"]:
+        if key in ["mandatory_selection", "policy", "route_improvement"]:
             break
         curr = curr[key]
 
@@ -70,10 +70,10 @@ def _flatten_config(cfg: Any) -> dict:
                 if primitive_list:
                     flat[_k] = primitive_list
 
-        if "mandatory" not in flat:
+        if "mandatory_selection" not in flat:
             mg = _find_mandatory(curr)
             if mg:
-                flat["mandatory"] = mg
+                flat["mandatory_selection"] = mg
 
         return flat
 

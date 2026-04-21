@@ -116,6 +116,7 @@ class NeuralAgentPolicy(BaseRoutingPolicy):
         if "fill_history" in model_data:
             model_data["current_fill"] = torch.as_tensor(fill, dtype=torch.float32).unsqueeze(0)
         daily_data = move_to(model_data, device)
+        dm_tensor = dm_tensor.to(device)
 
         # Handle mandatory selection
         mandatory_mask = self._get_mandatory_mask(kwargs, bins, profit_vars, device)
