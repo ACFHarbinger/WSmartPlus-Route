@@ -145,5 +145,5 @@ class AcceptanceConfig:
         params: The specific configuration object for the chosen method.
     """
 
-    method: str = "only_improving"
+    method: str = "oi"
     params: Any = field(default_factory=OnlyImprovingConfig)

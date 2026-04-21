@@ -86,25 +86,8 @@ class ACOPolicy(BaseRoutingPolicy):
                 - profit: Total calculated net profit (Total Revenue - Total Cost).
                 - cost: Total travel cost calculated by the solver.
         """
-        params = KSACOParams(
-            n_ants=values.get("n_ants", 10),
-            k_sparse=values.get("k_sparse", 15),
-            alpha=values.get("alpha", 1.0),
-            beta=values.get("beta", 2.0),
-            rho=values.get("rho", 0.1),
-            q0=values.get("q0", 0.9),
-            tau_0=values.get("tau_0"),
-            tau_min=values.get("tau_min", 0.001),
-            tau_max=values.get("tau_max", 10.0),
-            max_iterations=values.get("max_iterations", 100),
-            time_limit=values.get("time_limit", 30.0),
-            local_search=values.get("local_search", True),
-            local_search_iterations=values.get("local_search_iterations", 500),
-            elitist_weight=values.get("elitist_weight", 1.0),
-            seed=values.get("seed", 42),
-            vrpp=values.get("vrpp", True),
-            profit_aware_operators=values.get("profit_aware_operators", False),
-        )
+        # Use standardized from_config to ensure all fields (including acceptance) are propagated
+        params = KSACOParams.from_config(self.config)
 
         solver = KSparseACOSolver(sub_dist_matrix, sub_wastes, capacity, revenue, cost_unit, params, mandatory_nodes)
         return solver.solve()

@@ -126,7 +126,7 @@ class GuidedLocalSearchPostConfig:
 class SimulatedAnnealingPostConfig:
     """Configuration for Simulated Annealing refinement."""
 
-    acceptance: AcceptanceConfig = field(
+    acceptance_criterion: AcceptanceConfig = field(
         default_factory=lambda: AcceptanceConfig(
             method="bmc", params=BoltzmannAcceptanceConfig(initial_temp=1.0, alpha=0.995)
         )
@@ -163,7 +163,7 @@ class InsertionPostConfig:
 class RuinRecreatePostConfig:
     """Configuration for Ruin and Recreate (LNS)."""
 
-    acceptance: AcceptanceConfig = field(default_factory=lambda: AcceptanceConfig(method="oi"))
+    acceptance_criterion: AcceptanceConfig = field(default_factory=lambda: AcceptanceConfig(method="oi"))
     lns_iterations: int = 100
     ruin_fraction: float = 0.2
     repair_k: int = 2
@@ -176,7 +176,7 @@ class RuinRecreatePostConfig:
 class AdaptiveLNSPostConfig:
     """Configuration for Adaptive LNS."""
 
-    acceptance: AcceptanceConfig = field(default_factory=lambda: AcceptanceConfig(method="bmc"))
+    acceptance_criterion: AcceptanceConfig = field(default_factory=lambda: AcceptanceConfig(method="bmc"))
     alns_iterations: int = 200
     ruin_fraction: float = 0.2
     alns_bandit_warm_start_path: Optional[str] = None
