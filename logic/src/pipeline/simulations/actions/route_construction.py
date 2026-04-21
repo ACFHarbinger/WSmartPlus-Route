@@ -88,8 +88,9 @@ class RouteConstructionAction(SimulationAction):
                 )
 
         # If no nodes to collect, skip policy and return to depot
+        # VRPP policies (vrpp: true) let the solver decide which nodes to visit — don't skip them
         mandatory = context.get("mandatory", [])
-        if not mandatory:
+        if not mandatory and not bool(flat_cfg.get("vrpp", False)):
             context["tour"] = [0, 0]
             context["cost"] = 0.0
             context["extra_output"] = None
@@ -118,9 +119,10 @@ class RouteConstructionAction(SimulationAction):
             # Generate tree using bin stats and truth (if method is oracle)
             bins_state = context.get("bins")
             if bins_state is not None:
+                n = len(bins_state.c)
                 bin_stats = {
-                    "means": getattr(bins_state, "u_i", np.zeros(0)),
-                    "stds": np.sqrt(getattr(bins_state, "v_i", np.zeros(0))),
+                    "means": getattr(bins_state, "means", np.zeros(n)),
+                    "stds": getattr(bins_state, "std", np.zeros(n)),
                 }
             else:
                 bin_stats = {"means": np.zeros(0), "stds": np.zeros(0)}
