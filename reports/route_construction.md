@@ -113,10 +113,10 @@ The exact solver optimizes only the remaining fractional variables, rapidly esta
 ### Relaxation Induced Neighborhood Search (RINS) ❌
 Similar to Local Branching, but fixes variables based on LP-integer agreement rather than Hamming distance from the incumbent. All variables where the continuous LP relaxation $\tilde{x}_j$ exactly matches the integer incumbent $\bar{x}_j$ are fixed; the exact solver explores only the remaining unfixed subspace, concentrating computation at the most uncertain decision boundaries.
 
-### Restricted Master Heuristic (Heuristic Column Generation) ✅
+### Restricted Master Heuristic (Heuristic Column Generation) ❌
 Addresses the computational bottleneck of exact Branch-and-Price by replacing the exact pricing subproblem with a fast meta-heuristic (Tabu Search, ILS) that rapidly generates route columns with negative reduced costs. The exact MILP solver is then invoked exclusively on the Restricted Master Problem to optimally select the column combination, separating the hard combinatorial pricing from the exact selection.
 
-### Learning-to-Branch / Learning-Augmented Matheuristics ✅
+### Learning-to-Branch / Learning-Augmented Matheuristics ❌
 The frontier of ML-integrated matheuristics. Graph Neural Networks score and predict the outcome of strong-branching tests, filtering non-promising branches without executing the LP solver at each candidate. The search tree is traversed orders of magnitude faster while retaining mathematical rigor, because the GNN amortizes the branching cost over training instances.
 
 ### Cluster-First Route-Second (CF-RS) ✅
@@ -163,6 +163,9 @@ A penalty-based trajectory meta-heuristic. It monitors expensive, frequently tra
 $$h(s) = f(s) + \lambda \sum_{i=1}^M p_i I_i(s), \quad \text{util}(i) = \frac{c_i}{1 + p_i}$$
 
 Upon reaching a local optimum, the feature with maximum utility is penalized, redirecting subsequent local search to unexplored topological regions.
+
+#### Guided Fast Local Search (GFLS) ❌
+An acceleration architecture that integrates Fast Local Search (FLS) within the Guided Local Search (GLS) meta-heuristic. Instead of exhaustively evaluating the $\mathcal{O}(N^2)$ or $\mathcal{O}(N^3)$ neighborhood at each iteration, GFLS maintains an active neighborhood bit-mask. Nodes are evaluated only if their activation bit is set to True. When the GLS controller penalizes an edge, the activation bits of the incident nodes are flipped back to True, explicitly directing the subsequent local descent (e.g., 2-opt, Relocate) strictly toward the penalized features. If a node's full neighborhood is evaluated without yielding an improving move, it is deactivated. This dramatically reduces computational overhead by pruning dormant search regions while preserving the exact trajectory escape properties of GLS.
 
 #### Adaptive Large Neighborhood Search (ALNS) ✅
 A destroy-and-repair meta-heuristic where operator selection is governed by a multi-armed bandit. Operator weights $w_j$ are updated via exponential smoothing with reward $c$ (scaled by improvement quality) and smoothing factor $\rho$:
@@ -230,7 +233,7 @@ A non-elitist strategy where the next generation is selected exclusively from th
 
 $$P_{t+1} \leftarrow \text{SelectBest}(\mu,\; \text{Offspring}_t)$$
 
-### Swarm-Based Methods
+### Swarm Intelligence-Based Methods
 
 #### K-Sparse Ant Colony Optimization (KS-ACO) ✅
 An algorithmic regularization of canonical ACO for dense graphs. The spatial graph is pre-processed into a sparse $k$-NN graph, restricting ant transition evaluations to the $K$ nearest geometric neighbors:
@@ -280,9 +283,14 @@ Models a sports league competition. Each solution is a team competing in a round
 #### Volleyball Premier League (VPL) and Variants ✅
 A population meta-heuristic modelling volleyball team competition and league structure. Teams are partitioned into leagues; intra-league competition drives local intensification while inter-league promotion/relegation drives diversification. Extended variants include:
 
-- **Hybrid VPL (HVPL):** Integrates a secondary local search phase within each competition round, hybridizing swarm competition with trajectory descent.
-- **Augmented Hybrid VPL (AHVPL):** Further extends HVPL with an augmented objective function incorporating penalty terms for overused solution features, mirroring the GLS penalty mechanism within the population framework.
-- **RL-HVPL / RL-AHVPL:** Replace the static competition selection rule with a Reinforcement Learning policy that learns which competition schedule (match-up pairing) maximally improves the population's overall fitness over successive rounds.
+#### Hybrid VPL (HVPL) ✅
+Integrates a secondary local search phase within each competition round, hybridizing swarm competition with trajectory descent.
+
+#### Augmented Hybrid VPL (AHVPL) ✅
+Further extends HVPL with an augmented objective function incorporating penalty terms for overused solution features, mirroring the GLS penalty mechanism within the population framework.
+
+#### RL-HVPL / RL-AHVPL ✅
+Replace the static competition selection rule with a Reinforcement Learning policy that learns which competition schedule (match-up pairing) maximally improves the population's overall fitness over successive rounds.
 
 #### Soccer League Competition (SLC) ✅
 A swarm meta-heuristic modelling professional football league dynamics. Players (solutions) belong to teams, which compete in weekly matches. Player positions are updated based on the scoring outcomes: players on winning teams reinforce their current strategy (exploitation), while players on losing teams undergo formation changes (exploration). The league table ranking drives selection pressure, with top-ranked teams' strategies acting as attractor basins for the rest of the population.

@@ -29,11 +29,19 @@ def _sisr_ruin_pass(
     ks: int,
     ls_max: float,
     rng: Random,
+    alpha: float = 0.01,
 ) -> Set[int]:
     """Iterate an adjacency list and remove one string per tour up to ks tours.
 
     Private helper shared by :func:`string_removal` and
-    :func:`string_profit_removal`.
+    :func:`string_profit_removal`.  For each selected tour, applies either
+    the *contiguous string* or the *split string* procedure with equal (50 %)
+    probability (Christiaens & Vanden Berghe 2020, §5.2).
+
+    **Split string** (§5.2): selects a substring of cardinality ``l + m``
+    containing the anchor, then preserves ``m`` consecutive intervening
+    customers and removes the remaining ``l``.  ``m`` starts at 1 and is
+    incremented with probability ``1 - α`` until ``m = m_max = |t| - l``.
 
     Args:
         routes: Current routes (unmodified; referenced by index).
@@ -42,6 +50,7 @@ def _sisr_ruin_pass(
         ks: Number of distinct tours to ruin.
         ls_max: Maximum string length per tour (``ls_max`` from Eq. 8).
         rng: Random number generator.
+        alpha: Stopping probability for ``m`` increment (default 0.01, paper §5.2).
 
     Returns:
         Set[int]: Set of node IDs selected for removal.
@@ -73,10 +82,33 @@ def _sisr_ruin_pass(
         lt_max: int = max(1, min(len(route), int(ls_max)))
         lt: int = rng.randint(1, lt_max)
 
-        start: int = anchor_pos
-        end: int = min(start + lt, len(route))
-        for node in route[start:end]:
-            removed.add(node)
+        # 50/50: contiguous string vs split string (§5.2).
+        # Split string requires at least one customer to preserve (m_max ≥ 1).
+        m_max: int = len(route) - lt
+        if m_max > 0 and rng.random() < 0.5:
+            # --- Split string ---
+            # Stochastically determine m: start at 1, increment with prob (1-α)
+            m: int = 1
+            while m < m_max and rng.random() >= alpha:
+                m += 1
+            # Select a contiguous window of l+m positions in the route that
+            # contains the anchor customer.
+            total_len: int = lt + m  # ≤ len(route) since m ≤ m_max = |t| - l
+            start_min: int = max(0, anchor_pos - (total_len - 1))
+            start_max: int = min(len(route) - total_len, anchor_pos)
+            start: int = rng.randint(start_min, start_max)
+            # Choose where the m-block of preserved customers sits within the
+            # l+m window.  preserve_start ∈ [0, l] guarantees the block fits.
+            preserve_start: int = rng.randint(0, lt)
+            preserve_end: int = preserve_start + m
+            for i in range(total_len):
+                if not (preserve_start <= i < preserve_end):
+                    removed.add(route[start + i])
+        else:
+            # --- Contiguous string ---
+            end: int = min(anchor_pos + lt, len(route))
+            for node in route[anchor_pos:end]:
+                removed.add(node)
 
         ruined_tours.add(r_idx)
 
@@ -121,13 +153,21 @@ def string_removal(
 
              lt_max = min(|t|, ls_max)                         [Eq. 8]
              lt     = floor(U(1, lt_max + 1))                  [Eq. 9]
-             Remove the string of length lt starting at c from tour t.
+             With 50 % probability apply the *contiguous string* procedure:
+               remove the string of length lt starting at c from tour t.
+             Otherwise apply the *split string* procedure (§5.2):
+               determine m stochastically (start=1, increment with prob 1-α,
+               α=0.01, until m=m_max=|t|-lt);
+               select a window of lt+m positions containing c;
+               preserve m consecutive customers within that window;
+               remove the remaining lt customers.
              Mark t as ruined.
 
     **Key constraints** (faithfully carried from the paper):
     - Each tour is ruined **at most once** (one string per tour).
     - The number of strings ``ks`` is drawn stochastically.
     - String lengths ``lt`` are drawn stochastically per tour.
+    - *Contiguous string* and *split string* are applied with equal (50 %) probability.
 
     Args:
         routes: Current routes (list of node lists excluding the depot).
