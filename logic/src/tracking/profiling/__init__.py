@@ -21,6 +21,13 @@ All classes auto-forward results to the active WSTracker run via
 ``contextlib.suppress``-guarded calls — they are safe no-ops when no run is
 active or optional dependencies are missing.
 
+Attributes:
+    memory: Memory profiling utilities.
+    profiler: Execution profiler utilities.
+    report: Report generation utilities.
+    timer: Timer utilities.
+    throughput: Throughput tracking utilities.
+
 Example usage::
 
     from logic.src.tracking.profiling import (

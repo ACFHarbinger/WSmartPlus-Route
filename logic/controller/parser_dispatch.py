@@ -1,3 +1,23 @@
+"""
+Parser dispatch module.
+
+This module provides the unified entry point for all configuration-driven commands
+parsed by the standard argparse-based CLI. It handles dispatching to the
+appropriate handler based on the command-line arguments.
+
+Attributes:
+    parser_entry_point: Unified entry point for all configuration-driven commands.
+    run_test_suite: Execute the project's test suite.
+    pretty_print_args: Format and print dictionary arguments.
+
+Example:
+    >>> from logic.controller.parser_dispatch import parser_entry_point
+    >>> parser_entry_point()
+    # Runs the default command (gui) with default configuration
+    >>> parser_entry_point("--command=benchmark --benchmark.num_instances=10")
+    # Runs the benchmark command with specified number of instances
+"""
+
 import io
 import pprint
 import sys
