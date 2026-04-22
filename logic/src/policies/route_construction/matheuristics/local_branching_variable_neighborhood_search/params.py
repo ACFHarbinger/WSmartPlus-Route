@@ -38,8 +38,17 @@ class LBVNSParams:
     engine: str = "gurobi"
     framework: str = "ortools"
 
-    # Injected Acceptance Criterion
     acceptance_criterion: IAcceptanceCriterion = field(default_factory=lambda: None)  # type: ignore
+
+    def __post_init__(self):
+        """Ensure acceptance criterion is initialized even if not passed in config."""
+        if self.acceptance_criterion is None:
+            # Standard VNS uses Improving-Only acceptance
+            from logic.src.policies.route_construction.acceptance_criteria.base.factory import (
+                AcceptanceCriterionFactory,
+            )
+
+            self.acceptance_criterion = AcceptanceCriterionFactory.create(name="oi")
 
     @classmethod
     def from_config(cls, config: Any) -> LBVNSParams:

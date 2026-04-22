@@ -23,7 +23,7 @@ def test_setup_env_gurobi_local(tmp_path):
     with patch("logic.src.constants.ROOT_DIR", str(tmp_path)), \
          patch("os.path.exists", return_value=True), \
          patch("gurobipy.Env") as mock_env:
-        setup_env("vrpp", server=False, gplic_filename="gurobi.lic")
+        setup_env("swc_tcf", server=False, gplic_filename="gurobi.lic")
         assert os.environ["GRB_LICENSE_FILE"].endswith("gurobi.lic")
 
 

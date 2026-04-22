@@ -49,6 +49,16 @@ class GIHHParams:
     profit_aware_operators: bool = False
     acceptance_criterion: Optional[IAcceptanceCriterion] = None
 
+    def __post_init__(self):
+        """Ensure acceptance criterion is initialized even if not passed in config."""
+        if self.acceptance_criterion is None:
+            # Standard GIHH uses Improving-Only acceptance
+            from logic.src.policies.route_construction.acceptance_criteria.base.factory import (
+                AcceptanceCriterionFactory,
+            )
+
+            self.acceptance_criterion = AcceptanceCriterionFactory.create(name="oi")
+
     @classmethod
     def from_config(cls, config: Any) -> "GIHHParams":
         """Create parameters from a configuration object."""

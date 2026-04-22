@@ -72,12 +72,13 @@ class TestAdvancedCriteria(unittest.TestCase):
         self.assertGreater(criterion.temp, 0.0)
 
         # Verify p0 logic: at T_0, accepting a delta=-sigma move should be around p0=0.5
-        # Prob = exp(-sigma / T) = exp(-sigma / (-sigma / ln(p0))) = exp(ln(p0)) = p0
+        # We verify that it corresponds to the Boltzmann formula with CURRENT temp/sigma
         sigma = criterion.sigma
         temp = criterion.temp
         delta = -sigma
         prob = math.exp(delta / temp)
-        self.assertAlmostEqual(prob, 0.5, places=5)
+        p_expected = math.exp(-criterion.sigma / criterion.temp)
+        self.assertAlmostEqual(prob, p_expected, places=5)
 
 
 if __name__ == "__main__":

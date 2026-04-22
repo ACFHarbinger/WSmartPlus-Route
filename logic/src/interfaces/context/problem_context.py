@@ -88,6 +88,9 @@ class ProblemContext:
             revenue_per_kg:  r_w loaded from area params.
             cost_per_km:     c_km loaded from area params.
         """
+        if "problem" in kwargs and isinstance(kwargs["problem"], ProblemContext):
+            return kwargs["problem"]
+
         bins = kwargs.get("bins")
         wastes: Dict[int, float] = kwargs.get("wastes") or (
             {i: float(bins.c[i - 1]) for i in range(1, len(bins.c) + 1)} if bins is not None else {}

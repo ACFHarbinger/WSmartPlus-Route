@@ -92,9 +92,6 @@ class TSPEnv(RL4COEnvBase):
 
         # Append to tour
         td["tour"] = torch.cat([td["tour"], action.unsqueeze(-1)], dim=-1)
-
-        # print(f"DEBUG: Step i={td['i'].item()}, action={action.item()}, visited={td['visited'].sum().item()}")
-
         return td
 
     def _get_action_mask(self, td: TensorDict) -> torch.Tensor:
@@ -122,8 +119,4 @@ class TSPEnv(RL4COEnvBase):
         all_visited = td["visited"].all(dim=-1)
         current_is_depot = td["current_node"].squeeze(-1) == 0
         done = all_visited & current_is_depot
-
-        # Debugging infinite loop
-        # if done.any(): print(f"DEBUG: TSP Done at nodes {td['visited'].sum(-1)}")
-
         return done

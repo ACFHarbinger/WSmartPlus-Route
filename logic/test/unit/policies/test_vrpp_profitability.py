@@ -25,7 +25,7 @@ def test_subset_dimensions():
     # 2. Test use_all_bins=True (VRPP/Override behavior)
     # This should result in an 11x11 problem
     sub_dm_all, _, indices_all, mandatory_all = policy._create_subset_problem(
-        mandatory, dist_matrix, bins_mock, use_all_bins=True
+        [1, 3, 5], dist_matrix, bins_mock, use_all_bins=True
     )
 
     assert sub_dm_all.shape == (11, 11), f"VRPP DM should be 11x11, got {sub_dm_all.shape}"

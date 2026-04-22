@@ -414,11 +414,17 @@ class BaseRoutingPolicy(PolicyVizMixin, IRouteConstructor):
         Returns:
             Tuple of (tour, cost, profit, search_context, multi_day_context)
         """
+        from logic.src.interfaces.context.search_context import SearchContext
+
         mandatory = kwargs.get("mandatory", [])
 
         # Carry forward contexts if present
         incoming_ctx: Optional[SearchContext] = kwargs.get("search_context")
         multi_day_ctx: Optional[Any] = kwargs.get("multi_day_context")
+
+        # Ensure we have a ledger even if Phase 1 was skipped (e.g., unit tests)
+        if incoming_ctx is None:
+            incoming_ctx = SearchContext.initialize()
 
         # 1. Validate
         early_result = self._validate_mandatory(mandatory)

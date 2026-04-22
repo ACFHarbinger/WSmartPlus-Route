@@ -102,11 +102,8 @@ class LinearSplit:
             node = giant_tour[i - 1]
             dem = wastes.get(node, 0)
 
-            # Fix 6: Demand counted toward route capacity (mandatory + non-skippable nodes only)
-            # This ensures the capacity feasibility window is only constrained by nodes
-            # actually included in a route.
-            is_skip_candidate = self.vrpp and node not in self.mandatory_nodes
-            cap_demand = 0.0 if is_skip_candidate else dem
+            # Skipping is handled by the V[i] = V[i-1] transition, not by zeroing demand.
+            cap_demand = dem
 
             load_curr += cap_demand
             rev_curr += dem * R_val

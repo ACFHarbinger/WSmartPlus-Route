@@ -65,3 +65,13 @@ myst_enable_extensions = [
     "tasklist",
 ]
 ```
+
+## 3. Architecture Overview
+
+Below is the automated class hierarchy for the routing engine. Click on any class to jump to its API documentation.
+
+::: {uml}
+:classes: ../../src/wsmart_route/logic
+:members:
+:exclude: InternalHelper
+:::

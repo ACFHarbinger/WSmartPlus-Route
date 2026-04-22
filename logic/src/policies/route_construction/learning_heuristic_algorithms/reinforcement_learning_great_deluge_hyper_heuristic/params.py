@@ -85,6 +85,19 @@ class RLGDHHParams:
     # Injected Acceptance Criterion
     acceptance_criterion: IAcceptanceCriterion = field(default_factory=lambda: None)  # type: ignore
 
+    def __post_init__(self):
+        """Ensure acceptance criterion is initialized even if not passed in config."""
+        if self.acceptance_criterion is None:
+            from logic.src.policies.route_construction.acceptance_criteria.base.factory import (
+                AcceptanceCriterionFactory,
+            )
+
+            self.acceptance_criterion = AcceptanceCriterionFactory.create(
+                name="gd",
+                target_fitness_multiplier=0.0,  # quality_lb=0 per paper
+                max_iterations=self.max_iterations,
+            )
+
     @classmethod
     def from_config(cls, config: Any) -> "RLGDHHParams":
         """Create parameters from a configuration object."""
