@@ -22,7 +22,6 @@ from .cgh import CGHConfig
 from .cp_sat import CPSATConfig
 from .cvrp import CVRPConfig
 from .de import DEConfig
-from .ema import EMAConfig
 from .es_mcl import MuCommaLambdaESConfig
 from .es_mkl import MuKappaLambdaESConfig
 from .es_mpl import MuPlusLambdaESConfig
@@ -30,7 +29,6 @@ from .esdp import ExactSDPConfig
 from .fa import FAConfig
 from .filo import FILOConfig
 from .ga import GAConfig
-from .gd import GDConfig
 from .gihh import GIHHConfig
 from .gls import GLSConfig
 from .gp_hh import GPHHConfig
@@ -45,7 +43,6 @@ from .hna import HNAPolicyConfig
 from .hs import HSConfig
 from .hulk import HULKConfig
 from .hvpl import HVPLConfig
-from .ie import IEConfig
 from .ils import ILSConfig
 from .ils_bd import IntegerLShapedBendersConfig
 from .ils_rvnd_sp import ILSRVNDSPConfig
@@ -53,7 +50,6 @@ from .jgo import JointGreedyConfig
 from .jsa import JointSAConfig
 from .kgls import KGLSConfig
 from .ks import KernelSearchConfig
-from .lahc import LAHCConfig
 from .lb import LocalBranchingConfig
 from .lb_vns import LocalBranchingVNSConfig
 from .lbbd import LBBDConfig
@@ -71,8 +67,6 @@ from .mp_pso import MP_PSO_Config
 from .mp_sa import MP_SA_Config
 from .na import NeuralAgentConfig
 from .nds_brkga import NDSBRKGAConfig
-from .oba import OBAConfig
-from .oi import OIConfig
 from .other import MandatorySelectionConfig, RouteImprovingConfig
 from .ph import PHConfig
 from .phh import PHHConfig
@@ -87,12 +81,10 @@ from .rl_ahvpl import RLAHVPLConfig
 from .rl_alns import RLALNSConfig
 from .rl_gd_hh import RLGDHHConfig
 from .rl_hvpl import RLHVPLConfig
-from .rrt import RRTConfig
 from .rts import RTSConfig
 from .sa import SAConfig
 from .sans import SANSConfig
 from .sca import SCAConfig
-from .schc import SCHCConfig
 from .shh import SHHConfig
 from .sisr import SISRConfig
 from .slc import SLCConfig
@@ -100,7 +92,6 @@ from .src import SRCConfig
 from .ss_hh import SSHHConfig
 from .st_ef import ScenarioTreeExtensiveFormConfig
 from .swc_tcf import SWCTCFConfig
-from .ta import TAConfig
 from .ts import TSConfig
 from .tsp import TSPConfig
 from .vns import VNSConfig
@@ -144,7 +135,6 @@ __all__ = [
     "SISRConfig",
     "TSPConfig",
     "SWCTCFConfig",
-    "OIConfig",
     "POPMUSICConfig",
     "MandatorySelectionConfig",
     "RouteImprovingConfig",
@@ -172,20 +162,11 @@ __all__ = [
     "MemeticAlgorithmDualPopulationConfig",
     "PSOConfig",
     "MAConfig",
-    "OIConfig",
-    "IEConfig",
-    "GDConfig",
-    "TAConfig",
     "TSConfig",
-    "SCHCConfig",
-    "EMAConfig",
     "SAConfig",
-    "LAHCConfig",
     "LocalBranchingConfig",
     "LocalBranchingVNSConfig",
-    "OBAConfig",
     "RENSConfig",
-    "RRTConfig",
     "GAConfig",
     "DEConfig",
     "GLSConfig",
