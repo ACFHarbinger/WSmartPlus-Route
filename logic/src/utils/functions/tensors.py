@@ -1,5 +1,25 @@
 """
 Tensor manipulation and device movement utilities.
+
+Attributes:
+    move_to: Recursively moves variables to the specified device.
+    compute_in_batches: Computes a memory-heavy function in batches.
+    do_batch_rep: Replicates a variable n times along the batch dimension.
+
+Example:
+    >>> import torch
+    >>> from logic.src.utils.functions import move_to, compute_in_batches, do_batch_rep
+    >>> # Move tensor to device
+    >>> tensor = torch.tensor([1, 2, 3])
+    >>> moved = move_to(tensor, "cuda")
+    >>> # Compute in batches
+    >>> def heavy_func(x):
+    ...     return x * x
+    >>> result = compute_in_batches(heavy_func, 2, tensor)
+    >>> # Replicate tensor
+    >>> replicated = do_batch_rep(tensor, 3)
+    >>> print(replicated.shape)
+    torch.Size([6])
 """
 
 from __future__ import annotations
@@ -51,7 +71,7 @@ def compute_in_batches(
         f: The function that is computed, should take only tensors as arguments and
             return tensor or tuple of tensors.
         calc_batch_size: The batch size to use when computing this function.
-        *args: Tensor arguments with equally sized first batch dimension.
+        args: Tensor arguments with equally sized first batch dimension.
         n: the total number of elements.
 
     Returns:

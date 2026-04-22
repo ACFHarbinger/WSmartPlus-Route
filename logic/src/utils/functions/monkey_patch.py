@@ -4,6 +4,16 @@ Monkey patches for PyTorch functionality.
 This module patches `torch.optim.Optimizer.load_state_dict` to ensure robust handling
 of device mapping when loading optimizer states, specifically casting tensors to the
 correct device matching the model parameters.
+
+Attributes:
+    load_state_dict: Loads the optimizer state.
+    torch.optim.Optimizer.load_state_dict: Patched version of load_state_dict.
+
+Example:
+    >>> import torch
+    >>> from logic.src.utils.functions import load_state_dict
+    >>> optimizer = torch.optim.Adam(model.parameters())
+    >>> optimizer.load_state_dict(state_dict)
 """
 
 from collections import defaultdict
@@ -32,6 +42,9 @@ def load_state_dict(self: torch.optim.Optimizer, state_dict: Dict[str, Any]) -> 
 
     Raises:
         ValueError: If state_dict sizes do not match optimizer param groups.
+
+    Returns:
+        None
     """
     # deepcopy, to be consistent with module API
     state_dict = deepcopy(state_dict)

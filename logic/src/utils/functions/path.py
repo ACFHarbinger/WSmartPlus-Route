@@ -1,5 +1,14 @@
 """
 Path manipulation utilities.
+
+Attributes:
+    get_path_until_string: Truncates a path up to a specific directory component.
+
+Example:
+    >>> from logic.src.utils.functions import get_path_until_string
+    >>> path = "/home/user/project/src/module.py"
+    >>> get_path_until_string(path, "src")
+    '/home/user/project/src'
 """
 
 from __future__ import annotations

@@ -1,8 +1,16 @@
 """
 Reinforcement Learning utilities for WSmart-Route.
+
+Attributes:
+    _internal_safe_copy: Internal helper for safe_td_copy to handle recursion and avoid circular refs.
+    safe_td_copy: Perform a deep copy of a TensorDict that is safe against circular references and complex objects.
+
+Example:
+    >>> _internal_safe_copy(obj, visited)
+    >>> safe_td_copy(td)
 """
 
-from typing import Any
+from typing import Any, Optional
 
 import torch
 from tensordict import TensorDict
@@ -10,8 +18,17 @@ from tensordict import TensorDict
 from logic.src.interfaces import ITensorDictLike, ITraversable
 
 
-def _internal_safe_copy(obj: object, visited: set):
-    """Internal helper for safe_td_copy to handle recursion and avoid circular refs."""
+def _internal_safe_copy(obj: object, visited: set) -> Optional[Any]:
+    """
+    Internal helper for safe_td_copy to handle recursion and avoid circular refs.
+
+    Args:
+        obj: The object to copy.
+        visited: Set of visited objects.
+
+    Returns:
+        The copied object.
+    """
     obj_id = id(obj)
     if obj_id in visited:
         return None
@@ -53,6 +70,12 @@ def safe_td_copy(td: object) -> Any:
     """
     Perform a deep copy of a TensorDict that is safe against circular references
     and complex objects.
+
+    Args:
+        td: The TensorDict to copy.
+
+    Returns:
+        The copied TensorDict.
     """
     if not isinstance(td, ITensorDictLike):
         return td

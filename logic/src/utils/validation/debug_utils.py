@@ -3,6 +3,15 @@ Debugging utilities for the WSmart+ Route framework.
 
 This module provides tools for monitoring runtime state, including:
 - Variable watching (tracing value changes).
+
+Attributes:
+    watch (callable): Watch a variable by name. Prints every change with line number.
+    watch_all (callable): Watch all local variables in the caller's frame. Prints every change with line number.
+
+Example:
+    >>> from logic.src.utils.validation.debug_utils import watch
+    >>> watch("my_variable")
+    >>> watch_all()
 """
 
 import sys
@@ -28,6 +37,9 @@ def watch(
 
     Raises:
         NameError: If variable is not found in locals or globals.
+
+    Returns:
+        None
     """
     caller_frame = sys._getframe(frame_depth)
     if callback is None:
@@ -84,12 +96,27 @@ def watch_all(
     Args:
         callback (callable, optional): Custom callback (var_name, old, new, frame) -> None.
         frame_depth (int, optional): Stack depth to watch from. Defaults to 1.
+
+    Raises:
+        NameError: If no variables are found in the caller's frame.
+
+    Returns:
+        None
     """
     caller_frame = sys._getframe(frame_depth)
     # 1. Establish the non-optional callback
     if callback is None:
 
         def default_callback(var_name: str, old: Any, new: Any, frame: FrameType) -> None:
+            """
+            Default callback function that is called for each change in a variable.
+
+            Args:
+                var_name (str): The name of the variable that changed.
+                old (Any): The old value of the variable.
+                new (Any): The new value of the variable.
+                frame (FrameType): The frame in which the variable changed.
+            """
             stack = traceback.extract_stack(frame)[:-1]
             caller = stack[-1]
             print(f"DEBUG → {var_name}: {old} → {new}")
@@ -102,6 +129,17 @@ def watch_all(
     old_locals = dict(caller_frame.f_locals)
 
     def tracer(frame: FrameType, event: str, arg: Any) -> Callable:
+        """
+        Tracer function that is called for each line of code executed.
+
+        Args:
+            frame (FrameType): The current frame.
+            event (str): The event that triggered the tracer.
+            arg (Any): The argument that triggered the tracer.
+
+        Returns:
+            Callable: The tracer function.
+        """
         if event != "line" or frame is not caller_frame:
             return tracer
 

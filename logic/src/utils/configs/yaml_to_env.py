@@ -1,16 +1,28 @@
 """
 Utilities to convert YAML configuration files to environment variables.
+
+Attributes:
+    to_bash_value: Convert a Python value to a Bash-friendly string representation.
+    load_config: Load a YAML configuration file and recursively merge its defaults.
+    deep_merge: Deeply merge source dictionary into target dictionary.
+    main: Main entry point to convert YAML files to environment variables.
+
+Example:
+    to_bash_value(value)
+    load_config(config_path)
+    deep_merge(target, source)
 """
 
 import os
 import sys
+from typing import Any
 
 import yaml
 
 from logic.src.interfaces.traversable import ITraversable
 
 
-def to_bash_value(value):
+def to_bash_value(value: Any) -> str:
     """Convert a Python value to a Bash-friendly string representation.
 
     Args:
@@ -40,7 +52,7 @@ def to_bash_value(value):
         return f'"{str(value)}"'
 
 
-def load_config(config_path):
+def load_config(config_path: str) -> dict:
     """Load a YAML configuration file and recursively merge its defaults.
 
     Args:
@@ -93,8 +105,17 @@ def load_config(config_path):
     return final_merged
 
 
-def deep_merge(target, source):
-    """Deeply merge source dictionary into target dictionary."""
+def deep_merge(target: dict, source: dict) -> dict:
+    """
+    Deeply merge source dictionary into target dictionary.
+
+    Args:
+        target: Target dictionary
+        source: Source dictionary
+
+    Returns:
+        Merged dictionary
+    """
     for key, value in source.items():
         if (
             isinstance(value, ITraversable)
@@ -107,8 +128,16 @@ def deep_merge(target, source):
     return target
 
 
-def main():
-    """Main entry point to convert YAML files to environment variables."""
+def main() -> None:
+    """
+    Main entry point to convert YAML files to environment variables.
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
     if len(sys.argv) < 2:
         print("Usage: python yaml_to_env.py <config1.yaml> [<config2.yaml> ...]", file=sys.stderr)
         sys.exit(1)

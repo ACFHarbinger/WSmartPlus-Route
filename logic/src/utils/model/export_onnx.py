@@ -20,7 +20,19 @@ CLI usage:
         --embed_dim 128 \\
         --simplify
 
-Programmatic usage:
+Attributes:
+    ONNX_AVAILABLE: Whether ONNX is available.
+    ONNXSIM_AVAILABLE: Whether ONNXSIM is available.
+    export_encoder_to_onnx: Traces and exports a single encoder ``nn.Module`` to ONNX format.
+    export_policy_components: Exports the named sub-modules of a policy to separate ONNX files.
+    _SingleInputWrapper: Wrapper class to handle single-input models.
+    _infer_device: Infers the device of the model.
+    _validate_onnx: Validates the exported ONNX model.
+    _try_simplify: Tries to simplify the ONNX model.
+    _build_arg_parser: Builds the argument parser for the CLI.
+    main: Main entry point for the CLI.
+
+Example:
     from logic.src.utils.model.export_onnx import export_encoder_to_onnx
     path = export_encoder_to_onnx(model.encoder, export_dir="assets/onnx", n_nodes=50)
 """
@@ -218,13 +230,31 @@ class _SingleInputWrapper(nn.Module):
 
     Required because some encoders return ``(embeddings, mask)`` tuples or
     accept additional keyword arguments that confuse ``torch.onnx.export``.
+
+    Attributes:
+        encoder: The encoder ``nn.Module`` to export.
     """
 
     def __init__(self, encoder: nn.Module) -> None:
+        """
+        Initialize the wrapper.
+
+        Args:
+            encoder: The encoder ``nn.Module`` to export.
+        """
         super().__init__()
         self.encoder = encoder
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:  # type: ignore[override]
+        """
+        Forward pass of the wrapper.
+
+        Args:
+            x: The input tensor.
+
+        Returns:
+            The output tensor.
+        """
         out = self.encoder(x)
         # Unwrap tuple/list outputs — return first tensor element
         if isinstance(out, (tuple, list)):
@@ -233,7 +263,15 @@ class _SingleInputWrapper(nn.Module):
 
 
 def _infer_device(module: nn.Module) -> torch.device:
-    """Return the device of the first parameter, defaulting to CPU."""
+    """
+    Return the device of the first parameter, defaulting to CPU.
+
+    Args:
+        module: The ``nn.Module`` to infer the device of.
+
+    Returns:
+        The device of the first parameter, defaulting to CPU.
+    """
     try:
         return next(module.parameters()).device
     except StopIteration:
@@ -241,7 +279,12 @@ def _infer_device(module: nn.Module) -> torch.device:
 
 
 def _validate_onnx(path: str) -> None:
-    """Run onnx.checker on the exported model. Logs a warning if onnx is not installed."""
+    """
+    Run onnx.checker on the exported model. Logs a warning if onnx is not installed.
+
+    Args:
+        path: The path to the exported ONNX model.
+    """
     if not ONNX_AVAILABLE:
         log.warning("onnx package not installed; skipping validation. Run: pip install onnx")
         return
@@ -255,7 +298,12 @@ def _validate_onnx(path: str) -> None:
 
 
 def _try_simplify(path: str) -> None:
-    """Attempt onnxsim simplification, logging a warning on failure."""
+    """
+    Attempt onnxsim simplification, logging a warning on failure.
+
+    Args:
+        path: The path to the exported ONNX model.
+    """
     if not ONNXSIM_AVAILABLE:
         log.warning("onnxsim not installed; skipping simplification. Run: pip install onnxsim")
         return
@@ -277,6 +325,12 @@ def _try_simplify(path: str) -> None:
 
 
 def _build_arg_parser() -> argparse.ArgumentParser:
+    """
+    Build the argument parser for the CLI.
+
+    Returns:
+        The argument parser.
+    """
     parser = argparse.ArgumentParser(description="Export a WSmart-Route encoder/policy to ONNX for Netron inspection.")
     parser.add_argument(
         "--checkpoint",

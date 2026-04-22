@@ -1,5 +1,30 @@
 """
 POMO (Policy Optimization with Multiple Optima) Operations.
+
+Attributes:
+    select_start_nodes: Select start nodes for POMO-style multi-start decoding.
+    select_start_nodes_by_distance: Select start nodes based on distance from depot.
+    get_num_starts: Get environment-specific number of start nodes for multi-start decoding.
+    get_best_actions: Select best actions from multi-start rollouts.
+
+Example:
+    >>> from logic.src.utils.ops.pomo import select_start_nodes
+    >>> td = TensorDict({"locs": torch.randn(1, 10, 2)}, batch_size=[1])
+    >>> select_start_nodes(td, 3)
+    tensor([0, 1, 2])
+    >>> from logic.src.utils.ops.pomo import select_start_nodes_by_distance
+    >>> td = TensorDict({"locs": torch.randn(1, 10, 2), "depot": torch.randn(1, 2)}, batch_size=[1])
+    >>> select_start_nodes_by_distance(td, 3)
+    tensor([0, 1, 2])
+    >>> from logic.src.utils.ops.pomo import get_num_starts
+    >>> td = TensorDict({"locs": torch.randn(1, 10, 2)}, batch_size=[1])
+    >>> get_num_starts(td)
+    10
+    >>> from logic.src.utils.ops.pomo import get_best_actions
+    >>> actions = torch.randn(1, 10, 10)
+    >>> max_idxs = torch.tensor([0])
+    >>> get_best_actions(actions, max_idxs)
+    tensor([[0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]])
 """
 
 from __future__ import annotations

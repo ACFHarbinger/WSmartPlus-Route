@@ -1,5 +1,16 @@
 """
 File splitting and reassembly utilities.
+
+Attributes:
+    split_file: Splits a large CSV or Excel file into smaller chunks based on size.
+    chunk_zip_content: Extracts a ZIP archive and chunks files larger than max_part_size into multiple parts.
+    reassemble_files: Reassembles several files from their chunks.
+
+Example:
+    >>> from logic.src.utils.io.splitting import split_file, chunk_zip_content, reassemble_files
+    >>> chunked_files = split_file("path/to/large_file.csv", 1000000, "path/to/output")
+    >>> chunked_files = chunk_zip_content("path/to/archive.zip", 1000000, "path/to/output")
+    >>> reassembled_files = reassemble_files("path/to/chunks")
 """
 
 import os

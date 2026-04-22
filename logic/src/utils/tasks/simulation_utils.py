@@ -1,3 +1,19 @@
+"""
+Utilities for parallel task execution.
+
+This module provides functions to prepare arguments for parallel tasks
+and print execution information.
+
+Attributes:
+    prepare_parallel_task_args: Prepare argument tuples for parallel task execution.
+    print_execution_info: Print information about parallel execution configuration.
+
+Example:
+    >>> import simulation_utils
+    >>> simulation_utils.prepare_parallel_task_args(policies, n_samples, indices, sample_idx_ls)
+    >>> simulation_utils.print_execution_info(task_count, n_cores)
+"""
+
 import time
 from typing import Any, List, Tuple
 
@@ -18,6 +34,9 @@ def prepare_parallel_task_args(
         n_samples: Number of samples per policy.
         indices: Bin subset indices per sample.
         sample_idx_ls: Sample index lists per policy.
+
+    Returns:
+        List[Tuple[Any, ...]]: List of argument tuples for parallel tasks.
     """
     if n_samples > 1:
         return [(indices[sid], sid, pol_id) for pol_id in range(len(policies)) for sid in sample_idx_ls[pol_id]]
@@ -28,6 +47,10 @@ def prepare_parallel_task_args(
 def print_execution_info(task_count: int, n_cores: int) -> None:
     """
     Print information about parallel execution configuration.
+
+    Args:
+        task_count (int): Number of tasks.
+        n_cores (int): Number of CPU cores.
     """
     if n_cores > 1:
         print(f"\n[INFO] Launching {task_count} WSmart Route simulations on {n_cores} CPU cores...")

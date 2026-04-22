@@ -1,5 +1,16 @@
 """
 Configuration loading utilities for model arguments.
+
+Attributes:
+    _load_normalization_args: Loads normalization arguments from a JSON file.
+    _load_activation_args: Loads activation arguments from a JSON file.
+    load_args: Loads argument configuration from a JSON file.
+
+Example:
+    >>> from logic.src.utils.model.config_utils import load_args
+    >>> args = load_args("path/to/args.json")
+    >>> isinstance(args, dict)
+    True
 """
 
 from __future__ import annotations

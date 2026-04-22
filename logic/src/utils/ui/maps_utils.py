@@ -1,5 +1,16 @@
 """
 Shared utilities and constants for map rendering.
+
+Attributes:
+    get_map_center: Calculate the center point of a tour.
+    load_distance_matrix: Load the distance matrix for a given problem instance.
+
+Example:
+    >>> from logic.src.utils.ui.maps_utils import get_map_center, load_distance_matrix
+    >>> get_map_center([{"lat": 1, "lng": 2}, {"lat": 3, "lng": 4}])
+    (2.0, 3.0)
+    >>> load_distance_matrix("riomaior")
+    DataFrame containing the distance matrix for riomaior.
 """
 
 from pathlib import Path

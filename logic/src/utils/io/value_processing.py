@@ -1,5 +1,17 @@
 """
 Recursive traversal utilities for JSON-like data structures.
+
+Attributes:
+    find_single_input_values: Recursively find all *source* values for single-input mode.
+    find_two_input_values: Recursively find all pairs of *source* values for two-input mode.
+
+Example:
+    >>> from logic.src.utils.io.value_processing import find_single_input_values, find_two_input_values
+    >>> data = {"km": [10, 20], "kg": [100, 200]}
+    >>> find_single_input_values(data)
+    [('km', [10, 20])]
+    >>> find_two_input_values(data, "km", "kg")
+    [('km', [10, 20], [100, 200])]
 """
 
 from typing import Any, List, Optional, Tuple, Union
@@ -44,7 +56,17 @@ def find_single_input_values(
 
 
 def _extract_two_vals(data: Any, k1: str, k2_or_val: Any) -> Tuple[Any, Any, bool]:
-    """Extract v1 and v2 based on input keys/val."""
+    """
+    Extract v1 and v2 based on input keys/val.
+
+    Args:
+        data: The data structure to search.
+        k1: The first key to look for.
+        k2_or_val: The second key or value to look for.
+
+    Returns:
+        Tuple of (v1, v2, success).
+    """
     if k1 not in data:
         return None, None, False
     v1 = data[k1]
@@ -56,7 +78,15 @@ def _extract_two_vals(data: Any, k1: str, k2_or_val: Any) -> Tuple[Any, Any, boo
 
 
 def _process_val_pair(path: str, v1: Any, v2: Any, results: List[Tuple[str, Any, Any]]):
-    """Process a pair of values, handling list/tuple combinations."""
+    """
+    Process a pair of values, handling list/tuple combinations.
+
+    Args:
+        path: The path to the values.
+        v1: The first value.
+        v2: The second value.
+        results: The list to append the results to.
+    """
     if isinstance(v1, (list, tuple)):
         if isinstance(v2, (list, tuple)) and len(v1) == len(v2):
             for i, (item1, item2) in enumerate(zip(v1, v2, strict=False)):
@@ -77,7 +107,18 @@ def find_two_input_values(
     input_key1: Optional[str] = None,
     input_key2: Union[str, int, float, None] = None,
 ) -> List[Tuple[str, Any, Any]]:
-    """Recursively find all pairs of *source* values for two-input mode."""
+    """
+    Recursively find all pairs of *source* values for two-input mode.
+
+    Args:
+        data: The data structure to search.
+        current_path: Current path in the recursive search.
+        input_key1: The first key to look for.
+        input_key2: The second key or value to look for.
+
+    Returns:
+        List of (location_path, value1, value2) tuples.
+    """
     results: List[Tuple[str, Any, Any]] = []
 
     if isinstance(data, ITraversable) and input_key1 is not None:

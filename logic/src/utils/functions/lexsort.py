@@ -1,5 +1,15 @@
 """
 Lexicographical sort for PyTorch.
+
+Attributes:
+    torch_lexsort: Performs lexicographic sorting on a sequence of keys using PyTorch.
+    _torch_lexsort_cuda: Calculates a lexicographical sort order on GPU.
+
+Example:
+    >>> from logic.src.utils.functions import torch_lexsort
+    >>> keys = (torch.tensor([1, 2]), torch.tensor([3, 1]))
+    >>> torch_lexsort(keys)
+    tensor([1, 0])
 """
 
 import numpy as np
@@ -7,7 +17,7 @@ import torch
 
 
 # Attention, Learn to Solve Routing Problems
-def torch_lexsort(keys, dim=-1):
+def torch_lexsort(keys: tuple[torch.Tensor, ...], dim: int = -1) -> torch.Tensor:
     """
     Performs lexicographic sorting on a sequence of keys using PyTorch.
     Falls back to Numpy for CPU tensors, uses CUDA optimization if available.
@@ -26,12 +36,19 @@ def torch_lexsort(keys, dim=-1):
         return torch.from_numpy(np.lexsort([k.numpy() for k in keys], axis=dim))
 
 
-def _torch_lexsort_cuda(keys, dim=-1):
+def _torch_lexsort_cuda(keys: tuple[torch.Tensor, ...], dim: int = -1) -> torch.Tensor:
     """
     Function calculates a lexicographical sort order on GPU, similar to np.lexsort
     Relies heavily on undocumented behavior of torch.sort, namely that when sorting more than
     2048 entries in the sorting dim, it performs a sort using Thrust and it uses a stable sort
     https://github.com/pytorch/pytorch/blob/695fd981924bd805704ecb5ccd67de17c56d7308/aten/src/THC/generic/THCTensorSort.cu#L330
+
+    Args:
+        keys (tuple/list of Tensor): Sequence of keys to sort by (primary key last).
+        dim (int, optional): Dimension along which to sort. Defaults to -1.
+
+    Returns:
+        Tensor: Indices that sort the keys.
     """
 
     MIN_NUMEL_STABLE_SORT = 2049  # Minimum number of elements for stable sort

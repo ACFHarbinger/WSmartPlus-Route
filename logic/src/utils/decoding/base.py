@@ -1,5 +1,14 @@
 """
 Base class for decoding strategies.
+
+Attributes:
+    DecodingStrategy: Base class for all decoding strategies.
+
+Example:
+    >>> from logic.src.utils.decoding import DecodingStrategy
+    >>> strategy = DecodingStrategy()
+    >>> strategy.step(torch.tensor([[0.1, 0.2], [0.3, 0.4]]), torch.tensor([[True, True], [True, True]]))
+    (tensor([0, 0]), tensor([0.1, 0.3]), tensor([0.1, 0.3]))
 """
 
 from __future__ import annotations
@@ -24,6 +33,16 @@ class DecodingStrategy(ABC):
 
     Decoding strategies control how actions are selected from
     the logits produced by the policy decoder.
+
+    Attributes:
+        temperature (float): Temperature for softmax scaling. Higher = more random.
+        top_k (Optional[int]): Keep only top-k logits before sampling.
+        top_p (Optional[float]): Keep smallest set of logits with cumsum >= top_p (nucleus sampling).
+        tanh_clipping (float): Apply tanh clipping to logits (Bello et al., 2016).
+        mask_logits (bool): Whether to apply masking to invalid actions.
+        multistart (bool): Whether to use multiple starting points.
+        num_starts (int): Number of starting points for multistart.
+        select_best (bool): Whether to select best solution from multiple starts.
     """
 
     def __init__(
@@ -50,6 +69,7 @@ class DecodingStrategy(ABC):
             multistart: Whether to use multiple starting points.
             num_starts: Number of starting points for multistart.
             select_best: Whether to select best solution from multiple starts.
+            kwargs: Additional arguments.
         """
         self.temperature = temperature
         self.top_k = top_k
@@ -135,7 +155,18 @@ class DecodingStrategy(ABC):
         actions: torch.Tensor,
         num_starts: int,
     ) -> Tuple[torch.Tensor, torch.Tensor, TensorDict]:
-        """Select best solution from multiple starts."""
+        """
+        Select best solution from multiple starts.
+
+        Args:
+            td: TensorDict with final state
+            log_likelihood: Log probabilities [batch, ...]
+            actions: Selected actions [batch, seq_len]
+            num_starts: Number of starting points
+
+        Returns:
+            Tuple of (log_likelihood, actions, td)
+        """
         reward = td.get("reward", None)
         if reward is None:
             # Use log_likelihood as proxy
@@ -176,7 +207,7 @@ class DecodingStrategy(ABC):
             mask: Valid action mask [batch, num_nodes]
 
         Returns:
-            Processed logits
+            Processed logits.
         """
         # Apply tanh clipping (Bello et al., 2016)
         if self.tanh_clipping > 0:

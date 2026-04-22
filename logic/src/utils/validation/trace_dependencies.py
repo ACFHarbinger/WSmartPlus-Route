@@ -1,13 +1,21 @@
 """
 A tool to visually trace the origin and usages of a Python component,
 outputting an interactive graph with clickable, natively nested UML-style info panels.
+
+Attributes:
+    ASTScopeVisitor: A class to visit AST nodes and capture definitions.
+    DependencyGrapher: A class to trace dependencies between Python files.
+    main: Main function to trace dependencies.
+
+Example:
+    >>> python logic/src/utils/validation/trace_dependencies.py logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_cut/bc.py
 """
 
 import argparse
 import ast
 import os
 from collections import defaultdict
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Set, Tuple, Union
 
 import jinja2
 
@@ -20,20 +28,43 @@ except ImportError:
 
 
 class ASTScopeVisitor(ast.NodeVisitor):
-    """Custom AST visitor to capture definitions as a nested tree and group imports."""
+    """
+    Custom AST visitor to capture definitions as a nested tree and group imports.
 
-    def __init__(self):
-        self.tree = {"name": "<module>", "children": []}
-        self.stack = [self.tree]
+    Attributes:
+        tree (Dict[str, Union[str, List[Dict[str, List[str]]]]]): The tree structure of the AST.
+        stack (List[Dict[str, Union[str, List[Dict[str, List[str]]]]]]): The stack of nodes in the AST.
+        imports_grouped (Dict[str, List[str]]): A dictionary mapping import prefixes to a list of imports.
+        imports_direct (List[str]): A list of direct imports.
+        imports_graph (Dict[str, Tuple[str, str]]): A dictionary mapping import names to a tuple of (prefix, name).
+        flat_defs (Set[str]): A set of all defined names.
+        seen_in_scope (Set[Tuple[int, str]]): A set of seen names in the current scope.
+    """
 
-        self.imports_grouped = defaultdict(list)
-        self.imports_direct = []
-        self.imports_graph = {}
+    def __init__(self) -> None:
+        """
+        Initialize the ASTScopeVisitor.
+        """
+        self.tree: Dict[str, Union[str, List[Dict[str, List[str]]]]] = {"name": "<module>", "children": []}
+        self.stack: List[Dict[str, Union[str, List[Dict[str, List[str]]]]]] = [self.tree]
 
-        self.flat_defs = set()
-        self.seen_in_scope = set()
+        self.imports_grouped: Dict[str, List[str]] = defaultdict(list)
+        self.imports_direct: List[str] = []
+        self.imports_graph: Dict[str, Tuple[str, str]] = {}
 
-    def _add_node(self, name: str):
+        self.flat_defs: Set[str] = set()
+        self.seen_in_scope: Set[Tuple[int, str]] = set()
+
+    def _add_node(self, name: str) -> Optional[Dict[str, List[Dict[str, List[str]]]]]:
+        """
+        Add a node to the graph.
+
+        Args:
+            name (str): The name of the node.
+
+        Returns:
+            Optional[Dict[str, List[Dict[str, List[str]]]]]: The node if it was added, None otherwise.
+        """
         # Prevent duplicates in the exact same scope
         scope_key = id(self.stack[-1])
         sig = (scope_key, name)
@@ -45,6 +76,12 @@ class ASTScopeVisitor(ast.NodeVisitor):
         return None
 
     def visit_ClassDef(self, node):
+        """
+        Visit a class definition node and add it to the graph.
+
+        Args:
+            node (ast.ClassDef): The class definition node.
+        """
         new_node = self._add_node(f"class {node.name}")
         self.flat_defs.add(node.name)
         if new_node:
@@ -53,6 +90,12 @@ class ASTScopeVisitor(ast.NodeVisitor):
             self.stack.pop()
 
     def visit_FunctionDef(self, node):
+        """
+        Visit a function definition node and add it to the graph.
+
+        Args:
+            node (ast.FunctionDef): The function definition node.
+        """
         new_node = self._add_node(f"def {node.name}")
         self.flat_defs.add(node.name)
         if new_node:
@@ -61,6 +104,12 @@ class ASTScopeVisitor(ast.NodeVisitor):
             self.stack.pop()
 
     def visit_AsyncFunctionDef(self, node):
+        """
+        Visit an async function definition node and add it to the graph.
+
+        Args:
+            node (ast.AsyncFunctionDef): The async function definition node.
+        """
         new_node = self._add_node(f"async def {node.name}")
         self.flat_defs.add(node.name)
         if new_node:
@@ -69,6 +118,12 @@ class ASTScopeVisitor(ast.NodeVisitor):
             self.stack.pop()
 
     def visit_Assign(self, node):
+        """
+        Visit an assignment node and add it to the graph.
+
+        Args:
+            node (ast.Assign): The assignment node.
+        """
         for target in node.targets:
             if isinstance(target, ast.Name):
                 self._add_node(target.id)
@@ -76,6 +131,12 @@ class ASTScopeVisitor(ast.NodeVisitor):
         self.generic_visit(node)
 
     def visit_ImportFrom(self, node):
+        """
+        Visit an import node and add it to the graph.
+
+        Args:
+            node (ast.ImportFrom): The import node.
+        """
         module = node.module or ""
         level = node.level
         prefix = "." * level + module if level > 0 else module
@@ -88,6 +149,12 @@ class ASTScopeVisitor(ast.NodeVisitor):
         self.generic_visit(node)
 
     def visit_Import(self, node):
+        """
+        Visit an import node and add it to the graph.
+
+        Args:
+            node (ast.Import): The import node.
+        """
         for alias in node.names:
             local_name = alias.asname or alias.name
             self.imports_graph[local_name] = (alias.name, alias.name)
@@ -98,7 +165,29 @@ class ASTScopeVisitor(ast.NodeVisitor):
 
 
 class DependencyGrapher:
-    def __init__(self, project_root: str):
+    """
+    A class to trace dependencies between Python files.
+
+    Attributes:
+        project_root (str): The root directory of the project.
+        all_files (Set[str]): A set of all Python files in the project.
+        definitions (Dict[str, Set[str]]): A dictionary mapping file paths to a set of defined names.
+        imports (Dict[str, Dict[str, Tuple[str, str]]]): A dictionary mapping file paths to a dictionary of imports.
+        ui_definitions (Dict[str, Dict]): A dictionary mapping file paths to a dictionary of definitions for UI.
+        ui_imports_direct (Dict[str, List[str]]): A dictionary mapping file paths to a list of direct imports for UI.
+        ui_imports_grouped (Dict[str, Dict[str, List[str]]]): A dictionary mapping file paths to a dictionary of grouped imports for UI.
+        nodes (Set[Tuple[str, str]]): A set of nodes for the graph.
+        edges (List[Tuple[str, str, str]]): A list of edges for the graph.
+        jinja_env (jinja2.Environment): The Jinja2 environment for rendering the graph.
+    """
+
+    def __init__(self, project_root: str) -> None:
+        """
+        Initialize the DependencyGrapher.
+
+        Args:
+            project_root (str): The root directory of the project.
+        """
         self.project_root = os.path.abspath(project_root)
         self.all_files: Set[str] = set()
 
@@ -119,6 +208,15 @@ class DependencyGrapher:
         self.jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(script_dir))
 
     def _python_path_to_filepath(self, module_path: str) -> Optional[str]:
+        """
+        Convert a Python path to a file path.
+
+        Args:
+            module_path (str): The Python path.
+
+        Returns:
+            Optional[str]: The file path.
+        """
         target_suffix = module_path.replace(".", os.sep) + ".py"
         target_init_suffix = os.path.join(module_path.replace(".", os.sep), "__init__.py")
 
@@ -127,7 +225,10 @@ class DependencyGrapher:
                 return filepath
         return None
 
-    def scan_project(self):
+    def scan_project(self) -> None:
+        """
+        Scan the project directory and extract all definitions and imports.
+        """
         for root, _, files in os.walk(self.project_root):
             if any(part.startswith(".") or part in ("venv", "__pycache__", "env") for part in root.split(os.sep)):
                 continue
@@ -139,7 +240,13 @@ class DependencyGrapher:
         for filepath in self.all_files:
             self._parse_file(filepath)
 
-    def _parse_file(self, filepath: str):
+    def _parse_file(self, filepath: str) -> None:
+        """
+        Parse a file and extract its definitions and imports.
+
+        Args:
+            filepath (str): Path to the file.
+        """
         try:
             with open(filepath, "r", encoding="utf-8") as f:
                 source = f.read()
@@ -159,6 +266,17 @@ class DependencyGrapher:
     def trace_backward(
         self, current_file: str, target_name: str, visited: Optional[Set[Tuple[str, str]]] = None
     ) -> Optional[str]:
+        """
+        Trace backward from the target node to find all origins.
+
+        Args:
+            current_file (str): The current file.
+            target_name (str): The name of the target node.
+            visited (Optional[Set[Tuple[str, str]]]): The set of visited nodes.
+
+        Returns:
+            Optional[str]: The file where the component is located.
+        """
         if visited is None:
             visited = set()
 
@@ -187,7 +305,14 @@ class DependencyGrapher:
                 self.edges.append((current_file, ext_name, "backward"))
         return None
 
-    def trace_forward(self, target_origin_file: str, target_original_name: str):
+    def trace_forward(self, target_origin_file: str, target_original_name: str) -> None:
+        """
+        Trace forward from the target node to find all usages.
+
+        Args:
+            target_origin_file (str): The file where the component is located.
+            target_original_name (str): The name of the component (function/class).
+        """
         for filepath in self.all_files:
             if filepath == target_origin_file:
                 continue
@@ -226,6 +351,15 @@ class DependencyGrapher:
                     self.edges.extend(path_edges)
 
     def _build_node_uml(self, filepath: str) -> str:
+        """
+        Build the UML for a node.
+
+        Args:
+            filepath (str): Path to the node.
+
+        Returns:
+            str: UML for the node.
+        """
         template = self.jinja_env.get_template("node_template.html")
 
         if filepath.startswith("External:"):
@@ -247,6 +381,17 @@ class DependencyGrapher:
         )
 
     def _build_edge_uml(self, source: str, target: str, direction: str) -> str:
+        """
+        Build the UML for an edge.
+
+        Args:
+            source (str): Source node.
+            target (str): Target node.
+            direction (str): Direction of the edge.
+
+        Returns:
+            str: UML for the edge.
+        """
         template = self.jinja_env.get_template("edge_template.html")
 
         src_label = os.path.relpath(source, self.project_root) if not source.startswith("External:") else source
@@ -254,7 +399,14 @@ class DependencyGrapher:
 
         return template.render(direction=direction, src_label=src_label, tgt_label=tgt_label)
 
-    def generate_graph(self, target_file: str, target_name: str):
+    def generate_graph(self, target_file: str, target_name: str) -> None:
+        """
+        Generate the Pyvis graph.
+
+        Args:
+            target_file (str): The file where the component is located.
+            target_name (str): The name of the component (function/class).
+        """
         print("Scanning project...")
         self.scan_project()
         self.nodes.add((target_file, "target"))
@@ -270,7 +422,13 @@ class DependencyGrapher:
 
         self._render_pyvis(target_file)
 
-    def _render_pyvis(self, target_node_id: str):
+    def _render_pyvis(self, target_node_id: str) -> None:
+        """
+        Render the Pyvis graph.
+
+        Args:
+            target_node_id (str): The ID of the target node.
+        """
         net = Network(height="100vh", width="100%", bgcolor="#222222", font_color="white", directed=True)
         net.force_atlas_2based(gravity=-50)
 
@@ -304,7 +462,13 @@ class DependencyGrapher:
         self._inject_uml_panel(output_file)
         print(f"\nSuccess! Interactive graph saved to: {output_file}")
 
-    def _inject_uml_panel(self, filepath: str):
+    def _inject_uml_panel(self, filepath: str) -> None:
+        """
+        Inject UML panel into the generated HTML file.
+
+        Args:
+            filepath (str): Path to the generated HTML file.
+        """
         # 1. Read the generated HTML from Pyvis
         with open(filepath, "r", encoding="utf-8") as f:
             html_content = f.read()
@@ -331,7 +495,15 @@ class DependencyGrapher:
             print("Please ensure 'uml_panel.html' is in the same directory as this script.")
 
 
-def main():
+def main() -> None:
+    """
+    Main function.
+
+    Args:
+        project_root (str): Root directory to scan.
+        target_file (str): The file where the component is located.
+        target_name (str): The name of the component (function/class).
+    """
     parser = argparse.ArgumentParser(description="Generate an interactive dependency graph for a component.")
     parser.add_argument("project_root", help="Root directory to scan")
     parser.add_argument("target_file", help="The file where the component is located")

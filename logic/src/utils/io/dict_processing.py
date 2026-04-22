@@ -1,5 +1,18 @@
 """
 Dictionary and list processing utilities for JSON-like data.
+
+Attributes:
+    process_dict_of_dicts: Process a dictionary of dictionaries and apply a function to key values.
+    process_list_of_dicts: Process a list of dictionaries.
+    process_dict_two_inputs: Process a dictionary using two input keys for a transformation.
+    process_list_two_inputs: Process a list of dictionaries using two input keys.
+
+Example:
+    >>> from logic.src.utils.io.dict_processing import process_dict_of_dicts, process_list_of_dicts, process_dict_two_inputs, process_list_two_inputs
+    >>> processed = process_dict_of_dicts(data, "km", lambda x, y: x + y, 10)
+    >>> processed = process_list_of_dicts(data, "km", lambda x, y: x + y, 10)
+    >>> processed = process_dict_two_inputs(data, "key1", "key2", "output_key", lambda x, y: x + y)
+    >>> processed = process_list_two_inputs(data, "key1", "key2", "output_key", lambda x, y: x + y)
 """
 
 from typing import Any, Callable, Dict, List, Optional, Union, cast
@@ -55,6 +68,15 @@ def process_list_of_dicts(
 ) -> bool:
     """
     Process a list of dictionaries.
+
+    Args:
+        data_list: The list of dictionaries to process.
+        output_key: Key to target.
+        process_func: Transformation function.
+        update_val: Constant parameter for process_func.
+
+    Returns:
+        True if modified.
     """
     modified = False
     for item in data_list:
@@ -75,6 +97,16 @@ def process_dict_two_inputs(
 ) -> bool:
     """
     Process a dictionary using two inputs for a transformation.
+
+    Args:
+        data_dict: The dictionary to process.
+        input_key1: The first input key.
+        input_key2_or_val: The second input key or a constant value.
+        output_key: The output key.
+        process_func: The transformation function.
+
+    Returns:
+        True if the dictionary was modified, False otherwise.
     """
     modified = False
     if not isinstance(data_dict, ITraversable):
@@ -132,6 +164,16 @@ def process_list_two_inputs(
 ) -> bool:
     """
     Process a list of dictionaries using two inputs.
+
+    Args:
+        data_list: The list of dictionaries to process.
+        input_key1: The first input key.
+        input_key2_or_val: The second input key or a constant value.
+        output_key: The output key.
+        process_func: The transformation function.
+
+    Returns:
+        True if the list was modified, False otherwise.
     """
     modified = False
     for item in data_list:

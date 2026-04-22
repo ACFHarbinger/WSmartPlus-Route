@@ -1,5 +1,16 @@
 """
 Key generation and loading utilities.
+
+This module provides functions to generate and load encryption keys.
+
+Attributes:
+    generate_key: Generate a key from a password using PBKDF2HMAC.
+    load_key: Loads a symmetric key from environment or file parameters.
+
+Example:
+    >>> import keys
+    >>> keys.generate_key()
+    >>> keys.load_key()
 """
 
 import base64

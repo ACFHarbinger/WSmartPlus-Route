@@ -914,7 +914,9 @@ class BranchAndCutSolver:
             modified_costs = {}
             for i, j in self.model.edges:
                 cost = self.model.get_edge_cost(i, j)
-                modified_costs[(i, j)] = cost - lambda_mult[i] - lambda_mult[j]
+                m_i = lambda_mult[i] if not np.isnan(lambda_mult[i]) else 0.0
+                m_j = lambda_mult[j] if not np.isnan(lambda_mult[j]) else 0.0
+                modified_costs[(i, j)] = cost - m_i - m_j
 
             # 2. Solve Minimum Cost K-Tree (Generalized 1-tree for fleet K)
             # We extract all intermediate components (Basic PC-SECs) from Kruskal's
@@ -959,7 +961,17 @@ class BranchAndCutSolver:
             # Held-Karp Subgradient Update: t_k = μ * (UB - LB) / ||g||²
             grad_norm_sq = float(np.dot(subgradient, subgradient))
             if grad_norm_sq > 1e-10:
-                hk_step = hk_mu * (best_upper_bound - current_lb) / grad_norm_sq
+                ub = best_upper_bound
+                if ub == float("inf"):
+                    # Placeholder UB: 1.2x current LB to allow non-trivial steps
+                    ub = float(current_lb) + abs(float(current_lb)) * 0.2 + 10.0
+
+                hk_step = hk_mu * (ub - current_lb) / grad_norm_sq
+
+                # Convergence safety: skip if step or grad is infinite
+                if not np.isfinite(hk_step) or not np.all(np.isfinite(subgradient)):
+                    break
+
                 lambda_mult += hk_step * subgradient
                 # Depot multiplier must be >= 0 (inequality constraint, not equality)
                 lambda_mult[0] = max(0.0, lambda_mult[0])

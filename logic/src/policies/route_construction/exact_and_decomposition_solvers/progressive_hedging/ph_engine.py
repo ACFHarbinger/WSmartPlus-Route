@@ -27,7 +27,8 @@ The augmented cost for node $i$ in scenario $\omega$ is:
 """
 
 import logging
-from typing import Any, Dict, List, Tuple, Union
+from dataclasses import asdict, is_dataclass
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
@@ -83,6 +84,7 @@ class ProgressiveHedgingEngine:
         revenue: float,
         cost_unit: float,
         mandatory_nodes: List[int],
+        current_wastes: Optional[Dict[int, float]] = None,
         **kwargs: Any,
     ) -> Tuple[List[List[List[int]]], float, Dict[str, Any]]:
         """Run the Multi-Period Progressive Hedging iterative algorithm.
@@ -146,7 +148,10 @@ class ProgressiveHedgingEngine:
                 for t in range(horizon + 1):
                     wastes_t = all_paths[s_idx][t]
                     for i in node_ids:
-                        base_profit = wastes_t[i - 1] * revenue
+                        if t == 0 and current_wastes is not None:
+                            base_profit = current_wastes.get(i, 0.0) * revenue
+                        else:
+                            base_profit = wastes_t[i - 1] * revenue
                         node_prizes[t][i] = base_profit
 
                         # Apply PH penalties only for days within consensus scope
@@ -155,22 +160,25 @@ class ProgressiveHedgingEngine:
                             penalty = (self.config.rho / 2.0) * (1.0 - 2.0 * self.y_consensus[t][i])
                             node_prizes[t][i] -= dual + penalty
 
-                # Dispatch to sub-solver (which MUST be multi-period aware)
+                # Dispatch to sub-solver via _run_solver to bypass the execute()
+                # interface which requires bins/area context unavailable here.
+                # Prizes are already in monetary units, so revenue=1.0 prevents double-scaling.
                 sub_solver = RouteConstructorFactory.get_adapter(self.sub_solver_name)
-
-                # Sub-solver execute now returns a full plan
-                # The sub-solver used here should ideally inherit from BaseMultiPeriodRoutingPolicy
-                # but for recursion depth reasons we use the raw solve if available.
-                res = sub_solver.execute(
-                    sub_dist_matrix=sub_dist_matrix,
-                    horizon=horizon,
-                    scenario_path=all_paths[s_idx],
-                    node_prizes=node_prizes[0],
-                    stockout_penalty=self.config.stockout_penalty,
-                    mandatory=mandatory_nodes,
-                    **kwargs,
+                values: Dict[str, Any] = (
+                    asdict(sub_solver.config)
+                    if sub_solver.config is not None and is_dataclass(sub_solver.config)
+                    else {}
                 )
-                full_plan_raw, solver_cost, solver_profit, _ctx, _md_ctx = res
+                routes, solver_profit, _dist_cost = sub_solver._run_solver(  # type: ignore[union-attr]
+                    sub_dist_matrix=sub_dist_matrix,
+                    sub_wastes=node_prizes[0],
+                    capacity=capacity,
+                    revenue=1.0,
+                    cost_unit=cost_unit,
+                    values=values,
+                    mandatory_nodes=mandatory_nodes,
+                )
+                full_plan_raw = routes
 
                 # Unflatten and nested-wrap if sub-solver returned a single-day flat tour
                 day_0_routes = self.ensure_route_list(full_plan_raw) if isinstance(full_plan_raw, list) else []

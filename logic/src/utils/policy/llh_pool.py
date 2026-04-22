@@ -1,7 +1,47 @@
 """
 Low-Level Heuristic (LLH) pool for hyper-heuristics.
+
 Provides basic operators for route improvement and perturbation,
 supporting both single-route and multi-period collection plans.
+
+Attributes:
+    Plan: Type alias for a list of routes.
+    LLH: Type alias for a low-level heuristic.
+    h1_greedy_move: Insert a random profitable non-mandatory node.
+    h2_random_drop: Remove a random non-mandatory node.
+    h3_two_opt: Standard 2-opt search.
+    h4_swap_nodes: Swap two nodes in the route.
+    h5_relocate_node: Relocate a node to a different position.
+    h6_replace_node: Replace a node with a more profitable external node.
+    h7_greedy_multi: Try to insert multiple profitable nodes.
+    h8_perturb_2opt: Random double bridge swap.
+    h9_worst_removal: Remove node with highest distance contribution.
+    h10_greedy_shuffle: Shuffle route and 2-opt it.
+    _make_or_opt: Create an OR-opt operator for a given chain length.
+    _make_two_opt: Create a 2-opt operator.
+    _make_three_opt: Create a 3-opt operator.
+    _make_cross_day_move: Create a cross-day move operator.
+    _make_cross_day_swap: Create a cross-day swap operator.
+    _make_day_merge_split: Create a day merge-split operator.
+    _make_day_shuffle: Create a day shuffle operator.
+    _make_double_bridge: Create a double bridge operator.
+    INTRA_ROUTE_POOL: List of intra-route operators.
+    MULTI_PERIOD_LLH_POOL: List of multi-period operators.
+    LLH_POOL: Compatibility alias for the old single-route pool.
+    LLHPool: Low-Level Heuristic Pool for hyper-heuristics.
+
+Example:
+    >>> import llh_pool
+    >>> llh_pool.h1_greedy_move(problem, route, rng)
+    >>> llh_pool.h2_random_drop(problem, route, rng)
+    >>> llh_pool.h3_two_opt(problem, route, rng)
+    >>> llh_pool.h4_swap_nodes(problem, route, rng)
+    >>> llh_pool.h5_relocate_node(problem, route, rng)
+    >>> llh_pool.h6_replace_node(problem, route, rng)
+    >>> llh_pool.h7_greedy_multi(problem, route, rng)
+    >>> llh_pool.h8_perturb_2opt(problem, route, rng)
+    >>> llh_pool.h9_worst_removal(problem, route, rng)
+    >>> llh_pool.h10_greedy_shuffle(problem, route, rng)
 """
 
 import copy
@@ -37,7 +77,17 @@ LLH = Callable[[Plan, ProblemContext, np.random.Generator], Plan]
 
 
 def h1_greedy_move(problem: ProblemContext, route: List[int], rng: np.random.Generator) -> List[int]:
-    """Insert a random profitable non-mandatory node."""
+    """
+    Insert a random profitable non-mandatory node.
+
+    Args:
+        problem: Problem context.
+        route: Route to modify.
+        rng: Random number generator.
+
+    Returns:
+        Modified route.
+    """
     nodes = set(range(1, len(problem.distance_matrix)))
     cand = list(nodes - set(route))
     if not cand:
@@ -50,7 +100,17 @@ def h1_greedy_move(problem: ProblemContext, route: List[int], rng: np.random.Gen
 
 
 def h2_random_drop(problem: ProblemContext, route: List[int], rng: np.random.Generator) -> List[int]:
-    """Remove a random non-mandatory node."""
+    """
+    Remove a random non-mandatory node.
+
+    Args:
+        problem: Problem context.
+        route: Route to modify.
+        rng: Random number generator.
+
+    Returns:
+        Modified route.
+    """
     cand = [v for v in route if v not in problem.mandatory]
     if not cand:
         return route
@@ -60,12 +120,32 @@ def h2_random_drop(problem: ProblemContext, route: List[int], rng: np.random.Gen
 
 
 def h3_two_opt(problem: ProblemContext, route: List[int], rng: np.random.Generator) -> List[int]:
-    """Standard 2-opt search."""
+    """
+    Standard 2-opt search.
+
+    Args:
+        problem: Problem context.
+        route: Route to modify.
+        rng: Random number generator.
+
+    Returns:
+        Modified route.
+    """
     return two_opt(list(route), problem.distance_matrix)
 
 
 def h4_swap_nodes(problem: ProblemContext, route: List[int], rng: np.random.Generator) -> List[int]:
-    """Swap two nodes in the route."""
+    """
+    Swap two nodes in the route.
+
+    Args:
+        problem: Problem context.
+        route: Route to modify.
+        rng: Random number generator.
+
+    Returns:
+        Modified route.
+    """
     if len(route) < 2:
         return route
     new_rt = list(route)
@@ -75,7 +155,17 @@ def h4_swap_nodes(problem: ProblemContext, route: List[int], rng: np.random.Gene
 
 
 def h5_relocate_node(problem: ProblemContext, route: List[int], rng: np.random.Generator) -> List[int]:
-    """Relocate a node to a different position."""
+    """
+    Relocate a node to a different position.
+
+    Args:
+        problem: Problem context.
+        route: Route to modify.
+        rng: Random number generator.
+
+    Returns:
+        Modified route.
+    """
     if len(route) < 2:
         return route
     new_rt = list(route)
@@ -85,7 +175,17 @@ def h5_relocate_node(problem: ProblemContext, route: List[int], rng: np.random.G
 
 
 def h6_replace_node(problem: ProblemContext, route: List[int], rng: np.random.Generator) -> List[int]:
-    """Replace a node with a more profitable external node."""
+    """
+    Replace a node with a more profitable external node.
+
+    Args:
+        problem: Problem context.
+        route: Route to modify.
+        rng: Random number generator.
+
+    Returns:
+        Modified route.
+    """
     cand_ext = list(set(range(1, len(problem.distance_matrix))) - set(route))
     cand_in = [v for v in route if v not in problem.mandatory]
     if not cand_ext or not cand_in:
@@ -103,7 +203,17 @@ def h6_replace_node(problem: ProblemContext, route: List[int], rng: np.random.Ge
 
 
 def h7_greedy_multi(problem: ProblemContext, route: List[int], rng: np.random.Generator) -> List[int]:
-    """Try to insert multiple profitable nodes."""
+    """
+    Try to insert multiple profitable nodes.
+
+    Args:
+        problem: Problem context.
+        route: Route to modify.
+        rng: Random number generator.
+
+    Returns:
+        Modified route.
+    """
     res = list(route)
     for _ in range(3):
         res = h1_greedy_move(problem, res, rng)
@@ -111,7 +221,17 @@ def h7_greedy_multi(problem: ProblemContext, route: List[int], rng: np.random.Ge
 
 
 def h8_perturb_2opt(problem: ProblemContext, route: List[int], rng: np.random.Generator) -> List[int]:
-    """Random double bridge swap."""
+    """
+    Random double bridge swap.
+
+    Args:
+        problem: Problem context.
+        route: Route to modify.
+        rng: Random number generator.
+
+    Returns:
+        Modified route.
+    """
     if len(route) < 4:
         return route
     # Simplified: just do 2 random swaps
@@ -120,7 +240,17 @@ def h8_perturb_2opt(problem: ProblemContext, route: List[int], rng: np.random.Ge
 
 
 def h9_worst_removal(problem: ProblemContext, route: List[int], rng: np.random.Generator) -> List[int]:
-    """Remove node with highest distance contribution."""
+    """
+    Remove node with highest distance contribution.
+
+    Args:
+        problem: Problem context.
+        route: Route to modify.
+        rng: Random number generator.
+
+    Returns:
+        Modified route.
+    """
     if len(route) < 2:
         return route
     path = [0] + route + [0]
@@ -144,7 +274,17 @@ def h9_worst_removal(problem: ProblemContext, route: List[int], rng: np.random.G
 
 
 def h10_greedy_shuffle(problem: ProblemContext, route: List[int], rng: np.random.Generator) -> List[int]:
-    """Shuffle route and 2-opt it."""
+    """
+    Shuffle route and 2-opt it.
+
+    Args:
+        problem: Problem context.
+        route: Route to modify.
+        rng: Random number generator.
+
+    Returns:
+        Modified route.
+    """
     new_rt = list(route)
     rng.shuffle(new_rt)
     return two_opt(new_rt, problem.distance_matrix)
@@ -154,7 +294,28 @@ def h10_greedy_shuffle(problem: ProblemContext, route: List[int], rng: np.random
 
 
 def _make_or_opt(chain_len: int) -> LLH:
+    """
+    Create an OR-opt operator for a specific chain length.
+
+    Args:
+        chain_len: Length of the chain to optimize.
+
+    Returns:
+        OR-opt operator.
+    """
+
     def _op(plan: Plan, problem: ProblemContext, rng: np.random.Generator) -> Plan:
+        """
+        Apply OR-opt to a random route in the plan.
+
+        Args:
+            plan: Current plan.
+            problem: Problem context.
+            rng: Random number generator.
+
+        Returns:
+            Modified plan.
+        """
         d = int(rng.integers(0, len(plan)))
         new_route = or_opt_route(plan[d], problem.distance_matrix, chain_lengths=(chain_len,))
         new_plan = list(plan)
@@ -165,7 +326,25 @@ def _make_or_opt(chain_len: int) -> LLH:
 
 
 def _make_two_opt() -> LLH:
+    """
+    Create a 2-opt operator for multi-period plans.
+
+    Returns:
+        2-opt operator.
+    """
+
     def _op(plan: Plan, problem: ProblemContext, rng: np.random.Generator) -> Plan:
+        """
+        Apply 2-opt to a random route in the plan.
+
+        Args:
+            plan: Current plan.
+            problem: Problem context.
+            rng: Random number generator.
+
+        Returns:
+            Modified plan.
+        """
         d = int(rng.integers(0, len(plan)))
         new_plan = list(plan)
         new_plan[d] = two_opt_route(plan[d], problem.distance_matrix)
@@ -175,7 +354,25 @@ def _make_two_opt() -> LLH:
 
 
 def _make_three_opt() -> LLH:
+    """
+    Create a 3-opt operator for multi-period plans.
+
+    Returns:
+        3-opt operator.
+    """
+
     def _op(plan: Plan, problem: ProblemContext, rng: np.random.Generator) -> Plan:
+        """
+        Apply 3-opt to a random route in the plan.
+
+        Args:
+            plan: Current plan.
+            problem: Problem context.
+            rng: Random number generator.
+
+        Returns:
+            Modified plan.
+        """
         d = int(rng.integers(0, len(plan)))
         new_plan = list(plan)
         new_plan[d] = three_opt_route(plan[d], problem.distance_matrix)
@@ -185,7 +382,25 @@ def _make_three_opt() -> LLH:
 
 
 def _make_cross_day_move() -> LLH:
+    """
+    Create a cross-day move operator for multi-period plans.
+
+    Returns:
+        Cross-day move operator.
+    """
+
     def _op(plan: Plan, problem: ProblemContext, rng: np.random.Generator) -> Plan:
+        """
+        Apply cross-day move to a random route in the plan.
+
+        Args:
+            plan: Current plan.
+            problem: Problem context.
+            rng: Random number generator.
+
+        Returns:
+            Modified plan.
+        """
         all_pairs = [(n, d) for d, route in enumerate(plan) for n in route]
         if not all_pairs:
             return plan
@@ -198,7 +413,25 @@ def _make_cross_day_move() -> LLH:
 
 
 def _make_cross_day_swap() -> LLH:
+    """
+    Create a cross-day swap operator for multi-period plans.
+
+    Returns:
+        Cross-day swap operator.
+    """
+
     def _op(plan: Plan, problem: ProblemContext, rng: np.random.Generator) -> Plan:
+        """
+        Apply cross-day swap to a random pair of routes in the plan.
+
+        Args:
+            plan: Current plan.
+            problem: Problem context.
+            rng: Random number generator.
+
+        Returns:
+            Modified plan.
+        """
         all_pairs = [(n, d) for d, route in enumerate(plan) for n in route]
         if len(all_pairs) < 2:
             return plan
@@ -211,7 +444,25 @@ def _make_cross_day_swap() -> LLH:
 
 
 def _make_day_merge_split() -> LLH:
+    """
+    Create a day merge-split operator for multi-period plans.
+
+    Returns:
+        Day merge-split operator.
+    """
+
     def _op(plan: Plan, problem: ProblemContext, rng: np.random.Generator) -> Plan:
+        """
+        Apply day merge-split to the plan.
+
+        Args:
+            plan: Current plan.
+            problem: Problem context.
+            rng: Random number generator.
+
+        Returns:
+            Modified plan.
+        """
         new_plan, _ = day_merge_split(plan, problem, rng)
         return new_plan
 
@@ -219,7 +470,25 @@ def _make_day_merge_split() -> LLH:
 
 
 def _make_double_bridge() -> LLH:
+    """
+    Create a double bridge operator for multi-period plans.
+
+    Returns:
+        Double bridge operator.
+    """
+
     def _op(plan: Plan, problem: ProblemContext, rng: np.random.Generator) -> Plan:
+        """
+        Apply double bridge to a random route in the plan.
+
+        Args:
+            plan: Current plan.
+            problem: Problem context.
+            rng: Random number generator.
+
+        Returns:
+            Modified plan.
+        """
         d = int(rng.integers(0, len(plan)))
         new_plan = list(plan)
         double_bridge(new_plan, d, rng)
@@ -229,7 +498,25 @@ def _make_double_bridge() -> LLH:
 
 
 def _make_day_shuffle() -> LLH:
+    """
+    Create a day shuffle operator for multi-period plans.
+
+    Returns:
+        Day shuffle operator.
+    """
+
     def _op(plan: Plan, problem: ProblemContext, rng: np.random.Generator) -> Plan:
+        """
+        Apply day shuffle to the plan.
+
+        Args:
+            plan: Current plan.
+            problem: Problem context.
+            rng: Random number generator.
+
+        Returns:
+            Modified plan.
+        """
         new_plan, _ = day_shuffle(plan, problem, rng, k=3)
         return new_plan
 
@@ -273,11 +560,24 @@ class LLHPool:
     Low-Level Heuristic Pool for hyper-heuristics.
     Contains different perturbation/LS operators that the HH can select from.
     All LLHs take (plan, problem_context, rng) and return a new plan.
+
+    Attributes:
+        None
     """
 
     @staticmethod
     def llh_swap(plan: List[List[List[int]]], problem: ProblemContext, rng: random.Random) -> List[List[List[int]]]:
-        """Swaps two random adjacent nodes in a random route."""
+        """
+        Swaps two random adjacent nodes in a random route.
+
+        Args:
+            plan: Current plan.
+            problem: Problem context.
+            rng: Random number generator.
+
+        Returns:
+            Modified plan.
+        """
         new_plan = copy.deepcopy(plan)
         D = problem.horizon
         d = rng.randint(0, D - 1)
@@ -290,7 +590,17 @@ class LLHPool:
 
     @staticmethod
     def llh_drop_add(plan: List[List[List[int]]], problem: ProblemContext, rng: random.Random) -> List[List[List[int]]]:
-        """Drops a node and adds a new one on a random day."""
+        """
+        Drops a node and adds a new one on a random day.
+
+        Args:
+            plan: Current plan.
+            problem: Problem context.
+            rng: Random number generator.
+
+        Returns:
+            Modified plan.
+        """
         new_plan = copy.deepcopy(plan)
         D = problem.horizon
         d = rng.randint(0, D - 1)
@@ -315,7 +625,17 @@ class LLHPool:
 
     @staticmethod
     def llh_2opt_all(plan: List[List[List[int]]], problem: ProblemContext, rng: random.Random) -> List[List[List[int]]]:
-        """Applies 2-opt to all days."""
+        """
+        Applies 2-opt to all days.
+
+        Args:
+            plan: Current plan.
+            problem: Problem context.
+            rng: Random number generator.
+
+        Returns:
+            Modified plan.
+        """
         new_plan = []
         for d in range(problem.horizon):
             rt = plan[d][0] if plan[d] else []
@@ -326,7 +646,17 @@ class LLHPool:
     def llh_ruin_recreate_day(
         plan: List[List[List[int]]], problem: ProblemContext, rng: random.Random
     ) -> List[List[List[int]]]:
-        """Completely reconstructs a random day."""
+        """
+        Completely reconstructs a random day.
+
+        Args:
+            plan: Current plan.
+            problem: Problem context.
+            rng: Random number generator.
+
+        Returns:
+            Modified plan.
+        """
         new_plan = copy.deepcopy(plan)
         D = problem.horizon
         d = rng.randint(0, D - 1)
@@ -344,4 +674,10 @@ class LLHPool:
 
     @classmethod
     def get_all(cls) -> List[Callable]:
+        """
+        Returns all LLHs in the pool.
+
+        Returns:
+            List of LLHs.
+        """
         return [cls.llh_swap, cls.llh_drop_add, cls.llh_2opt_all, cls.llh_ruin_recreate_day]
