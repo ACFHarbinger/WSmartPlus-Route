@@ -223,6 +223,27 @@ class LagrangianSelectionConfig:
 
 
 @dataclass
+class BernoulliSelectionConfig:
+    """Configuration for independent Bernoulli trial selection."""
+
+    p: float = 0.5
+
+
+@dataclass
+class KMeansSectorSelectionConfig:
+    """Configuration for geographic sector-based selection."""
+
+    n_sectors: int = 5
+
+
+@dataclass
+class StaggeredRegularSelectionConfig:
+    """Configuration for phased-staggered periodic selection."""
+
+    period: int = 1
+
+
+@dataclass
 class MandatorySelectionConfig:
     """Main configuration for mandatory bin selection.
 
@@ -288,6 +309,9 @@ class MandatorySelectionConfig:
     thompson_dispatcher: ThompsonDispatcherSelectionConfig = field(default_factory=ThompsonDispatcherSelectionConfig)
     wasserstein: WassersteinSelectionConfig = field(default_factory=WassersteinSelectionConfig)
     lagrangian: LagrangianSelectionConfig = field(default_factory=LagrangianSelectionConfig)
+    bernoulli: BernoulliSelectionConfig = field(default_factory=BernoulliSelectionConfig)
+    kmeans_sector: KMeansSectorSelectionConfig = field(default_factory=KMeansSectorSelectionConfig)
+    staggered_regular: StaggeredRegularSelectionConfig = field(default_factory=StaggeredRegularSelectionConfig)
 
     # Additional parameters
     params: Dict[str, Any] = field(default_factory=dict)

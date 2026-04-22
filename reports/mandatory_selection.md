@@ -4,7 +4,7 @@ Domain-specific filtering algorithms that determine which nodes *must* be obliga
 
 ---
 
-## Static and Reactive Baselines
+## Static Baselines
 
 ### Regular Selection ✅
 A static, periodic scheduling policy operating entirely in the time domain, independent of stochastic accumulation states. Collection is triggered for all eligible nodes on operational day $t$ if:
@@ -13,16 +13,41 @@ $$t \equiv 1 \pmod{X}$$
 
 for a fixed frequency $X$ (e.g., every 3 days). Computationally trivial but highly inefficient in stochastic environments; serves as a worst-case baseline for fixed-route comparisons.
 
+### K-Means Geographic Sector Selection ✅
+A static, spatially-aware cyclic scheduling policy that pre-partitions the node set into $G$ geographic sectors via $K$-means clustering on bin coordinates, then mandates exactly one sector per operational day on a round-robin rotation. On day $t$ the active sector index is:
+
+$$\sigma(t) = (t - 1) \bmod G$$
+
+and all nodes assigned to sector $\sigma(t)$ are obligatorily collected. The clustering minimises within-sector spatial variance, ensuring co-collected nodes are geographically proximate and naturally compressing per-day routing distance relative to a random or index-based partition. This formalises the dominant real-world practice of dividing service areas into fixed geographic zones assigned to specific weekdays, making it the most operationally realistic static baseline. Unlike Regular Selection (which mandates all nodes simultaneously every $X$ days), the sector rotation guarantees a bounded, predictable daily workload of approximately $n/G$ nodes. Spatially blind to fill-level dynamics and incapable of reacting to stochastic accumulation states; serves as the primary benchmark for strategies exploiting fill information or routing synergy.
+
+### Staggered Regular Selection ✅
+A static, temporally distributed variant of Regular Selection that eliminates the all-or-nothing load spikes of the base policy by assigning each node $i$ (0-indexed) a fixed phase offset:
+
+$$\phi_i = i \bmod X$$
+
+where $X$ is the collection period. Node $i$ is mandated on operational day $t$ if and only if:
+
+$$(t - 1) \bmod X = \phi_i$$
+
+The uniform distribution of offsets across $\{0, \ldots, X-1\}$ guarantees that on every day exactly $\lfloor n/X \rfloor$ or $\lceil n/X \rceil$ nodes are scheduled, converting the global period $X$ into $n$ independent per-node schedules that collectively cover the horizon without overlap. Crucially, phase assignment is derived from array position rather than spatial coordinates, making this strategy computationally free and parameter-identical to Regular Selection (sharing the same $X$ via `threshold`) while producing a fundamentally different load profile. Serves as the canonical load-balanced temporal baseline, isolating the cost of ignoring fill-level state from the cost of ignoring spatial structure.
+
+### Bernoulli Trial Random Selection ✅
+A stochastic null baseline in which each eligible node $i$ is independently mandated via a Bernoulli trial with fixed probability $p \in [0,1]$:
+
+$$X_i \sim \text{Bernoulli}(p), \quad i = 1, \ldots, n$$
+
+The realised selection set $S = \{i : X_i = 1\}$ has cardinality distributed as $|S| \sim \text{Binomial}(n, p)$, with $\mathbb{E}[|S|] = np$ and $\text{Var}[|S|] = np(1-p)$. Unlike fixed-$K$ random selection, the Bernoulli formulation decouples individual bin decisions: no bin's inclusion affects any other's probability, faithfully modelling a memoryless per-node assessment. This variability in set size is intentional — it reflects the stochasticity inherent in ignoring all state information entirely. Any deterministic strategy that fails to significantly outperform Bernoulli selection at matched expected cardinality ($K = np$) has a validity concern, making this the essential sanity-check baseline for the full strategy suite. The probability $p$ is supplied via the shared `threshold` parameter and is clipped to $[0, 1]$.
+
+---
+
+## Overflow Minimization and Risk Management
+
 ### Last-Minute Selection ✅
 A reactive, fill-level-driven strategy that triggers an obligatory collection when a node's current fill ratio breaches a predefined critical threshold $\tau \in [0,1]$:
 
 $$\frac{c_i}{Q_{\max}} \ge \tau$$
 
 where $c_i$ is the current fill level and $Q_{\max}$ the maximum physical capacity. Acts as the primary overflow prevention backstop but suffers from spatial myopia — it considers no neighboring nodes and ignores routing synergy.
-
----
-
-## Overflow Minimization and Risk Management
 
 ### Deadline-Driven Selection ✅
 A deterministic temporal strategy that projects the exact operational deadline for each node via:
@@ -89,6 +114,15 @@ A relaxation-based strategy evaluating the LP relaxation of the profit-maximizin
 $$\bar{c}_i = (r_i - \text{cost} \cdot d_i) - \lambda^* m_i > 0$$
 
 This provides an economically grounded prioritization: mandated nodes are exactly those whose marginal value exceeds the capacity's shadow price, aligning individual collection decisions with the system-level economic optimum.
+
+### Filter-and-Fan Selection ✅
+A meta-heuristic selection strategy adapted from Glover (1998) that balances economic value with capacity constraints through a two-phase search. 
+1. **Filter Phase:** Evaluates all unassigned nodes using a composite score that amplifies separable net profit by spatial urgency: 
+   $$\text{Score}_i = (r_i - 2d_{0,i} \cdot C) \cdot \left(1 + \frac{c_i}{Q_{\max}}\right)$$
+   The top $k$ scoring nodes are retained to form an initial seed set (the filter beam).
+2. **Fan Phase:** Systematically explores an add/remove neighborhood around the seed set up to a maximum search depth. Because the net-profit objective is mathematically separable, marginal move evaluations are $\mathcal{O}(1)$. The algorithm greedily accepts additions that improve total profit and ejects nodes that degrade it. 
+
+A fail-safe mechanism then deterministically forces the inclusion of any node breaching the critical fill threshold $\tau$, ensuring operational safety alongside economic optimization.
 
 ---
 

@@ -27,7 +27,7 @@ marker := "fast"
 strategy := "greedy"
 distribution := "gamma3"
 n_cores := "20"
-policies := "swc_tcf,bpc,sans,hgs,alns,aco_ks,aco_hh,pso"
+policies := "bpc"
 
 # --- Setup & Environment ---
 
