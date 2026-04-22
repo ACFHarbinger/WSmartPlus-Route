@@ -42,6 +42,7 @@ from logic.src.models.policies.selection import (
 )
 
 from .base import MandatorySelectionFactory, MandatorySelectionRegistry, SelectionContext
+from .selection_bernoulli_random import BernoulliRandomSelection
 from .selection_combined import CombinedSelection
 from .selection_cvar import CVaRSelection
 from .selection_deadline import DeadlineDrivenSelection
@@ -49,6 +50,7 @@ from .selection_dispatcher_portfolio import PortfolioDispatcher
 from .selection_dispatcher_thompson import ThompsonDispatcher
 from .selection_filter_and_fan import FilterAndFanSelection
 from .selection_fractional_knapsack import FractionalKnapsackSelection
+from .selection_kmeans_sector import KMeansGeographicSectorSelection
 from .selection_lagrangian import LagrangianSelection
 from .selection_last_minute import LastMinuteSelection
 from .selection_learned import LearnedSelection
@@ -64,11 +66,11 @@ from .selection_savings import SavingsSelection
 from .selection_service_level import ServiceLevelSelection
 from .selection_set_cover import SetCoverSelection
 from .selection_spatial_synergy import SpatialSynergySelection
+from .selection_staggered_regular import StaggeredRegularSelection
 from .selection_stochastic_regret import StochasticRegretSelection
 from .selection_submodular_greedy import SubmodularGreedySelection
 from .selection_supermodular_greedy import SupermodularGreedySelection
 from .selection_wasserstein import WassersteinRobustSelection
-from .selection_whittle import WhittleIndexSelection
 
 __all__ = [
     # Vectorized selectors for training
@@ -114,4 +116,7 @@ __all__ = [
     "FractionalKnapsackSelection",
     "MIPKnapsackSelection",
     "FilterAndFanSelection",
+    "BernoulliRandomSelection",
+    "KMeansGeographicSectorSelection",
+    "StaggeredRegularSelection",
 ]

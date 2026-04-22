@@ -983,10 +983,24 @@ def _column_generation_loop(  # noqa: C901
                         _apply_branching_to_master(
                             master, branching_constraints or [], branching_strategy=branching_strategy
                         )
+                        # After the UB-reset inside _apply_branching_to_master, re-disable any
+                        # non-elementary (cyclic) routes that cycle detection had suppressed.
+                        # Without this, the sifting→reset→LP cycle keeps re-selecting the same
+                        # cyclic routes, causing an infinite loop within one day's BPC solve.
+                        for _nr, _nv in zip(master.routes, master.lambda_vars, strict=False):
+                            if _nv.UB > 0.5 and len(set(_nr.nodes)) != len(_nr.nodes):
+                                _nv.UB = 0.0
                         _inner_iter += 1
                         continue
 
             try:
+                # Bound the LP solve to remaining wall-clock time so a single degenerate
+                # master LP cannot blow past the node's overall time budget. Python-side
+                # time checks only fire between Gurobi calls, so a single optimize() call
+                # with no TimeLimit can overshoot the global limit on degenerate instances.
+                if time_limit is not None and master.model is not None:
+                    _remaining_t = max(0.1, time_limit - (time.monotonic() - start_time))
+                    master.model.Params.TimeLimit = _remaining_t
                 obj_val, route_vals = master.solve_lp_relaxation()  # type: ignore[assignment]
                 if obj_val is None:
                     raise RuntimeError("LP relaxation returned non-optimal status at B&B node")
@@ -1554,6 +1568,17 @@ def run_bpc(  # noqa: C901
             current_node.lp_basis = node_final_basis
         except BPCPruningException:
             # Node provably cannot improve the incumbent — skip without marking infeasible
+            continue
+        except gp.GurobiError as e:
+            # GurobiError (e.g. licensing, memory, degenerate model) is not a RuntimeError,
+            # so it would escape the inner except and propagate to checkpoint_manager,
+            # converting to CheckpointError and silently terminating the simulation.
+            logger.warning(
+                "GurobiError at B&B node depth=%d: %s. Marking node infeasible.",
+                current_node.depth,
+                e,
+            )
+            current_node.is_infeasible = True
             continue
         except RuntimeError as e:
             if "Conflicting must_use" in str(e):
