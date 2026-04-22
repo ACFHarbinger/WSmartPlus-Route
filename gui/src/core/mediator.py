@@ -194,7 +194,6 @@ class UIMediator(QObject):
                     "plastminute_cf",
                     "lookahead_configs",
                     "gurobi_param",
-                    "hexaly_param",
                 ]
                 if key in list_keys:
                     parts = value.split()

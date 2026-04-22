@@ -53,7 +53,6 @@ def wsr_opts(tmp_path):
         server_run=False,
         env_file="vars.env",
         gplic_file=None,
-        hexlic_file=None,
         symkey_name=None,
         gapik_file=None,
         stats_filepath=None,

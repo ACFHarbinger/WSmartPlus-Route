@@ -174,9 +174,6 @@ class TestSimAdvancedTab(QWidget):
         self.gplic_file_input = QLineEdit()
         key_license_files_layout.addRow("Gurobi License File:", self._create_browser_layout(self.gplic_file_input))
 
-        self.hexlic_file_input = QLineEdit()
-        key_license_files_layout.addRow("Hexaly License File:", self._create_browser_layout(self.hexlic_file_input))
-
         self.gapik_file_input = QLineEdit()
         key_license_files_layout.addRow("Google API Key File:", self._create_browser_layout(self.gapik_file_input))
 
@@ -250,8 +247,6 @@ class TestSimAdvancedTab(QWidget):
             "no_progress_bar": self.no_progress_check.isChecked(),
             "server_run": self.server_run_check.isChecked(),
             "resume": self.resume_check.isChecked(),
-            # Key/License Files (Direct text inputs)
-            "hexlic_file": self.hexlic_file_input.text().strip(),
         }
 
         # Optional file paths

@@ -42,7 +42,7 @@ def run_swc_tcf_optimizer(
         if ortools_backend not in ["GUROBI", "SCIP", "HIGHS", "CPLEX"]:
             raise ValueError(f"Unsupported OR-Tools backend: '{ortools_backend}'")
 
-        return _run_ortools_tcf_optimizer(
+        result = _run_ortools_tcf_optimizer(
             bins=bins,
             distance_matrix=distance_matrix,
             values=values,
@@ -54,6 +54,21 @@ def run_swc_tcf_optimizer(
             seed=seed,
             dual_values=dual_values,
         )
+        # Fallback to native Gurobi if OR-Tools wrapper failed (likely due to missing linkage/license)
+        if ortools_backend == "GUROBI" and result[0] == [0, 0] and result[1] == 0.0:
+            return _run_gurobi_optimizer(
+                bins=bins,
+                distance_matrix=distance_matrix,
+                env=None,
+                values={k: float(v) if isinstance(v, (int, float)) else v for k, v in values.items()},
+                binsids=binsids,
+                mandatory=mandatory_nodes,
+                number_vehicles=number_vehicles,
+                time_limit=time_limit,
+                seed=seed,
+                dual_values=dual_values,
+            )
+        return result
 
     elif framework == "pyomo":
         # Pyomo requires lowercase identifiers (e.g., 'gurobi', 'scip', 'appsi_highs')

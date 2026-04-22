@@ -95,7 +95,7 @@ def find_routes(
     if n_vehicles == 0:
         n_vehicles = len(clients_list)
 
-    vehicle_types_list = [pyvrp.VehicleType(capacity=[int(max_caps)] * n_vehicles, num_available=n_vehicles)]
+    vehicle_types_list = [pyvrp.VehicleType(capacity=[int(max_caps)], num_available=n_vehicles)]
 
     # Matrix
     # PyVRP expects List[numpy.ndarray[int]]

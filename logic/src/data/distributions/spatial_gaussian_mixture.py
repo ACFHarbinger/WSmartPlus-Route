@@ -216,6 +216,7 @@ class GaussianMixture(BaseDistribution):
         coords = coords - coords_min
         if isinstance(coords, torch.Tensor):
             range_max = torch.amax(coords_max - coords_min, dim=-1, keepdim=True)
+        else:
             diff = cast(np.ndarray, coords_max - coords_min)
             range_max = diff.max(axis=-1, keepdims=True)
 

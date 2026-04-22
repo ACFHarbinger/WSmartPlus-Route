@@ -60,11 +60,6 @@ class TestSimPolicyParamsTab(QWidget):
         self.gurobi_param_input.setPlaceholderText("e.g., 0.42 0.84 (for --gp)")
         layout.addRow("Gurobi VRPP Parameter:", self.gurobi_param_input)
 
-        # 6. --hexaly_param
-        self.hexaly_param_input = QLineEdit()
-        self.hexaly_param_input.setPlaceholderText("e.g., 0.42 0.84 (for --hp)")
-        layout.addRow("Hexaly VRPP Parameter:", self.hexaly_param_input)
-
         # --- Boolean Flags ---
         layout.addRow(QLabel('<span style="font-weight: 600;">Boolean Flags</span>'))
         boolean_flags_layout = QHBoxLayout()
@@ -107,6 +102,4 @@ class TestSimPolicyParamsTab(QWidget):
             params["plastminute_cf"] = self.plastminute_cf_input.text().strip()
         if self.gurobi_param_input.text().strip():
             params["gurobi_param"] = self.gurobi_param_input.text().strip()
-        if self.hexaly_param_input.text().strip():
-            params["hexaly_param"] = self.hexaly_param_input.text().strip()
         return params
