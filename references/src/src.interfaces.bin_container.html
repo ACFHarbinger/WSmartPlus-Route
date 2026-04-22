@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -496,6 +497,8 @@ document.write(`
 <p>Container providing bin state access.</p>
 <p>This module defines the IBinContainer protocol for duck typing with
 objects that manage waste bin states in simulations and environments.</p>
+<p>Attributes:
+IBinContainer: Interface for bin containers</p>
 <p>Example:
 &gt;&gt;&gt; from logic.src.interfaces.bin_container import IBinContainer
 &gt;&gt;&gt; def check_overflow(bins: IBinContainer, threshold: float) -&gt; torch.Tensor:
@@ -554,6 +557,8 @@ Tensor of shape (batch, n_bins) with waste values</p>
 <dd><p>Update bin states after collection.</p>
 <p>Args:
 visited: Binary tensor (batch, n_bins) indicating collected bins</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">

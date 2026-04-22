@@ -98,6 +98,9 @@
 ````{py:method} __repr__() -> str
 :canonical: src.tracking.profiling.timer.BlockTimer.__repr__
 
+```{autodoc2-docstring} src.tracking.profiling.timer.BlockTimer.__repr__
+```
+
 ````
 
 `````
@@ -173,6 +176,9 @@
 
 ````{py:method} __repr__() -> str
 :canonical: src.tracking.profiling.timer.MultiStepTimer.__repr__
+
+```{autodoc2-docstring} src.tracking.profiling.timer.MultiStepTimer.__repr__
+```
 
 ````
 

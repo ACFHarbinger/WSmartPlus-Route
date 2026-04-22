@@ -139,6 +139,14 @@
 
 ````
 
+````{py:method} __post_init__()
+:canonical: src.policies.route_construction.meta_heuristics.iterated_local_search.params.ILSParams.__post_init__
+
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.iterated_local_search.params.ILSParams.__post_init__
+```
+
+````
+
 ````{py:method} from_config(config: typing.Any) -> src.policies.route_construction.meta_heuristics.iterated_local_search.params.ILSParams
 :canonical: src.policies.route_construction.meta_heuristics.iterated_local_search.params.ILSParams.from_config
 :classmethod:

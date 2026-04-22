@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -490,6 +491,15 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.io.splitting">
 <span id="src-utils-io-splitting"></span><h1><a class="reference internal" href="#module-src.utils.io.splitting" title="src.utils.io.splitting"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io.splitting</span></code></a><a class="headerlink" href="#module-src.utils.io.splitting" title="Link to this heading">#</a></h1>
 <p>File splitting and reassembly utilities.</p>
+<p>Attributes:
+split_file: Splits a large CSV or Excel file into smaller chunks based on size.
+chunk_zip_content: Extracts a ZIP archive and chunks files larger than max_part_size into multiple parts.
+reassemble_files: Reassembles several files from their chunks.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.utils.io.splitting import split_file, chunk_zip_content, reassemble_files
+&gt;&gt;&gt; chunked_files = split_file(“path/to/large_file.csv”, 1000000, “path/to/output”)
+&gt;&gt;&gt; chunked_files = chunk_zip_content(“path/to/archive.zip”, 1000000, “path/to/output”)
+&gt;&gt;&gt; reassembled_files = reassemble_files(“path/to/chunks”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

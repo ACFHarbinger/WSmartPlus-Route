@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -491,6 +492,22 @@ document.write(`
 <p>Enums and Registry Module.</p>
 <p>This package centralizes all tags and the global registry used for algorithm
 classification, discovery, and orchestration across the WSmart-Route framework.</p>
+<p>Attributes:
+GlobalRegistry: Global registry for algorithm classification, discovery, and orchestration
+PolicyTag: Policy tags
+OperatorTag: Operator tags
+EnvironmentTag: Environment tags
+ModelTag: Model tags
+TrainerTag: Trainer tags</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.enums import (
+GlobalRegistry,
+PolicyTag,
+OperatorTag,
+EnvironmentTag,
+ModelTag,
+TrainerTag,
+)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

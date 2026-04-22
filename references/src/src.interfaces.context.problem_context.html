@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -514,6 +515,30 @@ document.write(`
 <p>ProblemContext — Typed problem-instance descriptor.</p>
 <p>Carries all static and dynamic problem data for a single day’s execution.
 Replaces the untyped kwargs-passing pattern in BaseRoutingPolicy.execute.</p>
+<p>Attributes:
+ProblemContext: Complete problem descriptor for one day of the MPVRPP simulation</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.interfaces.context.problem_context import ProblemContext
+&gt;&gt;&gt; ctx = ProblemContext(
+…     distance_matrix=np.array([[0, 1], [1, 0]]),
+…     wastes={1: 10.0, 2: 20.0},
+…     fill_rate_means=np.array([10.0, 20.0]),
+…     fill_rate_stds=np.array([1.0, 2.0]),
+…     capacity=100.0,
+…     max_fill=100.0,
+…     revenue_per_kg=0.1,
+…     cost_per_km=0.05,
+…     horizon=7,
+…     mandatory=[1, 2],
+…     locations=np.array([[0, 0], [1, 1], [2, 2]]),
+…     scenario_tree=None,
+…     area=”Rio Maior”,
+…     waste_type=”plastic”,
+…     n_vehicles=1,
+…     seed=42
+… )
+&gt;&gt;&gt; ctx.current_day
+0</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -666,12 +691,16 @@ that do not fit the standard attributes above.</p>
 <dt class="sig sig-object py" id="src.interfaces.context.problem_context.ProblemContext.current_day">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">current_day</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.interfaces.context.problem_context.ProblemContext.current_day" title="Link to this definition">#</a></dt>
 <dd><p>Alias for day_index (legacy compatibility).</p>
+<p>Returns:
+int: The current day index.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.interfaces.context.problem_context.ProblemContext.fill_rates">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fill_rates</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#src.interfaces.context.problem_context.ProblemContext.fill_rates" title="Link to this definition">#</a></dt>
 <dd><p>Alias for fill_rate_means (legacy compatibility).</p>
+<p>Returns:
+np.ndarray: The fill rates.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -685,6 +714,8 @@ kwargs:          The raw kwargs dict from execute().
 capacity:        Q loaded from area params.
 revenue_per_kg:  r_w loaded from area params.
 cost_per_km:     c_km loaded from area params.</p>
+<p>Returns:
+ProblemContext: A new ProblemContext instance.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -695,6 +726,8 @@ cost_per_km:     c_km loaded from area params.</p>
 route:  Ordered list of bin IDs visited (1-based, depot excluded).
 delta:  Optional shape (V,) array of actual fill increments for day d+1.
 If None, <code class="docutils literal notranslate"><span class="pre">fill_rate_means</span></code> is used as a deterministic surrogate.</p>
+<p>Returns:
+ProblemContext: A new ProblemContext instance.</p>
 </dd></dl>
 
 </dd></dl>

@@ -35,28 +35,28 @@
 
 ### API
 
-````{py:function} to_bash_value(value)
+````{py:function} to_bash_value(value: typing.Any) -> str
 :canonical: src.utils.configs.yaml_to_env.to_bash_value
 
 ```{autodoc2-docstring} src.utils.configs.yaml_to_env.to_bash_value
 ```
 ````
 
-````{py:function} load_config(config_path)
+````{py:function} load_config(config_path: str) -> dict
 :canonical: src.utils.configs.yaml_to_env.load_config
 
 ```{autodoc2-docstring} src.utils.configs.yaml_to_env.load_config
 ```
 ````
 
-````{py:function} deep_merge(target, source)
+````{py:function} deep_merge(target: dict, source: dict) -> dict
 :canonical: src.utils.configs.yaml_to_env.deep_merge
 
 ```{autodoc2-docstring} src.utils.configs.yaml_to_env.deep_merge
 ```
 ````
 
-````{py:function} main()
+````{py:function} main() -> None
 :canonical: src.utils.configs.yaml_to_env.main
 
 ```{autodoc2-docstring} src.utils.configs.yaml_to_env.main

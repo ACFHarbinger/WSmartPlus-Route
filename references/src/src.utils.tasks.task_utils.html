@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -492,6 +493,12 @@ document.write(`
 <p>This module provides functions to processing spatial coordinates,
 generating edges based on distance or KNN strategies, and formatting
 problem instances for the model.</p>
+<p>Attributes:
+calculate_edges: Calculate edges for a problem instance.
+make_instance_generic: Generic instance creator.</p>
+<p>Example:
+&gt;&gt;&gt; import task_utils
+&gt;&gt;&gt; task_utils.make_instance_generic(args, edge_threshold, edge_strategy)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -512,14 +519,26 @@ problem instances for the model.</p>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.tasks.task_utils.calculate_edges">
-<span class="sig-prename descclassname"><span class="pre">src.utils.tasks.task_utils.</span></span><span class="sig-name descname"><span class="pre">calculate_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_strategy</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.tasks.task_utils.calculate_edges" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.utils.tasks.task_utils.</span></span><span class="sig-name descname"><span class="pre">calculate_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.tasks.task_utils.calculate_edges" title="Link to this definition">#</a></dt>
 <dd><p>Utility to calculate edges for a problem instance.</p>
+<p>Args:
+loc (Union[np.ndarray, torch.Tensor]): Location coordinates.
+edge_threshold (float): Edge threshold.
+edge_strategy (str): Edge strategy.</p>
+<p>Returns:
+torch.Tensor: Edge indices.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.tasks.task_utils.make_instance_generic">
-<span class="sig-prename descclassname"><span class="pre">src.utils.tasks.task_utils.</span></span><span class="sig-name descname"><span class="pre">make_instance_generic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_strategy</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.tasks.task_utils.make_instance_generic" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.utils.tasks.task_utils.</span></span><span class="sig-name descname"><span class="pre">make_instance_generic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.tasks.task_utils.make_instance_generic" title="Link to this definition">#</a></dt>
 <dd><p>Generic instance creator.</p>
+<p>Args:
+args (tuple): Arguments for the instance creator.
+edge_threshold (float): Edge threshold.
+edge_strategy (str): Edge strategy.</p>
+<p>Returns:
+Dict[str, torch.Tensor]: Dictionary containing the instance.</p>
 </dd></dl>
 
 </section>

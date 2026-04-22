@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -493,11 +494,24 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.interfaces.model">
 <span id="src-interfaces-model"></span><h1><a class="reference internal" href="#module-src.interfaces.model" title="src.interfaces.model"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.model</span></code></a><a class="headerlink" href="#module-src.interfaces.model" title="Link to this heading">#</a></h1>
-<p>model.py module.</p>
+<p>Neural Model interface module.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+IModel: Protocol for Neural Models</p>
 <p>Example:
-&gt;&gt;&gt; import model</p>
+&gt;&gt;&gt; from logic.src.interfaces.model import IModel
+&gt;&gt;&gt; class MyModel(IModel):
+…     def forward(self, td: TensorDict, **kwargs: Any) -&gt; Any:
+…         return {}
+…     def to(self, device: torch.device) -&gt; “IModel”:
+…         return self
+…     def eval(self) -&gt; “IModel”:
+…         return self
+…     def train(self) -&gt; “IModel”:
+…         return self
+…
+&gt;&gt;&gt; model = MyModel()
+&gt;&gt;&gt; model.forward(TensorDict({}, {}))
+{}</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -518,6 +532,8 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.interfaces.model.</span></span><span class="sig-name descname"><span class="pre">IModel</span></span><a class="headerlink" href="#src.interfaces.model.IModel" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.Protocol</span></code></p>
 <p>Protocol for Neural Models.</p>
+<p>Attributes:
+None: No attributes</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.interfaces.model.IModel.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.interfaces.model.IModel.forward" title="Link to this definition">#</a></dt>
@@ -525,6 +541,8 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <p>Args:
 td (TensorDict): Description of td.
 kwargs (Any): Description of kwargs.</p>
+<p>Returns:
+Any: Description of return value.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -533,18 +551,24 @@ kwargs (Any): Description of kwargs.</p>
 <dd><p>To.</p>
 <p>Args:
 device (torch.device): Description of device.</p>
+<p>Returns:
+IModel: Description of return value.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.interfaces.model.IModel.eval">
 <span class="sig-name descname"><span class="pre">eval</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.interfaces.model.IModel" title="src.interfaces.model.IModel"><span class="pre">src.interfaces.model.IModel</span></a></span></span><a class="headerlink" href="#src.interfaces.model.IModel.eval" title="Link to this definition">#</a></dt>
 <dd><p>Eval.</p>
+<p>Returns:
+IModel: Description of return value.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.interfaces.model.IModel.train">
 <span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.interfaces.model.IModel" title="src.interfaces.model.IModel"><span class="pre">src.interfaces.model.IModel</span></a></span></span><a class="headerlink" href="#src.interfaces.model.IModel.train" title="Link to this definition">#</a></dt>
 <dd><p>Train.</p>
+<p>Returns:
+IModel: Description of return value.</p>
 </dd></dl>
 
 </dd></dl>

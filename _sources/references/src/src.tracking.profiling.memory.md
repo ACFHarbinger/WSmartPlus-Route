@@ -67,6 +67,9 @@
 ````{py:method} __repr__() -> str
 :canonical: src.tracking.profiling.memory.MemorySnapshot.__repr__
 
+```{autodoc2-docstring} src.tracking.profiling.memory.MemorySnapshot.__repr__
+```
+
 ````
 
 `````
@@ -160,6 +163,9 @@
 
 ````{py:method} __repr__() -> str
 :canonical: src.tracking.profiling.memory.MemoryTracker.__repr__
+
+```{autodoc2-docstring} src.tracking.profiling.memory.MemoryTracker.__repr__
+```
 
 ````
 

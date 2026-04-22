@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -494,6 +495,13 @@ GENI, US (Unstringing/Stringing), and other heuristics.</p>
 Gendreau, M., Hertz, A., &amp; Laporte, G. (1992).
 “New Insertion and Postoptimization Procedures for the Traveling Salesman Problem”
 Operations Research, 40(6), 1086-1094.</p>
+<p>Attributes:
+get_p_neighborhood: Get the p-neighborhood of a target node from a tour.</p>
+<p>Example:
+&gt;&gt;&gt; dist_matrix = np.array([[0, 1, 2, 3], [1, 0, 4, 5], [2, 4, 0, 6], [3, 5, 6, 0]])
+&gt;&gt;&gt; tour_nodes = [1, 2, 3]
+&gt;&gt;&gt; get_p_neighborhood(0, tour_nodes, dist_matrix, p=2)
+[1, 2]</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

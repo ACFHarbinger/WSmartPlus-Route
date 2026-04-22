@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -471,6 +472,7 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.tsp_kopt.TSPkoptEnv"><code class="docutils literal notranslate"><span class="pre">TSPkoptEnv</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.tsp_kopt.TSPkoptEnv.name"><code class="docutils literal notranslate"><span class="pre">TSPkoptEnv.name</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.tsp_kopt.TSPkoptEnv._step"><code class="docutils literal notranslate"><span class="pre">TSPkoptEnv._step()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.tsp_kopt.TSPkoptEnv._get_action_mask"><code class="docutils literal notranslate"><span class="pre">TSPkoptEnv._get_action_mask()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.tsp_kopt.TSPkoptEnv._get_initial_solution"><code class="docutils literal notranslate"><span class="pre">TSPkoptEnv._get_initial_solution()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.tsp_kopt.TSPkoptEnv._step_instance"><code class="docutils literal notranslate"><span class="pre">TSPkoptEnv._step_instance()</span></code></a></li>
@@ -527,6 +529,12 @@ Actions are typically pairs of indices to swap or reverse sections.</p>
 <dt class="sig sig-object py" id="src.envs.tsp_kopt.TSPkoptEnv.name">
 <span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.envs.tsp_kopt.TSPkoptEnv.name" title="Link to this definition">#</a></dt>
 <dd><p>‘tsp_kopt’</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.envs.tsp_kopt.TSPkoptEnv._step">
+<span class="sig-name descname"><span class="pre">_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.TensorDict</span></span></span><a class="headerlink" href="#src.envs.tsp_kopt.TSPkoptEnv._step" title="Link to this definition">#</a></dt>
+<dd><p>Execute step via OpsMixin implementation.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -624,6 +632,7 @@ Here we define a max_steps entry in td if present.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.tsp_kopt.TSPkoptEnv"><code class="docutils literal notranslate"><span class="pre">TSPkoptEnv</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.tsp_kopt.TSPkoptEnv.name"><code class="docutils literal notranslate"><span class="pre">TSPkoptEnv.name</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.tsp_kopt.TSPkoptEnv._step"><code class="docutils literal notranslate"><span class="pre">TSPkoptEnv._step()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.tsp_kopt.TSPkoptEnv._get_action_mask"><code class="docutils literal notranslate"><span class="pre">TSPkoptEnv._get_action_mask()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.tsp_kopt.TSPkoptEnv._get_initial_solution"><code class="docutils literal notranslate"><span class="pre">TSPkoptEnv._get_initial_solution()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.tsp_kopt.TSPkoptEnv._step_instance"><code class="docutils literal notranslate"><span class="pre">TSPkoptEnv._step_instance()</span></code></a></li>

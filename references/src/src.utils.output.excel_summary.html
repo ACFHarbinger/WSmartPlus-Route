@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -495,6 +496,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.output.excel_summary">
 <span id="src-utils-output-excel-summary"></span><h1><a class="reference internal" href="#module-src.utils.output.excel_summary" title="src.utils.output.excel_summary"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.output.excel_summary</span></code></a><a class="headerlink" href="#module-src.utils.output.excel_summary" title="Link to this heading">#</a></h1>
 <p>Utility to aggregate simulation results JSONs into a single Excel log.</p>
+<p>Attributes:
+_DIST_PATTERN: Regex pattern to extract distribution information from policy names.
+_DISPLAY_METRICS: List of metrics to display in the summary.
+SELECTED_DIRS: Whitelist of directories to include in the summary.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.utils.output.excel_summary import discover_and_aggregate
+&gt;&gt;&gt; df = discover_and_aggregate()
+&gt;&gt;&gt; print(df.head())</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -558,18 +567,28 @@ document.write(`
 <dt class="sig sig-object py" id="src.utils.output.excel_summary._parse_policy_name">
 <span class="sig-prename descclassname"><span class="pre">src.utils.output.excel_summary.</span></span><span class="sig-name descname"><span class="pre">_parse_policy_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.output.excel_summary._parse_policy_name" title="Link to this definition">#</a></dt>
 <dd><p>Split a raw policy key into (base_name, distribution).</p>
+<p>Args:
+raw_name:  Raw policy key.</p>
+<p>Returns:
+Tuple[str, str]: A tuple containing the base name and distribution.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.output.excel_summary._load_json">
 <span class="sig-prename descclassname"><span class="pre">src.utils.output.excel_summary.</span></span><span class="sig-name descname"><span class="pre">_load_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.utils.output.excel_summary._load_json" title="Link to this definition">#</a></dt>
 <dd><p>Load and parse a JSON file.</p>
+<p>Args:
+path:  Path to the JSON file.</p>
+<p>Returns:
+Any: The parsed JSON data.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.output.excel_summary.discover_and_aggregate">
 <span class="sig-prename descclassname"><span class="pre">src.utils.output.excel_summary.</span></span><span class="sig-name descname"><span class="pre">discover_and_aggregate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.utils.output.excel_summary.discover_and_aggregate" title="Link to this definition">#</a></dt>
 <dd><p>Find all log directories and aggregate results into a DataFrame.</p>
+<p>Returns:
+pd.DataFrame: A DataFrame containing the aggregated simulation results.</p>
 </dd></dl>
 
 <dl class="py function">

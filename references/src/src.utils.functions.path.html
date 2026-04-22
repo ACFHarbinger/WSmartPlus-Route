@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -488,6 +489,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.functions.path">
 <span id="src-utils-functions-path"></span><h1><a class="reference internal" href="#module-src.utils.functions.path" title="src.utils.functions.path"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions.path</span></code></a><a class="headerlink" href="#module-src.utils.functions.path" title="Link to this heading">#</a></h1>
 <p>Path manipulation utilities.</p>
+<p>Attributes:
+get_path_until_string: Truncates a path up to a specific directory component.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.utils.functions import get_path_until_string
+&gt;&gt;&gt; path = “/home/user/project/src/module.py”
+&gt;&gt;&gt; get_path_until_string(path, “src”)
+‘/home/user/project/src’</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -489,6 +490,12 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.data.rl_utils">
 <span id="src-utils-data-rl-utils"></span><h1><a class="reference internal" href="#module-src.utils.data.rl_utils" title="src.utils.data.rl_utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data.rl_utils</span></code></a><a class="headerlink" href="#module-src.utils.data.rl_utils" title="Link to this heading">#</a></h1>
 <p>Reinforcement Learning utilities for WSmart-Route.</p>
+<p>Attributes:
+_internal_safe_copy: Internal helper for safe_td_copy to handle recursion and avoid circular refs.
+safe_td_copy: Perform a deep copy of a TensorDict that is safe against circular references and complex objects.</p>
+<p>Example:
+&gt;&gt;&gt; _internal_safe_copy(obj, visited)
+&gt;&gt;&gt; safe_td_copy(td)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -510,8 +517,13 @@ and complex objects.</p></td>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.data.rl_utils._internal_safe_copy">
-<span class="sig-prename descclassname"><span class="pre">src.utils.data.rl_utils.</span></span><span class="sig-name descname"><span class="pre">_internal_safe_copy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">object</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visited</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.data.rl_utils._internal_safe_copy" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.utils.data.rl_utils.</span></span><span class="sig-name descname"><span class="pre">_internal_safe_copy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">object</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visited</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.data.rl_utils._internal_safe_copy" title="Link to this definition">#</a></dt>
 <dd><p>Internal helper for safe_td_copy to handle recursion and avoid circular refs.</p>
+<p>Args:
+obj: The object to copy.
+visited: Set of visited objects.</p>
+<p>Returns:
+The copied object.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -519,6 +531,10 @@ and complex objects.</p></td>
 <span class="sig-prename descclassname"><span class="pre">src.utils.data.rl_utils.</span></span><span class="sig-name descname"><span class="pre">safe_td_copy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">object</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.utils.data.rl_utils.safe_td_copy" title="Link to this definition">#</a></dt>
 <dd><p>Perform a deep copy of a TensorDict that is safe against circular references
 and complex objects.</p>
+<p>Args:
+td: The TensorDict to copy.</p>
+<p>Returns:
+The copied TensorDict.</p>
 </dd></dl>
 
 </section>

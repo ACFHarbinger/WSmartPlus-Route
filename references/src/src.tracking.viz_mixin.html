@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -505,7 +506,10 @@ document.write(`
 heuristic policies.  Import :class:<code class="docutils literal notranslate"><span class="pre">PolicyVizMixin</span></code> and add it as a
 mixin base-class to any policy that should expose iteration data to the
 Streamlit dashboard.</p>
-<p>Usage::</p>
+<p>Attributes:
+PolicyStateRecorder: Fixed-capacity ring-buffer for per-iteration policy telemetry.
+PolicyVizMixin: Mixin that adds zero-overhead telemetry to policy classes.</p>
+<p>Example:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>class VectorizedALNS(PolicyVizMixin):
     def solve(self, ...):
         for i in range(n_iterations):
@@ -539,32 +543,49 @@ data = solver.get_viz_data()
 <dt class="sig sig-object py" id="src.tracking.viz_mixin.PolicyStateRecorder">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.tracking.viz_mixin.</span></span><span class="sig-name descname"><span class="pre">PolicyStateRecorder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_history</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.viz_mixin.PolicyStateRecorder" title="Link to this definition">#</a></dt>
 <dd><p>Fixed-capacity ring-buffer for per-iteration policy telemetry.</p>
+<p>Attributes:
+_buf: Dictionary for storing telemetry data.
+_max: Maximum number of records to keep.</p>
+<p class="rubric">Initialization</p>
+<p>Initialize the PolicyStateRecorder.</p>
 <p>Args:
 max_history: Maximum number of records to keep.  Oldest entries
 are silently dropped once the buffer is full.</p>
-<p class="rubric">Initialization</p>
+<p>Returns:
+None</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.viz_mixin.PolicyStateRecorder.record">
 <span class="sig-name descname"><span class="pre">record</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.viz_mixin.PolicyStateRecorder.record" title="Link to this definition">#</a></dt>
 <dd><p>Append one snapshot of keyword-named scalar metrics.</p>
+<p>Args:
+kwargs: Keyword arguments representing the metrics to record.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.viz_mixin.PolicyStateRecorder.get">
 <span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.viz_mixin.PolicyStateRecorder.get" title="Link to this definition">#</a></dt>
 <dd><p>Return a shallow copy of the accumulated telemetry.</p>
+<p>Returns:
+Dict[str, List[Any]]: A dictionary containing the accumulated telemetry.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.viz_mixin.PolicyStateRecorder.reset">
 <span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.viz_mixin.PolicyStateRecorder.reset" title="Link to this definition">#</a></dt>
 <dd><p>Discard all recorded data.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.viz_mixin.PolicyStateRecorder.__len__">
 <span class="sig-name descname"><span class="pre">__len__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.tracking.viz_mixin.PolicyStateRecorder.__len__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return the number of records.</p>
+<p>Returns:
+int: The number of records.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -578,28 +599,41 @@ data pay no allocation cost at all.</p>
 <p>Concrete policies should call <code class="docutils literal notranslate"><span class="pre">self._viz_record(**metrics)</span></code> inside
 their main iteration loop, then consumers call
 <code class="docutils literal notranslate"><span class="pre">policy.get_viz_data()</span></code> to retrieve the captured time-series.</p>
+<p>Attributes:
+_viz_recorder: PolicyStateRecorder for storing telemetry data.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="src.tracking.viz_mixin.PolicyVizMixin._viz">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_viz</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.tracking.viz_mixin.PolicyStateRecorder" title="src.tracking.viz_mixin.PolicyStateRecorder"><span class="pre">src.tracking.viz_mixin.PolicyStateRecorder</span></a></em><a class="headerlink" href="#src.tracking.viz_mixin.PolicyVizMixin._viz" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Lazy property for the recorder.</p>
+<p>Returns:
+PolicyStateRecorder: The recorder.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.viz_mixin.PolicyVizMixin._viz_record">
 <span class="sig-name descname"><span class="pre">_viz_record</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.viz_mixin.PolicyVizMixin._viz_record" title="Link to this definition">#</a></dt>
-<dd><p>Record one snapshot of metrics.  Call once per iteration.</p>
+<dd><p>Record one snapshot of metrics. Call once per iteration.</p>
+<p>Args:
+kwargs: Keyword arguments representing the metrics to record.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.viz_mixin.PolicyVizMixin.get_viz_data">
 <span class="sig-name descname"><span class="pre">get_viz_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.viz_mixin.PolicyVizMixin.get_viz_data" title="Link to this definition">#</a></dt>
-<dd><p>Return accumulated telemetry as a plain dict of lists.</p>
-<p>Returns an empty dict if <code class="docutils literal notranslate"><span class="pre">_viz_record</span></code> was never called.</p>
+<dd><p>Return accumulated telemetry as a plain dict of lists,
+or an empty dict if <code class="docutils literal notranslate"><span class="pre">_viz_record</span></code> was never called.</p>
+<p>Returns:
+Dict[str, List[Any]]: A dictionary containing the accumulated telemetry.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.viz_mixin.PolicyVizMixin.reset_viz">
 <span class="sig-name descname"><span class="pre">reset_viz</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.viz_mixin.PolicyVizMixin.reset_viz" title="Link to this definition">#</a></dt>
 <dd><p>Clear all recorded telemetry (safe to call before re-use).</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 </dd></dl>

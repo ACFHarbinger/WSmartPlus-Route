@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -489,6 +490,15 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.cli.benchmark_parser">
 <span id="src-cli-benchmark-parser"></span><h1><a class="reference internal" href="#module-src.cli.benchmark_parser" title="src.cli.benchmark_parser"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.benchmark_parser</span></code></a><a class="headerlink" href="#module-src.cli.benchmark_parser" title="Link to this heading">#</a></h1>
 <p>Parser arguments for the Benchmark Suite.</p>
+<p>Attributes:
+add_benchmark_args: Adds arguments for the benchmark command
+validate_benchmark_args: Validates benchmark arguments</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.cli.benchmark_parser import add_benchmark_args, validate_benchmark_args
+&gt;&gt;&gt; parser = ConfigsParser()
+&gt;&gt;&gt; add_benchmark_args(parser)
+&gt;&gt;&gt; validate_benchmark_args(parser.parse_args())
+{‘subset’: ‘all’, ‘device’: ‘auto’, ‘output’: None}</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -511,12 +521,20 @@ document.write(`
 <dt class="sig sig-object py" id="src.cli.benchmark_parser.add_benchmark_args">
 <span class="sig-prename descclassname"><span class="pre">src.cli.benchmark_parser.</span></span><span class="sig-name descname"><span class="pre">add_benchmark_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.cli.base.ConfigsParser</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.cli.benchmark_parser.add_benchmark_args" title="Link to this definition">#</a></dt>
 <dd><p>Adds arguments for the benchmark command.</p>
+<p>Args:
+parser: ConfigsParser instance</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.cli.benchmark_parser.validate_benchmark_args">
 <span class="sig-prename descclassname"><span class="pre">src.cli.benchmark_parser.</span></span><span class="sig-name descname"><span class="pre">validate_benchmark_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">opts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.cli.benchmark_parser.validate_benchmark_args" title="Link to this definition">#</a></dt>
 <dd><p>Validates benchmark arguments.</p>
+<p>Args:
+opts: Dictionary of benchmark arguments</p>
+<p>Returns:
+Dictionary of validated benchmark arguments</p>
 </dd></dl>
 
 </section>

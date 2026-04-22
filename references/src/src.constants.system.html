@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -503,13 +504,6 @@ document.write(`
 <li><p><strong>Config file processing</strong>: Dynamic value transformations during Hydra composition</p></li>
 <li><p><strong>File system automation</strong>: Conditional logic for batch file operations</p></li>
 </ol>
-<p>Example usage:
-&gt;&gt;&gt; op_func = OPERATION_MAP[“+=”]
-&gt;&gt;&gt; result = op_func(10, 5)  # Returns 15
-&gt;&gt;&gt;
-&gt;&gt;&gt; # In GUI: User selects “+=” and enters value 5
-&gt;&gt;&gt; current_value = 100
-&gt;&gt;&gt; new_value = OPERATION_MAP[operation](current_value, user_input)</p>
 <p>Supported operators:</p>
 <ul class="simple">
 <li><p><strong>Assignment</strong>: =, (empty string for passthrough)</p></li>
@@ -525,6 +519,20 @@ document.write(`
 <p>LOCK_TIMEOUT is a module-level global that is modified by update_lock_wait_time().
 This is safe for parallel data generation workers since each subprocess gets a
 separate copy of the module globals.</p>
+<p>Attributes:
+CORE_LOCK_WAIT_TIME: Base timeout (milliseconds) for file/resource locking in single-core mode
+LOCK_TIMEOUT: Dynamic timeout (milliseconds) scaled by CPU count
+update_lock_wait_time: Updates the global LOCK_TIMEOUT based on the number of CPU cores
+CONFIRM_TIMEOUT: GUI confirmation dialog timeout (seconds)
+FS_COMMANDS: Supported file system operations in GUI
+OPERATION_MAP: Operator string → callable function mapping</p>
+<p>Example:
+&gt;&gt;&gt; op_func = OPERATION_MAP[“+=”]
+&gt;&gt;&gt; result = op_func(10, 5)  # Returns 15
+&gt;&gt;&gt;
+&gt;&gt;&gt; # In GUI: User selects “+=” and enters value 5
+&gt;&gt;&gt; current_value = 100
+&gt;&gt;&gt; new_value = OPERATION_MAP[operation](current_value, user_input)</p>
 </section>
 <p>System-wide constants and operation mappings.</p>
 <p>This module provides infrastructure constants for:</p>

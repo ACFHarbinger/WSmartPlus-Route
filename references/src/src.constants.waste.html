@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -519,6 +520,24 @@ Each type requires different:</p>
 <h2>Critical Fill Threshold<a class="headerlink" href="#critical-fill-threshold" title="Link to this heading">#</a></h2>
 <p>CRITICAL_FILL_THRESHOLD defines the fill level that triggers priority collection.
 Used in: mandatory bin selection, overflow prediction, service level agreements.</p>
+<p>Attributes:
+MAP_DEPOTS: Waste management facility mappings (dataset → depot code)
+WASTE_TYPES: Waste type translations (English → Portuguese official nomenclature)
+CRITICAL_FILL_THRESHOLD: Fill level threshold triggering priority collection</p>
+<p>Example:</p>
+<blockquote>
+<div><blockquote>
+<div><blockquote>
+<div><p>from logic.src.constants import MAP_DEPOTS, WASTE_TYPES, CRITICAL_FILL_THRESHOLD
+MAP_DEPOTS[“mixrmbac”]
+‘CTEASO’
+WASTE_TYPES[“plastic”]
+‘Mistura de embalagens’
+CRITICAL_FILL_THRESHOLD
+0.9</p>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
 </section>
 <p>Waste management specific constants.</p>
 <p>This module defines real-world waste management metadata for Portugal case studies.

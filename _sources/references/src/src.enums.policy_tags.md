@@ -16,7 +16,9 @@
 :align: left
 
 * - {py:obj}`PolicyTag <src.enums.policy_tags.PolicyTag>`
-  -
+  - ```{autodoc2-docstring} src.enums.policy_tags.PolicyTag
+    :summary:
+    ```
 ````
 
 ### API
@@ -25,6 +27,9 @@
 :canonical: src.enums.policy_tags.PolicyTag
 
 Bases: {py:obj}`enum.Enum`
+
+```{autodoc2-docstring} src.enums.policy_tags.PolicyTag
+```
 
 ````{py:attribute} EXACT
 :canonical: src.enums.policy_tags.PolicyTag.EXACT

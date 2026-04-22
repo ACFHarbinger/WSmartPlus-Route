@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -498,6 +499,13 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.enums.trainer_tags">
 <span id="src-enums-trainer-tags"></span><h1><a class="reference internal" href="#module-src.enums.trainer_tags" title="src.enums.trainer_tags"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.enums.trainer_tags</span></code></a><a class="headerlink" href="#module-src.enums.trainer_tags" title="Link to this heading">#</a></h1>
+<p>Trainer enum for WSmart-Route.</p>
+<p>Attributes:
+TrainerTag: Enum for trainer tags</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.enums import TrainerTag
+&gt;&gt;&gt; TrainerTag.REINFORCEMENT_LEARNING
+&lt;TrainerTag.REINFORCEMENT_LEARNING: 1&gt;</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -505,7 +513,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.enums.trainer_tags.TrainerTag" title="src.enums.trainer_tags.TrainerTag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TrainerTag</span></code></a></p></td>
-<td></td>
+<td><p>Trainer tags for WSmart-Route.</p></td>
 </tr>
 </tbody>
 </table>
@@ -517,6 +525,17 @@ document.write(`
 <dt class="sig sig-object py" id="src.enums.trainer_tags.TrainerTag">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.enums.trainer_tags.</span></span><span class="sig-name descname"><span class="pre">TrainerTag</span></span><a class="headerlink" href="#src.enums.trainer_tags.TrainerTag" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>Trainer tags for WSmart-Route.</p>
+<p>Attributes:
+REINFORCEMENT_LEARNING: Reinforcement Learning
+SUPERVISED_LEARNING: Supervised Learning
+IMITATION_LEARNING: Imitation Learning
+ACTIVE_SEARCH: Test-time instance-specific training
+POLICY_GRADIENT: Policy Gradient (REINFORCE, PPO)
+VALUE_BASED: Value-Based (DQN)
+ACTOR_CRITIC: Actor-Critic (A2C, PPO)
+DISTRIBUTED_DATA_PARALLEL: Supports multi-GPU (DDP)
+REQUIRES_BASE_MODEL: Requires a pre-trained model</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.enums.trainer_tags.TrainerTag.REINFORCEMENT_LEARNING">
 <span class="sig-name descname"><span class="pre">REINFORCEMENT_LEARNING</span></span><a class="headerlink" href="#src.enums.trainer_tags.TrainerTag.REINFORCEMENT_LEARNING" title="Link to this definition">#</a></dt>

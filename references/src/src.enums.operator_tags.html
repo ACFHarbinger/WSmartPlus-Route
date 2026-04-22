@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -470,10 +471,6 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.enums.operator_tags.OperatorTag"><code class="docutils literal notranslate"><span class="pre">OperatorTag</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.enums.operator_tags.OperatorTag.DESTRUCTIVE"><code class="docutils literal notranslate"><span class="pre">OperatorTag.DESTRUCTIVE</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.enums.operator_tags.OperatorTag.CONSTRUCTIVE"><code class="docutils literal notranslate"><span class="pre">OperatorTag.CONSTRUCTIVE</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.enums.operator_tags.OperatorTag.IMPROVEMENT"><code class="docutils literal notranslate"><span class="pre">OperatorTag.IMPROVEMENT</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.enums.operator_tags.OperatorTag.RECOMBINATION"><code class="docutils literal notranslate"><span class="pre">OperatorTag.RECOMBINATION</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.enums.operator_tags.OperatorTag.INTRA_ROUTE"><code class="docutils literal notranslate"><span class="pre">OperatorTag.INTRA_ROUTE</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.enums.operator_tags.OperatorTag.INTER_ROUTE"><code class="docutils literal notranslate"><span class="pre">OperatorTag.INTER_ROUTE</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.enums.operator_tags.OperatorTag.O_N"><code class="docutils literal notranslate"><span class="pre">OperatorTag.O_N</span></code></a></li>
@@ -500,6 +497,13 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.enums.operator_tags">
 <span id="src-enums-operator-tags"></span><h1><a class="reference internal" href="#module-src.enums.operator_tags" title="src.enums.operator_tags"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.enums.operator_tags</span></code></a><a class="headerlink" href="#module-src.enums.operator_tags" title="Link to this heading">#</a></h1>
+<p>Operator enum for WSmart-Route.</p>
+<p>Attributes:
+OperatorTag: Enum for operator tags</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.enums import OperatorTag
+&gt;&gt;&gt; OperatorTag.DESTRUCTIVE
+&lt;OperatorTag.DESTRUCTIVE: 1&gt;</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -507,7 +511,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.enums.operator_tags.OperatorTag" title="src.enums.operator_tags.OperatorTag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OperatorTag</span></code></a></p></td>
-<td></td>
+<td><p>Operator tags for WSmart-Route.</p></td>
 </tr>
 </tbody>
 </table>
@@ -519,30 +523,19 @@ document.write(`
 <dt class="sig sig-object py" id="src.enums.operator_tags.OperatorTag">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.enums.operator_tags.</span></span><span class="sig-name descname"><span class="pre">OperatorTag</span></span><a class="headerlink" href="#src.enums.operator_tags.OperatorTag" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.enums.operator_tags.OperatorTag.DESTRUCTIVE">
-<span class="sig-name descname"><span class="pre">DESTRUCTIVE</span></span><a class="headerlink" href="#src.enums.operator_tags.OperatorTag.DESTRUCTIVE" title="Link to this definition">#</a></dt>
-<dd><p>‘auto(…)’</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.enums.operator_tags.OperatorTag.CONSTRUCTIVE">
-<span class="sig-name descname"><span class="pre">CONSTRUCTIVE</span></span><a class="headerlink" href="#src.enums.operator_tags.OperatorTag.CONSTRUCTIVE" title="Link to this definition">#</a></dt>
-<dd><p>‘auto(…)’</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.enums.operator_tags.OperatorTag.IMPROVEMENT">
-<span class="sig-name descname"><span class="pre">IMPROVEMENT</span></span><a class="headerlink" href="#src.enums.operator_tags.OperatorTag.IMPROVEMENT" title="Link to this definition">#</a></dt>
-<dd><p>‘auto(…)’</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.enums.operator_tags.OperatorTag.RECOMBINATION">
-<span class="sig-name descname"><span class="pre">RECOMBINATION</span></span><a class="headerlink" href="#src.enums.operator_tags.OperatorTag.RECOMBINATION" title="Link to this definition">#</a></dt>
-<dd><p>‘auto(…)’</p>
-</dd></dl>
-
+<p>Operator tags for WSmart-Route.</p>
+<p>Attributes:
+DESTRUCTIVE: Ruin (e.g., Random, Shaw, Worst)
+CONSTRUCTIVE: Repair/Recreate (e.g., Greedy, Regret-K)
+IMPROVEMENT: Local Search (e.g., 2-Opt, Relocate)
+RECOMBINATION: Crossover (e.g., OX, Edge Recombination)
+INTRA_ROUTE: Operates within a single route
+INTER_ROUTE: Swaps between different routes
+O_N: Linear time
+O_N2: Quadratic (standard for most edge-exchanges)
+O_N3: Cubic (e.g., full 3-Opt)
+HEURISTIC: Fast approximation
+EXACT_SUBPROBLEM: Solves a sub-graph optimally (DP or Set Partitioning)</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.enums.operator_tags.OperatorTag.INTRA_ROUTE">
 <span class="sig-name descname"><span class="pre">INTRA_ROUTE</span></span><a class="headerlink" href="#src.enums.operator_tags.OperatorTag.INTRA_ROUTE" title="Link to this definition">#</a></dt>
@@ -640,10 +633,6 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.enums.operator_tags.OperatorTag"><code class="docutils literal notranslate"><span class="pre">OperatorTag</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.enums.operator_tags.OperatorTag.DESTRUCTIVE"><code class="docutils literal notranslate"><span class="pre">OperatorTag.DESTRUCTIVE</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.enums.operator_tags.OperatorTag.CONSTRUCTIVE"><code class="docutils literal notranslate"><span class="pre">OperatorTag.CONSTRUCTIVE</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.enums.operator_tags.OperatorTag.IMPROVEMENT"><code class="docutils literal notranslate"><span class="pre">OperatorTag.IMPROVEMENT</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.enums.operator_tags.OperatorTag.RECOMBINATION"><code class="docutils literal notranslate"><span class="pre">OperatorTag.RECOMBINATION</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.enums.operator_tags.OperatorTag.INTRA_ROUTE"><code class="docutils literal notranslate"><span class="pre">OperatorTag.INTRA_ROUTE</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.enums.operator_tags.OperatorTag.INTER_ROUTE"><code class="docutils literal notranslate"><span class="pre">OperatorTag.INTER_ROUTE</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.enums.operator_tags.OperatorTag.O_N"><code class="docutils literal notranslate"><span class="pre">OperatorTag.O_N</span></code></a></li>

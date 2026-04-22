@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -489,6 +490,15 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.decoding">
 <span id="src-utils-decoding"></span><h1><a class="reference internal" href="#module-src.utils.decoding" title="src.utils.decoding"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.decoding</span></code></a><a class="headerlink" href="#module-src.utils.decoding" title="Link to this heading">#</a></h1>
 <p>Decoding package.</p>
+<p>Attributes:
+DECODING_STRATEGY_REGISTRY: Registry of decoding strategies.
+get_decoding_strategy: Get decoding strategy by name.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.utils.decoding import get_decoding_strategy
+&gt;&gt;&gt; strategy = get_decoding_strategy(“greedy”)
+&gt;&gt;&gt; strategy = get_decoding_strategy(“sampling”, temperature=0.7)
+&gt;&gt;&gt; strategy = get_decoding_strategy(“beam_search”, beam_size=5)
+&gt;&gt;&gt; strategy = get_decoding_strategy(“evaluate”, actions=torch.tensor([[0, 1], [2, 3]]))</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

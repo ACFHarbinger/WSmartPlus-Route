@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -492,6 +493,10 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.configs.setup_manager">
 <span id="src-utils-configs-setup-manager"></span><h1><a class="reference internal" href="#module-src.utils.configs.setup_manager" title="src.utils.configs.setup_manager"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.configs.setup_manager</span></code></a><a class="headerlink" href="#module-src.utils.configs.setup_manager" title="Link to this heading">#</a></h1>
 <p>HRL Manager setup utilities.</p>
+<p>Attributes:
+setup_hrl_manager: Initializes and loads the Manager model for Hierarchical RL.</p>
+<p>Example:
+setup_hrl_manager(sim_cfg, device)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -523,24 +528,47 @@ document.write(`
 <dt class="sig sig-object py" id="src.utils.configs.setup_manager._get_cfg_attr">
 <span class="sig-prename descclassname"><span class="pre">src.utils.configs.setup_manager.</span></span><span class="sig-name descname"><span class="pre">_get_cfg_attr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim_cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.utils.configs.setup_manager._get_cfg_attr" title="Link to this definition">#</a></dt>
 <dd><p>Retrieve a value from <em>sim_cfg</em> (<code class="docutils literal notranslate"><span class="pre">SimConfig</span></code> or plain <code class="docutils literal notranslate"><span class="pre">dict</span></code>).</p>
+<p>Args:
+sim_cfg: Simulation config object (<code class="docutils literal notranslate"><span class="pre">SimConfig</span></code> or dict).
+name: Name of the attribute to retrieve.
+default: Default value to return if the attribute is not found.</p>
+<p>Returns:
+The value of the attribute.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.configs.setup_manager._resolve_hrl_path">
 <span class="sig-prename descclassname"><span class="pre">src.utils.configs.setup_manager.</span></span><span class="sig-name descname"><span class="pre">_resolve_hrl_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.configs.setup_manager._resolve_hrl_path" title="Link to this definition">#</a></dt>
 <dd><p>Match <em>policy</em> to a checkpoint path in <em>model_paths</em>.</p>
+<p>Args:
+model_paths: Dictionary of model paths.
+policy: Policy name.</p>
+<p>Returns:
+The checkpoint path for the given policy.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.configs.setup_manager._resolve_checkpoint_file">
 <span class="sig-prename descclassname"><span class="pre">src.utils.configs.setup_manager.</span></span><span class="sig-name descname"><span class="pre">_resolve_checkpoint_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hrl_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.configs.setup_manager._resolve_checkpoint_file" title="Link to this definition">#</a></dt>
 <dd><p>Return a concrete <code class="docutils literal notranslate"><span class="pre">.pt</span></code> file path, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if nothing is found.</p>
+<p>Args:
+hrl_path: Path to the HRL model.
+base_path: Base path for models.</p>
+<p>Returns:
+The checkpoint path for the given HRL model.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.configs.setup_manager._resolve_param">
 <span class="sig-prename descclassname"><span class="pre">src.utils.configs.setup_manager.</span></span><span class="sig-name descname"><span class="pre">_resolve_param</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.utils.configs.setup_manager._resolve_param" title="Link to this definition">#</a></dt>
 <dd><p>Look up <em>name</em> from <em>configs</em> first, then <em>sim_cfg</em>, then <em>default</em>.</p>
+<p>Args:
+configs: Configuration dictionary from the loaded neural checkpoint.
+sim_cfg: Simulation config object (<code class="docutils literal notranslate"><span class="pre">SimConfig</span></code> or dict).
+name: Name of the attribute to retrieve.
+default: Default value to return if the attribute is not found.</p>
+<p>Returns:
+The value of the attribute.</p>
 </dd></dl>
 
 <dl class="py function">

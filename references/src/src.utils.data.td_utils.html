@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -490,6 +491,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.data.td_utils">
 <span id="src-utils-data-td-utils"></span><h1><a class="reference internal" href="#module-src.utils.data.td_utils" title="src.utils.data.td_utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data.td_utils</span></code></a><a class="headerlink" href="#module-src.utils.data.td_utils" title="Link to this heading">#</a></h1>
 <p>Utilities for TensorDict datasets.</p>
+<p>Attributes:
+td_kwargs: Dictionary for TensorDict keyword arguments.
+tensordict_collate_fn: Collate list of TensorDicts or dicts into batched TensorDict or dict.</p>
+<p>Example:
+&gt;&gt;&gt; td_kwargs
+{‘_run_checks’: False}
+&gt;&gt;&gt; tensordict_collate_fn([td1, td2])
+tensor_dict</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -526,6 +535,10 @@ document.write(`
 <dt class="sig sig-object py" id="src.utils.data.td_utils.tensordict_collate_fn">
 <span class="sig-prename descclassname"><span class="pre">src.utils.data.td_utils.</span></span><span class="sig-name descname"><span class="pre">tensordict_collate_fn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tensordict.tensordict.TensorDict</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tensordict.tensordict.TensorDict</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.data.td_utils.tensordict_collate_fn" title="Link to this definition">#</a></dt>
 <dd><p>Collate list of TensorDicts or dicts into batched TensorDict or dict.</p>
+<p>Args:
+batch: List of TensorDicts or dicts</p>
+<p>Returns:
+Batched TensorDict or dict</p>
 </dd></dl>
 
 </section>

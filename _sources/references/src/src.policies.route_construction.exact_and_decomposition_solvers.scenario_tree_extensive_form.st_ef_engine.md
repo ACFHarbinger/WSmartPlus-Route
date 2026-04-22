@@ -91,4 +91,20 @@
 
 ````
 
+````{py:method} _convert_simulation_tree(tree: typing.Any) -> typing.Dict[int, typing.Any]
+:canonical: src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.ScenarioTreeExtensiveFormEngine._convert_simulation_tree
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.ScenarioTreeExtensiveFormEngine._convert_simulation_tree
+```
+
+````
+
+````{py:method} _get_engine_root()
+:canonical: src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.ScenarioTreeExtensiveFormEngine._get_engine_root
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine.ScenarioTreeExtensiveFormEngine._get_engine_root
+```
+
+````
+
 `````

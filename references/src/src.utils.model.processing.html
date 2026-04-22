@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -489,6 +490,20 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.model.processing">
 <span id="src-utils-model-processing"></span><h1><a class="reference internal" href="#module-src.utils.model.processing" title="src.utils.model.processing"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.model.processing</span></code></a><a class="headerlink" href="#module-src.utils.model.processing" title="Link to this heading">#</a></h1>
 <p>Model processing and utility functions.</p>
+<p>Attributes:
+get_inner_model: Returns the underlying model from a DataParallel wrapper if present.
+parse_softmax_temperature: Parses softmax temperature, supporting loading from a file (schedule) or a float.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.utils.model.processing import get_inner_model
+&gt;&gt;&gt; model = torch.nn.DataParallel(torch.nn.Linear(10, 2))
+&gt;&gt;&gt; inner_model = get_inner_model(model)
+&gt;&gt;&gt; isinstance(inner_model, torch.nn.Linear)
+True
+&gt;&gt;&gt; from logic.src.utils.model.processing import parse_softmax_temperature
+&gt;&gt;&gt; parse_softmax_temperature(1.0)
+1.0
+&gt;&gt;&gt; parse_softmax_temperature(“path/to/temp.txt”)
+1.0</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

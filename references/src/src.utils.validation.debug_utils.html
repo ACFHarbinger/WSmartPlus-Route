@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -493,6 +494,13 @@ document.write(`
 <ul class="simple">
 <li><p>Variable watching (tracing value changes).</p></li>
 </ul>
+<p>Attributes:
+watch (callable): Watch a variable by name. Prints every change with line number.
+watch_all (callable): Watch all local variables in the caller’s frame. Prints every change with line number.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.utils.validation.debug_utils import watch
+&gt;&gt;&gt; watch(“my_variable”)
+&gt;&gt;&gt; watch_all()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -523,6 +531,8 @@ callback (callable, optional): Custom callback (old, new, frame) -&gt; None.
 frame_depth (int, optional): Stack depth to watch from. Defaults to 1.</p>
 <p>Raises:
 NameError: If variable is not found in locals or globals.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py function">
@@ -532,6 +542,10 @@ NameError: If variable is not found in locals or globals.</p>
 <p>Args:
 callback (callable, optional): Custom callback (var_name, old, new, frame) -&gt; None.
 frame_depth (int, optional): Stack depth to watch from. Defaults to 1.</p>
+<p>Raises:
+NameError: If no variables are found in the caller’s frame.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 </section>

@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -513,6 +514,22 @@ This ensures:</p>
 <li><p>Distinct colors for multi-route/multi-policy visualizations</p></li>
 <li><p>Colorblind-safe (avoid red-green alone for critical distinctions)</p></li>
 </ul>
+<p>Attributes:
+PBAR_WAIT_TIME: Progress bar update interval (seconds)
+TQDM_COLOURS: TQDM progress bar color cycling
+MARKERS: Marker shapes for scatter plots and line plots
+PLOT_COLOURS: Plot color palette (matplotlib color names)
+LINESTYLES: Line styles for multi-series plots
+CTRL_C_TIMEOUT: Ctrl+C graceful shutdown timeout (seconds)
+APP_STYLES: Available Qt application styles</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.constants import PBAR_WAIT_TIME, TQDM_COLOURS, MARKERS, PLOT_COLOURS, LINESTYLES, CTRL_C_TIMEOUT, APP_STYLES
+&gt;&gt;&gt; PBAR_WAIT_TIME
+0.1
+&gt;&gt;&gt; TQDM_COLOURS
+[‘red’, ‘blue’, ‘green’, ‘yellow’, ‘magenta’, ‘cyan’]
+&gt;&gt;&gt; MARKERS
+[‘P’, ‘s’, ‘^’, ‘8’, ‘*’]</p>
 </section>
 <p>Constants related to the User Interface and Visualization.</p>
 <p>This module defines visual styling for terminal output, matplotlib plots, and

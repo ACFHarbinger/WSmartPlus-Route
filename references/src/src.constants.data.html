@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -488,6 +489,16 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.constants.data">
 <span id="src-constants-data"></span><h1><a class="reference internal" href="#module-src.constants.data" title="src.constants.data"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants.data</span></code></a><a class="headerlink" href="#module-src.constants.data" title="Link to this heading">#</a></h1>
+<p>Data constants for WSmart-Route.</p>
+<p>Attributes:
+GAMMA_PRESETS: Preset gamma parameter options for per-node heterogeneous waste generation
+DATASET_EXTENSIONS: Dataset file extensions for simulations</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.constants import GAMMA_PRESETS, DATASET_EXTENSIONS
+&gt;&gt;&gt; GAMMA_PRESETS[0]
+([5, 5, 5, 5, 5, 10, 10, 10, 10, 10], [5, 2])
+&gt;&gt;&gt; DATASET_EXTENSIONS
+{‘.npz’, ‘.xlsx’, ‘.csv’}</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="data">

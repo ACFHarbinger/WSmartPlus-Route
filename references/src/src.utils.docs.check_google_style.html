@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -473,10 +474,13 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_google_style.console"><code class="docutils literal notranslate"><span class="pre">console</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_google_style.SECTION_ALIASES"><code class="docutils literal notranslate"><span class="pre">SECTION_ALIASES</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_google_style._CONTEXT_LABEL"><code class="docutils literal notranslate"><span class="pre">_CONTEXT_LABEL</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_google_style._CONTEXT_STYLE"><code class="docutils literal notranslate"><span class="pre">_CONTEXT_STYLE</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_google_style.SKIP_DIRS"><code class="docutils literal notranslate"><span class="pre">SKIP_DIRS</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_google_style.GoogleStyleValidator"><code class="docutils literal notranslate"><span class="pre">GoogleStyleValidator</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_google_style.GoogleStyleValidator.add_violation"><code class="docutils literal notranslate"><span class="pre">GoogleStyleValidator.add_violation()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_google_style.GoogleStyleValidator._parse_docstring_sections"><code class="docutils literal notranslate"><span class="pre">GoogleStyleValidator._parse_docstring_sections()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_google_style.GoogleStyleValidator._check_missing_args"><code class="docutils literal notranslate"><span class="pre">GoogleStyleValidator._check_missing_args()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_google_style.GoogleStyleValidator._add"><code class="docutils literal notranslate"><span class="pre">GoogleStyleValidator._add()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_google_style.GoogleStyleValidator._parse_sections"><code class="docutils literal notranslate"><span class="pre">GoogleStyleValidator._parse_sections()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_google_style.GoogleStyleValidator._check_args"><code class="docutils literal notranslate"><span class="pre">GoogleStyleValidator._check_args()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_google_style.GoogleStyleValidator._check_returns_yields"><code class="docutils literal notranslate"><span class="pre">GoogleStyleValidator._check_returns_yields()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_google_style.GoogleStyleValidator.visit_Module"><code class="docutils literal notranslate"><span class="pre">GoogleStyleValidator.visit_Module()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_google_style.GoogleStyleValidator.visit_ClassDef"><code class="docutils literal notranslate"><span class="pre">GoogleStyleValidator.visit_ClassDef()</span></code></a></li>
@@ -505,11 +509,30 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.docs.check_google_style">
 <span id="src-utils-docs-check-google-style"></span><h1><a class="reference internal" href="#module-src.utils.docs.check_google_style" title="src.utils.docs.check_google_style"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.docs.check_google_style</span></code></a><a class="headerlink" href="#module-src.utils.docs.check_google_style" title="Link to this heading">#</a></h1>
-<p>check_google_style.py module.</p>
+<p>Google Style Docstring Validator.</p>
+<p>Walks Python files and checks that every module, class, and function carries
+a Google-style docstring with the required sections:</p>
+<ul class="simple">
+<li><p><strong>Module</strong>: <code class="docutils literal notranslate"><span class="pre">Attributes</span></code> + <code class="docutils literal notranslate"><span class="pre">Example</span></code></p></li>
+<li><p><strong>Class</strong>: <code class="docutils literal notranslate"><span class="pre">Attributes</span></code></p></li>
+<li><p><strong>Function/Method</strong>: <code class="docutils literal notranslate"><span class="pre">Args</span></code> (when parameters exist), <code class="docutils literal notranslate"><span class="pre">Returns</span></code>/<code class="docutils literal notranslate"><span class="pre">Yields</span></code>
+(when the function returns/yields a value)</p></li>
+</ul>
+<p>Output is grouped by file and rendered in a Rich table.  The <em>Issue</em> column is
+given extra width so descriptions are never truncated.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+console: Rich console for output.
+SECTION_ALIASES: Mapping from section aliases to normalized section names.
+_CONTEXT_LABEL: Mapping from AST node types to context labels.
+_CONTEXT_STYLE: Mapping from context labels to Rich styles.
+SKIP_DIRS: List of directories to skip.
+GoogleStyleValidator: AST visitor that collects Google-style docstring violations for one file.
+analyze_file: Analyzes a Python file for Google-style docstring violations.
+display_report: Displays the violations in a Rich table.
+main: Main entry point.</p>
 <p>Example:
-&gt;&gt;&gt; import check_google_style</p>
+python check_google_style.py [path]      # directory or single file (default: .)
+python check_google_style.py –help</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -517,7 +540,7 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.docs.check_google_style.GoogleStyleValidator" title="src.utils.docs.check_google_style.GoogleStyleValidator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GoogleStyleValidator</span></code></a></p></td>
-<td><p>GoogleStyleValidator class.</p></td>
+<td><p>AST visitor that collects Google-style docstring violations for one file.</p></td>
 </tr>
 </tbody>
 </table>
@@ -528,13 +551,13 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.docs.check_google_style.analyze_file" title="src.utils.docs.check_google_style.analyze_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analyze_file</span></code></a></p></td>
-<td><p>Analyze file.</p></td>
+<td><p>Parse <em>filepath</em> and return all Google-style violations found.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.utils.docs.check_google_style.display_report" title="src.utils.docs.check_google_style.display_report"><code class="xref py py-obj docutils literal notranslate"><span class="pre">display_report</span></code></a></p></td>
-<td><p>Renders the final report using Rich Tables.</p></td>
+<td><p>Render the consolidated violation report as a Rich table.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.docs.check_google_style.main" title="src.utils.docs.check_google_style.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a></p></td>
-<td><p>Main.</p></td>
+<td><p>Entry point: parse CLI arguments, scan files, and display the report.</p></td>
 </tr>
 </tbody>
 </table>
@@ -548,6 +571,15 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <td></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.utils.docs.check_google_style.SECTION_ALIASES" title="src.utils.docs.check_google_style.SECTION_ALIASES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SECTION_ALIASES</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.docs.check_google_style._CONTEXT_LABEL" title="src.utils.docs.check_google_style._CONTEXT_LABEL"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_CONTEXT_LABEL</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.utils.docs.check_google_style._CONTEXT_STYLE" title="src.utils.docs.check_google_style._CONTEXT_STYLE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_CONTEXT_STYLE</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.docs.check_google_style.SKIP_DIRS" title="src.utils.docs.check_google_style.SKIP_DIRS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SKIP_DIRS</span></code></a></p></td>
 <td></td>
 </tr>
 </tbody>
@@ -564,120 +596,150 @@ MODULE_VAR (Type): Description of module level variable.</p>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="src.utils.docs.check_google_style.SECTION_ALIASES">
-<span class="sig-prename descclassname"><span class="pre">src.utils.docs.check_google_style.</span></span><span class="sig-name descname"><span class="pre">SECTION_ALIASES</span></span><a class="headerlink" href="#src.utils.docs.check_google_style.SECTION_ALIASES" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.utils.docs.check_google_style.</span></span><span class="sig-name descname"><span class="pre">SECTION_ALIASES</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.utils.docs.check_google_style.SECTION_ALIASES" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="src.utils.docs.check_google_style._CONTEXT_LABEL">
+<span class="sig-prename descclassname"><span class="pre">src.utils.docs.check_google_style.</span></span><span class="sig-name descname"><span class="pre">_CONTEXT_LABEL</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.utils.docs.check_google_style._CONTEXT_LABEL" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="src.utils.docs.check_google_style._CONTEXT_STYLE">
+<span class="sig-prename descclassname"><span class="pre">src.utils.docs.check_google_style.</span></span><span class="sig-name descname"><span class="pre">_CONTEXT_STYLE</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.utils.docs.check_google_style._CONTEXT_STYLE" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="src.utils.docs.check_google_style.SKIP_DIRS">
+<span class="sig-prename descclassname"><span class="pre">src.utils.docs.check_google_style.</span></span><span class="sig-name descname"><span class="pre">SKIP_DIRS</span></span><a class="headerlink" href="#src.utils.docs.check_google_style.SKIP_DIRS" title="Link to this definition">#</a></dt>
 <dd><p>None</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="src.utils.docs.check_google_style.GoogleStyleValidator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.utils.docs.check_google_style.</span></span><span class="sig-name descname"><span class="pre">GoogleStyleValidator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.docs.check_google_style.GoogleStyleValidator" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.utils.docs.check_google_style.</span></span><span class="sig-name descname"><span class="pre">GoogleStyleValidator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.docs.check_google_style.GoogleStyleValidator" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">ast.NodeVisitor</span></code></p>
-<p>GoogleStyleValidator class.</p>
+<p>AST visitor that collects Google-style docstring violations for one file.</p>
 <p>Attributes:
-attr (Type): Description of attribute.</p>
+filepath (str): Path to the file being analysed.
+violations (List[dict]): Accumulated violations; each dict has keys
+<code class="docutils literal notranslate"><span class="pre">line</span></code>, <code class="docutils literal notranslate"><span class="pre">context</span></code>, <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">message</span></code>.
+current_class (Optional[str]): Name of the enclosing class, if any.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize Class.</p>
+<p>Initialise the validator for <em>filepath</em>.</p>
 <p>Args:
-filepath (Any): Description of filepath.</p>
+filepath (str): Path to the Python source file.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="src.utils.docs.check_google_style.GoogleStyleValidator.add_violation">
-<span class="sig-name descname"><span class="pre">add_violation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.docs.check_google_style.GoogleStyleValidator.add_violation" title="Link to this definition">#</a></dt>
-<dd><p>Add violation.</p>
+<dt class="sig sig-object py" id="src.utils.docs.check_google_style.GoogleStyleValidator._add">
+<span class="sig-name descname"><span class="pre">_add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ast.AST</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.docs.check_google_style.GoogleStyleValidator._add" title="Link to this definition">#</a></dt>
+<dd><p>Record a violation against <em>node</em> with the given <em>message</em>.</p>
 <p>Args:
-node (Any): Description of node.
-message (Any): Description of message.</p>
+node (ast.AST): The AST node where the violation was found.
+message (str): Human-readable description of the violation.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="src.utils.docs.check_google_style.GoogleStyleValidator._parse_docstring_sections">
-<span class="sig-name descname"><span class="pre">_parse_docstring_sections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">docstring</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.docs.check_google_style.GoogleStyleValidator._parse_docstring_sections" title="Link to this definition">#</a></dt>
-<dd><p>parse docstring sections.</p>
+<dt class="sig sig-object py" id="src.utils.docs.check_google_style.GoogleStyleValidator._parse_sections">
+<span class="sig-name descname"><span class="pre">_parse_sections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">docstring</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.docs.check_google_style.GoogleStyleValidator._parse_sections" title="Link to this definition">#</a></dt>
+<dd><p>Extract named sections from a Google-style <em>docstring</em>.</p>
 <p>Args:
-docstring (str): Description of docstring.</p>
+docstring (str): Raw docstring text.</p>
 <p>Returns:
-Any: Description of return value.</p>
+Dict[str, str]: Mapping from normalised section name to its body.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="src.utils.docs.check_google_style.GoogleStyleValidator._check_missing_args">
-<span class="sig-name descname"><span class="pre">_check_missing_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sections</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.docs.check_google_style.GoogleStyleValidator._check_missing_args" title="Link to this definition">#</a></dt>
-<dd><p>check missing args.</p>
+<dt class="sig sig-object py" id="src.utils.docs.check_google_style.GoogleStyleValidator._check_args">
+<span class="sig-name descname"><span class="pre">_check_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">ast.FunctionDef</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ast.AsyncFunctionDef</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sections</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.docs.check_google_style.GoogleStyleValidator._check_args" title="Link to this definition">#</a></dt>
+<dd><p>Verify that every non-self parameter is documented in the Args section.</p>
 <p>Args:
-node (Any): Description of node.
-sections (Any): Description of sections.</p>
+node (Union[ast.FunctionDef, ast.AsyncFunctionDef]): The function node.
+sections (Dict[str, str]): Parsed docstring sections.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.docs.check_google_style.GoogleStyleValidator._check_returns_yields">
-<span class="sig-name descname"><span class="pre">_check_returns_yields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sections</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.docs.check_google_style.GoogleStyleValidator._check_returns_yields" title="Link to this definition">#</a></dt>
-<dd><p>check returns yields.</p>
+<span class="sig-name descname"><span class="pre">_check_returns_yields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">ast.FunctionDef</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ast.AsyncFunctionDef</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sections</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.docs.check_google_style.GoogleStyleValidator._check_returns_yields" title="Link to this definition">#</a></dt>
+<dd><p>Check that Returns/Yields sections are present when the function uses them.</p>
 <p>Args:
-node (Any): Description of node.
-sections (Any): Description of sections.</p>
+node (Union[ast.FunctionDef, ast.AsyncFunctionDef]): The function node.
+sections (Dict[str, str]): Parsed docstring sections.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.docs.check_google_style.GoogleStyleValidator.visit_Module">
-<span class="sig-name descname"><span class="pre">visit_Module</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.docs.check_google_style.GoogleStyleValidator.visit_Module" title="Link to this definition">#</a></dt>
-<dd><p>Visit module.</p>
+<span class="sig-name descname"><span class="pre">visit_Module</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ast.Module</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.docs.check_google_style.GoogleStyleValidator.visit_Module" title="Link to this definition">#</a></dt>
+<dd><p>Check module-level docstring for required sections.</p>
 <p>Args:
-node (Any): Description of node.</p>
+node (ast.Module): The module AST node.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.docs.check_google_style.GoogleStyleValidator.visit_ClassDef">
-<span class="sig-name descname"><span class="pre">visit_ClassDef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.docs.check_google_style.GoogleStyleValidator.visit_ClassDef" title="Link to this definition">#</a></dt>
-<dd><p>Visit classdef.</p>
+<span class="sig-name descname"><span class="pre">visit_ClassDef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ast.ClassDef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.docs.check_google_style.GoogleStyleValidator.visit_ClassDef" title="Link to this definition">#</a></dt>
+<dd><p>Check class docstring for required sections.</p>
 <p>Args:
-node (Any): Description of node.</p>
+node (ast.ClassDef): The class AST node.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.docs.check_google_style.GoogleStyleValidator.visit_FunctionDef">
-<span class="sig-name descname"><span class="pre">visit_FunctionDef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.docs.check_google_style.GoogleStyleValidator.visit_FunctionDef" title="Link to this definition">#</a></dt>
-<dd><p>Visit functiondef.</p>
+<span class="sig-name descname"><span class="pre">visit_FunctionDef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ast.FunctionDef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.docs.check_google_style.GoogleStyleValidator.visit_FunctionDef" title="Link to this definition">#</a></dt>
+<dd><p>Delegate to the shared function validator.</p>
 <p>Args:
-node (Any): Description of node.</p>
+node (ast.FunctionDef): The function AST node.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.docs.check_google_style.GoogleStyleValidator.visit_AsyncFunctionDef">
-<span class="sig-name descname"><span class="pre">visit_AsyncFunctionDef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.docs.check_google_style.GoogleStyleValidator.visit_AsyncFunctionDef" title="Link to this definition">#</a></dt>
-<dd><p>Visit asyncfunctiondef.</p>
+<span class="sig-name descname"><span class="pre">visit_AsyncFunctionDef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ast.AsyncFunctionDef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.docs.check_google_style.GoogleStyleValidator.visit_AsyncFunctionDef" title="Link to this definition">#</a></dt>
+<dd><p>Delegate to the shared function validator.</p>
 <p>Args:
-node (Any): Description of node.</p>
+node (ast.AsyncFunctionDef): The async function AST node.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.docs.check_google_style.GoogleStyleValidator._validate_function">
-<span class="sig-name descname"><span class="pre">_validate_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.docs.check_google_style.GoogleStyleValidator._validate_function" title="Link to this definition">#</a></dt>
-<dd><p>validate function.</p>
+<span class="sig-name descname"><span class="pre">_validate_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ast.FunctionDef</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ast.AsyncFunctionDef</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.docs.check_google_style.GoogleStyleValidator._validate_function" title="Link to this definition">#</a></dt>
+<dd><p>Core function validation: docstring presence, Args, Returns/Yields.</p>
 <p>Args:
-node (Any): Description of node.</p>
+node (Union[ast.FunctionDef, ast.AsyncFunctionDef]): The function or async-function AST node.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.docs.check_google_style.analyze_file">
-<span class="sig-prename descclassname"><span class="pre">src.utils.docs.check_google_style.</span></span><span class="sig-name descname"><span class="pre">analyze_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.docs.check_google_style.analyze_file" title="Link to this definition">#</a></dt>
-<dd><p>Analyze file.</p>
+<span class="sig-prename descclassname"><span class="pre">src.utils.docs.check_google_style.</span></span><span class="sig-name descname"><span class="pre">analyze_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.docs.check_google_style.analyze_file" title="Link to this definition">#</a></dt>
+<dd><p>Parse <em>filepath</em> and return all Google-style violations found.</p>
 <p>Args:
-filepath (Any): Description of filepath.</p>
+filepath (str): Path to the Python source file.</p>
 <p>Returns:
-Any: Description of return value.</p>
+List[dict]: Violations with keys <code class="docutils literal notranslate"><span class="pre">line</span></code>, <code class="docutils literal notranslate"><span class="pre">context</span></code>, <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">message</span></code>.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.docs.check_google_style.display_report">
-<span class="sig-prename descclassname"><span class="pre">src.utils.docs.check_google_style.</span></span><span class="sig-name descname"><span class="pre">display_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all_violations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.docs.check_google_style.display_report" title="Link to this definition">#</a></dt>
-<dd><p>Renders the final report using Rich Tables.</p>
+<span class="sig-prename descclassname"><span class="pre">src.utils.docs.check_google_style.</span></span><span class="sig-name descname"><span class="pre">display_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all_violations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.docs.check_google_style.display_report" title="Link to this definition">#</a></dt>
+<dd><p>Render the consolidated violation report as a Rich table.</p>
+<p>Violations are grouped by file and sorted by line number within each file.
+The <em>Issue</em> column uses <code class="docutils literal notranslate"><span class="pre">min_width</span></code> and <code class="docutils literal notranslate"><span class="pre">ratio</span></code> so it always gets the
+majority of the available terminal width.</p>
+<p>Args:
+all_violations (List[dict]): Violations with an injected <code class="docutils literal notranslate"><span class="pre">filepath</span></code> key.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.docs.check_google_style.main">
-<span class="sig-prename descclassname"><span class="pre">src.utils.docs.check_google_style.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.docs.check_google_style.main" title="Link to this definition">#</a></dt>
-<dd><p>Main.</p>
+<span class="sig-prename descclassname"><span class="pre">src.utils.docs.check_google_style.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.docs.check_google_style.main" title="Link to this definition">#</a></dt>
+<dd><p>Entry point: parse CLI arguments, scan files, and display the report.</p>
+<p>Attributes:
+parser (argparse.ArgumentParser): CLI argument parser.</p>
+<p>Example:
+&gt;&gt;&gt; main()</p>
 </dd></dl>
 
 </section>
@@ -736,10 +798,13 @@ Any: Description of return value.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_google_style.console"><code class="docutils literal notranslate"><span class="pre">console</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_google_style.SECTION_ALIASES"><code class="docutils literal notranslate"><span class="pre">SECTION_ALIASES</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_google_style._CONTEXT_LABEL"><code class="docutils literal notranslate"><span class="pre">_CONTEXT_LABEL</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_google_style._CONTEXT_STYLE"><code class="docutils literal notranslate"><span class="pre">_CONTEXT_STYLE</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_google_style.SKIP_DIRS"><code class="docutils literal notranslate"><span class="pre">SKIP_DIRS</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_google_style.GoogleStyleValidator"><code class="docutils literal notranslate"><span class="pre">GoogleStyleValidator</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_google_style.GoogleStyleValidator.add_violation"><code class="docutils literal notranslate"><span class="pre">GoogleStyleValidator.add_violation()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_google_style.GoogleStyleValidator._parse_docstring_sections"><code class="docutils literal notranslate"><span class="pre">GoogleStyleValidator._parse_docstring_sections()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_google_style.GoogleStyleValidator._check_missing_args"><code class="docutils literal notranslate"><span class="pre">GoogleStyleValidator._check_missing_args()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_google_style.GoogleStyleValidator._add"><code class="docutils literal notranslate"><span class="pre">GoogleStyleValidator._add()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_google_style.GoogleStyleValidator._parse_sections"><code class="docutils literal notranslate"><span class="pre">GoogleStyleValidator._parse_sections()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_google_style.GoogleStyleValidator._check_args"><code class="docutils literal notranslate"><span class="pre">GoogleStyleValidator._check_args()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_google_style.GoogleStyleValidator._check_returns_yields"><code class="docutils literal notranslate"><span class="pre">GoogleStyleValidator._check_returns_yields()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_google_style.GoogleStyleValidator.visit_Module"><code class="docutils literal notranslate"><span class="pre">GoogleStyleValidator.visit_Module()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_google_style.GoogleStyleValidator.visit_ClassDef"><code class="docutils literal notranslate"><span class="pre">GoogleStyleValidator.visit_ClassDef()</span></code></a></li>

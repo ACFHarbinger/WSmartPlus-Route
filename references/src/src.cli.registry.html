@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -488,6 +489,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.cli.registry">
 <span id="src-cli-registry"></span><h1><a class="reference internal" href="#module-src.cli.registry" title="src.cli.registry"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.registry</span></code></a><a class="headerlink" href="#module-src.cli.registry" title="Link to this heading">#</a></h1>
 <p>Centralized registry for the WSmart+ Route CLI parser.</p>
+<p>Attributes:
+get_parser: Returns the main ConfigsParser with all subcommands registered.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.cli.registry import get_parser
+&gt;&gt;&gt; parser = get_parser()
+&gt;&gt;&gt; parser.parse_args([“gui”, “–app_style”, “fusion”])
+Namespace(command=’gui’, app_style=’fusion’, test_only=False, _subcommand_parser=ArgumentParser(prog=’gui’, description=’Launch the GUI’))</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

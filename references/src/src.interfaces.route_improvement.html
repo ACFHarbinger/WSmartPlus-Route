@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -495,6 +496,12 @@ document.write(`
 Implementations MUST NOT hold mutable state that accumulates between
 <code class="docutils literal notranslate"><span class="pre">process()</span></code> calls; all intermediate variables belong in the returned
 <code class="docutils literal notranslate"><span class="pre">ImprovementMetrics</span></code> dict.</p>
+<p>Attributes:
+IRouteImprovement: Interface for all routing route improvers
+ImprovementMetrics: Metrics for route improvement</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.interfaces.route_improvement import IRouteImprovement
+&gt;&gt;&gt; from logic.src.interfaces.context.search_context import ImprovementMetrics</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -524,10 +531,12 @@ stored at construction time.</p></li>
 The <code class="docutils literal notranslate"><span class="pre">ImprovementMetrics</span></code> dict is the mechanism for exporting
 telemetry to the <code class="docutils literal notranslate"><span class="pre">SearchContext</span></code> without coupling to it directly.</p></li>
 </ol>
+<p>Attributes:
+config: Configuration for the route improver</p>
 <p class="rubric">Initialization</p>
 <p>Initialise route improver with configuration.</p>
 <p>Args:
-**kwargs: Configuration values.  If a single <code class="docutils literal notranslate"><span class="pre">config</span></code> key is
+kwargs: Configuration values.  If a single <code class="docutils literal notranslate"><span class="pre">config</span></code> key is
 passed, its value is used as the config dict directly.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.interfaces.route_improvement.IRouteImprovement.process">

@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -523,13 +524,67 @@ document.write(`
 <li><p>Penalties: cost units (dimensionless, scaled to route cost)</p></li>
 <li><p>MIP gap: ratio (0.0-1.0, where 0.01 = 1% optimality gap)</p></li>
 </ul>
+<p>Attributes:
+IMPROVEMENT_EPSILON: Minimum cost improvement to accept a local search move
+COLLECTION_TIME_MINUTES: Average time to collect one bin (minutes)
+VEHICLE_SPEED_KMH: Average vehicle speed in urban waste collection (km/h)
+PENALTY_MANDATORY_NODES_MISSED: Penalty for missing a mandatory bin
+MAX_WASTE: Maximum bin fill level (1.0 = full capacity)
+MIP_GAP: MIP optimality gap tolerance (ratio)
+HEURISTICS_RATIO: Heuristic effort ratio (0.0-1.0)
+NODEFILE_START_GB: Memory threshold for writing nodes to disk (GB)
+SOLVER_OUTPUT_FLAG: Solver output flag (0 = suppress, 1 = enable)
+DEFAULT_SHIFT_DURATION: Default shift duration (minutes)
+DEFAULT_V_VALUE: Default value function parameter (dimensionless)
+DEFAULT_COMBINATION: Default OG SANS hyperparameter combination
+DEFAULT_TIME_LIMIT: Default optimization time limit (seconds)
+DEFAULT_EVAL_BATCH_SIZE: Default evaluation batch size for model inference
+DEFAULT_ROLLOUT_BATCH_SIZE: Default rollout batch size for baseline computation
+SCALE: Scale factor for TSP and CVRP distance matrices
+DEFAULT_HIGH_PENALTY: Default penalty for inter-dummy edges (prevents empty intermediate routes)</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.constants import IMPROVEMENT_EPSILON, COLLECTION_TIME_MINUTES, VEHICLE_SPEED_KMH, PENALTY_MANDATORY_NODES_MISSED, MAX_WASTE, MIP_GAP, HEURISTICS_RATIO, NODEFILE_START_GB, SOLVER_OUTPUT_FLAG, DEFAULT_SHIFT_DURATION, DEFAULT_V_VALUE, DEFAULT_COMBINATION, DEFAULT_TIME_LIMIT, DEFAULT_EVAL_BATCH_SIZE, DEFAULT_ROLLOUT_BATCH_SIZE, SCALE, DEFAULT_HIGH_PENALTY
+&gt;&gt;&gt; IMPROVEMENT_EPSILON
+1e-3
+&gt;&gt;&gt; COLLECTION_TIME_MINUTES
+3.0
+&gt;&gt;&gt; VEHICLE_SPEED_KMH
+40.0
+&gt;&gt;&gt; PENALTY_MANDATORY_NODES_MISSED
+10000.0
+&gt;&gt;&gt; MAX_WASTE
+1.0
+&gt;&gt;&gt; MIP_GAP
+0.01
+&gt;&gt;&gt; HEURISTICS_RATIO
+0.5
+&gt;&gt;&gt; NODEFILE_START_GB
+0.5
+&gt;&gt;&gt; SOLVER_OUTPUT_FLAG
+0
+&gt;&gt;&gt; DEFAULT_SHIFT_DURATION
+390
+&gt;&gt;&gt; DEFAULT_V_VALUE
+1.0
+&gt;&gt;&gt; DEFAULT_COMBINATION
+[500, 75, 0.95, 0, 0.095, 0, 0]
+&gt;&gt;&gt; DEFAULT_TIME_LIMIT
+600
+&gt;&gt;&gt; DEFAULT_EVAL_BATCH_SIZE
+1024
+&gt;&gt;&gt; DEFAULT_ROLLOUT_BATCH_SIZE
+64
+&gt;&gt;&gt; SCALE
+10000
+&gt;&gt;&gt; DEFAULT_HIGH_PENALTY
+1e9</p>
 </section>
 <p>Constants for routing algorithms.</p>
 <p>This module defines operational parameters, solver settings, and penalty values
 for classical routing algorithms. Used by:</p>
 <ul class="simple">
 <li><p>logic/src/policies/ (HGS, ALNS, local search operators)</p></li>
-<li><p>logic/src/configs/policies/ (Gurobi, Hexaly, BPC configurations)</p></li>
+<li><p>logic/src/configs/policies/ (Gurobi, BPC configurations)</p></li>
 </ul>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>

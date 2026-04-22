@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -492,6 +493,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.decoding.evaluate">
 <span id="src-utils-decoding-evaluate"></span><h1><a class="reference internal" href="#module-src.utils.decoding.evaluate" title="src.utils.decoding.evaluate"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.decoding.evaluate</span></code></a><a class="headerlink" href="#module-src.utils.decoding.evaluate" title="Link to this heading">#</a></h1>
 <p>Evaluate decoding strategy implementation.</p>
+<p>Attributes:
+Evaluate: Evaluate decoding strategy.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.utils.decoding import Evaluate
+&gt;&gt;&gt; strategy = Evaluate(actions=torch.tensor([[0, 1], [2, 3]]))
+&gt;&gt;&gt; strategy.step(torch.tensor([[0.1, 0.2], [0.3, 0.4]]), torch.tensor([[True, True], [True, True]]))
+(tensor([0, 2]), tensor([0.1, 0.3]), tensor([0.1, 0.3]))</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -513,20 +521,29 @@ document.write(`
 <dd><p>Bases: <a class="reference internal" href="src.utils.decoding.base.html#src.utils.decoding.base.DecodingStrategy" title="src.utils.decoding.base.DecodingStrategy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.utils.decoding.base.DecodingStrategy</span></code></a></p>
 <p>Evaluate decoding: compute log probability of given actions.</p>
 <p>Used for evaluating pre-computed solutions.</p>
+<p>Attributes:
+actions: Pre-defined actions to evaluate [batch, seq_len].
+step_idx: Current step index.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize Evaluate decoding.</p>
 <p>Args:
 actions: Pre-defined actions to evaluate [batch, seq_len].
-**kwargs: Passed to super class.</p>
+kwargs: Passed to super class.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.decoding.evaluate.Evaluate.step">
 <span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">tensordict.TensorDict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.decoding.evaluate.Evaluate.step" title="Link to this definition">#</a></dt>
 <dd><p>Get log probability of pre-specified action.</p>
+<p>Args:
+logits: Logits tensor [batch, num_nodes]
+mask: Mask tensor [batch, num_nodes]
+td: TensorDict (unused)</p>
+<p>Returns:
+Tuple of (action, log_prob, entropy)</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.decoding.evaluate.Evaluate.reset">
-<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.decoding.evaluate.Evaluate.reset" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.decoding.evaluate.Evaluate.reset" title="Link to this definition">#</a></dt>
 <dd><p>Reset step counter.</p>
 </dd></dl>
 

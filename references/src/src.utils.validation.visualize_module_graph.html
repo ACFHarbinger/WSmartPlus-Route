@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -516,6 +517,29 @@ Every Python file becomes a node; every internal import becomes a directed edge.
 <li><p>Terminal summary of violation counts and layer distribution</p></li>
 <li><p>Saves an interactive pyvis HTML file for browser exploration</p></li>
 </ul>
+<p>Attributes:
+SKIP_DIRS (Set[str]): Set of directories to exclude.
+RED (str): Red color for highlighting violations.
+YELLOW (str): Yellow color for highlighting warnings.
+GREEN (str): Green color for highlighting success.
+CYAN (str): Cyan color for highlighting information.
+BOLD (str): Bold text for highlighting.
+DIM (str): Dim text for highlighting.
+RESET (str): Reset text color.
+Network (Type[Network]): Type hint for pyvis Network class.
+DEFAULT_LAYERS (List[Tuple[str, str, str]]): Default layers for the graph.
+FORBIDDEN_DIRECTIONS (List[Tuple[str, str]]): Forbidden layer pairs.
+file_to_module: Convert a file path to a module name.
+collect_module_map: Collect a map of all modules in the codebase.
+resolve_to_module: Resolve a raw import string to a module name.
+build_graph: Build a module graph from the codebase.
+get_layer: Get the layer of a module.
+find_violations: Find architectural violations in the module graph.
+condense_to_packages: Condense the module graph to packages.
+generate_html: Generate an interactive HTML graph.
+main: Main function to generate an interactive module-level import graph.</p>
+<p>Example:
+&gt;&gt;&gt; python logic/src/utils/validation/visualize_module_graph.py –root . –output graph.html</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -523,31 +547,31 @@ Every Python file becomes a node; every internal import becomes a directed edge.
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.validation.visualize_module_graph.file_to_module" title="src.utils.validation.visualize_module_graph.file_to_module"><code class="xref py py-obj docutils literal notranslate"><span class="pre">file_to_module</span></code></a></p></td>
-<td></td>
+<td><p>Convert a file path to a module name.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.utils.validation.visualize_module_graph.collect_module_map" title="src.utils.validation.visualize_module_graph.collect_module_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">collect_module_map</span></code></a></p></td>
-<td></td>
+<td><p>Collect a map of all modules in the codebase.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.validation.visualize_module_graph.resolve_to_module" title="src.utils.validation.visualize_module_graph.resolve_to_module"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resolve_to_module</span></code></a></p></td>
-<td></td>
+<td><p>Resolve a raw import string to a module name.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.utils.validation.visualize_module_graph.build_graph" title="src.utils.validation.visualize_module_graph.build_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_graph</span></code></a></p></td>
-<td></td>
+<td><p>Build a module graph from the codebase.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.validation.visualize_module_graph.get_layer" title="src.utils.validation.visualize_module_graph.get_layer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_layer</span></code></a></p></td>
-<td></td>
+<td><p>Get the layer of a module.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.utils.validation.visualize_module_graph.find_violations" title="src.utils.validation.visualize_module_graph.find_violations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_violations</span></code></a></p></td>
-<td></td>
+<td><p>Find architectural violations in the module graph.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.validation.visualize_module_graph.condense_to_packages" title="src.utils.validation.visualize_module_graph.condense_to_packages"><code class="xref py py-obj docutils literal notranslate"><span class="pre">condense_to_packages</span></code></a></p></td>
 <td><p>Collapse module nodes to their top-<code class="docutils literal notranslate"><span class="pre">depth</span></code> package prefix.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.utils.validation.visualize_module_graph.generate_html" title="src.utils.validation.visualize_module_graph.generate_html"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_html</span></code></a></p></td>
-<td></td>
+<td><p>Generate HTML visualization of the module graph.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.validation.visualize_module_graph.main" title="src.utils.validation.visualize_module_graph.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a></p></td>
-<td></td>
+<td><p>Visualise the module-level import graph of a Python codebase.</p></td>
 </tr>
 </tbody>
 </table>
@@ -656,48 +680,102 @@ Every Python file becomes a node; every internal import becomes a directed edge.
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.visualize_module_graph.file_to_module">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.visualize_module_graph.</span></span><span class="sig-name descname"><span class="pre">file_to_module</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.utils.validation.visualize_module_graph.file_to_module" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Convert a file path to a module name.</p>
+<p>Args:
+filepath (Path): File path.
+root (Path): Root directory of the codebase.</p>
+<p>Returns:
+str: Module name.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.visualize_module_graph.collect_module_map">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.visualize_module_graph.</span></span><span class="sig-name descname"><span class="pre">collect_module_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.validation.visualize_module_graph.collect_module_map" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Collect a map of all modules in the codebase.</p>
+<p>Args:
+root (Path): Root directory of the codebase.
+exclude (Set[str]): Set of directories to exclude.</p>
+<p>Returns:
+Dict[str, Path]: Map of module names to file paths.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.visualize_module_graph.resolve_to_module">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.visualize_module_graph.</span></span><span class="sig-name descname"><span class="pre">resolve_to_module</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">known</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.validation.visualize_module_graph.resolve_to_module" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Resolve a raw import string to a module name.</p>
+<p>Args:
+raw (str): Raw import string.
+level (int): Import level.
+current (str): Current module name.
+known (Set[str]): Set of known module names.</p>
+<p>Returns:
+Optional[str]: Resolved module name.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.visualize_module_graph.build_graph">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.visualize_module_graph.</span></span><span class="sig-name descname"><span class="pre">build_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.validation.visualize_module_graph.build_graph" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Build a module graph from the codebase.</p>
+<p>Args:
+root (Path): Root directory of the codebase.
+exclude (Set[str]): Set of directories to exclude.</p>
+<p>Returns:
+Dict[str, Set[str]]: Module graph.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.visualize_module_graph.get_layer">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.visualize_module_graph.</span></span><span class="sig-name descname"><span class="pre">get_layer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.validation.visualize_module_graph.get_layer" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Get the layer of a module.</p>
+<p>Args:
+module (str): Module name.
+layers (List[Tuple[str, str, str]]): List of layers.</p>
+<p>Returns:
+Tuple[str, str]: Layer name and color.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.visualize_module_graph.find_violations">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.visualize_module_graph.</span></span><span class="sig-name descname"><span class="pre">find_violations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forbidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.validation.visualize_module_graph.find_violations" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Find architectural violations in the module graph.</p>
+<p>Args:
+graph (Dict[str, Set[str]]): Module graph.
+layers (List[Tuple[str, str, str]]): List of layers.
+forbidden (List[Tuple[str, str]]): List of forbidden layer pairs.</p>
+<p>Returns:
+List[Tuple[str, str]]: List of violation edges.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.visualize_module_graph.condense_to_packages">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.visualize_module_graph.</span></span><span class="sig-name descname"><span class="pre">condense_to_packages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.validation.visualize_module_graph.condense_to_packages" title="Link to this definition">#</a></dt>
 <dd><p>Collapse module nodes to their top-<code class="docutils literal notranslate"><span class="pre">depth</span></code> package prefix.</p>
+<p>Args:
+graph (Dict[str, Set[str]]): Module graph.
+depth (int): Depth of the graph.</p>
+<p>Returns:
+Tuple[Dict[str, Set[str]], Dict[str, str]]: Collapsed graph and node-to-package mapping.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.visualize_module_graph.generate_html">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.visualize_module_graph.</span></span><span class="sig-name descname"><span class="pre">generate_html</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">violation_edges</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.validation.visualize_module_graph.generate_html" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Generate HTML visualization of the module graph.</p>
+<p>Args:
+graph (Dict[str, Set[str]]): Module graph.
+layers (List[Tuple[str, str, str]]): List of layers.
+violation_edges (Set[Tuple[str, str]]): Set of violation edges.
+output (Path): Output path.
+depth (int): Depth of the graph.</p>
+<p>Returns:
+None</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.visualize_module_graph.main">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.visualize_module_graph.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.validation.visualize_module_graph.main" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Visualise the module-level import graph of a Python codebase.</p>
+</dd></dl>
 
 </section>
 </section>

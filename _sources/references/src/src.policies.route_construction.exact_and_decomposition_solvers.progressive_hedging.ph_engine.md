@@ -66,7 +66,7 @@
 
 ````
 
-````{py:method} solve(sub_dist_matrix: numpy.ndarray, scenario_tree: typing.Any, capacity: float, revenue: float, cost_unit: float, mandatory_nodes: typing.List[int], **kwargs: typing.Any) -> typing.Tuple[typing.List[typing.List[typing.List[int]]], float, typing.Dict[str, typing.Any]]
+````{py:method} solve(sub_dist_matrix: numpy.ndarray, scenario_tree: typing.Any, capacity: float, revenue: float, cost_unit: float, mandatory_nodes: typing.List[int], current_wastes: typing.Optional[typing.Dict[int, float]] = None, **kwargs: typing.Any) -> typing.Tuple[typing.List[typing.List[typing.List[int]]], float, typing.Dict[str, typing.Any]]
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging.ph_engine.ProgressiveHedgingEngine.solve
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging.ph_engine.ProgressiveHedgingEngine.solve

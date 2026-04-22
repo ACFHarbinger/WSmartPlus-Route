@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -490,6 +491,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.graph.network_utils">
 <span id="src-utils-graph-network-utils"></span><h1><a class="reference internal" href="#module-src.utils.graph.network_utils" title="src.utils.graph.network_utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.graph.network_utils</span></code></a><a class="headerlink" href="#module-src.utils.graph.network_utils" title="Link to this heading">#</a></h1>
 <p>Distance matrix utilities and network analysis functions.</p>
+<p>Attributes:
+_floyd_warshall: Floyd-Warshall algorithm for all-pairs shortest paths.
+apply_edges: Sparsifies distance matrix and computes shortest paths.
+get_paths_between_states: Constructs a nested list of paths between all pairs of bins.</p>
+<p>Example:
+_floyd_warshall(dist_matrix, adj_matrix)
+apply_edges(dist_matrix, edge_thresh, edge_method)
+get_paths_between_states(n_bins, shortest_paths)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -515,18 +524,34 @@ document.write(`
 <dt class="sig sig-object py" id="src.utils.graph.network_utils._floyd_warshall">
 <span class="sig-prename descclassname"><span class="pre">src.utils.graph.network_utils.</span></span><span class="sig-name descname"><span class="pre">_floyd_warshall</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adj_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.graph.network_utils._floyd_warshall" title="Link to this definition">#</a></dt>
 <dd><p>Floyd-Warshall algorithm for all-pairs shortest paths.</p>
+<p>Args:
+dist_matrix: Distance matrix.
+adj_matrix: Adjacency matrix.</p>
+<p>Returns:
+Tuple of (distance matrix, next node matrix).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.graph.network_utils.apply_edges">
 <span class="sig-prename descclassname"><span class="pre">src.utils.graph.network_utils.</span></span><span class="sig-name descname"><span class="pre">apply_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_thresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.graph.network_utils.apply_edges" title="Link to this definition">#</a></dt>
 <dd><p>Sparsifies distance matrix and computes shortest paths.</p>
+<p>Args:
+dist_matrix: Distance matrix.
+edge_thresh: Edge threshold.
+edge_method: Edge method.</p>
+<p>Returns:
+Tuple of (distance matrix, shortest paths, adjacency matrix).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.graph.network_utils.get_paths_between_states">
 <span class="sig-prename descclassname"><span class="pre">src.utils.graph.network_utils.</span></span><span class="sig-name descname"><span class="pre">get_paths_between_states</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shortest_paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.graph.network_utils.get_paths_between_states" title="Link to this definition">#</a></dt>
 <dd><p>Constructs a nested list of paths between all pairs of bins.</p>
+<p>Args:
+n_bins: Number of bins.
+shortest_paths: Shortest paths between nodes.</p>
+<p>Returns:
+Nested list of paths between all pairs of bins.</p>
 </dd></dl>
 
 </section>

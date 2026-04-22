@@ -40,7 +40,7 @@ src.utils.model.config_utils
 ````{py:data} __all__
 :canonical: src.utils.model.__all__
 :value: >
-   ['get_inner_model', 'torch_load_cpu', 'load_data', '_load_model_file', 'load_args', 'load_model', 'p...
+   ['get_inner_model', 'torch_load_cpu', 'load_data', '_load_model_file', 'load_args', 'load_model', 'l...
 
 ```{autodoc2-docstring} src.utils.model.__all__
 ```

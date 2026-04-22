@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -491,6 +492,14 @@ document.write(`
 <p>This module patches <code class="docutils literal notranslate"><span class="pre">torch.optim.Optimizer.load_state_dict</span></code> to ensure robust handling
 of device mapping when loading optimizer states, specifically casting tensors to the
 correct device matching the model parameters.</p>
+<p>Attributes:
+load_state_dict: Loads the optimizer state.
+torch.optim.Optimizer.load_state_dict: Patched version of load_state_dict.</p>
+<p>Example:
+&gt;&gt;&gt; import torch
+&gt;&gt;&gt; from logic.src.utils.functions import load_state_dict
+&gt;&gt;&gt; optimizer = torch.optim.Adam(model.parameters())
+&gt;&gt;&gt; optimizer.load_state_dict(state_dict)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -518,6 +527,8 @@ state_dict (dict): optimizer state. Should be an object returned
 from a call to :meth:<code class="docutils literal notranslate"><span class="pre">state_dict</span></code>.</p>
 <p>Raises:
 ValueError: If state_dict sizes do not match optimizer param groups.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 </section>

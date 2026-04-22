@@ -49,14 +49,14 @@
 ```
 ````
 
-````{py:function} print_tree(directory, prefix='', is_last=True, skip_dirs=None)
+````{py:function} print_tree(directory, prefix='', is_last=True, skip_dirs=None) -> None
 :canonical: src.utils.validation.tree_loc.print_tree
 
 ```{autodoc2-docstring} src.utils.validation.tree_loc.print_tree
 ```
 ````
 
-````{py:function} main()
+````{py:function} main() -> None
 :canonical: src.utils.validation.tree_loc.main
 
 ```{autodoc2-docstring} src.utils.validation.tree_loc.main

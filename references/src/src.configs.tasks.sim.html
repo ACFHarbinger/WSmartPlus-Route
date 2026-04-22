@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -491,7 +492,6 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.server_run"><code class="docutils literal notranslate"><span class="pre">SimConfig.server_run</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.env_file"><code class="docutils literal notranslate"><span class="pre">SimConfig.env_file</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.gplic_file"><code class="docutils literal notranslate"><span class="pre">SimConfig.gplic_file</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.hexlic_file"><code class="docutils literal notranslate"><span class="pre">SimConfig.hexlic_file</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.symkey_name"><code class="docutils literal notranslate"><span class="pre">SimConfig.symkey_name</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.gapik_file"><code class="docutils literal notranslate"><span class="pre">SimConfig.gapik_file</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.stats_filepath"><code class="docutils literal notranslate"><span class="pre">SimConfig.stats_filepath</span></code></a></li>
@@ -557,7 +557,6 @@ no_cuda: Disable CUDA.
 server_run: Simulation will be executed in a remote server.
 env_file: Name of the file that contains the environment variables.
 gplic_file: Name of the file that contains the license to use for Gurobi.
-hexlic_file: Name of the file that contains the license to use for Hexaly.
 symkey_name: Name of the cryptographic key used to access the API keys.
 gapik_file: Name of the file that contains the key to use for the Google API.
 stats_filepath: Path to the file to read the statistics from.
@@ -692,12 +691,6 @@ config_path: Policy configuration paths populated by expand_policy_configs.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.tasks.sim.SimConfig.hexlic_file">
-<span class="sig-name descname"><span class="pre">hexlic_file</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.tasks.sim.SimConfig.hexlic_file" title="Link to this definition">#</a></dt>
-<dd><p>None</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.tasks.sim.SimConfig.symkey_name">
 <span class="sig-name descname"><span class="pre">symkey_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.tasks.sim.SimConfig.symkey_name" title="Link to this definition">#</a></dt>
 <dd><p>None</p>
@@ -809,7 +802,6 @@ config_path: Policy configuration paths populated by expand_policy_configs.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.server_run"><code class="docutils literal notranslate"><span class="pre">SimConfig.server_run</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.env_file"><code class="docutils literal notranslate"><span class="pre">SimConfig.env_file</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.gplic_file"><code class="docutils literal notranslate"><span class="pre">SimConfig.gplic_file</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.hexlic_file"><code class="docutils literal notranslate"><span class="pre">SimConfig.hexlic_file</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.symkey_name"><code class="docutils literal notranslate"><span class="pre">SimConfig.symkey_name</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.gapik_file"><code class="docutils literal notranslate"><span class="pre">SimConfig.gapik_file</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.tasks.sim.SimConfig.stats_filepath"><code class="docutils literal notranslate"><span class="pre">SimConfig.stats_filepath</span></code></a></li>

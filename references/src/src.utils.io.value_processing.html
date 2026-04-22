@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -491,6 +492,16 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.io.value_processing">
 <span id="src-utils-io-value-processing"></span><h1><a class="reference internal" href="#module-src.utils.io.value_processing" title="src.utils.io.value_processing"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io.value_processing</span></code></a><a class="headerlink" href="#module-src.utils.io.value_processing" title="Link to this heading">#</a></h1>
 <p>Recursive traversal utilities for JSON-like data structures.</p>
+<p>Attributes:
+find_single_input_values: Recursively find all <em>source</em> values for single-input mode.
+find_two_input_values: Recursively find all pairs of <em>source</em> values for two-input mode.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.utils.io.value_processing import find_single_input_values, find_two_input_values
+&gt;&gt;&gt; data = {“km”: [10, 20], “kg”: [100, 200]}
+&gt;&gt;&gt; find_single_input_values(data)
+[(‘km’, [10, 20])]
+&gt;&gt;&gt; find_two_input_values(data, “km”, “kg”)
+[(‘km’, [10, 20], [100, 200])]</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -531,18 +542,36 @@ List of (location_path, value) tuples.</p>
 <dt class="sig sig-object py" id="src.utils.io.value_processing._extract_two_vals">
 <span class="sig-prename descclassname"><span class="pre">src.utils.io.value_processing.</span></span><span class="sig-name descname"><span class="pre">_extract_two_vals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k2_or_val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.io.value_processing._extract_two_vals" title="Link to this definition">#</a></dt>
 <dd><p>Extract v1 and v2 based on input keys/val.</p>
+<p>Args:
+data: The data structure to search.
+k1: The first key to look for.
+k2_or_val: The second key or value to look for.</p>
+<p>Returns:
+Tuple of (v1, v2, success).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.io.value_processing._process_val_pair">
 <span class="sig-prename descclassname"><span class="pre">src.utils.io.value_processing.</span></span><span class="sig-name descname"><span class="pre">_process_val_pair</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.io.value_processing._process_val_pair" title="Link to this definition">#</a></dt>
 <dd><p>Process a pair of values, handling list/tuple combinations.</p>
+<p>Args:
+path: The path to the values.
+v1: The first value.
+v2: The second value.
+results: The list to append the results to.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.io.value_processing.find_two_input_values">
 <span class="sig-prename descclassname"><span class="pre">src.utils.io.value_processing.</span></span><span class="sig-name descname"><span class="pre">find_two_input_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">object</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_key1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_key2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.io.value_processing.find_two_input_values" title="Link to this definition">#</a></dt>
 <dd><p>Recursively find all pairs of <em>source</em> values for two-input mode.</p>
+<p>Args:
+data: The data structure to search.
+current_path: Current path in the recursive search.
+input_key1: The first key to look for.
+input_key2: The second key or value to look for.</p>
+<p>Returns:
+List of (location_path, value1, value2) tuples.</p>
 </dd></dl>
 
 </section>

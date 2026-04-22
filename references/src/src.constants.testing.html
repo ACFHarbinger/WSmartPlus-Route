@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -534,6 +535,12 @@ python main.py test_suite --module train eval integration
 <h2>Module Selection<a class="headerlink" href="#module-selection" title="Link to this heading">#</a></h2>
 <p>Use the TEST_MODULES keys as –module argument values. Example:
 python main.py test_suite –module parser actions edge_cases</p>
+<p>Attributes:
+TEST_MODULES: Test module registry mapping selector names to test file names</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.constants import TEST_MODULES
+&gt;&gt;&gt; TEST_MODULES[“parser”]
+‘test_configs_parser.py’</p>
 </section>
 <p>Test suite settings and constants.</p>
 <p>This module defines the test module registry for the WSmart+ Route test suite.

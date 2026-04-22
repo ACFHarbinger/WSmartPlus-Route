@@ -122,6 +122,9 @@
 ````{py:method} __repr__() -> str
 :canonical: src.tracking.profiling.throughput.ThroughputTracker.__repr__
 
+```{autodoc2-docstring} src.tracking.profiling.throughput.ThroughputTracker.__repr__
+```
+
 ````
 
 `````

@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -468,10 +469,6 @@ document.write(`
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#public-api">Public API</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typical-usage-training">Typical usage (training)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typical-usage-simulation-worker-process">Typical usage (simulation, worker process)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typical-usage-hooks-integration">Typical usage (hooks integration)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typical-usage-profiling">Typical usage (profiling)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#subpackages">Subpackages</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Submodules</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package-contents">Package Contents</a><ul class="nav section-nav flex-column">
@@ -518,13 +515,24 @@ document.write(`
 <li><p>:mod:<code class="docutils literal notranslate"><span class="pre">logic.src.tracking.hooks</span></code> — PyTorch forward/backward hooks.</p>
 <p>Both <code class="docutils literal notranslate"><span class="pre">logic.src.tracking.logging</span></code>, <code class="docutils literal notranslate"><span class="pre">logic.src.tracking.profiling</span></code>, and
 <code class="docutils literal notranslate"><span class="pre">logic.src.tracking.hooks</span></code> are backwards-compatible shims that re-export from
-these canonical locations.</p>
+these canonical locations.’</p>
 </li>
 </ul>
-</section>
-<section id="typical-usage-training">
-<h2>Typical usage (training)<a class="headerlink" href="#typical-usage-training" title="Link to this heading">#</a></h2>
-<p>::</p>
+<p>Attributes:
+_DEFAULT_TRACKING_URI: Default tracking URI for MLFlow.
+init: Initialises the global tracker and returns it.
+init_worker: Attach an existing run in a worker sub-process.
+core: Core tracking functionality.
+database: Database-related functionality.
+integrations: Integration-related functionality.
+logging: Logging functionality.
+profiling: Profiling functionality.
+hooks: Hook-related functionality.
+viz_mixin: Output visualization-related functionality.</p>
+<p>Example:
+Training
+——–
+::</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>import logic.src.tracking as wst
 
 tracker = wst.init(
@@ -537,36 +545,33 @@ with tracker.start_run(&quot;AM-VRPP-50&quot;, run_type=&quot;training&quot;) as
     run.log_params({&quot;lr&quot;: 1e-4, &quot;batch_size&quot;: 256})
     trainer.fit(model)          # TrackingCallback logs metrics automatically
     run.log_artifact(model_path, artifact_type=&quot;model&quot;)
-</pre></div>
-</div>
-</section>
-<section id="typical-usage-simulation-worker-process">
-<h2>Typical usage (simulation, worker process)<a class="headerlink" href="#typical-usage-simulation-worker-process" title="Link to this heading">#</a></h2>
-<p>::</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Worker process — called via init_single_sim_worker
+
+Simulation, worker process
+--------------------------
+::
+
+# Worker process — called via init_single_sim_worker
 wst.init_worker(tracking_uri=&quot;assets/tracking&quot;, run_id=&quot;&lt;uuid&gt;&quot;)
 
 run = wst.get_active_run()
 if run:
     run.log_metric(&quot;gurobi/s0/profit&quot;, 123.4, step=day)
-</pre></div>
-</div>
-</section>
-<section id="typical-usage-hooks-integration">
-<h2>Typical usage (hooks integration)<a class="headerlink" href="#typical-usage-hooks-integration" title="Link to this heading">#</a></h2>
-<p>::</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from logic.src.tracking.hooks import add_gradient_monitoring_hooks, register_hooks_with_run
+
+Hooks integration
+-----------------
+::
+
+from logic.src.tracking.hooks import add_gradient_monitoring_hooks, register_hooks_with_run
 hook_data = add_gradient_monitoring_hooks(model)
 loss.backward()
 run = wst.get_active_run()
 register_hooks_with_run(hook_data, run, prefix=&quot;train/hooks&quot;)
-</pre></div>
-</div>
-</section>
-<section id="typical-usage-profiling">
-<h2>Typical usage (profiling)<a class="headerlink" href="#typical-usage-profiling" title="Link to this heading">#</a></h2>
-<p>::</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from logic.src.tracking.profiling import start_global_profiling, stop_global_profiling
+
+Profiling
+---------
+::
+
+from logic.src.tracking.profiling import start_global_profiling, stop_global_profiling
 start_global_profiling()
 train(...)
 stop_global_profiling()  # logs CSV as artifact to active run automatically
@@ -800,10 +805,6 @@ run), or <code class="docutils literal notranslate"><span class="pre">None</span
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#public-api">Public API</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typical-usage-training">Typical usage (training)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typical-usage-simulation-worker-process">Typical usage (simulation, worker process)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typical-usage-hooks-integration">Typical usage (hooks integration)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typical-usage-profiling">Typical usage (profiling)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#subpackages">Subpackages</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Submodules</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package-contents">Package Contents</a><ul class="nav section-nav flex-column">

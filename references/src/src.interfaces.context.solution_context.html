@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -505,6 +506,31 @@ document.write(`
 per-vehicle profit and cost breakdowns and aggregate totals.
 The multi-day plan beyond today is stored in MultiDayContext.full_plan_snapshot
 and is NOT duplicated here.</p>
+<p>Attributes:
+SolutionContext: Current-day routing solution</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.interfaces.context import SolutionContext, ProblemContext
+&gt;&gt;&gt; problem = ProblemContext(
+…     distance_matrix=np.array([[0, 1], [1, 0]]),
+…     wastes={1: 10.0, 2: 20.0},
+…     fill_rate_means=np.array([10.0, 20.0]),
+…     fill_rate_stds=np.array([1.0, 2.0]),
+…     capacity=100.0,
+…     max_fill=100.0,
+…     revenue_per_kg=0.1,
+…     cost_per_km=0.05,
+…     horizon=7,
+…     mandatory=[1, 2],
+…     locations=np.array([[0, 0], [1, 1], [2, 2]]),
+…     scenario_tree=None,
+…     area=”Rio Maior”,
+…     waste_type=”plastic”,
+…     n_vehicles=1,
+…     seed=42
+… )
+&gt;&gt;&gt; solution = SolutionContext.from_problem(problem, route=[1, 2])
+&gt;&gt;&gt; solution.total_profit
+1.8</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -577,12 +603,21 @@ nodes explored, LR iterations).</p>
 <dt class="sig sig-object py" id="src.interfaces.context.solution_context.SolutionContext.empty">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">empty</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.interfaces.context.solution_context.SolutionContext" title="src.interfaces.context.solution_context.SolutionContext"><span class="pre">src.interfaces.context.solution_context.SolutionContext</span></a></span></span><a class="headerlink" href="#src.interfaces.context.solution_context.SolutionContext.empty" title="Link to this definition">#</a></dt>
 <dd><p>Return an empty (no-visit) solution.</p>
+<p>Returns:
+SolutionContext: An empty solution context.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.interfaces.context.solution_context.SolutionContext.from_single_route">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_single_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.interfaces.context.solution_context.SolutionContext" title="src.interfaces.context.solution_context.SolutionContext"><span class="pre">src.interfaces.context.solution_context.SolutionContext</span></a></span></span><a class="headerlink" href="#src.interfaces.context.solution_context.SolutionContext.from_single_route" title="Link to this definition">#</a></dt>
 <dd><p>Convenience constructor for single-vehicle results.</p>
+<p>Args:
+route: The node sequence visited (1-based, depot excluded).
+profit: The profit for this route.
+cost: The cost for this route.
+metadata: Optional telemetry.</p>
+<p>Returns:
+SolutionContext: A new SolutionContext instance.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -593,6 +628,8 @@ nodes explored, LR iterations).</p>
 problem:  The ProblemContext containing distance matrix and weights.
 route:    The node sequence visited (1-based, depot excluded).
 metadata: Optional telemetry.</p>
+<p>Returns:
+SolutionContext: A new SolutionContext instance.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -603,6 +640,8 @@ metadata: Optional telemetry.</p>
 problem:  The ProblemContext.
 routes:   List of route sequences (one per vehicle).
 metadata: Optional telemetry.</p>
+<p>Returns:
+SolutionContext: A new SolutionContext instance.</p>
 </dd></dl>
 
 <dl class="py method">

@@ -51,56 +51,56 @@
 
 ### API
 
-````{py:function} _pad_mask(mask)
+````{py:function} _pad_mask(mask: torch.Tensor) -> tuple[torch.Tensor, int]
 :canonical: src.utils.functions.boolmask._pad_mask
 
 ```{autodoc2-docstring} src.utils.functions.boolmask._pad_mask
 ```
 ````
 
-````{py:function} _mask_bool2byte(mask)
+````{py:function} _mask_bool2byte(mask: torch.Tensor) -> torch.Tensor
 :canonical: src.utils.functions.boolmask._mask_bool2byte
 
 ```{autodoc2-docstring} src.utils.functions.boolmask._mask_bool2byte
 ```
 ````
 
-````{py:function} _mask_byte2long(mask)
+````{py:function} _mask_byte2long(mask: torch.Tensor) -> torch.Tensor
 :canonical: src.utils.functions.boolmask._mask_byte2long
 
 ```{autodoc2-docstring} src.utils.functions.boolmask._mask_byte2long
 ```
 ````
 
-````{py:function} mask_bool2long(mask)
+````{py:function} mask_bool2long(mask: torch.Tensor) -> torch.Tensor
 :canonical: src.utils.functions.boolmask.mask_bool2long
 
 ```{autodoc2-docstring} src.utils.functions.boolmask.mask_bool2long
 ```
 ````
 
-````{py:function} _mask_long2byte(mask, n=None)
+````{py:function} _mask_long2byte(mask: torch.Tensor, n: int | None = None) -> torch.Tensor
 :canonical: src.utils.functions.boolmask._mask_long2byte
 
 ```{autodoc2-docstring} src.utils.functions.boolmask._mask_long2byte
 ```
 ````
 
-````{py:function} _mask_byte2bool(mask, n=None)
+````{py:function} _mask_byte2bool(mask: torch.Tensor, n: int | None = None) -> torch.Tensor
 :canonical: src.utils.functions.boolmask._mask_byte2bool
 
 ```{autodoc2-docstring} src.utils.functions.boolmask._mask_byte2bool
 ```
 ````
 
-````{py:function} mask_long2bool(mask, n=None)
+````{py:function} mask_long2bool(mask: torch.Tensor, n: int | None = None) -> torch.Tensor
 :canonical: src.utils.functions.boolmask.mask_long2bool
 
 ```{autodoc2-docstring} src.utils.functions.boolmask.mask_long2bool
 ```
 ````
 
-````{py:function} mask_long_scatter(mask, values, check_unset=True)
+````{py:function} mask_long_scatter(mask: torch.Tensor, values: torch.Tensor, check_unset: bool = True) -> torch.Tensor
 :canonical: src.utils.functions.boolmask.mask_long_scatter
 
 ```{autodoc2-docstring} src.utils.functions.boolmask.mask_long_scatter

@@ -337,6 +337,14 @@
 
 ````
 
+````{py:method} __post_init__()
+:canonical: src.policies.route_construction.meta_heuristics.tabu_search.params.TSParams.__post_init__
+
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.tabu_search.params.TSParams.__post_init__
+```
+
+````
+
 ````{py:method} from_config(config: typing.Any) -> src.policies.route_construction.meta_heuristics.tabu_search.params.TSParams
 :canonical: src.policies.route_construction.meta_heuristics.tabu_search.params.TSParams.from_config
 :classmethod:

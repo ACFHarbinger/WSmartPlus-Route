@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -491,6 +492,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.decoding.greedy">
 <span id="src-utils-decoding-greedy"></span><h1><a class="reference internal" href="#module-src.utils.decoding.greedy" title="src.utils.decoding.greedy"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.decoding.greedy</span></code></a><a class="headerlink" href="#module-src.utils.decoding.greedy" title="Link to this heading">#</a></h1>
 <p>Greedy decoding strategy implementation.</p>
+<p>Attributes:
+Greedy: Greedy decoding strategy.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.utils.decoding import Greedy
+&gt;&gt;&gt; strategy = Greedy()
+&gt;&gt;&gt; strategy.step(torch.tensor([[0.1, 0.2], [0.3, 0.4]]), torch.tensor([[True, True], [True, True]]))
+(tensor([1, 1]), tensor([0.2, 0.4]), tensor([0.2, 0.4]))</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -511,14 +519,24 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.utils.decoding.greedy.</span></span><span class="sig-name descname"><span class="pre">Greedy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.decoding.greedy.Greedy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.utils.decoding.base.html#src.utils.decoding.base.DecodingStrategy" title="src.utils.decoding.base.DecodingStrategy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.utils.decoding.base.DecodingStrategy</span></code></a></p>
 <p>Greedy decoding: always select the action with highest probability.</p>
+<p>Attributes:
+temperature: Temperature for sampling.
+top_k: Top-k filtering.
+top_p: Top-p filtering.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize Greedy decoding.</p>
 <p>Args:
-**kwargs: Passed to super class.</p>
+kwargs: Passed to super class.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.decoding.greedy.Greedy.step">
 <span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">tensordict.TensorDict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.decoding.greedy.Greedy.step" title="Link to this definition">#</a></dt>
 <dd><p>Select action with highest probability.</p>
+<p>Args:
+logits: Logits tensor [batch, num_nodes]
+mask: Mask tensor [batch, num_nodes]
+td: TensorDict (unused)</p>
+<p>Returns:
+Tuple of (action, log_prob, entropy)</p>
 </dd></dl>
 
 </dd></dl>

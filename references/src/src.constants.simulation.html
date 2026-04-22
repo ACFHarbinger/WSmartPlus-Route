@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -524,6 +525,23 @@ accuracy. Two Earth radius values support different precision requirements:</p>
 <li><p>EARTH_RADIUS: Simplified sphere model (faster, ±0.5% error)</p></li>
 <li><p>EARTH_WMP_RADIUS: WGS84 ellipsoid model (higher precision for GPS data)</p></li>
 </ul>
+<p>Attributes:
+EARTH_RADIUS: Mean Earth radius (kilometers) - Spherical approximation
+EARTH_WMP_RADIUS: WGS84 equatorial radius (meters) - Ellipsoid model
+METRICS: Core performance metrics (overflows, kg, km, reward, profit, time)
+SIM_METRICS: Overall simulation statistics (adds “days”)
+DAY_METRICS: Single-day statistics (includes “day” and “tour” fields)
+LOSS_KEYS: Neural network training metrics</p>
+<p>Example:</p>
+<blockquote>
+<div><blockquote>
+<div><blockquote>
+<div><p>from logic.src.constants import EARTH_RADIUS, EARTH_WMP_RADIUS, METRICS, SIM_METRICS, DAY_METRICS, LOSS_KEYS
+EARTH_RADIUS
+6371</p>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
 </section>
 <p>Simulation and Physics constants.</p>
 <p>This module defines physical constants, problem constraints, and metric definitions

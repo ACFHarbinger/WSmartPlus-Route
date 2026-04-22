@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -545,6 +546,14 @@ CPU-resident and detached from the autograd graph before insertion:</p>
 </div>
 <p>This prevents memory leaks in the computation graph over thousands of
 simulation iterations.</p>
+<p>Attributes:
+SearchContext: Immutable state ledger that flows through the three-phase pipeline
+SelectionMetrics: Intermediate outputs from Mandatory Selection
+ConstructionMetrics: Intermediate outputs from Route Construction
+AcceptanceMetrics: Per-step acceptance criterion outputs
+ImprovementMetrics: Statistics from Route Improvement
+SearchPhase: Enum for pipeline phases
+merge_context: Function to merge contexts</p>
 </section>
 <section id="example">
 <h2>Example<a class="headerlink" href="#example" title="Link to this heading">#</a></h2>
@@ -729,6 +738,10 @@ A new <code class="docutils literal notranslate"><span class="pre">SearchContext
 <dt class="sig sig-object py" id="src.interfaces.context.search_context.SearchContext.merge">
 <span class="sig-name descname"><span class="pre">merge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.interfaces.context.search_context.SearchContext" title="src.interfaces.context.search_context.SearchContext"><span class="pre">src.interfaces.context.search_context.SearchContext</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.interfaces.context.search_context.SearchContext" title="src.interfaces.context.search_context.SearchContext"><span class="pre">src.interfaces.context.search_context.SearchContext</span></a></span></span><a class="headerlink" href="#src.interfaces.context.search_context.SearchContext.merge" title="Link to this definition">#</a></dt>
 <dd><p>Merge this context with another by combining all metrics and metadata.</p>
+<p>Args:
+other: The SearchContext to merge with.</p>
+<p>Returns:
+SearchContext: A new SearchContext instance with merged metrics.</p>
 </dd></dl>
 
 </dd></dl>

@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -500,6 +501,13 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.enums.environment_tags">
 <span id="src-enums-environment-tags"></span><h1><a class="reference internal" href="#module-src.enums.environment_tags" title="src.enums.environment_tags"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.enums.environment_tags</span></code></a><a class="headerlink" href="#module-src.enums.environment_tags" title="Link to this heading">#</a></h1>
+<p>Environment enum for WSmart-Route.</p>
+<p>Attributes:
+EnvironmentTag: Enum for environment tags</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.enums import EnvironmentTag
+&gt;&gt;&gt; EnvironmentTag.EUCLIDEAN
+&lt;EnvironmentTag.EUCLIDEAN: 1&gt;</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -507,7 +515,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.enums.environment_tags.EnvironmentTag" title="src.enums.environment_tags.EnvironmentTag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EnvironmentTag</span></code></a></p></td>
-<td></td>
+<td><p>Environment tags for WSmart-Route.</p></td>
 </tr>
 </tbody>
 </table>
@@ -519,6 +527,19 @@ document.write(`
 <dt class="sig sig-object py" id="src.enums.environment_tags.EnvironmentTag">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.enums.environment_tags.</span></span><span class="sig-name descname"><span class="pre">EnvironmentTag</span></span><a class="headerlink" href="#src.enums.environment_tags.EnvironmentTag" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>Environment tags for WSmart-Route.</p>
+<p>Attributes:
+EUCLIDEAN: Nodes have (x,y) coordinates
+GRAPH: Fully defined by a distance matrix (non-Euclidean possible)
+CAPACITATED: Vehicle load limits
+TIME_WINDOWS: Strict [early, late] arrival constraints
+MULTI_DEPOT: Multiple start/end locations
+MULTI_PERIOD: Decisions span across a time horizon (days/weeks)
+DETERMINISTIC: All info known at t=0
+STOCHASTIC: Node demands/presence are random variables
+DYNAMIC: Nodes appear over time during execution
+MIN_DISTANCE: Canonical VRP
+MAX_PROFIT: Orienteering / Prize-collecting</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.enums.environment_tags.EnvironmentTag.EUCLIDEAN">
 <span class="sig-name descname"><span class="pre">EUCLIDEAN</span></span><a class="headerlink" href="#src.enums.environment_tags.EnvironmentTag.EUCLIDEAN" title="Link to this definition">#</a></dt>

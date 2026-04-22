@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -491,7 +492,19 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.cli.fs_parser">
 <span id="src-cli-fs-parser"></span><h1><a class="reference internal" href="#module-src.cli.fs_parser" title="src.cli.fs_parser"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.fs_parser</span></code></a><a class="headerlink" href="#module-src.cli.fs_parser" title="Link to this heading">#</a></h1>
-<p>File system related argument parsers.</p>
+<p>Parser arguments for the File System operations.</p>
+<p>Attributes:
+add_files_args: Adds all arguments related to file system operations (as subparsers)
+add_files_update_args: Adds file system ‘update’ sub-command arguments
+add_files_delete_args: Adds file system ‘delete’ sub-command arguments
+add_files_crypto_args: Adds file system ‘cryptography’ sub-command arguments
+validate_file_system_args: Validates and post-processes arguments for file_system</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.cli.fs_parser import add_files_args, validate_file_system_args
+&gt;&gt;&gt; parser = argparse.ArgumentParser()
+&gt;&gt;&gt; add_files_args(parser)
+&gt;&gt;&gt; validate_file_system_args(parser.parse_args())
+(‘update’, {‘target_entry’: None, ‘output_key’: None, ‘filename_pattern’: None, ‘update_operation’: None, ‘update_value’: 0.0, ‘update_preview’: False, ‘stats_function’: None, ‘output_filename’: None, ‘input_keys’: (None, None)})</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -522,7 +535,7 @@ Returns a tuple: (fs_command, validated_args)</p></td>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.cli.fs_parser.add_files_args">
-<span class="sig-prename descclassname"><span class="pre">src.cli.fs_parser.</span></span><span class="sig-name descname"><span class="pre">add_files_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.cli.fs_parser.add_files_args" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.cli.fs_parser.</span></span><span class="sig-name descname"><span class="pre">add_files_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.cli.fs_parser.add_files_args" title="Link to this definition">#</a></dt>
 <dd><p>Adds all arguments related to file system operations (as subparsers).</p>
 <p>Args:
 parser: The argparse parser or subparser.</p>
@@ -532,7 +545,7 @@ The parser with added file system arguments.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.cli.fs_parser.add_files_update_args">
-<span class="sig-prename descclassname"><span class="pre">src.cli.fs_parser.</span></span><span class="sig-name descname"><span class="pre">add_files_update_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.cli.fs_parser.add_files_update_args" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.cli.fs_parser.</span></span><span class="sig-name descname"><span class="pre">add_files_update_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.cli.fs_parser.add_files_update_args" title="Link to this definition">#</a></dt>
 <dd><p>Adds file system ‘update’ sub-command arguments.</p>
 <p>Args:
 parser: The argparse parser or subparser.</p>
@@ -542,7 +555,7 @@ The parser with added update arguments.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.cli.fs_parser.add_files_delete_args">
-<span class="sig-prename descclassname"><span class="pre">src.cli.fs_parser.</span></span><span class="sig-name descname"><span class="pre">add_files_delete_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.cli.fs_parser.add_files_delete_args" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.cli.fs_parser.</span></span><span class="sig-name descname"><span class="pre">add_files_delete_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.cli.fs_parser.add_files_delete_args" title="Link to this definition">#</a></dt>
 <dd><p>Adds file system ‘delete’ sub-command arguments.</p>
 <p>Args:
 parser: The argparse parser or subparser.</p>
@@ -552,7 +565,7 @@ The parser with added delete arguments.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.cli.fs_parser.add_files_crypto_args">
-<span class="sig-prename descclassname"><span class="pre">src.cli.fs_parser.</span></span><span class="sig-name descname"><span class="pre">add_files_crypto_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.cli.fs_parser.add_files_crypto_args" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.cli.fs_parser.</span></span><span class="sig-name descname"><span class="pre">add_files_crypto_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.cli.fs_parser.add_files_crypto_args" title="Link to this definition">#</a></dt>
 <dd><p>Adds file system ‘cryptography’ sub-command arguments.</p>
 <p>Args:
 parser: The argparse parser or subparser.</p>
@@ -562,9 +575,13 @@ The parser with added cryptography arguments.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.cli.fs_parser.validate_file_system_args">
-<span class="sig-prename descclassname"><span class="pre">src.cli.fs_parser.</span></span><span class="sig-name descname"><span class="pre">validate_file_system_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.cli.fs_parser.validate_file_system_args" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.cli.fs_parser.</span></span><span class="sig-name descname"><span class="pre">validate_file_system_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.cli.fs_parser.validate_file_system_args" title="Link to this definition">#</a></dt>
 <dd><p>Validates and post-processes arguments for file_system.
 Returns a tuple: (fs_command, validated_args)</p>
+<p>Args:
+args: Dictionary of file system arguments</p>
+<p>Returns:
+Tuple of (fs_command, validated_args)</p>
 </dd></dl>
 
 </section>

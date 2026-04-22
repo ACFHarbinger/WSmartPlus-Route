@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -470,8 +471,10 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package-contents">Package Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.cli.parse_params"><code class="docutils literal notranslate"><span class="pre">parse_params()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.cli.__all__"><code class="docutils literal notranslate"><span class="pre">__all__</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -490,6 +493,15 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.cli">
 <span id="src-cli"></span><h1><a class="reference internal" href="#module-src.cli" title="src.cli"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli</span></code></a><a class="headerlink" href="#module-src.cli" title="Link to this heading">#</a></h1>
 <p>Unified entry point for the WSmart+ Route modular CLI.</p>
+<p>Attributes:
+parse_params: Parses arguments, determines the command, and performs necessary validation.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.cli import parse_params
+&gt;&gt;&gt; command, opts = parse_params()
+&gt;&gt;&gt; command
+‘gui’
+&gt;&gt;&gt; opts
+{‘app_style’: ‘fusion’, ‘test_only’: False}</p>
 <section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
@@ -530,6 +542,17 @@ Returns: (command, validated_opts) where ‘command’ might be a tuple (comm, i
 </table>
 </div>
 </section>
+<section id="data">
+<h3>Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.cli.__all__" title="src.cli.__all__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__all__</span></code></a></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py function">
@@ -537,6 +560,12 @@ Returns: (command, validated_opts) where ‘command’ might be a tuple (comm, i
 <span class="sig-prename descclassname"><span class="pre">src.cli.</span></span><span class="sig-name descname"><span class="pre">parse_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.cli.parse_params" title="Link to this definition">#</a></dt>
 <dd><p>Parses arguments, determines the command, and performs necessary validation.
 Returns: (command, validated_opts) where ‘command’ might be a tuple (comm, inner_comm)</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="src.cli.__all__">
+<span class="sig-prename descclassname"><span class="pre">src.cli.</span></span><span class="sig-name descname"><span class="pre">__all__</span></span><a class="headerlink" href="#src.cli.__all__" title="Link to this definition">#</a></dt>
+<dd><p>[‘parse_params’, ‘add_files_args’, ‘add_gui_args’, ‘add_test_suite_args’, ‘ConfigsParser’, ‘Lowercas…</p>
 </dd></dl>
 
 </section>
@@ -592,8 +621,10 @@ Returns: (command, validated_opts) where ‘command’ might be a tuple (comm, i
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package-contents">Package Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.cli.parse_params"><code class="docutils literal notranslate"><span class="pre">parse_params()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.cli.__all__"><code class="docutils literal notranslate"><span class="pre">__all__</span></code></a></li>
 </ul>
 </li>
 </ul>

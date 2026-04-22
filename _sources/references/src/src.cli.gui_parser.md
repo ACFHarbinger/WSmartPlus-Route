@@ -27,14 +27,14 @@
 
 ### API
 
-````{py:function} add_gui_args(parser)
+````{py:function} add_gui_args(parser: typing.Any) -> typing.Any
 :canonical: src.cli.gui_parser.add_gui_args
 
 ```{autodoc2-docstring} src.cli.gui_parser.add_gui_args
 ```
 ````
 
-````{py:function} validate_gui_args(args)
+````{py:function} validate_gui_args(args: typing.Any) -> typing.Any
 :canonical: src.cli.gui_parser.validate_gui_args
 
 ```{autodoc2-docstring} src.cli.gui_parser.validate_gui_args

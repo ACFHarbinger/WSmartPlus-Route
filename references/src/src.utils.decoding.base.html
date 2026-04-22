@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -495,6 +496,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.decoding.base">
 <span id="src-utils-decoding-base"></span><h1><a class="reference internal" href="#module-src.utils.decoding.base" title="src.utils.decoding.base"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.decoding.base</span></code></a><a class="headerlink" href="#module-src.utils.decoding.base" title="Link to this heading">#</a></h1>
 <p>Base class for decoding strategies.</p>
+<p>Attributes:
+DecodingStrategy: Base class for all decoding strategies.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.utils.decoding import DecodingStrategy
+&gt;&gt;&gt; strategy = DecodingStrategy()
+&gt;&gt;&gt; strategy.step(torch.tensor([[0.1, 0.2], [0.3, 0.4]]), torch.tensor([[True, True], [True, True]]))
+(tensor([0, 0]), tensor([0.1, 0.3]), tensor([0.1, 0.3]))</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -517,6 +525,15 @@ document.write(`
 <p>Abstract base class for decoding strategies.</p>
 <p>Decoding strategies control how actions are selected from
 the logits produced by the policy decoder.</p>
+<p>Attributes:
+temperature (float): Temperature for softmax scaling. Higher = more random.
+top_k (Optional[int]): Keep only top-k logits before sampling.
+top_p (Optional[float]): Keep smallest set of logits with cumsum &gt;= top_p (nucleus sampling).
+tanh_clipping (float): Apply tanh clipping to logits (Bello et al., 2016).
+mask_logits (bool): Whether to apply masking to invalid actions.
+multistart (bool): Whether to use multiple starting points.
+num_starts (int): Number of starting points for multistart.
+select_best (bool): Whether to select best solution from multiple starts.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize DecodingStrategy.</p>
 <p>Args:
@@ -527,7 +544,8 @@ tanh_clipping: Apply tanh clipping to logits (Bello et al., 2016).
 mask_logits: Whether to apply masking to invalid actions.
 multistart: Whether to use multiple starting points.
 num_starts: Number of starting points for multistart.
-select_best: Whether to select best solution from multiple starts.</p>
+select_best: Whether to select best solution from multiple starts.
+kwargs: Additional arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.decoding.base.DecodingStrategy.step">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">tensordict.TensorDict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.decoding.base.DecodingStrategy.step" title="Link to this definition">#</a></dt>
@@ -570,6 +588,13 @@ Tuple of (log_likelihood, actions, td, env)</p>
 <dt class="sig sig-object py" id="src.utils.decoding.base.DecodingStrategy._select_best">
 <span class="sig-name descname"><span class="pre">_select_best</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_likelihood</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tensordict.TensorDict</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.decoding.base.DecodingStrategy._select_best" title="Link to this definition">#</a></dt>
 <dd><p>Select best solution from multiple starts.</p>
+<p>Args:
+td: TensorDict with final state
+log_likelihood: Log probabilities [batch, …]
+actions: Selected actions [batch, seq_len]
+num_starts: Number of starting points</p>
+<p>Returns:
+Tuple of (log_likelihood, actions, td)</p>
 </dd></dl>
 
 <dl class="py method">
@@ -580,7 +605,7 @@ Tuple of (log_likelihood, actions, td, env)</p>
 logits: Raw logits [batch, num_nodes]
 mask: Valid action mask [batch, num_nodes]</p>
 <p>Returns:
-Processed logits</p>
+Processed logits.</p>
 </dd></dl>
 
 </dd></dl>

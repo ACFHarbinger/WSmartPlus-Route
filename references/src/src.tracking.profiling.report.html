@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -506,8 +507,15 @@ document.write(`
 <p>Reads the CSV produced by :class:<code class="docutils literal notranslate"><span class="pre">ExecutionProfiler</span></code>, computes per-function,
 per-file, per-class, and per-module aggregates, detects timeline gaps, and can
 forward a structured summary to the active WSTracker run.</p>
-<p>Classes:
+<p>Attributes:
 ProfilingReport: Reads and analyses a profiling CSV.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.tracking.profiling import ProfilingReport
+&gt;&gt;&gt; report = ProfilingReport(“logs/function_execution_times_2024-01-01_12-00-00.csv”)
+&gt;&gt;&gt; print(report)
+&gt;&gt;&gt; for entry in report.top_functions(n=10):
+…     print(entry)
+&gt;&gt;&gt; report.log_to_run(top_n=10)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -548,19 +556,29 @@ report.log_to_run(top_n=10)
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>report = profiler.get_report()   # calls flush() first
 </pre></div>
 </div>
+<p>Attributes:
+csv_path: Path to the CSV file written by :class:<code class="docutils literal notranslate"><span class="pre">ExecutionProfiler</span></code>.
+wall_elapsed: Optional wall-clock seconds the profiler was active.
+_records: List of dicts with keys <code class="docutils literal notranslate"><span class="pre">timestamp</span></code>, <code class="docutils literal notranslate"><span class="pre">file</span></code>, <code class="docutils literal notranslate"><span class="pre">class</span></code>,
+<code class="docutils literal notranslate"><span class="pre">function</span></code>, <code class="docutils literal notranslate"><span class="pre">duration_sec</span></code>.</p>
+<p class="rubric">Initialization</p>
 <p>Args:
 csv_path: Path to the CSV file written by :class:<code class="docutils literal notranslate"><span class="pre">ExecutionProfiler</span></code>.
 wall_elapsed: Optional wall-clock seconds the profiler was active.</p>
-<p class="rubric">Initialization</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.report.ProfilingReport._load">
 <span class="sig-name descname"><span class="pre">_load</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.profiling.report.ProfilingReport._load" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Load records from the CSV file.</p>
+<p>Returns:
+None</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.tracking.profiling.report.ProfilingReport.n_calls">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_calls</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.tracking.profiling.report.ProfilingReport.n_calls" title="Link to this definition">#</a></dt>
 <dd><p>Total number of function-call records in the CSV.</p>
+<p>Returns:
+int</p>
 </dd></dl>
 
 <dl class="py property">
@@ -571,6 +589,8 @@ wall_elapsed: Optional wall-clock seconds the profiler was active.</p>
 will exceed the wall-clock elapsed time for recursive or nested code.
 Use :meth:<code class="docutils literal notranslate"><span class="pre">module_breakdown</span></code> or :meth:<code class="docutils literal notranslate"><span class="pre">top_functions</span></code> for relative
 comparisons.</p>
+<p>Returns:
+float</p>
 </dd></dl>
 
 <dl class="py method">
@@ -587,6 +607,8 @@ comparisons.</p>
 </ul>
 <p>Args:
 n: Maximum number of entries to return.</p>
+<p>Returns:
+List[Dict[str, Any]]</p>
 </dd></dl>
 
 <dl class="py method">
@@ -595,6 +617,10 @@ n: Maximum number of entries to return.</p>
 <dd><p>Total time grouped by source file path.</p>
 <p>Returns a list of dicts with keys <code class="docutils literal notranslate"><span class="pre">file</span></code>, <code class="docutils literal notranslate"><span class="pre">total_sec</span></code>,
 <code class="docutils literal notranslate"><span class="pre">n_calls</span></code>, sorted by total time descending.</p>
+<p>Args:
+n: Maximum number of entries to return.</p>
+<p>Returns:
+List[Dict[str, Any]]</p>
 </dd></dl>
 
 <dl class="py method">
@@ -604,6 +630,10 @@ n: Maximum number of entries to return.</p>
 <p>Returns a list of dicts with keys <code class="docutils literal notranslate"><span class="pre">class</span></code>, <code class="docutils literal notranslate"><span class="pre">total_sec</span></code>,
 <code class="docutils literal notranslate"><span class="pre">n_calls</span></code>, sorted by total time descending.  Functions without
 a class are grouped under <code class="docutils literal notranslate"><span class="pre">&quot;&lt;module-level&gt;&quot;</span></code>.</p>
+<p>Args:
+n: Maximum number of entries to return.</p>
+<p>Returns:
+List[Dict[str, Any]]</p>
 </dd></dl>
 
 <dl class="py method">
@@ -612,6 +642,8 @@ a class are grouped under <code class="docutils literal notranslate"><span class
 <dd><p>Total time grouped by first path segment (top-level module directory).</p>
 <p>Returns a list of <code class="docutils literal notranslate"><span class="pre">(module_name,</span> <span class="pre">total_seconds)</span></code> tuples sorted by
 total time descending.</p>
+<p>Returns:
+List[Tuple[str, float]]</p>
 </dd></dl>
 
 <dl class="py method">
@@ -622,18 +654,26 @@ total time descending.</p>
 processes, or other code not instrumented by the profiler.</p>
 <p>Returns a list of dicts with keys <code class="docutils literal notranslate"><span class="pre">after_index</span></code>, <code class="docutils literal notranslate"><span class="pre">from_ts</span></code>,
 <code class="docutils literal notranslate"><span class="pre">to_ts</span></code>, and <code class="docutils literal notranslate"><span class="pre">gap_sec</span></code>, sorted by gap size descending.</p>
+<p>Args:
+min_gap_sec: Minimum gap size in seconds to report.</p>
+<p>Returns:
+List[Dict[str, Any]]</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.report.ProfilingReport.slowest_call">
 <span class="sig-name descname"><span class="pre">slowest_call</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.profiling.report.ProfilingReport.slowest_call" title="Link to this definition">#</a></dt>
 <dd><p>Return the single longest recorded call, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if empty.</p>
+<p>Returns:
+Optional[Dict[str, Any]]</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.report.ProfilingReport.summary">
 <span class="sig-name descname"><span class="pre">summary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.profiling.report.ProfilingReport.summary" title="Link to this definition">#</a></dt>
 <dd><p>Return a high-level summary dict.</p>
+<p>Returns:
+Dict[str, Any]</p>
 </dd></dl>
 
 <dl class="py method">
@@ -654,17 +694,25 @@ processes, or other code not instrumented by the profiler.</p>
 <p>Args:
 top_n: Number of top functions / modules to include.
 step: Metric step dimension.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.report.ProfilingReport.__repr__">
 <span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.tracking.profiling.report.ProfilingReport.__repr__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return a string representation of the report.</p>
+<p>Returns:
+str</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.report.ProfilingReport.__str__">
 <span class="sig-name descname"><span class="pre">__str__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.tracking.profiling.report.ProfilingReport.__str__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return a string representation of the report.</p>
+<p>Returns:
+str</p>
+</dd></dl>
 
 </dd></dl>
 

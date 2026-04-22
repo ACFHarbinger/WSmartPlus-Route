@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -467,7 +468,6 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#color-selection-rationale">Color Selection Rationale</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usage-example">Usage Example</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
@@ -500,15 +500,16 @@ document.write(`
 <li><p>Colorblind-safe palette (tested for deuteranopia, protanopia)</p></li>
 <li><p>Print-friendly (maintains distinction in grayscale)</p></li>
 </ul>
-</section>
-<section id="usage-example">
-<h2>Usage Example<a class="headerlink" href="#usage-example" title="Link to this heading">#</a></h2>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&gt;&gt;&gt; from logic.src.constants.dashboard import ROUTE_COLORS
+<p>Attributes:
+ROUTE_COLORS: Color palette for different vehicles/routes
+BIN_COLORS: Bin status colors for dashboard and map markers
+PLOTLY_LAYOUT_DEFAULTS: Shared Plotly layout defaults for visual consistency across all charts
+STATUS_ICONS: Status icons for experiment tracker</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.constants.dashboard import ROUTE_COLORS
 &gt;&gt;&gt; for route_id, tour in enumerate(tours):
 &gt;&gt;&gt;     color = ROUTE_COLORS[route_id % len(ROUTE_COLORS)]
-&gt;&gt;&gt;     plt.plot(tour, color=color, label=f&quot;Vehicle {route_id}&quot;)
-</pre></div>
-</div>
+&gt;&gt;&gt;     plt.plot(tour, color=color, label=f”Vehicle {route_id}”)</p>
 </section>
 <p>Dashboard visualization color schemes.</p>
 <p>This module defines color palettes for the simulation results dashboard.
@@ -616,7 +617,6 @@ Used by:</p>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#color-selection-rationale">Color Selection Rationale</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usage-example">Usage Example</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">

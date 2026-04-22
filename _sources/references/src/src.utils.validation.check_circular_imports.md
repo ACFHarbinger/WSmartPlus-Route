@@ -16,7 +16,9 @@
 :align: left
 
 * - {py:obj}`ImportVisitor <src.utils.validation.check_circular_imports.ImportVisitor>`
-  -
+  - ```{autodoc2-docstring} src.utils.validation.check_circular_imports.ImportVisitor
+    :summary:
+    ```
 ````
 
 ### Functions
@@ -202,6 +204,15 @@
 :canonical: src.utils.validation.check_circular_imports.ImportVisitor
 
 Bases: {py:obj}`ast.NodeVisitor`
+
+```{autodoc2-docstring} src.utils.validation.check_circular_imports.ImportVisitor
+```
+
+```{rubric} Initialization
+```
+
+```{autodoc2-docstring} src.utils.validation.check_circular_imports.ImportVisitor.__init__
+```
 
 ````{py:method} visit_Import(node: ast.Import)
 :canonical: src.utils.validation.check_circular_imports.ImportVisitor.visit_Import

@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -471,6 +472,8 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_docstrings.console"><code class="docutils literal notranslate"><span class="pre">console</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_docstrings._KIND_STYLE"><code class="docutils literal notranslate"><span class="pre">_KIND_STYLE</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_docstrings._KIND_DESC"><code class="docutils literal notranslate"><span class="pre">_KIND_DESC</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_docstrings.check_path"><code class="docutils literal notranslate"><span class="pre">check_path()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_docstrings.check_docstrings_recursive"><code class="docutils literal notranslate"><span class="pre">check_docstrings_recursive()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_docstrings.display_results"><code class="docutils literal notranslate"><span class="pre">display_results()</span></code></a></li>
@@ -492,12 +495,18 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.docs.check_docstrings">
 <span id="src-utils-docs-check-docstrings"></span><h1><a class="reference internal" href="#module-src.utils.docs.check_docstrings" title="src.utils.docs.check_docstrings"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.docs.check_docstrings</span></code></a><a class="headerlink" href="#module-src.utils.docs.check_docstrings" title="Link to this heading">#</a></h1>
 <p>Docstring Compliance Checker.</p>
-<p>This script traverses Python files in specified directories or file paths,
-parses them using the <code class="docutils literal notranslate"><span class="pre">ast</span></code> module, and checks for the presence of docstrings
-in modules, classes, and functions.</p>
-<p>It identifies missing docstrings to help maintain documentation standards
-across the codebase and displays them in a formatted table using <code class="docutils literal notranslate"><span class="pre">rich</span></code>.</p>
-<p>Usage:
+<p>Traverses Python files, parses them with the <code class="docutils literal notranslate"><span class="pre">ast</span></code> module, and reports
+modules, classes, and functions that are missing docstrings.</p>
+<p>Output is a Rich table grouped by file, with line numbers and a short
+description of each violation.</p>
+<p>Attributes:
+console: Rich console for output.
+_KIND_STYLE: Mapping from node type to Rich style.
+_KIND_DESC: Mapping from node type to description.
+check_path: Check a single .py file and return a list of violation dicts.
+check_docstrings_recursive: Recursively collect violations from all .py files under <em>directory</em>.
+display_results: Render the violation report as a Rich table grouped by file.</p>
+<p>Example:
 python check_docstrings.py <path1> [path2 …]</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
@@ -506,13 +515,13 @@ python check_docstrings.py <path1> [path2 …]</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.docs.check_docstrings.check_path" title="src.utils.docs.check_docstrings.check_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_path</span></code></a></p></td>
-<td><p>Check a single file for missing docstrings using AST parsing.</p></td>
+<td><p>Check a single .py file and return a list of violation dicts.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.utils.docs.check_docstrings.check_docstrings_recursive" title="src.utils.docs.check_docstrings.check_docstrings_recursive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_docstrings_recursive</span></code></a></p></td>
-<td><p>Recursively check a directory for Python files with missing docstrings.</p></td>
+<td><p>Recursively collect violations from all .py files under <em>directory</em>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.docs.check_docstrings.display_results" title="src.utils.docs.check_docstrings.display_results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">display_results</span></code></a></p></td>
-<td><p>Render the list of errors in a beautiful table using Rich.</p></td>
+<td><p>Render the violation report as a Rich table grouped by file.</p></td>
 </tr>
 </tbody>
 </table>
@@ -523,6 +532,12 @@ python check_docstrings.py <path1> [path2 …]</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.docs.check_docstrings.console" title="src.utils.docs.check_docstrings.console"><code class="xref py py-obj docutils literal notranslate"><span class="pre">console</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.utils.docs.check_docstrings._KIND_STYLE" title="src.utils.docs.check_docstrings._KIND_STYLE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_KIND_STYLE</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.docs.check_docstrings._KIND_DESC" title="src.utils.docs.check_docstrings._KIND_DESC"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_KIND_DESC</span></code></a></p></td>
 <td></td>
 </tr>
 </tbody>
@@ -537,33 +552,44 @@ python check_docstrings.py <path1> [path2 …]</p>
 <dd><p>‘Console(…)’</p>
 </dd></dl>
 
+<dl class="py data">
+<dt class="sig sig-object py" id="src.utils.docs.check_docstrings._KIND_STYLE">
+<span class="sig-prename descclassname"><span class="pre">src.utils.docs.check_docstrings.</span></span><span class="sig-name descname"><span class="pre">_KIND_STYLE</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.utils.docs.check_docstrings._KIND_STYLE" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="src.utils.docs.check_docstrings._KIND_DESC">
+<span class="sig-prename descclassname"><span class="pre">src.utils.docs.check_docstrings.</span></span><span class="sig-name descname"><span class="pre">_KIND_DESC</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.utils.docs.check_docstrings._KIND_DESC" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.docs.check_docstrings.check_path">
-<span class="sig-prename descclassname"><span class="pre">src.utils.docs.check_docstrings.</span></span><span class="sig-name descname"><span class="pre">check_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.docs.check_docstrings.check_path" title="Link to this definition">#</a></dt>
-<dd><p>Check a single file for missing docstrings using AST parsing.</p>
+<span class="sig-prename descclassname"><span class="pre">src.utils.docs.check_docstrings.</span></span><span class="sig-name descname"><span class="pre">check_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.docs.check_docstrings.check_path" title="Link to this definition">#</a></dt>
+<dd><p>Check a single .py file and return a list of violation dicts.</p>
 <p>Args:
-path (str): The file path to check.</p>
+path (str): Absolute or relative path to the Python file.</p>
 <p>Returns:
-list: A list of dictionaries containing details about missing docstrings.
-Keys: ‘path’, ‘type’, ‘name’.</p>
+List[dict]: Each dict has keys <code class="docutils literal notranslate"><span class="pre">path</span></code>, <code class="docutils literal notranslate"><span class="pre">line</span></code>, <code class="docutils literal notranslate"><span class="pre">type</span></code>, <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">description</span></code>.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.docs.check_docstrings.check_docstrings_recursive">
-<span class="sig-prename descclassname"><span class="pre">src.utils.docs.check_docstrings.</span></span><span class="sig-name descname"><span class="pre">check_docstrings_recursive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.docs.check_docstrings.check_docstrings_recursive" title="Link to this definition">#</a></dt>
-<dd><p>Recursively check a directory for Python files with missing docstrings.</p>
+<span class="sig-prename descclassname"><span class="pre">src.utils.docs.check_docstrings.</span></span><span class="sig-name descname"><span class="pre">check_docstrings_recursive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.docs.check_docstrings.check_docstrings_recursive" title="Link to this definition">#</a></dt>
+<dd><p>Recursively collect violations from all .py files under <em>directory</em>.</p>
 <p>Args:
-directory (str): The root directory to search.</p>
+directory (str): Root directory to walk.</p>
 <p>Returns:
-list: A list of dictionaries describing missing docstrings.</p>
+List[dict]: Aggregated violation list from all files.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.docs.check_docstrings.display_results">
-<span class="sig-prename descclassname"><span class="pre">src.utils.docs.check_docstrings.</span></span><span class="sig-name descname"><span class="pre">display_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">errors</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.docs.check_docstrings.display_results" title="Link to this definition">#</a></dt>
-<dd><p>Render the list of errors in a beautiful table using Rich.</p>
+<span class="sig-prename descclassname"><span class="pre">src.utils.docs.check_docstrings.</span></span><span class="sig-name descname"><span class="pre">display_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">violations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.docs.check_docstrings.display_results" title="Link to this definition">#</a></dt>
+<dd><p>Render the violation report as a Rich table grouped by file.</p>
 <p>Args:
-errors (list): A list of dictionaries with error details.</p>
+violations (List[dict]): Violation dicts produced by :func:<code class="docutils literal notranslate"><span class="pre">check_path</span></code>.</p>
 </dd></dl>
 
 </section>
@@ -620,6 +646,8 @@ errors (list): A list of dictionaries with error details.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_docstrings.console"><code class="docutils literal notranslate"><span class="pre">console</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_docstrings._KIND_STYLE"><code class="docutils literal notranslate"><span class="pre">_KIND_STYLE</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_docstrings._KIND_DESC"><code class="docutils literal notranslate"><span class="pre">_KIND_DESC</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_docstrings.check_path"><code class="docutils literal notranslate"><span class="pre">check_path()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_docstrings.check_docstrings_recursive"><code class="docutils literal notranslate"><span class="pre">check_docstrings_recursive()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.docs.check_docstrings.display_results"><code class="docutils literal notranslate"><span class="pre">display_results()</span></code></a></li>

@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -490,6 +491,16 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.security.data">
 <span id="src-utils-security-data"></span><h1><a class="reference internal" href="#module-src.utils.security.data" title="src.utils.security.data"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.security.data</span></code></a><a class="headerlink" href="#module-src.utils.security.data" title="Link to this heading">#</a></h1>
 <p>Data encryption/decryption utilities.</p>
+<p>This module provides functions to encode, encrypt, and decrypt data.</p>
+<p>Attributes:
+encode_data: Encodes various data types into bytes for encryption.
+encrypt_file_data: Encrypt a file or data object using Fernet symmetric encryption.
+decrypt_file_data: Decrypt a file or data bytes using Fernet symmetric encryption.</p>
+<p>Example:
+&gt;&gt;&gt; import data
+&gt;&gt;&gt; data.encode_data(“test”)
+&gt;&gt;&gt; data.encrypt_file_data(key, “test”)
+&gt;&gt;&gt; data.decrypt_file_data(key, “test”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

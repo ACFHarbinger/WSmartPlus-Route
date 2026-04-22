@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -520,6 +521,18 @@ and built-ins. Used by:</p>
 </ol>
 <p>All functions accept iterables (list, tuple, numpy array) and return scalars
 except “quant” which returns a list of quantile values.</p>
+<p>Attributes:
+STATS_FUNCTION_MAP: Statistical function registry mapping string keys to callables</p>
+<p>Example:</p>
+<blockquote>
+<div><blockquote>
+<div><blockquote>
+<div><p>from logic.src.constants import STATS_FUNCTION_MAP
+STATS_FUNCTION_MAP[“mean”]([1, 2, 3, 4, 5])
+3</p>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
 </section>
 <p>Statistical functions and constants.</p>
 <p>This module provides a registry of statistical operations used for:</p>

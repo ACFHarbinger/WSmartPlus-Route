@@ -27,7 +27,7 @@
 
 ### API
 
-````{py:function} _internal_safe_copy(obj: object, visited: set)
+````{py:function} _internal_safe_copy(obj: object, visited: set) -> typing.Optional[typing.Any]
 :canonical: src.utils.data.rl_utils._internal_safe_copy
 
 ```{autodoc2-docstring} src.utils.data.rl_utils._internal_safe_copy

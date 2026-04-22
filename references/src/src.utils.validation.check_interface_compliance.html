@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -509,6 +510,26 @@ from ABC-based or Protocol-based interfaces implement every required abstract
 method.</p>
 <p>Works entirely on AST — no imports are executed. Reports every concrete class
 that is missing one or more interface methods, grouped by interface.</p>
+<p>Attributes:
+SKIP_DIRS: Set[str] = {“.git”, “<strong>pycache</strong>”, “venv”, “.venv”, “node_modules”, “dist”, “build”}
+RED: str = “[91m”
+YELLOW: str = “[93m”
+GREEN: str = “[92m”
+CYAN: str = “[96m”
+BOLD: str = “[1m”
+DIM: str = “[2m”
+RESET: str = “[0m”
+collect_python_files: Collect all Python files in a directory and its subdirectories.
+base_name: Get the name of a base class from an AST expression.
+has_decorator: Check if a function has a specific decorator.
+parse_file: Return a list of class descriptors from filepath.
+build_registry: Map class name → list of class descriptors.
+get_required_abstract_methods: Recursively collect abstract methods required by a class and all its bases.
+get_implemented_methods: Recursively collect all non-abstract methods in a class and its ancestors.
+check_compliance: Return a list of violation descriptors for concrete classes with missing methods.
+main: Main function to check for interface compliance.</p>
+<p>Example:
+&gt;&gt;&gt; python check_interface_compliance.py –root src –exclude tests</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -516,13 +537,13 @@ that is missing one or more interface methods, grouped by interface.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.validation.check_interface_compliance.collect_python_files" title="src.utils.validation.check_interface_compliance.collect_python_files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">collect_python_files</span></code></a></p></td>
-<td></td>
+<td><p>Collect all Python files in a directory and its subdirectories.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.utils.validation.check_interface_compliance.base_name" title="src.utils.validation.check_interface_compliance.base_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">base_name</span></code></a></p></td>
-<td></td>
+<td><p>Get the name of a base class from an AST expression.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.validation.check_interface_compliance.has_decorator" title="src.utils.validation.check_interface_compliance.has_decorator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_decorator</span></code></a></p></td>
-<td></td>
+<td><p>Check if a function has a specific decorator.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.utils.validation.check_interface_compliance.parse_file" title="src.utils.validation.check_interface_compliance.parse_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_file</span></code></a></p></td>
 <td><p>Return a list of class descriptors from filepath:
@@ -541,7 +562,7 @@ that is missing one or more interface methods, grouped by interface.</p>
 <td><p>Return a list of violation descriptors for concrete classes with missing methods.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.validation.check_interface_compliance.main" title="src.utils.validation.check_interface_compliance.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a></p></td>
-<td></td>
+<td><p>Main function to check interface compliance.</p></td>
 </tr>
 </tbody>
 </table>
@@ -632,53 +653,95 @@ that is missing one or more interface methods, grouped by interface.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.check_interface_compliance.collect_python_files">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.check_interface_compliance.</span></span><span class="sig-name descname"><span class="pre">collect_python_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.validation.check_interface_compliance.collect_python_files" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Collect all Python files in a directory and its subdirectories.</p>
+<p>Args:
+root: Root directory to scan.
+exclude: Set of directory names to exclude.</p>
+<p>Returns:
+List of file paths.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.check_interface_compliance.base_name">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.check_interface_compliance.</span></span><span class="sig-name descname"><span class="pre">base_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ast.expr</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.utils.validation.check_interface_compliance.base_name" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Get the name of a base class from an AST expression.</p>
+<p>Args:
+base_node: AST expression representing the base class.</p>
+<p>Returns:
+Name of the base class.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.check_interface_compliance.has_decorator">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.check_interface_compliance.</span></span><span class="sig-name descname"><span class="pre">has_decorator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func_node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ast.FunctionDef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.utils.validation.check_interface_compliance.has_decorator" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Check if a function has a specific decorator.</p>
+<p>Args:
+func_node: AST function node.
+name: Name of the decorator to check for.</p>
+<p>Returns:
+True if the function has the decorator, False otherwise.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.check_interface_compliance.parse_file">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.check_interface_compliance.</span></span><span class="sig-name descname"><span class="pre">parse_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.validation.check_interface_compliance.parse_file" title="Link to this definition">#</a></dt>
 <dd><p>Return a list of class descriptors from filepath:
 {name, bases, abstract_methods, all_methods, is_interface, lineno, filepath}</p>
+<p>Args:
+filepath: Path to the file to parse.</p>
+<p>Returns:
+List of class descriptors.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.check_interface_compliance.build_registry">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.check_interface_compliance.</span></span><span class="sig-name descname"><span class="pre">build_registry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.validation.check_interface_compliance.build_registry" title="Link to this definition">#</a></dt>
 <dd><p>Map class name → list of class descriptors (multiple files may define same name).</p>
+<p>Args:
+files: List of file paths to scan.</p>
+<p>Returns:
+Dictionary mapping class name to list of class descriptors.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.check_interface_compliance.get_required_abstract_methods">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.check_interface_compliance.</span></span><span class="sig-name descname"><span class="pre">get_required_abstract_methods</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">class_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">registry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_seen</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.validation.check_interface_compliance.get_required_abstract_methods" title="Link to this definition">#</a></dt>
 <dd><p>Recursively collect abstract methods required by a class and all its bases.</p>
+<p>Args:
+class_name: Name of the class to check.
+registry: Dictionary mapping class name to list of class descriptors.
+_seen: Set of class names already seen (for recursion prevention).</p>
+<p>Returns:
+Set of required abstract methods.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.check_interface_compliance.get_implemented_methods">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.check_interface_compliance.</span></span><span class="sig-name descname"><span class="pre">get_implemented_methods</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">class_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">registry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_seen</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.validation.check_interface_compliance.get_implemented_methods" title="Link to this definition">#</a></dt>
 <dd><p>Recursively collect all non-abstract methods in a class and its ancestors.</p>
+<p>Args:
+class_name: Name of the class to check.
+registry: Dictionary mapping class name to list of class descriptors.
+_seen: Set of class names already seen (for recursion prevention).</p>
+<p>Returns:
+Set of implemented methods.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.check_interface_compliance.check_compliance">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.check_interface_compliance.</span></span><span class="sig-name descname"><span class="pre">check_compliance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">registry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.validation.check_interface_compliance.check_compliance" title="Link to this definition">#</a></dt>
 <dd><p>Return a list of violation descriptors for concrete classes with missing methods.</p>
+<p>Args:
+registry: Dictionary mapping class name to list of class descriptors.</p>
+<p>Returns:
+List of violation descriptors.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.check_interface_compliance.main">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.check_interface_compliance.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.validation.check_interface_compliance.main" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Main function to check interface compliance.</p>
+</dd></dl>
 
 </section>
 </section>

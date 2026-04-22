@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -508,6 +509,12 @@ CSV to produce top-function and per-module breakdowns.</p></li>
 <p>All classes auto-forward results to the active WSTracker run via
 <code class="docutils literal notranslate"><span class="pre">contextlib.suppress</span></code>-guarded calls — they are safe no-ops when no run is
 active or optional dependencies are missing.</p>
+<p>Attributes:
+memory: Memory profiling utilities.
+profiler: Execution profiler utilities.
+report: Report generation utilities.
+timer: Timer utilities.
+throughput: Throughput tracking utilities.</p>
 <p>Example usage::</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from logic.src.tracking.profiling import (
     profile_block,

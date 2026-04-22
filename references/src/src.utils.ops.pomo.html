@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -491,6 +492,29 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.ops.pomo">
 <span id="src-utils-ops-pomo"></span><h1><a class="reference internal" href="#module-src.utils.ops.pomo" title="src.utils.ops.pomo"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.ops.pomo</span></code></a><a class="headerlink" href="#module-src.utils.ops.pomo" title="Link to this heading">#</a></h1>
 <p>POMO (Policy Optimization with Multiple Optima) Operations.</p>
+<p>Attributes:
+select_start_nodes: Select start nodes for POMO-style multi-start decoding.
+select_start_nodes_by_distance: Select start nodes based on distance from depot.
+get_num_starts: Get environment-specific number of start nodes for multi-start decoding.
+get_best_actions: Select best actions from multi-start rollouts.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.utils.ops.pomo import select_start_nodes
+&gt;&gt;&gt; td = TensorDict({“locs”: torch.randn(1, 10, 2)}, batch_size=[1])
+&gt;&gt;&gt; select_start_nodes(td, 3)
+tensor([0, 1, 2])
+&gt;&gt;&gt; from logic.src.utils.ops.pomo import select_start_nodes_by_distance
+&gt;&gt;&gt; td = TensorDict({“locs”: torch.randn(1, 10, 2), “depot”: torch.randn(1, 2)}, batch_size=[1])
+&gt;&gt;&gt; select_start_nodes_by_distance(td, 3)
+tensor([0, 1, 2])
+&gt;&gt;&gt; from logic.src.utils.ops.pomo import get_num_starts
+&gt;&gt;&gt; td = TensorDict({“locs”: torch.randn(1, 10, 2)}, batch_size=[1])
+&gt;&gt;&gt; get_num_starts(td)
+10
+&gt;&gt;&gt; from logic.src.utils.ops.pomo import get_best_actions
+&gt;&gt;&gt; actions = torch.randn(1, 10, 10)
+&gt;&gt;&gt; max_idxs = torch.tensor([0])
+&gt;&gt;&gt; get_best_actions(actions, max_idxs)
+tensor([[0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

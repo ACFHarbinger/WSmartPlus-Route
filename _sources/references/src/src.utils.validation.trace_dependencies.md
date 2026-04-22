@@ -53,7 +53,7 @@ Bases: {py:obj}`ast.NodeVisitor`
 ```{autodoc2-docstring} src.utils.validation.trace_dependencies.ASTScopeVisitor.__init__
 ```
 
-````{py:method} _add_node(name: str)
+````{py:method} _add_node(name: str) -> typing.Optional[typing.Dict[str, typing.List[typing.Dict[str, typing.List[str]]]]]
 :canonical: src.utils.validation.trace_dependencies.ASTScopeVisitor._add_node
 
 ```{autodoc2-docstring} src.utils.validation.trace_dependencies.ASTScopeVisitor._add_node
@@ -131,7 +131,7 @@ Bases: {py:obj}`ast.NodeVisitor`
 
 ````
 
-````{py:method} scan_project()
+````{py:method} scan_project() -> None
 :canonical: src.utils.validation.trace_dependencies.DependencyGrapher.scan_project
 
 ```{autodoc2-docstring} src.utils.validation.trace_dependencies.DependencyGrapher.scan_project
@@ -139,7 +139,7 @@ Bases: {py:obj}`ast.NodeVisitor`
 
 ````
 
-````{py:method} _parse_file(filepath: str)
+````{py:method} _parse_file(filepath: str) -> None
 :canonical: src.utils.validation.trace_dependencies.DependencyGrapher._parse_file
 
 ```{autodoc2-docstring} src.utils.validation.trace_dependencies.DependencyGrapher._parse_file
@@ -155,7 +155,7 @@ Bases: {py:obj}`ast.NodeVisitor`
 
 ````
 
-````{py:method} trace_forward(target_origin_file: str, target_original_name: str)
+````{py:method} trace_forward(target_origin_file: str, target_original_name: str) -> None
 :canonical: src.utils.validation.trace_dependencies.DependencyGrapher.trace_forward
 
 ```{autodoc2-docstring} src.utils.validation.trace_dependencies.DependencyGrapher.trace_forward
@@ -179,7 +179,7 @@ Bases: {py:obj}`ast.NodeVisitor`
 
 ````
 
-````{py:method} generate_graph(target_file: str, target_name: str)
+````{py:method} generate_graph(target_file: str, target_name: str) -> None
 :canonical: src.utils.validation.trace_dependencies.DependencyGrapher.generate_graph
 
 ```{autodoc2-docstring} src.utils.validation.trace_dependencies.DependencyGrapher.generate_graph
@@ -187,7 +187,7 @@ Bases: {py:obj}`ast.NodeVisitor`
 
 ````
 
-````{py:method} _render_pyvis(target_node_id: str)
+````{py:method} _render_pyvis(target_node_id: str) -> None
 :canonical: src.utils.validation.trace_dependencies.DependencyGrapher._render_pyvis
 
 ```{autodoc2-docstring} src.utils.validation.trace_dependencies.DependencyGrapher._render_pyvis
@@ -195,7 +195,7 @@ Bases: {py:obj}`ast.NodeVisitor`
 
 ````
 
-````{py:method} _inject_uml_panel(filepath: str)
+````{py:method} _inject_uml_panel(filepath: str) -> None
 :canonical: src.utils.validation.trace_dependencies.DependencyGrapher._inject_uml_panel
 
 ```{autodoc2-docstring} src.utils.validation.trace_dependencies.DependencyGrapher._inject_uml_panel
@@ -205,7 +205,7 @@ Bases: {py:obj}`ast.NodeVisitor`
 
 `````
 
-````{py:function} main()
+````{py:function} main() -> None
 :canonical: src.utils.validation.trace_dependencies.main
 
 ```{autodoc2-docstring} src.utils.validation.trace_dependencies.main

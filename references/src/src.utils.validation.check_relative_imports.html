@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -498,6 +499,24 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.validation.check_relative_imports">
 <span id="src-utils-validation-check-relative-imports"></span><h1><a class="reference internal" href="#module-src.utils.validation.check_relative_imports" title="src.utils.validation.check_relative_imports"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.validation.check_relative_imports</span></code></a><a class="headerlink" href="#module-src.utils.validation.check_relative_imports" title="Link to this heading">#</a></h1>
+<p>Finds all relative imports (from .module import …) in a Python codebase.</p>
+<p>Attributes:
+RICH_AVAILABLE (bool): Whether the rich library is available.
+SKIP_DIRS (set[str]): Directories to skip during analysis.
+RED (str): ANSI escape code for red text.
+YELLOW (str): ANSI escape code for yellow text.
+GREEN (str): ANSI escape code for green text.
+CYAN (str): ANSI escape code for cyan text.
+DIM (str): ANSI escape code for dim text.
+RESET (str): ANSI escape code to reset text formatting.
+format_relative_import: Format the import string.
+analyze_file: Analyze a file for relative imports.
+print_stats_table: Print statistics table.
+main: Main function to find relative imports.</p>
+<p>Example:
+&gt;&gt;&gt; python check_relative_imports.py
+&gt;&gt;&gt; python check_relative_imports.py –stats
+&gt;&gt;&gt; python check_relative_imports.py –fail-on-found</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -508,14 +527,13 @@ document.write(`
 <td><p>Reconstruct the import string as it would appear in source.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.utils.validation.check_relative_imports.analyze_file" title="src.utils.validation.check_relative_imports.analyze_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analyze_file</span></code></a></p></td>
-<td><p>Return all relative imports in filepath as (lineno, level, formatted_import).
-Level ≥ 1 means relative: 1 = same package, 2 = parent, 3 = grandparent, etc.</p></td>
+<td><p>Return all relative imports in filepath as (lineno, level, formatted_import).</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.validation.check_relative_imports.print_stats_table" title="src.utils.validation.check_relative_imports.print_stats_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_stats_table</span></code></a></p></td>
 <td><p>Print a Rich table summarising relative import counts per top-level package.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.utils.validation.check_relative_imports.main" title="src.utils.validation.check_relative_imports.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a></p></td>
-<td></td>
+<td><p>Main entry point for the relative import checker.</p></td>
 </tr>
 </tbody>
 </table>
@@ -598,25 +616,42 @@ Level ≥ 1 means relative: 1 = same package, 2 = parent, 3 = grandparent, etc.<
 <dt class="sig sig-object py" id="src.utils.validation.check_relative_imports.format_relative_import">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.check_relative_imports.</span></span><span class="sig-name descname"><span class="pre">format_relative_import</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ast.ImportFrom</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.utils.validation.check_relative_imports.format_relative_import" title="Link to this definition">#</a></dt>
 <dd><p>Reconstruct the import string as it would appear in source.</p>
+<p>Args:
+node: The import node to format.</p>
+<p>Returns:
+Formatted import string.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.check_relative_imports.analyze_file">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.check_relative_imports.</span></span><span class="sig-name descname"><span class="pre">analyze_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.validation.check_relative_imports.analyze_file" title="Link to this definition">#</a></dt>
-<dd><p>Return all relative imports in filepath as (lineno, level, formatted_import).
-Level ≥ 1 means relative: 1 = same package, 2 = parent, 3 = grandparent, etc.</p>
+<dd><p>Return all relative imports in filepath as (lineno, level, formatted_import).</p>
+<p>Args:
+filepath: The path to the file to analyze.</p>
+<p>Returns:
+List of tuples containing the line number, level, and formatted import string.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.check_relative_imports.print_stats_table">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.check_relative_imports.</span></span><span class="sig-name descname"><span class="pre">print_stats_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all_results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.validation.check_relative_imports.print_stats_table" title="Link to this definition">#</a></dt>
 <dd><p>Print a Rich table summarising relative import counts per top-level package.</p>
+<p>Args:
+all_results: Dictionary mapping file paths to lists of relative imports.
+target_root: The root directory of the codebase.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.check_relative_imports.main">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.check_relative_imports.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.validation.check_relative_imports.main" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Main entry point for the relative import checker.</p>
+<p>Args:
+None</p>
+<p>Returns:
+None</p>
+</dd></dl>
 
 </section>
 </section>

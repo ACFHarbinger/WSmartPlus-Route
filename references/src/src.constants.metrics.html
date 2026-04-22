@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -546,6 +547,12 @@ subsystems. Used by:</p>
 <li><p><strong>overflows</strong>: Number of bins that overflowed (exceeded capacity)</p></li>
 <li><p><strong>initial_overflows</strong>: Overflow count at episode reset/initialization</p></li>
 </ul>
+<p>Attributes:
+METRIC_MAPPING: Dictionary mapping canonical metric names to their aliases</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.constants import METRIC_MAPPING
+&gt;&gt;&gt; METRIC_MAPPING[“collection”]
+[‘reward_waste’, ‘collection’, ‘total_collected’, ‘collected_waste’, ‘real_collection’]</p>
 </section>
 <p>Metric name normalization and aliasing constants.</p>
 <p>This module provides canonical mapping of metric names to their various aliases

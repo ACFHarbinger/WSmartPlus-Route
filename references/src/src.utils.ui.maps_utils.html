@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -489,6 +490,15 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.ui.maps_utils">
 <span id="src-utils-ui-maps-utils"></span><h1><a class="reference internal" href="#module-src.utils.ui.maps_utils" title="src.utils.ui.maps_utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.ui.maps_utils</span></code></a><a class="headerlink" href="#module-src.utils.ui.maps_utils" title="Link to this heading">#</a></h1>
 <p>Shared utilities and constants for map rendering.</p>
+<p>Attributes:
+get_map_center: Calculate the center point of a tour.
+load_distance_matrix: Load the distance matrix for a given problem instance.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.utils.ui.maps_utils import get_map_center, load_distance_matrix
+&gt;&gt;&gt; get_map_center([{“lat”: 1, “lng”: 2}, {“lat”: 3, “lng”: 4}])
+(2.0, 3.0)
+&gt;&gt;&gt; load_distance_matrix(“riomaior”)
+DataFrame containing the distance matrix for riomaior.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

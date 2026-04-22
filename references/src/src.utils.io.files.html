@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -494,6 +495,22 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.io.files">
 <span id="src-utils-io-files"></span><h1><a class="reference internal" href="#module-src.utils.io.files" title="src.utils.io.files"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io.files</span></code></a><a class="headerlink" href="#module-src.utils.io.files" title="Link to this heading">#</a></h1>
 <p>Safe file operation utilities (read, write, zip).</p>
+<p>Attributes:
+read_json: Reads a JSON file safely with an optional lock.
+zip_directory: Creates a zip archive of a directory.
+extract_zip: Extracts a zip archive to a directory.
+confirm_proceed: Asks user for confirmation with timeout and default response.
+compose_dirpath: Decorator to compose directory paths based on home_dir, ndays, num_bins, etc.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.utils.io.files import read_json, zip_directory, extract_zip, confirm_proceed, compose_dirpath
+&gt;&gt;&gt; json_data = read_json(“path/to/file.json”)
+&gt;&gt;&gt; zip_directory(“path/to/directory”, “path/to/archive.zip”)
+&gt;&gt;&gt; extract_zip(“path/to/archive.zip”, “path/to/output”)
+&gt;&gt;&gt; proceed = confirm_proceed()
+&gt;&gt;&gt; &#64;compose_dirpath
+… def my_function(dir_path):
+…     # Process files in dir_path
+…     pass</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -573,6 +590,11 @@ output_dir: Directory where contents will be extracted.</p>
 <span class="sig-prename descclassname"><span class="pre">src.utils.io.files.</span></span><span class="sig-name descname"><span class="pre">confirm_proceed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default_no</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operation_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'update'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.utils.io.files.confirm_proceed" title="Link to this definition">#</a></dt>
 <dd><p>Ask user for confirmation with timeout and default response
 Returns True if user confirms, False if user cancels or timeout</p>
+<p>Args:
+default_no: Default response if user doesn’t provide one (default: True).
+operation_name: Name of the operation to confirm (default: “update”).</p>
+<p>Returns:
+True if user confirms, False otherwise.</p>
 </dd></dl>
 
 <dl class="py function">

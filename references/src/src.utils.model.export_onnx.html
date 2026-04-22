@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -519,7 +520,18 @@ python -m logic.src.utils.model.export_onnx <br />
 –num_loc 50 <br />
 –embed_dim 128 <br />
 –simplify</p>
-<p>Programmatic usage:
+<p>Attributes:
+ONNX_AVAILABLE: Whether ONNX is available.
+ONNXSIM_AVAILABLE: Whether ONNXSIM is available.
+export_encoder_to_onnx: Traces and exports a single encoder <code class="docutils literal notranslate"><span class="pre">nn.Module</span></code> to ONNX format.
+export_policy_components: Exports the named sub-modules of a policy to separate ONNX files.
+_SingleInputWrapper: Wrapper class to handle single-input models.
+_infer_device: Infers the device of the model.
+_validate_onnx: Validates the exported ONNX model.
+_try_simplify: Tries to simplify the ONNX model.
+_build_arg_parser: Builds the argument parser for the CLI.
+main: Main entry point for the CLI.</p>
+<p>Example:
 from logic.src.utils.model.export_onnx import export_encoder_to_onnx
 path = export_encoder_to_onnx(model.encoder, export_dir=”assets/onnx”, n_nodes=50)</p>
 <section id="module-contents">
@@ -555,7 +567,7 @@ path = export_encoder_to_onnx(model.encoder, export_dir=”assets/onnx”, n_nod
 <td><p>Attempt onnxsim simplification, logging a warning on failure.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.utils.model.export_onnx._build_arg_parser" title="src.utils.model.export_onnx._build_arg_parser"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_build_arg_parser</span></code></a></p></td>
-<td></td>
+<td><p>Build the argument parser for the CLI.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.model.export_onnx.main" title="src.utils.model.export_onnx.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a></p></td>
 <td><p>CLI entry point for exporting WSmart-Route models to ONNX.</p></td>
@@ -637,12 +649,21 @@ Dict mapping component name → absolute path of the exported file.</p>
 <p>Minimal shim that accepts a single tensor input and returns a single tensor.</p>
 <p>Required because some encoders return <code class="docutils literal notranslate"><span class="pre">(embeddings,</span> <span class="pre">mask)</span></code> tuples or
 accept additional keyword arguments that confuse <code class="docutils literal notranslate"><span class="pre">torch.onnx.export</span></code>.</p>
+<p>Attributes:
+encoder: The encoder <code class="docutils literal notranslate"><span class="pre">nn.Module</span></code> to export.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize internal Module state, shared by both nn.Module and ScriptModule.</p>
+<p>Initialize the wrapper.</p>
+<p>Args:
+encoder: The encoder <code class="docutils literal notranslate"><span class="pre">nn.Module</span></code> to export.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.model.export_onnx._SingleInputWrapper.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.utils.model.export_onnx._SingleInputWrapper.forward" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Forward pass of the wrapper.</p>
+<p>Args:
+x: The input tensor.</p>
+<p>Returns:
+The output tensor.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -650,24 +671,35 @@ accept additional keyword arguments that confuse <code class="docutils literal n
 <dt class="sig sig-object py" id="src.utils.model.export_onnx._infer_device">
 <span class="sig-prename descclassname"><span class="pre">src.utils.model.export_onnx.</span></span><span class="sig-name descname"><span class="pre">_infer_device</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.device</span></span></span><a class="headerlink" href="#src.utils.model.export_onnx._infer_device" title="Link to this definition">#</a></dt>
 <dd><p>Return the device of the first parameter, defaulting to CPU.</p>
+<p>Args:
+module: The <code class="docutils literal notranslate"><span class="pre">nn.Module</span></code> to infer the device of.</p>
+<p>Returns:
+The device of the first parameter, defaulting to CPU.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.model.export_onnx._validate_onnx">
 <span class="sig-prename descclassname"><span class="pre">src.utils.model.export_onnx.</span></span><span class="sig-name descname"><span class="pre">_validate_onnx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.model.export_onnx._validate_onnx" title="Link to this definition">#</a></dt>
 <dd><p>Run onnx.checker on the exported model. Logs a warning if onnx is not installed.</p>
+<p>Args:
+path: The path to the exported ONNX model.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.model.export_onnx._try_simplify">
 <span class="sig-prename descclassname"><span class="pre">src.utils.model.export_onnx.</span></span><span class="sig-name descname"><span class="pre">_try_simplify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.model.export_onnx._try_simplify" title="Link to this definition">#</a></dt>
 <dd><p>Attempt onnxsim simplification, logging a warning on failure.</p>
+<p>Args:
+path: The path to the exported ONNX model.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.model.export_onnx._build_arg_parser">
 <span class="sig-prename descclassname"><span class="pre">src.utils.model.export_onnx.</span></span><span class="sig-name descname"><span class="pre">_build_arg_parser</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">argparse.ArgumentParser</span></span></span><a class="headerlink" href="#src.utils.model.export_onnx._build_arg_parser" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Build the argument parser for the CLI.</p>
+<p>Returns:
+The argument parser.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.model.export_onnx.main">

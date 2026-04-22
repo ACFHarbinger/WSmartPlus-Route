@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -504,6 +505,31 @@ water level, etc.) is advanced only via <code class="docutils literal notranslat
 so that callers can thread per-step telemetry into the <code class="docutils literal notranslate"><span class="pre">SearchContext</span></code>
 without polling <code class="docutils literal notranslate"><span class="pre">get_state()</span></code> separately.  <code class="docutils literal notranslate"><span class="pre">get_state()</span></code> is retained for
 backward compatibility but is superseded by the metrics in the returned tuple.</p>
+<p>Attributes:
+IAcceptanceCriterion: Interface for acceptance criteria
+ObjectiveValue: Type alias for single or multi-objective values</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
+&gt;&gt;&gt; class MyAcceptanceCriterion(IAcceptanceCriterion):
+…     def setup(self, initial_objective: ObjectiveValue) -&gt; None:
+…         pass
+…     def accept(
+…         self,
+…         current_obj: ObjectiveValue,
+…         candidate_obj: ObjectiveValue,
+…         **kwargs: Any,
+…     ) -&gt; Tuple[bool, AcceptanceMetrics]:
+…         return True, AcceptanceMetrics()
+…     def step(
+…         self,
+…         current_obj: ObjectiveValue,
+…         candidate_obj: ObjectiveValue,
+…         accepted: bool,
+…         **kwargs: Any,
+…     ) -&gt; None:
+…         pass
+…     def get_state(self) -&gt; Dict[str, Any]:
+…         return {}</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -549,6 +575,8 @@ backward compatibility but is superseded by the metrics in the returned tuple.</
 <dd><p>Initialise the internal state of the criterion from the starting solution.</p>
 <p>Args:
 initial_objective (ObjectiveValue): The objective value of the starting solution.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">
@@ -560,7 +588,7 @@ between steps is advanced exclusively in <code class="docutils literal notransla
 <p>Args:
 current_obj (ObjectiveValue): The objective value of the current incumbent.
 candidate_obj (ObjectiveValue): The objective value of the proposed candidate.
-**kwargs (Any): Additional context (e.g. structural representations).</p>
+kwargs (Any): Additional context (e.g. structural representations).</p>
 <p>Returns:
 Tuple[bool, AcceptanceMetrics]:
 - <code class="docutils literal notranslate"><span class="pre">is_accepted</span></code>: True if the candidate is accepted.
@@ -577,7 +605,9 @@ update memory buffers, adjust thresholds).</p>
 current_obj (ObjectiveValue): The objective after the decision was applied.
 candidate_obj (ObjectiveValue): The objective of the evaluated candidate.
 accepted (bool): The boolean result of <code class="docutils literal notranslate"><span class="pre">accept()</span></code>.
-**kwargs (Any): Additional context.</p>
+kwargs (Any): Additional context.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">

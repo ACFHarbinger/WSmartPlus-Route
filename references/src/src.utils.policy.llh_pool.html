@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -519,9 +520,46 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.policy.llh_pool">
 <span id="src-utils-policy-llh-pool"></span><h1><a class="reference internal" href="#module-src.utils.policy.llh_pool" title="src.utils.policy.llh_pool"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.policy.llh_pool</span></code></a><a class="headerlink" href="#module-src.utils.policy.llh_pool" title="Link to this heading">#</a></h1>
-<p>Low-Level Heuristic (LLH) pool for hyper-heuristics.
-Provides basic operators for route improvement and perturbation,
+<p>Low-Level Heuristic (LLH) pool for hyper-heuristics.</p>
+<p>Provides basic operators for route improvement and perturbation,
 supporting both single-route and multi-period collection plans.</p>
+<p>Attributes:
+Plan: Type alias for a list of routes.
+LLH: Type alias for a low-level heuristic.
+h1_greedy_move: Insert a random profitable non-mandatory node.
+h2_random_drop: Remove a random non-mandatory node.
+h3_two_opt: Standard 2-opt search.
+h4_swap_nodes: Swap two nodes in the route.
+h5_relocate_node: Relocate a node to a different position.
+h6_replace_node: Replace a node with a more profitable external node.
+h7_greedy_multi: Try to insert multiple profitable nodes.
+h8_perturb_2opt: Random double bridge swap.
+h9_worst_removal: Remove node with highest distance contribution.
+h10_greedy_shuffle: Shuffle route and 2-opt it.
+_make_or_opt: Create an OR-opt operator for a given chain length.
+_make_two_opt: Create a 2-opt operator.
+_make_three_opt: Create a 3-opt operator.
+_make_cross_day_move: Create a cross-day move operator.
+_make_cross_day_swap: Create a cross-day swap operator.
+_make_day_merge_split: Create a day merge-split operator.
+_make_day_shuffle: Create a day shuffle operator.
+_make_double_bridge: Create a double bridge operator.
+INTRA_ROUTE_POOL: List of intra-route operators.
+MULTI_PERIOD_LLH_POOL: List of multi-period operators.
+LLH_POOL: Compatibility alias for the old single-route pool.
+LLHPool: Low-Level Heuristic Pool for hyper-heuristics.</p>
+<p>Example:
+&gt;&gt;&gt; import llh_pool
+&gt;&gt;&gt; llh_pool.h1_greedy_move(problem, route, rng)
+&gt;&gt;&gt; llh_pool.h2_random_drop(problem, route, rng)
+&gt;&gt;&gt; llh_pool.h3_two_opt(problem, route, rng)
+&gt;&gt;&gt; llh_pool.h4_swap_nodes(problem, route, rng)
+&gt;&gt;&gt; llh_pool.h5_relocate_node(problem, route, rng)
+&gt;&gt;&gt; llh_pool.h6_replace_node(problem, route, rng)
+&gt;&gt;&gt; llh_pool.h7_greedy_multi(problem, route, rng)
+&gt;&gt;&gt; llh_pool.h8_perturb_2opt(problem, route, rng)
+&gt;&gt;&gt; llh_pool.h9_worst_removal(problem, route, rng)
+&gt;&gt;&gt; llh_pool.h10_greedy_shuffle(problem, route, rng)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -572,28 +610,28 @@ All LLHs take (plan, problem_context, rng) and return a new plan.</p></td>
 <td><p>Shuffle route and 2-opt it.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.policy.llh_pool._make_or_opt" title="src.utils.policy.llh_pool._make_or_opt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_make_or_opt</span></code></a></p></td>
-<td></td>
+<td><p>Create an OR-opt operator for a specific chain length.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.utils.policy.llh_pool._make_two_opt" title="src.utils.policy.llh_pool._make_two_opt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_make_two_opt</span></code></a></p></td>
-<td></td>
+<td><p>Create a 2-opt operator for multi-period plans.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.policy.llh_pool._make_three_opt" title="src.utils.policy.llh_pool._make_three_opt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_make_three_opt</span></code></a></p></td>
-<td></td>
+<td><p>Create a 3-opt operator for multi-period plans.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.utils.policy.llh_pool._make_cross_day_move" title="src.utils.policy.llh_pool._make_cross_day_move"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_make_cross_day_move</span></code></a></p></td>
-<td></td>
+<td><p>Create a cross-day move operator for multi-period plans.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.policy.llh_pool._make_cross_day_swap" title="src.utils.policy.llh_pool._make_cross_day_swap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_make_cross_day_swap</span></code></a></p></td>
-<td></td>
+<td><p>Create a cross-day swap operator for multi-period plans.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.utils.policy.llh_pool._make_day_merge_split" title="src.utils.policy.llh_pool._make_day_merge_split"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_make_day_merge_split</span></code></a></p></td>
-<td></td>
+<td><p>Create a day merge-split operator for multi-period plans.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.policy.llh_pool._make_double_bridge" title="src.utils.policy.llh_pool._make_double_bridge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_make_double_bridge</span></code></a></p></td>
-<td></td>
+<td><p>Create a double bridge operator for multi-period plans.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.utils.policy.llh_pool._make_day_shuffle" title="src.utils.policy.llh_pool._make_day_shuffle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_make_day_shuffle</span></code></a></p></td>
-<td></td>
+<td><p>Create a day shuffle operator for multi-period plans.</p></td>
 </tr>
 </tbody>
 </table>
@@ -640,101 +678,187 @@ All LLHs take (plan, problem_context, rng) and return a new plan.</p></td>
 <dt class="sig sig-object py" id="src.utils.policy.llh_pool.h1_greedy_move">
 <span class="sig-prename descclassname"><span class="pre">src.utils.policy.llh_pool.</span></span><span class="sig-name descname"><span class="pre">h1_greedy_move</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.random.Generator</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.policy.llh_pool.h1_greedy_move" title="Link to this definition">#</a></dt>
 <dd><p>Insert a random profitable non-mandatory node.</p>
+<p>Args:
+problem: Problem context.
+route: Route to modify.
+rng: Random number generator.</p>
+<p>Returns:
+Modified route.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.policy.llh_pool.h2_random_drop">
 <span class="sig-prename descclassname"><span class="pre">src.utils.policy.llh_pool.</span></span><span class="sig-name descname"><span class="pre">h2_random_drop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.random.Generator</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.policy.llh_pool.h2_random_drop" title="Link to this definition">#</a></dt>
 <dd><p>Remove a random non-mandatory node.</p>
+<p>Args:
+problem: Problem context.
+route: Route to modify.
+rng: Random number generator.</p>
+<p>Returns:
+Modified route.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.policy.llh_pool.h3_two_opt">
 <span class="sig-prename descclassname"><span class="pre">src.utils.policy.llh_pool.</span></span><span class="sig-name descname"><span class="pre">h3_two_opt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.random.Generator</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.policy.llh_pool.h3_two_opt" title="Link to this definition">#</a></dt>
 <dd><p>Standard 2-opt search.</p>
+<p>Args:
+problem: Problem context.
+route: Route to modify.
+rng: Random number generator.</p>
+<p>Returns:
+Modified route.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.policy.llh_pool.h4_swap_nodes">
 <span class="sig-prename descclassname"><span class="pre">src.utils.policy.llh_pool.</span></span><span class="sig-name descname"><span class="pre">h4_swap_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.random.Generator</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.policy.llh_pool.h4_swap_nodes" title="Link to this definition">#</a></dt>
 <dd><p>Swap two nodes in the route.</p>
+<p>Args:
+problem: Problem context.
+route: Route to modify.
+rng: Random number generator.</p>
+<p>Returns:
+Modified route.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.policy.llh_pool.h5_relocate_node">
 <span class="sig-prename descclassname"><span class="pre">src.utils.policy.llh_pool.</span></span><span class="sig-name descname"><span class="pre">h5_relocate_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.random.Generator</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.policy.llh_pool.h5_relocate_node" title="Link to this definition">#</a></dt>
 <dd><p>Relocate a node to a different position.</p>
+<p>Args:
+problem: Problem context.
+route: Route to modify.
+rng: Random number generator.</p>
+<p>Returns:
+Modified route.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.policy.llh_pool.h6_replace_node">
 <span class="sig-prename descclassname"><span class="pre">src.utils.policy.llh_pool.</span></span><span class="sig-name descname"><span class="pre">h6_replace_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.random.Generator</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.policy.llh_pool.h6_replace_node" title="Link to this definition">#</a></dt>
 <dd><p>Replace a node with a more profitable external node.</p>
+<p>Args:
+problem: Problem context.
+route: Route to modify.
+rng: Random number generator.</p>
+<p>Returns:
+Modified route.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.policy.llh_pool.h7_greedy_multi">
 <span class="sig-prename descclassname"><span class="pre">src.utils.policy.llh_pool.</span></span><span class="sig-name descname"><span class="pre">h7_greedy_multi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.random.Generator</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.policy.llh_pool.h7_greedy_multi" title="Link to this definition">#</a></dt>
 <dd><p>Try to insert multiple profitable nodes.</p>
+<p>Args:
+problem: Problem context.
+route: Route to modify.
+rng: Random number generator.</p>
+<p>Returns:
+Modified route.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.policy.llh_pool.h8_perturb_2opt">
 <span class="sig-prename descclassname"><span class="pre">src.utils.policy.llh_pool.</span></span><span class="sig-name descname"><span class="pre">h8_perturb_2opt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.random.Generator</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.policy.llh_pool.h8_perturb_2opt" title="Link to this definition">#</a></dt>
 <dd><p>Random double bridge swap.</p>
+<p>Args:
+problem: Problem context.
+route: Route to modify.
+rng: Random number generator.</p>
+<p>Returns:
+Modified route.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.policy.llh_pool.h9_worst_removal">
 <span class="sig-prename descclassname"><span class="pre">src.utils.policy.llh_pool.</span></span><span class="sig-name descname"><span class="pre">h9_worst_removal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.random.Generator</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.policy.llh_pool.h9_worst_removal" title="Link to this definition">#</a></dt>
 <dd><p>Remove node with highest distance contribution.</p>
+<p>Args:
+problem: Problem context.
+route: Route to modify.
+rng: Random number generator.</p>
+<p>Returns:
+Modified route.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.policy.llh_pool.h10_greedy_shuffle">
 <span class="sig-prename descclassname"><span class="pre">src.utils.policy.llh_pool.</span></span><span class="sig-name descname"><span class="pre">h10_greedy_shuffle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.random.Generator</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.policy.llh_pool.h10_greedy_shuffle" title="Link to this definition">#</a></dt>
 <dd><p>Shuffle route and 2-opt it.</p>
+<p>Args:
+problem: Problem context.
+route: Route to modify.
+rng: Random number generator.</p>
+<p>Returns:
+Modified route.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.policy.llh_pool._make_or_opt">
 <span class="sig-prename descclassname"><span class="pre">src.utils.policy.llh_pool.</span></span><span class="sig-name descname"><span class="pre">_make_or_opt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chain_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">src.utils.policy.llh_pool.LLH</span></span></span><a class="headerlink" href="#src.utils.policy.llh_pool._make_or_opt" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Create an OR-opt operator for a specific chain length.</p>
+<p>Args:
+chain_len: Length of the chain to optimize.</p>
+<p>Returns:
+OR-opt operator.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.policy.llh_pool._make_two_opt">
 <span class="sig-prename descclassname"><span class="pre">src.utils.policy.llh_pool.</span></span><span class="sig-name descname"><span class="pre">_make_two_opt</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">src.utils.policy.llh_pool.LLH</span></span></span><a class="headerlink" href="#src.utils.policy.llh_pool._make_two_opt" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Create a 2-opt operator for multi-period plans.</p>
+<p>Returns:
+2-opt operator.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.policy.llh_pool._make_three_opt">
 <span class="sig-prename descclassname"><span class="pre">src.utils.policy.llh_pool.</span></span><span class="sig-name descname"><span class="pre">_make_three_opt</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">src.utils.policy.llh_pool.LLH</span></span></span><a class="headerlink" href="#src.utils.policy.llh_pool._make_three_opt" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Create a 3-opt operator for multi-period plans.</p>
+<p>Returns:
+3-opt operator.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.policy.llh_pool._make_cross_day_move">
 <span class="sig-prename descclassname"><span class="pre">src.utils.policy.llh_pool.</span></span><span class="sig-name descname"><span class="pre">_make_cross_day_move</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">src.utils.policy.llh_pool.LLH</span></span></span><a class="headerlink" href="#src.utils.policy.llh_pool._make_cross_day_move" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Create a cross-day move operator for multi-period plans.</p>
+<p>Returns:
+Cross-day move operator.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.policy.llh_pool._make_cross_day_swap">
 <span class="sig-prename descclassname"><span class="pre">src.utils.policy.llh_pool.</span></span><span class="sig-name descname"><span class="pre">_make_cross_day_swap</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">src.utils.policy.llh_pool.LLH</span></span></span><a class="headerlink" href="#src.utils.policy.llh_pool._make_cross_day_swap" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Create a cross-day swap operator for multi-period plans.</p>
+<p>Returns:
+Cross-day swap operator.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.policy.llh_pool._make_day_merge_split">
 <span class="sig-prename descclassname"><span class="pre">src.utils.policy.llh_pool.</span></span><span class="sig-name descname"><span class="pre">_make_day_merge_split</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">src.utils.policy.llh_pool.LLH</span></span></span><a class="headerlink" href="#src.utils.policy.llh_pool._make_day_merge_split" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Create a day merge-split operator for multi-period plans.</p>
+<p>Returns:
+Day merge-split operator.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.policy.llh_pool._make_double_bridge">
 <span class="sig-prename descclassname"><span class="pre">src.utils.policy.llh_pool.</span></span><span class="sig-name descname"><span class="pre">_make_double_bridge</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">src.utils.policy.llh_pool.LLH</span></span></span><a class="headerlink" href="#src.utils.policy.llh_pool._make_double_bridge" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Create a double bridge operator for multi-period plans.</p>
+<p>Returns:
+Double bridge operator.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.policy.llh_pool._make_day_shuffle">
 <span class="sig-prename descclassname"><span class="pre">src.utils.policy.llh_pool.</span></span><span class="sig-name descname"><span class="pre">_make_day_shuffle</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">src.utils.policy.llh_pool.LLH</span></span></span><a class="headerlink" href="#src.utils.policy.llh_pool._make_day_shuffle" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Create a day shuffle operator for multi-period plans.</p>
+<p>Returns:
+Day shuffle operator.</p>
+</dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="src.utils.policy.llh_pool.INTRA_ROUTE_POOL">
@@ -760,34 +884,63 @@ All LLHs take (plan, problem_context, rng) and return a new plan.</p></td>
 <dd><p>Low-Level Heuristic Pool for hyper-heuristics.
 Contains different perturbation/LS operators that the HH can select from.
 All LLHs take (plan, problem_context, rng) and return a new plan.</p>
+<p>Attributes:
+None</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.policy.llh_pool.LLHPool.llh_swap">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">llh_swap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plan</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">random.Random</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.policy.llh_pool.LLHPool.llh_swap" title="Link to this definition">#</a></dt>
 <dd><p>Swaps two random adjacent nodes in a random route.</p>
+<p>Args:
+plan: Current plan.
+problem: Problem context.
+rng: Random number generator.</p>
+<p>Returns:
+Modified plan.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.policy.llh_pool.LLHPool.llh_drop_add">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">llh_drop_add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plan</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">random.Random</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.policy.llh_pool.LLHPool.llh_drop_add" title="Link to this definition">#</a></dt>
 <dd><p>Drops a node and adds a new one on a random day.</p>
+<p>Args:
+plan: Current plan.
+problem: Problem context.
+rng: Random number generator.</p>
+<p>Returns:
+Modified plan.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.policy.llh_pool.LLHPool.llh_2opt_all">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">llh_2opt_all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plan</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">random.Random</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.policy.llh_pool.LLHPool.llh_2opt_all" title="Link to this definition">#</a></dt>
 <dd><p>Applies 2-opt to all days.</p>
+<p>Args:
+plan: Current plan.
+problem: Problem context.
+rng: Random number generator.</p>
+<p>Returns:
+Modified plan.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.policy.llh_pool.LLHPool.llh_ruin_recreate_day">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">llh_ruin_recreate_day</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plan</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">random.Random</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.policy.llh_pool.LLHPool.llh_ruin_recreate_day" title="Link to this definition">#</a></dt>
 <dd><p>Completely reconstructs a random day.</p>
+<p>Args:
+plan: Current plan.
+problem: Problem context.
+rng: Random number generator.</p>
+<p>Returns:
+Modified plan.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.policy.llh_pool.LLHPool.get_all">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_all</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.policy.llh_pool.LLHPool.get_all" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns all LLHs in the pool.</p>
+<p>Returns:
+List of LLHs.</p>
+</dd></dl>
 
 </dd></dl>
 

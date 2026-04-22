@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -489,6 +490,21 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.model">
 <span id="src-utils-model"></span><h1><a class="reference internal" href="#module-src.utils.model" title="src.utils.model"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.model</span></code></a><a class="headerlink" href="#module-src.utils.model" title="Link to this heading">#</a></h1>
 <p>Model utilities package.</p>
+<p>Attributes:
+_load_model_file: Loads the model with parameters from the file and returns optimizer state dict if it is in the file.
+load_data: Loads data from a path or resume checkpoint.
+torch_load_cpu: Loads a checkpoint file mapping all tensors to CPU.
+load_args: Loads argument configuration from a JSON file.
+load_model: Loads a trained model from a checkpoint file.
+load_problem: Loads a problem instance from a file.
+get_inner_model: Extracts the inner model from a wrapped model.
+parse_softmax_temperature: Parses the softmax temperature from a string.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.utils.model import load_model, load_problem, get_inner_model, parse_softmax_temperature
+&gt;&gt;&gt; model = load_model(“path/to/checkpoint.pt”)
+&gt;&gt;&gt; problem = load_problem(“path/to/problem.pt”)
+&gt;&gt;&gt; inner_model = get_inner_model(model)
+&gt;&gt;&gt; temperature = parse_softmax_temperature(“1.0”)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
@@ -520,7 +536,7 @@ document.write(`
 <dl class="py data">
 <dt class="sig sig-object py" id="src.utils.model.__all__">
 <span class="sig-prename descclassname"><span class="pre">src.utils.model.</span></span><span class="sig-name descname"><span class="pre">__all__</span></span><a class="headerlink" href="#src.utils.model.__all__" title="Link to this definition">#</a></dt>
-<dd><p>[‘get_inner_model’, ‘torch_load_cpu’, ‘load_data’, ‘_load_model_file’, ‘load_args’, ‘load_model’, ‘p…</p>
+<dd><p>[‘get_inner_model’, ‘torch_load_cpu’, ‘load_data’, ‘_load_model_file’, ‘load_args’, ‘load_model’, ‘l…</p>
 </dd></dl>
 
 </section>

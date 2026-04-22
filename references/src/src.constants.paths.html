@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -514,6 +515,18 @@ the project root marker directory name. This supports:</p>
 <ul class="simple">
 <li><p>ICON_FILE: GUI application icon (used in window title bar, taskbar)</p></li>
 </ul>
+<p>Attributes:
+path: Current working directory
+parts: Split path into components
+root_dir: Project root directory (absolute path)
+ROOT_DIR: Project root directory (absolute path)
+ICON_FILE: GUI application icon (used in window title bar, taskbar)</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.constants import ROOT_DIR, ICON_FILE
+&gt;&gt;&gt; ROOT_DIR
+PosixPath(‘/home/user/Repositories/WSmart-Route’)
+&gt;&gt;&gt; ICON_FILE
+‘/home/user/Repositories/WSmart-Route/assets/images/logo-wsmartroute-white.png’</p>
 </section>
 <p>Path constants for the project.</p>
 <p>This module provides platform-independent path resolution for the WSmart+ Route

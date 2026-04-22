@@ -45,7 +45,7 @@ Bases: {py:obj}`src.utils.decoding.base.DecodingStrategy`
 
 ````
 
-````{py:method} reset()
+````{py:method} reset() -> None
 :canonical: src.utils.decoding.evaluate.Evaluate.reset
 
 ```{autodoc2-docstring} src.utils.decoding.evaluate.Evaluate.reset

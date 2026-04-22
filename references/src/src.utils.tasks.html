@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -481,6 +482,18 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.tasks">
 <span id="src-utils-tasks"></span><h1><a class="reference internal" href="#module-src.utils.tasks" title="src.utils.tasks"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.tasks</span></code></a><a class="headerlink" href="#module-src.utils.tasks" title="Link to this heading">#</a></h1>
 <p>Task utilities module.</p>
+<p>Attributes:
+task_utils: Utilities for problem instance creation and graph edge calculation.
+simulation_utils: Utilities for parallel task execution.
+losses: Consistency and symmetry losses for NCO.
+dummy_problem: Dummy problem wrapper for legacy component initialization.
+training_utils: Utilities for training NCO.</p>
+<p>Example:
+&gt;&gt;&gt; import task_utils
+&gt;&gt;&gt; import simulation_utils
+&gt;&gt;&gt; import losses
+&gt;&gt;&gt; import dummy_problem
+&gt;&gt;&gt; import training_utils</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

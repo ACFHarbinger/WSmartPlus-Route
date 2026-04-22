@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -488,6 +489,16 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.ops.tensor">
 <span id="src-utils-ops-tensor"></span><h1><a class="reference internal" href="#module-src.utils.ops.tensor" title="src.utils.ops.tensor"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.ops.tensor</span></code></a><a class="headerlink" href="#module-src.utils.ops.tensor" title="Link to this heading">#</a></h1>
 <p>General Tensor Manipulation Operations.</p>
+<p>Attributes:
+unbatchify_and_gather: Combined unbatchify + gather operation for multi-start results.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.utils.ops.tensor import unbatchify_and_gather
+&gt;&gt;&gt; x = torch.randn(20, 10)
+&gt;&gt;&gt; idx = torch.tensor([0, 1, 2, 3, 4])
+&gt;&gt;&gt; n = 5
+&gt;&gt;&gt; out = unbatchify_and_gather(x, idx, n)
+&gt;&gt;&gt; print(out.shape)
+torch.Size([5, 10])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

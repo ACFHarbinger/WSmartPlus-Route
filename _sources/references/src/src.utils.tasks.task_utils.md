@@ -27,14 +27,14 @@
 
 ### API
 
-````{py:function} calculate_edges(loc, edge_threshold, edge_strategy)
+````{py:function} calculate_edges(loc: typing.Union[numpy.ndarray, torch.Tensor], edge_threshold: float, edge_strategy: str) -> typing.Optional[torch.Tensor]
 :canonical: src.utils.tasks.task_utils.calculate_edges
 
 ```{autodoc2-docstring} src.utils.tasks.task_utils.calculate_edges
 ```
 ````
 
-````{py:function} make_instance_generic(args, edge_threshold, edge_strategy)
+````{py:function} make_instance_generic(args, edge_threshold: float, edge_strategy: str) -> typing.Dict[str, torch.Tensor]
 :canonical: src.utils.tasks.task_utils.make_instance_generic
 
 ```{autodoc2-docstring} src.utils.tasks.task_utils.make_instance_generic

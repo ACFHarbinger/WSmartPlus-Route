@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -490,6 +491,15 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.model.checkpoint_utils">
 <span id="src-utils-model-checkpoint-utils"></span><h1><a class="reference internal" href="#module-src.utils.model.checkpoint_utils" title="src.utils.model.checkpoint_utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.model.checkpoint_utils</span></code></a><a class="headerlink" href="#module-src.utils.model.checkpoint_utils" title="Link to this heading">#</a></h1>
 <p>Checkpoint loading utilities for PyTorch models.</p>
+<p>Attributes:
+torch_load_cpu: Loads a checkpoint file mapping all tensors to CPU.
+load_data: Loads data from a path or resume checkpoint.
+_load_model_file: Loads the model with parameters from the file and returns optimizer state dict if it is in the file.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.utils.model.checkpoint_utils import torch_load_cpu, load_data, _load_model_file
+&gt;&gt;&gt; checkpoint_data = torch_load_cpu(“path/to/checkpoint.pt”)
+&gt;&gt;&gt; data = load_data(“path/to/data.pt”, None)
+&gt;&gt;&gt; model, optimizer_state_dict = _load_model_file(“path/to/checkpoint.pt”, model)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

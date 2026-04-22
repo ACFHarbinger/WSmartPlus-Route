@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -500,6 +501,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.data.td_state_wrapper">
 <span id="src-utils-data-td-state-wrapper"></span><h1><a class="reference internal" href="#module-src.utils.data.td_state_wrapper" title="src.utils.data.td_state_wrapper"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data.td_state_wrapper</span></code></a><a class="headerlink" href="#module-src.utils.data.td_state_wrapper" title="Link to this heading">#</a></h1>
 <p>TensorDict State Wrapper for legacy decoder compatibility.</p>
+<p>Attributes:
+TensorDictStateWrapper: A wrapper for TensorDict that exposes methods expected by legacy model components (Decoders).</p>
+<p>Example:
+&gt;&gt;&gt; td = TensorDict({“action_mask”: torch.tensor([[True, False], [False, True]])}, batch_size=[2])
+&gt;&gt;&gt; wrapper = TensorDictStateWrapper(td)
+&gt;&gt;&gt; wrapper.get_mask()
+tensor([[False,  True], [ True, False]])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -521,66 +529,101 @@ document.write(`
 <dd><p>Wraps a TensorDict to expose methods expected by legacy model components (Decoders).</p>
 <p>Acts as a bridge between the new TensorDict state management and the
 legacy object-oriented state access patterns (e.g. state.get_mask()).</p>
+<p>Attributes:
+td: The TensorDict containing the state.
+problem_name: The name of the problem.
+env: The environment.
+ids: The IDs for batching.
+dist_matrix: The distance matrix.
+waste_with_depot: The waste with depot.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize TensorDictStateWrapper.</p>
+<p>Args:
+td: The TensorDict containing the state.
+problem_name: The name of the problem.
+env: The environment.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.data.td_state_wrapper.TensorDictStateWrapper.get_mask">
 <span class="sig-name descname"><span class="pre">get_mask</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.data.td_state_wrapper.TensorDictStateWrapper.get_mask" title="Link to this definition">#</a></dt>
 <dd><p>Get action mask from TensorDict.</p>
+<p>Returns:
+The action mask.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.data.td_state_wrapper.TensorDictStateWrapper.get_edges_mask">
 <span class="sig-name descname"><span class="pre">get_edges_mask</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.data.td_state_wrapper.TensorDictStateWrapper.get_edges_mask" title="Link to this definition">#</a></dt>
 <dd><p>Get edge mask from TensorDict.</p>
+<p>Returns:
+The edge mask.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.data.td_state_wrapper.TensorDictStateWrapper.get_current_node">
 <span class="sig-name descname"><span class="pre">get_current_node</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.utils.data.td_state_wrapper.TensorDictStateWrapper.get_current_node" title="Link to this definition">#</a></dt>
 <dd><p>Get current node (last visited).</p>
+<p>Returns:
+The current node.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.data.td_state_wrapper.TensorDictStateWrapper.get_current_profit">
 <span class="sig-name descname"><span class="pre">get_current_profit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.utils.data.td_state_wrapper.TensorDictStateWrapper.get_current_profit" title="Link to this definition">#</a></dt>
 <dd><p>For VRPP: get cumulative collected waste.</p>
+<p>Returns:
+The cumulative collected waste.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.data.td_state_wrapper.TensorDictStateWrapper.get_current_efficiency">
 <span class="sig-name descname"><span class="pre">get_current_efficiency</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.utils.data.td_state_wrapper.TensorDictStateWrapper.get_current_efficiency" title="Link to this definition">#</a></dt>
 <dd><p>For WCVRP: get current efficiency.</p>
+<p>Returns:
+The current efficiency.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.data.td_state_wrapper.TensorDictStateWrapper.get_remaining_overflows">
 <span class="sig-name descname"><span class="pre">get_remaining_overflows</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.utils.data.td_state_wrapper.TensorDictStateWrapper.get_remaining_overflows" title="Link to this definition">#</a></dt>
 <dd><p>For WCVRP: get remaining overflows.</p>
+<p>Returns:
+The remaining overflows.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.data.td_state_wrapper.TensorDictStateWrapper.update">
 <span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.utils.data.td_state_wrapper.TensorDictStateWrapper" title="src.utils.data.td_state_wrapper.TensorDictStateWrapper"><span class="pre">src.utils.data.td_state_wrapper.TensorDictStateWrapper</span></a></span></span><a class="headerlink" href="#src.utils.data.td_state_wrapper.TensorDictStateWrapper.update" title="Link to this definition">#</a></dt>
 <dd><p>Update state by taking an action in the environment.</p>
+<p>Args:
+action: The action to take.</p>
+<p>Returns:
+The updated state.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.data.td_state_wrapper.TensorDictStateWrapper.all_finished">
 <span class="sig-name descname"><span class="pre">all_finished</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.utils.data.td_state_wrapper.TensorDictStateWrapper.all_finished" title="Link to this definition">#</a></dt>
 <dd><p>Check if all instances in batch are finished.</p>
+<p>Returns:
+True if all instances are finished, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.data.td_state_wrapper.TensorDictStateWrapper.get_finished">
 <span class="sig-name descname"><span class="pre">get_finished</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.utils.data.td_state_wrapper.TensorDictStateWrapper.get_finished" title="Link to this definition">#</a></dt>
 <dd><p>Get finished mask for the batch.</p>
+<p>Returns:
+The finished mask.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.data.td_state_wrapper.TensorDictStateWrapper.__getitem__">
 <span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.data.td_state_wrapper.TensorDictStateWrapper.__getitem__" title="Link to this definition">#</a></dt>
 <dd><p>Allow slicing or indexing the state.</p>
+<p>Args:
+key: The key to index by.</p>
+<p>Returns:
+The indexed state.</p>
 </dd></dl>
 
 </dd></dl>

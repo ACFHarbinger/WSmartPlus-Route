@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -491,6 +492,28 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.ops.distance">
 <span id="src-utils-ops-distance"></span><h1><a class="reference internal" href="#module-src.utils.ops.distance" title="src.utils.ops.distance"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.ops.distance</span></code></a><a class="headerlink" href="#module-src.utils.ops.distance" title="Link to this heading">#</a></h1>
 <p>Distance and Tour Length Operations.</p>
+<p>Attributes:
+get_distance: Compute Euclidean distance between two batched coordinate tensors.
+get_distance_matrix: Compute pairwise Euclidean distance matrix from coordinates.
+get_tour_length: Compute total tour length for a batch of ordered location sequences.
+get_open_tour_length: Compute total tour length for open tours (no return to start).</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.utils.ops.distance import get_distance
+&gt;&gt;&gt; x = torch.tensor([0.0, 0.0])
+&gt;&gt;&gt; y = torch.tensor([3.0, 4.0])
+&gt;&gt;&gt; get_distance(x, y)
+tensor(5.)
+&gt;&gt;&gt; from logic.src.utils.ops.distance import get_distance_matrix
+&gt;&gt;&gt; locs = torch.tensor([[[0.0, 0.0], [3.0, 4.0]]])
+&gt;&gt;&gt; get_distance_matrix(locs)
+tensor([[[0., 5.], [5., 0.]]])
+&gt;&gt;&gt; from logic.src.utils.ops.distance import get_tour_length
+&gt;&gt;&gt; ordered_locs = torch.tensor([[[0.0, 0.0], [3.0, 4.0], [6.0, 0.0]]])
+&gt;&gt;&gt; get_tour_length(ordered_locs)
+tensor([16.])
+&gt;&gt;&gt; from logic.src.utils.ops.distance import get_open_tour_length
+&gt;&gt;&gt; get_open_tour_length(ordered_locs)
+tensor([10.])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

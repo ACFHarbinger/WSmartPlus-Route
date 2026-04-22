@@ -16,7 +16,9 @@
 :align: left
 
 * - {py:obj}`TrainerTag <src.enums.trainer_tags.TrainerTag>`
-  -
+  - ```{autodoc2-docstring} src.enums.trainer_tags.TrainerTag
+    :summary:
+    ```
 ````
 
 ### API
@@ -25,6 +27,9 @@
 :canonical: src.enums.trainer_tags.TrainerTag
 
 Bases: {py:obj}`enum.Enum`
+
+```{autodoc2-docstring} src.enums.trainer_tags.TrainerTag
+```
 
 ````{py:attribute} REINFORCEMENT_LEARNING
 :canonical: src.enums.trainer_tags.TrainerTag.REINFORCEMENT_LEARNING

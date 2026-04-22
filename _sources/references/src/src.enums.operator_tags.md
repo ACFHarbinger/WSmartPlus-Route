@@ -16,7 +16,9 @@
 :align: left
 
 * - {py:obj}`OperatorTag <src.enums.operator_tags.OperatorTag>`
-  -
+  - ```{autodoc2-docstring} src.enums.operator_tags.OperatorTag
+    :summary:
+    ```
 ````
 
 ### API
@@ -26,45 +28,8 @@
 
 Bases: {py:obj}`enum.Enum`
 
-````{py:attribute} DESTRUCTIVE
-:canonical: src.enums.operator_tags.OperatorTag.DESTRUCTIVE
-:value: >
-   'auto(...)'
-
-```{autodoc2-docstring} src.enums.operator_tags.OperatorTag.DESTRUCTIVE
+```{autodoc2-docstring} src.enums.operator_tags.OperatorTag
 ```
-
-````
-
-````{py:attribute} CONSTRUCTIVE
-:canonical: src.enums.operator_tags.OperatorTag.CONSTRUCTIVE
-:value: >
-   'auto(...)'
-
-```{autodoc2-docstring} src.enums.operator_tags.OperatorTag.CONSTRUCTIVE
-```
-
-````
-
-````{py:attribute} IMPROVEMENT
-:canonical: src.enums.operator_tags.OperatorTag.IMPROVEMENT
-:value: >
-   'auto(...)'
-
-```{autodoc2-docstring} src.enums.operator_tags.OperatorTag.IMPROVEMENT
-```
-
-````
-
-````{py:attribute} RECOMBINATION
-:canonical: src.enums.operator_tags.OperatorTag.RECOMBINATION
-:value: >
-   'auto(...)'
-
-```{autodoc2-docstring} src.enums.operator_tags.OperatorTag.RECOMBINATION
-```
-
-````
 
 ````{py:attribute} INTRA_ROUTE
 :canonical: src.enums.operator_tags.OperatorTag.INTRA_ROUTE

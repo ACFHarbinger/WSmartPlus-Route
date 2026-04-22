@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -497,6 +498,14 @@ document.write(`
 <p>Base parser utilities for the WSmart+ Route modular CLI.</p>
 <p>This module provides the core ConfigsParser class and shared argument actions
 used across all command-specific parsers.</p>
+<p>Attributes:
+ConfigsParser: Custom ArgumentParser to handle string-based nargs correctly.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.cli.base.parser import ConfigsParser
+&gt;&gt;&gt; parser = ConfigsParser()
+&gt;&gt;&gt; parser.add_argument(’–test’, action=’store_true’)
+&gt;&gt;&gt; parser.parse_args([’–test’])
+Namespace(test=True)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -520,6 +529,8 @@ used across all command-specific parsers.</p>
 <p>This class extends ArgumentParser to provide additional functionality for
 processing command-line arguments, especially those involving sequence types
 and nested parser structures.</p>
+<p>Attributes:
+_actions: List of actions for this parser.</p>
 <p class="rubric">Initialization</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cli.base.parser.ConfigsParser._str_to_nargs">
@@ -537,6 +548,8 @@ The processed value, split into a list if it was a space-separated string within
 <dd><p>Post-process arguments in the namespace, handling special narg conversions.</p>
 <p>Args:
 namespace: The namespace containing parsed arguments.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">

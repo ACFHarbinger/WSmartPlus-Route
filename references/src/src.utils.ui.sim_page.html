@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -488,6 +489,17 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.ui.sim_page">
 <span id="src-utils-ui-sim-page"></span><h1><a class="reference internal" href="#module-src.utils.ui.sim_page" title="src.utils.ui.sim_page"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.ui.sim_page</span></code></a><a class="headerlink" href="#module-src.utils.ui.sim_page" title="Link to this heading">#</a></h1>
+<p>Utility functions for the simulation page.</p>
+<p>Attributes:
+normalize_tour_points: Normalize tour point keys to map ‘lon’ -&gt; ‘lng’ for consistency with map components.
+filter_simulation_data: Filter simulation entries based on controls.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.ui.services.log_parser import filter_entries
+&gt;&gt;&gt; from logic.src.utils.ui.sim_page import normalize_tour_points, filter_simulation_data
+&gt;&gt;&gt; normalize_tour_points([{“lon”: 1, “lat”: 2}])
+[{‘lon’: 1, ‘lat’: 2, ‘lng’: 1}]
+&gt;&gt;&gt; filter_simulation_data([{“policy”: “policy1”, “sample_id”: 1, “day”: 1}], {“selected_policy”: “policy1”, “selected_sample”: 1, “selected_day”: 1, “is_live”: False}, (1, 1))
+[{‘policy’: ‘policy1’, ‘sample_id’: 1, ‘day’: 1}]</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -495,7 +507,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.ui.sim_page.normalize_tour_points" title="src.utils.ui.sim_page.normalize_tour_points"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize_tour_points</span></code></a></p></td>
-<td><p>Normalize tour point keys: map ‘lon’ -&gt; ‘lng’ for consistency with map components.</p></td>
+<td><p>Normalize tour point keys to map ‘lon’ -&gt; ‘lng’ for consistency with map components.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.utils.ui.sim_page.filter_simulation_data" title="src.utils.ui.sim_page.filter_simulation_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter_simulation_data</span></code></a></p></td>
 <td><p>Filter simulation entries based on controls.</p></td>
@@ -509,13 +521,23 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.ui.sim_page.normalize_tour_points">
 <span class="sig-prename descclassname"><span class="pre">src.utils.ui.sim_page.</span></span><span class="sig-name descname"><span class="pre">normalize_tour_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.ui.sim_page.normalize_tour_points" title="Link to this definition">#</a></dt>
-<dd><p>Normalize tour point keys: map ‘lon’ -&gt; ‘lng’ for consistency with map components.</p>
+<dd><p>Normalize tour point keys to map ‘lon’ -&gt; ‘lng’ for consistency with map components.</p>
+<p>Args:
+tour: List of tour points.</p>
+<p>Returns:
+List of normalized tour points.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.ui.sim_page.filter_simulation_data">
 <span class="sig-prename descclassname"><span class="pre">src.utils.ui.sim_page.</span></span><span class="sig-name descname"><span class="pre">filter_simulation_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">controls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">day_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.ui.sim_page.filter_simulation_data" title="Link to this definition">#</a></dt>
 <dd><p>Filter simulation entries based on controls.</p>
+<p>Args:
+entries: List of simulation entries.
+controls: Dictionary containing filter controls.
+day_range: Tuple containing the day range.</p>
+<p>Returns:
+List of filtered simulation entries.</p>
 </dd></dl>
 
 </section>

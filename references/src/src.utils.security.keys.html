@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -490,6 +491,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.security.keys">
 <span id="src-utils-security-keys"></span><h1><a class="reference internal" href="#module-src.utils.security.keys" title="src.utils.security.keys"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.security.keys</span></code></a><a class="headerlink" href="#module-src.utils.security.keys" title="Link to this heading">#</a></h1>
 <p>Key generation and loading utilities.</p>
+<p>This module provides functions to generate and load encryption keys.</p>
+<p>Attributes:
+generate_key: Generate a key from a password using PBKDF2HMAC.
+load_key: Loads a symmetric key from environment or file parameters.</p>
+<p>Example:
+&gt;&gt;&gt; import keys
+&gt;&gt;&gt; keys.generate_key()
+&gt;&gt;&gt; keys.load_key()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

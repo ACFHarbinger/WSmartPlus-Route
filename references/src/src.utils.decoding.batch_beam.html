@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -507,6 +508,17 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.decoding.batch_beam">
 <span id="src-utils-decoding-batch-beam"></span><h1><a class="reference internal" href="#module-src.utils.decoding.batch_beam" title="src.utils.decoding.batch_beam"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.decoding.batch_beam</span></code></a><a class="headerlink" href="#module-src.utils.decoding.batch_beam" title="Link to this heading">#</a></h1>
 <p>BatchBeam class for beam search tracking.</p>
+<p>Attributes:
+BatchBeam: Class that keeps track of a beam for beam search in batch mode.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.utils.decoding import BatchBeam
+&gt;&gt;&gt; beam = BatchBeam.initialize(state)
+&gt;&gt;&gt; beam = beam.expand(parent, action, score)
+&gt;&gt;&gt; beam = beam.topk(k)
+&gt;&gt;&gt; beam = beam.cpu()
+&gt;&gt;&gt; beam = beam.to(device)
+&gt;&gt;&gt; beam = beam.clear_state()
+&gt;&gt;&gt; beam = beam.size()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -527,6 +539,13 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.utils.decoding.batch_beam.</span></span><span class="sig-name descname"><span class="pre">BatchBeam</span></span><a class="headerlink" href="#src.utils.decoding.batch_beam.BatchBeam" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.NamedTuple</span></code></p>
 <p>Class that keeps track of a beam for beam search in batch mode.</p>
+<p>Attributes:
+score (Optional[torch.Tensor]): Current heuristic score of each entry in beam.
+state (Any): To track the state.
+parent (Optional[torch.Tensor]): Parent indices.
+action (Optional[torch.Tensor]): Action indices.
+batch_size (int): Number of beams in the batch.
+device (Any): Device on which the beam data is stored.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.utils.decoding.batch_beam.BatchBeam.score">
 <span class="sig-name descname"><span class="pre">score</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.utils.decoding.batch_beam.BatchBeam.score" title="Link to this definition">#</a></dt>
@@ -565,68 +584,102 @@ document.write(`
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.utils.decoding.batch_beam.BatchBeam.ids">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ids</span></span><a class="headerlink" href="#src.utils.decoding.batch_beam.BatchBeam.ids" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ids</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.Tensor</span></em><a class="headerlink" href="#src.utils.decoding.batch_beam.BatchBeam.ids" title="Link to this definition">#</a></dt>
 <dd><p>Returns flattened batch identifiers.</p>
+<p>Returns:
+torch.Tensor: Flattened batch identifiers.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.decoding.batch_beam.BatchBeam.__getitem__">
-<span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.decoding.batch_beam.BatchBeam.__getitem__" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.utils.decoding.batch_beam.BatchBeam" title="src.utils.decoding.batch_beam.BatchBeam"><span class="pre">src.utils.decoding.batch_beam.BatchBeam</span></a></span></span><a class="headerlink" href="#src.utils.decoding.batch_beam.BatchBeam.__getitem__" title="Link to this definition">#</a></dt>
 <dd><p>Allows indexing/slicing of the beam state.</p>
+<p>Args:
+key (Any): Key to index/slice the beam state.</p>
+<p>Returns:
+BatchBeam: Beam with indexed/sliced state.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.decoding.batch_beam.BatchBeam.initialize">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.decoding.batch_beam.BatchBeam.initialize" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.utils.decoding.batch_beam.BatchBeam" title="src.utils.decoding.batch_beam.BatchBeam"><span class="pre">src.utils.decoding.batch_beam.BatchBeam</span></a></span></span><a class="headerlink" href="#src.utils.decoding.batch_beam.BatchBeam.initialize" title="Link to this definition">#</a></dt>
 <dd><p>Initializes the beam with the starting state.</p>
+<p>Args:
+state (Any): Initial state.</p>
+<p>Returns:
+BatchBeam: Initialized beam.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.decoding.batch_beam.BatchBeam.propose_expansions">
 <span class="sig-name descname"><span class="pre">propose_expansions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.decoding.batch_beam.BatchBeam.propose_expansions" title="Link to this definition">#</a></dt>
 <dd><p>Proposes valid expansions from the current state.</p>
+<p>Returns:
+tuple: Tuple of parent indices, action indices, and None (for compatibility with other decoding strategies).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.decoding.batch_beam.BatchBeam.expand">
 <span class="sig-name descname"><span class="pre">expand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.decoding.batch_beam.BatchBeam.expand" title="Link to this definition">#</a></dt>
 <dd><p>Expands the beam with chosen actions.</p>
+<p>Args:
+parent (torch.Tensor): Parent indices.
+action (torch.Tensor): Action indices.
+score (torch.Tensor, optional): Scores for the new beams. Defaults to None.</p>
+<p>Returns:
+BatchBeam: Expanded beam.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.decoding.batch_beam.BatchBeam.topk">
 <span class="sig-name descname"><span class="pre">topk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.decoding.batch_beam.BatchBeam.topk" title="Link to this definition">#</a></dt>
 <dd><p>Selects the top-k beam candidates per batch.</p>
+<p>Args:
+k (int): Number of top candidates to select.</p>
+<p>Returns:
+BatchBeam: Beam with top-k candidates.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.decoding.batch_beam.BatchBeam.all_finished">
 <span class="sig-name descname"><span class="pre">all_finished</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.decoding.batch_beam.BatchBeam.all_finished" title="Link to this definition">#</a></dt>
 <dd><p>Checks if all beams have finished decoding.</p>
+<p>Returns:
+bool: True if all beams have finished, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.decoding.batch_beam.BatchBeam.cpu">
 <span class="sig-name descname"><span class="pre">cpu</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.decoding.batch_beam.BatchBeam.cpu" title="Link to this definition">#</a></dt>
 <dd><p>Moves beam data to CPU.</p>
+<p>Returns:
+BatchBeam: Beam with data on CPU.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.decoding.batch_beam.BatchBeam.to">
 <span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.decoding.batch_beam.BatchBeam.to" title="Link to this definition">#</a></dt>
 <dd><p>Moves beam data to the specified device.</p>
+<p>Args:
+device (torch.device): Device to move data to.</p>
+<p>Returns:
+BatchBeam: Beam with data on the specified device.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.decoding.batch_beam.BatchBeam.clear_state">
 <span class="sig-name descname"><span class="pre">clear_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.decoding.batch_beam.BatchBeam.clear_state" title="Link to this definition">#</a></dt>
 <dd><p>Clears the state to save memory.</p>
+<p>Returns:
+BatchBeam: Beam with state cleared.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.decoding.batch_beam.BatchBeam.size">
 <span class="sig-name descname"><span class="pre">size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.decoding.batch_beam.BatchBeam.size" title="Link to this definition">#</a></dt>
 <dd><p>Returns the current beam size (number of active paths).</p>
+<p>Returns:
+int: Current beam size.</p>
 </dd></dl>
 
 </dd></dl>

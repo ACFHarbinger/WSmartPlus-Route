@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -492,7 +493,6 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.validation.check_type_coverage">
 <span id="src-utils-validation-check-type-coverage"></span><h1><a class="reference internal" href="#module-src.utils.validation.check_type_coverage" title="src.utils.validation.check_type_coverage"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.validation.check_type_coverage</span></code></a><a class="headerlink" href="#module-src.utils.validation.check_type_coverage" title="Link to this heading">#</a></h1>
-<p>check_type_coverage.py</p>
 <p>Measures type annotation coverage in Python source files.
 For every function and method, classifies its signature as:</p>
 <ul class="simple">
@@ -501,6 +501,17 @@ For every function and method, classifies its signature as:</p>
 <li><p>None   : no annotations at all</p></li>
 </ul>
 <p>Produces a Rich table sorted by coverage (worst offenders first by default).</p>
+<p>Attributes:
+SKIP_DIRS (set[str]): Directories to skip during analysis.
+analyze_function: Analyze a function for type annotation coverage.
+analyze_file: Analyze a file for type annotation coverage.
+_coverage_markup: Format coverage percentage with color coding.
+main: Main function to check for type annotation coverage.</p>
+<p>Example:
+&gt;&gt;&gt; python check_type_coverage.py
+&gt;&gt;&gt; python check_type_coverage.py –sort none
+&gt;&gt;&gt; python check_type_coverage.py –limit 20
+&gt;&gt;&gt; python check_type_coverage.py –min-funcs 5</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -508,16 +519,16 @@ For every function and method, classifies its signature as:</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.validation.check_type_coverage.analyze_function" title="src.utils.validation.check_type_coverage.analyze_function"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analyze_function</span></code></a></p></td>
-<td><p>Return (annotated_params, total_params, has_return_annotation).</p></td>
+<td><p>Analyze type annotation coverage in a single function.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.utils.validation.check_type_coverage.analyze_file" title="src.utils.validation.check_type_coverage.analyze_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analyze_file</span></code></a></p></td>
-<td></td>
+<td><p>Analyze type annotation coverage in a single file.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.validation.check_type_coverage._coverage_markup" title="src.utils.validation.check_type_coverage._coverage_markup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_coverage_markup</span></code></a></p></td>
-<td></td>
+<td><p>Format coverage percentage with color coding.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.utils.validation.check_type_coverage.main" title="src.utils.validation.check_type_coverage.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a></p></td>
-<td></td>
+<td><p>Main entry point for the type annotation coverage checker.</p></td>
 </tr>
 </tbody>
 </table>
@@ -545,23 +556,43 @@ For every function and method, classifies its signature as:</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.check_type_coverage.analyze_function">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.check_type_coverage.</span></span><span class="sig-name descname"><span class="pre">analyze_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">ast.FunctionDef</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ast.AsyncFunctionDef</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.validation.check_type_coverage.analyze_function" title="Link to this definition">#</a></dt>
-<dd><p>Return (annotated_params, total_params, has_return_annotation).</p>
+<dd><p>Analyze type annotation coverage in a single function.</p>
+<p>Args:
+node (Union[ast.FunctionDef, ast.AsyncFunctionDef]): Function node to analyze.</p>
+<p>Returns:
+Tuple[int, int, bool]: Tuple containing (annotated_params, total_params, has_return_annotation).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.check_type_coverage.analyze_file">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.check_type_coverage.</span></span><span class="sig-name descname"><span class="pre">analyze_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.validation.check_type_coverage.analyze_file" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Analyze type annotation coverage in a single file.</p>
+<p>Args:
+filepath (Path): Path to the file to analyze.</p>
+<p>Returns:
+Dict[str, int]: Dictionary containing coverage statistics.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.check_type_coverage._coverage_markup">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.check_type_coverage.</span></span><span class="sig-name descname"><span class="pre">_coverage_markup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">numerator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">denominator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.utils.validation.check_type_coverage._coverage_markup" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Format coverage percentage with color coding.</p>
+<p>Args:
+numerator (int): Number of fully annotated functions.
+denominator (int): Total number of functions.</p>
+<p>Returns:
+str: Formatted coverage percentage.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.check_type_coverage.main">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.check_type_coverage.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.validation.check_type_coverage.main" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Main entry point for the type annotation coverage checker.</p>
+<p>Args:
+None</p>
+<p>Returns:
+None</p>
+</dd></dl>
 
 </section>
 </section>

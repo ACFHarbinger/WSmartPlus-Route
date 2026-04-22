@@ -128,10 +128,16 @@
 ````{py:method} __repr__() -> str
 :canonical: src.tracking.profiling.report.ProfilingReport.__repr__
 
+```{autodoc2-docstring} src.tracking.profiling.report.ProfilingReport.__repr__
+```
+
 ````
 
 ````{py:method} __str__() -> str
 :canonical: src.tracking.profiling.report.ProfilingReport.__str__
+
+```{autodoc2-docstring} src.tracking.profiling.report.ProfilingReport.__str__
+```
 
 ````
 

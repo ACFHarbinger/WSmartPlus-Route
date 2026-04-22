@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -518,20 +519,20 @@ a single optimisation loop (e.g., NDS-BRKGA).</p>
 packing sub-problem) and augments them with routing fields (distance matrix,
 revenue, cost) so that the joint solver can evaluate both objectives without
 switching between two separate context objects.</p>
-<p>Example::</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&gt;&gt;&gt; from logic.src.policies.selection_and_construction.base.joint_context import (
-...     JointSelectionConstructionContext,
-... )
+<p>Attributes:
+JointSelectionConstructionContext: Unified context for joint bin-selection and route-construction solvers</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.policies.selection_and_construction.base.joint_context import (
+…     JointSelectionConstructionContext,
+… )
 &gt;&gt;&gt; ctx = JointSelectionConstructionContext(
-...     bin_ids=np.array([1, 2, 3]),
-...     current_fill=np.array([80.0, 45.0, 95.0]),
-...     distance_matrix=dm,
-...     capacity=500.0,
-...     revenue_kg=0.12,
-...     cost_per_km=0.05,
-... )
-</pre></div>
-</div>
+…     bin_ids=np.array([1, 2, 3]),
+…     current_fill=np.array([80.0, 45.0, 95.0]),
+…     distance_matrix=dm,
+…     capacity=500.0,
+…     revenue_kg=0.12,
+…     cost_per_km=0.05,
+… )</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -692,6 +693,8 @@ mandatory_override: Optional list of 1-based bin IDs that MUST be
 <dt class="sig sig-object py" id="src.interfaces.context.joint_context.JointSelectionConstructionContext.bin_mass_kg">
 <span class="sig-name descname"><span class="pre">bin_mass_kg</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.typing.NDArray</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.float64</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.interfaces.context.joint_context.JointSelectionConstructionContext.bin_mass_kg" title="Link to this definition">#</a></dt>
 <dd><p>Full waste mass per bin in kg: <code class="docutils literal notranslate"><span class="pre">density</span> <span class="pre">×</span> <span class="pre">volume</span></code>.</p>
+<p>Returns:
+NDArray[np.float64]: Array of shape (n_bins,) with waste mass per bin</p>
 </dd></dl>
 
 <dl class="py method">

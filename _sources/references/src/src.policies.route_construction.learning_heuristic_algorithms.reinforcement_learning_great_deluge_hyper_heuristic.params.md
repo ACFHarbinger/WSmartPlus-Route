@@ -172,6 +172,14 @@
 
 ````
 
+````{py:method} __post_init__()
+:canonical: src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams.__post_init__
+
+```{autodoc2-docstring} src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams.__post_init__
+```
+
+````
+
 ````{py:method} from_config(config: typing.Any) -> src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams
 :canonical: src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.params.RLGDHHParams.from_config
 :classmethod:

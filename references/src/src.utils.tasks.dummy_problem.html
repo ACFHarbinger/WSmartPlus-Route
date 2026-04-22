@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -488,6 +489,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.tasks.dummy_problem">
 <span id="src-utils-tasks-dummy-problem"></span><h1><a class="reference internal" href="#module-src.utils.tasks.dummy_problem" title="src.utils.tasks.dummy_problem"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.tasks.dummy_problem</span></code></a><a class="headerlink" href="#module-src.utils.tasks.dummy_problem" title="Link to this heading">#</a></h1>
 <p>Dummy Problem wrapper for legacy component initialization.</p>
+<p>Attributes:
+DummyProblem: Minimal problem wrapper for legacy component initialization.</p>
+<p>Example:
+&gt;&gt;&gt; import dummy_problem
+&gt;&gt;&gt; dummy_problem.DummyProblem(“test”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -507,8 +513,12 @@ document.write(`
 <dt class="sig sig-object py" id="src.utils.tasks.dummy_problem.DummyProblem">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.utils.tasks.dummy_problem.</span></span><span class="sig-name descname"><span class="pre">DummyProblem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.tasks.dummy_problem.DummyProblem" title="Link to this definition">#</a></dt>
 <dd><p>Minimal problem wrapper for legacy component initialization.</p>
+<p>Attributes:
+NAME (str): Name of the problem.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize DummyProblem.</p>
+<p>Args:
+name (str): Name of the problem.</p>
 </dd></dl>
 
 </section>

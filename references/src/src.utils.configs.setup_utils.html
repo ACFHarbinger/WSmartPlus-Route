@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -489,6 +490,12 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.configs.setup_utils">
 <span id="src-utils-configs-setup-utils"></span><h1><a class="reference internal" href="#module-src.utils.configs.setup_utils" title="src.utils.configs.setup_utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.configs.setup_utils</span></code></a><a class="headerlink" href="#module-src.utils.configs.setup_utils" title="Link to this heading">#</a></h1>
 <p>Configuration and data sanitization utilities.</p>
+<p>Attributes:
+deep_sanitize: Recursively convert NumPy types, Tensors, and OmegaConf containers to Python primitives.
+get_pol_name: Extract a concise policy name from a structured or string config.</p>
+<p>Example:
+deep_sanitize(val)
+get_pol_name(pol_obj)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -523,6 +530,10 @@ The sanitized value (dict, list, int, float, str, etc.).</p>
 <span class="sig-prename descclassname"><span class="pre">src.utils.configs.setup_utils.</span></span><span class="sig-name descname"><span class="pre">get_pol_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pol_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.utils.configs.setup_utils.get_pol_name" title="Link to this definition">#</a></dt>
 <dd><p>Extract a concise policy name from a structured or string config.
 Handles Hydra/OmegaConf objects, dicts, and strings.</p>
+<p>Args:
+pol_obj: The policy object to extract the name from.</p>
+<p>Returns:
+The policy name.</p>
 </dd></dl>
 
 </section>

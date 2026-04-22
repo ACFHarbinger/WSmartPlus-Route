@@ -16,7 +16,9 @@
 :align: left
 
 * - {py:obj}`ModelTag <src.enums.model_tags.ModelTag>`
-  -
+  - ```{autodoc2-docstring} src.enums.model_tags.ModelTag
+    :summary:
+    ```
 ````
 
 ### API
@@ -25,6 +27,9 @@
 :canonical: src.enums.model_tags.ModelTag
 
 Bases: {py:obj}`enum.Enum`
+
+```{autodoc2-docstring} src.enums.model_tags.ModelTag
+```
 
 ````{py:attribute} TRANSFORMER
 :canonical: src.enums.model_tags.ModelTag.TRANSFORMER

@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -489,6 +490,51 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.functions">
 <span id="src-utils-functions"></span><h1><a class="reference internal" href="#module-src.utils.functions" title="src.utils.functions"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions</span></code></a><a class="headerlink" href="#module-src.utils.functions" title="Link to this heading">#</a></h1>
 <p>Mathematical and environment-related helper functions sub-package.</p>
+<p>Attributes:
+safe_exp: Compute exponent with overflow/underflow protection.
+run_all_in_pool: Runs a function over a dataset in parallel.
+get_path_until_string: Truncates a path up to a specific directory component.
+is_wc_problem: Check if the problem is a Waste Collection (WC) variant.
+is_vrpp_problem: Check if the problem is a Vehicle Routing Problem with Profits (VRPP) variant.
+is_tsp_problem: Check if the problem is a Traveling Salesperson Problem (TSP) variant.
+ensure_tensordict: Converts various input types to TensorDict.
+sample_many: Samples many solutions by repeated execution.
+move_to: Recursively moves variables to the specified device.
+compute_in_batches: Computes a memory-heavy function in batches.
+do_batch_rep: Replicates a variable n times along the batch dimension.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.utils.functions import safe_exp, run_all_in_pool, get_path_until_string, is_wc_problem, is_vrpp_problem, is_tsp_problem, ensure_tensordict, sample_many, move_to, compute_in_batches, do_batch_rep
+&gt;&gt;&gt; # Mathematical utility
+&gt;&gt;&gt; safe_exp(1000)
+inf
+&gt;&gt;&gt; # Parallel execution
+&gt;&gt;&gt; def my_func(directory, filename, *args):
+…     # Process file
+…     return result
+&gt;&gt;&gt; results, num_cpus = run_all_in_pool(my_func, “data”, dataset)
+&gt;&gt;&gt; # Path manipulation
+&gt;&gt;&gt; path = “/home/user/project/src/module.py”
+&gt;&gt;&gt; get_path_until_string(path, “src”)
+‘/home/user/project/src’
+&gt;&gt;&gt; # Problem type checking
+&gt;&gt;&gt; is_wc_problem(“wcvrp”)
+True
+&gt;&gt;&gt; is_vrpp_problem(“cvrpp”)
+True
+&gt;&gt;&gt; is_tsp_problem(“tsp”)
+True
+&gt;&gt;&gt; # TensorDict conversion
+&gt;&gt;&gt; import torch
+&gt;&gt;&gt; from tensordict import TensorDict
+&gt;&gt;&gt; td = ensure_tensordict({“a”: torch.tensor([1, 2])}, device=”cuda”)
+&gt;&gt;&gt; # Sampling
+&gt;&gt;&gt; minpis, mincosts = sample_many(inner_func, get_cost_func, input)
+&gt;&gt;&gt; # Tensor operations
+&gt;&gt;&gt; moved = move_to(tensor, “cuda”)
+&gt;&gt;&gt; result = compute_in_batches(heavy_func, 2, tensor)
+&gt;&gt;&gt; replicated = do_batch_rep(tensor, 3)
+&gt;&gt;&gt; print(replicated.shape)
+torch.Size([6])</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -492,6 +493,24 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.functions.tensors">
 <span id="src-utils-functions-tensors"></span><h1><a class="reference internal" href="#module-src.utils.functions.tensors" title="src.utils.functions.tensors"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions.tensors</span></code></a><a class="headerlink" href="#module-src.utils.functions.tensors" title="Link to this heading">#</a></h1>
 <p>Tensor manipulation and device movement utilities.</p>
+<p>Attributes:
+move_to: Recursively moves variables to the specified device.
+compute_in_batches: Computes a memory-heavy function in batches.
+do_batch_rep: Replicates a variable n times along the batch dimension.</p>
+<p>Example:
+&gt;&gt;&gt; import torch
+&gt;&gt;&gt; from logic.src.utils.functions import move_to, compute_in_batches, do_batch_rep
+&gt;&gt;&gt; # Move tensor to device
+&gt;&gt;&gt; tensor = torch.tensor([1, 2, 3])
+&gt;&gt;&gt; moved = move_to(tensor, “cuda”)
+&gt;&gt;&gt; # Compute in batches
+&gt;&gt;&gt; def heavy_func(x):
+…     return x * x
+&gt;&gt;&gt; result = compute_in_batches(heavy_func, 2, tensor)
+&gt;&gt;&gt; # Replicate tensor
+&gt;&gt;&gt; replicated = do_batch_rep(tensor, 3)
+&gt;&gt;&gt; print(replicated.shape)
+torch.Size([6])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -553,7 +572,7 @@ The variable on the new device.</p>
 f: The function that is computed, should take only tensors as arguments and
 return tensor or tuple of tensors.
 calc_batch_size: The batch size to use when computing this function.
-*args: Tensor arguments with equally sized first batch dimension.
+args: Tensor arguments with equally sized first batch dimension.
 n: the total number of elements.</p>
 <p>Returns:
 f(*args), this should be one or multiple tensors.</p>

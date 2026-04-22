@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -488,6 +489,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.io.locking">
 <span id="src-utils-io-locking"></span><h1><a class="reference internal" href="#module-src.utils.io.locking" title="src.utils.io.locking"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io.locking</span></code></a><a class="headerlink" href="#module-src.utils.io.locking" title="Link to this heading">#</a></h1>
 <p>Persistence utilities (locking, thread-safe I/O).</p>
+<p>Attributes:
+read_output: Reads a JSON file and extracts specific policy values into a transposed list.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.utils.io.locking import read_output
+&gt;&gt;&gt; logs, logs_dict = read_output(“path/to/log.json”, [“policy1”, “policy2”], “data_distribution”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

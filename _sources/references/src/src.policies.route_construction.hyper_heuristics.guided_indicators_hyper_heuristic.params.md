@@ -161,6 +161,14 @@
 
 ````
 
+````{py:method} __post_init__()
+:canonical: src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.params.GIHHParams.__post_init__
+
+```{autodoc2-docstring} src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.params.GIHHParams.__post_init__
+```
+
+````
+
 ````{py:method} from_config(config: typing.Any) -> src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.params.GIHHParams
 :canonical: src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.params.GIHHParams.from_config
 :classmethod:

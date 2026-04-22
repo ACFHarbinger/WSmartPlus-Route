@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -487,11 +488,13 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.cli.base.update_function_factory">
 <span id="src-cli-base-update-function-factory"></span><h1><a class="reference internal" href="#module-src.cli.base.update_function_factory" title="src.cli.base.update_function_factory"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.base.update_function_factory</span></code></a><a class="headerlink" href="#module-src.cli.base.update_function_factory" title="Link to this heading">#</a></h1>
-<p>update_function_factory.py module.</p>
+<p>Update function factory module.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+UpdateFunctionMapActionFactory: Factory for mapping string update functions.</p>
 <p>Example:
-&gt;&gt;&gt; import update_function_factory</p>
+&gt;&gt;&gt; from logic.src.cli.base.update_function_factory import UpdateFunctionMapActionFactory
+&gt;&gt;&gt; UpdateFunctionMapActionFactory()
+&lt;class ‘logic.src.cli.base.update_function_factory.UpdateFunctionMapActionFactory.<locals>.UpdateFunctionMapAction’&gt;</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

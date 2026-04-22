@@ -99,13 +99,14 @@ Bases: {py:obj}`typing.NamedTuple`
 
 ````{py:property} ids
 :canonical: src.utils.decoding.batch_beam.BatchBeam.ids
+:type: torch.Tensor
 
 ```{autodoc2-docstring} src.utils.decoding.batch_beam.BatchBeam.ids
 ```
 
 ````
 
-````{py:method} __getitem__(key)
+````{py:method} __getitem__(key: typing.Any) -> src.utils.decoding.batch_beam.BatchBeam
 :canonical: src.utils.decoding.batch_beam.BatchBeam.__getitem__
 
 ```{autodoc2-docstring} src.utils.decoding.batch_beam.BatchBeam.__getitem__
@@ -113,7 +114,7 @@ Bases: {py:obj}`typing.NamedTuple`
 
 ````
 
-````{py:method} initialize(state)
+````{py:method} initialize(state: typing.Any) -> src.utils.decoding.batch_beam.BatchBeam
 :canonical: src.utils.decoding.batch_beam.BatchBeam.initialize
 :staticmethod:
 

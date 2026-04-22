@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -490,6 +491,18 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.interfaces.distance_metric">
 <span id="src-interfaces-distance-metric"></span><h1><a class="reference internal" href="#module-src.interfaces.distance_metric" title="src.interfaces.distance_metric"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.distance_metric</span></code></a><a class="headerlink" href="#module-src.interfaces.distance_metric" title="Link to this heading">#</a></h1>
+<p>Distance Metric interface module.</p>
+<p>Attributes:
+IDistanceMetric: Interface for distance metrics</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.interfaces.distance_metric import IDistanceMetric
+&gt;&gt;&gt; class MyDistanceMetric(IDistanceMetric):
+…     def compute(self, current: Any, candidate: Any) -&gt; float:
+…         return 0.0
+…
+&gt;&gt;&gt; distance_metric = MyDistanceMetric()
+&gt;&gt;&gt; distance_metric.compute(None, None)
+0.0</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -512,6 +525,8 @@ Used for topography and diversity aware exploration (e.g., Skewed VNS).</p></td>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
 <p>Abstract Base Class for structural distance metrics between optimization solutions.
 Used for topography and diversity aware exploration (e.g., Skewed VNS).</p>
+<p>Attributes:
+None: No attributes</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.interfaces.distance_metric.IDistanceMetric.compute">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">compute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.interfaces.distance_metric.IDistanceMetric.compute" title="Link to this definition">#</a></dt>

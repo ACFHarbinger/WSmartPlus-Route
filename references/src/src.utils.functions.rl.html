@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -488,6 +489,20 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.functions.rl">
 <span id="src-utils-functions-rl"></span><h1><a class="reference internal" href="#module-src.utils.functions.rl" title="src.utils.functions.rl"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions.rl</span></code></a><a class="headerlink" href="#module-src.utils.functions.rl" title="Link to this heading">#</a></h1>
 <p>RL-specific utility functions.</p>
+<p>Attributes:
+ensure_tensordict: Converts various input types to TensorDict.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.utils.functions import ensure_tensordict
+&gt;&gt;&gt; import torch
+&gt;&gt;&gt; from tensordict import TensorDict
+&gt;&gt;&gt; # From dict
+&gt;&gt;&gt; td = ensure_tensordict({“a”: torch.tensor([1, 2]), “b”: torch.tensor([3, 4])})
+&gt;&gt;&gt; # From TensorDict
+&gt;&gt;&gt; td = ensure_tensordict(TensorDict({“a”: torch.tensor([1, 2])}, batch_size=[2]))
+&gt;&gt;&gt; # With device
+&gt;&gt;&gt; td = ensure_tensordict({“a”: torch.tensor([1, 2])}, device=”cuda”)
+&gt;&gt;&gt; print(td)
+TensorDict(source={‘a’: Tensor([1, 2], device=’cuda:0’)}, batch_size=[2], device=None, [REPR_INFO])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

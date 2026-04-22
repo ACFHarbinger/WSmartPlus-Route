@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -513,6 +514,12 @@ document.write(`
 <span id="src-utils-validation-trace-dependencies"></span><h1><a class="reference internal" href="#module-src.utils.validation.trace_dependencies" title="src.utils.validation.trace_dependencies"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.validation.trace_dependencies</span></code></a><a class="headerlink" href="#module-src.utils.validation.trace_dependencies" title="Link to this heading">#</a></h1>
 <p>A tool to visually trace the origin and usages of a Python component,
 outputting an interactive graph with clickable, natively nested UML-style info panels.</p>
+<p>Attributes:
+ASTScopeVisitor: A class to visit AST nodes and capture definitions.
+DependencyGrapher: A class to trace dependencies between Python files.
+main: Main function to trace dependencies.</p>
+<p>Example:
+&gt;&gt;&gt; python logic/src/utils/validation/trace_dependencies.py logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_cut/bc.py</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -523,7 +530,7 @@ outputting an interactive graph with clickable, natively nested UML-style info p
 <td><p>Custom AST visitor to capture definitions as a nested tree and group imports.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.utils.validation.trace_dependencies.DependencyGrapher" title="src.utils.validation.trace_dependencies.DependencyGrapher"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DependencyGrapher</span></code></a></p></td>
-<td></td>
+<td><p>A class to trace dependencies between Python files.</p></td>
 </tr>
 </tbody>
 </table>
@@ -534,7 +541,7 @@ outputting an interactive graph with clickable, natively nested UML-style info p
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.validation.trace_dependencies.main" title="src.utils.validation.trace_dependencies.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a></p></td>
-<td></td>
+<td><p>Main function.</p></td>
 </tr>
 </tbody>
 </table>
@@ -547,104 +554,198 @@ outputting an interactive graph with clickable, natively nested UML-style info p
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.utils.validation.trace_dependencies.</span></span><span class="sig-name descname"><span class="pre">ASTScopeVisitor</span></span><a class="headerlink" href="#src.utils.validation.trace_dependencies.ASTScopeVisitor" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">ast.NodeVisitor</span></code></p>
 <p>Custom AST visitor to capture definitions as a nested tree and group imports.</p>
+<p>Attributes:
+tree (Dict[str, Union[str, List[Dict[str, List[str]]]]]): The tree structure of the AST.
+stack (List[Dict[str, Union[str, List[Dict[str, List[str]]]]]]): The stack of nodes in the AST.
+imports_grouped (Dict[str, List[str]]): A dictionary mapping import prefixes to a list of imports.
+imports_direct (List[str]): A list of direct imports.
+imports_graph (Dict[str, Tuple[str, str]]): A dictionary mapping import names to a tuple of (prefix, name).
+flat_defs (Set[str]): A set of all defined names.
+seen_in_scope (Set[Tuple[int, str]]): A set of seen names in the current scope.</p>
 <p class="rubric">Initialization</p>
+<p>Initialize the ASTScopeVisitor.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.validation.trace_dependencies.ASTScopeVisitor._add_node">
-<span class="sig-name descname"><span class="pre">_add_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.validation.trace_dependencies.ASTScopeVisitor._add_node" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">_add_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.validation.trace_dependencies.ASTScopeVisitor._add_node" title="Link to this definition">#</a></dt>
+<dd><p>Add a node to the graph.</p>
+<p>Args:
+name (str): The name of the node.</p>
+<p>Returns:
+Optional[Dict[str, List[Dict[str, List[str]]]]]: The node if it was added, None otherwise.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.validation.trace_dependencies.ASTScopeVisitor.visit_ClassDef">
 <span class="sig-name descname"><span class="pre">visit_ClassDef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.validation.trace_dependencies.ASTScopeVisitor.visit_ClassDef" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Visit a class definition node and add it to the graph.</p>
+<p>Args:
+node (ast.ClassDef): The class definition node.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.validation.trace_dependencies.ASTScopeVisitor.visit_FunctionDef">
 <span class="sig-name descname"><span class="pre">visit_FunctionDef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.validation.trace_dependencies.ASTScopeVisitor.visit_FunctionDef" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Visit a function definition node and add it to the graph.</p>
+<p>Args:
+node (ast.FunctionDef): The function definition node.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.validation.trace_dependencies.ASTScopeVisitor.visit_AsyncFunctionDef">
 <span class="sig-name descname"><span class="pre">visit_AsyncFunctionDef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.validation.trace_dependencies.ASTScopeVisitor.visit_AsyncFunctionDef" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Visit an async function definition node and add it to the graph.</p>
+<p>Args:
+node (ast.AsyncFunctionDef): The async function definition node.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.validation.trace_dependencies.ASTScopeVisitor.visit_Assign">
 <span class="sig-name descname"><span class="pre">visit_Assign</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.validation.trace_dependencies.ASTScopeVisitor.visit_Assign" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Visit an assignment node and add it to the graph.</p>
+<p>Args:
+node (ast.Assign): The assignment node.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.validation.trace_dependencies.ASTScopeVisitor.visit_ImportFrom">
 <span class="sig-name descname"><span class="pre">visit_ImportFrom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.validation.trace_dependencies.ASTScopeVisitor.visit_ImportFrom" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Visit an import node and add it to the graph.</p>
+<p>Args:
+node (ast.ImportFrom): The import node.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.validation.trace_dependencies.ASTScopeVisitor.visit_Import">
 <span class="sig-name descname"><span class="pre">visit_Import</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.validation.trace_dependencies.ASTScopeVisitor.visit_Import" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Visit an import node and add it to the graph.</p>
+<p>Args:
+node (ast.Import): The import node.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="src.utils.validation.trace_dependencies.DependencyGrapher">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.utils.validation.trace_dependencies.</span></span><span class="sig-name descname"><span class="pre">DependencyGrapher</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.validation.trace_dependencies.DependencyGrapher" title="Link to this definition">#</a></dt>
-<dd><p class="rubric">Initialization</p>
+<dd><p>A class to trace dependencies between Python files.</p>
+<p>Attributes:
+project_root (str): The root directory of the project.
+all_files (Set[str]): A set of all Python files in the project.
+definitions (Dict[str, Set[str]]): A dictionary mapping file paths to a set of defined names.
+imports (Dict[str, Dict[str, Tuple[str, str]]]): A dictionary mapping file paths to a dictionary of imports.
+ui_definitions (Dict[str, Dict]): A dictionary mapping file paths to a dictionary of definitions for UI.
+ui_imports_direct (Dict[str, List[str]]): A dictionary mapping file paths to a list of direct imports for UI.
+ui_imports_grouped (Dict[str, Dict[str, List[str]]]): A dictionary mapping file paths to a dictionary of grouped imports for UI.
+nodes (Set[Tuple[str, str]]): A set of nodes for the graph.
+edges (List[Tuple[str, str, str]]): A list of edges for the graph.
+jinja_env (jinja2.Environment): The Jinja2 environment for rendering the graph.</p>
+<p class="rubric">Initialization</p>
+<p>Initialize the DependencyGrapher.</p>
+<p>Args:
+project_root (str): The root directory of the project.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.validation.trace_dependencies.DependencyGrapher._python_path_to_filepath">
 <span class="sig-name descname"><span class="pre">_python_path_to_filepath</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.validation.trace_dependencies.DependencyGrapher._python_path_to_filepath" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Convert a Python path to a file path.</p>
+<p>Args:
+module_path (str): The Python path.</p>
+<p>Returns:
+Optional[str]: The file path.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.validation.trace_dependencies.DependencyGrapher.scan_project">
-<span class="sig-name descname"><span class="pre">scan_project</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.validation.trace_dependencies.DependencyGrapher.scan_project" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">scan_project</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.validation.trace_dependencies.DependencyGrapher.scan_project" title="Link to this definition">#</a></dt>
+<dd><p>Scan the project directory and extract all definitions and imports.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.validation.trace_dependencies.DependencyGrapher._parse_file">
-<span class="sig-name descname"><span class="pre">_parse_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.validation.trace_dependencies.DependencyGrapher._parse_file" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">_parse_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.validation.trace_dependencies.DependencyGrapher._parse_file" title="Link to this definition">#</a></dt>
+<dd><p>Parse a file and extract its definitions and imports.</p>
+<p>Args:
+filepath (str): Path to the file.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.validation.trace_dependencies.DependencyGrapher.trace_backward">
 <span class="sig-name descname"><span class="pre">trace_backward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visited</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.validation.trace_dependencies.DependencyGrapher.trace_backward" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Trace backward from the target node to find all origins.</p>
+<p>Args:
+current_file (str): The current file.
+target_name (str): The name of the target node.
+visited (Optional[Set[Tuple[str, str]]]): The set of visited nodes.</p>
+<p>Returns:
+Optional[str]: The file where the component is located.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.validation.trace_dependencies.DependencyGrapher.trace_forward">
-<span class="sig-name descname"><span class="pre">trace_forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_origin_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_original_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.validation.trace_dependencies.DependencyGrapher.trace_forward" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">trace_forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_origin_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_original_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.validation.trace_dependencies.DependencyGrapher.trace_forward" title="Link to this definition">#</a></dt>
+<dd><p>Trace forward from the target node to find all usages.</p>
+<p>Args:
+target_origin_file (str): The file where the component is located.
+target_original_name (str): The name of the component (function/class).</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.validation.trace_dependencies.DependencyGrapher._build_node_uml">
 <span class="sig-name descname"><span class="pre">_build_node_uml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.utils.validation.trace_dependencies.DependencyGrapher._build_node_uml" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Build the UML for a node.</p>
+<p>Args:
+filepath (str): Path to the node.</p>
+<p>Returns:
+str: UML for the node.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.validation.trace_dependencies.DependencyGrapher._build_edge_uml">
 <span class="sig-name descname"><span class="pre">_build_edge_uml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.utils.validation.trace_dependencies.DependencyGrapher._build_edge_uml" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Build the UML for an edge.</p>
+<p>Args:
+source (str): Source node.
+target (str): Target node.
+direction (str): Direction of the edge.</p>
+<p>Returns:
+str: UML for the edge.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.validation.trace_dependencies.DependencyGrapher.generate_graph">
-<span class="sig-name descname"><span class="pre">generate_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.validation.trace_dependencies.DependencyGrapher.generate_graph" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">generate_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.validation.trace_dependencies.DependencyGrapher.generate_graph" title="Link to this definition">#</a></dt>
+<dd><p>Generate the Pyvis graph.</p>
+<p>Args:
+target_file (str): The file where the component is located.
+target_name (str): The name of the component (function/class).</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.validation.trace_dependencies.DependencyGrapher._render_pyvis">
-<span class="sig-name descname"><span class="pre">_render_pyvis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_node_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.validation.trace_dependencies.DependencyGrapher._render_pyvis" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">_render_pyvis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_node_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.validation.trace_dependencies.DependencyGrapher._render_pyvis" title="Link to this definition">#</a></dt>
+<dd><p>Render the Pyvis graph.</p>
+<p>Args:
+target_node_id (str): The ID of the target node.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.validation.trace_dependencies.DependencyGrapher._inject_uml_panel">
-<span class="sig-name descname"><span class="pre">_inject_uml_panel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.validation.trace_dependencies.DependencyGrapher._inject_uml_panel" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">_inject_uml_panel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.validation.trace_dependencies.DependencyGrapher._inject_uml_panel" title="Link to this definition">#</a></dt>
+<dd><p>Inject UML panel into the generated HTML file.</p>
+<p>Args:
+filepath (str): Path to the generated HTML file.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.trace_dependencies.main">
-<span class="sig-prename descclassname"><span class="pre">src.utils.validation.trace_dependencies.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.validation.trace_dependencies.main" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">src.utils.validation.trace_dependencies.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.validation.trace_dependencies.main" title="Link to this definition">#</a></dt>
+<dd><p>Main function.</p>
+<p>Args:
+project_root (str): Root directory to scan.
+target_file (str): The file where the component is located.
+target_name (str): The name of the component (function/class).</p>
+</dd></dl>
 
 </section>
 </section>

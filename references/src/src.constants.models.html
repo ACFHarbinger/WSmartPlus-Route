@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -524,6 +525,27 @@ Config (num_loc) → Generator (num_loc) → Environment (num_loc)
 → Model tensors (graph_size = num_loc + 1)
 → Classical policies (n_nodes = num_loc)
 → Simulator context (graph_size)</p>
+<p>Attributes:
+SUB_NET_ENCS: List of models requiring sub-network encoders
+PRED_ENC_MODELS: List of models with predictive encoders
+ENC_DEC_MODELS: List of models with separate encoder-decoder architecture
+NODE_DIM: Dimension of node features
+STATIC_DIM: Dimension of static coordinate features
+DEPOT_DIM: Dimension of depot coordinate features
+WC_STEP_CONTEXT_OFFSET: Offset for waste collection step context
+VRPP_STEP_CONTEXT_OFFSET: Offset for vehicle routing with profit problem step context
+DEFAULT_TEMPORAL_HORIZON: Default lookahead horizon for time-dependent models
+TANH_CLIPPING: Tanh clipping value for numerical stability
+NORM_EPSILON: Epsilon for normalization stability
+NUMERICAL_EPSILON: Epsilon for numerical stability
+FEED_FORWARD_EXPANSION: Expansion factor for feed-forward networks
+DEFAULT_MOE_KWARGS: Default Mixture of Experts configuration</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.constants import DEFAULT_MOE_KWARGS
+&gt;&gt;&gt; DEFAULT_MOE_KWARGS[“encoder”][“num_experts”]
+4
+&gt;&gt;&gt; DEFAULT_MOE_KWARGS[“decoder”][“light_version”]
+True</p>
 </section>
 <p>Model configuration constants.</p>
 <section id="module-contents">

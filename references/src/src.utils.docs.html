@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -481,6 +482,20 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.docs">
 <span id="src-utils-docs"></span><h1><a class="reference internal" href="#module-src.utils.docs" title="src.utils.docs"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.docs</span></code></a><a class="headerlink" href="#module-src.utils.docs" title="Link to this heading">#</a></h1>
 <p>Documentation utilities module.</p>
+<p>Attributes:
+check_docstrings: Check a single .py file and return a list of violation dicts.
+check_docstrings_recursive: Recursively collect violations from all .py files under <em>directory</em>.
+display_results: Render the violation report as a Rich table grouped by file.
+check_google_style: Check a single .py file and return a list of violation dicts.
+display_report: Displays the violations in a Rich table.
+main: Main entry point.
+add_docstrings_batch: Add docstrings to a Python file.
+DocstringInjector: Class for injecting docstrings into Python files.
+main: Main entry point.</p>
+<p>Example:
+python -m src.utils.docs.check_docstrings <path1> [path2 …]
+python -m src.utils.docs.check_google_style <path1> [path2 …]
+python -m src.utils.docs.add_docstrings_batch <path1> [path2 …]</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

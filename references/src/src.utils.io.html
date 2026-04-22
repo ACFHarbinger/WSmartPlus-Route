@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -489,6 +490,29 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.io">
 <span id="src-utils-io"></span><h1><a class="reference internal" href="#module-src.utils.io" title="src.utils.io"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io</span></code></a><a class="headerlink" href="#module-src.utils.io" title="Link to this heading">#</a></h1>
 <p>I/O utilities package.</p>
+<p>Attributes:
+find_single_input_values: Find values for a single input key in a nested structure.
+find_two_input_values: Find values for two input keys in a nested structure.
+process_dict_of_dicts: Process a dictionary of dictionaries and apply a function to key values.
+process_list_of_dicts: Process a list of dictionaries.
+process_dict_two_inputs: Process a dictionary using two input keys for a transformation.
+process_list_two_inputs: Process a list of dictionaries using two input keys.
+process_file: Processes a single file and modifies it based on specified criteria.
+process_pattern_files: Searches for and processes files matching a pattern.
+process_file_statistics: Calculates statistics for a single file.
+process_pattern_files_statistics: Calculates statistics for files matching a pattern.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.utils.io import find_single_input_values, find_two_input_values, process_dict_of_dicts, process_list_of_dicts, process_dict_two_inputs, process_list_two_inputs, process_file, process_pattern_files, process_file_statistics, process_pattern_files_statistics
+&gt;&gt;&gt; single_values = find_single_input_values(data, “key”)
+&gt;&gt;&gt; two_values = find_two_input_values(data, “key1”, “key2”)
+&gt;&gt;&gt; processed = process_dict_of_dicts(data, “km”, lambda x, y: x + y, 10)
+&gt;&gt;&gt; processed = process_list_of_dicts(data, “km”, lambda x, y: x + y, 10)
+&gt;&gt;&gt; processed = process_dict_two_inputs(data, “key1”, “key2”, “output_key”, lambda x, y: x + y)
+&gt;&gt;&gt; processed = process_list_two_inputs(data, “key1”, “key2”, “output_key”, lambda x, y: x + y)
+&gt;&gt;&gt; modified = process_file(“path/to/log.json”)
+&gt;&gt;&gt; processed_count = process_pattern_files(“path/to/logs”)
+&gt;&gt;&gt; stats = process_file_statistics(“path/to/log.json”)
+&gt;&gt;&gt; pattern_stats = process_pattern_files_statistics(“path/to/logs”)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

@@ -150,6 +150,14 @@
 
 ````
 
+````{py:method} __post_init__()
+:canonical: src.policies.route_construction.matheuristics.local_branching_variable_neighborhood_search.params.LBVNSParams.__post_init__
+
+```{autodoc2-docstring} src.policies.route_construction.matheuristics.local_branching_variable_neighborhood_search.params.LBVNSParams.__post_init__
+```
+
+````
+
 ````{py:method} from_config(config: typing.Any) -> src.policies.route_construction.matheuristics.local_branching_variable_neighborhood_search.params.LBVNSParams
 :canonical: src.policies.route_construction.matheuristics.local_branching_variable_neighborhood_search.params.LBVNSParams.from_config
 :classmethod:

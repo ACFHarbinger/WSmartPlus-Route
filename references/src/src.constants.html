@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -481,6 +482,23 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.constants">
 <span id="src-constants"></span><h1><a class="reference internal" href="#module-src.constants" title="src.constants"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.constants</span></code></a><a class="headerlink" href="#module-src.constants" title="Link to this heading">#</a></h1>
 <p>Configuration constants and global mappings.</p>
+<p>Attributes:
+dashboard: Dashboard configuration constants
+data: Data configuration constants
+hpo: Hyperparameter optimization configuration constants
+models: Model configuration constants
+paths: Path configuration constants
+routing: Routing configuration constants
+simulation: Simulation configuration constants
+stats: Statistical function mappings
+system: System configuration constants
+testing: Testing configuration constants
+user_interface: User interface configuration constants
+waste: Waste configuration constants</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.constants import *
+&gt;&gt;&gt; ROOT_DIR
+PosixPath(‘/home/pkhunter/Repositories/WSmart-Route’)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

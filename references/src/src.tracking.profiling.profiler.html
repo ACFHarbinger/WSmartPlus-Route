@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -512,11 +513,26 @@ document.write(`
 <p>Provides a <code class="docutils literal notranslate"><span class="pre">sys.setprofile</span></code> hook that records every function call duration
 within the project to a CSV file.  Writes are accumulated in an in-memory
 buffer and flushed in batches to avoid per-call file-open overhead.</p>
-<p>Classes:
-ExecutionProfiler: Thread-safe, buffered execution profiler.</p>
-<p>Functions:
+<p>Attributes:
+_ROOT_DIR: Root directory of the project.
+_BUFFER_SIZE: Number of log entries to accumulate before flushing to
+disk.
+_LIB_DIRS: Substrings that indicate a file should <em>not</em> be profiled.
+ExecutionProfiler: Thread-safe, buffered execution profiler.
 start_global_profiling: Start the singleton global profiler.
 stop_global_profiling: Stop the profiler and optionally log the CSV.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.tracking.profiling import start_global_profiling, stop_global_profiling
+&gt;&gt;&gt; start_global_profiling()
+&gt;&gt;&gt; # … run your training / simulation …
+&gt;&gt;&gt; stop_global_profiling()
+&gt;&gt;&gt; # Now analyze the CSV with ProfilingReport
+&gt;&gt;&gt; from logic.src.tracking.profiling import ProfilingReport
+&gt;&gt;&gt; report = ProfilingReport(“logs/function_execution_times_2024-01-01_12-00-00.csv”)
+&gt;&gt;&gt; print(report)
+&gt;&gt;&gt; for entry in report.top_functions(n=10):
+…     print(entry)
+&gt;&gt;&gt; report.log_to_run(top_n=10)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -605,65 +621,106 @@ CSV file.  Writes are batched in an in-memory buffer (flushed every
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>timestamp,file,class,function,duration_sec
 </pre></div>
 </div>
-<p>Args:
+<p>Attributes:
 log_dir: Directory for the output CSV (relative to <em>ROOT_DIR</em> or
 absolute).
 buffer_size: Number of log entries to accumulate before flushing to
 disk.  A higher value reduces I/O overhead at the cost of more
-memory and potentially losing data on a crash.</p>
+memory and potentially losing data on a crash.
+log_file: Path to the output CSV file.
+active: Whether the profiler is currently active.
+_lock: Lock for thread-safe access to the write buffer.
+_local: Thread-local storage for the call stack.
+_wall_start: Wall-clock start time (perf_counter).
+_wall_stop: Wall-clock stop time (perf_counter).
+_write_buffer: In-memory write buffer; flushed every <code class="docutils literal notranslate"><span class="pre">buffer_size</span></code> entries.</p>
 <p class="rubric">Initialization</p>
+<p>Initialize the profiler.</p>
+<p>Args:
+log_dir: Directory for the output CSV (relative to <em>ROOT_DIR</em> or
+absolute).
+buffer_size: Number of log entries to accumulate before flushing to
+disk.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.profiler.ExecutionProfiler._should_profile">
 <span class="sig-name descname"><span class="pre">_should_profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.tracking.profiling.profiler.ExecutionProfiler._should_profile" title="Link to this definition">#</a></dt>
 <dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> when <em>filename</em> belongs to the project.</p>
+<p>Args:
+filename: Path to the file to check.</p>
+<p>Returns:
+bool</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.profiler.ExecutionProfiler._get_class_name">
 <span class="sig-name descname"><span class="pre">_get_class_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.tracking.profiling.profiler.ExecutionProfiler._get_class_name" title="Link to this definition">#</a></dt>
 <dd><p>Extract class name from <em>frame</em> locals (instance or class method).</p>
+<p>Args:
+frame: Frame to extract class name from.</p>
+<p>Returns:
+str</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.profiler.ExecutionProfiler.profile_hook">
 <span class="sig-name descname"><span class="pre">profile_hook</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.profiling.profiler.ExecutionProfiler.profile_hook" title="Link to this definition">#</a></dt>
 <dd><p>Profile hook installed via <code class="docutils literal notranslate"><span class="pre">sys.setprofile</span></code>.</p>
+<p>Args:
+frame: Frame to profile.
+event: Event to profile.
+arg: Argument to profile.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.profiler.ExecutionProfiler._handle_return">
 <span class="sig-name descname"><span class="pre">_handle_return</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.profiling.profiler.ExecutionProfiler._handle_return" title="Link to this definition">#</a></dt>
 <dd><p>Process a <code class="docutils literal notranslate"><span class="pre">return</span></code> event: compute duration and buffer the entry.</p>
+<p>Args:
+frame: Frame to process.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.profiler.ExecutionProfiler._flush_locked">
 <span class="sig-name descname"><span class="pre">_flush_locked</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.profiling.profiler.ExecutionProfiler._flush_locked" title="Link to this definition">#</a></dt>
 <dd><p>Write buffered entries to disk.  Caller must hold <code class="docutils literal notranslate"><span class="pre">self._lock</span></code>.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.profiler.ExecutionProfiler.flush">
 <span class="sig-name descname"><span class="pre">flush</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.profiling.profiler.ExecutionProfiler.flush" title="Link to this definition">#</a></dt>
 <dd><p>Flush the write buffer to disk (thread-safe).</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.profiler.ExecutionProfiler.start">
 <span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.profiling.profiler.ExecutionProfiler.start" title="Link to this definition">#</a></dt>
 <dd><p>Activate the profiler and install the global hook.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.profiler.ExecutionProfiler.stop">
 <span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.profiling.profiler.ExecutionProfiler.stop" title="Link to this definition">#</a></dt>
 <dd><p>Deactivate the profiler, flush the write buffer, and remove hooks.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.tracking.profiling.profiler.ExecutionProfiler.wall_elapsed">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wall_elapsed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.tracking.profiling.profiler.ExecutionProfiler.wall_elapsed" title="Link to this definition">#</a></dt>
 <dd><p>Wall-clock seconds the profiler was active, or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+<p>Returns:
+Optional[float]</p>
 </dd></dl>
 
 <dl class="py method">
@@ -693,6 +750,8 @@ is always flushed before the process exits.</p>
 log_dir: Output directory for the CSV file (relative to <em>ROOT_DIR</em> or
 absolute).
 buffer_size: Number of log lines buffered before flushing to disk.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py function">
@@ -704,6 +763,8 @@ log_artifact: When <code class="docutils literal notranslate"><span class="pre">
 <code class="docutils literal notranslate"><span class="pre">&quot;profiling&quot;</span></code> artifact on the active WSTracker run (if any).
 print_report: When <code class="docutils literal notranslate"><span class="pre">True</span></code> (default), print a summary report to
 the terminal showing aggregate statistics.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 </section>

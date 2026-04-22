@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -490,11 +491,16 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.cli.base.store_dict_key">
 <span id="src-cli-base-store-dict-key"></span><h1><a class="reference internal" href="#module-src.cli.base.store_dict_key" title="src.cli.base.store_dict_key"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.cli.base.store_dict_key</span></code></a><a class="headerlink" href="#module-src.cli.base.store_dict_key" title="Link to this heading">#</a></h1>
-<p>store_dict_key.py module.</p>
+<p>StoreDictKeyPair action module.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+StoreDictKeyPair: Custom action to parse key=value into a dictionary.</p>
 <p>Example:
-&gt;&gt;&gt; import store_dict_key</p>
+&gt;&gt;&gt; from logic.src.cli.base.store_dict_key import StoreDictKeyPair
+&gt;&gt;&gt; action = StoreDictKeyPair(option_strings=[’–param’], dest=’params’)
+&gt;&gt;&gt; namespace = argparse.Namespace()
+&gt;&gt;&gt; action(None, namespace, [‘key=value’])
+&gt;&gt;&gt; namespace.params
+{‘key’: ‘value’}</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -515,6 +521,9 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.cli.base.store_dict_key.</span></span><span class="sig-name descname"><span class="pre">StoreDictKeyPair</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">option_strings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dest</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">const</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">choices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">required</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">help</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metavar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.cli.base.store_dict_key.StoreDictKeyPair" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">argparse.Action</span></code></p>
 <p>Custom action to parse key=value into a dictionary.</p>
+<p>Attributes:
+dest: Destination attribute in the namespace.
+nargs: Number of arguments.</p>
 <p class="rubric">Initialization</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.cli.base.store_dict_key.StoreDictKeyPair.__call__">
@@ -527,6 +536,8 @@ values: A list of ‘key=value’ strings.
 option_string: The option string, if any.</p>
 <p>Raises:
 argparse.ArgumentError: If a string does not follow the ‘key=value’ format.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 </dd></dl>

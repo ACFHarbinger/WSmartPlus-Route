@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -502,6 +503,26 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.decoding.decoding_utils">
 <span id="src-utils-decoding-decoding-utils"></span><h1><a class="reference internal" href="#module-src.utils.decoding.decoding_utils" title="src.utils.decoding.decoding_utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.decoding.decoding_utils</span></code></a><a class="headerlink" href="#module-src.utils.decoding.decoding_utils" title="Link to this heading">#</a></h1>
 <p>Shared utilities for decoding.</p>
+<p>Attributes:
+top_k_filter: Filter logits to keep only top-k values.
+top_p_filter: Filter logits using nucleus (top-p) sampling.
+batchify: Repeat TensorDict for multistart.
+unbatchify: Unbatch a TensorDict/Tensor by extracting the original batch.
+gather_by_index: Gather elements from src using indices.
+get_log_likelihood: Get log likelihood of selected actions.
+modify_logits_for_top_k_filtering: Alias for top_k_filter for rl4co compatibility.
+modify_logits_for_top_p_filtering: Alias for top_p_filter for rl4co compatibility.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.utils.decoding.decoding_utils import (
+…     top_k_filter,
+…     top_p_filter,
+…     batchify,
+…     unbatchify,
+…     gather_by_index,
+…     get_log_likelihood,
+…     modify_logits_for_top_k_filtering,
+…     modify_logits_for_top_p_filtering,
+… )</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -681,12 +702,24 @@ Reconstructed sequences [batch_size, seq_len].</p>
 <dt class="sig sig-object py" id="src.utils.decoding.decoding_utils.CachedLookup">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.utils.decoding.decoding_utils.</span></span><span class="sig-name descname"><span class="pre">CachedLookup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.decoding.decoding_utils.CachedLookup" title="Link to this definition">#</a></dt>
 <dd><p>Helper class for cached data access in beam search.</p>
+<p>Attributes:
+orig: Original data.
+data: Cached data.
+key: Cached key.
+current: Current data.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the lookup cache.</p>
+<p>Args:
+data: Data to cache.
+kwargs: Keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.decoding.decoding_utils.CachedLookup.__getitem__">
 <span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.decoding.decoding_utils.CachedLookup.__getitem__" title="Link to this definition">#</a></dt>
 <dd><p>Retrieves data with caching.</p>
+<p>Args:
+key: Key to retrieve.</p>
+<p>Returns:
+Data.</p>
 </dd></dl>
 
 </dd></dl>

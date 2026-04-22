@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -496,7 +497,10 @@ by VRPP local search and large neighborhood search operators to filter out route
 that result in a net economic loss. This is crucial for VRPP variants where routes
 must generate sufficient revenue to cover their operational costs.</p>
 <p>Attributes:
-None</p>
+prune_unprofitable_routes: Evaluates all routes and removes those that result in a net economic loss,
+unless they contain mandatory nodes that must be served.
+route_profit: Compute P(A_d, w_d) = r_w·Σw_i − c_km·dist for a single route.
+route_cost: Compute c_km·dist for a single route.</p>
 <p>Example:
 &gt;&gt;&gt; from logic.src.utils.policy.routes import prune_unprofitable_routes
 &gt;&gt;&gt; valid_routes = prune_unprofitable_routes(routes, dist_matrix, wastes, R, C, mandatory_set)</p>
@@ -542,12 +546,22 @@ List[List[int]]: A filtered list of economically viable routes.</p>
 <dt class="sig sig-object py" id="src.utils.policy.routes.route_profit">
 <span class="sig-prename descclassname"><span class="pre">src.utils.policy.routes.</span></span><span class="sig-name descname"><span class="pre">route_profit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.utils.policy.routes.route_profit" title="Link to this definition">#</a></dt>
 <dd><p>Compute P(A_d, w_d) = r_w·Σw_i − c_km·dist for a single route.</p>
+<p>Args:
+route:  List of nodes representing the route.
+problem:  ProblemContext for day 0.</p>
+<p>Returns:
+float: The profit of the route.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.policy.routes.route_cost">
 <span class="sig-prename descclassname"><span class="pre">src.utils.policy.routes.</span></span><span class="sig-name descname"><span class="pre">route_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.problem_context.ProblemContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.utils.policy.routes.route_cost" title="Link to this definition">#</a></dt>
 <dd><p>Compute c_km·dist for a single route.</p>
+<p>Args:
+route:  List of nodes representing the route.
+problem:  ProblemContext for day 0.</p>
+<p>Returns:
+float: The cost of the route.</p>
 </dd></dl>
 
 </section>

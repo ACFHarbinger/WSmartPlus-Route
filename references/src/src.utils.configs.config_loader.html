@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -495,6 +496,14 @@ document.write(`
 <li><p>Loading YAML configuration files.</p></li>
 <li><p>Loading XML configuration files and converting them to dictionaries.</p></li>
 </ul>
+<p>Attributes:
+load_yaml_config: Loads a YAML configuration file.
+load_xml_config: Loads an XML configuration file and converts it to a dictionary.
+load_config: Loads a YAML or XML configuration file based on extension.</p>
+<p>Example:
+load_yaml_config(“config.yaml”)
+load_xml_config(“config.xml”)
+load_config(“config.yaml”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

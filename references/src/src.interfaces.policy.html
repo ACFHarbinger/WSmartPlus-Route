@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -493,11 +494,20 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.interfaces.policy">
 <span id="src-interfaces-policy"></span><h1><a class="reference internal" href="#module-src.interfaces.policy" title="src.interfaces.policy"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces.policy</span></code></a><a class="headerlink" href="#module-src.interfaces.policy" title="Link to this heading">#</a></h1>
-<p>policy.py module.</p>
+<p>Reinforcement Learning (RL) Policy protocol module.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+IPolicy: Protocol for RL Policies</p>
 <p>Example:
-&gt;&gt;&gt; import policy</p>
+&gt;&gt;&gt; from logic.src.interfaces.policy import IPolicy
+&gt;&gt;&gt; class MyPolicy(IPolicy):
+…     def forward(self, td: TensorDict, env: Optional[Any] = None, strategy: str = “sampling”, num_starts: int = 1, **kwargs: Any) -&gt; Union[TensorDict, Dict[str, Any]]:
+…         return {}
+…     def <strong>call</strong>(self, *args, **kwargs) -&gt; Any:
+…         return {}
+…
+&gt;&gt;&gt; policy = MyPolicy()
+&gt;&gt;&gt; policy.forward(TensorDict({}, {}))
+{}</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -520,6 +530,9 @@ Matches the interface expected by RL4COLitModule and StepwisePPO.</p></td>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">typing.Protocol</span></code></p>
 <p>Protocol for RL Policies.
 Matches the interface expected by RL4COLitModule and StepwisePPO.</p>
+<p>Attributes:
+encoder: Encoder module
+decoder: Decoder module</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.interfaces.policy.IPolicy.encoder">
 <span class="sig-name descname"><span class="pre">encoder</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.nn.Module</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.interfaces.policy.IPolicy.encoder" title="Link to this definition">#</a></dt>
@@ -536,6 +549,14 @@ Matches the interface expected by RL4COLitModule and StepwisePPO.</p>
 <dt class="sig sig-object py" id="src.interfaces.policy.IPolicy.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sampling'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">tensordict.TensorDict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.interfaces.policy.IPolicy.forward" title="Link to this definition">#</a></dt>
 <dd><p>Forward pass to generate solutions.</p>
+<p>Args:
+td: TensorDict containing the input data
+env: Environment
+strategy: Sampling strategy
+num_starts: Number of starts
+**kwargs: Additional keyword arguments</p>
+<p>Returns:
+Union[TensorDict, Dict[str, Any]]: TensorDict or dict containing the output data</p>
 </dd></dl>
 
 <dl class="py method">

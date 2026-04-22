@@ -74,14 +74,14 @@ Bases: {py:obj}`src.utils.decoding.base.DecodingStrategy`
 ```
 ````
 
-````{py:function} get_beam_search_results(beams, final_state)
+````{py:function} get_beam_search_results(beams: list[src.utils.decoding.batch_beam.BatchBeam], final_state: typing.Any) -> tuple
 :canonical: src.utils.decoding.beam_search.get_beam_search_results
 
 ```{autodoc2-docstring} src.utils.decoding.beam_search.get_beam_search_results
 ```
 ````
 
-````{py:function} _beam_search(state, beam_size, propose_expansions=None, keep_states=False)
+````{py:function} _beam_search(state: typing.Any, beam_size: int, propose_expansions: typing.Optional[typing.Callable] = None, keep_states: bool = False) -> tuple
 :canonical: src.utils.decoding.beam_search._beam_search
 
 ```{autodoc2-docstring} src.utils.decoding.beam_search._beam_search

@@ -271,6 +271,14 @@
 
 ````
 
+````{py:method} __post_init__()
+:canonical: src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.__post_init__
+
+```{autodoc2-docstring} src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.__post_init__
+```
+
+````
+
 ````{py:method} from_config(config: typing.Any) -> src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams
 :canonical: src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params.ILSRVNDSPParams.from_config
 :classmethod:

@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -491,6 +492,17 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.io.dict_processing">
 <span id="src-utils-io-dict-processing"></span><h1><a class="reference internal" href="#module-src.utils.io.dict_processing" title="src.utils.io.dict_processing"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io.dict_processing</span></code></a><a class="headerlink" href="#module-src.utils.io.dict_processing" title="Link to this heading">#</a></h1>
 <p>Dictionary and list processing utilities for JSON-like data.</p>
+<p>Attributes:
+process_dict_of_dicts: Process a dictionary of dictionaries and apply a function to key values.
+process_list_of_dicts: Process a list of dictionaries.
+process_dict_two_inputs: Process a dictionary using two input keys for a transformation.
+process_list_two_inputs: Process a list of dictionaries using two input keys.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.utils.io.dict_processing import process_dict_of_dicts, process_list_of_dicts, process_dict_two_inputs, process_list_two_inputs
+&gt;&gt;&gt; processed = process_dict_of_dicts(data, “km”, lambda x, y: x + y, 10)
+&gt;&gt;&gt; processed = process_list_of_dicts(data, “km”, lambda x, y: x + y, 10)
+&gt;&gt;&gt; processed = process_dict_two_inputs(data, “key1”, “key2”, “output_key”, lambda x, y: x + y)
+&gt;&gt;&gt; processed = process_list_two_inputs(data, “key1”, “key2”, “output_key”, lambda x, y: x + y)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -532,18 +544,41 @@ True if modified.</p>
 <dt class="sig sig-object py" id="src.utils.io.dict_processing.process_list_of_dicts">
 <span class="sig-prename descclassname"><span class="pre">src.utils.io.dict_processing.</span></span><span class="sig-name descname"><span class="pre">process_list_of_dicts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'km'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">process_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.utils.io.dict_processing.process_list_of_dicts" title="Link to this definition">#</a></dt>
 <dd><p>Process a list of dictionaries.</p>
+<p>Args:
+data_list: The list of dictionaries to process.
+output_key: Key to target.
+process_func: Transformation function.
+update_val: Constant parameter for process_func.</p>
+<p>Returns:
+True if modified.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.io.dict_processing.process_dict_two_inputs">
 <span class="sig-prename descclassname"><span class="pre">src.utils.io.dict_processing.</span></span><span class="sig-name descname"><span class="pre">process_dict_two_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">object</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_key1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_key2_or_val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">process_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.utils.io.dict_processing.process_dict_two_inputs" title="Link to this definition">#</a></dt>
 <dd><p>Process a dictionary using two inputs for a transformation.</p>
+<p>Args:
+data_dict: The dictionary to process.
+input_key1: The first input key.
+input_key2_or_val: The second input key or a constant value.
+output_key: The output key.
+process_func: The transformation function.</p>
+<p>Returns:
+True if the dictionary was modified, False otherwise.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.io.dict_processing.process_list_two_inputs">
 <span class="sig-prename descclassname"><span class="pre">src.utils.io.dict_processing.</span></span><span class="sig-name descname"><span class="pre">process_list_two_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_key1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_key2_or_val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">process_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.utils.io.dict_processing.process_list_two_inputs" title="Link to this definition">#</a></dt>
 <dd><p>Process a list of dictionaries using two inputs.</p>
+<p>Args:
+data_list: The list of dictionaries to process.
+input_key1: The first input key.
+input_key2_or_val: The second input key or a constant value.
+output_key: The output key.
+process_func: The transformation function.</p>
+<p>Returns:
+True if the list was modified, False otherwise.</p>
 </dd></dl>
 
 </section>

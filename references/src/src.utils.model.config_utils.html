@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -469,6 +470,8 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.model.config_utils._load_normalization_args"><code class="docutils literal notranslate"><span class="pre">_load_normalization_args()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.model.config_utils._load_activation_args"><code class="docutils literal notranslate"><span class="pre">_load_activation_args()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.model.config_utils.load_args"><code class="docutils literal notranslate"><span class="pre">load_args()</span></code></a></li>
 </ul>
 </li>
@@ -488,12 +491,27 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.model.config_utils">
 <span id="src-utils-model-config-utils"></span><h1><a class="reference internal" href="#module-src.utils.model.config_utils" title="src.utils.model.config_utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.model.config_utils</span></code></a><a class="headerlink" href="#module-src.utils.model.config_utils" title="Link to this heading">#</a></h1>
 <p>Configuration loading utilities for model arguments.</p>
+<p>Attributes:
+_load_normalization_args: Loads normalization arguments from a JSON file.
+_load_activation_args: Loads activation arguments from a JSON file.
+load_args: Loads argument configuration from a JSON file.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.utils.model.config_utils import load_args
+&gt;&gt;&gt; args = load_args(“path/to/args.json”)
+&gt;&gt;&gt; isinstance(args, dict)
+True</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
 <h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.model.config_utils._load_normalization_args" title="src.utils.model.config_utils._load_normalization_args"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_load_normalization_args</span></code></a></p></td>
+<td><p>Loads normalization arguments from a JSON file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.utils.model.config_utils._load_activation_args" title="src.utils.model.config_utils._load_activation_args"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_load_activation_args</span></code></a></p></td>
+<td><p>Loads activation arguments from a JSON file.</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.model.config_utils.load_args" title="src.utils.model.config_utils.load_args"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_args</span></code></a></p></td>
 <td><p>Loads argument configuration from a JSON file.
 Handles deprecated keys for backward compatibility.</p></td>
@@ -504,6 +522,28 @@ Handles deprecated keys for backward compatibility.</p></td>
 </section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.utils.model.config_utils._load_normalization_args">
+<span class="sig-prename descclassname"><span class="pre">src.utils.model.config_utils.</span></span><span class="sig-name descname"><span class="pre">_load_normalization_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subnet_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.model.config_utils._load_normalization_args" title="Link to this definition">#</a></dt>
+<dd><p>Loads normalization arguments from a JSON file.</p>
+<p>Args:
+subnet_args: The loaded arguments for the subnet (encoder or decoder).
+args: The loaded arguments.</p>
+<p>Returns:
+The loaded arguments.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.utils.model.config_utils._load_activation_args">
+<span class="sig-prename descclassname"><span class="pre">src.utils.model.config_utils.</span></span><span class="sig-name descname"><span class="pre">_load_activation_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subnet_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.model.config_utils._load_activation_args" title="Link to this definition">#</a></dt>
+<dd><p>Loads activation arguments from a JSON file.</p>
+<p>Args:
+subnet_args: The loaded arguments for the subnet (encoder or decoder).
+args: The loaded arguments.</p>
+<p>Returns:
+The loaded arguments.</p>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.model.config_utils.load_args">
 <span class="sig-prename descclassname"><span class="pre">src.utils.model.config_utils.</span></span><span class="sig-name descname"><span class="pre">load_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.model.config_utils.load_args" title="Link to this definition">#</a></dt>
@@ -567,6 +607,8 @@ The loaded arguments.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.model.config_utils._load_normalization_args"><code class="docutils literal notranslate"><span class="pre">_load_normalization_args()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.model.config_utils._load_activation_args"><code class="docutils literal notranslate"><span class="pre">_load_activation_args()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.model.config_utils.load_args"><code class="docutils literal notranslate"><span class="pre">load_args()</span></code></a></li>
 </ul>
 </li>

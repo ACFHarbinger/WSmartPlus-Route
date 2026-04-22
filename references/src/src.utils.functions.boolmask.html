@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -498,6 +499,24 @@ document.write(`
 <p>This module provides optimized functions for converting between different
 mask representations (boolean, byte, long) and performing masked scatter operations
 efficiently on GPU.</p>
+<p>Attributes:
+_pad_mask: Pads mask to be divisible by 8 for byte packing.
+_mask_bool2byte: Converts boolean mask to byte packed format (8 bools -&gt; 1 byte).
+_mask_byte2long: Converts byte mask to long representation by treating as bits.
+mask_bool2long: Converts boolean mask directly to long integers representation.
+_mask_long2byte: Converts long representation back to byte representation.
+_mask_byte2bool: Converts byte representation back to boolean mask.
+mask_long2bool: Converts long representation back to boolean mask.
+mask_long_scatter: Sets values in mask in dimension -1 with arbitrary batch dimensions.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.utils.functions import mask_bool2long
+&gt;&gt;&gt; mask = torch.tensor([[True, False], [False, True]])
+&gt;&gt;&gt; mask_bool2long(mask)
+tensor([[1, 0], [0, 1]])
+&gt;&gt;&gt; from logic.src.utils.functions import mask_long_scatter
+&gt;&gt;&gt; mask = torch.tensor([[0, 0], [0, 0]])
+&gt;&gt;&gt; mask_long_scatter(mask, torch.tensor([0, 1]))
+tensor([[1, 0], [0, 1]])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -538,7 +557,7 @@ Note: does not work for setting multiple values at once (like normal scatter).</
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.functions.boolmask._pad_mask">
-<span class="sig-prename descclassname"><span class="pre">src.utils.functions.boolmask.</span></span><span class="sig-name descname"><span class="pre">_pad_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.functions.boolmask._pad_mask" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.utils.functions.boolmask.</span></span><span class="sig-name descname"><span class="pre">_pad_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.functions.boolmask._pad_mask" title="Link to this definition">#</a></dt>
 <dd><p>Pads mask to be divisible by 8 for byte packing.</p>
 <p>Args:
 mask (Tensor): Input mask.</p>
@@ -548,7 +567,7 @@ tuple: (padded_mask, number_of_bytes)</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.functions.boolmask._mask_bool2byte">
-<span class="sig-prename descclassname"><span class="pre">src.utils.functions.boolmask.</span></span><span class="sig-name descname"><span class="pre">_mask_bool2byte</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.functions.boolmask._mask_bool2byte" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.utils.functions.boolmask.</span></span><span class="sig-name descname"><span class="pre">_mask_bool2byte</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.utils.functions.boolmask._mask_bool2byte" title="Link to this definition">#</a></dt>
 <dd><p>Converts boolean mask to byte packed format (8 bools -&gt; 1 byte).</p>
 <p>Args:
 mask (Tensor): Boolean mask (uint8).</p>
@@ -558,7 +577,7 @@ Tensor: Packed byte mask.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.functions.boolmask._mask_byte2long">
-<span class="sig-prename descclassname"><span class="pre">src.utils.functions.boolmask.</span></span><span class="sig-name descname"><span class="pre">_mask_byte2long</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.functions.boolmask._mask_byte2long" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.utils.functions.boolmask.</span></span><span class="sig-name descname"><span class="pre">_mask_byte2long</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.utils.functions.boolmask._mask_byte2long" title="Link to this definition">#</a></dt>
 <dd><p>Converts byte mask to long representation by treating as bits.</p>
 <p>Args:
 mask (Tensor): Byte mask.</p>
@@ -568,7 +587,7 @@ Tensor: Long tensor.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.functions.boolmask.mask_bool2long">
-<span class="sig-prename descclassname"><span class="pre">src.utils.functions.boolmask.</span></span><span class="sig-name descname"><span class="pre">mask_bool2long</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.functions.boolmask.mask_bool2long" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.utils.functions.boolmask.</span></span><span class="sig-name descname"><span class="pre">mask_bool2long</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.utils.functions.boolmask.mask_bool2long" title="Link to this definition">#</a></dt>
 <dd><p>Converts boolean mask directly to long integers representation.</p>
 <p>Args:
 mask (Tensor): Boolean mask.</p>
@@ -578,7 +597,7 @@ Tensor: Long mask.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.functions.boolmask._mask_long2byte">
-<span class="sig-prename descclassname"><span class="pre">src.utils.functions.boolmask.</span></span><span class="sig-name descname"><span class="pre">_mask_long2byte</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.functions.boolmask._mask_long2byte" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.utils.functions.boolmask.</span></span><span class="sig-name descname"><span class="pre">_mask_long2byte</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.utils.functions.boolmask._mask_long2byte" title="Link to this definition">#</a></dt>
 <dd><p>Converts long representation back to byte representation.</p>
 <p>Args:
 mask (Tensor): Long mask.
@@ -589,7 +608,7 @@ Tensor: Byte mask.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.functions.boolmask._mask_byte2bool">
-<span class="sig-prename descclassname"><span class="pre">src.utils.functions.boolmask.</span></span><span class="sig-name descname"><span class="pre">_mask_byte2bool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.functions.boolmask._mask_byte2bool" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.utils.functions.boolmask.</span></span><span class="sig-name descname"><span class="pre">_mask_byte2bool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.utils.functions.boolmask._mask_byte2bool" title="Link to this definition">#</a></dt>
 <dd><p>Converts byte representation back to boolean mask.</p>
 <p>Args:
 mask (Tensor): Byte mask.
@@ -600,7 +619,7 @@ Tensor: Boolean mask.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.functions.boolmask.mask_long2bool">
-<span class="sig-prename descclassname"><span class="pre">src.utils.functions.boolmask.</span></span><span class="sig-name descname"><span class="pre">mask_long2bool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.functions.boolmask.mask_long2bool" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.utils.functions.boolmask.</span></span><span class="sig-name descname"><span class="pre">mask_long2bool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.utils.functions.boolmask.mask_long2bool" title="Link to this definition">#</a></dt>
 <dd><p>Converts long representation back to boolean mask.</p>
 <p>Args:
 mask (Tensor): Long mask.
@@ -611,7 +630,7 @@ Tensor: Boolean mask.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.functions.boolmask.mask_long_scatter">
-<span class="sig-prename descclassname"><span class="pre">src.utils.functions.boolmask.</span></span><span class="sig-name descname"><span class="pre">mask_long_scatter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_unset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.functions.boolmask.mask_long_scatter" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.utils.functions.boolmask.</span></span><span class="sig-name descname"><span class="pre">mask_long_scatter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_unset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.utils.functions.boolmask.mask_long_scatter" title="Link to this definition">#</a></dt>
 <dd><p>Sets values in mask in dimension -1 with arbitrary batch dimensions.
 If values contains -1, nothing is set.
 Note: does not work for setting multiple values at once (like normal scatter).</p>

@@ -16,7 +16,9 @@
 :align: left
 
 * - {py:obj}`EmbeddedCodeVisitor <src.utils.validation.check_embedded_languages.EmbeddedCodeVisitor>`
-  -
+  - ```{autodoc2-docstring} src.utils.validation.check_embedded_languages.EmbeddedCodeVisitor
+    :summary:
+    ```
 ````
 
 ### Functions
@@ -166,6 +168,15 @@
 :canonical: src.utils.validation.check_embedded_languages.EmbeddedCodeVisitor
 
 Bases: {py:obj}`ast.NodeVisitor`
+
+```{autodoc2-docstring} src.utils.validation.check_embedded_languages.EmbeddedCodeVisitor
+```
+
+```{rubric} Initialization
+```
+
+```{autodoc2-docstring} src.utils.validation.check_embedded_languages.EmbeddedCodeVisitor.__init__
+```
 
 ````{py:method} _check_and_record(text: str, lineno: int)
 :canonical: src.utils.validation.check_embedded_languages.EmbeddedCodeVisitor._check_and_record

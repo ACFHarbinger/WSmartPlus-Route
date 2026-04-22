@@ -260,17 +260,6 @@
 
 ````
 
-````{py:attribute} hexlic_file
-:canonical: src.configs.tasks.sim.SimConfig.hexlic_file
-:type: typing.Optional[str]
-:value: >
-   None
-
-```{autodoc2-docstring} src.configs.tasks.sim.SimConfig.hexlic_file
-```
-
-````
-
 ````{py:attribute} symkey_name
 :canonical: src.configs.tasks.sim.SimConfig.symkey_name
 :type: typing.Optional[str]

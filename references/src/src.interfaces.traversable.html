@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -502,6 +503,9 @@ document.write(`
 <p>Config-like objects supporting nested traversal.</p>
 <p>This module defines the ITraversable protocol for duck typing with
 configuration objects (dict, DictConfig, dataclass).</p>
+<p>Attributes:
+_T: Type variable for generic typing
+ITraversable: Protocol for duck typing with configuration objects</p>
 <p>Example:
 &gt;&gt;&gt; from logic.src.interfaces.traversable import ITraversable
 &gt;&gt;&gt; def extract_param(config: ITraversable, key: str) -&gt; Any:
@@ -560,24 +564,36 @@ isinstance checks for dict/DictConfig/list patterns.</p>
 <dt class="sig sig-object py" id="src.interfaces.traversable.ITraversable.__getitem__">
 <span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.interfaces.traversable.ITraversable.__getitem__" title="Link to this definition">#</a></dt>
 <dd><p>Get value by key. Positional-only to match dict.</p>
+<p>Args:
+key: Configuration key (string)</p>
+<p>Returns:
+Configuration value</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.interfaces.traversable.ITraversable.__contains__">
 <span class="sig-name descname"><span class="pre">__contains__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.interfaces.traversable.ITraversable.__contains__" title="Link to this definition">#</a></dt>
 <dd><p>Check if key exists. Positional-only to match dict.</p>
+<p>Args:
+key: Configuration key (string)</p>
+<p>Returns:
+True if key exists, False otherwise</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.interfaces.traversable.ITraversable.__iter__">
 <span class="sig-name descname"><span class="pre">__iter__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterator</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.interfaces.traversable.ITraversable.__iter__" title="Link to this definition">#</a></dt>
 <dd><p>Support iteration over keys (required for mapping-like behavior).</p>
+<p>Returns:
+Iterator over keys</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.interfaces.traversable.ITraversable.__len__">
 <span class="sig-name descname"><span class="pre">__len__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.interfaces.traversable.ITraversable.__len__" title="Link to this definition">#</a></dt>
 <dd><p>Return the number of items.</p>
+<p>Returns:
+Number of items</p>
 </dd></dl>
 
 <dl class="py method">

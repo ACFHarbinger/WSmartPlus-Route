@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -500,6 +501,17 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.enums.registry">
 <span id="src-enums-registry"></span><h1><a class="reference internal" href="#module-src.enums.registry" title="src.enums.registry"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.enums.registry</span></code></a><a class="headerlink" href="#module-src.enums.registry" title="Link to this heading">#</a></h1>
+<p>Tag registry for WSmart-Route.</p>
+<p>Attributes:
+AnyTag: Union of all tags
+T_Algorithm: Type alias for algorithm
+T: TypeVar for type hinting
+GlobalRegistry: Class for registering and querying algorithms</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.enums import GlobalRegistry
+&gt;&gt;&gt; GlobalRegistry.register(PolicyTag.EXACT, ModelTag.TRANSFORMER)
+&gt;&gt;&gt; GlobalRegistry.query_intersection(PolicyTag.EXACT, ModelTag.TRANSFORMER)
+[&lt;class ‘logic.src.policies.exact.exact_policy.ExactPolicy’&gt;]</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -507,7 +519,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.enums.registry.GlobalRegistry" title="src.enums.registry.GlobalRegistry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GlobalRegistry</span></code></a></p></td>
-<td></td>
+<td><p>Class for registering and querying algorithms.</p></td>
 </tr>
 </tbody>
 </table>
@@ -553,7 +565,17 @@ document.write(`
 <dl class="py class">
 <dt class="sig sig-object py" id="src.enums.registry.GlobalRegistry">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.enums.registry.</span></span><span class="sig-name descname"><span class="pre">GlobalRegistry</span></span><a class="headerlink" href="#src.enums.registry.GlobalRegistry" title="Link to this definition">#</a></dt>
-<dd><dl class="py attribute">
+<dd><p>Class for registering and querying algorithms.</p>
+<p>Attributes:
+_registry: Dictionary for storing registered algorithms</p>
+<p>Methods:
+register: Register an algorithm with tags
+get_name: Get the name of an algorithm
+query_intersection: Query algorithms matching all tags
+query_union: Query algorithms matching at least one tag
+query_difference: Query algorithms matching required tags but not excluded tags
+get_all: Get all registered algorithms</p>
+<dl class="py attribute">
 <dt class="sig sig-object py" id="src.enums.registry.GlobalRegistry._registry">
 <span class="sig-name descname"><span class="pre">_registry</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">src.enums.registry.T_Algorithm</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">src.enums.registry.AnyTag</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.enums.registry.GlobalRegistry._registry" title="Link to this definition">#</a></dt>
 <dd><p>None</p>
@@ -563,12 +585,20 @@ document.write(`
 <dt class="sig sig-object py" id="src.enums.registry.GlobalRegistry.register">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">tags</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">src.enums.registry.AnyTag</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">src.enums.registry.T_Algorithm</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">src.enums.registry.T_Algorithm</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.enums.registry.GlobalRegistry.register" title="Link to this definition">#</a></dt>
 <dd><p>Universal decorator for any class or function.</p>
+<p>Args:
+*tags: Tags to register the algorithm with</p>
+<p>Returns:
+Decorator for registering the algorithm</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.enums.registry.GlobalRegistry.get_name">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">src.enums.registry.T_Algorithm</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.enums.registry.GlobalRegistry.get_name" title="Link to this definition">#</a></dt>
 <dd><p>Helper to get a readable name for either a class or a function.</p>
+<p>Args:
+obj: Algorithm to get the name of</p>
+<p>Returns:
+Name of the algorithm</p>
 </dd></dl>
 
 <dl class="py method">
@@ -576,6 +606,11 @@ document.write(`
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">query_intersection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">tags</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">src.enums.registry.AnyTag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">src.enums.registry.T</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">src.enums.registry.T_Algorithm</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">src.enums.registry.T</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.enums.registry.GlobalRegistry.query_intersection" title="Link to this definition">#</a></dt>
 <dd><p>Returns objects matching ALL tags.
 If expected_type is provided, strictly filters out non-matching classes.</p>
+<p>Args:
+*tags: Tags to query for
+expected_type: Expected type of the algorithm</p>
+<p>Returns:
+List of algorithms matching all tags</p>
 </dd></dl>
 
 <dl class="py method">
@@ -583,18 +618,32 @@ If expected_type is provided, strictly filters out non-matching classes.</p>
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">query_union</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">tags</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">src.enums.registry.AnyTag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">src.enums.registry.T</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">src.enums.registry.T_Algorithm</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">src.enums.registry.T</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.enums.registry.GlobalRegistry.query_union" title="Link to this definition">#</a></dt>
 <dd><p>Returns objects matching AT LEAST ONE tag.
 If expected_type is provided, strictly filters out non-matching classes.</p>
+<p>Args:
+*tags: Tags to query for
+expected_type: Expected type of the algorithm</p>
+<p>Returns:
+List of algorithms matching at least one tag</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.enums.registry.GlobalRegistry.query_difference">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">query_difference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">require</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">src.enums.registry.AnyTag</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">src.enums.registry.AnyTag</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">src.enums.registry.T</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">src.enums.registry.T_Algorithm</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">src.enums.registry.T</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.enums.registry.GlobalRegistry.query_difference" title="Link to this definition">#</a></dt>
 <dd><p>Returns algorithms that contain ALL required tags, but NO excluded tags.</p>
+<p>Args:
+require: Tags that must be present
+exclude: Tags that must not be present
+expected_type: Expected type of the algorithm</p>
+<p>Returns:
+List of algorithms matching the criteria</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.enums.registry.GlobalRegistry.get_all">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_all</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">src.enums.registry.T_Algorithm</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">src.enums.registry.AnyTag</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.enums.registry.GlobalRegistry.get_all" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Get all registered algorithms.</p>
+<p>Returns:
+Dictionary of all registered algorithms</p>
+</dd></dl>
 
 </dd></dl>
 

@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -501,6 +502,8 @@ document.write(`
 <p>Structural type for TensorDict-compatible containers.</p>
 <p>This module defines the ITensorDictLike protocol for duck typing with
 dict-like objects that store tensors and have batch dimension information.</p>
+<p>Attributes:
+ITensorDictLike: Protocol for duck typing with TensorDict-compatible containers</p>
 <p>Example:
 &gt;&gt;&gt; from logic.src.interfaces.tensor_dict_like import ITensorDictLike
 &gt;&gt;&gt; if isinstance(state, ITensorDictLike):

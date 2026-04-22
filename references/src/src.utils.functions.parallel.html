@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -488,6 +489,16 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.functions.parallel">
 <span id="src-utils-functions-parallel"></span><h1><a class="reference internal" href="#module-src.utils.functions.parallel" title="src.utils.functions.parallel"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions.parallel</span></code></a><a class="headerlink" href="#module-src.utils.functions.parallel" title="Link to this heading">#</a></h1>
 <p>Parallel execution utilities.</p>
+<p>Attributes:
+run_all_in_pool: Runs a function over a dataset in parallel.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.utils.functions import run_all_in_pool
+&gt;&gt;&gt; def my_func(directory, filename, *args):
+…     # Process file
+…     return result
+&gt;&gt;&gt; results, num_cpus = run_all_in_pool(my_func, “data”, dataset)
+&gt;&gt;&gt; print(f”Processed {len(results)} instances using {num_cpus} CPUs”)
+Processed 100 instances using 8 CPUs</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

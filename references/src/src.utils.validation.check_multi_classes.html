@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -495,9 +496,15 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.validation.check_multi_classes">
 <span id="src-utils-validation-check-multi-classes"></span><h1><a class="reference internal" href="#module-src.utils.validation.check_multi_classes" title="src.utils.validation.check_multi_classes"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.validation.check_multi_classes</span></code></a><a class="headerlink" href="#module-src.utils.validation.check_multi_classes" title="Link to this heading">#</a></h1>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+RED: ANSI escape code for red text.
+CYAN: ANSI escape code for cyan text.
+YELLOW: ANSI escape code for yellow text.
+GREEN: ANSI escape code for green text.
+RESET: ANSI escape code for resetting text color.
+get_top_level_classes: Get top level classes.
+main: Main function to check for multiple top-level classes.</p>
 <p>Example:
-&gt;&gt;&gt; import check_multi_classes</p>
+&gt;&gt;&gt; python logic/src/utils/validation/check_multi_classes.py logic/src –exclude logic/src/utils/validation</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

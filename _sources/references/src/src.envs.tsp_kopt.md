@@ -48,6 +48,14 @@ Bases: {py:obj}`logic.src.envs.base.improvement.ImprovementEnvBase`
 
 ````
 
+````{py:method} _step(td: tensordict.TensorDict) -> tensordict.TensorDict
+:canonical: src.envs.tsp_kopt.TSPkoptEnv._step
+
+```{autodoc2-docstring} src.envs.tsp_kopt.TSPkoptEnv._step
+```
+
+````
+
 ````{py:method} _get_action_mask(td: tensordict.TensorDict) -> torch.Tensor
 :canonical: src.envs.tsp_kopt.TSPkoptEnv._get_action_mask
 

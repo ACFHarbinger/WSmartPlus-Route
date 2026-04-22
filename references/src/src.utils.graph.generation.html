@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -491,6 +492,17 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.graph.generation">
 <span id="src-utils-graph-generation"></span><h1><a class="reference internal" href="#module-src.utils.graph.generation" title="src.utils.graph.generation"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.graph.generation</span></code></a><a class="headerlink" href="#module-src.utils.graph.generation" title="Link to this heading">#</a></h1>
 <p>Graph and adjacency matrix generation utilities.</p>
+<p>Attributes:
+OSMNX_AVAILABLE: Whether osmnx is available.
+generate_adj_matrix: Generates a random adjacency matrix.
+get_edge_idx_dist: Generates edge indices based on shortest distances in the distance matrix.
+get_adj_knn: Generates an adjacency matrix based on K-Nearest Neighbors.
+get_adj_osm: Computes an adjacency matrix via OpenStreetMap for given coordinates.</p>
+<p>Example:
+generate_adj_matrix(size, num_edges)
+get_edge_idx_dist(dist_matrix, num_edges)
+get_adj_knn(dist_matrix, k_neighbors)
+get_adj_osm(coords, size, args)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -519,24 +531,55 @@ document.write(`
 <dt class="sig sig-object py" id="src.utils.graph.generation.generate_adj_matrix">
 <span class="sig-prename descclassname"><span class="pre">src.utils.graph.generation.</span></span><span class="sig-name descname"><span class="pre">generate_adj_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_edges</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">undirected</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_depot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">np_rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.random.Generator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.utils.graph.generation.generate_adj_matrix" title="Link to this definition">#</a></dt>
 <dd><p>Generates a random adjacency matrix.</p>
+<p>Args:
+size: Number of nodes in the graph.
+num_edges: Number of edges to add to the graph.
+undirected: Whether the graph should be undirected.
+add_depot: Whether to add a depot node to the graph.
+negative: Whether to negate the adjacency matrix.
+np_rng: Random number generator.</p>
+<p>Returns:
+Adjacency matrix.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.graph.generation.get_edge_idx_dist">
 <span class="sig-prename descclassname"><span class="pre">src.utils.graph.generation.</span></span><span class="sig-name descname"><span class="pre">get_edge_idx_dist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_edges</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_depot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">undirected</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.utils.graph.generation.get_edge_idx_dist" title="Link to this definition">#</a></dt>
 <dd><p>Generates edge indices based on shortest distances in the distance matrix.</p>
+<p>Args:
+dist_matrix: Distance matrix.
+num_edges: Number of edges to add to the graph.
+add_depot: Whether to add a depot node to the graph.
+undirected: Whether the graph should be undirected.</p>
+<p>Returns:
+Edge indices.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.graph.generation.get_adj_knn">
 <span class="sig-prename descclassname"><span class="pre">src.utils.graph.generation.</span></span><span class="sig-name descname"><span class="pre">get_adj_knn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_mat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_neighbors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_depot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.utils.graph.generation.get_adj_knn" title="Link to this definition">#</a></dt>
 <dd><p>Generates an adjacency matrix based on K-Nearest Neighbors.</p>
+<p>Args:
+dist_mat: Distance matrix.
+k_neighbors: Number of neighbors to add to the graph.
+add_depot: Whether to add a depot node to the graph.
+negative: Whether to negate the adjacency matrix.</p>
+<p>Returns:
+Adjacency matrix.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.graph.generation.get_adj_osm">
 <span class="sig-prename descclassname"><span class="pre">src.utils.graph.generation.</span></span><span class="sig-name descname"><span class="pre">get_adj_osm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_depot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.utils.graph.generation.get_adj_osm" title="Link to this definition">#</a></dt>
 <dd><p>Computes an adjacency matrix via OpenStreetMap for given coordinates.</p>
+<p>Args:
+coords: Coordinates of the nodes.
+size: Number of nodes in the graph.
+args: Arguments for the OpenStreetMap graph.
+add_depot: Whether to add a depot node to the graph.
+negative: Whether to negate the adjacency matrix.</p>
+<p>Returns:
+Adjacency matrix.</p>
 </dd></dl>
 
 </section>

@@ -27,14 +27,14 @@
 
 ### API
 
-````{py:function} torch_lexsort(keys, dim=-1)
+````{py:function} torch_lexsort(keys: tuple[torch.Tensor, ...], dim: int = -1) -> torch.Tensor
 :canonical: src.utils.functions.lexsort.torch_lexsort
 
 ```{autodoc2-docstring} src.utils.functions.lexsort.torch_lexsort
 ```
 ````
 
-````{py:function} _torch_lexsort_cuda(keys, dim=-1)
+````{py:function} _torch_lexsort_cuda(keys: tuple[torch.Tensor, ...], dim: int = -1) -> torch.Tensor
 :canonical: src.utils.functions.lexsort._torch_lexsort_cuda
 
 ```{autodoc2-docstring} src.utils.functions.lexsort._torch_lexsort_cuda

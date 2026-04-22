@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -491,6 +492,17 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.io.preview">
 <span id="src-utils-io-preview"></span><h1><a class="reference internal" href="#module-src.utils.io.preview" title="src.utils.io.preview"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.io.preview</span></code></a><a class="headerlink" href="#module-src.utils.io.preview" title="Link to this heading">#</a></h1>
 <p>Data preview utilities for JSON structures.</p>
+<p>Attributes:
+preview_changes: Preview what changes will be made without actually modifying files.
+preview_file_changes: Preview changes for a single file without modifying it.
+preview_pattern_files_statistics: Preview statistics for files matching a pattern.
+preview_file_statistics: Preview statistics for a single file.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.utils.io.preview import preview_changes, preview_file_changes, preview_pattern_files_statistics, preview_file_statistics
+&gt;&gt;&gt; preview_changes(“path/to/logs”)
+&gt;&gt;&gt; preview_file_changes(“path/to/log.json”)
+&gt;&gt;&gt; preview_pattern_files_statistics(“path/to/logs”)
+&gt;&gt;&gt; preview_file_statistics(“path/to/log.json”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -507,7 +519,7 @@ document.write(`
 <td><p>Preview changes for pattern files statistics operation without modifying files.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.utils.io.preview.preview_file_statistics" title="src.utils.io.preview.preview_file_statistics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preview_file_statistics</span></code></a></p></td>
-<td><p>Preview changes for a single file statistics operation without modifying it</p></td>
+<td><p>Preview changes for a single file statistics operation without modifying it.</p></td>
 </tr>
 </tbody>
 </table>
@@ -555,7 +567,14 @@ process_func (callable, optional): Processing function.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.io.preview.preview_file_statistics">
 <span class="sig-prename descclassname"><span class="pre">src.utils.io.preview.</span></span><span class="sig-name descname"><span class="pre">preview_file_statistics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'output.json'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'km'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">process_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.utils.io.preview.preview_file_statistics" title="Link to this definition">#</a></dt>
-<dd><p>Preview changes for a single file statistics operation without modifying it</p>
+<dd><p>Preview changes for a single file statistics operation without modifying it.</p>
+<p>Args:
+file_path (str): Path to the file.
+output_filename (str, optional): Output filename. Defaults to “output.json”.
+output_key (str, optional): Key to read. Defaults to “km”.
+process_func (callable, optional): Processing function. Defaults to None.</p>
+<p>Returns:
+bool: True if any modifications would be made, False otherwise.</p>
 </dd></dl>
 
 </section>

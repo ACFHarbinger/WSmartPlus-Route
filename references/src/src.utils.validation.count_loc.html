@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -491,9 +492,12 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.validation.count_loc">
 <span id="src-utils-validation-count-loc"></span><h1><a class="reference internal" href="#module-src.utils.validation.count_loc" title="src.utils.validation.count_loc"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.validation.count_loc</span></code></a><a class="headerlink" href="#module-src.utils.validation.count_loc" title="Link to this heading">#</a></h1>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+get_docstring_lines: Get docstring lines.
+analyze_file: Analyze file.
+group_by_directory: Aggregate file stats into buckets by the first <code class="docutils literal notranslate"><span class="pre">depth</span></code> directory components.
+main: Main function to count lines of code.</p>
 <p>Example:
-&gt;&gt;&gt; import count_loc</p>
+&gt;&gt;&gt; python logic/src/utils/validation/count_loc.py logic/src</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -542,6 +546,11 @@ Any: Description of return value.</p>
 <dt class="sig sig-object py" id="src.utils.validation.count_loc.group_by_directory">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.count_loc.</span></span><span class="sig-name descname"><span class="pre">group_by_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.validation.count_loc.group_by_directory" title="Link to this definition">#</a></dt>
 <dd><p>Aggregate file stats into buckets by the first <code class="docutils literal notranslate"><span class="pre">depth</span></code> directory components.</p>
+<p>Args:
+file_data (List[Dict]): List of file data.
+depth (int): Number of directory levels to group by.</p>
+<p>Returns:
+List[Dict]: List of grouped data.</p>
 </dd></dl>
 
 <dl class="py function">

@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -514,6 +515,24 @@ document.write(`
 <p>Detect circular import chains in a Python codebase using static AST analysis.
 Applies an iterative Tarjan’s SCC algorithm on the module-level import graph
 and reports all cycles. Optionally generates an interactive HTML visualization.</p>
+<p>Attributes:
+SKIP_DIRS: Set of directory names to exclude.
+RED: ANSI escape code for red text.
+YELLOW: ANSI escape code for yellow text.
+GREEN: ANSI escape code for green text.
+CYAN: ANSI escape code for cyan text.
+BOLD: ANSI escape code for bold text.
+DIM: ANSI escape code for dim text.
+RESET: ANSI escape code for resetting text color.
+file_to_module: Convert a file path to a module name.
+collect_module_map: Collect a map of module names to file paths.
+resolve_to_module: Resolve an import string to a module name.
+build_graph: Build an import graph from the Python files in the given directory.
+tarjan_sccs: Iterative Tarjan’s SCC algorithm.
+generate_html: Generate an interactive HTML visualization of the import graph.
+ImportVisitor: Visitor class to collect import dependencies from AST.</p>
+<p>Example:
+&gt;&gt;&gt; python logic/src/utils/validation/check_circular_imports.py logic/src –exclude logic/src/utils/validation</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -521,7 +540,7 @@ and reports all cycles. Optionally generates an interactive HTML visualization.<
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.validation.check_circular_imports.ImportVisitor" title="src.utils.validation.check_circular_imports.ImportVisitor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ImportVisitor</span></code></a></p></td>
-<td></td>
+<td><p>Visitor class to collect import dependencies from AST.</p></td>
 </tr>
 </tbody>
 </table>
@@ -532,25 +551,25 @@ and reports all cycles. Optionally generates an interactive HTML visualization.<
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.validation.check_circular_imports.file_to_module" title="src.utils.validation.check_circular_imports.file_to_module"><code class="xref py py-obj docutils literal notranslate"><span class="pre">file_to_module</span></code></a></p></td>
-<td></td>
+<td><p>Convert a file path to a module name.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.utils.validation.check_circular_imports.collect_module_map" title="src.utils.validation.check_circular_imports.collect_module_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">collect_module_map</span></code></a></p></td>
-<td></td>
+<td><p>Collect a map of module names to file paths.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.validation.check_circular_imports.resolve_to_module" title="src.utils.validation.check_circular_imports.resolve_to_module"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resolve_to_module</span></code></a></p></td>
-<td></td>
+<td><p>Resolve an import string to a module name.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.utils.validation.check_circular_imports.build_graph" title="src.utils.validation.check_circular_imports.build_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_graph</span></code></a></p></td>
-<td></td>
+<td><p>Build an import graph from the Python files in the given directory.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.validation.check_circular_imports.tarjan_sccs" title="src.utils.validation.check_circular_imports.tarjan_sccs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tarjan_sccs</span></code></a></p></td>
 <td><p>Iterative Tarjan’s SCC. Returns only SCCs with more than 1 node (true cycles).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.utils.validation.check_circular_imports.generate_html" title="src.utils.validation.check_circular_imports.generate_html"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_html</span></code></a></p></td>
-<td></td>
+<td><p>Generate an HTML visualization of the import graph with cycles highlighted.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.validation.check_circular_imports.main" title="src.utils.validation.check_circular_imports.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a></p></td>
-<td></td>
+<td><p>Main function to check for circular imports.</p></td>
 </tr>
 </tbody>
 </table>
@@ -641,69 +660,130 @@ and reports all cycles. Optionally generates an interactive HTML visualization.<
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.check_circular_imports.file_to_module">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.check_circular_imports.</span></span><span class="sig-name descname"><span class="pre">file_to_module</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.utils.validation.check_circular_imports.file_to_module" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Convert a file path to a module name.</p>
+<p>Args:
+filepath: The file path.
+root: The root directory.</p>
+<p>Returns:
+The module name.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.check_circular_imports.collect_module_map">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.check_circular_imports.</span></span><span class="sig-name descname"><span class="pre">collect_module_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.validation.check_circular_imports.collect_module_map" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Collect a map of module names to file paths.</p>
+<p>Args:
+root: Root directory to scan.
+exclude: Set of directory names to exclude.</p>
+<p>Returns:
+Dictionary mapping module names to file paths.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.check_circular_imports.resolve_to_module">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.check_circular_imports.</span></span><span class="sig-name descname"><span class="pre">resolve_to_module</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">known</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.validation.check_circular_imports.resolve_to_module" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Resolve an import string to a module name.</p>
+<p>Args:
+raw: The import string.
+level: The import level.
+current: The current module name.
+known: Set of known module names.</p>
+<p>Returns:
+The resolved module name.</p>
+</dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="src.utils.validation.check_circular_imports.ImportVisitor">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.utils.validation.check_circular_imports.</span></span><span class="sig-name descname"><span class="pre">ImportVisitor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">known</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.validation.check_circular_imports.ImportVisitor" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">ast.NodeVisitor</span></code></p>
+<p>Visitor class to collect import dependencies from AST.</p>
+<p>Attributes:
+module: The module name to visit.
+known: Set of known module names.
+deps: Set of import dependencies.</p>
+<p class="rubric">Initialization</p>
+<p>Initialize the import visitor.</p>
+<p>Args:
+module: The module name to visit.
+known: Set of known module names.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.validation.check_circular_imports.ImportVisitor.visit_Import">
 <span class="sig-name descname"><span class="pre">visit_Import</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ast.Import</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.validation.check_circular_imports.ImportVisitor.visit_Import" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Visit an import statement.</p>
+<p>Args:
+node: AST node representing an import statement.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.validation.check_circular_imports.ImportVisitor.visit_ImportFrom">
 <span class="sig-name descname"><span class="pre">visit_ImportFrom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ast.ImportFrom</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.validation.check_circular_imports.ImportVisitor.visit_ImportFrom" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Visit an import from statement.</p>
+<p>Args:
+node: AST node representing an import from statement.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.validation.check_circular_imports.ImportVisitor.visit_If">
 <span class="sig-name descname"><span class="pre">visit_If</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ast.If</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.validation.check_circular_imports.ImportVisitor.visit_If" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Visit an if statement.</p>
+<p>Args:
+node: AST node representing an if statement.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.validation.check_circular_imports.ImportVisitor.visit_FunctionDef">
 <span class="sig-name descname"><span class="pre">visit_FunctionDef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ast.FunctionDef</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.validation.check_circular_imports.ImportVisitor.visit_FunctionDef" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Visit a function definition.</p>
+<p>Args:
+node: AST node representing a function definition.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.validation.check_circular_imports.ImportVisitor.visit_AsyncFunctionDef">
 <span class="sig-name descname"><span class="pre">visit_AsyncFunctionDef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ast.AsyncFunctionDef</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.validation.check_circular_imports.ImportVisitor.visit_AsyncFunctionDef" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Visit an async function definition.</p>
+<p>Args:
+node: AST node representing an async function definition.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.check_circular_imports.build_graph">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.check_circular_imports.</span></span><span class="sig-name descname"><span class="pre">build_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.validation.check_circular_imports.build_graph" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Build an import graph from the Python files in the given directory.</p>
+<p>Args:
+root: Root directory to scan.
+exclude: Set of directory names to exclude.</p>
+<p>Returns:
+Dictionary representing the import graph.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.check_circular_imports.tarjan_sccs">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.check_circular_imports.</span></span><span class="sig-name descname"><span class="pre">tarjan_sccs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.validation.check_circular_imports.tarjan_sccs" title="Link to this definition">#</a></dt>
 <dd><p>Iterative Tarjan’s SCC. Returns only SCCs with more than 1 node (true cycles).</p>
+<p>Args:
+graph: Dictionary representing the import graph.</p>
+<p>Returns:
+List of SCCs, where each SCC is a list of module names.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.check_circular_imports.generate_html">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.check_circular_imports.</span></span><span class="sig-name descname"><span class="pre">generate_html</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cycles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.validation.check_circular_imports.generate_html" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Generate an HTML visualization of the import graph with cycles highlighted.</p>
+<p>Args:
+cycles: List of cycles, where each cycle is a list of module names.
+graph: Dictionary representing the import graph.
+output: Path to the output HTML file.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.check_circular_imports.main">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.check_circular_imports.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.validation.check_circular_imports.main" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Main function to check for circular imports.</p>
+</dd></dl>
 
 </section>
 </section>

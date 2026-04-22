@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -489,6 +490,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.functions.lexsort">
 <span id="src-utils-functions-lexsort"></span><h1><a class="reference internal" href="#module-src.utils.functions.lexsort" title="src.utils.functions.lexsort"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions.lexsort</span></code></a><a class="headerlink" href="#module-src.utils.functions.lexsort" title="Link to this heading">#</a></h1>
 <p>Lexicographical sort for PyTorch.</p>
+<p>Attributes:
+torch_lexsort: Performs lexicographic sorting on a sequence of keys using PyTorch.
+_torch_lexsort_cuda: Calculates a lexicographical sort order on GPU.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.utils.functions import torch_lexsort
+&gt;&gt;&gt; keys = (torch.tensor([1, 2]), torch.tensor([3, 1]))
+&gt;&gt;&gt; torch_lexsort(keys)
+tensor([1, 0])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -513,7 +522,7 @@ https://github.com/pytorch/pytorch/blob/695fd981924bd805704ecb5ccd67de17c56d7308
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.functions.lexsort.torch_lexsort">
-<span class="sig-prename descclassname"><span class="pre">src.utils.functions.lexsort.</span></span><span class="sig-name descname"><span class="pre">torch_lexsort</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.functions.lexsort.torch_lexsort" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.utils.functions.lexsort.</span></span><span class="sig-name descname"><span class="pre">torch_lexsort</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.utils.functions.lexsort.torch_lexsort" title="Link to this definition">#</a></dt>
 <dd><p>Performs lexicographic sorting on a sequence of keys using PyTorch.
 Falls back to Numpy for CPU tensors, uses CUDA optimization if available.</p>
 <p>Args:
@@ -525,11 +534,16 @@ Tensor: Indices that sort the keys.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.functions.lexsort._torch_lexsort_cuda">
-<span class="sig-prename descclassname"><span class="pre">src.utils.functions.lexsort.</span></span><span class="sig-name descname"><span class="pre">_torch_lexsort_cuda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.functions.lexsort._torch_lexsort_cuda" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.utils.functions.lexsort.</span></span><span class="sig-name descname"><span class="pre">_torch_lexsort_cuda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.utils.functions.lexsort._torch_lexsort_cuda" title="Link to this definition">#</a></dt>
 <dd><p>Function calculates a lexicographical sort order on GPU, similar to np.lexsort
 Relies heavily on undocumented behavior of torch.sort, namely that when sorting more than
 2048 entries in the sorting dim, it performs a sort using Thrust and it uses a stable sort
 https://github.com/pytorch/pytorch/blob/695fd981924bd805704ecb5ccd67de17c56d7308/aten/src/THC/generic/THCTensorSort.cu#L330</p>
+<p>Args:
+keys (tuple/list of Tensor): Sequence of keys to sort by (primary key last).
+dim (int, optional): Dimension along which to sort. Defaults to -1.</p>
+<p>Returns:
+Tensor: Indices that sort the keys.</p>
 </dd></dl>
 
 </section>

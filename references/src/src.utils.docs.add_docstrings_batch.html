@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -505,7 +506,11 @@ document.write(`
 <p>This script automatically detects missing docstrings in Python files and
 injects Google-Style docstrings. It supports type hint extraction and
 handles complex multi-line function signatures.</p>
-<p>Usage:
+<p>Attributes:
+TEMPLATES: Mapping from node types to Google-Style docstring templates.
+DocstringInjector: Class for injecting docstrings into Python files.
+main: Main entry point.</p>
+<p>Example:
 python add_docstrings_batch.py &lt;file_or_directory&gt; …</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
@@ -564,48 +569,74 @@ filepath (str): Description of filepath.</p>
 <dt class="sig sig-object py" id="src.utils.docs.add_docstrings_batch.DocstringInjector._get_indent">
 <span class="sig-name descname"><span class="pre">_get_indent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lineno</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.utils.docs.add_docstrings_batch.DocstringInjector._get_indent" title="Link to this definition">#</a></dt>
 <dd><p>Returns the indentation string of a specific line.</p>
+<p>Args:
+lineno (int): Line number.</p>
+<p>Returns:
+str: Indentation string.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.docs.add_docstrings_batch.DocstringInjector._format_args">
 <span class="sig-name descname"><span class="pre">_format_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">ast.arg</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_indent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.utils.docs.add_docstrings_batch.DocstringInjector._format_args" title="Link to this definition">#</a></dt>
 <dd><p>Formats the Args section with type hints.</p>
+<p>Args:
+args (List[ast.arg]): List of arguments.
+base_indent (str): Base indentation string.</p>
+<p>Returns:
+str: Formatted Args section.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.docs.add_docstrings_batch.DocstringInjector.generate_docstring">
 <span class="sig-name descname"><span class="pre">generate_docstring</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.utils.docs.add_docstrings_batch.DocstringInjector.generate_docstring" title="Link to this definition">#</a></dt>
 <dd><p>Generates the appropriate docstring based on node type and content.</p>
+<p>Args:
+node (Any): Node to generate docstring for.
+context (str, optional): Context of the node. Defaults to “”.</p>
+<p>Returns:
+str: Generated docstring.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.docs.add_docstrings_batch.DocstringInjector._find_insertion_line">
 <span class="sig-name descname"><span class="pre">_find_insertion_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.utils.docs.add_docstrings_batch.DocstringInjector._find_insertion_line" title="Link to this definition">#</a></dt>
 <dd><p>Finds the correct line index to insert the docstring.</p>
+<p>Args:
+node (Any): Node to find insertion line for.</p>
+<p>Returns:
+int: Line index to insert docstring.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.docs.add_docstrings_batch.DocstringInjector._queue_docstrings">
 <span class="sig-name descname"><span class="pre">_queue_docstrings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.docs.add_docstrings_batch.DocstringInjector._queue_docstrings" title="Link to this definition">#</a></dt>
 <dd><p>Internal helper to queue docstrings based on node types.</p>
+<p>Args:
+tree (Any): Tree to queue docstrings for.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.docs.add_docstrings_batch.DocstringInjector.scan_and_queue">
 <span class="sig-name descname"><span class="pre">scan_and_queue</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.docs.add_docstrings_batch.DocstringInjector.scan_and_queue" title="Link to this definition">#</a></dt>
 <dd><p>Scans the file and queues missing docstrings for insertion.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.docs.add_docstrings_batch.DocstringInjector.apply">
 <span class="sig-name descname"><span class="pre">apply</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.docs.add_docstrings_batch.DocstringInjector.apply" title="Link to this definition">#</a></dt>
 <dd><p>Applies the queued modifications to the source lines.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.docs.add_docstrings_batch.DocstringInjector.save">
 <span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.docs.add_docstrings_batch.DocstringInjector.save" title="Link to this definition">#</a></dt>
 <dd><p>Save.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 </dd></dl>

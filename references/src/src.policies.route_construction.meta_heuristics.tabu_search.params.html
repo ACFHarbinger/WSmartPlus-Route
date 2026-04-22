@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -498,6 +499,7 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.tabu_search.params.TSParams.use_2opt"><code class="docutils literal notranslate"><span class="pre">TSParams.use_2opt</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.tabu_search.params.TSParams.use_insertion"><code class="docutils literal notranslate"><span class="pre">TSParams.use_insertion</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.tabu_search.params.TSParams.acceptance_criterion"><code class="docutils literal notranslate"><span class="pre">TSParams.acceptance_criterion</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.tabu_search.params.TSParams.__post_init__"><code class="docutils literal notranslate"><span class="pre">TSParams.__post_init__()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.tabu_search.params.TSParams.from_config"><code class="docutils literal notranslate"><span class="pre">TSParams.from_config()</span></code></a></li>
 </ul>
 </li>
@@ -752,6 +754,12 @@ use_insertion: Enable insertion-based neighborhoods.
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.tabu_search.params.TSParams.__post_init__">
+<span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.tabu_search.params.TSParams.__post_init__" title="Link to this definition">#</a></dt>
+<dd><p>Ensure acceptance criterion is initialized even if not passed in config.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.meta_heuristics.tabu_search.params.TSParams.from_config">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.policies.route_construction.meta_heuristics.tabu_search.params.TSParams" title="src.policies.route_construction.meta_heuristics.tabu_search.params.TSParams"><span class="pre">src.policies.route_construction.meta_heuristics.tabu_search.params.TSParams</span></a></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.tabu_search.params.TSParams.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Build parameters from a configuration object.</p>
@@ -840,6 +848,7 @@ use_insertion: Enable insertion-based neighborhoods.
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.tabu_search.params.TSParams.use_2opt"><code class="docutils literal notranslate"><span class="pre">TSParams.use_2opt</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.tabu_search.params.TSParams.use_insertion"><code class="docutils literal notranslate"><span class="pre">TSParams.use_insertion</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.tabu_search.params.TSParams.acceptance_criterion"><code class="docutils literal notranslate"><span class="pre">TSParams.acceptance_criterion</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.tabu_search.params.TSParams.__post_init__"><code class="docutils literal notranslate"><span class="pre">TSParams.__post_init__()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.meta_heuristics.tabu_search.params.TSParams.from_config"><code class="docutils literal notranslate"><span class="pre">TSParams.from_config()</span></code></a></li>
 </ul>
 </li>

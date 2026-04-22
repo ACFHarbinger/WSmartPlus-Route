@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -491,6 +492,32 @@ document.write(`
 <span id="src-interfaces"></span><h1><a class="reference internal" href="#module-src.interfaces" title="src.interfaces"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.interfaces</span></code></a><a class="headerlink" href="#module-src.interfaces" title="Link to this heading">#</a></h1>
 <p>Interfaces for WSmart-Route logic components.
 DEFINING PROTOCOLS TO DECOUPLE MODULES.</p>
+<p>Attributes:
+IAcceptanceCriterion: Interface for acceptance criteria
+IBinContainer: Interface for bin containers
+IDistanceMetric: Interface for distance metrics
+IEnv: Interface for environments
+IMandatorySelectionStrategy: Interface for mandatory selection strategies
+IModel: Interface for models
+IPolicy: Interface for policies
+IRouteConstructor: Interface for route constructors
+IRouteImprovement: Interface for route improvements
+ITensorDictLike: Interface for tensor dict like objects
+ITraversable: Interface for traversable objects</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.interfaces import (
+IAcceptanceCriterion,
+IBinContainer,
+IDistanceMetric,
+IEnv,
+IMandatorySelectionStrategy,
+IModel,
+IPolicy,
+IRouteConstructor,
+IRouteImprovement,
+ITensorDictLike,
+ITraversable,
+)</p>
 <section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

@@ -16,7 +16,9 @@
 :align: left
 
 * - {py:obj}`EnvironmentTag <src.enums.environment_tags.EnvironmentTag>`
-  -
+  - ```{autodoc2-docstring} src.enums.environment_tags.EnvironmentTag
+    :summary:
+    ```
 ````
 
 ### API
@@ -25,6 +27,9 @@
 :canonical: src.enums.environment_tags.EnvironmentTag
 
 Bases: {py:obj}`enum.Enum`
+
+```{autodoc2-docstring} src.enums.environment_tags.EnvironmentTag
+```
 
 ````{py:attribute} EUCLIDEAN
 :canonical: src.enums.environment_tags.EnvironmentTag.EUCLIDEAN

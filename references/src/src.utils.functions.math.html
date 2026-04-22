@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -488,6 +489,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.functions.math">
 <span id="src-utils-functions-math"></span><h1><a class="reference internal" href="#module-src.utils.functions.math" title="src.utils.functions.math"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions.math</span></code></a><a class="headerlink" href="#module-src.utils.functions.math" title="Link to this heading">#</a></h1>
 <p>Mathematical utilities for robust computations.</p>
+<p>Attributes:
+safe_exp: Compute exponent with overflow/underflow protection.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.utils.functions import safe_exp
+&gt;&gt;&gt; safe_exp(1000)
+inf
+&gt;&gt;&gt; safe_exp(-1000)
+0.0</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

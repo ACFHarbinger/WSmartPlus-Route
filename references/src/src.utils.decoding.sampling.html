@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -491,6 +492,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.decoding.sampling">
 <span id="src-utils-decoding-sampling"></span><h1><a class="reference internal" href="#module-src.utils.decoding.sampling" title="src.utils.decoding.sampling"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.decoding.sampling</span></code></a><a class="headerlink" href="#module-src.utils.decoding.sampling" title="Link to this heading">#</a></h1>
 <p>Sampling decoding strategy implementation.</p>
+<p>Attributes:
+Sampling: Sampling decoding strategy.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.utils.decoding import Sampling
+&gt;&gt;&gt; strategy = Sampling()
+&gt;&gt;&gt; strategy.step(torch.tensor([[0.1, 0.2], [0.3, 0.4]]), torch.tensor([[True, True], [True, True]]))
+(tensor([1, 1]), tensor([0.2, 0.4]), tensor([0.2, 0.4]))</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -511,6 +519,10 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.utils.decoding.sampling.</span></span><span class="sig-name descname"><span class="pre">Sampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tanh_clipping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_logits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multistart</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">select_best</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.decoding.sampling.Sampling" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.utils.decoding.base.html#src.utils.decoding.base.DecodingStrategy" title="src.utils.decoding.base.DecodingStrategy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.utils.decoding.base.DecodingStrategy</span></code></a></p>
 <p>Sampling decoding: sample from the probability distribution.</p>
+<p>Attributes:
+temperature: Temperature for sampling.
+top_k: Top-k filtering.
+top_p: Top-p filtering.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize DecodingStrategy.</p>
 <p>Args:
@@ -521,11 +533,18 @@ tanh_clipping: Apply tanh clipping to logits (Bello et al., 2016).
 mask_logits: Whether to apply masking to invalid actions.
 multistart: Whether to use multiple starting points.
 num_starts: Number of starting points for multistart.
-select_best: Whether to select best solution from multiple starts.</p>
+select_best: Whether to select best solution from multiple starts.
+kwargs: Additional arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.decoding.sampling.Sampling.step">
 <span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">tensordict.TensorDict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.decoding.sampling.Sampling.step" title="Link to this definition">#</a></dt>
 <dd><p>Sample action from distribution.</p>
+<p>Args:
+logits: Logits tensor [batch, num_nodes]
+mask: Mask tensor [batch, num_nodes]
+td: TensorDict (unused)</p>
+<p>Returns:
+Tuple of (action, log_prob, entropy)</p>
 </dd></dl>
 
 </dd></dl>

@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -498,6 +499,23 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.validation.check_nested_imports">
 <span id="src-utils-validation-check-nested-imports"></span><h1><a class="reference internal" href="#module-src.utils.validation.check_nested_imports" title="src.utils.validation.check_nested_imports"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.validation.check_nested_imports</span></code></a><a class="headerlink" href="#module-src.utils.validation.check_nested_imports" title="Link to this heading">#</a></h1>
+<p>Finds all nested imports (imports that are inside a class or function definition) in a Python codebase.</p>
+<p>Attributes:
+RICH_AVAILABLE: bool - Whether the rich library is available.
+is_type_checking_block: Check if a node is an <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">TYPE_CHECKING:</span></code> block.
+is_import_error_try_block: Check if a node is a <code class="docutils literal notranslate"><span class="pre">try...except</span> <span class="pre">ImportError:</span></code> block.
+is_suppress_import_error_block: Check if a node is a <code class="docutils literal notranslate"><span class="pre">with</span> <span class="pre">contextlib.suppress(ImportError):</span></code> block.
+is_constant_expression: Recursively check if an expression consists only of constants and uppercase names.
+is_header_assignment: Check if a node is a header-safe assignment.
+is_constant_guarded_if: Check if a node is an <code class="docutils literal notranslate"><span class="pre">if</span></code> block where the test involves only constants/uppercase names.
+is_header_setup_call: Check for common setup calls like matplotlib.use() or warnings.filterwarnings().
+get_factory_line_ranges: Get the line ranges of factory functions.
+extract_all_imports: Extract all imports from a file.
+analyze_file: Analyze a file for nested imports.
+print_stats_table: Print statistics table.
+main: Main function to find nested imports.</p>
+<p>Example:
+&gt;&gt;&gt; python logic/src/utils/validation/check_nested_imports.py –path logic/src</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -539,7 +557,7 @@ Allowed: Constants, collections of constants, os.environ updates, and Logger ini
 <td><p>Print a Rich table summarising nested import counts per top-level subdirectory.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.utils.validation.check_nested_imports.main" title="src.utils.validation.check_nested_imports.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a></p></td>
-<td></td>
+<td><p>Main entry point for the script.</p></td>
 </tr>
 </tbody>
 </table>
@@ -551,24 +569,40 @@ Allowed: Constants, collections of constants, os.environ updates, and Logger ini
 <dt class="sig sig-object py" id="src.utils.validation.check_nested_imports.is_type_checking_block">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.check_nested_imports.</span></span><span class="sig-name descname"><span class="pre">is_type_checking_block</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ast.stmt</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.utils.validation.check_nested_imports.is_type_checking_block" title="Link to this definition">#</a></dt>
 <dd><p>Check if a node is an <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">TYPE_CHECKING:</span></code> block.</p>
+<p>Args:
+node: The AST node to check.</p>
+<p>Returns:
+True if the node is a type checking block, False otherwise.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.check_nested_imports.is_import_error_try_block">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.check_nested_imports.</span></span><span class="sig-name descname"><span class="pre">is_import_error_try_block</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ast.stmt</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.utils.validation.check_nested_imports.is_import_error_try_block" title="Link to this definition">#</a></dt>
 <dd><p>Check if a node is a <code class="docutils literal notranslate"><span class="pre">try...except</span> <span class="pre">ImportError:</span></code> block.</p>
+<p>Args:
+node: The AST node to check.</p>
+<p>Returns:
+True if the node is a try-except ImportError block, False otherwise.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.check_nested_imports.is_suppress_import_error_block">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.check_nested_imports.</span></span><span class="sig-name descname"><span class="pre">is_suppress_import_error_block</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ast.stmt</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.utils.validation.check_nested_imports.is_suppress_import_error_block" title="Link to this definition">#</a></dt>
 <dd><p>Check if a node is a <code class="docutils literal notranslate"><span class="pre">with</span> <span class="pre">contextlib.suppress(ImportError):</span></code> block.</p>
+<p>Args:
+node: The AST node to check.</p>
+<p>Returns:
+True if the node is a suppress import error block, False otherwise.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.check_nested_imports.is_constant_expression">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.check_nested_imports.</span></span><span class="sig-name descname"><span class="pre">is_constant_expression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ast.AST</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.utils.validation.check_nested_imports.is_constant_expression" title="Link to this definition">#</a></dt>
 <dd><p>Recursively check if an expression consists only of constants and uppercase names.</p>
+<p>Args:
+node: The AST node to check.</p>
+<p>Returns:
+True if the expression consists only of constants and uppercase names, False otherwise.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -576,48 +610,79 @@ Allowed: Constants, collections of constants, os.environ updates, and Logger ini
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.check_nested_imports.</span></span><span class="sig-name descname"><span class="pre">is_header_assignment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ast.stmt</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.utils.validation.check_nested_imports.is_header_assignment" title="Link to this definition">#</a></dt>
 <dd><p>Check if a node is a header-safe assignment.
 Allowed: Constants, collections of constants, os.environ updates, and Logger initialization.</p>
+<p>Args:
+node: The AST node to check.</p>
+<p>Returns:
+True if the node is a header-safe assignment, False otherwise.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.check_nested_imports.is_constant_guarded_if">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.check_nested_imports.</span></span><span class="sig-name descname"><span class="pre">is_constant_guarded_if</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ast.stmt</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.utils.validation.check_nested_imports.is_constant_guarded_if" title="Link to this definition">#</a></dt>
 <dd><p>Check if a node is an <code class="docutils literal notranslate"><span class="pre">if</span></code> block where the test involves only constants/uppercase names.</p>
+<p>Args:
+node: The AST node to check.</p>
+<p>Returns:
+True if the node is a constant-guarded if block, False otherwise.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.check_nested_imports.is_header_setup_call">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.check_nested_imports.</span></span><span class="sig-name descname"><span class="pre">is_header_setup_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ast.stmt</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.utils.validation.check_nested_imports.is_header_setup_call" title="Link to this definition">#</a></dt>
 <dd><p>Check for common setup calls like matplotlib.use() or warnings.filterwarnings().</p>
+<p>Args:
+node: The AST node to check.</p>
+<p>Returns:
+True if the node is a setup call, False otherwise.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.check_nested_imports.get_factory_line_ranges">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.check_nested_imports.</span></span><span class="sig-name descname"><span class="pre">get_factory_line_ranges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ast.AST</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.validation.check_nested_imports.get_factory_line_ranges" title="Link to this definition">#</a></dt>
 <dd><p>Identifies the start and end lines of all classes containing ‘Factory’.</p>
+<p>Args:
+tree: The AST node to extract imports from.</p>
+<p>Returns:
+A list of tuples, where each tuple contains the start and end line numbers of a Factory class.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.check_nested_imports.extract_all_imports">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.check_nested_imports.</span></span><span class="sig-name descname"><span class="pre">extract_all_imports</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ast.AST</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">ast.AST</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.validation.check_nested_imports.extract_all_imports" title="Link to this definition">#</a></dt>
 <dd><p>Recursively extract all import nodes from within a given AST node.</p>
+<p>Args:
+node: The AST node to extract imports from.</p>
+<p>Returns:
+A set of import nodes.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.check_nested_imports.analyze_file">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.check_nested_imports.</span></span><span class="sig-name descname"><span class="pre">analyze_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_factories</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.validation.check_nested_imports.analyze_file" title="Link to this definition">#</a></dt>
 <dd><p>Parses a Python file and returns a list of nested imports.</p>
+<p>Args:
+filepath: The path to the Python file to analyze.
+ignore_factories: Whether to ignore nested imports inside Factory classes.</p>
+<p>Returns:
+A list of tuples, where each tuple contains the line number and name of a nested import.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.check_nested_imports.print_stats_table">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.check_nested_imports.</span></span><span class="sig-name descname"><span class="pre">print_stats_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all_results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.validation.check_nested_imports.print_stats_table" title="Link to this definition">#</a></dt>
 <dd><p>Print a Rich table summarising nested import counts per top-level subdirectory.</p>
+<p>Args:
+all_results: Dictionary mapping file paths to lists of nested imports.
+target_root: The root directory to scan.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.check_nested_imports.main">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.check_nested_imports.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.validation.check_nested_imports.main" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Main entry point for the script.</p>
+</dd></dl>
 
 </section>
 </section>

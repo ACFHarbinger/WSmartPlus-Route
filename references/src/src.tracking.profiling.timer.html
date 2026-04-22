@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -512,12 +513,25 @@ document.write(`
 <p>Named block and function-level timing utilities.</p>
 <p>Provides lightweight wrappers for timing arbitrary code sections and
 automatically forwarding elapsed times to the active WSTracker run.</p>
-<p>Classes:
+<p>Attributes:
 BlockTimer: Context-manager timer for a single named code block.
-MultiStepTimer: Multi-phase timer that tracks several sequential phases.</p>
-<p>Functions:
+MultiStepTimer: Multi-phase timer that tracks several sequential phases.
 profile_block: Convenience context-manager wrapper around BlockTimer.
 profile_function: Decorator that times every call to a function.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.tracking.profiling import BlockTimer, MultiStepTimer, profile_block, profile_function
+&gt;&gt;&gt; with BlockTimer(“data_loading”) as t:
+…     dataset = load_data()
+&gt;&gt;&gt; print(t.elapsed)   # seconds
+&gt;&gt;&gt; t = BlockTimer(“training_epoch”)
+&gt;&gt;&gt; t.start()
+&gt;&gt;&gt; train_one_epoch()
+&gt;&gt;&gt; t.stop()           # logs automatically
+&gt;&gt;&gt; profile_block(“preprocess”):
+…     preprocess()
+&gt;&gt;&gt; &#64;profile_function
+… def my_function():
+…     my_function()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -567,6 +581,16 @@ train_one_epoch()
 t.stop()           # logs automatically
 </pre></div>
 </div>
+<p>Attributes:
+name: Human-readable label for the timed block.
+log_metric: When <code class="docutils literal notranslate"><span class="pre">True</span></code> (default), call :meth:<code class="docutils literal notranslate"><span class="pre">log_to_run</span></code> upon
+:meth:<code class="docutils literal notranslate"><span class="pre">stop</span></code>.
+step: Metric step dimension forwarded to <code class="docutils literal notranslate"><span class="pre">Run.log_metric</span></code>.
+prefix: Metric key prefix.  The value is logged as
+<code class="docutils literal notranslate"><span class="pre">{prefix}/{name}_sec</span></code>.
+elapsed: Elapsed wall-clock seconds.
+_start: Start time of the current timing interval.</p>
+<p class="rubric">Initialization</p>
 <p>Args:
 name: Human-readable label for the timed block.
 log_metric: When <code class="docutils literal notranslate"><span class="pre">True</span></code> (default), call :meth:<code class="docutils literal notranslate"><span class="pre">log_to_run</span></code> upon
@@ -574,11 +598,14 @@ log_metric: When <code class="docutils literal notranslate"><span class="pre">Tr
 step: Metric step dimension forwarded to <code class="docutils literal notranslate"><span class="pre">Run.log_metric</span></code>.
 prefix: Metric key prefix.  The value is logged as
 <code class="docutils literal notranslate"><span class="pre">{prefix}/{name}_sec</span></code>.</p>
-<p class="rubric">Initialization</p>
+<p>Returns:
+None</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.timer.BlockTimer.start">
 <span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.profiling.timer.BlockTimer" title="src.tracking.profiling.timer.BlockTimer"><span class="pre">src.tracking.profiling.timer.BlockTimer</span></a></span></span><a class="headerlink" href="#src.tracking.profiling.timer.BlockTimer.start" title="Link to this definition">#</a></dt>
 <dd><p>Record start time and return <em>self</em> for chaining.</p>
+<p>Returns:
+self</p>
 </dd></dl>
 
 <dl class="py method">
@@ -594,22 +621,35 @@ Elapsed wall-clock seconds.</p>
 <span class="sig-name descname"><span class="pre">log_to_run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.profiling.timer.BlockTimer.log_to_run" title="Link to this definition">#</a></dt>
 <dd><p>Forward the elapsed time to the active WSTracker run (silent no-op
 when no run is active or an error occurs).</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.timer.BlockTimer.__enter__">
 <span class="sig-name descname"><span class="pre">__enter__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.profiling.timer.BlockTimer" title="src.tracking.profiling.timer.BlockTimer"><span class="pre">src.tracking.profiling.timer.BlockTimer</span></a></span></span><a class="headerlink" href="#src.tracking.profiling.timer.BlockTimer.__enter__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Enter the runtime context related to this object.</p>
+<p>Returns:
+self</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.timer.BlockTimer.__exit__">
 <span class="sig-name descname"><span class="pre">__exit__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.profiling.timer.BlockTimer.__exit__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Exit the runtime context related to this object.</p>
+<p>Args:
+_args: Arguments passed to the exit method.</p>
+<p>Returns:
+None</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.timer.BlockTimer.__repr__">
 <span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.tracking.profiling.timer.BlockTimer.__repr__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return a string representation of the object.</p>
+<p>Returns:
+str</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -633,56 +673,88 @@ print(t)                        # per-phase summary
 t.log_to_run(prefix=&quot;epoch&quot;)    # emit to WSTracker
 </pre></div>
 </div>
+<p>Attributes:
+accumulate: When <code class="docutils literal notranslate"><span class="pre">True</span></code> (default), multiple :meth:<code class="docutils literal notranslate"><span class="pre">start</span></code> calls for
+the same phase name add to the existing total rather than
+overwriting it.
+_phases: Dictionary mapping phase names to lists of recorded durations.
+_current_phase: The currently active phase name.
+_phase_start: The start time of the current phase.</p>
+<p class="rubric">Initialization</p>
 <p>Args:
 accumulate: When <code class="docutils literal notranslate"><span class="pre">True</span></code> (default), multiple :meth:<code class="docutils literal notranslate"><span class="pre">start</span></code> calls for
 the same phase name add to the existing total rather than
 overwriting it.</p>
-<p class="rubric">Initialization</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.timer.MultiStepTimer.start">
 <span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.profiling.timer.MultiStepTimer" title="src.tracking.profiling.timer.MultiStepTimer"><span class="pre">src.tracking.profiling.timer.MultiStepTimer</span></a></span></span><a class="headerlink" href="#src.tracking.profiling.timer.MultiStepTimer.start" title="Link to this definition">#</a></dt>
 <dd><p>Begin timing <em>phase</em>.  Implicitly stops the current phase.</p>
+<p>Args:
+phase: The name of the phase to start timing.</p>
+<p>Returns:
+self</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.timer.MultiStepTimer.stop">
 <span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.profiling.timer.MultiStepTimer" title="src.tracking.profiling.timer.MultiStepTimer"><span class="pre">src.tracking.profiling.timer.MultiStepTimer</span></a></span></span><a class="headerlink" href="#src.tracking.profiling.timer.MultiStepTimer.stop" title="Link to this definition">#</a></dt>
 <dd><p>Stop the current phase.</p>
+<p>Returns:
+self</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.timer.MultiStepTimer._commit">
 <span class="sig-name descname"><span class="pre">_commit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.profiling.timer.MultiStepTimer._commit" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Commit the current phase’s time to the internal storage.</p>
+<p>Returns:
+None</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.tracking.profiling.timer.MultiStepTimer.total">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">total</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.tracking.profiling.timer.MultiStepTimer.total" title="Link to this definition">#</a></dt>
 <dd><p>Total accumulated time across all phases (seconds).</p>
+<p>Returns:
+float</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.timer.MultiStepTimer.phase_total">
 <span class="sig-name descname"><span class="pre">phase_total</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.tracking.profiling.timer.MultiStepTimer.phase_total" title="Link to this definition">#</a></dt>
 <dd><p>Accumulated time for <em>phase</em> (0.0 if not recorded).</p>
+<p>Args:
+phase: The name of the phase to get the total time for.</p>
+<p>Returns:
+float</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.timer.MultiStepTimer.summary">
 <span class="sig-name descname"><span class="pre">summary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.profiling.timer.MultiStepTimer.summary" title="Link to this definition">#</a></dt>
 <dd><p>Return <code class="docutils literal notranslate"><span class="pre">{phase:</span> <span class="pre">total_seconds}</span></code> for every recorded phase.</p>
+<p>Returns:
+Dict[str, float]</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.timer.MultiStepTimer.log_to_run">
 <span class="sig-name descname"><span class="pre">log_to_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'time'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.profiling.timer.MultiStepTimer.log_to_run" title="Link to this definition">#</a></dt>
 <dd><p>Log per-phase totals and overall total to the active WSTracker run.</p>
+<p>Args:
+prefix: Metric key prefix.
+step: Metric step dimension forwarded to <code class="docutils literal notranslate"><span class="pre">Run.log_metrics</span></code>.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.timer.MultiStepTimer.__repr__">
 <span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.tracking.profiling.timer.MultiStepTimer.__repr__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Return a string representation of the object.</p>
+<p>Returns:
+str</p>
+</dd></dl>
 
 </dd></dl>
 

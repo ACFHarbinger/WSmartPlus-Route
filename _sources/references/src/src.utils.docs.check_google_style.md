@@ -55,6 +55,18 @@
   - ```{autodoc2-docstring} src.utils.docs.check_google_style.SECTION_ALIASES
     :summary:
     ```
+* - {py:obj}`_CONTEXT_LABEL <src.utils.docs.check_google_style._CONTEXT_LABEL>`
+  - ```{autodoc2-docstring} src.utils.docs.check_google_style._CONTEXT_LABEL
+    :summary:
+    ```
+* - {py:obj}`_CONTEXT_STYLE <src.utils.docs.check_google_style._CONTEXT_STYLE>`
+  - ```{autodoc2-docstring} src.utils.docs.check_google_style._CONTEXT_STYLE
+    :summary:
+    ```
+* - {py:obj}`SKIP_DIRS <src.utils.docs.check_google_style.SKIP_DIRS>`
+  - ```{autodoc2-docstring} src.utils.docs.check_google_style.SKIP_DIRS
+    :summary:
+    ```
 ````
 
 ### API
@@ -71,6 +83,7 @@
 
 ````{py:data} SECTION_ALIASES
 :canonical: src.utils.docs.check_google_style.SECTION_ALIASES
+:type: typing.Dict[str, str]
 :value: >
    None
 
@@ -79,7 +92,39 @@
 
 ````
 
-`````{py:class} GoogleStyleValidator(filepath)
+````{py:data} _CONTEXT_LABEL
+:canonical: src.utils.docs.check_google_style._CONTEXT_LABEL
+:type: typing.Dict[str, str]
+:value: >
+   None
+
+```{autodoc2-docstring} src.utils.docs.check_google_style._CONTEXT_LABEL
+```
+
+````
+
+````{py:data} _CONTEXT_STYLE
+:canonical: src.utils.docs.check_google_style._CONTEXT_STYLE
+:type: typing.Dict[str, str]
+:value: >
+   None
+
+```{autodoc2-docstring} src.utils.docs.check_google_style._CONTEXT_STYLE
+```
+
+````
+
+````{py:data} SKIP_DIRS
+:canonical: src.utils.docs.check_google_style.SKIP_DIRS
+:value: >
+   None
+
+```{autodoc2-docstring} src.utils.docs.check_google_style.SKIP_DIRS
+```
+
+````
+
+`````{py:class} GoogleStyleValidator(filepath: str)
 :canonical: src.utils.docs.check_google_style.GoogleStyleValidator
 
 Bases: {py:obj}`ast.NodeVisitor`
@@ -93,31 +138,31 @@ Bases: {py:obj}`ast.NodeVisitor`
 ```{autodoc2-docstring} src.utils.docs.check_google_style.GoogleStyleValidator.__init__
 ```
 
-````{py:method} add_violation(node, message)
-:canonical: src.utils.docs.check_google_style.GoogleStyleValidator.add_violation
+````{py:method} _add(node: ast.AST, message: str) -> None
+:canonical: src.utils.docs.check_google_style.GoogleStyleValidator._add
 
-```{autodoc2-docstring} src.utils.docs.check_google_style.GoogleStyleValidator.add_violation
+```{autodoc2-docstring} src.utils.docs.check_google_style.GoogleStyleValidator._add
 ```
 
 ````
 
-````{py:method} _parse_docstring_sections(docstring: str) -> typing.Dict[str, str]
-:canonical: src.utils.docs.check_google_style.GoogleStyleValidator._parse_docstring_sections
+````{py:method} _parse_sections(docstring: str) -> typing.Dict[str, str]
+:canonical: src.utils.docs.check_google_style.GoogleStyleValidator._parse_sections
 
-```{autodoc2-docstring} src.utils.docs.check_google_style.GoogleStyleValidator._parse_docstring_sections
+```{autodoc2-docstring} src.utils.docs.check_google_style.GoogleStyleValidator._parse_sections
 ```
 
 ````
 
-````{py:method} _check_missing_args(node, sections)
-:canonical: src.utils.docs.check_google_style.GoogleStyleValidator._check_missing_args
+````{py:method} _check_args(node: typing.Union[ast.FunctionDef, ast.AsyncFunctionDef], sections: typing.Dict[str, str]) -> None
+:canonical: src.utils.docs.check_google_style.GoogleStyleValidator._check_args
 
-```{autodoc2-docstring} src.utils.docs.check_google_style.GoogleStyleValidator._check_missing_args
+```{autodoc2-docstring} src.utils.docs.check_google_style.GoogleStyleValidator._check_args
 ```
 
 ````
 
-````{py:method} _check_returns_yields(node, sections)
+````{py:method} _check_returns_yields(node: typing.Union[ast.FunctionDef, ast.AsyncFunctionDef], sections: typing.Dict[str, str]) -> None
 :canonical: src.utils.docs.check_google_style.GoogleStyleValidator._check_returns_yields
 
 ```{autodoc2-docstring} src.utils.docs.check_google_style.GoogleStyleValidator._check_returns_yields
@@ -125,7 +170,7 @@ Bases: {py:obj}`ast.NodeVisitor`
 
 ````
 
-````{py:method} visit_Module(node)
+````{py:method} visit_Module(node: ast.Module) -> None
 :canonical: src.utils.docs.check_google_style.GoogleStyleValidator.visit_Module
 
 ```{autodoc2-docstring} src.utils.docs.check_google_style.GoogleStyleValidator.visit_Module
@@ -133,7 +178,7 @@ Bases: {py:obj}`ast.NodeVisitor`
 
 ````
 
-````{py:method} visit_ClassDef(node)
+````{py:method} visit_ClassDef(node: ast.ClassDef) -> None
 :canonical: src.utils.docs.check_google_style.GoogleStyleValidator.visit_ClassDef
 
 ```{autodoc2-docstring} src.utils.docs.check_google_style.GoogleStyleValidator.visit_ClassDef
@@ -141,7 +186,7 @@ Bases: {py:obj}`ast.NodeVisitor`
 
 ````
 
-````{py:method} visit_FunctionDef(node)
+````{py:method} visit_FunctionDef(node: ast.FunctionDef) -> None
 :canonical: src.utils.docs.check_google_style.GoogleStyleValidator.visit_FunctionDef
 
 ```{autodoc2-docstring} src.utils.docs.check_google_style.GoogleStyleValidator.visit_FunctionDef
@@ -149,7 +194,7 @@ Bases: {py:obj}`ast.NodeVisitor`
 
 ````
 
-````{py:method} visit_AsyncFunctionDef(node)
+````{py:method} visit_AsyncFunctionDef(node: ast.AsyncFunctionDef) -> None
 :canonical: src.utils.docs.check_google_style.GoogleStyleValidator.visit_AsyncFunctionDef
 
 ```{autodoc2-docstring} src.utils.docs.check_google_style.GoogleStyleValidator.visit_AsyncFunctionDef
@@ -157,7 +202,7 @@ Bases: {py:obj}`ast.NodeVisitor`
 
 ````
 
-````{py:method} _validate_function(node)
+````{py:method} _validate_function(node: Union[ast.FunctionDef, ast.AsyncFunctionDef]) -> None
 :canonical: src.utils.docs.check_google_style.GoogleStyleValidator._validate_function
 
 ```{autodoc2-docstring} src.utils.docs.check_google_style.GoogleStyleValidator._validate_function
@@ -167,21 +212,21 @@ Bases: {py:obj}`ast.NodeVisitor`
 
 `````
 
-````{py:function} analyze_file(filepath)
+````{py:function} analyze_file(filepath: str) -> typing.List[dict]
 :canonical: src.utils.docs.check_google_style.analyze_file
 
 ```{autodoc2-docstring} src.utils.docs.check_google_style.analyze_file
 ```
 ````
 
-````{py:function} display_report(all_violations: typing.List[dict])
+````{py:function} display_report(all_violations: typing.List[dict]) -> None
 :canonical: src.utils.docs.check_google_style.display_report
 
 ```{autodoc2-docstring} src.utils.docs.check_google_style.display_report
 ```
 ````
 
-````{py:function} main()
+````{py:function} main() -> None
 :canonical: src.utils.docs.check_google_style.main
 
 ```{autodoc2-docstring} src.utils.docs.check_google_style.main

@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -513,6 +514,12 @@ document.write(`
 <h2>Usage Context<a class="headerlink" href="#usage-context" title="Link to this heading">#</a></h2>
 <p>These keys validate config files and CLI arguments. Missing keys trigger
 default value fallbacks in logic/src/configs/hpo.py.</p>
+<p>Attributes:
+HOP_KEYS: Tuple of HPO configuration keys</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.constants import HOP_KEYS
+&gt;&gt;&gt; HOP_KEYS[0]
+‘hpo_method’</p>
 </section>
 <p>Hyper-Parameter Optimization (HPO) constants.</p>
 <p>This module defines configuration keys for HPO experiments.

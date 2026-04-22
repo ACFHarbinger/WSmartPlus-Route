@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -491,9 +492,12 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.validation.tree_loc">
 <span id="src-utils-validation-tree-loc"></span><h1><a class="reference internal" href="#module-src.utils.validation.tree_loc" title="src.utils.validation.tree_loc"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.validation.tree_loc</span></code></a><a class="headerlink" href="#module-src.utils.validation.tree_loc" title="Link to this heading">#</a></h1>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+get_docstring_lines: Get docstring lines.
+analyze_file: Analyze file.
+print_tree: Print tree.
+main: Main function to count lines of code.</p>
 <p>Example:
-&gt;&gt;&gt; import tree_loc</p>
+&gt;&gt;&gt; python logic/src/utils/validation/tree_loc.py logic/src</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -504,13 +508,13 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <td><p>Parses the source code AST to find all lines that are part of docstrings.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.utils.validation.tree_loc.analyze_file" title="src.utils.validation.tree_loc.analyze_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analyze_file</span></code></a></p></td>
-<td><p>Returns (code, comments, docstrings).</p></td>
+<td><p>Analyze a file and return the number of code lines, comment lines, and docstring lines.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.validation.tree_loc.print_tree" title="src.utils.validation.tree_loc.print_tree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_tree</span></code></a></p></td>
 <td><p>Print tree.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.utils.validation.tree_loc.main" title="src.utils.validation.tree_loc.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a></p></td>
-<td><p>Main.</p></td>
+<td><p>Main function.</p></td>
 </tr>
 </tbody>
 </table>
@@ -522,17 +526,25 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <dt class="sig sig-object py" id="src.utils.validation.tree_loc.get_docstring_lines">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.tree_loc.</span></span><span class="sig-name descname"><span class="pre">get_docstring_lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.validation.tree_loc.get_docstring_lines" title="Link to this definition">#</a></dt>
 <dd><p>Parses the source code AST to find all lines that are part of docstrings.</p>
+<p>Args:
+source (str): Source code.
+Returns:
+Set[int]: Set of line numbers that are part of docstrings.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.tree_loc.analyze_file">
 <span class="sig-prename descclassname"><span class="pre">src.utils.validation.tree_loc.</span></span><span class="sig-name descname"><span class="pre">analyze_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.validation.tree_loc.analyze_file" title="Link to this definition">#</a></dt>
-<dd><p>Returns (code, comments, docstrings).</p>
+<dd><p>Analyze a file and return the number of code lines, comment lines, and docstring lines.</p>
+<p>Args:
+filepath (str): File path.
+Returns:
+Tuple[int, int, int]: (number of code lines, number of comment lines, number of docstring lines).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.tree_loc.print_tree">
-<span class="sig-prename descclassname"><span class="pre">src.utils.validation.tree_loc.</span></span><span class="sig-name descname"><span class="pre">print_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_last</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_dirs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.validation.tree_loc.print_tree" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.utils.validation.tree_loc.</span></span><span class="sig-name descname"><span class="pre">print_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_last</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_dirs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.validation.tree_loc.print_tree" title="Link to this definition">#</a></dt>
 <dd><p>Print tree.</p>
 <p>Args:
 directory (Any): Description of directory.
@@ -543,8 +555,10 @@ skip_dirs (Any): Description of skip_dirs.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.validation.tree_loc.main">
-<span class="sig-prename descclassname"><span class="pre">src.utils.validation.tree_loc.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.validation.tree_loc.main" title="Link to this definition">#</a></dt>
-<dd><p>Main.</p>
+<span class="sig-prename descclassname"><span class="pre">src.utils.validation.tree_loc.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.validation.tree_loc.main" title="Link to this definition">#</a></dt>
+<dd><p>Main function.</p>
+<p>Args:
+path (str): Path to the root directory.</p>
 </dd></dl>
 
 </section>

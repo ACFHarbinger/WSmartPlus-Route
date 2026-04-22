@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -490,6 +491,17 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.tasks.losses">
 <span id="src-utils-tasks-losses"></span><h1><a class="reference internal" href="#module-src.utils.tasks.losses" title="src.utils.tasks.losses"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.tasks.losses</span></code></a><a class="headerlink" href="#module-src.utils.tasks.losses" title="Link to this heading">#</a></h1>
 <p>Consistency and symmetry losses for NCO.</p>
+<p>This module provides functions to calculate consistency and symmetry
+losses for NCO.</p>
+<p>Attributes:
+problem_symmetricity_loss: Consistency loss across problem augmentations.
+solution_symmetricity_loss: Consistency loss across solution starts.
+invariance_loss: Loss for invariant representation across augmentations.</p>
+<p>Example:
+&gt;&gt;&gt; import losses
+&gt;&gt;&gt; losses.problem_symmetricity_loss(reward, log_likelihood)
+&gt;&gt;&gt; losses.solution_symmetricity_loss(reward, log_likelihood)
+&gt;&gt;&gt; losses.invariance_loss(proj_embed, num_augment)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -515,18 +527,35 @@ document.write(`
 <dt class="sig sig-object py" id="src.utils.tasks.losses.problem_symmetricity_loss">
 <span class="sig-prename descclassname"><span class="pre">src.utils.tasks.losses.</span></span><span class="sig-name descname"><span class="pre">problem_symmetricity_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_likelihood</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.utils.tasks.losses.problem_symmetricity_loss" title="Link to this definition">#</a></dt>
 <dd><p>Consistency loss across problem augmentations.</p>
+<p>Args:
+reward (torch.Tensor): Reward tensor.
+log_likelihood (torch.Tensor): Log-likelihood tensor.
+dim (int): Dimension to calculate the loss over.</p>
+<p>Returns:
+torch.Tensor: Consistency loss.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.tasks.losses.solution_symmetricity_loss">
 <span class="sig-prename descclassname"><span class="pre">src.utils.tasks.losses.</span></span><span class="sig-name descname"><span class="pre">solution_symmetricity_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_likelihood</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.utils.tasks.losses.solution_symmetricity_loss" title="Link to this definition">#</a></dt>
 <dd><p>Consistency loss across solution starts.</p>
+<p>Args:
+reward (torch.Tensor): Reward tensor.
+log_likelihood (torch.Tensor): Log-likelihood tensor.
+dim (int): Dimension to calculate the loss over.</p>
+<p>Returns:
+torch.Tensor: Consistency loss.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.tasks.losses.invariance_loss">
 <span class="sig-prename descclassname"><span class="pre">src.utils.tasks.losses.</span></span><span class="sig-name descname"><span class="pre">invariance_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">proj_embed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_augment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.utils.tasks.losses.invariance_loss" title="Link to this definition">#</a></dt>
 <dd><p>Loss for invariant representation across augmentations.</p>
+<p>Args:
+proj_embed (torch.Tensor): Projected embedding tensor.
+num_augment (int): Number of augmentations.</p>
+<p>Returns:
+torch.Tensor: Invariance loss.</p>
 </dd></dl>
 
 </section>

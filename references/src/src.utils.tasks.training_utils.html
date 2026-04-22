@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -490,6 +491,15 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.tasks.training_utils">
 <span id="src-utils-tasks-training-utils"></span><h1><a class="reference internal" href="#module-src.utils.tasks.training_utils" title="src.utils.tasks.training_utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.tasks.training_utils</span></code></a><a class="headerlink" href="#module-src.utils.tasks.training_utils" title="Link to this heading">#</a></h1>
 <p>Common utilities for RL training.</p>
+<p>Attributes:
+get_optimizer: Get optimizer by name.
+get_scheduler: Get learning rate scheduler by name.
+get_lightning_device: Get the device from a PyTorch Lightning Trainer.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.utils.tasks.training_utils import get_optimizer, get_scheduler, get_lightning_device
+&gt;&gt;&gt; optimizer = get_optimizer(“adam”, model.parameters(), lr=1e-4, weight_decay=0.0)
+&gt;&gt;&gt; scheduler = get_scheduler(“cosine”, optimizer, T_max=100)
+&gt;&gt;&gt; device = get_lightning_device(trainer)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -520,7 +530,7 @@ name: Optimizer name (‘adam’, ‘adamw’, ‘sgd’, ‘rmsprop’).
 parameters: Model parameters to optimize.
 lr: Learning rate.
 weight_decay: Weight decay factor.
-**kwargs: Additional optimizer arguments.</p>
+kwargs: Additional optimizer arguments.</p>
 <p>Returns:
 Initialized optimizer.</p>
 </dd></dl>
@@ -532,7 +542,7 @@ Initialized optimizer.</p>
 <p>Args:
 name: Scheduler name (‘cosine’, ‘step’, ‘exponential’, ‘plateau’, ‘lambda’, ‘none’).
 optimizer: Optimizer instance.
-**kwargs: Scheduler arguments.</p>
+kwargs: Scheduler arguments.</p>
 <p>Returns:
 Initialized scheduler or None.</p>
 </dd></dl>

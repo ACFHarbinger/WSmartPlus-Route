@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -526,6 +527,13 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.enums.policy_tags">
 <span id="src-enums-policy-tags"></span><h1><a class="reference internal" href="#module-src.enums.policy_tags" title="src.enums.policy_tags"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.enums.policy_tags</span></code></a><a class="headerlink" href="#module-src.enums.policy_tags" title="Link to this heading">#</a></h1>
+<p>Policy enum for WSmart-Route.</p>
+<p>Attributes:
+PolicyTag: Enum for policy tags</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.enums import PolicyTag
+&gt;&gt;&gt; PolicyTag.EXACT
+&lt;PolicyTag.EXACT: 1&gt;</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -533,7 +541,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.enums.policy_tags.PolicyTag" title="src.enums.policy_tags.PolicyTag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PolicyTag</span></code></a></p></td>
-<td></td>
+<td><p>Policy tags for WSmart-Route.</p></td>
 </tr>
 </tbody>
 </table>
@@ -545,6 +553,39 @@ document.write(`
 <dt class="sig sig-object py" id="src.enums.policy_tags.PolicyTag">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.enums.policy_tags.</span></span><span class="sig-name descname"><span class="pre">PolicyTag</span></span><a class="headerlink" href="#src.enums.policy_tags.PolicyTag" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>Policy tags for WSmart-Route.</p>
+<p>Attributes:
+EXACT: Provably optimal (Branch &amp; Bound, Set Partitioning)
+SOLVER: Solvers (Branch &amp; Bound, Set Partitioning)
+DECOMPOSITION: Decomposition methods (Column Generation, Branch &amp; Price, Lagrangian Relaxation)
+HEURISTIC: Rule-based approximations (Greedy, Clarke-Wright)
+META_HEURISTIC: High-level search frameworks (ALNS, HGS, Tabu Search)
+HYPER_HEURISTIC: Algorithms that search the space of algorithms
+MATHEURISTIC: Hybrids of meta-heuristics and exact MIP/Set Partitioning solvers
+REINFORCEMENT_LEARNING: Reinforcement Learning controllers (PPO, A2C)
+NEURAL_COMBINATORIAL_OPTIMIZATION: Neural Combinatorial Optimization (POMO, SymNCO, Attention Models)
+ORCHESTRATOR: Orchestrators (Bandits, ALNS Roulettes, RL Managers)
+TRAJECTORY_BASED: Single-solution trackers (Simulated Annealing, Local Search)
+POPULATION_BASED: Multi-solution trackers (Genetic Algorithms, Memetic Algorithms)
+SWARM_INTELLIGENCE: ACO, Particle Swarm
+MATH_PROGRAMMING: Column Generation, Branch &amp; Price, Lagrangian Relaxation
+EVOLUTIONARY_ALGORITHM: Evolutionary algorithms (Genetic Algorithms, Evolution Strategies, etc.)
+LOCAL_SEARCH: Local search algorithms (2-Opt, Relocate, Cross Exchange, etc.)
+NEIGHBORHOOD_SEARCH: Neighborhood search algorithms (Variable Neighborhood Search, etc.)
+LARGE_NEIGHBORHOOD_SEARCH: Large neighborhood search algorithms (LNS, ALNS, Ruin &amp; Recreate variants)
+MEMETIC_SEARCH: Memetic search algorithms (Genetic Algorithms + Local Search)
+ADAPTIVE_ALGORITHM: Adaptive Algorithms
+SINGLE_PERIOD: Standard VRP, TSP
+MULTI_PERIOD: PVRP, Inventory Routing (Inventory constraints across time)
+DETERMINISTIC: All parameters known
+STOCHASTIC: Handles distributions (Stochastic Demands, Markov Decision Processes)
+DYNAMIC: Online routing (orders arrive during execution)
+PROFIT_AWARE: Orienteering, VRP with Profits (evaluates p_i over c_i)
+ORIENTEERING: Orienteering, Team Orienteering
+TIME_WINDOWS: Strictly enforces [e_i, l_i] temporal bounds
+ANYTIME: Can be safely interrupted at any time to return the current best solution
+GPU_ACCELERATED: PyTorch/Tensor-based algorithms (POMO, NCO models)
+PARALLELIZABLE: Multi-threaded evaluators (e.g., population evaluations in HGS)</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.enums.policy_tags.PolicyTag.EXACT">
 <span class="sig-name descname"><span class="pre">EXACT</span></span><a class="headerlink" href="#src.enums.policy_tags.PolicyTag.EXACT" title="Link to this definition">#</a></dt>

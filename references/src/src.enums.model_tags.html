@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -501,6 +502,13 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.enums.model_tags">
 <span id="src-enums-model-tags"></span><h1><a class="reference internal" href="#module-src.enums.model_tags" title="src.enums.model_tags"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.enums.model_tags</span></code></a><a class="headerlink" href="#module-src.enums.model_tags" title="Link to this heading">#</a></h1>
+<p>Model enum for WSmart-Route.</p>
+<p>Attributes:
+ModelTag: Enum for model tags</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.enums import ModelTag
+&gt;&gt;&gt; ModelTag.TRANSFORMER
+&lt;ModelTag.TRANSFORMER: 1&gt;</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -508,7 +516,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.enums.model_tags.ModelTag" title="src.enums.model_tags.ModelTag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelTag</span></code></a></p></td>
-<td></td>
+<td><p>Model tags for WSmart-Route.</p></td>
 </tr>
 </tbody>
 </table>
@@ -520,6 +528,20 @@ document.write(`
 <dt class="sig sig-object py" id="src.enums.model_tags.ModelTag">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.enums.model_tags.</span></span><span class="sig-name descname"><span class="pre">ModelTag</span></span><a class="headerlink" href="#src.enums.model_tags.ModelTag" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>Model tags for WSmart-Route.</p>
+<p>Attributes:
+TRANSFORMER: Transformer architecture
+GRAPH_NEURAL_NETWORK: Graph neural network architecture
+POINTER_NETWORK: Pointer network architecture
+MLP: Multi-layer perceptron architecture
+AUTOREGRESSIVE: Autoregressive decoding paradigm
+NON_AUTOREGRESSIVE: Non-autoregressive decoding paradigm
+ENCODER: Encoder component
+DECODER: Decoder component
+ACTOR: Actor component
+CRITIC: Critic component
+SYMMETRY_AWARE: Symmetry-aware model
+SUPPORTS_AUGMENTATION: Model supports augmentation</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.enums.model_tags.ModelTag.TRANSFORMER">
 <span class="sig-name descname"><span class="pre">TRANSFORMER</span></span><a class="headerlink" href="#src.enums.model_tags.ModelTag.TRANSFORMER" title="Link to this definition">#</a></dt>

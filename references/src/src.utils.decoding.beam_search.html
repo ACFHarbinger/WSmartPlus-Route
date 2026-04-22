@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -494,11 +495,18 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.decoding.beam_search">
 <span id="src-utils-decoding-beam-search"></span><h1><a class="reference internal" href="#module-src.utils.decoding.beam_search" title="src.utils.decoding.beam_search"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.decoding.beam_search</span></code></a><a class="headerlink" href="#module-src.utils.decoding.beam_search" title="Link to this heading">#</a></h1>
-<p>beam_search.py module.</p>
+<p>Beam search module.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+BeamSearch: Beam search decoding strategy.
+beam_search: Beam search decoding strategy.
+get_beam_search_results: Get the results of beam search.
+_beam_search: Internal beam search execution.</p>
 <p>Example:
-&gt;&gt;&gt; import beam_search</p>
+&gt;&gt;&gt; from logic.src.utils.decoding import BeamSearch, beam_search, get_beam_search_results, _beam_search
+&gt;&gt;&gt; beam_search = BeamSearch()
+&gt;&gt;&gt; beam_search = beam_search(state, beam_size)
+&gt;&gt;&gt; beam_search = get_beam_search_results(beams, final_state)
+&gt;&gt;&gt; beam_search = _beam_search(state, beam_size)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -540,15 +548,21 @@ This involves backtracking through the beam parents to reconstruct the full path
 <p>Beam search decoding: maintain top-k partial solutions.</p>
 <p>Note: Beam search requires special handling in the policy forward pass.
 This implementation provides the step function for scoring candidates.</p>
+<p>Attributes:
+beam_width (int): Number of beams to maintain.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize BeamSearch decoding.</p>
 <p>Args:
 beam_width: Number of beams to maintain.
-**kwargs: Passed to super class.</p>
+kwargs: Passed to super class.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.decoding.beam_search.BeamSearch.step">
 <span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">tensordict.TensorDict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.decoding.beam_search.BeamSearch.step" title="Link to this definition">#</a></dt>
 <dd><p>Select top-k actions for beam search.</p>
+<p>Args:
+logits: Logits from the policy.
+mask: Mask for the logits.
+td: TensorDict containing the state.</p>
 <p>Returns:
 Tuple of (top_k_actions, top_k_log_probs, entropy) each with shape [batch, beam_width]</p>
 </dd></dl>
@@ -561,15 +575,15 @@ Tuple of (top_k_actions, top_k_log_probs, entropy) each with shape [batch, beam_
 <dd><p>Orchestrates beam search decoding on a batch of states.
 This is the high-level entry point that runs the search and then reconstructs the results.</p>
 <p>Args:
-*args: positional args passed to _beam_search
-**kwargs: keyword args passed to _beam_search</p>
+args: positional args passed to _beam_search
+kwargs: keyword args passed to _beam_search</p>
 <p>Returns:
 tuple: (score, solutions, cost, ids, batch_size)</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.decoding.beam_search.get_beam_search_results">
-<span class="sig-prename descclassname"><span class="pre">src.utils.decoding.beam_search.</span></span><span class="sig-name descname"><span class="pre">get_beam_search_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">beams</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final_state</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.decoding.beam_search.get_beam_search_results" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.utils.decoding.beam_search.</span></span><span class="sig-name descname"><span class="pre">get_beam_search_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">beams</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.utils.decoding.batch_beam.html#src.utils.decoding.batch_beam.BatchBeam" title="src.utils.decoding.batch_beam.BatchBeam"><span class="pre">src.utils.decoding.batch_beam.BatchBeam</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="headerlink" href="#src.utils.decoding.beam_search.get_beam_search_results" title="Link to this definition">#</a></dt>
 <dd><p>Reconstructs solutions from the final beam state.
 This involves backtracking through the beam parents to reconstruct the full path.</p>
 <p>Args:
@@ -581,7 +595,7 @@ tuple: (score, solutions, cost, ids, batch_size)</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.decoding.beam_search._beam_search">
-<span class="sig-prename descclassname"><span class="pre">src.utils.decoding.beam_search.</span></span><span class="sig-name descname"><span class="pre">_beam_search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beam_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">propose_expansions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.decoding.beam_search._beam_search" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.utils.decoding.beam_search.</span></span><span class="sig-name descname"><span class="pre">_beam_search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beam_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">propose_expansions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_states</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="headerlink" href="#src.utils.decoding.beam_search._beam_search" title="Link to this definition">#</a></dt>
 <dd><p>Internal beam search execution.</p>
 <p>Args:
 state (State): Initial state.

@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -488,6 +489,16 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.tasks.simulation_utils">
 <span id="src-utils-tasks-simulation-utils"></span><h1><a class="reference internal" href="#module-src.utils.tasks.simulation_utils" title="src.utils.tasks.simulation_utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.tasks.simulation_utils</span></code></a><a class="headerlink" href="#module-src.utils.tasks.simulation_utils" title="Link to this heading">#</a></h1>
+<p>Utilities for parallel task execution.</p>
+<p>This module provides functions to prepare arguments for parallel tasks
+and print execution information.</p>
+<p>Attributes:
+prepare_parallel_task_args: Prepare argument tuples for parallel task execution.
+print_execution_info: Print information about parallel execution configuration.</p>
+<p>Example:
+&gt;&gt;&gt; import simulation_utils
+&gt;&gt;&gt; simulation_utils.prepare_parallel_task_args(policies, n_samples, indices, sample_idx_ls)
+&gt;&gt;&gt; simulation_utils.print_execution_info(task_count, n_cores)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -515,12 +526,17 @@ policies: Expanded policy name list.
 n_samples: Number of samples per policy.
 indices: Bin subset indices per sample.
 sample_idx_ls: Sample index lists per policy.</p>
+<p>Returns:
+List[Tuple[Any, …]]: List of argument tuples for parallel tasks.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.tasks.simulation_utils.print_execution_info">
 <span class="sig-prename descclassname"><span class="pre">src.utils.tasks.simulation_utils.</span></span><span class="sig-name descname"><span class="pre">print_execution_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_cores</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.utils.tasks.simulation_utils.print_execution_info" title="Link to this definition">#</a></dt>
 <dd><p>Print information about parallel execution configuration.</p>
+<p>Args:
+task_count (int): Number of tasks.
+n_cores (int): Number of CPU cores.</p>
 </dd></dl>
 
 </section>

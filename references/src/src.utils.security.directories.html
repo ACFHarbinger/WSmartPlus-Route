@@ -40,6 +40,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -491,6 +492,18 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.utils.security.directories">
 <span id="src-utils-security-directories"></span><h1><a class="reference internal" href="#module-src.utils.security.directories" title="src.utils.security.directories"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.security.directories</span></code></a><a class="headerlink" href="#module-src.utils.security.directories" title="Link to this heading">#</a></h1>
 <p>Directory and Zip encryption utilities.</p>
+<p>This module provides functions to encrypt and decrypt directories and zip files.</p>
+<p>Attributes:
+encrypt_directory: Encrypt all files in a directory recursively.
+decrypt_directory: Decrypt all .enc files in a directory recursively.
+encrypt_zip_directory: Zip a directory and then encrypt the resulting zip file.
+decrypt_zip: Decrypt a zip file and extract its contents.</p>
+<p>Example:
+&gt;&gt;&gt; import directories
+&gt;&gt;&gt; directories.encrypt_directory(key, “test”)
+&gt;&gt;&gt; directories.decrypt_directory(key, “test”)
+&gt;&gt;&gt; directories.encrypt_zip_directory(key, “test”)
+&gt;&gt;&gt; directories.decrypt_zip(key, “test”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

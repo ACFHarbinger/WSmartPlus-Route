@@ -180,7 +180,7 @@ Bases: {py:obj}`typing.Protocol`
 
 ````{py:attribute} model
 :canonical: src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.model
-:type: gurobipy.Model
+:type: typing.Optional[gurobipy.Model]
 :value: >
    None
 
