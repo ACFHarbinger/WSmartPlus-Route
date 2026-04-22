@@ -79,4 +79,10 @@ def generate_waste(
         assert distribution == "dist"
         dist_obj = Distance(graph)
 
+    # Automatically determine the best sampling method based on RNG type to avoid assertion errors
+    if isinstance(rng, torch.Generator):
+        sample_method = "sample_tensor"
+    elif isinstance(rng, np.random.Generator):
+        sample_method = "sample_array"
+
     return dist_obj.set_sampling_method(sample_method).sample(size, rng=rng)  # type: ignore[arg-type]
