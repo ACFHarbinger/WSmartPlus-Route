@@ -36,7 +36,7 @@ na:
     # ---------------------------------------------------------------------
     # Model Checkpoint
     # ---------------------------------------------------------------------
-    - model_path: "assets/model_weights/cwcvrp100_riomaior_plastic/gamma1/amgat"
+    - model_path: "assets/model_weights/vrpp100_riomaior_plastic/gamma3/amgat0"
       # Path to trained model directory containing:
       #   - config.yaml: Model architecture and training hyperparameters
       #   - best.ckpt: PyTorch Lightning checkpoint with learned weights

@@ -66,7 +66,9 @@ class SimulationMixin:
             cost_weights=cost_weights,
         )
         if isinstance(out, dict):
-            pi = out.get("actions") or out.get("pi")
+            pi = out.get("actions")
+            if pi is None:
+                pi = out.get("pi")
         else:
             _, _, _, pi, _ = out
 

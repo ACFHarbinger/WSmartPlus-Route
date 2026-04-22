@@ -182,6 +182,11 @@ class InitializingState(SimState):
         return saved_state, last_day
 
     def _setup_models(self, ctx: SimulationContext) -> None:
+        # If policy config was not correctly loaded in __init__ (common when passing paths in config_path)
+        # we re-link it here from the correctly loaded context config registry.
+        if not ctx.pol_cfg and ctx.pol_name in ctx.config:
+            ctx.pol_cfg = ctx.config[ctx.pol_name]
+
         model_name = ""
         if isinstance(ctx.pol_cfg, dict) and "model" in ctx.pol_cfg:
             model_name = ctx.pol_cfg["model"].get("name", "").lower()
@@ -211,7 +216,13 @@ class InitializingState(SimState):
             strat = str(decoding.get("strategy", "greedy"))
 
             model_path_raw = flat_pol_cfg.get("model_path")
-            model_paths: dict[str, str] = model_path_raw if isinstance(model_path_raw, dict) else {}
+            if isinstance(model_path_raw, dict):
+                model_paths = model_path_raw
+            elif isinstance(model_path_raw, str):
+                # If it's a single string, we use it for all policy variations by default
+                model_paths = {ctx.pol_name: model_path_raw}
+            else:
+                model_paths = {}
 
             ctx.model_env, configs = setup_model(
                 ctx.pol_name,
