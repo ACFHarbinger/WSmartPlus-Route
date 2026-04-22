@@ -435,21 +435,35 @@ def _get_partitioned_vars(
     all_vars.sort(key=lambda item: item[1], reverse=True)
 
     # 6. Partition into sets
+    # Include heuristic variables and mandatory nodes to guarantee ILP feasibility
     lp_support_size = sum(1 for _, val, _, _ in all_vars if val > 1e-4)
     actual_kernel_size = max(initial_kernel_size, lp_support_size)
 
-    kernel_vars = []
+    mandatory_set = set(mandatory_nodes)
+    kernel_vars_list = []
+    kernel_vars_set = set()
     remaining_vars = []
 
-    # Include heuristic variables to guarantee ILP feasibility
+    # First pass: actual_kernel_size of LP variables
     for v_obj, _, _, _ in all_vars[:actual_kernel_size]:
-        kernel_vars.append(v_obj)
+        kernel_vars_list.append(v_obj)
+        kernel_vars_set.add(v_obj)
 
-    for v_obj, _, vtype, idx in all_vars[actual_kernel_size:]:
-        if (vtype == "x" and idx in heuristic_edges) or (vtype == "y" and idx in heuristic_nodes):
-            kernel_vars.append(v_obj)
+    # Second pass: ensure ALL heuristic and mandatory variables are present
+    for v_obj, _, vtype, idx in all_vars:
+        if v_obj in kernel_vars_set:
+            continue
+
+        is_heuristic = (vtype == "x" and idx in heuristic_edges) or (vtype == "y" and idx in heuristic_nodes)
+        is_mandatory = vtype == "y" and idx in mandatory_set
+
+        if is_heuristic or is_mandatory:
+            kernel_vars_list.append(v_obj)
+            kernel_vars_set.add(v_obj)
         else:
             remaining_vars.append(v_obj)
+
+    kernel_vars = kernel_vars_list
 
     buckets = [remaining_vars[i : i + bucket_size] for i in range(0, len(remaining_vars), bucket_size)]
 
@@ -632,8 +646,8 @@ def run_kernel_search_gurobi(
     model.setParam("Seed", seed)
     model.setParam("MIPGap", mip_gap)
 
-    # Phase 1: Structural Setup (ensure binary vars for root relaxation)
-    x, y = _setup_ks_model(model, dist_matrix, wastes, capacity, R, C, mandatory_nodes, use_binary_vars=True)
+    # Phase 1: Structural Setup (ensure continuous variables for root relaxation)
+    x, y = _setup_ks_model(model, dist_matrix, wastes, capacity, R, C, mandatory_nodes, use_binary_vars=False)
 
     # Phase 2: LP Relaxation & Variable Partitioning
     # This phase creates the ranking of variables for the Kernel and Buckets.
@@ -642,14 +656,27 @@ def run_kernel_search_gurobi(
     )
     if not kernel_vars:
         # Fallback if LP solve failed to find even partial feasibility
+        # print(f"DEBUG: KS Partitioning failed. LP Status: {model.Status}")
         return [0, 0], 0.0, 0.0
+
+    # print(f"DEBUG: KS Kernel size: {len(kernel_vars)}. Mandatory in kernel: {[v.VarName for v in kernel_vars if 'y_2' in v.VarName]}")
+
+    # Promote to BINARY for the iterative MIP search phase
+    for v in model.getVars():
+        v.VType = GRB.BINARY
+    model.update()
 
     # Limit search space by max_buckets parameter
     buckets = buckets[:max_buckets]
 
+    # Warm-start with greedy heuristic to ensure feasibility
+    _set_mip_start(model, x, y, dist_matrix, wastes, capacity, R, C, mandatory_nodes)
+
     # Phase 3: Iterative Search (Incremental MIPs)
     # The kernel grows and unused variables are pruned in each step.
+    # print(f"DEBUG: Starting KS Iterations. MIP Start SolCount: {model.SolCount}")
     used_vars = _solve_ks_iterations(model, kernel_vars, buckets, remaining_vars, time_limit, mip_limit_nodes)
+    # print(f"DEBUG: KS Iterations complete. SolCount: {model.SolCount}")
 
     # Phase 4: Final extraction and tour reconstruction
     if not used_vars:
@@ -658,9 +685,6 @@ def run_kernel_search_gurobi(
     # Unfix all variables identified as useful for a final "polishing" solve
     for v in used_vars:
         v.UB = 1
-
-    # Warm-start with greedy heuristic to ensure feasibility
-    _set_mip_start(model, x, y, dist_matrix, wastes, capacity, R, C, mandatory_nodes)
 
     model.optimize(_dfj_subtour_elimination_callback)
 

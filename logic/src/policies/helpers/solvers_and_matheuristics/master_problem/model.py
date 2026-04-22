@@ -134,7 +134,7 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
         max_route_profit = max_single_node_revenue * min(max_nodes_per_route, self.n_nodes)
         self.BIG_M = max(1000.0, 10.0 * max_route_profit)
 
-        self.model: gp.Model
+        self.model: Optional[gp.Model] = None
         self.routes: List[Route] = []
         self.lambda_vars: List[gp.Var] = []
 

@@ -1,16 +1,16 @@
 import numpy as np
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.logic_based_benders_decomposition.policy_lbbd import LBBDPolicy
+from logic.src.pipeline.simulations.bins.prediction import ScenarioTree, ScenarioTreeNode, ScenarioGenerator
+from logic.src.interfaces.context.multi_day_context import MultiDayContext
 
 def test_lbbd_basic():
     # Toy problem: 3 nodes (0=depot, 1, 2)
-    # Distances: (0,1)=1, (0,2)=1, (1,2)=1.5
     dist_matrix = np.array([
         [0.0, 1.0, 1.0],
         [1.0, 0.0, 1.5],
         [1.0, 1.5, 0.0]
     ])
 
-    # Initial wastes
     wastes = {1: 0.1, 2: 0.1}
 
     config = {
@@ -23,24 +23,29 @@ def test_lbbd_basic():
         "mean_increment": 0.5
     }
 
+    gen = ScenarioGenerator(horizon=2, method="stochastic")
+    bin_stats = {"means": np.array([5.0, 5.0]), "stds": np.array([1.0, 1.0])}
+    tree = gen.generate(current_wastes=np.array([0.1, 0.1]), bin_stats=bin_stats)
+    md_ctx = MultiDayContext(day_index=1)
+
     policy = LBBDPolicy(config=config)
 
-    # Mocking kwargs for execute
     kwargs = {
         "distance_matrix": dist_matrix,
         "wastes": wastes,
-        "capacity": 100.0, # Large capacity
-        "day": 1
+        "capacity": 100.0,
+        "day": 1,
+        "scenario_tree": tree,
+        "multi_day_context": md_ctx
     }
 
-    route, cost, info = policy.execute(**kwargs)
+    route, cost, profit, search_ctx, updated_md_ctx = policy.execute(**kwargs)
 
     assert len(route) >= 2
     assert route[0] == 0
     assert route[-1] == 0
-    assert "expected_value" in info
-    assert "stats" in info
-    assert info["stats"]["iterations"] > 0
+    assert updated_md_ctx is not None
+    assert "iterations" in updated_md_ctx.extra
 
 def test_lbbd_infeasibility_nogood():
     # Make nodes very far or capacity very small to trigger nogood cuts
@@ -50,14 +55,7 @@ def test_lbbd_infeasibility_nogood():
         [10.0, 1.5, 0.0]
     ])
 
-    # Bins are full
     wastes = {1: 0.9, 2: 0.9}
-
-    # Capacity is small - can only fit one bin
-    # But LBBD Master might try to fit both if it doesn't know the exact routing cost
-    # Actually, Master Problem capacity is sum(q) <= 1.0
-    # In LBBD, the Subproblem checks traveling distance/time limits.
-    # Let's say we have a time limit L in Subproblem.
 
     config = {
         "num_days": 1,
@@ -66,15 +64,22 @@ def test_lbbd_infeasibility_nogood():
         "subproblem_timeout": 5.0
     }
 
+    gen = ScenarioGenerator(horizon=1, method="stochastic")
+    bin_stats = {"means": np.array([5.0, 5.0]), "stds": np.array([1.0, 1.0])}
+    tree = gen.generate(current_wastes=np.array([0.9, 0.9]), bin_stats=bin_stats)
+    md_ctx = MultiDayContext(day_index=1)
+
     policy = LBBDPolicy(config=config)
 
     kwargs = {
         "distance_matrix": dist_matrix,
         "wastes": wastes,
         "capacity": 1.0,
-        "day": 1
+        "day": 1,
+        "scenario_tree": tree,
+        "multi_day_context": md_ctx
     }
 
-    route, cost, info = policy.execute(**kwargs)
+    route, cost, profit, search_ctx, updated_md_ctx = policy.execute(**kwargs)
     assert route[0] == 0
     # It should still find a route, just maybe only visiting one or zero if profit < cost

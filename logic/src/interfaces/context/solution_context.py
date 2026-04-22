@@ -143,10 +143,12 @@ class SolutionContext:
         Produces [0, r1_n1, r1_n2, ..., 0, r2_n1, ...., 0] suitable for
         passing back to the simulator's single-tour interface.
         """
-        flat = []
+        flat = [0]
         for route in self.routes:
             if route:
-                flat.append(0)
                 flat.extend(route)
-        flat.append(0)
-        return flat if flat else [0, 0]
+                flat.append(0)
+
+        if len(flat) == 1:
+            flat.append(0)
+        return flat

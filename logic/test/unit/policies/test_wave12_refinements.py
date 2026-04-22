@@ -16,23 +16,21 @@ def test_de_binomial_crossover_j_rand():
 
     solver = DESolver(dist_matrix, wastes, 100.0, 1.0, 1.0, params)
 
-    target = [[1]]
-    mutant = [[2]]
+    target = np.array([0.5, 0.6])
+    mutant = np.array([-0.5, -0.6])
 
     # Run crossover multiple times to ensure j_rand works
     for _ in range(10):
-        trial = solver._binomial_crossover(np.array(target), np.array(mutant), 0.0)
-        trial_nodes = set(n for r in trial for n in r)
+        trial = solver._binomial_crossover(target, mutant, 0.0)
 
-        # for node in all_nodes {1, 2}:
-        #   if node == j_rand: inherit from mutant
-        #   else: inherit from target
+        # With CR=0.0, exactly one component must be from mutant (j_rand)
+        # and the other from target.
+        diff_from_target = trial != target
+        assert np.sum(diff_from_target) == 1
 
-        # Case 1: j_rand = 1
-        # node 1 inherits (absent) from mutant. node 2 inherits (absent) from target. trial = {}
-        # Case 2: j_rand = 2
-        # node 2 inherits (present) from mutant. node 1 inherits (present) from target. trial = {1, 2}
-        assert trial_nodes in [set(), {1, 2}, {1}] # Adding {1} as observed in practical test run due to greedy_insertion potentially pruning
+        # The changed component must match the mutant
+        idx = np.where(diff_from_target)[0][0]
+        assert trial[idx] == mutant[idx]
 
 def test_hulk_type_i_reconnection():
     """Verify Müller & Bonilha (2022) Type I reconnection logic."""

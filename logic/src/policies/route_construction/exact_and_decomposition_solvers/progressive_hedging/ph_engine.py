@@ -27,7 +27,7 @@ The augmented cost for node $i$ in scenario $\omega$ is:
 """
 
 import logging
-from typing import Any, Dict, List, Tuple, Union, cast
+from typing import Any, Dict, List, Tuple, Union
 
 import numpy as np
 
@@ -165,13 +165,16 @@ class ProgressiveHedgingEngine:
                     sub_dist_matrix=sub_dist_matrix,
                     horizon=horizon,
                     scenario_path=all_paths[s_idx],
-                    node_prizes=node_prizes,
+                    node_prizes=node_prizes[0],
                     stockout_penalty=self.config.stockout_penalty,
-                    mandatory_nodes=mandatory_nodes if t == 0 else [],
+                    mandatory=mandatory_nodes,
                     **kwargs,
                 )
                 full_plan_raw, solver_cost, solver_profit, _ctx, _md_ctx = res
-                full_plan = cast(List[List[List[int]]], full_plan_raw)
+
+                # Unflatten and nested-wrap if sub-solver returned a single-day flat tour
+                day_0_routes = self.ensure_route_list(full_plan_raw) if isinstance(full_plan_raw, list) else []
+                full_plan: List[List[List[int]]] = [day_0_routes] + [[] for _ in range(horizon)]
 
                 # Extract y_hat[t][node] from plan
                 y_hat = {t: {i: 0.0 for i in node_ids} for t in t_consensus}

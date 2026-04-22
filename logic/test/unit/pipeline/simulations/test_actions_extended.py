@@ -29,7 +29,8 @@ def base_context(mock_bins):
         'threshold': None,
         'day_count': 1,
         'area': 'riomaior',
-        'waste_type': 'plastic'
+        'waste_type': 'plastic',
+        'distance_matrix': np.zeros((6, 6))
     })
 
 class TestMandatorySelectionActionDetailed:
@@ -59,7 +60,7 @@ class TestRouteImprovementActionDetailed:
     @patch("logic.src.policies.route_improvement.base.factory.RouteImproverFactory.create")
     def test_route_improvement_execution(self, mock_create, base_context):
         mock_proc = MagicMock()
-        mock_proc.process.return_value = [0, 1, 2, 0]
+        mock_proc.process.return_value = ([0, 1, 2, 0], {"improvement": 10.0})
         mock_create.return_value = mock_proc
 
         base_context['route_improvement'] = 'fast_tsp'

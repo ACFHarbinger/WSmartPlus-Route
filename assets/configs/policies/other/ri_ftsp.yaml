@@ -24,7 +24,6 @@
 #
 # PARAMETERS:
 #   - methods: [fast_tsp] - Single-method route improvement pipeline
-#   - n_routes: Number of routes to optimize (implicitly all routes)
 # =============================================================================
 
 methods:
