@@ -1,3 +1,18 @@
+"""
+Data constants for WSmart-Route.
+
+Attributes:
+    GAMMA_PRESETS: Preset gamma parameter options for per-node heterogeneous waste generation
+    DATASET_EXTENSIONS: Dataset file extensions for simulations
+
+Example:
+    >>> from logic.src.constants import GAMMA_PRESETS, DATASET_EXTENSIONS
+    >>> GAMMA_PRESETS[0]
+    ([5, 5, 5, 5, 5, 10, 10, 10, 10, 10], [5, 2])
+    >>> DATASET_EXTENSIONS
+    {'.npz', '.xlsx', '.csv'}
+"""
+
 from typing import List, Tuple
 
 # Preset gamma parameter options for per-node heterogeneous waste generation.

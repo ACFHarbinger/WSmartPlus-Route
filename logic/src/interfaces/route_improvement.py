@@ -5,6 +5,14 @@ Defines the contract for all route improvement / local-search operators.
 Implementations MUST NOT hold mutable state that accumulates between
 ``process()`` calls; all intermediate variables belong in the returned
 ``ImprovementMetrics`` dict.
+
+Attributes:
+    IRouteImprovement: Interface for all routing route improvers
+    ImprovementMetrics: Metrics for route improvement
+
+Example:
+    >>> from logic.src.interfaces.route_improvement import IRouteImprovement
+    >>> from logic.src.interfaces.context.search_context import ImprovementMetrics
 """
 
 from abc import ABC, abstractmethod
@@ -25,13 +33,16 @@ class IRouteImprovement(ABC):
     2. Return a ``Tuple[List[int], ImprovementMetrics]`` from ``process()``.
        The ``ImprovementMetrics`` dict is the mechanism for exporting
        telemetry to the ``SearchContext`` without coupling to it directly.
+
+    Attributes:
+        config: Configuration for the route improver
     """
 
     def __init__(self, **kwargs: Any):
         """Initialise route improver with configuration.
 
         Args:
-            **kwargs: Configuration values.  If a single ``config`` key is
+            kwargs: Configuration values.  If a single ``config`` key is
                 passed, its value is used as the config dict directly.
         """
         if "config" in kwargs and len(kwargs) == 1:

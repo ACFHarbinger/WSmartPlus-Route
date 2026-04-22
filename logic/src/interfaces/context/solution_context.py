@@ -5,6 +5,33 @@ Stores the routes actually executed today (one per vehicle) together with
 per-vehicle profit and cost breakdowns and aggregate totals.
 The multi-day plan beyond today is stored in MultiDayContext.full_plan_snapshot
 and is NOT duplicated here.
+
+Attributes:
+    SolutionContext: Current-day routing solution
+
+Example:
+    >>> from logic.src.interfaces.context import SolutionContext, ProblemContext
+    >>> problem = ProblemContext(
+    ...     distance_matrix=np.array([[0, 1], [1, 0]]),
+    ...     wastes={1: 10.0, 2: 20.0},
+    ...     fill_rate_means=np.array([10.0, 20.0]),
+    ...     fill_rate_stds=np.array([1.0, 2.0]),
+    ...     capacity=100.0,
+    ...     max_fill=100.0,
+    ...     revenue_per_kg=0.1,
+    ...     cost_per_km=0.05,
+    ...     horizon=7,
+    ...     mandatory=[1, 2],
+    ...     locations=np.array([[0, 0], [1, 1], [2, 2]]),
+    ...     scenario_tree=None,
+    ...     area="Rio Maior",
+    ...     waste_type="plastic",
+    ...     n_vehicles=1,
+    ...     seed=42
+    ... )
+    >>> solution = SolutionContext.from_problem(problem, route=[1, 2])
+    >>> solution.total_profit
+    1.8
 """
 
 from __future__ import annotations
@@ -44,7 +71,12 @@ class SolutionContext:
 
     @classmethod
     def empty(cls) -> "SolutionContext":
-        """Return an empty (no-visit) solution."""
+        """
+        Return an empty (no-visit) solution.
+
+        Returns:
+            SolutionContext: An empty solution context.
+        """
         return cls(routes=[], profits=[], costs=[], total_profit=0.0, total_cost=0.0)
 
     @classmethod
@@ -55,7 +87,18 @@ class SolutionContext:
         cost: float,
         metadata: Optional[dict] = None,
     ) -> "SolutionContext":
-        """Convenience constructor for single-vehicle results."""
+        """
+        Convenience constructor for single-vehicle results.
+
+        Args:
+            route: The node sequence visited (1-based, depot excluded).
+            profit: The profit for this route.
+            cost: The cost for this route.
+            metadata: Optional telemetry.
+
+        Returns:
+            SolutionContext: A new SolutionContext instance.
+        """
         return cls(
             routes=[route],
             profits=[profit],
@@ -79,6 +122,9 @@ class SolutionContext:
             problem:  The ProblemContext containing distance matrix and weights.
             route:    The node sequence visited (1-based, depot excluded).
             metadata: Optional telemetry.
+
+        Returns:
+            SolutionContext: A new SolutionContext instance.
         """
         revenue = sum(problem.wastes.get(node, 0.0) for node in route) * problem.revenue_per_kg
         dist = 0.0
@@ -105,6 +151,9 @@ class SolutionContext:
             problem:  The ProblemContext.
             routes:   List of route sequences (one per vehicle).
             metadata: Optional telemetry.
+
+        Returns:
+            SolutionContext: A new SolutionContext instance.
         """
         all_profits = []
         all_costs = []

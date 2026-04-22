@@ -33,6 +33,19 @@ Distance calculations use geodesic formulas (Haversine, Vincenty) for real-world
 accuracy. Two Earth radius values support different precision requirements:
 - EARTH_RADIUS: Simplified sphere model (faster, ±0.5% error)
 - EARTH_WMP_RADIUS: WGS84 ellipsoid model (higher precision for GPS data)
+
+Attributes:
+  EARTH_RADIUS: Mean Earth radius (kilometers) - Spherical approximation
+  EARTH_WMP_RADIUS: WGS84 equatorial radius (meters) - Ellipsoid model
+  METRICS: Core performance metrics (overflows, kg, km, reward, profit, time)
+  SIM_METRICS: Overall simulation statistics (adds "days")
+  DAY_METRICS: Single-day statistics (includes "day" and "tour" fields)
+  LOSS_KEYS: Neural network training metrics
+
+Example:
+  >>> from logic.src.constants import EARTH_RADIUS, EARTH_WMP_RADIUS, METRICS, SIM_METRICS, DAY_METRICS, LOSS_KEYS
+  >>> EARTH_RADIUS
+  6371
 """
 
 from typing import Dict, List

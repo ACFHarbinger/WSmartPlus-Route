@@ -1,10 +1,16 @@
-"""lowercase_action.py module.
+"""
+Lowercase action module.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    LowercaseAction: Action to convert argument value to lowercase.
 
 Example:
-    >>> import lowercase_action
+    >>> from logic.src.cli.base.lowercase_action import LowercaseAction
+    >>> action = LowercaseAction(option_strings=['--name'], dest='name')
+    >>> namespace = argparse.Namespace()
+    >>> action(None, namespace, 'Test')
+    >>> namespace.name
+    'test'
 """
 
 import argparse
@@ -12,7 +18,13 @@ from typing import Any, Optional
 
 
 class LowercaseAction(argparse.Action):
-    """Action to convert argument value to lowercase."""
+    """
+    Action to convert argument value to lowercase.
+
+    Attributes:
+        dest: Destination attribute in the namespace.
+        nargs: Number of arguments.
+    """
 
     def __call__(
         self,
@@ -21,7 +33,8 @@ class LowercaseAction(argparse.Action):
         values: Any,
         option_string: Optional[str] = None,
     ) -> None:
-        """Invoke action to lowercase input values.
+        """
+        Invoke action to lowercase input values.
 
         Args:
             parser: The argument parser.

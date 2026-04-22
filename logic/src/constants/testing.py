@@ -41,6 +41,14 @@ Module Selection
 ----------------
 Use the TEST_MODULES keys as --module argument values. Example:
     python main.py test_suite --module parser actions edge_cases
+
+Attributes:
+    TEST_MODULES: Test module registry mapping selector names to test file names
+
+Example:
+    >>> from logic.src.constants import TEST_MODULES
+    >>> TEST_MODULES["parser"]
+    'test_configs_parser.py'
 """
 
 from typing import Dict

@@ -1,6 +1,34 @@
 """
 Interfaces for WSmart-Route logic components.
 DEFINING PROTOCOLS TO DECOUPLE MODULES.
+
+Attributes:
+    IAcceptanceCriterion: Interface for acceptance criteria
+    IBinContainer: Interface for bin containers
+    IDistanceMetric: Interface for distance metrics
+    IEnv: Interface for environments
+    IMandatorySelectionStrategy: Interface for mandatory selection strategies
+    IModel: Interface for models
+    IPolicy: Interface for policies
+    IRouteConstructor: Interface for route constructors
+    IRouteImprovement: Interface for route improvements
+    ITensorDictLike: Interface for tensor dict like objects
+    ITraversable: Interface for traversable objects
+
+Example:
+    >>> from logic.src.interfaces import (
+        IAcceptanceCriterion,
+        IBinContainer,
+        IDistanceMetric,
+        IEnv,
+        IMandatorySelectionStrategy,
+        IModel,
+        IPolicy,
+        IRouteConstructor,
+        IRouteImprovement,
+        ITensorDictLike,
+        ITraversable,
+    )
 """
 
 from .acceptance_criterion import IAcceptanceCriterion

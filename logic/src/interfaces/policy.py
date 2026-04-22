@@ -1,10 +1,20 @@
-"""policy.py module.
+"""
+Reinforcement Learning (RL) Policy protocol module.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    IPolicy: Protocol for RL Policies
 
 Example:
-    >>> import policy
+    >>> from logic.src.interfaces.policy import IPolicy
+    >>> class MyPolicy(IPolicy):
+    ...     def forward(self, td: TensorDict, env: Optional[Any] = None, strategy: str = "sampling", num_starts: int = 1, **kwargs: Any) -> Union[TensorDict, Dict[str, Any]]:
+    ...         return {}
+    ...     def __call__(self, *args, **kwargs) -> Any:
+    ...         return {}
+    ...
+    >>> policy = MyPolicy()
+    >>> policy.forward(TensorDict({}, {}))
+    {}
 """
 
 from typing import Any, Dict, Optional, Protocol, Union
@@ -17,6 +27,10 @@ class IPolicy(Protocol):
     """
     Protocol for RL Policies.
     Matches the interface expected by RL4COLitModule and StepwisePPO.
+
+    Attributes:
+        encoder: Encoder module
+        decoder: Decoder module
     """
 
     encoder: Optional[torch.nn.Module]
@@ -32,6 +46,16 @@ class IPolicy(Protocol):
     ) -> Union[TensorDict, Dict[str, Any]]:
         """
         Forward pass to generate solutions.
+
+        Args:
+            td: TensorDict containing the input data
+            env: Environment
+            strategy: Sampling strategy
+            num_starts: Number of starts
+            **kwargs: Additional keyword arguments
+
+        Returns:
+            Union[TensorDict, Dict[str, Any]]: TensorDict or dict containing the output data
         """
         ...
 

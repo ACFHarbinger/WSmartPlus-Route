@@ -1,14 +1,29 @@
 """
-File system related argument parsers.
+Parser arguments for the File System operations.
+
+Attributes:
+    add_files_args: Adds all arguments related to file system operations (as subparsers)
+    add_files_update_args: Adds file system 'update' sub-command arguments
+    add_files_delete_args: Adds file system 'delete' sub-command arguments
+    add_files_crypto_args: Adds file system 'cryptography' sub-command arguments
+    validate_file_system_args: Validates and post-processes arguments for file_system
+
+Example:
+    >>> from logic.src.cli.fs_parser import add_files_args, validate_file_system_args
+    >>> parser = argparse.ArgumentParser()
+    >>> add_files_args(parser)
+    >>> validate_file_system_args(parser.parse_args())
+    ('update', {'target_entry': None, 'output_key': None, 'filename_pattern': None, 'update_operation': None, 'update_value': 0.0, 'update_preview': False, 'stats_function': None, 'output_filename': None, 'input_keys': (None, None)})
 """
 
 import argparse
+from typing import Any, Dict, Tuple
 
 from logic.src.cli.base import UpdateFunctionMapActionFactory
 from logic.src.constants import FS_COMMANDS
 
 
-def add_files_args(parser):
+def add_files_args(parser: Any) -> Any:
     """
     Adds all arguments related to file system operations (as subparsers).
 
@@ -36,7 +51,7 @@ def add_files_args(parser):
     return parser
 
 
-def add_files_update_args(parser):
+def add_files_update_args(parser: Any) -> Any:
     """
     Adds file system 'update' sub-command arguments.
 
@@ -99,7 +114,7 @@ def add_files_update_args(parser):
     return parser
 
 
-def add_files_delete_args(parser):
+def add_files_delete_args(parser: Any) -> Any:
     """
     Adds file system 'delete' sub-command arguments.
 
@@ -163,7 +178,7 @@ def add_files_delete_args(parser):
     return parser
 
 
-def add_files_crypto_args(parser):
+def add_files_crypto_args(parser: Any) -> Any:
     """
     Adds file system 'cryptography' sub-command arguments.
 
@@ -193,10 +208,16 @@ def add_files_crypto_args(parser):
     return parser
 
 
-def validate_file_system_args(args):
+def validate_file_system_args(args: Dict[str, Any]) -> Tuple[str, Dict[str, Any]]:
     """
     Validates and post-processes arguments for file_system.
     Returns a tuple: (fs_command, validated_args)
+
+    Args:
+        args: Dictionary of file system arguments
+
+    Returns:
+        Tuple of (fs_command, validated_args)
     """
     args = args.copy()
     fs_comm = args.pop("fs_command", None)

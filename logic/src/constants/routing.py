@@ -20,6 +20,62 @@ Units and Valid Ranges
 - Capacity: percent (0-100)
 - Penalties: cost units (dimensionless, scaled to route cost)
 - MIP gap: ratio (0.0-1.0, where 0.01 = 1% optimality gap)
+
+Attributes:
+    IMPROVEMENT_EPSILON: Minimum cost improvement to accept a local search move
+    COLLECTION_TIME_MINUTES: Average time to collect one bin (minutes)
+    VEHICLE_SPEED_KMH: Average vehicle speed in urban waste collection (km/h)
+    PENALTY_MANDATORY_NODES_MISSED: Penalty for missing a mandatory bin
+    MAX_WASTE: Maximum bin fill level (1.0 = full capacity)
+    MIP_GAP: MIP optimality gap tolerance (ratio)
+    HEURISTICS_RATIO: Heuristic effort ratio (0.0-1.0)
+    NODEFILE_START_GB: Memory threshold for writing nodes to disk (GB)
+    SOLVER_OUTPUT_FLAG: Solver output flag (0 = suppress, 1 = enable)
+    DEFAULT_SHIFT_DURATION: Default shift duration (minutes)
+    DEFAULT_V_VALUE: Default value function parameter (dimensionless)
+    DEFAULT_COMBINATION: Default OG SANS hyperparameter combination
+    DEFAULT_TIME_LIMIT: Default optimization time limit (seconds)
+    DEFAULT_EVAL_BATCH_SIZE: Default evaluation batch size for model inference
+    DEFAULT_ROLLOUT_BATCH_SIZE: Default rollout batch size for baseline computation
+    SCALE: Scale factor for TSP and CVRP distance matrices
+    DEFAULT_HIGH_PENALTY: Default penalty for inter-dummy edges (prevents empty intermediate routes)
+
+Example:
+    >>> from logic.src.constants import IMPROVEMENT_EPSILON, COLLECTION_TIME_MINUTES, VEHICLE_SPEED_KMH, PENALTY_MANDATORY_NODES_MISSED, MAX_WASTE, MIP_GAP, HEURISTICS_RATIO, NODEFILE_START_GB, SOLVER_OUTPUT_FLAG, DEFAULT_SHIFT_DURATION, DEFAULT_V_VALUE, DEFAULT_COMBINATION, DEFAULT_TIME_LIMIT, DEFAULT_EVAL_BATCH_SIZE, DEFAULT_ROLLOUT_BATCH_SIZE, SCALE, DEFAULT_HIGH_PENALTY
+    >>> IMPROVEMENT_EPSILON
+    1e-3
+    >>> COLLECTION_TIME_MINUTES
+    3.0
+    >>> VEHICLE_SPEED_KMH
+    40.0
+    >>> PENALTY_MANDATORY_NODES_MISSED
+    10000.0
+    >>> MAX_WASTE
+    1.0
+    >>> MIP_GAP
+    0.01
+    >>> HEURISTICS_RATIO
+    0.5
+    >>> NODEFILE_START_GB
+    0.5
+    >>> SOLVER_OUTPUT_FLAG
+    0
+    >>> DEFAULT_SHIFT_DURATION
+    390
+    >>> DEFAULT_V_VALUE
+    1.0
+    >>> DEFAULT_COMBINATION
+    [500, 75, 0.95, 0, 0.095, 0, 0]
+    >>> DEFAULT_TIME_LIMIT
+    600
+    >>> DEFAULT_EVAL_BATCH_SIZE
+    1024
+    >>> DEFAULT_ROLLOUT_BATCH_SIZE
+    64
+    >>> SCALE
+    10000
+    >>> DEFAULT_HIGH_PENALTY
+    1e9
 """
 
 # Local Search Improvement Threshold

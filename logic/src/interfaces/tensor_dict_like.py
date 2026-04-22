@@ -3,6 +3,9 @@
 This module defines the ITensorDictLike protocol for duck typing with
 dict-like objects that store tensors and have batch dimension information.
 
+Attributes:
+    ITensorDictLike: Protocol for duck typing with TensorDict-compatible containers
+
 Example:
     >>> from logic.src.interfaces.tensor_dict_like import ITensorDictLike
     >>> if isinstance(state, ITensorDictLike):

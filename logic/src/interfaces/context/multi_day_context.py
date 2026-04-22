@@ -3,6 +3,21 @@ MultiDayContext — Rolling Horizon State Tracking Ledger.
 
 This module defines the MultiDayContext which allows routing policies to access
 historical data and metadata from previous days in a rolling horizon execution.
+
+Attributes:
+    MultiDayContext: State ledger for rolling horizon multi-day optimization
+
+Example:
+    >>> from logic.src.policies.selection_and_construction.base.multi_day_context import (
+    ...     MultiDayContext,
+    ... )
+    >>> ctx = MultiDayContext(
+    ...     day_index=0,
+    ...     previous_days_metadata=[],
+    ...     full_plan_snapshot=None,
+    ...     accumulated_stats={},
+    ...     extra={},
+    ... )
 """
 
 from dataclasses import dataclass, field
@@ -30,11 +45,27 @@ class MultiDayContext:
 
     @classmethod
     def initialize(cls, day_index: int = 0) -> "MultiDayContext":
-        """Initialize a fresh multi-day context."""
+        """
+        Initialize a fresh multi-day context.
+
+        Args:
+            day_index (int): The initial day index.
+
+        Returns:
+            MultiDayContext: A new MultiDayContext instance.
+        """
         return cls(day_index=day_index)
 
     def update(self, **patch: Any) -> "MultiDayContext":
-        """Return a new MultiDayContext with updated fields."""
+        """
+        Return a new MultiDayContext with updated fields.
+
+        Args:
+            patch (Any): Additional fields to update.
+
+        Returns:
+            MultiDayContext: A new MultiDayContext instance with updated fields.
+        """
         return MultiDayContext(
             day_index=patch.get("day_index", self.day_index),
             previous_days_metadata=patch.get("previous_days_metadata", self.previous_days_metadata),

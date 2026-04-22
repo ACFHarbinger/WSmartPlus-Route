@@ -3,6 +3,16 @@ Base parser utilities for the WSmart+ Route modular CLI.
 
 This module provides the core ConfigsParser class and shared argument actions
 used across all command-specific parsers.
+
+Attributes:
+    ConfigsParser: Custom ArgumentParser to handle string-based nargs correctly.
+
+Example:
+    >>> from logic.src.cli.base.parser import ConfigsParser
+    >>> parser = ConfigsParser()
+    >>> parser.add_argument('--test', action='store_true')
+    >>> parser.parse_args(['--test'])
+    Namespace(test=True)
 """
 
 import argparse
@@ -11,15 +21,20 @@ from typing import Any, Dict, List, NoReturn, Optional, Sequence, Tuple, Union
 
 
 class ConfigsParser(argparse.ArgumentParser):
-    """Custom ArgumentParser to handle string-based nargs correctly.
+    """
+    Custom ArgumentParser to handle string-based nargs correctly.
 
     This class extends ArgumentParser to provide additional functionality for
     processing command-line arguments, especially those involving sequence types
     and nested parser structures.
+
+    Attributes:
+        _actions: List of actions for this parser.
     """
 
     def _str_to_nargs(self, nargs: Union[str, Sequence]) -> Union[str, Sequence]:
-        """Convert a single string argument into a list if expected by nargs.
+        """
+        Convert a single string argument into a list if expected by nargs.
 
         Args:
             nargs: The value of the argument, potentially a single-element sequence containing a string.
@@ -33,10 +48,14 @@ class ConfigsParser(argparse.ArgumentParser):
             return nargs
 
     def _process_args(self, namespace: argparse.Namespace) -> None:
-        """Post-process arguments in the namespace, handling special narg conversions.
+        """
+        Post-process arguments in the namespace, handling special narg conversions.
 
         Args:
             namespace: The namespace containing parsed arguments.
+
+        Returns:
+            None
         """
         for action in self._actions:
             if action.nargs is not None:
@@ -48,7 +67,8 @@ class ConfigsParser(argparse.ArgumentParser):
                     setattr(namespace, action.dest, transformed_value)
 
     def parse_command(self, args: Optional[Sequence[str]] = None) -> Optional[str]:
-        """Parse only the command from the arguments.
+        """
+        Parse only the command from the arguments.
 
         Args:
             args: The sequence of arguments to parse. Defaults to sys.argv[1:].
@@ -64,7 +84,8 @@ class ConfigsParser(argparse.ArgumentParser):
     def parse_process_args(
         self, args: Optional[List[str]] = None, command: Optional[str] = None
     ) -> Tuple[Optional[str], Dict[str, Any]]:
-        """Parse arguments and returns the command and options dictionary.
+        """
+        Parse arguments and returns the command and options dictionary.
 
         This method performs a more complex parsing that handles space-separated
         strings intended for multi-value arguments (nargs) by splitting them
@@ -118,7 +139,8 @@ class ConfigsParser(argparse.ArgumentParser):
         return command, filtered_args
 
     def error_message(self, message: str, print_help: bool = True) -> NoReturn:
-        """Print error message and optionally help.
+        """
+        Print error message and optionally help.
 
         Args:
             message: The error message to display.

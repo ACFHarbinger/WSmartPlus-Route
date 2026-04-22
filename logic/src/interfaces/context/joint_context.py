@@ -11,8 +11,10 @@ packing sub-problem) and augments them with routing fields (distance matrix,
 revenue, cost) so that the joint solver can evaluate both objectives without
 switching between two separate context objects.
 
-Example::
+Attributes:
+    JointSelectionConstructionContext: Unified context for joint bin-selection and route-construction solvers
 
+Example:
     >>> from logic.src.policies.selection_and_construction.base.joint_context import (
     ...     JointSelectionConstructionContext,
     ... )
@@ -111,7 +113,12 @@ class JointSelectionConstructionContext:
     # ------------------------------------------------------------------
 
     def bin_mass_kg(self) -> NDArray[np.float64]:
-        """Full waste mass per bin in kg: ``density × volume``."""
+        """
+        Full waste mass per bin in kg: ``density × volume``.
+
+        Returns:
+            NDArray[np.float64]: Array of shape (n_bins,) with waste mass per bin
+        """
         return np.full(len(self.bin_ids), self.bin_density * self.bin_volume, dtype=float)
 
     def revenue_scaled(self) -> float:

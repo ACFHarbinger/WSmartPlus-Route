@@ -1,5 +1,16 @@
 """
 Unified entry point for the WSmart+ Route modular CLI.
+
+Attributes:
+    parse_params: Parses arguments, determines the command, and performs necessary validation.
+
+Example:
+    >>> from logic.src.cli import parse_params
+    >>> command, opts = parse_params()
+    >>> command
+    'gui'
+    >>> opts
+    {'app_style': 'fusion', 'test_only': False}
 """
 
 import argparse
@@ -48,3 +59,15 @@ def parse_params() -> Tuple[Union[str, Tuple[str, str]], Dict[str, Any]]:
         parser.error_message(f"Error: {e}", print_help=True)
     except Exception as e:
         parser.error_message(f"An unexpected error occurred: {e}", print_help=False)
+
+
+__all__ = [
+    "parse_params",
+    "add_files_args",
+    "add_gui_args",
+    "add_test_suite_args",
+    "ConfigsParser",
+    "LowercaseAction",
+    "StoreDictKeyPair",
+    "UpdateFunctionMapActionFactory",
+]
