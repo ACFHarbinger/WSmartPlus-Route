@@ -5,8 +5,16 @@ Reads the CSV produced by :class:`ExecutionProfiler`, computes per-function,
 per-file, per-class, and per-module aggregates, detects timeline gaps, and can
 forward a structured summary to the active WSTracker run.
 
-Classes:
+Attributes:
     ProfilingReport: Reads and analyses a profiling CSV.
+
+Example:
+    >>> from logic.src.tracking.profiling import ProfilingReport
+    >>> report = ProfilingReport("logs/function_execution_times_2024-01-01_12-00-00.csv")
+    >>> print(report)
+    >>> for entry in report.top_functions(n=10):
+    ...     print(entry)
+    >>> report.log_to_run(top_n=10)
 """
 
 from __future__ import annotations
@@ -45,9 +53,11 @@ class ProfilingReport:
 
         report = profiler.get_report()   # calls flush() first
 
-    Args:
+    Attributes:
         csv_path: Path to the CSV file written by :class:`ExecutionProfiler`.
         wall_elapsed: Optional wall-clock seconds the profiler was active.
+        _records: List of dicts with keys ``timestamp``, ``file``, ``class``,
+            ``function``, ``duration_sec``.
     """
 
     def __init__(
@@ -55,6 +65,11 @@ class ProfilingReport:
         csv_path: str,
         wall_elapsed: Optional[float] = None,
     ) -> None:
+        """
+        Args:
+            csv_path: Path to the CSV file written by :class:`ExecutionProfiler`.
+            wall_elapsed: Optional wall-clock seconds the profiler was active.
+        """
         self.csv_path = csv_path
         self.wall_elapsed = wall_elapsed
         self._records: List[Dict[str, Any]] = []
@@ -65,6 +80,12 @@ class ProfilingReport:
     # ------------------------------------------------------------------
 
     def _load(self) -> None:
+        """
+        Load records from the CSV file.
+
+        Returns:
+            None
+        """
         if not os.path.exists(self.csv_path):
             return
         with open(self.csv_path, newline="") as f:
@@ -89,17 +110,26 @@ class ProfilingReport:
 
     @property
     def n_calls(self) -> int:
-        """Total number of function-call records in the CSV."""
+        """
+        Total number of function-call records in the CSV.
+
+        Returns:
+            int
+        """
         return len(self._records)
 
     @property
     def total_time(self) -> float:
-        """Sum of all recorded durations (seconds).
+        """
+        Sum of all recorded durations (seconds).
 
         Note: this is the sum of self-times *and* child-times, so the value
         will exceed the wall-clock elapsed time for recursive or nested code.
         Use :meth:`module_breakdown` or :meth:`top_functions` for relative
         comparisons.
+
+        Returns:
+            float
         """
         return sum(r["duration_sec"] for r in self._records)
 
@@ -120,6 +150,9 @@ class ProfilingReport:
 
         Args:
             n: Maximum number of entries to return.
+
+        Returns:
+            List[Dict[str, Any]]
         """
         accum: Dict[str, Dict[str, Any]] = defaultdict(lambda: {"total_sec": 0.0, "n_calls": 0, "max_sec": 0.0})
         for r in self._records:
@@ -145,10 +178,17 @@ class ProfilingReport:
         return result[:n]
 
     def file_breakdown(self, n: int = 15) -> List[Dict[str, Any]]:
-        """Total time grouped by source file path.
+        """
+        Total time grouped by source file path.
 
         Returns a list of dicts with keys ``file``, ``total_sec``,
         ``n_calls``, sorted by total time descending.
+
+        Args:
+            n: Maximum number of entries to return.
+
+        Returns:
+            List[Dict[str, Any]]
         """
         accum: Dict[str, Dict[str, Any]] = defaultdict(lambda: {"total_sec": 0.0, "n_calls": 0})
         for r in self._records:
@@ -161,11 +201,18 @@ class ProfilingReport:
         return result[:n]
 
     def class_breakdown(self, n: int = 15) -> List[Dict[str, Any]]:
-        """Total time grouped by class name.
+        """
+        Total time grouped by class name.
 
         Returns a list of dicts with keys ``class``, ``total_sec``,
         ``n_calls``, sorted by total time descending.  Functions without
         a class are grouped under ``"<module-level>"``.
+
+        Args:
+            n: Maximum number of entries to return.
+
+        Returns:
+            List[Dict[str, Any]]
         """
         accum: Dict[str, Dict[str, Any]] = defaultdict(lambda: {"total_sec": 0.0, "n_calls": 0})
         for r in self._records:
@@ -179,10 +226,14 @@ class ProfilingReport:
         return result[:n]
 
     def module_breakdown(self) -> List[Tuple[str, float]]:
-        """Total time grouped by first path segment (top-level module directory).
+        """
+        Total time grouped by first path segment (top-level module directory).
 
         Returns a list of ``(module_name, total_seconds)`` tuples sorted by
         total time descending.
+
+        Returns:
+            List[Tuple[str, float]]
         """
         totals: Dict[str, float] = defaultdict(float)
         for r in self._records:
@@ -192,13 +243,20 @@ class ProfilingReport:
         return sorted(totals.items(), key=lambda x: x[1], reverse=True)
 
     def timeline_gaps(self, min_gap_sec: float = 1.0) -> List[Dict[str, Any]]:
-        """Detect gaps in the profiling timeline larger than *min_gap_sec*.
+        """
+        Detect gaps in the profiling timeline larger than *min_gap_sec*.
 
         These gaps represent time spent in library code, I/O, child
         processes, or other code not instrumented by the profiler.
 
         Returns a list of dicts with keys ``after_index``, ``from_ts``,
         ``to_ts``, and ``gap_sec``, sorted by gap size descending.
+
+        Args:
+            min_gap_sec: Minimum gap size in seconds to report.
+
+        Returns:
+            List[Dict[str, Any]]
         """
         if len(self._records) < 2:
             return []
@@ -237,13 +295,23 @@ class ProfilingReport:
         return gaps
 
     def slowest_call(self) -> Optional[Dict[str, Any]]:
-        """Return the single longest recorded call, or ``None`` if empty."""
+        """
+        Return the single longest recorded call, or ``None`` if empty.
+
+        Returns:
+            Optional[Dict[str, Any]]
+        """
         if not self._records:
             return None
         return max(self._records, key=lambda r: r["duration_sec"])
 
     def summary(self) -> Dict[str, Any]:
-        """Return a high-level summary dict."""
+        """
+        Return a high-level summary dict.
+
+        Returns:
+            Dict[str, Any]
+        """
         return {
             "n_calls": self.n_calls,
             "total_time_sec": self.total_time,
@@ -272,6 +340,9 @@ class ProfilingReport:
         Args:
             top_n: Number of top functions / modules to include.
             step: Metric step dimension.
+
+        Returns:
+            None
         """
         with contextlib.suppress(Exception):
             run = get_active_run()
@@ -308,9 +379,21 @@ class ProfilingReport:
     # ------------------------------------------------------------------
 
     def __repr__(self) -> str:
+        """
+        Return a string representation of the report.
+
+        Returns:
+            str
+        """
         return f"ProfilingReport(n_calls={self.n_calls}, total={self.total_time:.2f}s, path={self.csv_path!r})"
 
     def __str__(self) -> str:
+        """
+        Return a string representation of the report.
+
+        Returns:
+            str
+        """
         sep = "=" * 80
         lines = [
             sep,
