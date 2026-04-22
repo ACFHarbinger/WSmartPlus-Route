@@ -18,9 +18,9 @@ def test_search_context_initialization():
     sel_metrics: SelectionMetrics = {"strategy": "TestSelection"}
     ctx = SearchContext.initialize(selection_metrics=sel_metrics)
 
-    assert ctx.selection["strategy"] == "TestSelection"
-    assert ctx.construction is None
-    assert ctx.improvement == []
+    assert ctx.selection_metrics["strategy"] == "TestSelection"
+    assert ctx.construction_metrics == {}
+    assert ctx.improvement_metrics == {}
 
 
 def test_merge_construction():
@@ -31,29 +31,28 @@ def test_merge_construction():
     new_ctx = merge_context(ctx, phase=SearchPhase.CONSTRUCTION, construction_metrics=cons_metrics)
 
     # Original should be untouched (immutable)
-    assert ctx.construction is None
+    assert ctx.construction_metrics == {}
     # New should have metrics
-    assert new_ctx.construction["algorithm"] == "Exact"
-    assert new_ctx.construction["profit"] == 100.0
+    assert new_ctx.construction_metrics["algorithm"] == "Exact"
+    assert new_ctx.construction_metrics["profit"] == 100.0
 
 
 def test_merge_improvement():
-    """Verify appending improvement metrics (Phase 3)."""
+    """Verify merging improvement metrics (Phase 3)."""
     ctx = SearchContext.initialize(selection_metrics={"strategy": "Sel"})
     imp_metrics: ImprovementMetrics = {"algorithm": "SA", "n_iterations": 10}
 
     new_ctx = merge_context(ctx, phase=SearchPhase.IMPROVEMENT, improvement_metrics=imp_metrics)
 
-    assert len(ctx.improvement) == 0
-    assert len(new_ctx.improvement) == 1
-    assert new_ctx.improvement[0]["algorithm"] == "SA"
+    assert ctx.improvement_metrics == {}
+    assert new_ctx.improvement_metrics["algorithm"] == "SA"
 
-    # Append second improver
-    imp_metrics2: ImprovementMetrics = {"algorithm": "2Opt"}
+    # Merge second improver (it will overwrite or merge)
+    imp_metrics2: ImprovementMetrics = {"best_delta": -5.0}
     final_ctx = merge_context(new_ctx, phase=SearchPhase.IMPROVEMENT, improvement_metrics=imp_metrics2)
 
-    assert len(final_ctx.improvement) == 2
-    assert final_ctx.improvement[1]["algorithm"] == "2Opt"
+    assert final_ctx.improvement_metrics["algorithm"] == "SA"
+    assert final_ctx.improvement_metrics["best_delta"] == -5.0
 
 
 def test_full_flow():
@@ -63,26 +62,30 @@ def test_full_flow():
 
     # 2. Construction
     ctx = merge_context(
-        ctx, SearchPhase.CONSTRUCTION, construction_metrics={"algorithm": "AM", "profit": 50.0}
+        ctx, phase=SearchPhase.CONSTRUCTION, construction_metrics={"algorithm": "AM", "profit": 50.0}
     )
 
     # 3. Improvement
     ctx = merge_context(
-        ctx, SearchPhase.IMPROVEMENT, improvement_metrics={"algorithm": "LS", "best_delta": -5.0}
+        ctx, phase=SearchPhase.IMPROVEMENT, improvement_metrics={"algorithm": "LS", "best_delta": -5.0}
     )
 
-    assert ctx.selection["strategy"] == "Learned"
-    assert ctx.construction["algorithm"] == "AM"
-    assert len(ctx.improvement) == 1
-    assert ctx.improvement[0]["algorithm"] == "LS"
+    assert ctx.selection_metrics["strategy"] == "Learned"
+    assert ctx.construction_metrics["algorithm"] == "AM"
+    assert ctx.improvement_metrics["algorithm"] == "LS"
 
 
-def test_mismatched_metrics_raises():
-    """Verify that passing wrong metrics for a phase raises ValueError."""
-    ctx = SearchContext.initialize({"strategy": "Sel"})
+def test_acceptance_trace():
+    """Verify appending to acceptance trace."""
+    ctx = SearchContext.initialize()
+    trace1: AcceptanceMetrics = {"criterion": "bmc", "accepted": True}
+    ctx = merge_context(ctx, acceptance_metrics=trace1)
 
-    with pytest.raises(ValueError, match="construction_metrics must be provided"):
-        merge_context(ctx, phase=SearchPhase.CONSTRUCTION)
+    assert len(ctx.acceptance_trace) == 1
+    assert ctx.acceptance_trace[0]["criterion"] == "bmc"
 
-    with pytest.raises(ValueError, match="improvement_metrics must be provided"):
-        merge_context(ctx, phase=SearchPhase.IMPROVEMENT)
+    trace2: AcceptanceMetrics = {"criterion": "bmc", "accepted": False}
+    ctx = merge_context(ctx, acceptance_metrics=trace2)
+
+    assert len(ctx.acceptance_trace) == 2
+    assert ctx.acceptance_trace[1]["accepted"] is False

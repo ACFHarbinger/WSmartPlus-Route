@@ -3,17 +3,18 @@
 import pytest
 import torch
 import torch.nn as nn
-from unittest.mock import MagicMock, patch
 from logic.src.utils.functions import (
-    get_inner_model,
-    load_problem,
-    torch_load_cpu,
-    load_data,
     move_to,
     get_path_until_string,
     compute_in_batches,
     do_batch_rep,
+)
+from logic.src.utils.model import (
     parse_softmax_temperature,
+    load_data,
+    torch_load_cpu,
+    get_inner_model,
+    load_problem,
 )
 
 

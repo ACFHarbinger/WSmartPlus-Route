@@ -15,15 +15,23 @@ class MockEnv(RL4COEnvBase):
     def __init__(self):
         self.device = torch.device("cpu")
 
-    def step(self, tensordict: TensorDictBase) -> TensorDictBase:
+    def _reset_instance(self, td: TensorDictBase) -> TensorDictBase:
+        return td
+
+    def _get_reward(self, td: TensorDictBase, actions: Optional[torch.Tensor] = None) -> torch.Tensor:
+        return torch.zeros(td.batch_size, dtype=torch.float)
+
+    def _get_action_mask(self, td: TensorDictBase) -> torch.Tensor:
+        return torch.ones(td.batch_size, 5, dtype=torch.bool)
+
+    def _step(self, td: TensorDictBase) -> TensorDictBase:
         # minimal step implementation
-        next_td = tensordict.clone()
-        # Mocking done
-        next_td["done"] = torch.ones(tensordict.batch_size, dtype=torch.bool)
-        return TensorDict({"next": next_td})
+        next_td = td.clone()
+        next_td["done"] = torch.ones(td.batch_size, dtype=torch.bool)
+        return next_td
 
     def get_reward(self, tensordict: TensorDictBase, actions: Optional[torch.Tensor] = None):
-        return torch.zeros(tensordict.batch_size, dtype=torch.float)
+        return self._get_reward(tensordict, actions)
 
 @pytest.fixture
 def mdam_decoder():

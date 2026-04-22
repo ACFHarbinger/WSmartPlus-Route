@@ -33,8 +33,8 @@ def mock_params():
 
 def test_tsp_policy(mock_params):
     with patch("logic.src.pipeline.simulations.repository.load_area_and_waste_type_params") as mock_load, \
-         patch("logic.src.policies.travelling_salesman_problem.policy_tsp.find_route") as mock_find, \
-         patch("logic.src.policies.travelling_salesman_problem.policy_tsp.get_multi_tour") as mock_get_multi:
+         patch("logic.src.policies.route_construction.other_algorithms.travelling_salesman_problem.policy_tsp.find_route") as mock_find, \
+         patch("logic.src.policies.route_construction.other_algorithms.travelling_salesman_problem.policy_tsp.get_multi_tour") as mock_get_multi:
 
         # Mock load: cap, rev, dens, exp, vol
         mock_load.return_value = (100.0, 1.0, 1.0, 1.0, 1.0)
@@ -52,7 +52,7 @@ def test_tsp_policy(mock_params):
         policy = cls()
         assert isinstance(policy, TSPPolicy)
 
-        tour, cost, extra = policy.execute(policy="tsp", **mock_params)
+        tour, cost, extra, *_ = policy.execute(policy="tsp", **mock_params)
 
         assert tour == [0, 1, 2, 3, 4, 5, 0]
         # Valid cost (mocked distances are 1.0 everywhere except diagonal)
@@ -65,7 +65,7 @@ def test_tsp_policy(mock_params):
 
 def test_cvrp_policy(mock_params):
     with patch("logic.src.pipeline.simulations.repository.load_area_and_waste_type_params") as mock_load, \
-         patch("logic.src.policies.capacitated_vehicle_routing_problem.policy_cvrp.find_routes") as mock_find:
+         patch("logic.src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.policy_cvrp.find_routes") as mock_find:
 
         mock_load.return_value = (100.0, 1.0, 1.0, 1.0, 1.0)
 
@@ -77,7 +77,7 @@ def test_cvrp_policy(mock_params):
         policy = cls()
         assert isinstance(policy, CVRPPolicy)
 
-        tour, cost, extra = policy.execute(policy="cvrp", **mock_params)
+        tour, cost, extra, *_ = policy.execute(policy="cvrp", **mock_params)
 
         assert tour == [0, 1, 2, 0, 3, 4, 5, 0]
         # 7 edges. 1.0 each (except 0-0 dep-dep? no dep-dep in this list)

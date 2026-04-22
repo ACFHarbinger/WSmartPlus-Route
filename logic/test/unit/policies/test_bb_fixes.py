@@ -16,7 +16,7 @@ def test_fix_1_root_initialization():
     wastes = {1: 10.0}
     solver = BBSolver(dist_matrix, wastes, 100.0, 1.0, 1.0, 0.001)
 
-    with patch('logic.src.policies.branch_and_bound.mtz.Node') as mock_node:
+    with patch('logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.mtz.Node') as mock_node:
         try:
             solver.solve()
         except:
@@ -133,7 +133,7 @@ def test_fix_5_monetary_cost_return():
     """Fix 5: policy_bb.py must return monetary travel cost."""
     policy = BranchAndBoundPolicy()
 
-    with patch('logic.src.policies.branch_and_bound.policy_bb.run_bb_optimizer') as mock_run:
+    with patch('logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.policy_bb.run_bb_optimizer') as mock_run:
         mock_run.return_value = ([[1, 2]], 100.0)
 
         sub_dist_matrix = np.array([

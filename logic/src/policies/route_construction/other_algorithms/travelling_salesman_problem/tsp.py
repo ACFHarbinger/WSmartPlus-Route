@@ -17,7 +17,7 @@ Attributes:
     None
 
 Example:
-    >>> from logic.src.policies.travelling_salesman_problem.tsp import find_route
+    >>> from logic.src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp import find_route
     >>> tour, length = find_route(dist_matrix)
 
 Reference:

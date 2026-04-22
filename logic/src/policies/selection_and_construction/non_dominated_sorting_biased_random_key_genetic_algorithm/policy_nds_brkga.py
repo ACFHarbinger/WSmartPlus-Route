@@ -63,6 +63,46 @@ class NDSBRKGAPolicy(BaseJointPolicy):
     def _get_config_key(self) -> str:
         return "nds_brkga"
 
+    def _run_solver(
+        self,
+        sub_dist_matrix: np.ndarray,
+        sub_wastes: Dict[int, float],
+        capacity: float,
+        revenue: float,
+        cost_unit: float,
+        values: Dict[str, Any],
+        mandatory_nodes: List[int],
+        **kwargs: Any,
+    ) -> Tuple[List[List[int]], float, float]:
+        """
+        Internal bridge for test compatibility.
+        Constructs context and calls solve_joint.
+        """
+        # Convert sub_wastes (dict) to current_fill (list)
+        # nodes IDs are 1-based in sub_wastes keys
+        max_id = max(sub_wastes.keys()) if sub_wastes else 0
+        current_fill = np.zeros(max_id)
+        for i, f in sub_wastes.items():
+            current_fill[i - 1] = f
+
+        context = JointSelectionConstructionContext(
+            bin_ids=np.arange(1, max_id + 1, dtype=np.int32),
+            current_fill=current_fill,
+            distance_matrix=sub_dist_matrix,
+            capacity=capacity,
+            revenue_kg=revenue,
+            cost_per_km=cost_unit,
+            bin_density=float(values.get("B", 1.0)),
+            bin_volume=float(values.get("V", 1.0)),
+            max_fill=float(values.get("max_fill", 100.0)),
+            n_vehicles=int(kwargs.get("n_vehicles", 1)),
+            scenario_tree=kwargs.get("scenario_tree"),
+            mandatory_override=[mandatory_nodes] if mandatory_nodes else None,
+        )
+
+        _, routes, profit, cost = self.solve_joint(context)
+        return routes, profit, cost
+
     def solve_joint(
         self,
         context: JointSelectionConstructionContext,
