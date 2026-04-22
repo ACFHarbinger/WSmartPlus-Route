@@ -109,7 +109,8 @@ hpo = [
 tracking = [
     "mlflow>=2.10.0",
     "zenml>=0.60.0",
-    "ray[tune]>=2.7.0,<2.11.0",
+    "ray[tune]>=2.30.0",
+    "pyarrow>=16.1.0",
     "opentelemetry-proto>=1.15.0,<=1.25.0",
 ]
 analysis = [

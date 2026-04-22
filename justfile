@@ -45,7 +45,7 @@ install:
 # Train a model with Hydra configs
 
 # Usage: just train problem=wcvrp model=am size=50 epochs=100
-train problem=problem model=model size=size epochs=epochs encoder=encoder decoder=decoder batch_size=batch_size temporal_horizon=temporal_horizon area=area distribution=distribution train_data_size="12800" val_data_size="128":
+train problem=problem model=model size=size epochs=epochs encoder=encoder decoder=decoder batch_size=batch_size temporal_horizon=temporal_horizon area=area distribution=distribution:
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🚀 STARTING HYDRA TRAINING SESSION"
     @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
@@ -66,8 +66,6 @@ train problem=problem model=model size=size epochs=epochs encoder=encoder decode
         env.graph.num_loc={{ size }} \
         env.graph.area={{ area }} \
         train.data_distribution={{ distribution }} \
-        train.train_data_size={{ train_data_size }} \
-        train.val_data_size={{ val_data_size }} \
         hpo.n_trials=0 \
         train.n_epochs={{ epochs }} \
         train.batch_size={{ batch_size }}
@@ -120,7 +118,7 @@ test-sim policies=policies days=days area=area size=size samples=samples problem
 # Generate data with Hydra configs
 
 # Usage: just gen-data wcvrp 100 emp test_simulator 10 31
-gen-data problem=problem distribution=distribution data_type="test_simulator":
+gen-data problem=problem distribution=distribution data_type="train_time":
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "📁 GENERATING DATASET"
     @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
