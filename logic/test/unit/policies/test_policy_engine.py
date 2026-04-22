@@ -79,7 +79,7 @@ def test_policy_factory_standardized():
 
 @pytest.mark.unit
 def test_bcp_engine_override(mock_engine_data):
-    with patch("logic.src.policies.branch_and_price_and_cut.policy_bpc.run_bpc") as mock_run:
+    with patch("logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.policy_bpc.run_bpc") as mock_run:
         mock_run.return_value = ([[1, 0]], 10.0)
 
         policy = RouteConstructorFactory.get_adapter("bpc")
@@ -97,7 +97,7 @@ def test_swc_tcf_engine_override(mocker, mock_engine_data):
     mocker.patch("logic.src.pipeline.simulations.repository.load_area_and_waste_type_params",
                  return_value=(4000, 0.16, 21.0, 1.0, 2.5))
 
-    with patch("logic.src.policies.smart_waste_collection_two_commodity_flow.policy_swc_tcf.run_swc_tcf_optimizer") as mock_opt:
+    with patch("logic.src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.policy_swc_tcf.run_swc_tcf_optimizer") as mock_opt:
         mock_opt.return_value = ([0, 1, 0], 10.0, 5.0)
 
         policy = RouteConstructorFactory.get_adapter("swc_tcf")
@@ -108,7 +108,7 @@ def test_swc_tcf_engine_override(mocker, mock_engine_data):
 
 @pytest.mark.unit
 def test_hgs_engine_override(mock_engine_data):
-    with patch("logic.src.policies.hybrid_genetic_search.policy_hgs.run_hgs") as mock_run:
+    with patch("logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.policy_hgs.run_hgs") as mock_run:
         mock_run.return_value = ([[1, 0]], 10.0, 5.0)
 
         policy = RouteConstructorFactory.get_adapter("hgs")
@@ -119,7 +119,7 @@ def test_hgs_engine_override(mock_engine_data):
 
 @pytest.mark.unit
 def test_alns_engine_override(mock_engine_data):
-    with patch("logic.src.policies.adaptive_large_neighborhood_search.policy_alns.run_alns") as mock_run:
+    with patch("logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.policy_alns.run_alns") as mock_run:
         mock_run.return_value = ([[1, 0]], 10.0, 5.0)
 
         # Set specific engine in config
@@ -139,7 +139,7 @@ def test_alns_engine_override(mock_engine_data):
 
 def test_sans_execution(mock_engine_data):
     # Patch improved_simulated_annealing in its home module (or where it's used)
-    with patch("logic.src.policies.simulated_annealing_neighborhood_search.dispatcher.improved_simulated_annealing") as mock_sans, \
+    with patch("logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.dispatcher.improved_simulated_annealing") as mock_sans, \
          patch("logic.src.pipeline.simulations.repository.load_area_and_waste_type_params") as mock_load:
 
         mock_load.return_value = (100.0, 1.0, 1.0, 1.0, 1.0)

@@ -947,11 +947,6 @@ def _column_generation_loop(  # noqa: C901
             in_arcs[bc.v] = bc.u
 
     for _iteration in range(max_cg_iterations):
-        if _iteration % 5 == 0:
-            logger.info(
-                f"Node {node_depth} CG Iteration {_iteration}/{max_cg_iterations} - Current LP Obj: {obj_val:.2f}"
-            )
-
         if time_limit and (time.monotonic() - start_time) > time_limit:
             timed_out = True
             break

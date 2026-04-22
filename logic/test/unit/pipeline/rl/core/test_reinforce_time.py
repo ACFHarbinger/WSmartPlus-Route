@@ -43,6 +43,10 @@ def test_reinforce_base_no_time():
         name = "mock_env"
         def reset(self, td, **kwargs): return td  # type: ignore[override]
         def get_reward(self, td, actions): return torch.zeros(td.size(0))  # type: ignore[override]
+        def _get_reward(self, td, actions=None): return torch.zeros(td.size(0))
+        def _get_action_mask(self, td): return torch.ones(td.size(0), 5, dtype=torch.bool)
+        def _reset_instance(self, td): return td
+        def _step(self, td): return td
 
     env = MockEnv()
     policy = MockPolicy()
@@ -68,6 +72,10 @@ def test_time_optimized_reinforce():
         name = "mock_env"
         def reset(self, td, **kwargs): return td  # type: ignore[override]
         def get_reward(self, td, actions): return torch.zeros(td.size(0))  # type: ignore[override]
+        def _get_reward(self, td, actions=None): return torch.zeros(td.size(0))
+        def _get_action_mask(self, td): return torch.ones(td.size(0), 5, dtype=torch.bool)
+        def _reset_instance(self, td): return td
+        def _step(self, td): return td
 
     env = MockEnv()
     policy = MockPolicy()

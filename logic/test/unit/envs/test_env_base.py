@@ -19,6 +19,13 @@ class ConcreteEnv(RL4COEnvBase):
     def _get_action_mask(self, tensordict):
         return torch.ones((*tensordict.batch_size, 5), dtype=torch.bool)
 
+    def _step(self, td: TensorDict) -> TensorDict:
+        """Perform a transition in the environment."""
+        td["i"] = td["i"] + 1
+        td["current_node"] = td["action"].unsqueeze(-1)
+        td["reward"] = self._get_reward(td, td["action"])
+        return td
+
 
 def test_env_base_init():
     """Verify initialization of RL4COEnvBase."""
