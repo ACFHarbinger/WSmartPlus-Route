@@ -1,5 +1,16 @@
 """
 Common utilities for RL training.
+
+Attributes:
+    get_optimizer: Get optimizer by name.
+    get_scheduler: Get learning rate scheduler by name.
+    get_lightning_device: Get the device from a PyTorch Lightning Trainer.
+
+Example:
+    >>> from logic.src.utils.tasks.training_utils import get_optimizer, get_scheduler, get_lightning_device
+    >>> optimizer = get_optimizer("adam", model.parameters(), lr=1e-4, weight_decay=0.0)
+    >>> scheduler = get_scheduler("cosine", optimizer, T_max=100)
+    >>> device = get_lightning_device(trainer)
 """
 
 from __future__ import annotations
@@ -25,7 +36,7 @@ def get_optimizer(
         parameters: Model parameters to optimize.
         lr: Learning rate.
         weight_decay: Weight decay factor.
-        **kwargs: Additional optimizer arguments.
+        kwargs: Additional optimizer arguments.
 
     Returns:
         Initialized optimizer.
@@ -54,7 +65,7 @@ def get_scheduler(
     Args:
         name: Scheduler name ('cosine', 'step', 'exponential', 'plateau', 'lambda', 'none').
         optimizer: Optimizer instance.
-        **kwargs: Scheduler arguments.
+        kwargs: Scheduler arguments.
 
     Returns:
         Initialized scheduler or None.

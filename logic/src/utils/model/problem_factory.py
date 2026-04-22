@@ -1,5 +1,14 @@
 """
 Factory functions for loading problem classes.
+
+Attributes:
+    load_problem: Factory function to load a problem class by name.
+
+Example:
+    >>> from logic.src.utils.model.problem_factory import load_problem
+    >>> problem = load_problem("vrpp")
+    >>> isinstance(problem, type)
+    True
 """
 
 from __future__ import annotations

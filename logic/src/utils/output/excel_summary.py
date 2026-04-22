@@ -1,5 +1,15 @@
 """
 Utility to aggregate simulation results JSONs into a single Excel log.
+
+Attributes:
+    _DIST_PATTERN: Regex pattern to extract distribution information from policy names.
+    _DISPLAY_METRICS: List of metrics to display in the summary.
+    SELECTED_DIRS: Whitelist of directories to include in the summary.
+
+Example:
+    >>> from logic.src.utils.output.excel_summary import discover_and_aggregate
+    >>> df = discover_and_aggregate()
+    >>> print(df.head())
 """
 
 import json
@@ -36,7 +46,15 @@ SELECTED_DIRS: List[str] = [
 
 
 def _parse_policy_name(raw_name: str) -> Tuple[str, str]:
-    """Split a raw policy key into (base_name, distribution)."""
+    """
+    Split a raw policy key into (base_name, distribution).
+
+    Args:
+        raw_name:  Raw policy key.
+
+    Returns:
+        Tuple[str, str]: A tuple containing the base name and distribution.
+    """
     match = _DIST_PATTERN.search(raw_name)
     if match:
         dist = match.group(1).lower()
@@ -46,7 +64,15 @@ def _parse_policy_name(raw_name: str) -> Tuple[str, str]:
 
 
 def _load_json(path: str) -> Any:
-    """Load and parse a JSON file."""
+    """
+    Load and parse a JSON file.
+
+    Args:
+        path:  Path to the JSON file.
+
+    Returns:
+        Any: The parsed JSON data.
+    """
     try:
         with open(path, "r") as f:
             return json.load(f)
@@ -55,7 +81,12 @@ def _load_json(path: str) -> Any:
 
 
 def discover_and_aggregate() -> pd.DataFrame:
-    """Find all log directories and aggregate results into a DataFrame."""
+    """
+    Find all log directories and aggregate results into a DataFrame.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing the aggregated simulation results.
+    """
     output_root = os.path.join(ROOT_DIR, "assets", "output")
     all_rows: List[Dict[str, Any]] = []
 

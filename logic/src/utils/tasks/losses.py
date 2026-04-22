@@ -1,5 +1,19 @@
 """
 Consistency and symmetry losses for NCO.
+
+This module provides functions to calculate consistency and symmetry
+losses for NCO.
+
+Attributes:
+    problem_symmetricity_loss: Consistency loss across problem augmentations.
+    solution_symmetricity_loss: Consistency loss across solution starts.
+    invariance_loss: Loss for invariant representation across augmentations.
+
+Example:
+    >>> import losses
+    >>> losses.problem_symmetricity_loss(reward, log_likelihood)
+    >>> losses.solution_symmetricity_loss(reward, log_likelihood)
+    >>> losses.invariance_loss(proj_embed, num_augment)
 """
 
 from typing import Union
@@ -9,7 +23,17 @@ import torch.nn.functional as F
 
 
 def problem_symmetricity_loss(reward: torch.Tensor, log_likelihood: torch.Tensor, dim: int = 1) -> torch.Tensor:
-    """Consistency loss across problem augmentations."""
+    """
+    Consistency loss across problem augmentations.
+
+    Args:
+        reward (torch.Tensor): Reward tensor.
+        log_likelihood (torch.Tensor): Log-likelihood tensor.
+        dim (int): Dimension to calculate the loss over.
+
+    Returns:
+        torch.Tensor: Consistency loss.
+    """
     if reward.shape[dim] < 2:
         return torch.tensor(0.0, device=reward.device)
     advantage = reward - reward.mean(dim=dim, keepdim=True)
@@ -18,7 +42,17 @@ def problem_symmetricity_loss(reward: torch.Tensor, log_likelihood: torch.Tensor
 
 
 def solution_symmetricity_loss(reward: torch.Tensor, log_likelihood: torch.Tensor, dim: int = -1) -> torch.Tensor:
-    """Consistency loss across solution starts."""
+    """
+    Consistency loss across solution starts.
+
+    Args:
+        reward (torch.Tensor): Reward tensor.
+        log_likelihood (torch.Tensor): Log-likelihood tensor.
+        dim (int): Dimension to calculate the loss over.
+
+    Returns:
+        torch.Tensor: Consistency loss.
+    """
     if reward.shape[dim] < 2:
         return torch.tensor(0.0, device=reward.device)
     advantage = reward - reward.mean(dim=dim, keepdim=True)
@@ -27,7 +61,16 @@ def solution_symmetricity_loss(reward: torch.Tensor, log_likelihood: torch.Tenso
 
 
 def invariance_loss(proj_embed: torch.Tensor, num_augment: int) -> torch.Tensor:
-    """Loss for invariant representation across augmentations."""
+    """
+    Loss for invariant representation across augmentations.
+
+    Args:
+        proj_embed (torch.Tensor): Projected embedding tensor.
+        num_augment (int): Number of augmentations.
+
+    Returns:
+        torch.Tensor: Invariance loss.
+    """
     # proj_embed: [batch * num_augment, graph_size, d] or [batch * num_augment, d]
     # Handle both cases by flattening if needed
     if proj_embed.dim() == 3:

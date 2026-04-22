@@ -1,5 +1,14 @@
 """
 Statistical aggregation and log processing utilities.
+
+Attributes:
+    process_pattern_files_statistics: Searches for log files matching a pattern, aggregates statistics, and writes results.
+    process_file_statistics: Processes a single log file and extracts statistics.
+
+Example:
+    >>> from logic.src.utils.io.statistics import process_pattern_files_statistics, process_file_statistics
+    >>> processed_count = process_pattern_files_statistics("path/to/logs")
+    >>> success = process_file_statistics("path/to/log.json")
 """
 
 import glob
@@ -19,6 +28,16 @@ def process_pattern_files_statistics(
 ) -> int:
     """
     Search for log files, aggregate statistics, and write results.
+
+    Args:
+        root_directory: The root directory to search for log files.
+        filename_pattern: The pattern to match log files (default: "log_*.json").
+        output_filename: The name of the output file (default: "output.json").
+        output_key: The key to extract values for (default: "km").
+        process_func: Optional function to process the values (default: mean).
+
+    Returns:
+        The number of files processed.
     """
     processed_count = 0
     search_path = os.path.join(root_directory, "**", filename_pattern)
@@ -39,6 +58,15 @@ def process_file_statistics(
 ) -> bool:
     """
     Process a single log file and extract statistics.
+
+    Args:
+        file_path: The path to the log file.
+        output_filename: The name of the output file (default: "output.json").
+        output_key: The key to extract values for (default: "km").
+        process_func: Optional function to process the values (default: mean).
+
+    Returns:
+        True if processing was successful, False otherwise.
     """
     if not os.path.exists(file_path):
         return False

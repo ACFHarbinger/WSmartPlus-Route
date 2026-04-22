@@ -1,5 +1,12 @@
 """
 Persistence utilities (locking, thread-safe I/O).
+
+Attributes:
+    read_output: Reads a JSON file and extracts specific policy values into a transposed list.
+
+Example:
+    >>> from logic.src.utils.io.locking import read_output
+    >>> logs, logs_dict = read_output("path/to/log.json", ["policy1", "policy2"], "data_distribution")
 """
 
 import json

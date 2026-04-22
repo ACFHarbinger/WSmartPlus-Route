@@ -1,5 +1,20 @@
 """
 Directory and Zip encryption utilities.
+
+This module provides functions to encrypt and decrypt directories and zip files.
+
+Attributes:
+    encrypt_directory: Encrypt all files in a directory recursively.
+    decrypt_directory: Decrypt all .enc files in a directory recursively.
+    encrypt_zip_directory: Zip a directory and then encrypt the resulting zip file.
+    decrypt_zip: Decrypt a zip file and extract its contents.
+
+Example:
+    >>> import directories
+    >>> directories.encrypt_directory(key, "test")
+    >>> directories.decrypt_directory(key, "test")
+    >>> directories.encrypt_zip_directory(key, "test")
+    >>> directories.decrypt_zip(key, "test")
 """
 
 import os

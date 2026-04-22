@@ -1,5 +1,16 @@
 """
 Checkpoint loading utilities for PyTorch models.
+
+Attributes:
+    torch_load_cpu: Loads a checkpoint file mapping all tensors to CPU.
+    load_data: Loads data from a path or resume checkpoint.
+    _load_model_file: Loads the model with parameters from the file and returns optimizer state dict if it is in the file.
+
+Example:
+    >>> from logic.src.utils.model.checkpoint_utils import torch_load_cpu, load_data, _load_model_file
+    >>> checkpoint_data = torch_load_cpu("path/to/checkpoint.pt")
+    >>> data = load_data("path/to/data.pt", None)
+    >>> model, optimizer_state_dict = _load_model_file("path/to/checkpoint.pt", model)
 """
 
 from __future__ import annotations

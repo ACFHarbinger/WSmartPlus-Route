@@ -1,5 +1,16 @@
 """
 Central model loading utility.
+
+Attributes:
+    load_model: Loads the entire model from a checkpoint or directory.
+
+Example:
+    >>> from logic.src.utils.model.loader import load_model
+    >>> model, args = load_model("path/to/checkpoint.pt")
+    >>> isinstance(model, torch.nn.Module)
+    True
+    >>> isinstance(args, dict)
+    True
 """
 
 from __future__ import annotations
@@ -128,7 +139,19 @@ def load_model(path: str, epoch: Optional[int] = None) -> Tuple[nn.Module, Dict[
 
 
 def _find_latest_checkpoint(path: str, epoch: Optional[int]) -> str:
-    """Helper to find the correct .pt file in a directory."""
+    """
+    Helper to find the correct .pt file in a directory.
+
+    Args:
+        path: Path to directory containing checkpoints.
+        epoch: Specific epoch to load. If None, loads latest.
+
+    Returns:
+        str: Path to the checkpoint file.
+
+    Raises:
+        ValueError: If no valid epoch files are found.
+    """
     if epoch is None:
         pt_files = [f for f in os.listdir(path) if f.endswith(".pt")]
         epochs = []
@@ -150,7 +173,15 @@ def _find_latest_checkpoint(path: str, epoch: Optional[int]) -> str:
 
 
 def _parse_hydra_config(cfg: Any) -> Dict[str, Any]:
-    """Helper to parse raw Hydra configuration into flat arguments."""
+    """
+    Helper to parse raw Hydra configuration into flat arguments.
+
+    Args:
+        cfg: Hydra configuration object.
+
+    Returns:
+        dict: Flat dictionary of arguments.
+    """
     args = {
         "problem": cfg.env.name,
         "encoder": cfg.model.encoder_type,
@@ -194,7 +225,15 @@ def _parse_hydra_config(cfg: Any) -> Dict[str, Any]:
 
 
 def _load_hyperparameters(path: str) -> Dict[str, Any]:
-    """Helper to detect and load hyperparameters from various formats."""
+    """
+    Helper to detect and load hyperparameters from various formats.
+
+    Args:
+        path: Path to directory containing hyperparameters.
+
+    Returns:
+        dict: Dictionary of hyperparameters.
+    """
     config_yaml_path = os.path.join(path, "config.yaml")
     hparams_yaml_path = os.path.join(path, "hparams.yaml")
     args_json_path = os.path.join(path, "args.json")

@@ -7,4 +7,56 @@ Contains helper modules for:
 - Mathematical operations and graph utilities.
 - Data processing and visualization.
 - Environment and model setup.
+
+Attributes:
+    - configs
+    - data
+    - decoding
+    - docs
+    - functions
+    - graph
+    - io
+    - model
+    - ops
+    - output
+    - policy
+    - security
+    - tasks
+    - ui
+    - validation
+
+Example:
+    >>> from logic.src.utils import read_json
+    >>> data = read_json("data.json")
+    >>> zip_directory("data", "data.zip")
+    >>> extract_zip("data.zip", "data")
+    >>> confirm_proceed("Are you sure?")
+    True
+    >>> compose_dirpath("data", "data.json")
+    "data/data.json"
+    >>> split_file("data.json", 10)
+    >>> chunk_zip_content("data.zip", 10)
+    >>> reassemble_files(["data1.json", "data2.json"])
+    >>> process_dict_of_dicts({"a": {"b": 1}})
+    {"a": {"b": 1}}
+    >>> process_list_of_dicts([{"a": 1}, {"a": 2}])
+    [{"a": 1}, {"a": 2}]
+    >>> process_dict_two_inputs({"a": {"b": 1}, "c": {"d": 2}})
+    {"a": {"b": 1}, "c": {"d": 2}}
+    >>> process_list_two_inputs([{"a": 1}, {"a": 2}], [{"b": 3}, {"b": 4}])
+    [{"a": 1, "b": 3}, {"a": 2, "b": 4}]
+    >>> find_single_input_values([{"a": 1}, {"a": 2}])
+    [1, 2]
+    >>> find_two_input_values([{"a": 1}, {"a": 2}], [{"b": 3}, {"b": 4}])
+    [(1, 3), (2, 4)]
+    >>> process_pattern_files("data/*.json")
+    >>> process_file("data.json")
+    >>> process_pattern_files_statistics("data/*.json")
+    >>> process_file_statistics("data.json")
+    >>> preview_changes([{"a": 1}, {"a": 2}])
+    >>> preview_file_changes("data.json")
+    >>> preview_pattern_files_statistics("data/*.json")
+    >>> preview_file_statistics("data.json")
+    >>> read_output("output.json")
+    {"a": 1}
 """

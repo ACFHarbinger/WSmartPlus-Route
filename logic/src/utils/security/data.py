@@ -1,5 +1,18 @@
 """
 Data encryption/decryption utilities.
+
+This module provides functions to encode, encrypt, and decrypt data.
+
+Attributes:
+    encode_data: Encodes various data types into bytes for encryption.
+    encrypt_file_data: Encrypt a file or data object using Fernet symmetric encryption.
+    decrypt_file_data: Decrypt a file or data bytes using Fernet symmetric encryption.
+
+Example:
+    >>> import data
+    >>> data.encode_data("test")
+    >>> data.encrypt_file_data(key, "test")
+    >>> data.decrypt_file_data(key, "test")
 """
 
 import os

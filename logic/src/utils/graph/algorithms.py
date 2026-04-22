@@ -1,5 +1,11 @@
 """
 Graph search and combinatorial algorithms.
+
+Attributes:
+    find_longest_path: Find the longest path in a DAG represented by a distance matrix.
+
+Example:
+    find_longest_path(dist_matrix)
 """
 
 from typing import List, Tuple

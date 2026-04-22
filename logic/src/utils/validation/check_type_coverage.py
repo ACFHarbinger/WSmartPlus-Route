@@ -1,6 +1,4 @@
 """
-check_type_coverage.py
-
 Measures type annotation coverage in Python source files.
 For every function and method, classifies its signature as:
   - Full   : all parameters annotated AND return type present
@@ -8,6 +6,19 @@ For every function and method, classifies its signature as:
   - None   : no annotations at all
 
 Produces a Rich table sorted by coverage (worst offenders first by default).
+
+Attributes:
+    SKIP_DIRS (set[str]): Directories to skip during analysis.
+    analyze_function: Analyze a function for type annotation coverage.
+    analyze_file: Analyze a file for type annotation coverage.
+    _coverage_markup: Format coverage percentage with color coding.
+    main: Main function to check for type annotation coverage.
+
+Example:
+    >>> python check_type_coverage.py
+    >>> python check_type_coverage.py --sort none
+    >>> python check_type_coverage.py --limit 20
+    >>> python check_type_coverage.py --min-funcs 5
 """
 
 import argparse
@@ -23,7 +34,15 @@ SKIP_DIRS = {".git", "__pycache__", "venv", ".venv", "node_modules", "dist", "bu
 
 
 def analyze_function(node: Union[ast.FunctionDef, ast.AsyncFunctionDef]) -> Tuple[int, int, bool]:
-    """Return (annotated_params, total_params, has_return_annotation)."""
+    """
+    Analyze type annotation coverage in a single function.
+
+    Args:
+        node (Union[ast.FunctionDef, ast.AsyncFunctionDef]): Function node to analyze.
+
+    Returns:
+        Tuple[int, int, bool]: Tuple containing (annotated_params, total_params, has_return_annotation).
+    """
     skip = {"self", "cls"}
     params: List[ast.arg] = []
     params.extend(a for a in node.args.posonlyargs if a.arg not in skip)
@@ -40,6 +59,15 @@ def analyze_function(node: Union[ast.FunctionDef, ast.AsyncFunctionDef]) -> Tupl
 
 
 def analyze_file(filepath: Path) -> Dict[str, int]:
+    """
+    Analyze type annotation coverage in a single file.
+
+    Args:
+        filepath (Path): Path to the file to analyze.
+
+    Returns:
+        Dict[str, int]: Dictionary containing coverage statistics.
+    """
     try:
         source = filepath.read_text(encoding="utf-8")
         tree = ast.parse(source, filename=str(filepath))
@@ -70,6 +98,16 @@ def analyze_file(filepath: Path) -> Dict[str, int]:
 
 
 def _coverage_markup(numerator: int, denominator: int) -> str:
+    """
+    Format coverage percentage with color coding.
+
+    Args:
+        numerator (int): Number of fully annotated functions.
+        denominator (int): Total number of functions.
+
+    Returns:
+        str: Formatted coverage percentage.
+    """
     if denominator == 0:
         return "[dim]—[/dim]"
     pct = numerator / denominator * 100
@@ -78,6 +116,15 @@ def _coverage_markup(numerator: int, denominator: int) -> str:
 
 
 def main() -> None:
+    """
+    Main entry point for the type annotation coverage checker.
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
     parser = argparse.ArgumentParser(description="Measure type annotation coverage in Python files.")
     parser.add_argument("path", nargs="?", default=".", help="Directory to scan")
     parser.add_argument(
@@ -92,7 +139,6 @@ def main() -> None:
 
     console = Console()
     rows: List[Dict] = []
-
     with console.status("[bold green]Analysing type annotations...", spinner="dots"):
         for root, dirs, files in os.walk(args.path):
             dirs[:] = [d for d in dirs if d not in SKIP_DIRS]

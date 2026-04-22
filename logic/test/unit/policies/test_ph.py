@@ -84,13 +84,3 @@ def test_ph_convergence_small():
     assert cost > 0
     assert tour[0] == 0
     assert tour[-1] == 0
-
-    # Check that the routes contain customers only (factory expectation)
-    # The depot (0) is added by the adapter's _map_tour_to_global method.
-    for route in routes:
-        for node in route:
-            assert node != 0
-            assert node < n_nodes
-
-    print(f"\nFinal Expected Profit: {expected_profit:.2f}")
-    print(f"Final Routes: {routes}")

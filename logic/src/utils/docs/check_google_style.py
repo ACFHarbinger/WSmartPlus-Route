@@ -1,10 +1,31 @@
-"""check_google_style.py module.
+"""
+Google Style Docstring Validator.
+
+Walks Python files and checks that every module, class, and function carries
+a Google-style docstring with the required sections:
+
+- **Module**: ``Attributes`` + ``Example``
+- **Class**: ``Attributes``
+- **Function/Method**: ``Args`` (when parameters exist), ``Returns``/``Yields``
+  (when the function returns/yields a value)
+
+Output is grouped by file and rendered in a Rich table.  The *Issue* column is
+given extra width so descriptions are never truncated.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    console: Rich console for output.
+    SECTION_ALIASES: Mapping from section aliases to normalized section names.
+    _CONTEXT_LABEL: Mapping from AST node types to context labels.
+    _CONTEXT_STYLE: Mapping from context labels to Rich styles.
+    SKIP_DIRS: List of directories to skip.
+    GoogleStyleValidator: AST visitor that collects Google-style docstring violations for one file.
+    analyze_file: Analyzes a Python file for Google-style docstring violations.
+    display_report: Displays the violations in a Rich table.
+    main: Main entry point.
 
 Example:
-    >>> import check_google_style
+    python check_google_style.py [path]      # directory or single file (default: .)
+    python check_google_style.py --help
 """
 
 import argparse
@@ -12,24 +33,22 @@ import ast
 import os
 import re
 import sys
-from typing import Dict, List
+from collections import defaultdict
+from typing import Dict, List, Optional, Union
 
-# Try importing rich for beautiful output
 try:
     from rich import box
     from rich.console import Console
     from rich.panel import Panel
     from rich.table import Table
+    from rich.text import Text
 except ImportError:
-    print("Error: The 'rich' library is required for this script.")
-    print("Please install it using: pip install rich")
+    print("Error: The 'rich' library is required. Install with: pip install rich")
     sys.exit(1)
 
-# Initialize Console
 console = Console()
 
-# --- Configuration ---
-SECTION_ALIASES = {
+SECTION_ALIASES: Dict[str, str] = {
     "ARGS": "Args",
     "ARGUMENTS": "Args",
     "PARAMETERS": "Args",
@@ -49,317 +68,350 @@ SECTION_ALIASES = {
     "TODO": "Todo",
 }
 
+_CONTEXT_LABEL: Dict[str, str] = {
+    "Module": "Module",
+    "ClassDef": "Class",
+    "FunctionDef": "Func",
+    "AsyncFunctionDef": "AsyncFunc",
+    "Error": "ERROR",
+}
+
+_CONTEXT_STYLE: Dict[str, str] = {
+    "Module": "blue",
+    "Class": "yellow",
+    "Func": "green",
+    "AsyncFunc": "green",
+    "ERROR": "bold red",
+}
+
+SKIP_DIRS = {".git", "__pycache__", "venv", ".venv", "env", "node_modules", "dist", "build"}
+
 
 class GoogleStyleValidator(ast.NodeVisitor):
-    """GoogleStyleValidator class.
+    """AST visitor that collects Google-style docstring violations for one file.
 
     Attributes:
-        attr (Type): Description of attribute.
+        filepath (str): Path to the file being analysed.
+        violations (List[dict]): Accumulated violations; each dict has keys
+            ``line``, ``context``, ``name``, ``message``.
+        current_class (Optional[str]): Name of the enclosing class, if any.
     """
 
-    def __init__(self, filepath):
-        """Initialize Class.
+    def __init__(self, filepath: str) -> None:
+        """Initialise the validator for *filepath*.
 
         Args:
-            filepath (Any): Description of filepath.
+            filepath (str): Path to the Python source file.
         """
         self.filepath = filepath
-        self.violations = []
-        self.current_class = None
+        self.violations: List[dict] = []
+        self.current_class: Optional[str] = None
 
-    def add_violation(self, node, message):
-        """Add violation.
+    def _add(self, node: ast.AST, message: str) -> None:
+        """Record a violation against *node* with the given *message*.
 
         Args:
-            node (Any): Description of node.
-            message (Any): Description of message.
+            node (ast.AST): The AST node where the violation was found.
+            message (str): Human-readable description of the violation.
         """
-        lineno = getattr(node, "lineno", 1)
-        name = getattr(node, "name", "module")
-        # Store raw data; formatting happens later
-        self.violations.append({"line": lineno, "context": type(node).__name__, "name": name, "message": message})
+        self.violations.append(
+            {
+                "line": getattr(node, "lineno", 1),
+                "context": type(node).__name__,
+                "name": getattr(node, "name", "<module>"),
+                "message": message,
+            }
+        )
 
-    def _parse_docstring_sections(self, docstring: str) -> Dict[str, str]:
-        """parse docstring sections.
+    def _parse_sections(self, docstring: str) -> Dict[str, str]:
+        """Extract named sections from a Google-style *docstring*.
 
         Args:
-            docstring (str): Description of docstring.
+            docstring (str): Raw docstring text.
 
         Returns:
-            Any: Description of return value.
+            Dict[str, str]: Mapping from normalised section name to its body.
         """
         if not docstring:
             return {}
 
-        sections = {}
-        header_pattern = re.compile(
-            r"^\s*(" + "|".join(set(SECTION_ALIASES.keys())) + r"):\s*$", re.MULTILINE | re.IGNORECASE
+        sections: Dict[str, str] = {}
+        pattern = re.compile(
+            r"^\s*(" + "|".join(set(SECTION_ALIASES.keys())) + r"):\s*$",
+            re.MULTILINE | re.IGNORECASE,
         )
-
-        matches = list(header_pattern.finditer(docstring))
-
+        matches = list(pattern.finditer(docstring))
         for i, match in enumerate(matches):
-            raw_header = match.group(1).upper()
-            normalized_header = SECTION_ALIASES.get(raw_header, raw_header.title())
-            start_index = match.end()
-            end_index = matches[i + 1].start() if i + 1 < len(matches) else len(docstring)
-            sections[normalized_header] = docstring[start_index:end_index]
-
+            key = SECTION_ALIASES.get(match.group(1).upper(), match.group(1).title())
+            start = match.end()
+            end = matches[i + 1].start() if i + 1 < len(matches) else len(docstring)
+            sections[key] = docstring[start:end]
         return sections
 
-    def _check_missing_args(self, node, sections):
-        """check missing args.
+    def _check_args(self, node: Union[ast.FunctionDef, ast.AsyncFunctionDef], sections: Dict[str, str]) -> None:
+        """Verify that every non-self parameter is documented in the Args section.
 
         Args:
-            node (Any): Description of node.
-            sections (Any): Description of sections.
+            node (Union[ast.FunctionDef, ast.AsyncFunctionDef]): The function node.
+            sections (Dict[str, str]): Parsed docstring sections.
         """
-        args_to_check = []
-        for arg in node.args.args:
-            if arg.arg not in ("self", "cls"):
-                args_to_check.append(arg.arg)
-        for arg in node.args.kwonlyargs:
-            args_to_check.append(arg.arg)
-        if node.args.vararg:
-            args_to_check.append(node.args.vararg.arg)
-        if node.args.kwarg:
-            args_to_check.append(node.args.kwarg.arg)
-
-        if not args_to_check:
+        params = (
+            [a.arg for a in node.args.args if a.arg not in ("self", "cls")]
+            + [a.arg for a in node.args.kwonlyargs]
+            + ([node.args.vararg.arg] if node.args.vararg else [])
+            + ([node.args.kwarg.arg] if node.args.kwarg else [])
+        )
+        if not params:
             return
 
         if "Args" not in sections:
-            self.add_violation(node, f"Missing 'Args' section. Expected: {', '.join(args_to_check)}")
+            self._add(node, f"Missing 'Args' section — expected: {', '.join(params)}")
             return
 
-        args_content = sections["Args"]
-        missing = []
-        for arg in args_to_check:
-            pattern = re.compile(rf"^\s*{re.escape(arg)}\s*(\(|:)", re.MULTILINE)
-            if not pattern.search(args_content):
-                missing.append(arg)
-
+        body = sections["Args"]
+        missing = [p for p in params if not re.search(rf"^\s*{re.escape(p)}\s*(\(|:)", body, re.MULTILINE)]
         if missing:
-            self.add_violation(node, f"Missing description for arguments: {', '.join(missing)}")
+            self._add(node, f"Undocumented argument(s): {', '.join(missing)}")
 
-    def _check_returns_yields(self, node, sections):
-        """check returns yields.
+    def _check_returns_yields(
+        self, node: Union[ast.FunctionDef, ast.AsyncFunctionDef], sections: Dict[str, str]
+    ) -> None:
+        """Check that Returns/Yields sections are present when the function uses them.
 
         Args:
-            node (Any): Description of node.
-            sections (Any): Description of sections.
+            node (Union[ast.FunctionDef, ast.AsyncFunctionDef]): The function node.
+            sections (Dict[str, str]): Parsed docstring sections.
         """
         has_yield = False
-        has_return_value = False
-
+        has_return = False
         for child in ast.walk(node):
             if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)) and child is not node:
                 continue
             if isinstance(child, (ast.Yield, ast.YieldFrom)):
                 has_yield = True
             elif isinstance(child, ast.Return) and child.value is not None:
-                has_return_value = True
+                has_return = True
 
         if has_yield and "Yields" not in sections:
-            self.add_violation(node, "Function yields data but missing 'Yields' section")
+            self._add(node, "Function yields data but missing 'Yields' section")
+        if has_return and node.name != "__init__" and "Returns" not in sections:
+            self._add(node, "Function returns data but missing 'Returns' section")
 
-        if has_return_value and node.name != "__init__" and "Returns" not in sections:
-            self.add_violation(node, "Function returns data but missing 'Returns' section")
+    # ------------------------------------------------------------------
+    # Visitor methods
+    # ------------------------------------------------------------------
 
-    def visit_Module(self, node):
-        """Visit module.
+    def visit_Module(self, node: ast.Module) -> None:
+        """Check module-level docstring for required sections.
 
         Args:
-            node (Any): Description of node.
+            node (ast.Module): The module AST node.
         """
         docstring = ast.get_docstring(node)
         if not docstring:
-            self.add_violation(node, "Missing module-level docstring")
+            self._add(node, "Missing module-level docstring")
         else:
-            sections = self._parse_docstring_sections(docstring)
+            sections = self._parse_sections(docstring)
             if "Attributes" not in sections:
-                self.add_violation(node, "Module docstring missing 'Attributes' section")
+                self._add(node, "Module docstring missing 'Attributes' section")
             if "Example" not in sections:
-                self.add_violation(node, "Module docstring missing 'Example' section")
+                self._add(node, "Module docstring missing 'Example' section")
         self.generic_visit(node)
 
-    def visit_ClassDef(self, node):
-        """Visit classdef.
+    def visit_ClassDef(self, node: ast.ClassDef) -> None:
+        """Check class docstring for required sections.
 
         Args:
-            node (Any): Description of node.
+            node (ast.ClassDef): The class AST node.
         """
-        prev_class = self.current_class
+        prev = self.current_class
         self.current_class = node.name
         docstring = ast.get_docstring(node)
         if not docstring:
-            self.add_violation(node, "Missing class docstring")
+            self._add(node, "Missing class docstring")
         else:
-            sections = self._parse_docstring_sections(docstring)
+            sections = self._parse_sections(docstring)
             if "Attributes" not in sections:
-                self.add_violation(node, "Class docstring missing 'Attributes' section")
+                self._add(node, "Class docstring missing 'Attributes' section")
         self.generic_visit(node)
-        self.current_class = prev_class
+        self.current_class = prev
 
-    def visit_FunctionDef(self, node):
-        """Visit functiondef.
+    def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
+        """Delegate to the shared function validator.
 
         Args:
-            node (Any): Description of node.
+            node (ast.FunctionDef): The function AST node.
         """
         self._validate_function(node)
 
-    def visit_AsyncFunctionDef(self, node):
-        """Visit asyncfunctiondef.
+    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
+        """Delegate to the shared function validator.
 
         Args:
-            node (Any): Description of node.
+            node (ast.AsyncFunctionDef): The async function AST node.
         """
         self._validate_function(node)
 
-    def _validate_function(self, node):
-        """validate function.
+    def _validate_function(self, node: "Union[ast.FunctionDef, ast.AsyncFunctionDef]") -> None:
+        """Core function validation: docstring presence, Args, Returns/Yields.
 
         Args:
-            node (Any): Description of node.
+            node (Union[ast.FunctionDef, ast.AsyncFunctionDef]): The function or async-function AST node.
         """
         docstring = ast.get_docstring(node)
         if not docstring:
-            self.add_violation(node, "Missing function docstring")
+            self._add(node, "Missing function docstring")
             return
-        sections = self._parse_docstring_sections(docstring)
-        self._check_missing_args(node, sections)
+        sections = self._parse_sections(docstring)
+        self._check_args(node, sections)
         self._check_returns_yields(node, sections)
 
 
-def analyze_file(filepath):
-    """Analyze file.
+def analyze_file(filepath: str) -> List[dict]:
+    """Parse *filepath* and return all Google-style violations found.
 
     Args:
-    filepath (Any): Description of filepath.
+        filepath (str): Path to the Python source file.
 
     Returns:
-        Any: Description of return value.
+        List[dict]: Violations with keys ``line``, ``context``, ``name``, ``message``.
     """
     try:
-        with open(filepath, "r", encoding="utf-8") as f:
-            source = f.read()
+        with open(filepath, "r", encoding="utf-8") as fh:
+            source = fh.read()
         tree = ast.parse(source)
         validator = GoogleStyleValidator(filepath)
         validator.visit(tree)
         return validator.violations
     except SyntaxError:
-        return [{"line": 0, "context": "Error", "name": "File", "message": "Syntax Error - Could not parse"}]
-    except Exception as e:
-        return [{"line": 0, "context": "Error", "name": "File", "message": str(e)}]
+        return [{"line": 0, "context": "Error", "name": "File", "message": "Syntax error — file could not be parsed"}]
+    except Exception as exc:  # noqa: BLE001
+        return [{"line": 0, "context": "Error", "name": "File", "message": str(exc)}]
 
 
-def display_report(all_violations: List[dict]):
-    """Renders the final report using Rich Tables."""
+def display_report(all_violations: List[dict]) -> None:
+    """Render the consolidated violation report as a Rich table.
+
+    Violations are grouped by file and sorted by line number within each file.
+    The *Issue* column uses ``min_width`` and ``ratio`` so it always gets the
+    majority of the available terminal width.
+
+    Args:
+        all_violations (List[dict]): Violations with an injected ``filepath`` key.
+    """
     if not all_violations:
         console.print(
             Panel(
-                "[bold green]SUCCESS[/bold green]: All scanned files comply with Google Docstring standards!",
+                "[bold green]SUCCESS[/bold green] — All scanned files comply with Google Docstring standards!",
                 title="Validation Complete",
                 expand=False,
             )
         )
         sys.exit(0)
 
-    # create a table
+    # Group by file
+    by_file: Dict[str, List[dict]] = defaultdict(list)
+    for v in all_violations:
+        by_file[v["filepath"]].append(v)
+
     table = Table(
-        title=f"Google Style Violations ({len(all_violations)} Found)",
+        title=f"Google Style Violations — {len(all_violations)} issue(s) in {len(by_file)} file(s)",
         box=box.ROUNDED,
         header_style="bold white",
+        show_lines=False,
     )
 
     table.add_column("Location", style="dim cyan", no_wrap=True)
-    table.add_column("Context", style="bold")
-    table.add_column("Issue", style="red")
+    table.add_column("Type", justify="center", no_wrap=True, min_width=9)
+    table.add_column("Issue", style="red", ratio=1)
 
-    # Sort by filepath then line number for readability
-    sorted_violations = sorted(all_violations, key=lambda x: (x["filepath"], x["line"]))
-
-    last_file = None
-    for v in sorted_violations:
-        # Group visually by adding a section break if the file changes
-        if last_file and v["filepath"] != last_file:
+    first_file = True
+    for _, file_violations in sorted(by_file.items()):
+        if not first_file:
             table.add_section()
+        first_file = False
 
-        last_file = v["filepath"]
-
-        # Color code the context
-        ctx = v["context"]
-        if ctx == "Module":
-            ctx_style = "[blue]Module[/blue]"
-        elif ctx == "ClassDef":
-            ctx_style = "[yellow]Class[/yellow]"
-        elif ctx == "Error":
-            ctx_style = "[bold red]ERROR[/bold red]"
-        else:
-            ctx_style = f"[green]{ctx}[/green]"
-
-        # Format location (File:Line)
-        location = f"{v['filepath']}:{v['line']}"
-
-        table.add_row(location, ctx_style, v["message"])
+        for v in sorted(file_violations, key=lambda x: x["line"]):
+            raw_ctx = v["context"]
+            label = _CONTEXT_LABEL.get(raw_ctx, raw_ctx)
+            style = _CONTEXT_STYLE.get(label, "white")
+            ctx_cell = Text(label, style=style)
+            location = f"{v['filepath']}:{v['line']} ({v['name']})"
+            table.add_row(location, ctx_cell, v["message"])
 
     console.print(table)
-    console.print(f"\n[bold red]FAILURE:[/bold red] Found {len(all_violations)} issues.")
+
+    # Summary by context type
+    counts: Dict[str, int] = defaultdict(int)
+    for v in all_violations:
+        label = _CONTEXT_LABEL.get(v["context"], v["context"])
+        counts[label] += 1
+
+    parts = [
+        f"[{_CONTEXT_STYLE.get(k, 'white')}]{k}[/{_CONTEXT_STYLE.get(k, 'white')}]: {n}"
+        for k, n in sorted(counts.items())
+    ]
+    console.print("\n  " + "  |  ".join(parts))
+    console.print(f"\n[bold red]FAILURE:[/bold red] {len(all_violations)} issue(s) across {len(by_file)} file(s).")
     sys.exit(1)
 
 
-def main():
-    """Main."""
-    parser = argparse.ArgumentParser(description="Strict Google Style Docstring Validator.")
-    parser.add_argument("path", nargs="?", default=".", help="Directory or file to scan")
+def main() -> None:
+    """Entry point: parse CLI arguments, scan files, and display the report.
+
+    Attributes:
+        parser (argparse.ArgumentParser): CLI argument parser.
+
+    Example:
+        >>> main()
+    """
+    parser = argparse.ArgumentParser(
+        description="Strict Google Style Docstring Validator.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument("path", nargs="?", default=".", help="Directory or file to scan (default: .)")
     args = parser.parse_args()
 
-    skip_dirs = {".git", "__pycache__", "venv", ".venv", "env", "node_modules", "dist", "build"}
-    all_violations = []
-
-    # Intro
-    console.rule("[bold cyan]Napoleon Google Style Validator[/bold cyan]")
+    console.rule("[bold cyan]Google Style Docstring Validator[/bold cyan]")
     console.print(
-        "Checking for: [yellow]Attributes[/yellow] (Modules/Classes), [yellow]Example[/yellow] (Modules), [yellow]Args/Returns[/yellow] (Functions)",
+        "Checks: [yellow]Attributes[/yellow] (modules/classes)  "
+        "[yellow]Example[/yellow] (modules)  "
+        "[yellow]Args / Returns / Yields[/yellow] (functions)",
         justify="center",
         style="dim",
     )
-    print()
+    console.print()
 
-    # Collect targets
-    targets = []
+    all_violations: List[dict] = []
+
+    targets: List[tuple] = []
     if os.path.isfile(args.path):
-        targets.append(("", "", [os.path.basename(args.path)]))
+        targets.append(("", [], [os.path.basename(args.path)]))
     else:
         for root, dirs, files in os.walk(args.path):
-            dirs[:] = [d for d in dirs if d not in skip_dirs]
-            targets.append((root, dirs, files))  # type: ignore[arg-type]
+            dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
+            targets.append((root, dirs, files))
 
-    # Run Analysis with Spinner
     with console.status("[bold green]Scanning codebase...[/bold green]", spinner="dots"):
         for root, _, files in targets:
-            for file in files:
-                if file.endswith(".py"):
-                    full_path = os.path.join(root, file)
+            for fname in files:
+                if not fname.endswith(".py"):
+                    continue
 
-                    # Calculate clean relative path for display
-                    if os.path.isfile(args.path):
-                        display_path = os.path.basename(full_path)
-                    else:
-                        try:
-                            display_path = os.path.relpath(full_path, os.getcwd())
-                        except ValueError:
-                            display_path = full_path
+                full_path = os.path.join(root, fname) if root else fname
 
-                    violations = analyze_file(full_path)
+                if os.path.isfile(args.path):
+                    display_path = os.path.basename(full_path)
+                else:
+                    try:
+                        display_path = os.path.relpath(full_path, os.getcwd())
+                    except ValueError:
+                        display_path = full_path
 
-                    # Inject filepath into violation dicts for the reporter
-                    for v in violations:
-                        v["filepath"] = display_path
-                        all_violations.append(v)
+                for v in analyze_file(full_path):
+                    v["filepath"] = display_path
+                    all_violations.append(v)
 
-    # Show results
     display_report(all_violations)
 
 

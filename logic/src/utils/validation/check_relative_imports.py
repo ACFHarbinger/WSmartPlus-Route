@@ -1,3 +1,26 @@
+"""
+Finds all relative imports (from .module import ...) in a Python codebase.
+
+Attributes:
+    RICH_AVAILABLE (bool): Whether the rich library is available.
+    SKIP_DIRS (set[str]): Directories to skip during analysis.
+    RED (str): ANSI escape code for red text.
+    YELLOW (str): ANSI escape code for yellow text.
+    GREEN (str): ANSI escape code for green text.
+    CYAN (str): ANSI escape code for cyan text.
+    DIM (str): ANSI escape code for dim text.
+    RESET (str): ANSI escape code to reset text formatting.
+    format_relative_import: Format the import string.
+    analyze_file: Analyze a file for relative imports.
+    print_stats_table: Print statistics table.
+    main: Main function to find relative imports.
+
+Example:
+    >>> python check_relative_imports.py
+    >>> python check_relative_imports.py --stats
+    >>> python check_relative_imports.py --fail-on-found
+"""
+
 import argparse
 import ast
 import os
@@ -25,7 +48,15 @@ RESET = "\033[0m"
 
 
 def format_relative_import(node: ast.ImportFrom) -> str:
-    """Reconstruct the import string as it would appear in source."""
+    """
+    Reconstruct the import string as it would appear in source.
+
+    Args:
+        node: The import node to format.
+
+    Returns:
+        Formatted import string.
+    """
     dots = "." * (node.level or 0)
     module = node.module or ""
     names = ", ".join(alias.name if alias.asname is None else f"{alias.name} as {alias.asname}" for alias in node.names)
@@ -35,7 +66,12 @@ def format_relative_import(node: ast.ImportFrom) -> str:
 def analyze_file(filepath: Path) -> List[Tuple[int, int, str]]:
     """
     Return all relative imports in filepath as (lineno, level, formatted_import).
-    Level ≥ 1 means relative: 1 = same package, 2 = parent, 3 = grandparent, etc.
+
+    Args:
+        filepath: The path to the file to analyze.
+
+    Returns:
+        List of tuples containing the line number, level, and formatted import string.
     """
     try:
         source = filepath.read_text(encoding="utf-8")
@@ -52,7 +88,16 @@ def analyze_file(filepath: Path) -> List[Tuple[int, int, str]]:
 
 
 def print_stats_table(all_results: Dict[str, List[Tuple[int, int, str]]], target_root: Path) -> None:
-    """Print a Rich table summarising relative import counts per top-level package."""
+    """
+    Print a Rich table summarising relative import counts per top-level package.
+
+    Args:
+        all_results: Dictionary mapping file paths to lists of relative imports.
+        target_root: The root directory of the codebase.
+
+    Returns:
+        None
+    """
     if not RICH_AVAILABLE:
         return
 
@@ -97,6 +142,15 @@ def print_stats_table(all_results: Dict[str, List[Tuple[int, int, str]]], target
 
 
 def main() -> None:
+    """
+    Main entry point for the relative import checker.
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
     parser = argparse.ArgumentParser(
         description="Find all relative imports (from .module import ...) in a Python codebase."
     )

@@ -1,5 +1,17 @@
 """
 Parallel execution utilities.
+
+Attributes:
+    run_all_in_pool: Runs a function over a dataset in parallel.
+
+Example:
+    >>> from logic.src.utils.functions import run_all_in_pool
+    >>> def my_func(directory, filename, *args):
+    ...     # Process file
+    ...     return result
+    >>> results, num_cpus = run_all_in_pool(my_func, "data", dataset)
+    >>> print(f"Processed {len(results)} instances using {num_cpus} CPUs")
+    Processed 100 instances using 8 CPUs
 """
 
 from __future__ import annotations

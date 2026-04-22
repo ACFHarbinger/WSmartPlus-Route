@@ -1,5 +1,29 @@
 """
 Distance and Tour Length Operations.
+
+Attributes:
+    get_distance: Compute Euclidean distance between two batched coordinate tensors.
+    get_distance_matrix: Compute pairwise Euclidean distance matrix from coordinates.
+    get_tour_length: Compute total tour length for a batch of ordered location sequences.
+    get_open_tour_length: Compute total tour length for open tours (no return to start).
+
+Example:
+    >>> from logic.src.utils.ops.distance import get_distance
+    >>> x = torch.tensor([0.0, 0.0])
+    >>> y = torch.tensor([3.0, 4.0])
+    >>> get_distance(x, y)
+    tensor(5.)
+    >>> from logic.src.utils.ops.distance import get_distance_matrix
+    >>> locs = torch.tensor([[[0.0, 0.0], [3.0, 4.0]]])
+    >>> get_distance_matrix(locs)
+    tensor([[[0., 5.], [5., 0.]]])
+    >>> from logic.src.utils.ops.distance import get_tour_length
+    >>> ordered_locs = torch.tensor([[[0.0, 0.0], [3.0, 4.0], [6.0, 0.0]]])
+    >>> get_tour_length(ordered_locs)
+    tensor([16.])
+    >>> from logic.src.utils.ops.distance import get_open_tour_length
+    >>> get_open_tour_length(ordered_locs)
+    tensor([10.])
 """
 
 from __future__ import annotations

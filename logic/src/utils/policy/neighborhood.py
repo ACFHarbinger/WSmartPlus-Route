@@ -8,6 +8,15 @@ Reference:
     Gendreau, M., Hertz, A., & Laporte, G. (1992).
     "New Insertion and Postoptimization Procedures for the Traveling Salesman Problem"
     Operations Research, 40(6), 1086-1094.
+
+Attributes:
+    get_p_neighborhood: Get the p-neighborhood of a target node from a tour.
+
+Example:
+    >>> dist_matrix = np.array([[0, 1, 2, 3], [1, 0, 4, 5], [2, 4, 0, 6], [3, 5, 6, 0]])
+    >>> tour_nodes = [1, 2, 3]
+    >>> get_p_neighborhood(0, tour_nodes, dist_matrix, p=2)
+    [1, 2]
 """
 
 from typing import List

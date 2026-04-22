@@ -4,6 +4,16 @@ Configuration loading utilities.
 This module provides functions for:
 - Loading YAML configuration files.
 - Loading XML configuration files and converting them to dictionaries.
+
+Attributes:
+    load_yaml_config: Loads a YAML configuration file.
+    load_xml_config: Loads an XML configuration file and converts it to a dictionary.
+    load_config: Loads a YAML or XML configuration file based on extension.
+
+Example:
+    load_yaml_config("config.yaml")
+    load_xml_config("config.xml")
+    load_config("config.yaml")
 """
 
 from __future__ import annotations

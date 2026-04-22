@@ -3,6 +3,23 @@ Shared wrappers for multi-period routing policies.
 
 Thin wrappers around the canonical operator implementations in
 logic.src.policies.helpers.operators.*. Do NOT re-implement operators here.
+
+Attributes:
+    initial_plan_greedy: Build an initial D-day plan using the specified initialization method.
+    _build_single_day_routes: Dispatch single-day route construction to the appropriate operator.
+    greedy_day_route: Greedy nearest-profit-ratio construction for a single day.
+    two_opt: Standard 2-opt improvement on a single route (depot excluded).
+
+Example:
+    >>> from logic.src.utils.policy.wrappers import initial_plan_greedy
+    >>> initial_plan_greedy(problem)
+    [[1, 2, 3], [4, 5, 6]]
+    >>> from logic.src.utils.policy.wrappers import greedy_day_route
+    >>> greedy_day_route(problem)
+    [1, 2, 3, 4, 5, 6]
+    >>> from logic.src.utils.policy.wrappers import two_opt
+    >>> two_opt(problem, [1, 2, 3])
+    [1, 3, 2]
 """
 
 from __future__ import annotations
@@ -61,6 +78,9 @@ def initial_plan_greedy(
 
     The per-day route is extracted as the flattened union of all vehicle
     routes returned by the underlying initializer (single-vehicle assumption).
+
+    Returns:
+        List[List[int]]: A list of routes, one for each day in the horizon.
     """
     _rng_stdlib = random.Random(int(rng.integers(0, 2**31)) if rng is not None else 42)
     _np_rng = rng or np.random.default_rng(42)
@@ -83,7 +103,19 @@ def _build_single_day_routes(
     rng_np: np.random.Generator,
     method: str,
 ) -> List[List[int]]:
-    """Dispatch single-day route construction to the appropriate operator."""
+    """
+    Dispatch single-day route construction to the appropriate operator.
+
+    Args:
+        problem:  ProblemContext for day 0.
+        rng_stdlib:  Random number generator for standard library functions.
+        rng_np:  Random number generator for NumPy functions.
+        method:   One of "greedy", "nn", "savings", "regret", "grasp",
+                  "farthest", "farthest_profit".
+
+    Returns:
+        List[List[int]]: A list of routes, one for each day in the horizon.
+    """
     dm = problem.distance_matrix
     wastes = problem.wastes
     Q = problem.capacity
@@ -134,6 +166,13 @@ def _build_single_day_routes(
 def greedy_day_route(problem: ProblemContext, rng: np.random.Generator) -> List[int]:
     """
     Greedy nearest-profit-ratio construction for a single day.
+
+    Args:
+        problem:  ProblemContext for day 0.
+        rng:      NumPy Generator for stochastic initialization methods.
+
+    Returns:
+        List[int]: A list of nodes representing the greedy route.
     """
     _rng = random.Random(int(rng.integers(0, 2**31)))
     routes = _build_single_day_routes(problem, _rng, rng, "greedy")
@@ -142,7 +181,17 @@ def greedy_day_route(problem: ProblemContext, rng: np.random.Generator) -> List[
 
 
 def two_opt(route: List[int], dist_matrix: np.ndarray, max_iter: int = 100) -> List[int]:
-    """Standard 2-opt improvement on a single route (depot excluded)."""
+    """
+    Standard 2-opt improvement on a single route (depot excluded).
+
+    Args:
+        route:  List of nodes representing the route.
+        dist_matrix:  Distance matrix.
+        max_iter:  Maximum number of iterations.
+
+    Returns:
+        List[int]: A list of nodes representing the improved route.
+    """
     from logic.src.policies.helpers.operators.improvement_descent.steepest_two_opt import two_opt_steepest
 
     # two_opt_steepest expects List[List[int]]

@@ -1,5 +1,15 @@
 """
 Mathematical utilities for robust computations.
+
+Attributes:
+    safe_exp: Compute exponent with overflow/underflow protection.
+
+Example:
+    >>> from logic.src.utils.functions import safe_exp
+    >>> safe_exp(1000)
+    inf
+    >>> safe_exp(-1000)
+    0.0
 """
 
 import math

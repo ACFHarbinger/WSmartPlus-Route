@@ -1,5 +1,21 @@
 """
 Graph Operations (Sparsification, Edge Indices).
+
+Attributes:
+    sparsify_graph: Create a k-nearest-neighbor sparse graph from a cost/distance matrix.
+    get_full_graph_edge_index: Get edge index for a complete graph (cached).
+
+Example:
+    >>> from logic.src.utils.ops.graph import sparsify_graph, get_full_graph_edge_index
+    >>> cost_matrix = torch.tensor([[0, 1, 5], [1, 0, 2], [5, 2, 0]])
+    >>> edge_index, edge_attr = sparsify_graph(cost_matrix, k_sparse=2)
+    >>> print(edge_index.shape)
+    torch.Size([2, 4])
+    >>> print(edge_attr.shape)
+    torch.Size([4, 1])
+    >>> full_edge_index = get_full_graph_edge_index(3)
+    >>> print(full_edge_index.shape)
+    torch.Size([2, 9])
 """
 
 from __future__ import annotations
@@ -64,7 +80,16 @@ def sparsify_graph(
 
 @lru_cache(maxsize=16)
 def _cached_full_graph_edge_index(num_node: int, self_loop: bool) -> torch.Tensor:
-    """Cached computation of full graph edge index (on CPU)."""
+    """
+    Cached computation of full graph edge index (on CPU).
+
+    Args:
+        num_node: Number of nodes.
+        self_loop: Whether to include self-loops.
+
+    Returns:
+        Edge index [2, num_edges] on CPU. Move to device as needed.
+    """
     adj_matrix = torch.ones(num_node, num_node)
     if not self_loop:
         adj_matrix.fill_diagonal_(0)

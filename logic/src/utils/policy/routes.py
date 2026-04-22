@@ -8,7 +8,10 @@ that result in a net economic loss. This is crucial for VRPP variants where rout
 must generate sufficient revenue to cover their operational costs.
 
 Attributes:
-    None
+    prune_unprofitable_routes: Evaluates all routes and removes those that result in a net economic loss,
+    unless they contain mandatory nodes that must be served.
+    route_profit: Compute P(A_d, w_d) = r_w·Σw_i − c_km·dist for a single route.
+    route_cost: Compute c_km·dist for a single route.
 
 Example:
     >>> from logic.src.utils.policy.routes import prune_unprofitable_routes
@@ -80,7 +83,16 @@ def prune_unprofitable_routes(
 
 
 def route_profit(route: List[int], problem: ProblemContext) -> float:
-    """Compute P(A_d, w_d) = r_w·Σw_i − c_km·dist for a single route."""
+    """
+    Compute P(A_d, w_d) = r_w·Σw_i − c_km·dist for a single route.
+
+    Args:
+        route:  List of nodes representing the route.
+        problem:  ProblemContext for day 0.
+
+    Returns:
+        float: The profit of the route.
+    """
     revenue = sum(problem.wastes.get(i, 0.0) * problem.revenue_per_kg for i in route)
     path = [0] + route + [0]
     dist = sum(problem.distance_matrix[path[k]][path[k + 1]] for k in range(len(path) - 1))
@@ -88,6 +100,15 @@ def route_profit(route: List[int], problem: ProblemContext) -> float:
 
 
 def route_cost(route: List[int], problem: ProblemContext) -> float:
-    """Compute c_km·dist for a single route."""
+    """
+    Compute c_km·dist for a single route.
+
+    Args:
+        route:  List of nodes representing the route.
+        problem:  ProblemContext for day 0.
+
+    Returns:
+        float: The cost of the route.
+    """
     path = [0] + route + [0]
     return problem.cost_per_km * sum(problem.distance_matrix[path[k]][path[k + 1]] for k in range(len(path) - 1))

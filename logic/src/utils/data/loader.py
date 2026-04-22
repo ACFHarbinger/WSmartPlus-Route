@@ -1,10 +1,20 @@
 """loader.py module.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    collate_fn: Collate function for PyTorch DataLoader.
+    load_focus_coords: Loads coordinates and depot information from simulator data.
+    check_extension: Ensures filename has the specified extension.
+    save_dataset: Saves a dataset using pickle.
+    save_td_dataset: Saves a TensorDict dataset.
+    load_td_dataset: Loads a TensorDict dataset.
+    load_dataset: Loads a dataset from a pickle file.
+    save_simulation_dataset: Saves a simulation dataset as a compressed .npz file.
+    load_simulation_dataset: Loads a simulation dataset from a .npz file.
+    load_grid_base: Loads grid base data from simulation files.
 
 Example:
     >>> import loader
+    >>> loader.load_dataset("path/to/dataset.pkl")
 """
 
 from __future__ import annotations
@@ -214,6 +224,17 @@ def load_grid_base(
     area: Optional[str] = None,
     data_dir: Optional[str] = None,
 ) -> GridBase:
+    """
+    Loads grid base data from simulation files.
+
+    Args:
+        indices: List of indices to load.
+        area: Geographic area name.
+        data_dir: Directory containing the simulation data.
+
+    Returns:
+        GridBase object.
+    """
     from logic.src.constants.paths import ROOT_DIR
     from logic.src.pipeline.simulations.wsmart_bin_analysis import GridBase
 

@@ -1,5 +1,15 @@
 """
 Distance matrix utilities and network analysis functions.
+
+Attributes:
+    _floyd_warshall: Floyd-Warshall algorithm for all-pairs shortest paths.
+    apply_edges: Sparsifies distance matrix and computes shortest paths.
+    get_paths_between_states: Constructs a nested list of paths between all pairs of bins.
+
+Example:
+    _floyd_warshall(dist_matrix, adj_matrix)
+    apply_edges(dist_matrix, edge_thresh, edge_method)
+    get_paths_between_states(n_bins, shortest_paths)
 """
 
 import math
@@ -16,7 +26,16 @@ from logic.src.utils.graph import (
 
 
 def _floyd_warshall(dist_matrix: np.ndarray, adj_matrix: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-    """Floyd-Warshall algorithm for all-pairs shortest paths."""
+    """
+    Floyd-Warshall algorithm for all-pairs shortest paths.
+
+    Args:
+        dist_matrix: Distance matrix.
+        adj_matrix: Adjacency matrix.
+
+    Returns:
+        Tuple of (distance matrix, next node matrix).
+    """
     n_vertices = len(dist_matrix)
     dist_matrix[adj_matrix == 0] = math.inf
     np.fill_diagonal(dist_matrix, 0)
@@ -41,9 +60,30 @@ def _floyd_warshall(dist_matrix: np.ndarray, adj_matrix: np.ndarray) -> Tuple[np
 def apply_edges(
     dist_matrix: np.ndarray, edge_thresh: float, edge_method: Optional[str]
 ) -> Tuple[np.ndarray, Optional[Dict[Tuple[int, int], List[int]]], Optional[np.ndarray]]:
-    """Sparsifies distance matrix and computes shortest paths."""
+    """
+    Sparsifies distance matrix and computes shortest paths.
+
+    Args:
+        dist_matrix: Distance matrix.
+        edge_thresh: Edge threshold.
+        edge_method: Edge method.
+
+    Returns:
+        Tuple of (distance matrix, shortest paths, adjacency matrix).
+    """
 
     def _make_path(start, end, next_node):
+        """
+        Make a path from start to end.
+
+        Args:
+            start: Start node.
+            end: End node.
+            next_node: Next node matrix.
+
+        Returns:
+            List of nodes in the path.
+        """
         if next_node[start, end] == -1:
             return []
         path = [start]
@@ -78,6 +118,13 @@ def get_paths_between_states(
 ) -> List[List[List[int]]]:
     """
     Constructs a nested list of paths between all pairs of bins.
+
+    Args:
+        n_bins: Number of bins.
+        shortest_paths: Shortest paths between nodes.
+
+    Returns:
+        Nested list of paths between all pairs of bins.
     """
     paths_between_states: List[List[List[int]]] = []
     for ii in range(0, n_bins):

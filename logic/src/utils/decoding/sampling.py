@@ -1,5 +1,14 @@
 """
 Sampling decoding strategy implementation.
+
+Attributes:
+    Sampling: Sampling decoding strategy.
+
+Example:
+    >>> from logic.src.utils.decoding import Sampling
+    >>> strategy = Sampling()
+    >>> strategy.step(torch.tensor([[0.1, 0.2], [0.3, 0.4]]), torch.tensor([[True, True], [True, True]]))
+    (tensor([1, 1]), tensor([0.2, 0.4]), tensor([0.2, 0.4]))
 """
 
 from __future__ import annotations
@@ -16,7 +25,14 @@ from .base import DecodingStrategy
 
 
 class Sampling(DecodingStrategy):
-    """Sampling decoding: sample from the probability distribution."""
+    """
+    Sampling decoding: sample from the probability distribution.
+
+    Attributes:
+        temperature: Temperature for sampling.
+        top_k: Top-k filtering.
+        top_p: Top-p filtering.
+    """
 
     def step(
         self,
@@ -24,7 +40,17 @@ class Sampling(DecodingStrategy):
         mask: torch.Tensor,
         td: Optional[TensorDict] = None,
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-        """Sample action from distribution."""
+        """
+        Sample action from distribution.
+
+        Args:
+            logits: Logits tensor [batch, num_nodes]
+            mask: Mask tensor [batch, num_nodes]
+            td: TensorDict (unused)
+
+        Returns:
+            Tuple of (action, log_prob, entropy)
+        """
         logits = self._process_logits(logits, mask)
         probs = F.softmax(logits, dim=-1)
 

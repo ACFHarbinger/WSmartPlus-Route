@@ -8,6 +8,31 @@ Key features:
   - Condensed package view: group nodes by top-N directory levels
   - Terminal summary of violation counts and layer distribution
   - Saves an interactive pyvis HTML file for browser exploration
+
+Attributes:
+    SKIP_DIRS (Set[str]): Set of directories to exclude.
+    RED (str): Red color for highlighting violations.
+    YELLOW (str): Yellow color for highlighting warnings.
+    GREEN (str): Green color for highlighting success.
+    CYAN (str): Cyan color for highlighting information.
+    BOLD (str): Bold text for highlighting.
+    DIM (str): Dim text for highlighting.
+    RESET (str): Reset text color.
+    Network (Type[Network]): Type hint for pyvis Network class.
+    DEFAULT_LAYERS (List[Tuple[str, str, str]]): Default layers for the graph.
+    FORBIDDEN_DIRECTIONS (List[Tuple[str, str]]): Forbidden layer pairs.
+    file_to_module: Convert a file path to a module name.
+    collect_module_map: Collect a map of all modules in the codebase.
+    resolve_to_module: Resolve a raw import string to a module name.
+    build_graph: Build a module graph from the codebase.
+    get_layer: Get the layer of a module.
+    find_violations: Find architectural violations in the module graph.
+    condense_to_packages: Condense the module graph to packages.
+    generate_html: Generate an interactive HTML graph.
+    main: Main function to generate an interactive module-level import graph.
+
+Example:
+    >>> python logic/src/utils/validation/visualize_module_graph.py --root . --output graph.html
 """
 
 import argparse
@@ -48,6 +73,16 @@ FORBIDDEN_DIRECTIONS: List[Tuple[str, str]] = [
 
 
 def file_to_module(filepath: Path, root: Path) -> str:
+    """
+    Convert a file path to a module name.
+
+    Args:
+        filepath (Path): File path.
+        root (Path): Root directory of the codebase.
+
+    Returns:
+        str: Module name.
+    """
     rel = filepath.relative_to(root)
     parts = list(rel.parts)
     if parts[-1] == "__init__.py":
@@ -58,6 +93,16 @@ def file_to_module(filepath: Path, root: Path) -> str:
 
 
 def collect_module_map(root: Path, exclude: Set[str]) -> Dict[str, Path]:
+    """
+    Collect a map of all modules in the codebase.
+
+    Args:
+        root (Path): Root directory of the codebase.
+        exclude (Set[str]): Set of directories to exclude.
+
+    Returns:
+        Dict[str, Path]: Map of module names to file paths.
+    """
     module_map: Dict[str, Path] = {}
     for dirpath, dirs, files in os.walk(root):
         dirs[:] = [d for d in dirs if d not in SKIP_DIRS and d not in exclude]
@@ -69,6 +114,18 @@ def collect_module_map(root: Path, exclude: Set[str]) -> Dict[str, Path]:
 
 
 def resolve_to_module(raw: str, level: int, current: str, known: Set[str]) -> Optional[str]:
+    """
+    Resolve a raw import string to a module name.
+
+    Args:
+        raw (str): Raw import string.
+        level (int): Import level.
+        current (str): Current module name.
+        known (Set[str]): Set of known module names.
+
+    Returns:
+        Optional[str]: Resolved module name.
+    """
     if level > 0:
         parts = current.split(".")
         base = parts[: max(0, len(parts) - level)]
@@ -85,10 +142,19 @@ def resolve_to_module(raw: str, level: int, current: str, known: Set[str]) -> Op
 
 
 def build_graph(root: Path, exclude: Set[str]) -> Dict[str, Set[str]]:
+    """
+    Build a module graph from the codebase.
+
+    Args:
+        root (Path): Root directory of the codebase.
+        exclude (Set[str]): Set of directories to exclude.
+
+    Returns:
+        Dict[str, Set[str]]: Module graph.
+    """
     module_map = collect_module_map(root, exclude)
     known = set(module_map.keys())
     graph: Dict[str, Set[str]] = {m: set() for m in known}
-
     for module, fpath in module_map.items():
         try:
             tree = ast.parse(fpath.read_text(encoding="utf-8"), filename=str(fpath))
@@ -109,6 +175,16 @@ def build_graph(root: Path, exclude: Set[str]) -> Dict[str, Set[str]]:
 
 
 def get_layer(module: str, layers: List[Tuple[str, str, str]]) -> Tuple[str, str]:
+    """
+    Get the layer of a module.
+
+    Args:
+        module (str): Module name.
+        layers (List[Tuple[str, str, str]]): List of layers.
+
+    Returns:
+        Tuple[str, str]: Layer name and color.
+    """
     for prefix, label, color in layers:
         if module.lower().startswith(prefix.lower()):
             return label, color
@@ -120,6 +196,17 @@ def find_violations(
     layers: List[Tuple[str, str, str]],
     forbidden: List[Tuple[str, str]],
 ) -> List[Tuple[str, str]]:
+    """
+    Find architectural violations in the module graph.
+
+    Args:
+        graph (Dict[str, Set[str]]): Module graph.
+        layers (List[Tuple[str, str, str]]): List of layers.
+        forbidden (List[Tuple[str, str]]): List of forbidden layer pairs.
+
+    Returns:
+        List[Tuple[str, str]]: List of violation edges.
+    """
     violations: List[Tuple[str, str]] = []
     for src, targets in graph.items():
         src_layer, _ = get_layer(src, layers)
@@ -131,7 +218,16 @@ def find_violations(
 
 
 def condense_to_packages(graph: Dict[str, Set[str]], depth: int) -> Tuple[Dict[str, Set[str]], Dict[str, str]]:
-    """Collapse module nodes to their top-`depth` package prefix."""
+    """
+    Collapse module nodes to their top-`depth` package prefix.
+
+    Args:
+        graph (Dict[str, Set[str]]): Module graph.
+        depth (int): Depth of the graph.
+
+    Returns:
+        Tuple[Dict[str, Set[str]], Dict[str, str]]: Collapsed graph and node-to-package mapping.
+    """
 
     def pkg(module: str) -> str:
         return ".".join(module.split(".")[:depth])
@@ -155,6 +251,19 @@ def generate_html(
     output: Path,
     depth: int = 0,
 ) -> None:
+    """
+    Generate HTML visualization of the module graph.
+
+    Args:
+        graph (Dict[str, Set[str]]): Module graph.
+        layers (List[Tuple[str, str, str]]): List of layers.
+        violation_edges (Set[Tuple[str, str]]): Set of violation edges.
+        output (Path): Output path.
+        depth (int): Depth of the graph.
+
+    Returns:
+        None
+    """
     display_graph = graph
     if depth > 0:
         display_graph, _ = condense_to_packages(graph, depth)
@@ -204,6 +313,7 @@ def generate_html(
 
 
 def main() -> None:
+    """Visualise the module-level import graph of a Python codebase."""
     parser = argparse.ArgumentParser(description="Visualise the module-level import graph of a Python codebase.")
     parser.add_argument("directory", help="Root directory to scan")
     parser.add_argument("--exclude", nargs="+", default=[], help="Directory names to skip")
