@@ -43,7 +43,7 @@ def test_sort_log_dict():
         "gurobi_v1": 20
     }
     sorted_log = _sort_log(log)
-    # Keywords are: ["policy_last_minute", "policy_regular", "policy_look_ahead", "gurobi", "hexaly"]
+    # Keywords are: ["policy_last_minute", "policy_regular", "policy_look_ahead", "gurobi"]
     # Sorted order (alphabetical keys) then keywords moved to end?
     # Wait, the code says:
     # log = {key: value for key, value in sorted(log.items())}  -> a_other, gurobi_v1, policy_regular_v1, z_other

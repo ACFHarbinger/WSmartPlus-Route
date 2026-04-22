@@ -59,7 +59,7 @@ class TestAdvancedAlgorithms(unittest.TestCase):
         criterion = NonLinearGreatDeluge(t_max=100, initial_tolerance=0.1, gap_epsilon=0.01, beta=5.0, maximization=False)
         criterion.setup(100.0) # Level0 = 110.0
 
-        self.assertEqual(criterion.water_level, 110.0)
+        self.assertAlmostEqual(criterion.water_level, 110.0)
 
         # Progress 50%
         for _ in range(50):

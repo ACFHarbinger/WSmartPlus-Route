@@ -36,7 +36,7 @@ class TestSolverEdgeCases:
         }
 
     @pytest.mark.integration
-    @pytest.mark.parametrize("backend", ["gurobi", "hexaly"])
+    @pytest.mark.parametrize("backend", ["gurobi"])
     def test_n_zero_commercial(self, backend, edge_case_data, check_license):
         """Test with 0 clients (only depot) - Commercial Solvers."""
         data = edge_case_data
@@ -107,7 +107,7 @@ class TestSolverEdgeCases:
                  pytest.fail(f"HGS crashed on N=0: {e}")
 
     @pytest.mark.integration
-    @pytest.mark.parametrize("backend", ["gurobi", "hexaly"])
+    @pytest.mark.parametrize("backend", ["gurobi"])
     def test_n_one_commercial(self, backend, edge_case_data, check_license):
         """Test with 1 client - Commercial Solvers."""
         data = edge_case_data
@@ -182,19 +182,16 @@ class TestSolverEdgeCases:
         values = {"Q": 100.0, "R": 1, "B":1, "C":0.1, "V":1, "Omega":0, "delta":0, "psi":0}
 
         # Test Gurobi (most sensitive to constraints)
-        try:
-             routes, _, _ = run_swc_tcf_optimizer(
-                bins=bins,
-                distance_matrix=dist_matrix,
-                values={**values, "Q": 1000},
-                binsids=[1,2],
-                mandatory_nodes=[1,2],
-                optimizer="gurobi",
-                time_limit=10
-            )
-             assert 1 in routes and 2 in routes
-        except Exception as e:
-            pytest.skip(f"Gurobi skipped/failed: {e}")
+        routes, _, _ = run_swc_tcf_optimizer(
+            bins=bins,
+            distance_matrix=dist_matrix,
+            values={**values, "Q": 1000},
+            binsids=[1,2],
+            mandatory_nodes=[1,2],
+            optimizer="gurobi",
+            time_limit=10
+        )
+        assert 1 in routes and 2 in routes
 
     @pytest.mark.integration
     def test_zero_waste_node(self):

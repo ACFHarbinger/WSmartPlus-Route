@@ -4,7 +4,7 @@ Constants for routing algorithms.
 This module defines operational parameters, solver settings, and penalty values
 for classical routing algorithms. Used by:
 - logic/src/policies/ (HGS, ALNS, local search operators)
-- logic/src/configs/policies/ (Gurobi, Hexaly, BPC configurations)
+- logic/src/configs/policies/ (Gurobi, BPC configurations)
 
 Parameter Categories
 --------------------
