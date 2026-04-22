@@ -13,14 +13,6 @@ The OPERATION_MAP enables runtime evaluation of operator strings in:
 2. **Config file processing**: Dynamic value transformations during Hydra composition
 3. **File system automation**: Conditional logic for batch file operations
 
-Example usage:
-    >>> op_func = OPERATION_MAP["+="]
-    >>> result = op_func(10, 5)  # Returns 15
-    >>>
-    >>> # In GUI: User selects "+=" and enters value 5
-    >>> current_value = 100
-    >>> new_value = OPERATION_MAP[operation](current_value, user_input)
-
 Supported operators:
 - **Assignment**: =, (empty string for passthrough)
 - **Arithmetic**: +, -, *, /, //, %, **, @, divmod
@@ -34,6 +26,22 @@ Thread Safety Note
 LOCK_TIMEOUT is a module-level global that is modified by update_lock_wait_time().
 This is safe for parallel data generation workers since each subprocess gets a
 separate copy of the module globals.
+
+Attributes:
+    CORE_LOCK_WAIT_TIME: Base timeout (milliseconds) for file/resource locking in single-core mode
+    LOCK_TIMEOUT: Dynamic timeout (milliseconds) scaled by CPU count
+    update_lock_wait_time: Updates the global LOCK_TIMEOUT based on the number of CPU cores
+    CONFIRM_TIMEOUT: GUI confirmation dialog timeout (seconds)
+    FS_COMMANDS: Supported file system operations in GUI
+    OPERATION_MAP: Operator string → callable function mapping
+
+Example:
+    >>> op_func = OPERATION_MAP["+="]
+    >>> result = op_func(10, 5)  # Returns 15
+    >>>
+    >>> # In GUI: User selects "+=" and enters value 5
+    >>> current_value = 100
+    >>> new_value = OPERATION_MAP[operation](current_value, user_input)
 """
 
 from typing import Any, Callable, Dict, List, Optional

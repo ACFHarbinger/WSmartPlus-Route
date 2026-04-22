@@ -24,6 +24,20 @@ Path Resolution Order:
 Critical Files
 --------------
 - ICON_FILE: GUI application icon (used in window title bar, taskbar)
+
+Attributes:
+    path: Current working directory
+    parts: Split path into components
+    root_dir: Project root directory (absolute path)
+    ROOT_DIR: Project root directory (absolute path)
+    ICON_FILE: GUI application icon (used in window title bar, taskbar)
+
+Example:
+    >>> from logic.src.constants import ROOT_DIR, ICON_FILE
+    >>> ROOT_DIR
+    PosixPath('/home/user/Repositories/WSmart-Route')
+    >>> ICON_FILE
+    '/home/user/Repositories/WSmart-Route/assets/images/logo-wsmartroute-white.png'
 """
 
 import os

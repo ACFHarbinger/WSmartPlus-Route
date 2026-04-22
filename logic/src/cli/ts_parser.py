@@ -1,11 +1,24 @@
 """
 Test suite related argument parsers.
+
+Attributes:
+    add_test_suite_args: Adds all arguments related to the test suite to the given parser.
+    validate_test_suite_args: Validates and post-processes arguments for test_suite.
+
+Example:
+    >>> from logic.src.cli.ts_parser import add_test_suite_args, validate_test_suite_args
+    >>> parser = argparse.ArgumentParser()
+    >>> add_test_suite_args(parser)
+    >>> validate_test_suite_args(parser.parse_args())
+    {'module': None, 'test_class': None, 'test_method': None, 'keyword': None, 'markers': None, 'verbose': False, 'coverage': False, 'failed_first': False, 'maxfail': None, 'tb': 'auto', 'capture': 'auto', 'parallel': False, 'list': False, 'list_tests': False, 'test_dir': 'tests'}
 """
+
+from typing import Any
 
 from logic.src.constants import TEST_MODULES
 
 
-def add_test_suite_args(parser):
+def add_test_suite_args(parser: Any) -> Any:
     """
     Adds all arguments related to the test suite to the given parser.
 
@@ -91,9 +104,15 @@ def add_test_suite_args(parser):
     return parser
 
 
-def validate_test_suite_args(args):
+def validate_test_suite_args(args: Any) -> Any:
     """
     Validates and post-processes arguments for test_suite.
+
+    Args:
+        args: The arguments to validate.
+
+    Returns:
+        The validated arguments.
     """
     args = args.copy()
     return args

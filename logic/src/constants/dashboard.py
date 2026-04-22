@@ -14,8 +14,13 @@ Colors are chosen from the ColorBrewer2 qualitative palette for:
 - Colorblind-safe palette (tested for deuteranopia, protanopia)
 - Print-friendly (maintains distinction in grayscale)
 
-Usage Example
--------------
+Attributes:
+    ROUTE_COLORS: Color palette for different vehicles/routes
+    BIN_COLORS: Bin status colors for dashboard and map markers
+    PLOTLY_LAYOUT_DEFAULTS: Shared Plotly layout defaults for visual consistency across all charts
+    STATUS_ICONS: Status icons for experiment tracker
+
+Example:
     >>> from logic.src.constants.dashboard import ROUTE_COLORS
     >>> for route_id, tour in enumerate(tours):
     >>>     color = ROUTE_COLORS[route_id % len(ROUTE_COLORS)]

@@ -39,6 +39,15 @@ CPU-resident and detached from the autograd graph before insertion:
 This prevents memory leaks in the computation graph over thousands of
 simulation iterations.
 
+Attributes:
+    SearchContext: Immutable state ledger that flows through the three-phase pipeline
+    SelectionMetrics: Intermediate outputs from Mandatory Selection
+    ConstructionMetrics: Intermediate outputs from Route Construction
+    AcceptanceMetrics: Per-step acceptance criterion outputs
+    ImprovementMetrics: Statistics from Route Improvement
+    SearchPhase: Enum for pipeline phases
+    merge_context: Function to merge contexts
+
 Example
 -------
 >>> from logic.src.interfaces.context import SearchContext, SelectionMetrics, merge_context
@@ -168,7 +177,15 @@ class SearchContext:
         )
 
     def merge(self, other: "SearchContext") -> "SearchContext":
-        """Merge this context with another by combining all metrics and metadata."""
+        """
+        Merge this context with another by combining all metrics and metadata.
+
+        Args:
+            other: The SearchContext to merge with.
+
+        Returns:
+            SearchContext: A new SearchContext instance with merged metrics.
+        """
         return merge_context(
             self,
             phase=other.phase,

@@ -1,5 +1,14 @@
 """
 Centralized registry for the WSmart+ Route CLI parser.
+
+Attributes:
+    get_parser: Returns the main ConfigsParser with all subcommands registered.
+
+Example:
+    >>> from logic.src.cli.registry import get_parser
+    >>> parser = get_parser()
+    >>> parser.parse_args(["gui", "--app_style", "fusion"])
+    Namespace(command='gui', app_style='fusion', test_only=False, _subcommand_parser=ArgumentParser(prog='gui', description='Launch the GUI'))
 """
 
 from logic.src.cli.base import ConfigsParser

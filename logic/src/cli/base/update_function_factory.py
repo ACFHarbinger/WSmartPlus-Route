@@ -1,10 +1,13 @@
-"""update_function_factory.py module.
+"""
+Update function factory module.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    UpdateFunctionMapActionFactory: Factory for mapping string update functions.
 
 Example:
-    >>> import update_function_factory
+    >>> from logic.src.cli.base.update_function_factory import UpdateFunctionMapActionFactory
+    >>> UpdateFunctionMapActionFactory()
+    <class 'logic.src.cli.base.update_function_factory.UpdateFunctionMapActionFactory.<locals>.UpdateFunctionMapAction'>
 """
 
 import argparse
@@ -25,7 +28,12 @@ def UpdateFunctionMapActionFactory(inplace: bool = False) -> type:
     """
 
     class UpdateFunctionMapAction(argparse.Action):
-        """Action that maps input strings to update functions."""
+        """
+        Action that maps input strings to update functions.
+
+        Attributes:
+            inplace: Whether to use the in-place operation map or the stats function map.
+        """
 
         def __init__(
             self,
@@ -40,7 +48,7 @@ def UpdateFunctionMapActionFactory(inplace: bool = False) -> type:
                 option_strings: Option strings for this action.
                 dest: Destination attribute in the namespace.
                 nargs: Number of arguments.
-                **kwargs: Additional keyword arguments.
+                kwargs: Additional keyword arguments.
             """
             super().__init__(option_strings, dest, nargs=nargs, **kwargs)
             self.inplace = inplace
@@ -62,6 +70,9 @@ def UpdateFunctionMapActionFactory(inplace: bool = False) -> type:
 
             Raises:
                 ValueError: If the input value does not map to a valid function.
+
+            Returns:
+                None
             """
             if values is not None:
                 if self.inplace:

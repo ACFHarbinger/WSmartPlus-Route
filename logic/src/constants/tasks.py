@@ -28,6 +28,23 @@ Still imported by:
 - unit tests for backward compatibility validation
 
 DO NOT use these in new code. They will be removed in v4.0.
+
+Attributes:
+    COST_KM: Legacy cost per kilometer (currency units / km) - DEPRECATED
+    REVENUE_KG: Legacy revenue per kilogram (currency units / kg) - DEPRECATED
+    BIN_CAPACITY: Legacy bin capacity (kilograms) - DEPRECATED
+    VEHICLE_CAPACITY: Legacy vehicle capacity (kilograms) - DEPRECATED
+
+Example:
+    >>> from logic.src.constants import COST_KM, REVENUE_KG, BIN_CAPACITY, VEHICLE_CAPACITY
+    >>> COST_KM
+    1.0
+    >>> REVENUE_KG
+    1.0
+    >>> BIN_CAPACITY
+    100.0
+    >>> VEHICLE_CAPACITY
+    200.0
 """
 
 # Legacy constants for backward compatibility

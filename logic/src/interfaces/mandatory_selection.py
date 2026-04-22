@@ -5,6 +5,22 @@ Defines the protocol for all strategies that determine which bins must
 be collected on a given simulation day.  Each strategy creates a fresh
 ``SearchContext`` (Phase 1 of the pipeline) and returns it alongside
 the list of selected bin IDs.
+
+Attributes:
+    IMandatorySelectionStrategy: Interface for Mandatory selection strategies
+
+Example:
+    >>> from logic.src.interfaces.mandatory_selection import IMandatorySelectionStrategy
+    >>> class MyMandatorySelectionStrategy(IMandatorySelectionStrategy):
+    ...     def select_bins(
+    ...         self,
+    ...         context: "SelectionContext",
+    ...     ) -> Tuple[List[int], "SearchContext"]:
+    ...         return [], None
+    ...
+    >>> mandatory_selection_strategy = MyMandatorySelectionStrategy()
+    >>> mandatory_selection_strategy.select_bins(SelectionContext())
+    ([], None)
 """
 
 from typing import TYPE_CHECKING, List, Protocol, Tuple, runtime_checkable
@@ -21,6 +37,9 @@ class IMandatorySelectionStrategy(Protocol):
     Implementors MUST return a ``SearchContext`` initialised with
     ``SelectionMetrics`` describing the intermediate computation.
     This context is passed unchanged into Phase 2 (Route Construction).
+
+    Attributes:
+        None: No attributes
     """
 
     def select_bins(

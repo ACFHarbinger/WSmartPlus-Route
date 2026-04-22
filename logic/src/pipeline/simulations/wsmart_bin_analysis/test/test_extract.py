@@ -4,7 +4,6 @@ Unit tests for data extraction and pre-processing in the wsmart_bin_analysis mod
 
 import numpy as np
 import pandas as pd
-
 from logic.src.pipeline.simulations.wsmart_bin_analysis.Deliverables.extract import (
     container_global_sorted_wrapper,
     import_same_file,

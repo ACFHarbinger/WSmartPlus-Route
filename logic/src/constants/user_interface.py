@@ -21,6 +21,24 @@ This ensures:
 - Terminal emulator compatibility (256-color terminals)
 - Distinct colors for multi-route/multi-policy visualizations
 - Colorblind-safe (avoid red-green alone for critical distinctions)
+
+Attributes:
+    PBAR_WAIT_TIME: Progress bar update interval (seconds)
+    TQDM_COLOURS: TQDM progress bar color cycling
+    MARKERS: Marker shapes for scatter plots and line plots
+    PLOT_COLOURS: Plot color palette (matplotlib color names)
+    LINESTYLES: Line styles for multi-series plots
+    CTRL_C_TIMEOUT: Ctrl+C graceful shutdown timeout (seconds)
+    APP_STYLES: Available Qt application styles
+
+Example:
+    >>> from logic.src.constants import PBAR_WAIT_TIME, TQDM_COLOURS, MARKERS, PLOT_COLOURS, LINESTYLES, CTRL_C_TIMEOUT, APP_STYLES
+    >>> PBAR_WAIT_TIME
+    0.1
+    >>> TQDM_COLOURS
+    ['red', 'blue', 'green', 'yellow', 'magenta', 'cyan']
+    >>> MARKERS
+    ['P', 's', '^', '8', '*']
 """
 
 from typing import List, Tuple, Union

@@ -1,5 +1,24 @@
 """
 Configuration constants and global mappings.
+
+Attributes:
+    dashboard: Dashboard configuration constants
+    data: Data configuration constants
+    hpo: Hyperparameter optimization configuration constants
+    models: Model configuration constants
+    paths: Path configuration constants
+    routing: Routing configuration constants
+    simulation: Simulation configuration constants
+    stats: Statistical function mappings
+    system: System configuration constants
+    testing: Testing configuration constants
+    user_interface: User interface configuration constants
+    waste: Waste configuration constants
+
+Example:
+    >>> from logic.src.constants import *
+    >>> ROOT_DIR
+    PosixPath('/home/pkhunter/Repositories/WSmart-Route')
 """
 
 from __future__ import annotations

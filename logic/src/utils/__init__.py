@@ -9,21 +9,21 @@ Contains helper modules for:
 - Environment and model setup.
 
 Attributes:
-    - configs
-    - data
-    - decoding
-    - docs
-    - functions
-    - graph
-    - io
-    - model
-    - ops
-    - output
-    - policy
-    - security
-    - tasks
-    - ui
-    - validation
+    configs: Configuration utilities
+    data: Data processing utilities
+    decoding: Decoding utilities
+    docs: Documentation utilities
+    functions: Function utilities
+    graph: Graph utilities
+    io: Input/Output utilities
+    model: Model utilities
+    ops: Operations utilities
+    output: Output utilities
+    policy: Policy utilities
+    security: Security utilities
+    tasks: Task utilities
+    ui: UI utilities
+    validation: Validation utilities
 
 Example:
     >>> from logic.src.utils import read_json

@@ -3,6 +3,32 @@ ProblemContext — Typed problem-instance descriptor.
 
 Carries all static and dynamic problem data for a single day's execution.
 Replaces the untyped kwargs-passing pattern in BaseRoutingPolicy.execute.
+
+Attributes:
+    ProblemContext: Complete problem descriptor for one day of the MPVRPP simulation
+
+Example:
+    >>> from logic.src.interfaces.context.problem_context import ProblemContext
+    >>> ctx = ProblemContext(
+    ...     distance_matrix=np.array([[0, 1], [1, 0]]),
+    ...     wastes={1: 10.0, 2: 20.0},
+    ...     fill_rate_means=np.array([10.0, 20.0]),
+    ...     fill_rate_stds=np.array([1.0, 2.0]),
+    ...     capacity=100.0,
+    ...     max_fill=100.0,
+    ...     revenue_per_kg=0.1,
+    ...     cost_per_km=0.05,
+    ...     horizon=7,
+    ...     mandatory=[1, 2],
+    ...     locations=np.array([[0, 0], [1, 1], [2, 2]]),
+    ...     scenario_tree=None,
+    ...     area="Rio Maior",
+    ...     waste_type="plastic",
+    ...     n_vehicles=1,
+    ...     seed=42
+    ... )
+    >>> ctx.current_day
+    0
 """
 
 from __future__ import annotations
@@ -64,12 +90,22 @@ class ProblemContext:
 
     @property
     def current_day(self) -> int:
-        """Alias for day_index (legacy compatibility)."""
+        """
+        Alias for day_index (legacy compatibility).
+
+        Returns:
+            int: The current day index.
+        """
         return self.day_index
 
     @property
     def fill_rates(self) -> np.ndarray:
-        """Alias for fill_rate_means (legacy compatibility)."""
+        """
+        Alias for fill_rate_means (legacy compatibility).
+
+        Returns:
+            np.ndarray: The fill rates.
+        """
         return self.fill_rate_means
 
     @classmethod
@@ -87,6 +123,9 @@ class ProblemContext:
             capacity:        Q loaded from area params.
             revenue_per_kg:  r_w loaded from area params.
             cost_per_km:     c_km loaded from area params.
+
+        Returns:
+            ProblemContext: A new ProblemContext instance.
         """
         if "problem" in kwargs and isinstance(kwargs["problem"], ProblemContext):
             return kwargs["problem"]
@@ -176,6 +215,9 @@ class ProblemContext:
             route:  Ordered list of bin IDs visited (1-based, depot excluded).
             delta:  Optional shape (V,) array of actual fill increments for day d+1.
                     If None, `fill_rate_means` is used as a deterministic surrogate.
+
+        Returns:
+            ProblemContext: A new ProblemContext instance.
         """
         visited = set(route)
         increments = delta if delta is not None else self.fill_rate_means

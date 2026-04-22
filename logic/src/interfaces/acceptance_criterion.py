@@ -10,6 +10,33 @@ The ``accept()`` method now returns a ``Tuple[bool, AcceptanceMetrics]``
 so that callers can thread per-step telemetry into the ``SearchContext``
 without polling ``get_state()`` separately.  ``get_state()`` is retained for
 backward compatibility but is superseded by the metrics in the returned tuple.
+
+Attributes:
+    IAcceptanceCriterion: Interface for acceptance criteria
+    ObjectiveValue: Type alias for single or multi-objective values
+
+Example:
+    >>> from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
+    >>> class MyAcceptanceCriterion(IAcceptanceCriterion):
+    ...     def setup(self, initial_objective: ObjectiveValue) -> None:
+    ...         pass
+    ...     def accept(
+    ...         self,
+    ...         current_obj: ObjectiveValue,
+    ...         candidate_obj: ObjectiveValue,
+    ...         **kwargs: Any,
+    ...     ) -> Tuple[bool, AcceptanceMetrics]:
+    ...         return True, AcceptanceMetrics()
+    ...     def step(
+    ...         self,
+    ...         current_obj: ObjectiveValue,
+    ...         candidate_obj: ObjectiveValue,
+    ...         accepted: bool,
+    ...         **kwargs: Any,
+    ...     ) -> None:
+    ...         pass
+    ...     def get_state(self) -> Dict[str, Any]:
+    ...         return {}
 """
 
 from abc import ABC, abstractmethod
@@ -36,6 +63,9 @@ class IAcceptanceCriterion(ABC):
 
         Args:
             initial_objective (ObjectiveValue): The objective value of the starting solution.
+
+        Returns:
+            None
         """
 
     @abstractmethod
@@ -54,7 +84,7 @@ class IAcceptanceCriterion(ABC):
         Args:
             current_obj (ObjectiveValue): The objective value of the current incumbent.
             candidate_obj (ObjectiveValue): The objective value of the proposed candidate.
-            **kwargs (Any): Additional context (e.g. structural representations).
+            kwargs (Any): Additional context (e.g. structural representations).
 
         Returns:
             Tuple[bool, AcceptanceMetrics]:
@@ -79,7 +109,10 @@ class IAcceptanceCriterion(ABC):
             current_obj (ObjectiveValue): The objective after the decision was applied.
             candidate_obj (ObjectiveValue): The objective of the evaluated candidate.
             accepted (bool): The boolean result of ``accept()``.
-            **kwargs (Any): Additional context.
+            kwargs (Any): Additional context.
+
+        Returns:
+            None
         """
 
     def get_state(self) -> Dict[str, Any]:

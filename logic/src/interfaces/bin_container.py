@@ -1,7 +1,11 @@
-"""Container providing bin state access.
+"""
+Container providing bin state access.
 
 This module defines the IBinContainer protocol for duck typing with
 objects that manage waste bin states in simulations and environments.
+
+Attributes:
+    IBinContainer: Interface for bin containers
 
 Example:
     >>> from logic.src.interfaces.bin_container import IBinContainer
@@ -37,7 +41,8 @@ class IBinContainer(Protocol):
 
     @property
     def fill_levels(self) -> torch.Tensor:
-        """Current fill levels for all bins.
+        """
+        Current fill levels for all bins.
 
         Returns:
             Tensor of shape (batch, n_bins) with fill levels in [0, 1]
@@ -46,7 +51,8 @@ class IBinContainer(Protocol):
 
     @property
     def wastes(self) -> torch.Tensor:
-        """Waste usage for all bins.
+        """
+        Waste usage for all bins.
 
         Returns:
             Tensor of shape (batch, n_bins) with waste values
@@ -54,15 +60,20 @@ class IBinContainer(Protocol):
         ...
 
     def update_fill_levels(self, visited: torch.Tensor) -> None:
-        """Update bin states after collection.
+        """
+        Update bin states after collection.
 
         Args:
             visited: Binary tensor (batch, n_bins) indicating collected bins
+
+        Returns:
+            None
         """
         ...
 
     def get(self, key: str, default: Optional[Any] = None) -> Any:
-        """Get attribute by key with optional default.
+        """
+        Get attribute by key with optional default.
 
         Provides dict-like access for backward compatibility with code
         that uses bins.get("fill_levels").
