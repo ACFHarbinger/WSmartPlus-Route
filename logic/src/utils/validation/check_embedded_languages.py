@@ -1,6 +1,23 @@
 """
 An AST-based utility to detect embedded HTML, CSS, JavaScript, or SQL
 inside Python source files.
+
+Attributes:
+    LANGUAGE_PATTERNS: Dictionary mapping language names to regex patterns.
+    CYAN: ANSI escape code for cyan text.
+    GREEN: ANSI escape code for green text.
+    YELLOW: ANSI escape code for yellow text.
+    RED: ANSI escape code for red text.
+    RESET: ANSI escape code for resetting text color.
+    load_patterns: Load regex patterns from external files.
+    get_docstring_lines: Find all line numbers that belong to docstrings so we can ignore them.
+    detect_language: Detect the language of the given text.
+    EmbeddedCodeVisitor: AST visitor to detect embedded languages in Python code.
+    analyze_file: Parse a file and return embedded code findings.
+    main: Main function to check for embedded languages.
+
+Example:
+    >>> python check_embedded_languages.py --root src --exclude tests
 """
 
 import argparse
@@ -20,7 +37,12 @@ RESET = "\033[0m"
 
 
 def load_patterns() -> Dict[str, re.Pattern]:
-    """Dynamically load regex patterns from external files."""
+    """
+    Dynamically load regex patterns from external files.
+
+    Returns:
+        Dictionary mapping language names to regex patterns.
+    """
     patterns = {}
     base_dir = Path(__file__).parent / "target"
 
@@ -52,7 +74,15 @@ LANGUAGE_PATTERNS = load_patterns()
 
 
 def get_docstring_lines(tree: ast.AST) -> Set[int]:
-    """Finds all line numbers that belong to docstrings so we can ignore them."""
+    """
+    Finds all line numbers that belong to docstrings so we can ignore them.
+
+    Args:
+        tree: AST tree to scan.
+
+    Returns:
+        Set of line numbers that belong to docstrings.
+    """
     doc_lines: Set[int] = set()
     for node in ast.walk(tree):
         if isinstance(node, (ast.Module, ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)) and (
@@ -69,7 +99,15 @@ def get_docstring_lines(tree: ast.AST) -> Set[int]:
 
 
 def detect_language(text: str) -> str:
-    """Returns the name of the language detected in the text, or None."""
+    """
+    Detect the language of the given text.
+
+    Args:
+        text: The text to analyze.
+
+    Returns:
+        The name of the language detected in the text, or None.
+    """
     if not text.strip() or len(text) < 5:
         return ""
 
@@ -80,11 +118,32 @@ def detect_language(text: str) -> str:
 
 
 class EmbeddedCodeVisitor(ast.NodeVisitor):
+    """
+    AST visitor to detect embedded languages in Python code.
+
+    Attributes:
+        doc_lines: Set of line numbers that belong to docstrings.
+        findings: List of tuples containing line number, language, and snippet.
+    """
+
     def __init__(self, doc_lines: Set[int]):
+        """
+        Initialize the visitor.
+
+        Args:
+            doc_lines: Set of line numbers that belong to docstrings.
+        """
         self.doc_lines = doc_lines
         self.findings: List[Tuple[int, str, str]] = []  # (lineno, language, snippet)
 
     def _check_and_record(self, text: str, lineno: int):
+        """
+        Check if the given text contains embedded code and record the finding if it does.
+
+        Args:
+            text: The text to analyze.
+            lineno: The line number of the text.
+        """
         if lineno in self.doc_lines:
             return
 
@@ -97,13 +156,23 @@ class EmbeddedCodeVisitor(ast.NodeVisitor):
             self.findings.append((lineno, lang, snippet))
 
     def visit_Constant(self, node: ast.Constant):
-        """Check standard string literals."""
+        """
+        Check standard string literals.
+
+        Args:
+            node: AST node representing a constant.
+        """
         if isinstance(node.value, str):
             self._check_and_record(node.value, getattr(node, "lineno", -1))
         self.generic_visit(node)
 
     def visit_JoinedStr(self, node: ast.JoinedStr):
-        """Check f-strings by reconstructing their literal parts."""
+        """
+        Check f-strings by reconstructing their literal parts.
+
+        Args:
+            node: AST node representing an f-string.
+        """
         assembled_string = ""
         for part in node.values:
             if isinstance(part, ast.Constant) and isinstance(part.value, str):
@@ -116,7 +185,15 @@ class EmbeddedCodeVisitor(ast.NodeVisitor):
 
 
 def analyze_file(filepath: Path) -> List[Tuple[int, str, str]]:
-    """Parses a file and returns embedded code findings."""
+    """
+    Parses a file and returns embedded code findings.
+
+    Args:
+        filepath: Path to the file to analyze.
+
+    Returns:
+        List of tuples containing line number, language, and snippet.
+    """
     try:
         with open(filepath, "r", encoding="utf-8") as f:
             source = f.read()
@@ -132,6 +209,7 @@ def analyze_file(filepath: Path) -> List[Tuple[int, str, str]]:
 
 
 def main():
+    """Main function to check for embedded languages."""
     parser = argparse.ArgumentParser(description="Find embedded HTML, CSS, JS, or SQL in Python files.")
     parser.add_argument("directory", type=str, nargs="?", default=".", help="Target directory to scan")
     parser.add_argument("-e", "--exclude", nargs="+", default=[], help="Directories to exclude")

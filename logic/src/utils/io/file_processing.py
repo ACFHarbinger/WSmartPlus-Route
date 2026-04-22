@@ -1,5 +1,14 @@
 """
 File and pattern-based data processing utilities.
+
+Attributes:
+    process_pattern_files: Searches for and processes files matching a pattern.
+    process_file: Processes a single file and modifies it based on specified criteria.
+
+Example:
+    >>> from logic.src.utils.io.file_processing import process_pattern_files, process_file
+    >>> processed_count = process_pattern_files("path/to/logs")
+    >>> modified = process_file("path/to/log.json")
 """
 
 import glob
@@ -23,8 +32,16 @@ def process_pattern_files(
     """
     Search for and process files matching a pattern.
 
+    Args:
+        root_directory: The root directory to search for files.
+        filename_pattern: The pattern to match files (default: "log_*.json").
+        output_key: The key to extract values for (default: "km").
+        process_func: Optional function to process the values (default: mean).
+        update_val: Value to update the keys with (default: 0).
+        input_keys: Tuple of keys to use for processing (default: (None, None)).
+
     Returns:
-        Number of modified files.
+        The number of files processed.
     """
     modified_count = 0
     search_path = os.path.join(root_directory, "**", filename_pattern)
@@ -46,6 +63,16 @@ def process_file(
 ) -> bool:
     """
     Modify a single JSON file.
+
+    Args:
+        file_path: The path to the JSON file.
+        output_key: The key to extract values for (default: "km").
+        process_func: Optional function to process the values (default: mean).
+        update_val: Value to update the keys with (default: 0).
+        input_keys: Tuple of keys to use for processing (default: (None, None)).
+
+    Returns:
+        True if the file was modified, False otherwise.
     """
     if not os.path.exists(file_path):
         return False

@@ -1,5 +1,11 @@
 """
 Model loading and setup utilities.
+
+Attributes:
+    setup_model: Sets up and loads a specific model based on policy.
+
+Example:
+    setup_model("policy_name", "path/to/models", {"policy_name": "model.pt"}, device, lock)
 """
 
 from __future__ import annotations
@@ -58,7 +64,7 @@ def setup_model(
             lock (threading.Lock): Description of lock.
 
         Returns:
-            Any: Description of return value.
+            Tuple[nn.Module, Dict[str, Any]]: Description of return value.
         """
         # Robust path handling: only join if model_name does not exist on its own
         if os.path.isabs(model_name) or os.path.exists(model_name):

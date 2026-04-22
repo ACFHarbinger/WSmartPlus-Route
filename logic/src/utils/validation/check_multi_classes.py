@@ -1,9 +1,15 @@
 """
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    RED: ANSI escape code for red text.
+    CYAN: ANSI escape code for cyan text.
+    YELLOW: ANSI escape code for yellow text.
+    GREEN: ANSI escape code for green text.
+    RESET: ANSI escape code for resetting text color.
+    get_top_level_classes: Get top level classes.
+    main: Main function to check for multiple top-level classes.
 
 Example:
-    >>> import check_multi_classes
+    >>> python logic/src/utils/validation/check_multi_classes.py logic/src --exclude logic/src/utils/validation
 """
 
 import argparse

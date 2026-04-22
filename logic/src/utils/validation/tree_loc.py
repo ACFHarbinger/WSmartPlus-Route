@@ -1,9 +1,12 @@
 """
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    get_docstring_lines: Get docstring lines.
+    analyze_file: Analyze file.
+    print_tree: Print tree.
+    main: Main function to count lines of code.
 
 Example:
-    >>> import tree_loc
+    >>> python logic/src/utils/validation/tree_loc.py logic/src
 """
 
 import argparse
@@ -13,7 +16,14 @@ from typing import Set, Tuple
 
 
 def get_docstring_lines(source: str) -> Set[int]:
-    """Parses the source code AST to find all lines that are part of docstrings."""
+    """
+    Parses the source code AST to find all lines that are part of docstrings.
+
+    Args:
+        source (str): Source code.
+    Returns:
+        Set[int]: Set of line numbers that are part of docstrings.
+    """
     doc_lines: Set[int] = set()
     try:
         tree = ast.parse(source)
@@ -35,7 +45,14 @@ def get_docstring_lines(source: str) -> Set[int]:
 
 
 def analyze_file(filepath: str) -> Tuple[int, int, int]:
-    """Returns (code, comments, docstrings)."""
+    """
+    Analyze a file and return the number of code lines, comment lines, and docstring lines.
+
+    Args:
+        filepath (str): File path.
+    Returns:
+        Tuple[int, int, int]: (number of code lines, number of comment lines, number of docstring lines).
+    """
     try:
         with open(filepath, "r", encoding="utf-8") as f:
             source = f.read()
@@ -45,7 +62,6 @@ def analyze_file(filepath: str) -> Tuple[int, int, int]:
 
     docstring_lines_set = get_docstring_lines(source)
     n_code, n_comments, n_docs = 0, 0, 0
-
     for i, line in enumerate(lines, start=1):
         stripped = line.strip()
         if not stripped:
@@ -59,14 +75,15 @@ def analyze_file(filepath: str) -> Tuple[int, int, int]:
     return n_code, n_comments, n_docs
 
 
-def print_tree(directory, prefix="", is_last=True, skip_dirs=None):
-    """Print tree.
+def print_tree(directory, prefix="", is_last=True, skip_dirs=None) -> None:
+    """
+    Print tree.
 
     Args:
-    directory (Any): Description of directory.
-    prefix (Any): Description of prefix.
-    is_last (Any): Description of is_last.
-    skip_dirs (Any): Description of skip_dirs.
+        directory (Any): Description of directory.
+        prefix (Any): Description of prefix.
+        is_last (Any): Description of is_last.
+        skip_dirs (Any): Description of skip_dirs.
     """
     if skip_dirs is None:
         skip_dirs = {".git", "__pycache__", "venv", ".venv", "node_modules"}
@@ -107,8 +124,13 @@ def print_tree(directory, prefix="", is_last=True, skip_dirs=None):
             print(f"{new_prefix}{entry_marker}{entry:<30}{stats}")
 
 
-def main():
-    """Main."""
+def main() -> None:
+    """
+    Main function.
+
+    Args:
+        path (str): Path to the root directory.
+    """
     parser = argparse.ArgumentParser(description="Output Python LoC in a tree format.")
     parser.add_argument("path", nargs="?", default=".", help="Root directory")
     args = parser.parse_args()

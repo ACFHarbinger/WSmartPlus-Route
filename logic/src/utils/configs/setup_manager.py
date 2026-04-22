@@ -1,5 +1,11 @@
 """
 HRL Manager setup utilities.
+
+Attributes:
+    setup_hrl_manager: Initializes and loads the Manager model for Hierarchical RL.
+
+Example:
+    setup_hrl_manager(sim_cfg, device)
 """
 
 from __future__ import annotations
@@ -19,7 +25,17 @@ if TYPE_CHECKING:
 
 
 def _get_cfg_attr(sim_cfg: Any, name: str, default: Any = None) -> Any:
-    """Retrieve a value from *sim_cfg* (``SimConfig`` or plain ``dict``)."""
+    """
+    Retrieve a value from *sim_cfg* (``SimConfig`` or plain ``dict``).
+
+    Args:
+        sim_cfg: Simulation config object (``SimConfig`` or dict).
+        name: Name of the attribute to retrieve.
+        default: Default value to return if the attribute is not found.
+
+    Returns:
+        The value of the attribute.
+    """
     if isinstance(sim_cfg, dict):
         return sim_cfg.get(name, default)
     return getattr(sim_cfg, name, default)
@@ -29,7 +45,16 @@ def _resolve_hrl_path(
     model_paths: Dict[str, str],
     policy: str,
 ) -> Optional[str]:
-    """Match *policy* to a checkpoint path in *model_paths*."""
+    """
+    Match *policy* to a checkpoint path in *model_paths*.
+
+    Args:
+        model_paths: Dictionary of model paths.
+        policy: Policy name.
+
+    Returns:
+        The checkpoint path for the given policy.
+    """
     if policy in model_paths:
         return model_paths[policy]
     base_policy: str = policy.split("_gamma")[0].split("_emp")[0]
@@ -42,7 +67,16 @@ def _resolve_hrl_path(
 
 
 def _resolve_checkpoint_file(hrl_path: str, base_path: Optional[str]) -> Optional[str]:
-    """Return a concrete ``.pt`` file path, or ``None`` if nothing is found."""
+    """
+    Return a concrete ``.pt`` file path, or ``None`` if nothing is found.
+
+    Args:
+        hrl_path: Path to the HRL model.
+        base_path: Base path for models.
+
+    Returns:
+        The checkpoint path for the given HRL model.
+    """
     if base_path is not None and not os.path.exists(hrl_path):
         hrl_path = os.path.join(base_path, hrl_path)
 
@@ -63,7 +97,18 @@ def _resolve_param(
     name: str,
     default: Any,
 ) -> Any:
-    """Look up *name* from *configs* first, then *sim_cfg*, then *default*."""
+    """
+    Look up *name* from *configs* first, then *sim_cfg*, then *default*.
+
+    Args:
+        configs: Configuration dictionary from the loaded neural checkpoint.
+        sim_cfg: Simulation config object (``SimConfig`` or dict).
+        name: Name of the attribute to retrieve.
+        default: Default value to return if the attribute is not found.
+
+    Returns:
+        The value of the attribute.
+    """
     val = configs.get(name)
     if val is not None:
         return val

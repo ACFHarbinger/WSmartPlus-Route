@@ -1,5 +1,19 @@
 """
 Problem-specific utility functions.
+
+Attributes:
+    is_wc_problem: Check if the problem is a Waste Collection (WC) variant.
+    is_vrpp_problem: Check if the problem is a Vehicle Routing Problem with Profits (VRPP) variant.
+    is_tsp_problem: Check if the problem is a Traveling Salesperson Problem (TSP) variant.
+
+Example:
+    >>> from logic.src.utils.functions import is_wc_problem, is_vrpp_problem, is_tsp_problem
+    >>> is_wc_problem("wcvrp")
+    True
+    >>> is_vrpp_problem("cvrpp")
+    True
+    >>> is_tsp_problem("tsp")
+    True
 """
 
 from typing import Any

@@ -1,5 +1,18 @@
 """
 Data preview utilities for JSON structures.
+
+Attributes:
+    preview_changes: Preview what changes will be made without actually modifying files.
+    preview_file_changes: Preview changes for a single file without modifying it.
+    preview_pattern_files_statistics: Preview statistics for files matching a pattern.
+    preview_file_statistics: Preview statistics for a single file.
+
+Example:
+    >>> from logic.src.utils.io.preview import preview_changes, preview_file_changes, preview_pattern_files_statistics, preview_file_statistics
+    >>> preview_changes("path/to/logs")
+    >>> preview_file_changes("path/to/log.json")
+    >>> preview_pattern_files_statistics("path/to/logs")
+    >>> preview_file_statistics("path/to/log.json")
 """
 
 import glob
@@ -243,7 +256,16 @@ def preview_file_statistics(
     process_func: Optional[Callable[..., Any]] = None,
 ) -> bool:
     """
-    Preview changes for a single file statistics operation without modifying it
+    Preview changes for a single file statistics operation without modifying it.
+
+    Args:
+        file_path (str): Path to the file.
+        output_filename (str, optional): Output filename. Defaults to "output.json".
+        output_key (str, optional): Key to read. Defaults to "km".
+        process_func (callable, optional): Processing function. Defaults to None.
+
+    Returns:
+        bool: True if any modifications would be made, False otherwise.
     """
     assert process_func is not None, "Argument process_func must be provided"
 

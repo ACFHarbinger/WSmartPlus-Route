@@ -1,5 +1,15 @@
 """
 Utilities for TensorDict datasets.
+
+Attributes:
+    td_kwargs: Dictionary for TensorDict keyword arguments.
+    tensordict_collate_fn: Collate list of TensorDicts or dicts into batched TensorDict or dict.
+
+Example:
+    >>> td_kwargs
+    {'_run_checks': False}
+    >>> tensordict_collate_fn([td1, td2])
+    tensor_dict
 """
 
 from typing import Any, Dict, Union, cast
@@ -20,7 +30,15 @@ td_kwargs: Dict[str, Any] = (
 def tensordict_collate_fn(
     batch: list[Union[dict, TensorDict]],
 ) -> Union[dict, TensorDict]:
-    """Collate list of TensorDicts or dicts into batched TensorDict or dict."""
+    """
+    Collate list of TensorDicts or dicts into batched TensorDict or dict.
+
+    Args:
+        batch: List of TensorDicts or dicts
+
+    Returns:
+        Batched TensorDict or dict
+    """
     if isinstance(batch[0], TensorDict):
         # We stack the TensorDicts. Return as is.
         # Note: If pin_memory issues occur in the future, we may need a more

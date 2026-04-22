@@ -1,5 +1,17 @@
 """
 General Tensor Manipulation Operations.
+
+Attributes:
+    unbatchify_and_gather: Combined unbatchify + gather operation for multi-start results.
+
+Example:
+    >>> from logic.src.utils.ops.tensor import unbatchify_and_gather
+    >>> x = torch.randn(20, 10)
+    >>> idx = torch.tensor([0, 1, 2, 3, 4])
+    >>> n = 5
+    >>> out = unbatchify_and_gather(x, idx, n)
+    >>> print(out.shape)
+    torch.Size([5, 10])
 """
 
 from __future__ import annotations

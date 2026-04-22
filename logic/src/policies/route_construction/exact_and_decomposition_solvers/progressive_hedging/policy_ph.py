@@ -125,6 +125,7 @@ class ProgressiveHedgingPolicy(BaseMultiPeriodRoutingPolicy):
             revenue=problem.revenue_per_kg,
             cost_unit=problem.cost_per_km,
             mandatory_nodes=problem.mandatory,
+            current_wastes=problem.wastes,
         )
 
         # Extract Day 0 route

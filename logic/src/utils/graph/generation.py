@@ -1,5 +1,18 @@
 """
 Graph and adjacency matrix generation utilities.
+
+Attributes:
+    OSMNX_AVAILABLE: Whether osmnx is available.
+    generate_adj_matrix: Generates a random adjacency matrix.
+    get_edge_idx_dist: Generates edge indices based on shortest distances in the distance matrix.
+    get_adj_knn: Generates an adjacency matrix based on K-Nearest Neighbors.
+    get_adj_osm: Computes an adjacency matrix via OpenStreetMap for given coordinates.
+
+Example:
+    generate_adj_matrix(size, num_edges)
+    get_edge_idx_dist(dist_matrix, num_edges)
+    get_adj_knn(dist_matrix, k_neighbors)
+    get_adj_osm(coords, size, args)
 """
 
 from typing import Any, Optional, Union
@@ -28,6 +41,17 @@ def generate_adj_matrix(
 ) -> np.ndarray:
     """
     Generates a random adjacency matrix.
+
+    Args:
+        size: Number of nodes in the graph.
+        num_edges: Number of edges to add to the graph.
+        undirected: Whether the graph should be undirected.
+        add_depot: Whether to add a depot node to the graph.
+        negative: Whether to negate the adjacency matrix.
+        np_rng: Random number generator.
+
+    Returns:
+        Adjacency matrix.
     """
     if np_rng is None:
         np_rng = np.random.default_rng()
@@ -66,6 +90,15 @@ def get_edge_idx_dist(
 ) -> np.ndarray:
     """
     Generates edge indices based on shortest distances in the distance matrix.
+
+    Args:
+        dist_matrix: Distance matrix.
+        num_edges: Number of edges to add to the graph.
+        add_depot: Whether to add a depot node to the graph.
+        undirected: Whether the graph should be undirected.
+
+    Returns:
+        Edge indices.
     """
     assert not undirected or np.allclose(dist_matrix, dist_matrix.T), (
         "Distance matrix must be symmetric for an undirected graph"
@@ -122,6 +155,15 @@ def get_adj_knn(
 ) -> np.ndarray:
     """
     Generates an adjacency matrix based on K-Nearest Neighbors.
+
+    Args:
+        dist_mat: Distance matrix.
+        k_neighbors: Number of neighbors to add to the graph.
+        add_depot: Whether to add a depot node to the graph.
+        negative: Whether to negate the adjacency matrix.
+
+    Returns:
+        Adjacency matrix.
     """
     size = len(dist_mat)
 
@@ -147,6 +189,16 @@ def get_adj_knn(
 def get_adj_osm(coords: Any, size: int, args: list, add_depot: bool = True, negative: bool = True) -> np.ndarray:
     """
     Computes an adjacency matrix via OpenStreetMap for given coordinates.
+
+    Args:
+        coords: Coordinates of the nodes.
+        size: Number of nodes in the graph.
+        args: Arguments for the OpenStreetMap graph.
+        add_depot: Whether to add a depot node to the graph.
+        negative: Whether to negate the adjacency matrix.
+
+    Returns:
+        Adjacency matrix.
     """
     if not OSMNX_AVAILABLE:
         raise ImportError(

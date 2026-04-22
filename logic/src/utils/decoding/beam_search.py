@@ -1,13 +1,21 @@
-"""beam_search.py module.
+"""
+Beam search module.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    BeamSearch: Beam search decoding strategy.
+    beam_search: Beam search decoding strategy.
+    get_beam_search_results: Get the results of beam search.
+    _beam_search: Internal beam search execution.
 
 Example:
-    >>> import beam_search
+    >>> from logic.src.utils.decoding import BeamSearch, beam_search, get_beam_search_results, _beam_search
+    >>> beam_search = BeamSearch()
+    >>> beam_search = beam_search(state, beam_size)
+    >>> beam_search = get_beam_search_results(beams, final_state)
+    >>> beam_search = _beam_search(state, beam_size)
 """
 
-from typing import Optional, Tuple
+from typing import Any, Callable, Optional, Tuple
 
 import torch
 import torch.nn.functional as F
@@ -24,15 +32,18 @@ class BeamSearch(DecodingStrategy):
 
     Note: Beam search requires special handling in the policy forward pass.
     This implementation provides the step function for scoring candidates.
+
+    Attributes:
+        beam_width (int): Number of beams to maintain.
     """
 
-    def __init__(self, beam_width: int = 5, **kwargs):
+    def __init__(self, beam_width: int = 5, **kwargs) -> None:
         """
         Initialize BeamSearch decoding.
 
         Args:
             beam_width: Number of beams to maintain.
-            **kwargs: Passed to super class.
+            kwargs: Passed to super class.
         """
         super().__init__(**kwargs)
         self.beam_width = beam_width
@@ -45,6 +56,11 @@ class BeamSearch(DecodingStrategy):
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """
         Select top-k actions for beam search.
+
+        Args:
+            logits: Logits from the policy.
+            mask: Mask for the logits.
+            td: TensorDict containing the state.
 
         Returns:
             Tuple of (top_k_actions, top_k_log_probs, entropy) each with shape [batch, beam_width]
@@ -67,8 +83,8 @@ def beam_search(*args, **kwargs):
     This is the high-level entry point that runs the search and then reconstructs the results.
 
     Args:
-        *args: positional args passed to _beam_search
-        **kwargs: keyword args passed to _beam_search
+        args: positional args passed to _beam_search
+        kwargs: keyword args passed to _beam_search
 
     Returns:
         tuple: (score, solutions, cost, ids, batch_size)
@@ -80,7 +96,7 @@ def beam_search(*args, **kwargs):
     return get_beam_search_results(beams, final_state)
 
 
-def get_beam_search_results(beams, final_state):
+def get_beam_search_results(beams: list[BatchBeam], final_state: Any) -> tuple:
     """
     Reconstructs solutions from the final beam state.
     This involves backtracking through the beam parents to reconstruct the full path.
@@ -115,7 +131,9 @@ def get_beam_search_results(beams, final_state):
     )
 
 
-def _beam_search(state, beam_size, propose_expansions=None, keep_states=False):
+def _beam_search(
+    state: Any, beam_size: int, propose_expansions: Optional[Callable] = None, keep_states: bool = False
+) -> tuple:
     """
     Internal beam search execution.
 

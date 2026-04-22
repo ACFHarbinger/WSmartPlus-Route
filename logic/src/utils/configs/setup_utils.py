@@ -1,5 +1,13 @@
 """
 Configuration and data sanitization utilities.
+
+Attributes:
+    deep_sanitize: Recursively convert NumPy types, Tensors, and OmegaConf containers to Python primitives.
+    get_pol_name: Extract a concise policy name from a structured or string config.
+
+Example:
+    deep_sanitize(val)
+    get_pol_name(pol_obj)
 """
 
 import ast
@@ -55,6 +63,12 @@ def get_pol_name(pol_obj: Any) -> str:
     """
     Extract a concise policy name from a structured or string config.
     Handles Hydra/OmegaConf objects, dicts, and strings.
+
+    Args:
+        pol_obj: The policy object to extract the name from.
+
+    Returns:
+        The policy name.
     """
     try:
         # Sanitize to plain Python types (handles DictConfig, Tensor, etc.)

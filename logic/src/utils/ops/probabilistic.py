@@ -1,5 +1,15 @@
 """
 Probabilistic Operations (Entropy, etc).
+
+Attributes:
+    calculate_entropy: Calculate entropy from log probabilities.
+
+Example:
+    >>> from logic.src.utils.ops.probabilistic import calculate_entropy
+    >>> logprobs = torch.randn(10, 5)
+    >>> entropy = calculate_entropy(logprobs)
+    >>> print(entropy.shape)
+    torch.Size([10])
 """
 
 from __future__ import annotations

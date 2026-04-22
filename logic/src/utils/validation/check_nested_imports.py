@@ -1,3 +1,25 @@
+"""
+Finds all nested imports (imports that are inside a class or function definition) in a Python codebase.
+
+Attributes:
+    RICH_AVAILABLE: bool - Whether the rich library is available.
+    is_type_checking_block: Check if a node is an `if TYPE_CHECKING:` block.
+    is_import_error_try_block: Check if a node is a `try...except ImportError:` block.
+    is_suppress_import_error_block: Check if a node is a `with contextlib.suppress(ImportError):` block.
+    is_constant_expression: Recursively check if an expression consists only of constants and uppercase names.
+    is_header_assignment: Check if a node is a header-safe assignment.
+    is_constant_guarded_if: Check if a node is an `if` block where the test involves only constants/uppercase names.
+    is_header_setup_call: Check for common setup calls like matplotlib.use() or warnings.filterwarnings().
+    get_factory_line_ranges: Get the line ranges of factory functions.
+    extract_all_imports: Extract all imports from a file.
+    analyze_file: Analyze a file for nested imports.
+    print_stats_table: Print statistics table.
+    main: Main function to find nested imports.
+
+Example:
+    >>> python logic/src/utils/validation/check_nested_imports.py --path logic/src
+"""
+
 import argparse
 import ast
 import os
@@ -15,7 +37,15 @@ except ImportError:
 
 
 def is_type_checking_block(node: ast.stmt) -> bool:
-    """Check if a node is an `if TYPE_CHECKING:` block."""
+    """
+    Check if a node is an `if TYPE_CHECKING:` block.
+
+    Args:
+        node: The AST node to check.
+
+    Returns:
+        True if the node is a type checking block, False otherwise.
+    """
     if not isinstance(node, ast.If):
         return False
     if isinstance(node.test, ast.Name) and node.test.id == "TYPE_CHECKING":
@@ -24,7 +54,15 @@ def is_type_checking_block(node: ast.stmt) -> bool:
 
 
 def is_import_error_try_block(node: ast.stmt) -> bool:
-    """Check if a node is a `try...except ImportError:` block."""
+    """
+    Check if a node is a `try...except ImportError:` block.
+
+    Args:
+        node: The AST node to check.
+
+    Returns:
+        True if the node is a try-except ImportError block, False otherwise.
+    """
     if not isinstance(node, ast.Try):
         return False
     for handler in node.handlers:
@@ -40,7 +78,15 @@ def is_import_error_try_block(node: ast.stmt) -> bool:
 
 
 def is_suppress_import_error_block(node: ast.stmt) -> bool:
-    """Check if a node is a `with contextlib.suppress(ImportError):` block."""
+    """
+    Check if a node is a `with contextlib.suppress(ImportError):` block.
+
+    Args:
+        node: The AST node to check.
+
+    Returns:
+        True if the node is a suppress import error block, False otherwise.
+    """
     if not isinstance(node, ast.With):
         return False
     for item in node.items:
@@ -63,7 +109,15 @@ def is_suppress_import_error_block(node: ast.stmt) -> bool:
 
 
 def is_constant_expression(node: ast.AST) -> bool:
-    """Recursively check if an expression consists only of constants and uppercase names."""
+    """
+    Recursively check if an expression consists only of constants and uppercase names.
+
+    Args:
+        node: The AST node to check.
+
+    Returns:
+        True if the expression consists only of constants and uppercase names, False otherwise.
+    """
     if isinstance(node, (ast.Constant, getattr(ast, "Str", type(None)), getattr(ast, "Num", type(None)))):
         return True
     if isinstance(node, (ast.NameConstant, getattr(ast, "NameConstant", type(None)))):
@@ -91,6 +145,12 @@ def is_header_assignment(node: ast.stmt) -> bool:
     """
     Check if a node is a header-safe assignment.
     Allowed: Constants, collections of constants, os.environ updates, and Logger initialization.
+
+    Args:
+        node: The AST node to check.
+
+    Returns:
+        True if the node is a header-safe assignment, False otherwise.
     """
     if not isinstance(node, ast.Assign):
         return False
@@ -120,14 +180,30 @@ def is_header_assignment(node: ast.stmt) -> bool:
 
 
 def is_constant_guarded_if(node: ast.stmt) -> bool:
-    """Check if a node is an `if` block where the test involves only constants/uppercase names."""
+    """
+    Check if a node is an `if` block where the test involves only constants/uppercase names.
+
+    Args:
+        node: The AST node to check.
+
+    Returns:
+        True if the node is a constant-guarded if block, False otherwise.
+    """
     if not isinstance(node, ast.If):
         return False
     return is_constant_expression(node.test)
 
 
 def is_header_setup_call(node: ast.stmt) -> bool:
-    """Check for common setup calls like matplotlib.use() or warnings.filterwarnings()."""
+    """
+    Check for common setup calls like matplotlib.use() or warnings.filterwarnings().
+
+    Args:
+        node: The AST node to check.
+
+    Returns:
+        True if the node is a setup call, False otherwise.
+    """
     if not isinstance(node, ast.Expr) or not isinstance(node.value, ast.Call):
         return False
 
@@ -154,7 +230,15 @@ def is_header_setup_call(node: ast.stmt) -> bool:
 
 
 def get_factory_line_ranges(tree: ast.AST) -> List[Tuple[int, int]]:
-    """Identifies the start and end lines of all classes containing 'Factory'."""
+    """
+    Identifies the start and end lines of all classes containing 'Factory'.
+
+    Args:
+        tree: The AST node to extract imports from.
+
+    Returns:
+        A list of tuples, where each tuple contains the start and end line numbers of a Factory class.
+    """
     ranges = []
     for node in ast.walk(tree):
         if isinstance(node, ast.ClassDef) and "Factory" in node.name:
@@ -169,7 +253,15 @@ def get_factory_line_ranges(tree: ast.AST) -> List[Tuple[int, int]]:
 
 
 def extract_all_imports(node: ast.AST) -> Set[ast.AST]:
-    """Recursively extract all import nodes from within a given AST node."""
+    """
+    Recursively extract all import nodes from within a given AST node.
+
+    Args:
+        node: The AST node to extract imports from.
+
+    Returns:
+        A set of import nodes.
+    """
     imports = set()
     for child in ast.walk(node):
         if isinstance(child, (ast.Import, ast.ImportFrom)):
@@ -178,7 +270,16 @@ def extract_all_imports(node: ast.AST) -> Set[ast.AST]:
 
 
 def analyze_file(filepath: Path, ignore_factories: bool = False) -> List[Tuple[int, str]]:
-    """Parses a Python file and returns a list of nested imports."""
+    """
+    Parses a Python file and returns a list of nested imports.
+
+    Args:
+        filepath: The path to the Python file to analyze.
+        ignore_factories: Whether to ignore nested imports inside Factory classes.
+
+    Returns:
+        A list of tuples, where each tuple contains the line number and name of a nested import.
+    """
     nested_imports = []
     try:
         with open(filepath, "r", encoding="utf-8") as f:
@@ -238,7 +339,16 @@ def analyze_file(filepath: Path, ignore_factories: bool = False) -> List[Tuple[i
 
 
 def print_stats_table(all_results: Dict[str, List[Tuple[int, str]]], target_root: Path) -> None:
-    """Print a Rich table summarising nested import counts per top-level subdirectory."""
+    """
+    Print a Rich table summarising nested import counts per top-level subdirectory.
+
+    Args:
+        all_results: Dictionary mapping file paths to lists of nested imports.
+        target_root: The root directory to scan.
+
+    Returns:
+        None
+    """
     if not RICH_AVAILABLE:
         print("Rich not available, skipping stats table")
         return
@@ -265,6 +375,7 @@ def print_stats_table(all_results: Dict[str, List[Tuple[int, str]]], target_root
 
 
 def main() -> None:
+    """Main entry point for the script."""
     parser = argparse.ArgumentParser(description="Find nested/delayed imports in Python files.")
     parser.add_argument("directory", type=str, help="The target directory to scan")
     parser.add_argument("-e", "--exclude", nargs="+", default=[], help="Directories to exclude")

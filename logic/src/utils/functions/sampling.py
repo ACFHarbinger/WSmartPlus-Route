@@ -1,5 +1,20 @@
 """
 Sampling utilities for policy execution.
+
+Attributes:
+    sample_many: Samples many solutions by repeated execution.
+
+Example:
+    >>> from logic.src.utils.functions import sample_many
+    >>> def inner_func(input):
+    ...     # Return policy and log probabilities
+    ...     return log_p, pi
+    >>> def get_cost_func(input, pi):
+    ...     # Return costs and mask
+    ...     return cost, mask
+    >>> minpis, mincosts = sample_many(inner_func, get_cost_func, input)
+    >>> print(minpis.shape, mincosts.shape)
+    torch.Size([10, 20]) torch.Size([10])
 """
 
 from __future__ import annotations

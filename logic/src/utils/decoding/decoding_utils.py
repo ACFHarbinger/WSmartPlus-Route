@@ -1,5 +1,27 @@
 """
 Shared utilities for decoding.
+
+Attributes:
+    top_k_filter: Filter logits to keep only top-k values.
+    top_p_filter: Filter logits using nucleus (top-p) sampling.
+    batchify: Repeat TensorDict for multistart.
+    unbatchify: Unbatch a TensorDict/Tensor by extracting the original batch.
+    gather_by_index: Gather elements from src using indices.
+    get_log_likelihood: Get log likelihood of selected actions.
+    modify_logits_for_top_k_filtering: Alias for top_k_filter for rl4co compatibility.
+    modify_logits_for_top_p_filtering: Alias for top_p_filter for rl4co compatibility.
+
+Example:
+    >>> from logic.src.utils.decoding.decoding_utils import (
+    ...     top_k_filter,
+    ...     top_p_filter,
+    ...     batchify,
+    ...     unbatchify,
+    ...     gather_by_index,
+    ...     get_log_likelihood,
+    ...     modify_logits_for_top_k_filtering,
+    ...     modify_logits_for_top_p_filtering,
+    ... )
 """
 
 from __future__ import annotations
@@ -264,17 +286,37 @@ def backtrack(parents: list[torch.Tensor], actions: list[torch.Tensor]) -> torch
 class CachedLookup:
     """
     Helper class for cached data access in beam search.
+
+    Attributes:
+        orig: Original data.
+        data: Cached data.
+        key: Cached key.
+        current: Current data.
     """
 
     def __init__(self, data=None, **kwargs):
-        """Initializes the lookup cache."""
+        """
+        Initializes the lookup cache.
+
+        Args:
+            data: Data to cache.
+            kwargs: Keyword arguments.
+        """
         self.orig = kwargs
         self.data = data
         self.key = None
         self.current = None
 
     def __getitem__(self, key):
-        """Retrieves data with caching."""
+        """
+        Retrieves data with caching.
+
+        Args:
+            key: Key to retrieve.
+
+        Returns:
+            Data.
+        """
         if torch.is_tensor(key):
             if self.key is None or key.shape != self.key.shape or not torch.equal(key, self.key):
                 self.key = key

@@ -6,7 +6,12 @@ This script automatically detects missing docstrings in Python files and
 injects Google-Style docstrings. It supports type hint extraction and
 handles complex multi-line function signatures.
 
-Usage:
+Attributes:
+    TEMPLATES: Mapping from node types to Google-Style docstring templates.
+    DocstringInjector: Class for injecting docstrings into Python files.
+    main: Main entry point.
+
+Example:
     python add_docstrings_batch.py <file_or_directory> ...
 """
 
@@ -82,14 +87,29 @@ class DocstringInjector:
         self.modifications: List[Any] = []
 
     def _get_indent(self, lineno: int) -> str:
-        """Returns the indentation string of a specific line."""
+        """Returns the indentation string of a specific line.
+
+        Args:
+            lineno (int): Line number.
+
+        Returns:
+            str: Indentation string.
+        """
         if lineno > len(self.lines):
             return ""
         line = self.lines[lineno - 1]
         return line[: len(line) - len(line.lstrip())]
 
     def _format_args(self, args: List[ast.arg], base_indent: str) -> str:
-        """Formats the Args section with type hints."""
+        """Formats the Args section with type hints.
+
+        Args:
+            args (List[ast.arg]): List of arguments.
+            base_indent (str): Base indentation string.
+
+        Returns:
+            str: Formatted Args section.
+        """
         lines = []
         indent = base_indent + "    "  # Standard 4-space indent for args
 
@@ -108,7 +128,15 @@ class DocstringInjector:
         return "\n".join(lines) if lines else f"{indent}None."
 
     def generate_docstring(self, node: Any, context: str = "") -> str:
-        """Generates the appropriate docstring based on node type and content."""
+        """Generates the appropriate docstring based on node type and content.
+
+        Args:
+            node (Any): Node to generate docstring for.
+            context (str, optional): Context of the node. Defaults to "".
+
+        Returns:
+            str: Generated docstring.
+        """
         if isinstance(node, ast.Module):
             filename = os.path.basename(self.filepath)
             return TEMPLATES["module"].format(filename=filename, module_name=filename.replace(".py", ""))
@@ -156,7 +184,14 @@ class DocstringInjector:
         return ""
 
     def _find_insertion_line(self, node: Any) -> int:
-        """Finds the correct line index to insert the docstring."""
+        """Finds the correct line index to insert the docstring.
+
+        Args:
+            node (Any): Node to find insertion line for.
+
+        Returns:
+            int: Line index to insert docstring.
+        """
         # node.lineno is the start of the definition (e.g., 'def foo():')
         # We need to find the end of the signature (the colon).
         # We iterate from node.lineno downwards.
@@ -169,7 +204,11 @@ class DocstringInjector:
         return start + 1
 
     def _queue_docstrings(self, tree):
-        """Internal helper to queue docstrings based on node types."""
+        """Internal helper to queue docstrings based on node types.
+
+        Args:
+            tree (Any): Tree to queue docstrings for.
+        """
         if not ast.get_docstring(tree):
             doc = self.generate_docstring(tree)
             self.modifications.append((0, doc, ""))
@@ -185,7 +224,11 @@ class DocstringInjector:
                 self.modifications.append((idx, doc, indent))
 
     def scan_and_queue(self):
-        """Scans the file and queues missing docstrings for insertion."""
+        """Scans the file and queues missing docstrings for insertion.
+
+        Returns:
+            None
+        """
         try:
             tree = ast.parse("\n".join(self.lines))
         except SyntaxError:
@@ -197,14 +240,22 @@ class DocstringInjector:
         self.modifications.sort(key=lambda x: x[0], reverse=True)
 
     def apply(self):
-        """Applies the queued modifications to the source lines."""
+        """Applies the queued modifications to the source lines.
+
+        Returns:
+            None
+        """
         for idx, doc, indent in self.modifications:
             # Format lines with indentation
             doc_lines = [indent + line if line.strip() else line for line in doc.splitlines()]
             self.lines.insert(idx, "\n".join(doc_lines))
 
     def save(self):
-        """Save."""
+        """Save.
+
+        Returns:
+            None
+        """
         Path(self.filepath).write_text("\n".join(self.lines), encoding="utf-8")
 
 

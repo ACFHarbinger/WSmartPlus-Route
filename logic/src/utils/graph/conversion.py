@@ -1,5 +1,17 @@
 """
 Graph format conversion utilities.
+
+Attributes:
+    adj_to_idx: Converts dimensionality-2 adjacency matrix to a [2, num_edges] index array.
+    idx_to_adj: Converts edge index array back to an adjacency matrix.
+    tour_to_adj: Converts a sequence of nodes (tour) into an adjacency matrix.
+    sort_by_pairs: Sorts edge indices by their linear index (row * size + col).
+
+Example:
+    adj_to_idx(adj_matrix)
+    idx_to_adj(edge_idx)
+    tour_to_adj(tour_nodes)
+    sort_by_pairs(graph_size, edge_idx)
 """
 
 from typing import Union

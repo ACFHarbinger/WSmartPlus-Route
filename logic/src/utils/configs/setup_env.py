@@ -1,5 +1,11 @@
 """
 Environment and cost setup utilities.
+
+Attributes:
+    setup_env: Sets up the solver environment (e.g., Gurobi).
+
+Example:
+    setup_env("swc_tcf")
 """
 
 from __future__ import annotations

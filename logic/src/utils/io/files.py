@@ -1,5 +1,23 @@
 """
 Safe file operation utilities (read, write, zip).
+
+Attributes:
+    read_json: Reads a JSON file safely with an optional lock.
+    zip_directory: Creates a zip archive of a directory.
+    extract_zip: Extracts a zip archive to a directory.
+    confirm_proceed: Asks user for confirmation with timeout and default response.
+    compose_dirpath: Decorator to compose directory paths based on home_dir, ndays, num_bins, etc.
+
+Example:
+    >>> from logic.src.utils.io.files import read_json, zip_directory, extract_zip, confirm_proceed, compose_dirpath
+    >>> json_data = read_json("path/to/file.json")
+    >>> zip_directory("path/to/directory", "path/to/archive.zip")
+    >>> extract_zip("path/to/archive.zip", "path/to/output")
+    >>> proceed = confirm_proceed()
+    >>> @compose_dirpath
+    ... def my_function(dir_path):
+    ...     # Process files in dir_path
+    ...     pass
 """
 
 from __future__ import annotations
@@ -73,10 +91,23 @@ def confirm_proceed(default_no: bool = True, operation_name: str = "update") -> 
     """
     Ask user for confirmation with timeout and default response
     Returns True if user confirms, False if user cancels or timeout
+
+    Args:
+        default_no: Default response if user doesn't provide one (default: True).
+        operation_name: Name of the operation to confirm (default: "update").
+
+    Returns:
+        True if user confirms, False otherwise.
     """
 
     def timeout_handler(signum: int, frame: Any) -> None:
-        """Raises TimeoutError on signal."""
+        """
+        Raises TimeoutError on signal.
+
+        Args:
+            signum: Signal number.
+            frame: Current stack frame.
+        """
         raise TimeoutError()
 
     try:
@@ -135,6 +166,18 @@ def compose_dirpath(fun: T) -> T:
     ) -> Any:
         """
         Inner wrapper function.
+
+        Args:
+            home_dir: Home directory.
+            ndays: Number of days.
+            nbins: Number of bins.
+            output_dir: Output directory.
+            area: Area.
+            *args: Additional arguments.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            Result of the decorated function.
         """
         if not isinstance(nbins, Iterable):
             dir_path: str = os.path.join(home_dir, "assets", output_dir, f"{ndays}_days", f"{area}_{nbins}")

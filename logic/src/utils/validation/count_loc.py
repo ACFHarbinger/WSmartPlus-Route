@@ -1,9 +1,12 @@
 """
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    get_docstring_lines: Get docstring lines.
+    analyze_file: Analyze file.
+    group_by_directory: Aggregate file stats into buckets by the first `depth` directory components.
+    main: Main function to count lines of code.
 
 Example:
-    >>> import count_loc
+    >>> python logic/src/utils/validation/count_loc.py logic/src
 """
 
 import argparse
@@ -80,7 +83,16 @@ def analyze_file(filepath: str) -> Dict[str, int]:
 
 
 def group_by_directory(file_data: List[Dict], depth: int) -> List[Dict]:
-    """Aggregate file stats into buckets by the first `depth` directory components."""
+    """
+    Aggregate file stats into buckets by the first `depth` directory components.
+
+    Args:
+        file_data (List[Dict]): List of file data.
+        depth (int): Number of directory levels to group by.
+
+    Returns:
+        List[Dict]: List of grouped data.
+    """
     groups: Dict[str, Dict[str, int]] = defaultdict(lambda: {"code": 0, "comment": 0, "docstring": 0, "total": 0})
     for d in file_data:
         parts = d["path"].replace("\\", "/").split("/")

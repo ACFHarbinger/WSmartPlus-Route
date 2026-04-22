@@ -1,5 +1,21 @@
 """
 RL-specific utility functions.
+
+Attributes:
+    ensure_tensordict: Converts various input types to TensorDict.
+
+Example:
+    >>> from logic.src.utils.functions import ensure_tensordict
+    >>> import torch
+    >>> from tensordict import TensorDict
+    >>> # From dict
+    >>> td = ensure_tensordict({"a": torch.tensor([1, 2]), "b": torch.tensor([3, 4])})
+    >>> # From TensorDict
+    >>> td = ensure_tensordict(TensorDict({"a": torch.tensor([1, 2])}, batch_size=[2]))
+    >>> # With device
+    >>> td = ensure_tensordict({"a": torch.tensor([1, 2])}, device="cuda")
+    >>> print(td)
+    TensorDict(source={'a': Tensor([1, 2], device='cuda:0')}, batch_size=[2], device=None, [REPR_INFO])
 """
 
 from typing import Any, Dict, Optional, Union

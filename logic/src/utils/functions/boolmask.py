@@ -4,6 +4,26 @@ Boolean Mask Utilities.
 This module provides optimized functions for converting between different
 mask representations (boolean, byte, long) and performing masked scatter operations
 efficiently on GPU.
+
+Attributes:
+    _pad_mask: Pads mask to be divisible by 8 for byte packing.
+    _mask_bool2byte: Converts boolean mask to byte packed format (8 bools -> 1 byte).
+    _mask_byte2long: Converts byte mask to long representation by treating as bits.
+    mask_bool2long: Converts boolean mask directly to long integers representation.
+    _mask_long2byte: Converts long representation back to byte representation.
+    _mask_byte2bool: Converts byte representation back to boolean mask.
+    mask_long2bool: Converts long representation back to boolean mask.
+    mask_long_scatter: Sets values in mask in dimension -1 with arbitrary batch dimensions.
+
+Example:
+    >>> from logic.src.utils.functions import mask_bool2long
+    >>> mask = torch.tensor([[True, False], [False, True]])
+    >>> mask_bool2long(mask)
+    tensor([[1, 0], [0, 1]])
+    >>> from logic.src.utils.functions import mask_long_scatter
+    >>> mask = torch.tensor([[0, 0], [0, 0]])
+    >>> mask_long_scatter(mask, torch.tensor([0, 1]))
+    tensor([[1, 0], [0, 1]])
 """
 
 import torch
@@ -11,7 +31,7 @@ import torch.nn.functional as F
 
 
 # Attention, Learn to Solve Routing Problems
-def _pad_mask(mask):
+def _pad_mask(mask: torch.Tensor) -> tuple[torch.Tensor, int]:
     """
     Pads mask to be divisible by 8 for byte packing.
 
@@ -29,7 +49,7 @@ def _pad_mask(mask):
     return mask, mask.size(-1) // 8
 
 
-def _mask_bool2byte(mask):
+def _mask_bool2byte(mask: torch.Tensor) -> torch.Tensor:
     """
     Converts boolean mask to byte packed format (8 bools -> 1 byte).
 
@@ -45,7 +65,7 @@ def _mask_bool2byte(mask):
     return (mask.view(*mask.size()[:-1], d, 8) << torch.arange(8, out=mask.new())).sum(-1, dtype=torch.uint8)
 
 
-def _mask_byte2long(mask):
+def _mask_byte2long(mask: torch.Tensor) -> torch.Tensor:
     """
     Converts byte mask to long representation by treating as bits.
 
@@ -65,7 +85,7 @@ def _mask_byte2long(mask):
     ).sum(-1)
 
 
-def mask_bool2long(mask):
+def mask_bool2long(mask: torch.Tensor) -> torch.Tensor:
     """
     Converts boolean mask directly to long integers representation.
 
@@ -79,7 +99,7 @@ def mask_bool2long(mask):
     return _mask_byte2long(_mask_bool2byte(mask))
 
 
-def _mask_long2byte(mask, n=None):
+def _mask_long2byte(mask: torch.Tensor, n: int | None = None) -> torch.Tensor:
     """
     Converts long representation back to byte representation.
 
@@ -99,7 +119,7 @@ def _mask_long2byte(mask, n=None):
     )
 
 
-def _mask_byte2bool(mask, n=None):
+def _mask_byte2bool(mask: torch.Tensor, n: int | None = None) -> torch.Tensor:
     """
     Converts byte representation back to boolean mask.
 
@@ -117,7 +137,7 @@ def _mask_byte2bool(mask, n=None):
     ] > 0
 
 
-def mask_long2bool(mask, n=None):
+def mask_long2bool(mask: torch.Tensor, n: int | None = None) -> torch.Tensor:
     """
     Converts long representation back to boolean mask.
 
@@ -132,7 +152,7 @@ def mask_long2bool(mask, n=None):
     return _mask_byte2bool(_mask_long2byte(mask), n=n)
 
 
-def mask_long_scatter(mask, values, check_unset=True):
+def mask_long_scatter(mask: torch.Tensor, values: torch.Tensor, check_unset: bool = True) -> torch.Tensor:
     """
     Sets values in mask in dimension -1 with arbitrary batch dimensions.
     If values contains -1, nothing is set.

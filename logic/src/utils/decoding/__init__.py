@@ -1,5 +1,17 @@
 """
 Decoding package.
+
+Attributes:
+    DECODING_STRATEGY_REGISTRY: Registry of decoding strategies.
+    get_decoding_strategy: Get decoding strategy by name.
+
+
+Example:
+    >>> from logic.src.utils.decoding import get_decoding_strategy
+    >>> strategy = get_decoding_strategy("greedy")
+    >>> strategy = get_decoding_strategy("sampling", temperature=0.7)
+    >>> strategy = get_decoding_strategy("beam_search", beam_size=5)
+    >>> strategy = get_decoding_strategy("evaluate", actions=torch.tensor([[0, 1], [2, 3]]))
 """
 
 from .base import DecodingStrategy
@@ -49,4 +61,6 @@ __all__ = [
     "segment_topk_idx",
     "CachedLookup",
     "DECODING_STRATEGY_REGISTRY",
+    "_beam_search",
+    "get_beam_search_results",
 ]

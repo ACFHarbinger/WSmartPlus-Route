@@ -5,6 +5,28 @@ method.
 
 Works entirely on AST — no imports are executed. Reports every concrete class
 that is missing one or more interface methods, grouped by interface.
+
+Attributes:
+    SKIP_DIRS: Set[str] = {".git", "__pycache__", "venv", ".venv", "node_modules", "dist", "build"}
+    RED: str = "\033[91m"
+    YELLOW: str = "\033[93m"
+    GREEN: str = "\033[92m"
+    CYAN: str = "\033[96m"
+    BOLD: str = "\033[1m"
+    DIM: str = "\033[2m"
+    RESET: str = "\033[0m"
+    collect_python_files: Collect all Python files in a directory and its subdirectories.
+    base_name: Get the name of a base class from an AST expression.
+    has_decorator: Check if a function has a specific decorator.
+    parse_file: Return a list of class descriptors from filepath.
+    build_registry: Map class name → list of class descriptors.
+    get_required_abstract_methods: Recursively collect abstract methods required by a class and all its bases.
+    get_implemented_methods: Recursively collect all non-abstract methods in a class and its ancestors.
+    check_compliance: Return a list of violation descriptors for concrete classes with missing methods.
+    main: Main function to check for interface compliance.
+
+Example:
+    >>> python check_interface_compliance.py --root src --exclude tests
 """
 
 import argparse
@@ -26,6 +48,16 @@ RESET = "\033[0m"
 
 
 def collect_python_files(root: Path, exclude: Set[str]) -> List[Path]:
+    """
+    Collect all Python files in a directory and its subdirectories.
+
+    Args:
+        root: Root directory to scan.
+        exclude: Set of directory names to exclude.
+
+    Returns:
+        List of file paths.
+    """
     files: List[Path] = []
     for dirpath, dirs, filenames in os.walk(root):
         dirs[:] = [d for d in dirs if d not in SKIP_DIRS and d not in exclude]
@@ -36,6 +68,15 @@ def collect_python_files(root: Path, exclude: Set[str]) -> List[Path]:
 
 
 def base_name(base_node: ast.expr) -> str:
+    """
+    Get the name of a base class from an AST expression.
+
+    Args:
+        base_node: AST expression representing the base class.
+
+    Returns:
+        Name of the base class.
+    """
     if isinstance(base_node, ast.Name):
         return base_node.id
     if isinstance(base_node, ast.Attribute):
@@ -44,6 +85,16 @@ def base_name(base_node: ast.expr) -> str:
 
 
 def has_decorator(func_node: ast.FunctionDef, name: str) -> bool:
+    """
+    Check if a function has a specific decorator.
+
+    Args:
+        func_node: AST function node.
+        name: Name of the decorator to check for.
+
+    Returns:
+        True if the function has the decorator, False otherwise.
+    """
     for dec in func_node.decorator_list:
         if isinstance(dec, ast.Name) and dec.id == name:
             return True
@@ -56,6 +107,12 @@ def parse_file(filepath: Path) -> List[Dict]:
     """
     Return a list of class descriptors from filepath:
     {name, bases, abstract_methods, all_methods, is_interface, lineno, filepath}
+
+    Args:
+        filepath: Path to the file to parse.
+
+    Returns:
+        List of class descriptors.
     """
     try:
         source = filepath.read_text(encoding="utf-8")
@@ -97,7 +154,15 @@ def parse_file(filepath: Path) -> List[Dict]:
 
 
 def build_registry(files: List[Path]) -> Dict[str, List[Dict]]:
-    """Map class name → list of class descriptors (multiple files may define same name)."""
+    """
+    Map class name → list of class descriptors (multiple files may define same name).
+
+    Args:
+        files: List of file paths to scan.
+
+    Returns:
+        Dictionary mapping class name to list of class descriptors.
+    """
     registry: Dict[str, List[Dict]] = {}
     for fpath in files:
         for cls in parse_file(fpath):
@@ -110,7 +175,17 @@ def get_required_abstract_methods(
     registry: Dict[str, List[Dict]],
     _seen: Optional[Set[str]] = None,
 ) -> Set[str]:
-    """Recursively collect abstract methods required by a class and all its bases."""
+    """
+    Recursively collect abstract methods required by a class and all its bases.
+
+    Args:
+        class_name: Name of the class to check.
+        registry: Dictionary mapping class name to list of class descriptors.
+        _seen: Set of class names already seen (for recursion prevention).
+
+    Returns:
+        Set of required abstract methods.
+    """
     if _seen is None:
         _seen = set()
     if class_name in _seen:
@@ -131,7 +206,17 @@ def get_implemented_methods(
     registry: Dict[str, List[Dict]],
     _seen: Optional[Set[str]] = None,
 ) -> Set[str]:
-    """Recursively collect all non-abstract methods in a class and its ancestors."""
+    """
+    Recursively collect all non-abstract methods in a class and its ancestors.
+
+    Args:
+        class_name: Name of the class to check.
+        registry: Dictionary mapping class name to list of class descriptors.
+        _seen: Set of class names already seen (for recursion prevention).
+
+    Returns:
+        Set of implemented methods.
+    """
     if _seen is None:
         _seen = set()
     if class_name in _seen:
@@ -148,7 +233,15 @@ def get_implemented_methods(
 
 
 def check_compliance(registry: Dict[str, List[Dict]]) -> List[Dict]:
-    """Return a list of violation descriptors for concrete classes with missing methods."""
+    """
+    Return a list of violation descriptors for concrete classes with missing methods.
+
+    Args:
+        registry: Dictionary mapping class name to list of class descriptors.
+
+    Returns:
+        List of violation descriptors.
+    """
     violations: List[Dict] = []
 
     for class_name, entries in registry.items():
@@ -183,6 +276,7 @@ def check_compliance(registry: Dict[str, List[Dict]]) -> List[Dict]:
 
 
 def main() -> None:
+    """Main function to check interface compliance."""
     parser = argparse.ArgumentParser(
         description="Check that concrete classes implement all abstract interface methods."
     )

@@ -2,6 +2,26 @@
 Detect circular import chains in a Python codebase using static AST analysis.
 Applies an iterative Tarjan's SCC algorithm on the module-level import graph
 and reports all cycles. Optionally generates an interactive HTML visualization.
+
+Attributes:
+    SKIP_DIRS: Set of directory names to exclude.
+    RED: ANSI escape code for red text.
+    YELLOW: ANSI escape code for yellow text.
+    GREEN: ANSI escape code for green text.
+    CYAN: ANSI escape code for cyan text.
+    BOLD: ANSI escape code for bold text.
+    DIM: ANSI escape code for dim text.
+    RESET: ANSI escape code for resetting text color.
+    file_to_module: Convert a file path to a module name.
+    collect_module_map: Collect a map of module names to file paths.
+    resolve_to_module: Resolve an import string to a module name.
+    build_graph: Build an import graph from the Python files in the given directory.
+    tarjan_sccs: Iterative Tarjan's SCC algorithm.
+    generate_html: Generate an interactive HTML visualization of the import graph.
+    ImportVisitor: Visitor class to collect import dependencies from AST.
+
+Example:
+    >>> python logic/src/utils/validation/check_circular_imports.py logic/src --exclude logic/src/utils/validation
 """
 
 import argparse
@@ -29,6 +49,16 @@ except ImportError:
 
 
 def file_to_module(filepath: Path, root: Path) -> str:
+    """
+    Convert a file path to a module name.
+
+    Args:
+        filepath: The file path.
+        root: The root directory.
+
+    Returns:
+        The module name.
+    """
     rel = filepath.relative_to(root)
     parts = list(rel.parts)
     if parts[-1] == "__init__.py":
@@ -39,6 +69,16 @@ def file_to_module(filepath: Path, root: Path) -> str:
 
 
 def collect_module_map(root: Path, exclude: Set[str]) -> Dict[str, Path]:
+    """
+    Collect a map of module names to file paths.
+
+    Args:
+        root: Root directory to scan.
+        exclude: Set of directory names to exclude.
+
+    Returns:
+        Dictionary mapping module names to file paths.
+    """
     module_map: Dict[str, Path] = {}
     for dirpath, dirs, files in os.walk(root):
         dirs[:] = [d for d in dirs if d not in SKIP_DIRS and d not in exclude]
@@ -50,6 +90,18 @@ def collect_module_map(root: Path, exclude: Set[str]) -> Dict[str, Path]:
 
 
 def resolve_to_module(raw: str, level: int, current: str, known: Set[str]) -> Optional[str]:
+    """
+    Resolve an import string to a module name.
+
+    Args:
+        raw: The import string.
+        level: The import level.
+        current: The current module name.
+        known: Set of known module names.
+
+    Returns:
+        The resolved module name.
+    """
     if level > 0:
         parts = current.split(".")
         base = parts[: max(0, len(parts) - level)]
@@ -66,23 +118,57 @@ def resolve_to_module(raw: str, level: int, current: str, known: Set[str]) -> Op
 
 
 class ImportVisitor(ast.NodeVisitor):
+    """
+    Visitor class to collect import dependencies from AST.
+
+    Attributes:
+        module: The module name to visit.
+        known: Set of known module names.
+        deps: Set of import dependencies.
+    """
+
     def __init__(self, module: str, known: Set[str]):
+        """
+        Initialize the import visitor.
+
+        Args:
+            module: The module name to visit.
+            known: Set of known module names.
+        """
         self.module = module
         self.known = known
         self.deps: Set[str] = set()
 
     def visit_Import(self, node: ast.Import):
+        """
+        Visit an import statement.
+
+        Args:
+            node: AST node representing an import statement.
+        """
         for alias in node.names:
             dep = resolve_to_module(alias.name, 0, self.module, self.known)
             if dep and dep != self.module:
                 self.deps.add(dep)
 
     def visit_ImportFrom(self, node: ast.ImportFrom):
+        """
+        Visit an import from statement.
+
+        Args:
+            node: AST node representing an import from statement.
+        """
         dep = resolve_to_module(node.module or "", node.level or 0, self.module, self.known)
         if dep and dep != self.module:
             self.deps.add(dep)
 
     def visit_If(self, node: ast.If):
+        """
+        Visit an if statement.
+
+        Args:
+            node: AST node representing an if statement.
+        """
         # Skip if TYPE_CHECKING:
         test = node.test
         is_type_checking = False
@@ -100,19 +186,40 @@ class ImportVisitor(ast.NodeVisitor):
         self.generic_visit(node)
 
     def visit_FunctionDef(self, node: ast.FunctionDef):
+        """
+        Visit a function definition.
+
+        Args:
+            node: AST node representing a function definition.
+        """
         # Skip lazy imports inside functions
         return
 
     def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef):
+        """
+        Visit an async function definition.
+
+        Args:
+            node: AST node representing an async function definition.
+        """
         # Skip lazy imports inside async functions
         return
 
 
 def build_graph(root: Path, exclude: Set[str]) -> Dict[str, Set[str]]:
+    """
+    Build an import graph from the Python files in the given directory.
+
+    Args:
+        root: Root directory to scan.
+        exclude: Set of directory names to exclude.
+
+    Returns:
+        Dictionary representing the import graph.
+    """
     module_map = collect_module_map(root, exclude)
     known = set(module_map.keys())
     graph: Dict[str, Set[str]] = {m: set() for m in known}
-
     for module, fpath in module_map.items():
         try:
             tree = ast.parse(fpath.read_text(encoding="utf-8"), filename=str(fpath))
@@ -127,7 +234,15 @@ def build_graph(root: Path, exclude: Set[str]) -> Dict[str, Set[str]]:
 
 
 def tarjan_sccs(graph: Dict[str, Set[str]]) -> List[List[str]]:
-    """Iterative Tarjan's SCC. Returns only SCCs with more than 1 node (true cycles)."""
+    """
+    Iterative Tarjan's SCC. Returns only SCCs with more than 1 node (true cycles).
+
+    Args:
+        graph: Dictionary representing the import graph.
+
+    Returns:
+        List of SCCs, where each SCC is a list of module names.
+    """
     idx: Dict[str, int] = {}
     low: Dict[str, int] = {}
     on_stk: Set[str] = set()
@@ -183,6 +298,14 @@ def tarjan_sccs(graph: Dict[str, Set[str]]) -> List[List[str]]:
 
 
 def generate_html(cycles: List[List[str]], graph: Dict[str, Set[str]], output: Path) -> None:
+    """
+    Generate an HTML visualization of the import graph with cycles highlighted.
+
+    Args:
+        cycles: List of cycles, where each cycle is a list of module names.
+        graph: Dictionary representing the import graph.
+        output: Path to the output HTML file.
+    """
     cycle_nodes = {m for cycle in cycles for m in cycle}
     net = Network(height="800px", width="100%", directed=True, notebook=False)
     net.set_options(
@@ -206,6 +329,7 @@ def generate_html(cycles: List[List[str]], graph: Dict[str, Set[str]], output: P
 
 
 def main() -> None:
+    """Main function to check for circular imports."""
     parser = argparse.ArgumentParser(description="Detect circular imports in a Python codebase.")
     parser.add_argument("directory", help="Root directory to scan")
     parser.add_argument("--exclude", nargs="+", default=[], help="Directory names to skip")
