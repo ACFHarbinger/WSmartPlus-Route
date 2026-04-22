@@ -50,6 +50,9 @@ CONFIG_MAPPING = {
     "dispatcher_portfolio": "thompson_dispatcher",
     "lagrangian": "lagrangian",
     "filter_and_fan": "filter_and_fan",
+    "bernoulli_random": "bernoulli_random",
+    "kmeans_sector": "kmeans_sector",
+    "staggered_regular": "staggered_regular",
 }
 
 
@@ -66,6 +69,7 @@ class MandatorySelectionFactory:
             **kwargs: Arguments to pass to the strategy constructor.
         """
         # Lazy imports to avoid circular dependencies and keep strategies separated
+        from logic.src.policies.mandatory_selection.selection_bernoulli_random import BernoulliRandomSelection
         from logic.src.policies.mandatory_selection.selection_combined import CombinedSelection
         from logic.src.policies.mandatory_selection.selection_cvar import CVaRSelection
         from logic.src.policies.mandatory_selection.selection_deadline import DeadlineDrivenSelection
@@ -73,6 +77,7 @@ class MandatorySelectionFactory:
         from logic.src.policies.mandatory_selection.selection_dispatcher_thompson import ThompsonDispatcher
         from logic.src.policies.mandatory_selection.selection_filter_and_fan import FilterAndFanSelection
         from logic.src.policies.mandatory_selection.selection_fractional_knapsack import FractionalKnapsackSelection
+        from logic.src.policies.mandatory_selection.selection_kmeans_sector import KMeansGeographicSectorSelection
         from logic.src.policies.mandatory_selection.selection_lagrangian import LagrangianSelection
         from logic.src.policies.mandatory_selection.selection_last_minute import LastMinuteSelection
         from logic.src.policies.mandatory_selection.selection_learned import LearnedSelection
@@ -88,6 +93,7 @@ class MandatorySelectionFactory:
         from logic.src.policies.mandatory_selection.selection_service_level import ServiceLevelSelection
         from logic.src.policies.mandatory_selection.selection_set_cover import SetCoverSelection
         from logic.src.policies.mandatory_selection.selection_spatial_synergy import SpatialSynergySelection
+        from logic.src.policies.mandatory_selection.selection_staggered_regular import StaggeredRegularSelection
         from logic.src.policies.mandatory_selection.selection_stochastic_regret import StochasticRegretSelection
         from logic.src.policies.mandatory_selection.selection_submodular_greedy import SubmodularGreedySelection
         from logic.src.policies.mandatory_selection.selection_supermodular_greedy import SupermodularGreedySelection
@@ -124,6 +130,9 @@ class MandatorySelectionFactory:
             "dispatcher_thompson": ThompsonDispatcher,
             "dispatcher_portfolio": PortfolioDispatcher,
             "filter_and_fan": FilterAndFanSelection,
+            "bernoulli_random": BernoulliRandomSelection,
+            "kmeans_sector": KMeansGeographicSectorSelection,
+            "staggered_regular": StaggeredRegularSelection,
         }
 
         # Check explicit registry first
@@ -180,6 +189,12 @@ class MandatorySelectionFactory:
                     sub_params["threshold"] = sub_params.pop("confidence_factor")
                 elif strategy_name == "learned" and "learned_threshold" in sub_params:
                     sub_params["threshold"] = sub_params.pop("learned_threshold")
+                elif strategy_name == "bernoulli_random" and "p" in sub_params:
+                    sub_params["threshold"] = sub_params.pop("p")
+                elif strategy_name == "kmeans_sector" and "n_sectors" in sub_params:
+                    sub_params["threshold"] = sub_params.pop("n_sectors")
+                elif strategy_name == "staggered_regular" and "period" in sub_params:
+                    sub_params["threshold"] = sub_params.pop("period")
 
                 params.update(sub_params)
             elif isinstance(sub_config, dict):

@@ -190,7 +190,7 @@ class ALNSSolver:
             )
 
             self.acceptance_criterion = AcceptanceCriterionFactory.create(
-                name="boltzmann",
+                name="bmc",
                 initial_temp=params.start_temp or 100.0,  # Unified fallback
                 alpha=params.cooling_rate,
                 seed=params.seed,
