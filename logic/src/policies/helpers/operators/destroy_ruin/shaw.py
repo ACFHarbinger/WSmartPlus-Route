@@ -100,16 +100,13 @@ def shaw_removal(  # noqa: C901
     # Pick random seed
     seed: int = rng.choice(all_nodes)
     removed: List[int] = [seed]
+    removed_set: Set[int] = {seed}
 
-    # Normalize factors using only active route nodes (Ropke & Pisinger 2005)
-    # This prevents geographic outliers from compressing all distance scores to near-zero
-    # Calculate max distance only among nodes currently in routes
-    active_distances = []
-    for i in all_nodes:
-        for j in all_nodes:
-            if i != j:
-                active_distances.append(dist_matrix[i, j])
-    max_dist: float = float(max(active_distances)) if active_distances else 1.0
+    # Global max distance for normalization (Ropke & Pisinger 2006, §3.1.1):
+    # d_ij are scaled so that 0 ≤ R(i,j) ≤ 2(φ+χ)+ψ+ω. Using the global
+    # problem max (not just active-node max) gives a stable denominator across
+    # all iterations and matches the paper's intent.
+    max_dist: float = float(dist_matrix.max()) if dist_matrix.size > 0 else 1.0
 
     max_waste: float = float(max(waste.values())) if waste else 1.0
     max_tw: float = 1.0
@@ -128,7 +125,7 @@ def shaw_removal(  # noqa: C901
 
         relatedness_scores: List[Tuple[int, float]] = []
         for node in all_nodes:
-            if node in removed or node not in node_map:
+            if node in removed_set:
                 continue
 
             dist_rel = float(dist_matrix[node, pivot]) / max_dist if max_dist > 0 else 0.0
@@ -162,9 +159,9 @@ def shaw_removal(  # noqa: C901
         partitioned = np.partition(arr, k, order=["score", "node"])
         selected_node = int(partitioned[k]["node"])
         removed.append(selected_node)
+        removed_set.add(selected_node)
 
     # Execution removals: efficient route modification using list filtering
-    removed_set: Set[int] = set(removed)
     final_removed = []
     modified_routes = []
     for r in routes:
@@ -255,15 +252,10 @@ def shaw_profit_removal(  # noqa: C901
     # 2. Pick random seed
     seed: int = rng.choice(all_nodes)
     removed: List[int] = [seed]
+    removed_set: Set[int] = {seed}
 
-    # 3. Normalization factors using only active route nodes
-    # Calculate max distance only among nodes currently in routes
-    active_distances = []
-    for i in all_nodes:
-        for j in all_nodes:
-            if i != j:
-                active_distances.append(dist_matrix[i, j])
-    max_dist = float(max(active_distances)) if active_distances else 1.0
+    # 3. Global max distance for normalization (Ropke & Pisinger 2006, §3.1.1)
+    max_dist = float(dist_matrix.max()) if dist_matrix.size > 0 else 1.0
 
     profit_vals = list(node_profits.values())
     profit_range = float(max(profit_vals) - min(profit_vals)) if len(profit_vals) > 1 else 1.0
@@ -276,7 +268,7 @@ def shaw_profit_removal(  # noqa: C901
 
         relatedness_scores: List[Tuple[int, float]] = []
         for node in all_nodes:
-            if node in removed or node not in node_map:
+            if node in removed_set:
                 continue
 
             dist_rel = float(dist_matrix[node, pivot]) / max_dist if max_dist > 0 else 0.0
@@ -300,9 +292,9 @@ def shaw_profit_removal(  # noqa: C901
         partitioned = np.partition(arr, k, order=["score", "node"])
         selected_node = int(partitioned[k]["node"])
         removed.append(selected_node)
+        removed_set.add(selected_node)
 
     # 4. Efficient route modification
-    removed_set: Set[int] = set(removed)
     final_removed = []
     modified_routes = []
     for r in routes:
