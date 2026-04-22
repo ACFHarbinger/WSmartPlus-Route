@@ -33,7 +33,7 @@ def _flatten_raw_config(source: Any) -> Dict[str, Any]:
             result.update(_flatten_raw_config(item))
     elif hasattr(source, "items"):
         for k, v in source.items():
-            if k in ("gurobi", "ortools", "hexaly", "custom", "params") and isinstance(v, (dict, list)):
+            if k in ("gurobi", "ortools", "custom", "params") and isinstance(v, (dict, list)):
                 result.update(_flatten_raw_config(v))
             else:
                 result[k] = v

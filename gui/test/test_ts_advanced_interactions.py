@@ -50,9 +50,6 @@ class TestSimAdvancedInteractions:
             adv_tab.server_run_check.setChecked(True)
             adv_tab.no_progress_check.setChecked(False)
 
-            # Keys (Need to toggle visible? Code doesn't check visibility for params, just text existence)
-            adv_tab.hexlic_file_input.setText("/path/to/hexaly.lic")
-
             params = adv_tab.get_params()
 
             assert params["cpu_cores"] == 4
@@ -60,4 +57,3 @@ class TestSimAdvancedInteractions:
             assert params["edge_threshold"] == 0.75
             assert params["server_run"] is True
             assert params["no_progress_bar"] is False
-            assert params["hexlic_file"] == "/path/to/hexaly.lic"

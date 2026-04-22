@@ -32,7 +32,6 @@ class SimConfig:
         server_run: Simulation will be executed in a remote server.
         env_file: Name of the file that contains the environment variables.
         gplic_file: Name of the file that contains the license to use for Gurobi.
-        hexlic_file: Name of the file that contains the license to use for Hexaly.
         symkey_name: Name of the cryptographic key used to access the API keys.
         gapik_file: Name of the file that contains the key to use for the Google API.
         stats_filepath: Path to the file to read the statistics from.
@@ -64,7 +63,6 @@ class SimConfig:
     server_run: bool = False
     env_file: str = "vars.env"
     gplic_file: Optional[str] = None
-    hexlic_file: Optional[str] = None
     symkey_name: Optional[str] = None
     gapik_file: Optional[str] = None
     stats_filepath: Optional[str] = None

@@ -18,7 +18,6 @@ SIMULATOR_TEST_POLICIES = {
     "TransformerGCN Model": "transgcn",
     "Deep Decoder Attention Model": "ddam",
     "Gurobi SWC-TCF Solver": "gurobi_swc_tcf",
-    "Hexaly SWC-TCF Solver": "hexaly_swc_tcf",
     "Look-Ahead Policy": "policy_look_ahead",
     "Look-Ahead SWC-TCF Policy": "policy_look_ahead_swc_tcf",
     "Look-Ahead SANS Policy": "policy_look_ahead_sans",

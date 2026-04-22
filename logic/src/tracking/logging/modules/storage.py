@@ -69,7 +69,7 @@ def _sort_log(log: Dict[str, Any]) -> Dict[str, Any]:
     """
     log = {key: value for key, value in sorted(log.items())}
     tmp_log: Dict[str, Any] = {}
-    keywords = ["policy_last_minute", "policy_regular", "policy_look_ahead", "gurobi", "hexaly"]
+    keywords = ["policy_last_minute", "policy_regular", "policy_look_ahead", "gurobi"]
     for kw in keywords:
         for key in log:
             if kw in key:
@@ -109,8 +109,7 @@ def log_to_json(
     try:
         if os.path.isfile(json_path):
             try:
-                old_raw = read_json(json_path, lock=None)
-                old = cast(Union[Dict[str, Any], List[Any]], old_raw)
+                old = read_json(json_path, lock=None)
             except (json.JSONDecodeError, ValueError):
                 logger.error(f"Failed to decode {json_path}. Starting fresh.")
                 old = [] if sample_id is not None else {}
@@ -172,8 +171,7 @@ def log_to_json2(
     try:
         if os.path.isfile(json_path):
             try:
-                old_raw = read_json(json_path, lock=None)
-                old = cast(Union[Dict[str, Any], List[Any]], old_raw)
+                old = read_json(json_path, lock=None)
             except (json.JSONDecodeError, ValueError):
                 logger.error(f"Failed to decode {json_path} in log_to_json2.")
                 old = [] if sample_id is not None else {}

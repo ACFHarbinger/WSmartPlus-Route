@@ -208,7 +208,7 @@ def preview_pattern_files_statistics(
                 grouped_values: Dict[str, List[Any]] = {}
                 if key_values_found:
                     for location, value in key_values_found:
-                        # Extract field name from location (e.g., '[0].hexaly_vrpp0.84_gamma1' -> 'hexaly_vrpp0.84_gamma1')
+                        # Extract field name from location (e.g., '[0].gurobi_vrpp0.84_gamma1' -> 'gurobi_vrpp0.84_gamma1')
                         field_name = location.split(".", 1)[-1] if "." in location else location
 
                         if field_name not in grouped_values:
@@ -267,7 +267,7 @@ def preview_file_statistics(
             # Group values by field name (the part after the last dot)
             for location, value in key_values_found:
                 field_val: object = value
-                # Extract field name from location (e.g., '[0].hexaly_vrpp0.84_gamma1' -> 'hexaly_vrpp0.84_gamma1')
+                # Extract field name from location (e.g., '[0].gurobi_vrpp0.84_gamma1' -> 'gurobi_vrpp0.84_gamma1')
                 field_name = location.split(".", 1)[-1] if "." in location else location
 
                 if field_name not in grouped_values:

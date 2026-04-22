@@ -44,7 +44,6 @@ def _make_integration_cfg(**overrides):
         server_run=False,
         env_file="dummy_env",
         gplic_file=None,
-        hexlic_file=None,
         symkey_name="dummy_symkey",
         gapik_file="dummy_gapik",
         stats_filepath=None,

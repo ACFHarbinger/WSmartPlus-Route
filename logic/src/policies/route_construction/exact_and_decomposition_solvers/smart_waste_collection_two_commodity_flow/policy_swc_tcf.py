@@ -30,8 +30,7 @@ class SWCTCFPolicy(BaseRoutingPolicy):
 
     This policy implements a mathematical programming approach based on the
     Two-Commodity Flow formulation for the Vehicle Routing Problem. It allows
-    for the use of either Gurobi (exact) or Hexaly (local search) as the
-    underlying optimization engine.
+    for the use of Gurobi (exact) as the underlying optimization engine.
 
     Technical Context:
     - Formulation: Uses a flow-based MILP model to ensure subtour elimination

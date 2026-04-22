@@ -34,7 +34,7 @@ def setup_env(
     Returns:
         The Gurobi environment, or None if not applicable.
     """
-    if "vrpp" in policy and "hexaly" not in policy:
+    if "swc_tcf" in policy:
         params: Dict[str, Any] = {}
         if server:
 

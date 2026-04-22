@@ -6,10 +6,10 @@ from logic.src.policies.route_construction.exact_and_decomposition_solvers.smart
 
 
 class TestSWCTCFOptimizerContract:
-    """Contract tests for run_swc_tcf_optimizer (Gurobi/Hexaly)."""
+    """Contract tests for run_swc_tcf_optimizer (Gurobi)."""
 
     @pytest.mark.integration
-    @pytest.mark.parametrize("backend", ["gurobi", "hexaly"])
+    @pytest.mark.parametrize("backend", ["gurobi"])
     def test_swc_tcf_optimizer_basic_contract(self, base_vrpp_data, backend, check_license):
         data = base_vrpp_data
         routes, profit, cost = run_swc_tcf_optimizer(
@@ -38,7 +38,7 @@ class TestSWCTCFOptimizerContract:
             assert ms_id in routes, f"Mandatory bin {ms_id} was not collected by {backend}"
 
     @pytest.mark.integration
-    @pytest.mark.parametrize("backend", ["gurobi", "hexaly"])
+    @pytest.mark.parametrize("backend", ["gurobi"])
     def test_swc_tcf_optimizer_empty_bins(self, base_vrpp_data, backend, check_license):
         """Case where no bins should be collected."""
         data = base_vrpp_data

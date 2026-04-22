@@ -26,7 +26,7 @@ def solve_pyvrp(dist_matrix, wastes, capacity, R, C, values):
         g = compact_to_global[i]
         d = int(wastes.get(g, 0))
         # Use delivery for waste as in cvrp.py
-        clients_list.append(pyvrp.Client(x=0, y=0, delivery=d))
+        clients_list.append(pyvrp.Client(x=0, y=0, delivery=[d]))
 
     depots_list = [pyvrp.Depot(x=0, y=0)]
 
@@ -35,7 +35,7 @@ def solve_pyvrp(dist_matrix, wastes, capacity, R, C, values):
     if max_v == 0:
         max_v = n_active
 
-    vehicle_types_list = [pyvrp.VehicleType(capacity=int(capacity), num_available=max_v)]
+    vehicle_types_list = [pyvrp.VehicleType(capacity=[int(capacity)], num_available=max_v)]
 
     # 3. Create ProblemData
     # PyVRP expects distance_matrices as a list of numpy arrays
