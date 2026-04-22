@@ -56,16 +56,18 @@ def test_ts_policy_execution(mocker):
             self.c = c
     bins = MockBins([30.0, 40.0, 50.0])
 
-    tour, cost, stats = policy.execute(
+    tour, cost, profit, stats, _ = policy.execute(
         coords=coords,
         mandatory=[2],
         distance_matrix=dist_matrix,
         bins=bins,
         area="Figueira da Foz",
-        waste_type="plastic"
+        waste_type="plastic",
+        config={"revenue": 10.0}
     )
 
     assert isinstance(tour, list)
     assert 0 in tour
     assert 2 in tour
-    assert "profit" in stats
+    assert "profit" in stats.construction_metrics
+    assert stats.construction_metrics["profit"] >= 0

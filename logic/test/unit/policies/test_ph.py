@@ -9,6 +9,10 @@ from logic.src.policies.route_construction.exact_and_decomposition_solvers.progr
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.bc import GUROBI_AVAILABLE
 
 
+from logic.src.pipeline.simulations.bins.prediction import ScenarioTree, ScenarioTreeNode
+from logic.src.interfaces.context.problem_context import ProblemContext
+
+
 @pytest.mark.skipif(not GUROBI_AVAILABLE, reason="Gurobi not available for subproblems")
 def test_ph_convergence_small():
     """Test Progressive Hedging on a small stochastic instance."""
@@ -22,56 +26,64 @@ def test_ph_convergence_small():
             if i != j:
                 dist_matrix[i, j] = 1.5
 
-    # Define 3 scenarios with different node wastes
-    # Scenario 1: Nodes 1 and 2 are full
-    # Scenario 2: Nodes 3 and 4 are full
-    # Scenario 3: All nodes have medium fill
-    scenarios = [
+    # Define scenarios
+    scenarios_data = [
         {1: 50.0, 2: 50.0, 3: 0.0, 4: 0.0},
         {1: 0.0, 2: 0.0, 3: 50.0, 4: 50.0},
         {1: 30.0, 2: 30.0, 3: 30.0, 4: 30.0},
     ]
 
-    capacity = 100.0  # Can visit 2 nodes fully or 3 nodes partially
-    revenue = 2.0
+    # Build ScenarioTree
+    root = ScenarioTreeNode(day=0, wastes=np.zeros(n_nodes), probability=1.0)
+    for i, data in enumerate(scenarios_data):
+        w = np.zeros(n_nodes)
+        for node, val in data.items():
+            w[node] = val
+        child = ScenarioTreeNode(day=1, wastes=w, probability=1.0 / len(scenarios_data))
+        root.children.append(child)
+
+    tree = ScenarioTree(root=root, horizon=1, num_bins=n_nodes)
+
+    capacity = 100.0
+    revenue = 1.0
     cost_unit = 1.0
 
-    # Progressive Hedging Configuration
-    values = {
-        "rho": 1.0,
-        "max_iterations": 20,
-        "convergence_tol": 0.05,
-        "sub_solver": "bc",
-        "verbose": True,
-        "seed": 42
-    }
     config = PHConfig(
-        rho=values["rho"],
-        max_iterations=values["max_iterations"],
-        convergence_tol=values["convergence_tol"],
-        sub_solver=values["sub_solver"],
-        verbose=values["verbose"],
-        seed=values["seed"]
+        rho=0.1,
+        max_iterations=10,
+        convergence_tol=0.05,
+        sub_solver="bc",
+        verbose=True,
+        seed=42
     )
 
     policy = ProgressiveHedgingPolicy(config=config)
 
-    # We use _run_solver directly to pass scenarios
-    routes, expected_profit, total_dist = policy._run_solver(
-        sub_dist_matrix=dist_matrix,
-        sub_wastes=scenarios[0], # Base wastes, but scenarios will override
+    # Wrap in ProblemContext
+    problem = ProblemContext(
+        distance_matrix=dist_matrix,
+        wastes=scenarios_data[0].copy(), # Root wastes
+        fill_rate_means=np.zeros(n_nodes),
+        fill_rate_stds=np.zeros(n_nodes),
         capacity=capacity,
-        revenue=revenue,
-        cost_unit=cost_unit,
-        values=values,
-        scenarios=scenarios,
-        mandatory_nodes=[]
+        max_fill=100.0,
+        revenue_per_kg=revenue,
+        cost_per_km=cost_unit,
+        horizon=1,
+        mandatory=[],
+        locations=np.zeros((n_nodes, 2)),
+        scenario_tree=tree
     )
 
+    # Execute
+    tour, cost, profit, search_ctx, md_ctx = policy.execute(problem=problem)
+
     # Basic validity checks
-    assert len(routes) > 0
-    assert expected_profit > 0
-    assert total_dist > 0
+    assert len(tour) > 0
+    assert profit > 0
+    assert cost > 0
+    assert tour[0] == 0
+    assert tour[-1] == 0
 
     # Check that the routes contain customers only (factory expectation)
     # The depot (0) is added by the adapter's _map_tour_to_global method.

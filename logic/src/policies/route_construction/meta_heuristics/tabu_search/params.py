@@ -104,8 +104,17 @@ class TSParams:
     use_2opt: bool = True
     use_insertion: bool = True
 
-    # Injected Acceptance Criterion
     acceptance_criterion: IAcceptanceCriterion = field(default_factory=lambda: None)  # type: ignore
+
+    def __post_init__(self):
+        """Ensure acceptance criterion is initialized even if not passed in config."""
+        if self.acceptance_criterion is None:
+            # Standard Tabu Search uses Aspiration Criterion acceptance
+            from logic.src.policies.route_construction.acceptance_criteria.base.factory import (
+                AcceptanceCriterionFactory,
+            )
+
+            self.acceptance_criterion = AcceptanceCriterionFactory.create(name="ac")
 
     @classmethod
     def from_config(cls, config: Any) -> TSParams:

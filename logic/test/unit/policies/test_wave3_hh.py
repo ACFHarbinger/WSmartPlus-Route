@@ -33,7 +33,7 @@ def sample_data():
 def test_gphh_solver(sample_data):
     dist, wastes, cap = sample_data
     params = GPHHParams(gp_pop_size=2, max_gp_generations=1)
-    solver = GPHHSolver(dist, wastes, cap, R=1.0, C=1.0, params=params)
+    solver = GPHHSolver(dist, wastes, cap, R=10.0, C=1.0, params=params)
     routes, profit, cost = solver.solve()
     assert isinstance(routes, list)
     assert profit >= 0
@@ -42,7 +42,7 @@ def test_sshh_solver(sample_data):
     dist, wastes, cap = sample_data
     # Use the correct param name if different, checking SSHHParams
     params = SSHHParams(max_iterations=5, time_limit=1.0)
-    solver = SSHHSolver(dist, wastes, cap, R=1.0, C=1.0, params=params)
+    solver = SSHHSolver(dist, wastes, cap, R=10.0, C=1.0, params=params)
     routes, profit, cost = solver.solve()
     assert isinstance(routes, list)
     assert profit >= 0
@@ -50,7 +50,7 @@ def test_sshh_solver(sample_data):
 def test_hyper_aco_solver(sample_data):
     dist, wastes, cap = sample_data
     params = HyperACOParams(max_iterations=2, n_ants=2)
-    solver = HyperHeuristicACO(dist, wastes, cap, R=1.0, C=1.0, params=params)
+    solver = HyperHeuristicACO(dist, wastes, cap, R=10.0, C=1.0, params=params)
     routes, profit, cost = solver.solve()
     assert isinstance(routes, list)
     assert profit >= -1e9 # Allow negative if cost is high
@@ -58,7 +58,7 @@ def test_hyper_aco_solver(sample_data):
 def test_rl_gd_hh_solver(sample_data):
     dist, wastes, cap = sample_data
     params = RLGDHHParams(max_iterations=5, time_limit=1.0)
-    solver = RLGDHHSolver(dist, wastes, cap, R=1.0, C=1.0, params=params)
+    solver = RLGDHHSolver(dist, wastes, cap, R=10.0, C=1.0, params=params)
     routes, profit, cost = solver.solve()
     assert isinstance(routes, list)
     assert profit >= 0
@@ -66,13 +66,13 @@ def test_rl_gd_hh_solver(sample_data):
 def test_hmm_gd_hh_solver(sample_data):
     dist, wastes, cap = sample_data
     params = HMMGDHHParams(max_iterations=5, time_limit=1.0)
-    solver = HMMGDHHSolver(dist, wastes, cap, R=1.0, C=1.0, params=params)
+    solver = HMMGDHHSolver(dist, wastes, cap, R=10.0, C=1.0, params=params)
     rng = random.Random(params.seed)
     heuristic_routes = build_greedy_routes(
         dist_matrix=dist,
         wastes=wastes,
         capacity=cap,
-        R=1.0,
+        R=10.0,
         C=1.0,
         mandatory_nodes=[],
         rng=rng,

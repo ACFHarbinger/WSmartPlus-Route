@@ -36,17 +36,22 @@ class TestAdvancedAlgorithms(unittest.TestCase):
         # q = 1.5. Converges to Boltzmann-Gibbs at q=1.
         criterion = GeneralizedTsallisSA(q=1.5, p0=0.5, window_size=5, maximization=False)
 
-        # Feed some transitions to initialize T0
-        for _ in range(5):
-            criterion.step(100, 110, accepted=False) # deltas = 10
+        # Feed some transitions to initialize T0 with non-zero sigma
+        criterion.step(100, 110, accepted=False) # delta = 10
+        criterion.step(100, 105, accepted=False) # delta = 5
+        criterion.step(100, 115, accepted=False) # delta = 15
+        criterion.step(100, 102, accepted=False) # delta = 2
+        criterion.step(100, 108, accepted=False) # delta = 8
 
         self.assertGreater(criterion.temp, 0.0)
         self.assertGreater(criterion.sigma, 0.0)
 
         # Verify p0 logic: at T0, delta=sigma should yield p0
         # Prob = [1 - (1-q)*(sigma/T)]^(1/(1-q))
+        # T0 is computed on the 5th step, then one cooling step is immediately applied,
+        # so criterion.temp = T0 * alpha. Divide by alpha to recover T0.
         sigma = criterion.sigma
-        temp = criterion.temp
+        temp = criterion.temp / criterion.alpha  # recover T0 before first cooling step
         delta = sigma
         q = criterion.q
 

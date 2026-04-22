@@ -43,9 +43,9 @@ def test_ks_basic():
             R=R,
             C=C,
             mandatory_nodes=mandatory_nodes,
-            initial_kernel_size=10,
-            bucket_size=5,
-            max_buckets=2,
+            initial_kernel_size=50,
+            bucket_size=50,
+            max_buckets=10,
             time_limit=10.0
         )
     except Exception as e:

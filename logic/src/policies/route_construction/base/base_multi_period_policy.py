@@ -156,8 +156,16 @@ class BaseMultiPeriodRoutingPolicy(BaseRoutingPolicy):
         multi_day_ctx: Optional[MultiDayContext] = kwargs.get("multi_day_context")
         search_ctx: Optional[SearchContext] = kwargs.get("search_context")
 
+        if search_ctx is None:
+            search_ctx = SearchContext.initialize()
+
         # 3. Solve
         solution, full_plan, solver_metadata = self._run_multi_period_solver(problem, multi_day_ctx)
+
+        # Merge telemetry into the ledger
+        from logic.src.interfaces.context.search_context import SearchPhase, merge_context
+
+        search_ctx = merge_context(search_ctx, phase=SearchPhase.CONSTRUCTION, construction_metrics=solver_metadata)
 
         # 4. Update MultiDayContext with full plan snapshot
         if multi_day_ctx is not None:

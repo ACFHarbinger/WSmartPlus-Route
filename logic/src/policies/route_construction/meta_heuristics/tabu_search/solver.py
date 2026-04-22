@@ -296,7 +296,7 @@ class TSSolver:
 
     def _clean_tabu_list(self):
         """Remove expired tabu entries."""
-        while self.tabu_list and self.tabu_List[0][2] <= self.iteration:
+        while self.tabu_list and self.tabu_list[0][2] <= self.iteration:
             self.tabu_list.popleft()
 
     def _compute_dynamic_tenure(self) -> int:

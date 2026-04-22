@@ -38,6 +38,7 @@ extensions = [
     "hoverxref.extension",
     "sphinx.ext.autodoc",  # Keep your existing API tools
     "sphinx.ext.napoleon",
+    "sphinx_uml",
 ]
 
 # The directory containing your python packages

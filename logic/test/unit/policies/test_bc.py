@@ -105,7 +105,7 @@ def test_small_instance_solve():
         }
     )
 
-    tour, cost, extra = policy.execute(
+    tour, cost, profit, search_ctx, multi_day_ctx = policy.execute(
         coords=coords,
         mandatory=[1],
         distance_matrix=dist_matrix,
@@ -115,7 +115,7 @@ def test_small_instance_solve():
         bins=type("obj", (), {"c": [20, 15, 25, 18]}),
     )
 
-    profit = extra.get("profit", 0.0)
+    # profit is already extracted from the 5-tuple
 
     # Verify solution
     assert tour is not None

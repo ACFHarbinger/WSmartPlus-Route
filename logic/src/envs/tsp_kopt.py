@@ -40,6 +40,12 @@ class TSPkoptEnv(ImprovementEnvBase):
 
         super().__init__(generator, generator_params, device, **kwargs)
 
+    def _step(self, td: TensorDict) -> TensorDict:
+        """Execute step via OpsMixin implementation."""
+        from logic.src.envs.base.ops import OpsMixin
+
+        return OpsMixin._step(self, td)
+
     def _get_action_mask(self, td: TensorDict) -> torch.Tensor:
         """For improvement moves, all nodes are typically valid targets.
         Return a mask that allows all nodes.

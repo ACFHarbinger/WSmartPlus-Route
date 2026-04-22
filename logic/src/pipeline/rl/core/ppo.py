@@ -112,12 +112,6 @@ class PPO(RL4COLitModule):
         if hasattr(batch, "to"):
             batch = batch.to(self.device)
 
-        # DEBUG: Check batch contents
-        # print(f"DEBUG: PPO batch keys: {batch.keys()}")
-        # if "done" in batch.keys():
-        #     print(f"DEBUG: batch['done'].shape: {batch['done'].shape}")
-        # print(f"DEBUG: env.batch_size: {self.env.batch_size}")
-
         # Remove done if present to avoid shape mismatch in reset
         if "done" in batch.keys():
             del batch["done"]

@@ -39,8 +39,21 @@ def test_st_ef_basic():
 
     policy = ScenarioTreeExtensiveFormPolicy(config=config)
 
-    # Simulation-like call
-    # The policy expects these keys in kwargs
+    # Inject ScenarioTree and MultiDayContext for Multi-Period Policy
+    from logic.src.pipeline.simulations.bins.prediction import ScenarioGenerator
+    from logic.src.interfaces.context.multi_day_context import (
+        MultiDayContext,
+    )
+
+    generator = ScenarioGenerator(seed=42, horizon=2)
+    # n_nodes is 3 (0=depot, 1, 2)
+    wastes_arr = np.zeros(n_nodes)
+    for i, w in wastes.items():
+        wastes_arr[i] = w
+
+    bin_stats = {"means": np.zeros(n_nodes) + 0.3}
+    scenario_tree = generator.generate(current_wastes=wastes_arr, bin_stats=bin_stats)
+
     kwargs = {
         "distance_matrix": dist_matrix,
         "wastes": wastes,
@@ -49,11 +62,13 @@ def test_st_ef_basic():
         "R": 1.0,
         "C": 0.1,
         "number_vehicles": 1,
-        "coords": np.array([[0,0], [1,1], [2,2]]),
-        "day": 1
+        "coords": np.array([[0, 0], [1, 1], [2, 2]]),
+        "day": 1,
+        "scenario_tree": scenario_tree,  # CRITICAL INJECTION
+        "multi_day_context": MultiDayContext(dist_matrix, wastes, capacity),
     }
 
-    tour, cost, extra = policy.execute(**kwargs)
+    tour, cost, profit, search_ctx, multi_day_ctx = policy.execute(**kwargs)
 
     # Basic validity checks
     assert isinstance(tour, list)
@@ -61,11 +76,11 @@ def test_st_ef_basic():
     assert tour[0] == 0
     assert tour[-1] == 0
     assert cost >= 0
-    assert "expected_value" in extra
+    assert "expected_profit" in search_ctx.construction_metrics
 
     print(f"\nExtracted Tour (Day 1): {tour}")
     print(f"Total Cost: {cost:.2f}")
-    print(f"Expected Value: {extra['expected_value']:.2f}")
+    print(f"Expected Value: {search_ctx.construction_metrics['expected_profit']:.2f}")
 
 @pytest.mark.skipif(not GUROBI_AVAILABLE, reason="Gurobi not available for ST-EF solver")
 def test_st_ef_no_waste():
@@ -91,14 +106,32 @@ def test_st_ef_no_waste():
 
     policy = ScenarioTreeExtensiveFormPolicy(config=config)
 
+    # Inject ScenarioTree and MultiDayContext for Multi-Period Policy
+    from logic.src.pipeline.simulations.bins.prediction import ScenarioGenerator
+    from logic.src.interfaces.context.multi_day_context import (
+        MultiDayContext,
+    )
+
+    generator = ScenarioGenerator(seed=42, horizon=2)
+    wastes_arr = np.zeros(n_nodes)
+    for i, w in wastes.items():
+        wastes_arr[i] = w
+
+    bin_stats = {"means": np.zeros(n_nodes) + 0.0}
+    scenario_tree = generator.generate(current_wastes=wastes_arr, bin_stats=bin_stats)
+
     kwargs = {
         "distance_matrix": dist_matrix,
         "wastes": wastes,
         "capacity": capacity,
-        "day": 1
+        "day": 1,
+        "R": 1.0,
+        "C": 0.1,
+        "scenario_tree": scenario_tree,
+        "multi_day_context": MultiDayContext(dist_matrix, wastes, capacity),
     }
 
-    tour, cost, extra = policy.execute(**kwargs)
+    tour, cost, profit, search_ctx, multi_day_ctx = policy.execute(**kwargs)
 
     # Should probably stay at depot since cost > gain (gain is 0)
     assert tour == [0, 0]

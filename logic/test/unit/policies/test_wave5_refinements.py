@@ -14,7 +14,7 @@ def test_alns_segment_logic():
     ])
     wastes = {1: 10., 2: 10.}
     capacity = 15.
-    params = ALNSParams(max_iterations=150, start_temp=100.0) # > 1 segment
+    params = ALNSParams(max_iterations=150, start_temp=100.0, regret_pool="regret2") # > 1 segment
 
     solver = ALNSSolver(dist, wastes, capacity, R=100.0, C=1.0, params=params)
 

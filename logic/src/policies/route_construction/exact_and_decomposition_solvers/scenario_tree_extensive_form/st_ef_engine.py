@@ -16,6 +16,9 @@ except ImportError:
     gp: Any = None  # type: ignore
     GRB: Any = None  # type: ignore
 
+from dataclasses import dataclass, field
+from typing import Optional
+
 
 class ScenarioTreeExtensiveFormEngine:
     """
@@ -58,6 +61,15 @@ class ScenarioTreeExtensiveFormEngine:
         self.num_nodes = distance_matrix.shape[0]
         self.customers = list(range(1, self.num_nodes))
 
+        # Handle ScenarioTree variants (Simulation vs Solver-specific)
+        self.tree_nodes: Dict[int, Any] = {}
+        if hasattr(tree, "nodes"):
+            # Solver-specific tree from tree.py
+            self.tree_nodes = tree.nodes
+        else:
+            # Simulation tree from prediction.py (needs flattening and ID mapping)
+            self.tree_nodes = self._convert_simulation_tree(tree)
+
         # Gurobi vars mappings
         self.model = gp.Model("ST_Extensive_Form")
         self.x_vars: Dict[Tuple[int, int, int], gp.Var] = {}  # (n_idx, i, j) -> var
@@ -79,12 +91,12 @@ class ScenarioTreeExtensiveFormEngine:
         if not self.use_mtz:
             self.model.Params.LazyConstraints = 1
 
-        total_nodes = len(self.tree.nodes)
+        total_nodes = len(self.tree_nodes)
         if self.verbose:
             print(f"Building Extensive Form MILP for {total_nodes} tree nodes.")
 
         # 1. Variable Generation
-        for n_idx, node in self.tree.nodes.items():
+        for n_idx, node in self.tree_nodes.items():
             # If day=0, this is just revealing the current state. No decisions or collections take place at day=0.
             # We start routing at day=1.
             if node.day > 0:
@@ -124,15 +136,15 @@ class ScenarioTreeExtensiveFormEngine:
     def _add_inventory_constraints(self):
         """Adds inter-day continuous inventory balance and logic restraints."""
         # A) Root node initialization
-        root = self.tree.get_root()
+        root = self._get_engine_root()
         for i in self.customers:
             init_val = self.initial_wastes.get(i, 0.0) / max(1.0, self.capacity)
             self.model.addConstr(self.w_vars[(root.id, i)] == init_val, name=f"init_w_{i}")
 
         # B) Recursive state transitions
-        for n_idx, node in self.tree.nodes.items():
+        for n_idx, node in self.tree_nodes.items():
             if node.parent_id is not None:
-                parent = self.tree.nodes[node.parent_id]
+                parent = self.tree_nodes[node.parent_id]
 
                 for i in self.customers:
                     # Inventory tomorrow = Inventory today
@@ -170,7 +182,7 @@ class ScenarioTreeExtensiveFormEngine:
 
     def _add_routing_constraints(self):
         """Adds intra-daily TSP/VRP routing restrictions."""
-        for n_idx, node in self.tree.nodes.items():
+        for n_idx, node in self.tree_nodes.items():
             if node.day == 0:
                 continue
 
@@ -223,7 +235,7 @@ class ScenarioTreeExtensiveFormEngine:
 
         expected_profit_expr = 0.0
 
-        for n_idx, node in self.tree.nodes.items():
+        for n_idx, node in self.tree_nodes.items():
             if node.day == 0:
                 continue
 
@@ -270,7 +282,7 @@ class ScenarioTreeExtensiveFormEngine:
             print(f"Optimal Expected Value: {self.model.ObjVal:.2f}")
 
         # Extract route specifically for Day 1
-        day1_nodes = self.tree.get_nodes_by_day(1)
+        day1_nodes = [n for n in self.tree_nodes.values() if n.day == 1]
         if not day1_nodes:
             return [], self.model.ObjVal
 
@@ -315,3 +327,56 @@ class ScenarioTreeExtensiveFormEngine:
         if where == GRB.Callback.MIPSOL:
             # We would need to extract components for every n_idx independently.
             pass
+
+    def _convert_simulation_tree(self, tree: Any) -> Dict[int, Any]:
+        """Convert simulation ScenarioTree (recursive) to flat solver tree."""
+        flat = {}
+        counter = [0]
+
+        @dataclass
+        class EngineNode:
+            id: int
+            day: int
+            probability: float
+            realization: Dict[int, float]
+            parent_id: Optional[int] = None
+            children_ids: List[int] = field(default_factory=list)
+
+        def traverse(sim_node, parent_id=None):
+            node_id = counter[0]
+            counter[0] += 1
+
+            # realization is increment from parent
+            realization = {}
+            if parent_id is not None:
+                parent_sim_wastes = flat[parent_id]._sim_wastes
+                # wastes in simulation are 0-100. realization in engine is relative fraction.
+                for i in self.customers:
+                    inc = (sim_node.wastes[i - 1] - parent_sim_wastes[i - 1]) / 100.0
+                    realization[i] = max(0.0, inc)
+
+            new_node = EngineNode(
+                id=node_id,
+                day=sim_node.day,
+                probability=sim_node.probability,
+                realization=realization,
+                parent_id=parent_id,
+            )
+            new_node._sim_wastes = sim_node.wastes  # Cache for child realization logic
+            flat[node_id] = new_node
+
+            for child in sim_node.children:
+                child_id = traverse(child, node_id)
+                new_node.children_ids.append(child_id)
+
+            return node_id
+
+        traverse(tree.root)
+        return flat
+
+    def _get_engine_root(self):
+        """Find the root node (day 0) in the tree_nodes map."""
+        for n in self.tree_nodes.values():
+            if n.day == 0:
+                return n
+        raise ValueError("ScenarioTree has no root (day 0) node.")

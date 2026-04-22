@@ -72,20 +72,18 @@ class TestBBPolicy:
             assert 1 in tour
             assert mock_run.called
 
+    @pytest.mark.parametrize("backend", ["gurobi"])
     @pytest.mark.integration
-    def test_bb_solver_integration(self, bb_test_data):
+    def test_bb_solver_integration(self, bb_test_data, check_license, backend):
         """Integration test with Gurobi (requires license)."""
-        try:
-            import gurobipy
-            policy = RouteConstructorRegistry.get("bb")
-            assert policy is not None
-            instance = policy()
-            tour, cost, extra, *_ = instance.execute(**bb_test_data)
+        import gurobipy
+        policy = RouteConstructorRegistry.get("bb")
+        assert policy is not None
+        instance = policy()
+        tour, cost, profit, *_ = instance.execute(**bb_test_data)
 
-            assert isinstance(tour, list)
-            assert tour[0] == 0
-            assert tour[-1] == 0
-            assert cost > 0
-            assert "profit" in extra
-        except (ImportError, Exception) as e:
-            pytest.skip(f"Gurobi not available or license missing: {e}")
+        assert isinstance(tour, list)
+        assert tour[0] == 0
+        assert tour[-1] == 0
+        assert cost > 0
+        assert profit > 0

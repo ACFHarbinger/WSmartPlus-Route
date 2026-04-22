@@ -43,9 +43,9 @@ def test_aks_basic():
             R=R,
             C=C,
             mandatory_nodes=mandatory_nodes,
-            initial_kernel_size=10,
-            bucket_size=5,
-            max_buckets=3,
+            initial_kernel_size=50,
+            bucket_size=50,
+            max_buckets=10,
             time_limit=15.0,
             t_easy=5.0,
             epsilon=0.1

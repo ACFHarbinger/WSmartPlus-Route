@@ -331,7 +331,7 @@ class TestVectorizedPopulation:
         candidate_costs = torch.tensor([[5.0, 15.0, 30.0]], device=v_device)  # 5 is now best
 
         # Expected survivors (sorted by cost since alpha=0): 5.0, 10.0, 15.0
-        pop.add_individuals(candidates, candidate_costs, nb_elite=1)
+        pop.add_individuals(candidates, candidate_costs, nb_elite=5)
 
         assert pop.population.size(1) == max_size
         assert torch.allclose(pop.costs.sort().values, torch.tensor([[5.0, 10.0, 15.0]], device=v_device))

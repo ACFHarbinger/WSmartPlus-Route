@@ -49,6 +49,12 @@ def _get_partitioned_vars_aks(
     # Ensure Lazy Constraints are enabled for any solve with callbacks
     model.Params.LazyConstraints = 1
 
+    # 1. Prepare for root node relaxation harvesting
+    all_vars_list = list(x.values()) + list(y.values())
+    model._all_vars_list = all_vars_list
+    model._node_rel = [0.0] * len(all_vars_list)
+    model._y_vars = y  # Needed for separation logic
+
     # variables assumed binary from _setup_ks_model(use_binary_vars=True)
 
     # 2. Optimize with the root node callback (imported from KS solver)
@@ -57,7 +63,7 @@ def _get_partitioned_vars_aks(
     # 3. Extract relaxation values
     var_values = {var: val for var, val in zip(model._all_vars_list, model._node_rel, strict=False)}
 
-    # 1.5 Compute a totally feasible heuristic route
+    # 3.5 Compute a totally feasible heuristic route
     rng = random.Random()
     heuristic_routes = build_greedy_routes(
         dist_matrix=dist_matrix, wastes=wastes, capacity=capacity, R=R, C=C, mandatory_nodes=mandatory_nodes, rng=rng
