@@ -341,6 +341,7 @@ def _solve_farkas_pricing_step(
     branching_constraints: List[AnyBranchingConstraint],
     farkas_duals: Any,
     max_routes: int = 5,
+    timeout: Optional[float] = None,
 ) -> Tuple[int, bool]:
     """
     Phase I Pricing: Solve RCSPP with the Farkas dual ray to restore feasibility.
@@ -375,6 +376,7 @@ def _solve_farkas_pricing_step(
         forced_nodes=forced_nodes,
         rf_conflicts=rf_conflicts,
         is_farkas=True,
+        timeout=timeout,
     )
 
     added = 0
@@ -431,6 +433,7 @@ def _solve_pricing_step(
     optimality_gap: float = 1e-4,
     rc_tolerance: float = 1e-5,
     use_swc_tcf_heuristic_pricing: bool = False,
+    timeout: Optional[float] = None,
 ) -> Tuple[int, bool]:
     """
     Phase II Pricing: Solve the RCSPP pricing subproblem for profitable columns.
@@ -514,6 +517,7 @@ def _solve_pricing_step(
         branching_constraints=branching_constraints,
         forced_nodes=forced_nodes,
         rf_conflicts=rf_conflicts,
+        timeout=timeout,
     )
 
     if not routes:
@@ -1018,11 +1022,13 @@ def _column_generation_loop(  # noqa: C901
                             "LP is infeasible but Farkas duals are unavailable. "
                             "Gurobi may have returned INF_OR_UNBD — check model bounds."
                         )
+                    _rem_t = max(0.1, time_limit - (time.monotonic() - start_time)) if time_limit else None
                     added, _ = _solve_farkas_pricing_step(
                         master,
                         pricing_solver,
                         branching_constraints,  # type: ignore[arg-type]
                         farkas,
+                        timeout=_rem_t,
                     )
                     if added == 0:
                         raise RuntimeError("LP infeasible at B&B node - Farkas pricing failed to find columns")
@@ -1052,6 +1058,7 @@ def _column_generation_loop(  # noqa: C901
                 converged = True
                 break
 
+            _rem_t = max(0.1, time_limit - (time.monotonic() - start_time)) if time_limit else None
             added, pricing_exhausted = _solve_pricing_step(
                 master,
                 pricing_solver,
@@ -1060,6 +1067,7 @@ def _column_generation_loop(  # noqa: C901
                 optimality_gap=optimality_gap,
                 rc_tolerance=rc_tolerance,
                 use_swc_tcf_heuristic_pricing=use_swc_tcf_heuristic_pricing,
+                timeout=_rem_t,
             )
 
             if added == 0:
@@ -1341,7 +1349,6 @@ def run_bpc(  # noqa: C901
         capacity,
         R,
         C,
-        m_set,
         use_ng_routes=params.use_ng_routes,
         ng_neighborhood_size=params.ng_neighborhood_size,
         node_prizes=kwargs.get("node_prizes"),
@@ -1539,6 +1546,7 @@ def run_bpc(  # noqa: C901
             # Fix 12: Snapshot-and-restore ng-neighborhoods
             ng_snapshot = pricing_solver.save_ng_snapshot()
             try:
+                _rem_t = max(0.1, time_limit - (time.monotonic() - start_time)) if time_limit else None
                 lp_obj, route_values, node_final_basis, node_timed_out = _column_generation_loop(
                     master=master,
                     pricing_solver=pricing_solver,
@@ -1546,7 +1554,7 @@ def run_bpc(  # noqa: C901
                     branching_constraints=branching_constraints,
                     max_cg_iterations=max_cg_iter,
                     max_cuts=max_cuts,
-                    time_limit=time_limit,
+                    time_limit=_rem_t,
                     start_time=start_time,
                     max_routes_per_pricing=max_routes_per_pricing,
                     vehicle_limit=master.vehicle_limit,

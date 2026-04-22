@@ -40,6 +40,8 @@ class SelectionContext:
     bin_volume: float = 0.0
     max_fill: float = 100.0
     overflow_penalty_frac: float = 1.0  # default to 100% of bin waste capacity
+    coordinates: Optional[NDArray[np.float64]] = None
+    seed: Optional[int] = None
 
     # --- New fields for advanced strategies ---
     # DeadlineDrivenSelection / MultiDayOverflowSelection

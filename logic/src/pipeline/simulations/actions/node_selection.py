@@ -98,6 +98,12 @@ class MandatorySelectionAction(SimulationAction):
                 thresh = (
                     s_params.get("threshold")
                     if s_params.get("threshold") is not None
+                    else s_params.get("period")
+                    if s_params.get("period") is not None
+                    else s_params.get("n_sectors")
+                    if s_params.get("n_sectors") is not None
+                    else s_params.get("n_points")
+                    if s_params.get("n_points") is not None
                     else s_params.get("frequency")
                     if s_params.get("frequency") is not None
                     else s_params.get("current_collection_day")
@@ -176,6 +182,8 @@ class MandatorySelectionAction(SimulationAction):
                 wasserstein_radius=_pf("wasserstein_radius", 0.1),
                 wasserstein_p=_pi("wasserstein_p", 1),
                 overflow_penalty_frac=_pf("overflow_penalty_frac", 1.0),
+                coordinates=bins.get("coords") if isinstance(bins, IBinContainer) else context.get("coordinates"),
+                seed=s_params.get("seed") if hasattr(s_params, "get") else None,
             )
 
             if "config" in strat_info:
