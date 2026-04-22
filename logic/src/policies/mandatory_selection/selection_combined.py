@@ -17,6 +17,7 @@ Example:
 from dataclasses import replace
 from typing import Any, Dict, List, Optional, Tuple, cast
 
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.interfaces.context.search_context import SearchContext
 from logic.src.interfaces.mandatory_selection import IMandatorySelectionStrategy
 
@@ -24,6 +25,10 @@ from .base.selection_context import SelectionContext
 from .base.selection_registry import MandatorySelectionRegistry
 
 
+@GlobalRegistry.register(
+    PolicyTag.SELECTION,
+    PolicyTag.ORCHESTRATOR,
+)
 @MandatorySelectionRegistry.register("combined")
 class CombinedSelection(IMandatorySelectionStrategy):
     """

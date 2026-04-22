@@ -17,12 +17,19 @@ from typing import List, Tuple
 import numpy as np
 from scipy.optimize import linprog
 
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.interfaces.context.search_context import SearchContext
 from logic.src.interfaces.mandatory_selection import IMandatorySelectionStrategy
 from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
 from logic.src.policies.mandatory_selection.base.selection_registry import MandatorySelectionRegistry
 
 
+@GlobalRegistry.register(
+    PolicyTag.SELECTION,
+    PolicyTag.MATHEURISTIC,
+    PolicyTag.DECOMPOSITION,
+    PolicyTag.PROFIT_AWARE,
+)
 @MandatorySelectionRegistry.register("lagrangian")
 class LagrangianSelection(IMandatorySelectionStrategy):
     """

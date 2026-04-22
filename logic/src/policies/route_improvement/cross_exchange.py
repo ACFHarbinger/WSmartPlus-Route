@@ -4,6 +4,7 @@ Cross-Exchange Route Improver.
 
 from typing import Any, List, Tuple
 
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.interfaces.context.search_context import ImprovementMetrics
 from logic.src.interfaces.route_improvement import IRouteImprovement
 
@@ -11,6 +12,11 @@ from .base import RouteImproverRegistry
 from .common.helpers import assemble_tour, split_tour, to_numpy
 
 
+@GlobalRegistry.register(
+    PolicyTag.IMPROVEMENT,
+    PolicyTag.HEURISTIC,
+    PolicyTag.LOCAL_SEARCH,
+)
 @RouteImproverRegistry.register("cross_exchange")
 class CrossExchangeRouteImprover(IRouteImprovement):
     """

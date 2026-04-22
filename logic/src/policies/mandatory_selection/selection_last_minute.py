@@ -17,6 +17,7 @@ from typing import List, Tuple
 
 import numpy as np
 
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.interfaces.context.search_context import SearchContext
 from logic.src.interfaces.mandatory_selection import IMandatorySelectionStrategy
 
@@ -25,6 +26,10 @@ from .base.selection_context import SelectionContext
 from .base.selection_registry import MandatorySelectionRegistry
 
 
+@GlobalRegistry.register(
+    PolicyTag.SELECTION,
+    PolicyTag.HEURISTIC,
+)
 @MandatorySelectionRegistry.register("last_minute")
 class LastMinuteSelection(IMandatorySelectionStrategy):
     """

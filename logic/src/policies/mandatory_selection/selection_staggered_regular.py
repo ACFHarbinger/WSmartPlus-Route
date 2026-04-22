@@ -28,6 +28,7 @@ from typing import List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.interfaces.context.search_context import SearchContext
 from logic.src.interfaces.mandatory_selection import IMandatorySelectionStrategy
 from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
@@ -36,6 +37,12 @@ from logic.src.policies.mandatory_selection.base.selection_registry import (
 )
 
 
+@GlobalRegistry.register(
+    PolicyTag.SELECTION,
+    PolicyTag.HEURISTIC,
+    PolicyTag.DETERMINISTIC,
+    PolicyTag.MULTI_PERIOD,
+)
 @MandatorySelectionRegistry.register("staggered_regular")
 class StaggeredRegularSelection(IMandatorySelectionStrategy):
     """

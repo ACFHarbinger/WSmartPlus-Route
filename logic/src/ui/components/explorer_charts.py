@@ -1,4 +1,3 @@
-# Copyright (c) WSmart-Route. All rights reserved.
 """
 Plotly chart generators for the Data Explorer and analysis pages.
 

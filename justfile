@@ -27,7 +27,7 @@ marker := "fast"
 strategy := "greedy"
 distribution := "gamma3"
 n_cores := "20"
-policies := "alns,hgs,sans,aco_ks,aco_hh,pso,psoma"
+policies := "alns,hgs,sans,aco_ks,aco_hh,pso,psoma,swc_tcf"
 
 #policies := "abc,abpc_hg,aco_hh,aco_ks,adp,ahvpl,aks,alns_ipo,alns,amphh,arco,bb,bc,bp,bpc,cf_rs,cgh,cp_sat,cvrp,de,es_mcl,es_mkl,es_mpl,esdp,fa,filo,ga,genius,gihh,gls,gp_hh,gp_mp_hh,hgs_adc,hgs_alns,hgs_rr,hgs,hmm_gd_hh,hms,hs,hulk,hvpl,ils_bd,ils_rvnd_sp,ils,kgls,ks,lb_vns,lb,lbbd,lca,lkh3,lrh,ma_dp,ma_im,ma_ts,ma,mhh,mp_aco,mp_ils,mp_pso,mp_sa,ph,phh,popmusic,pso,psoda,psoma,qde,rens,rfo,rl_ahvpl,rl_alns,rl_gd_hh,rl_hvpl,rts,sa,sans,sca,shh,sisr,slc,src,ss_hh,st_ef,swc_tcf,ts,tsp,vns,vpl"
 #abpc,adp,alns_ipo,amphh,cgh,cp_sat,esdp,gp_mp_hh,hgs_adc,ks,lbbd,lrh,mhh,mp_aco,mp_ils,mp_pso,phh

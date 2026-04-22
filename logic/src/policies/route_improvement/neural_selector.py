@@ -12,6 +12,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.interfaces.context.search_context import ImprovementMetrics
 from logic.src.interfaces.route_improvement import IRouteImprovement
 
@@ -35,6 +36,10 @@ class OperatorSelectionPolicy(nn.Module):
         return F.softmax(logits, dim=-1)
 
 
+@GlobalRegistry.register(
+    PolicyTag.IMPROVEMENT,
+    PolicyTag.REINFORCEMENT_LEARNING,
+)
 @RouteImproverRegistry.register("neural_selector")
 class NeuralSelectorRouteImprover(IRouteImprovement):
     """
