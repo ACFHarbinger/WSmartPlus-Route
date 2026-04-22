@@ -160,6 +160,7 @@ class RCSPPSolver:
         rf_conflicts: Optional[Dict[int, Set[int]]] = None,
         is_farkas: bool = False,
         exact_mode: bool = False,
+        timeout: Optional[float] = None,
     ) -> List[Route]:
         # Pre-execution setup
         self._rcc_duals_for_bounds = (
@@ -206,6 +207,10 @@ class RCSPPSolver:
         self.is_farkas = is_farkas
         self.forced_nodes = forced_nodes or set()
         self.rf_conflicts = rf_conflicts or {}
+
+        # Update timeout if provided by the caller (Branch-and-Price engine)
+        active_timeout = timeout if timeout is not None else self.timeout
+        self._current_timeout = active_timeout
 
         # Task 2: Completion Bounds
         self._compute_completion_bounds()
@@ -386,9 +391,9 @@ class RCSPPSolver:
                 )
                 break
 
-            if (time.monotonic() - start_time) > self.timeout:
+            if (time.monotonic() - start_time) > self._current_timeout:
                 logger.warning(
-                    f"RCSPP timeout: terminated early after {self.timeout} seconds. "
+                    f"RCSPP timeout: terminated early after {self._current_timeout} seconds. "
                     "Instance may be too large for exact pricing at this node."
                 )
                 break

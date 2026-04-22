@@ -138,14 +138,23 @@ class RouteConstructionAction(SimulationAction):
             context["multi_day_context"] = multi_day_context
 
             start_time = time.process_time()
-            # Unpack 5 values now: tour, cost, profit, search_context, multi_day_context
+            # 3. Unpack adapter results: tour represents global bin IDs
             results = adapter.execute(**context)
-            tour, cost, profit, extra_output, updated_multi_day = results
+            tour, _, _, extra_output, updated_multi_day = results
             elapsed_time = time.process_time() - start_time
 
+            # --- PRELIMINARY METRICS ---
+            # Calculate preliminary KM from the construction phase. Note that final
+            # definitive metrics (KM and Profit) are re-computed in CollectAction
+            # to account for the entire policy pipeline (mandatory + construction + improvement).
+            from logic.src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp import (
+                get_route_cost,
+            )
+
+            raw_km = get_route_cost(context["distance_matrix"], tour)
+
             context["tour"] = tour
-            context["cost"] = cost
-            context["profit"] = profit
+            context["cost"] = raw_km
             context["extra_output"] = extra_output
             context["time"] = elapsed_time
             # Preserve updated multi-day state for the next simulation day
