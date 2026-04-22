@@ -19,8 +19,8 @@ from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search
 from logic.src.policies.helpers.local_search import local_search_base
 
 # HGS and ALNS auxiliary imports
-from logic.src.policies.helpers.operators import destroy as destroy_operators
-from logic.src.policies.helpers.operators import repair as repair_operators
+from logic.src.policies.helpers.operators import destroy_ruin as destroy_operators
+from logic.src.policies.helpers.operators import recreate_repair as repair_operators
 from logic.src.policies.helpers.operators.crossover_recombination import ordered_crossover
 
 # Look-ahead auxiliary imports

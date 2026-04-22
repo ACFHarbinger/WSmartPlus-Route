@@ -51,7 +51,7 @@ def test_hvpl_respects_subset():
     policy = HVPLPolicy(config=config)
     bins_mock = type('obj', (object,), {'c': np.array([50.0]*10)})
 
-    tour, _, _ = policy.execute(
+    tour, cost, profit, *_ = policy.execute(
         area="Rio Maior",
         waste_type="plastic",
         bins=bins_mock,

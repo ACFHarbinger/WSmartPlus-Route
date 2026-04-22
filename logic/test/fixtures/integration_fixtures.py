@@ -119,7 +119,7 @@ def setup_sim_data(tmp_path, mocker):
     mocker.patch("logic.src.pipeline.simulations.checkpoints.ROOT_DIR", str(tmp_path))
     mocker.patch("logic.src.constants.ROOT_DIR", str(tmp_path))
     # Mock fast_tsp to avoid solver crashes with dummy data
-    mocker.patch("logic.src.policies.travelling_salesman_problem.tsp.fast_tsp.find_tour", return_value=[0, 1, 0])
+    mocker.patch("logic.src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.fast_tsp.find_tour", return_value=[0, 1, 0])
     # Instantiate a real FileSystemRepository and patch the global singleton
     from logic.src.pipeline.simulations.repository import FileSystemRepository
     repo = FileSystemRepository(data_root_dir=str(tmp_path))

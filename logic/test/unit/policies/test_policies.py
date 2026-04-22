@@ -68,42 +68,42 @@ class TestPolicyAdapters:
 
     @pytest.mark.unit
     def test_alns_adapter(self, mock_policy_data):
-        with patch("logic.src.policies.adaptive_large_neighborhood_search.policy_alns.run_alns") as mock_run:
+        with patch("logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.policy_alns.run_alns") as mock_run:
             mock_run.return_value = ([[1]], 10.0, 5.0)
             policy = cast(Callable, RouteConstructorRegistry.get("alns"))()
             assert isinstance(policy, ALNSPolicy)
-            tour, cost, extra = policy.execute(policy="alns_1.0", **mock_policy_data)
+            tour, cost, extra, *_ = policy.execute(policy="alns_1.0", **mock_policy_data)
             assert tour == [0, 1, 0]
             assert mock_run.called
 
     @pytest.mark.unit
     def test_bpc_adapter(self, mock_policy_data):
-        with patch("logic.src.policies.branch_and_price_and_cut.policy_bpc.run_bpc") as mock_run:
+        with patch("logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.policy_bpc.run_bpc") as mock_run:
             mock_run.return_value = ([[1]], 10.0)
             policy = cast(Callable, RouteConstructorRegistry.get("bpc"))()
             assert isinstance(policy, BPCPolicy)
-            tour, cost, extra = policy.execute(policy="bpc_1.0", **mock_policy_data)
+            tour, cost, extra, *_ = policy.execute(policy="bpc_1.0", **mock_policy_data)
             assert tour == [0, 1, 0]
             assert mock_run.called
 
     @pytest.mark.unit
     def test_ils_rvnd_sp_adapter(self, mock_policy_data):
-        with patch("logic.src.policies.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.policy_ils_rvnd_sp.ILSRVNDSPSolver") as mock_solver_cls:
+        with patch("logic.src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.policy_ils_rvnd_sp.ILSRVNDSPSolver") as mock_solver_cls:
             mock_solver_instance = mock_solver_cls.return_value
             mock_solver_instance.solve.return_value = ([[1]], 10.0, 5.0)
             policy = cast(Callable, RouteConstructorRegistry.get("ils_rvnd_sp"))()
             assert isinstance(policy, ILSRVNDSPPolicy)
-            tour, cost, extra = policy.execute(policy="ils_rvnd_sp_1.0", **mock_policy_data)
+            tour, cost, extra, *_ = policy.execute(policy="ils_rvnd_sp_1.0", **mock_policy_data)
             assert tour == [0, 1, 0]
             assert mock_solver_instance.solve.called
 
     @pytest.mark.unit
     def test_hgs_adapter(self, mock_policy_data):
-        with patch("logic.src.policies.hybrid_genetic_search.policy_hgs.run_hgs") as mock_run:
+        with patch("logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.policy_hgs.run_hgs") as mock_run:
             mock_run.return_value = ([[1]], 10.0, 5.0)
             policy = cast(Callable, RouteConstructorRegistry.get("hgs"))()
             assert isinstance(policy, HGSPolicy)
-            tour, cost, extra = policy.execute(policy="hgs_1.0", **mock_policy_data)
+            tour, cost, extra, *_ = policy.execute(policy="hgs_1.0", **mock_policy_data)
             assert tour == [0, 1, 0]
             assert mock_run.called
 
@@ -211,7 +211,7 @@ class TestSingleVehiclePolicies:
         """Test finding a route using TSP heuristic."""
         test_C = np.array([[0, 10, 20], [10, 0, 5], [20, 5, 0]])
         test_to_collect = [1, 2]
-        with patch("logic.src.policies.travelling_salesman_problem.tsp.fast_tsp.find_tour", return_value=[0, 1, 2]):
+        with patch("logic.src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.fast_tsp.find_tour", return_value=[0, 1, 2]):
             res_route = find_route(test_C, test_to_collect)
             assert res_route == [0, 1, 2, 0]
 
@@ -423,7 +423,7 @@ class TestPOPMUSIC:
                 return [[0, 1, 0]], 100.0  # Big improvement
             return [[0, seed_idx, 0]], 0.0 # No improvement
 
-        with patch("logic.src.policies.popmusic.solver._optimize_subproblem", side_effect=mock_optimize):
+        with patch("logic.src.policies.route_construction.matheuristics.partial_optimization_metaheuristic_under_special_intensification_conditions.solver._optimize_subproblem", side_effect=mock_optimize):
             run_popmusic(**mock_popmusic_data, subproblem_size=2, seed_strategy="lifo")
 
         # Initial stack for 4 routes is [0, 1, 2, 3].

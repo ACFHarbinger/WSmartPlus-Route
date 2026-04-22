@@ -318,12 +318,12 @@ class TestVectorizedPopulation:
         """Test that add_individuals keeps only best survivors."""
 
         max_size = 3
-        pop = VectorizedPopulation(size=max_size, device=v_device, alpha_diversity=0.0)  # alpha=0 -> only cost matters
+        pop = VectorizedPopulation(size=max_size, device=v_device)
 
         # Initial pop (size 2)
         initial_pop = torch.tensor([[[1, 2, 3, 4], [4, 3, 2, 1]]], device=v_device)
         initial_costs = torch.tensor([[10.0, 20.0]], device=v_device)  # 10 is best
-        pop.initialize(initial_pop, initial_costs)
+        pop.initialize(initial_pop, initial_costs, nb_elite=1)
         assert pop.population.size(1) == 2
 
         # Add 3 more (total 5 > max_size 3)
@@ -331,36 +331,10 @@ class TestVectorizedPopulation:
         candidate_costs = torch.tensor([[5.0, 15.0, 30.0]], device=v_device)  # 5 is now best
 
         # Expected survivors (sorted by cost since alpha=0): 5.0, 10.0, 15.0
-        pop.add_individuals(candidates, candidate_costs)
+        pop.add_individuals(candidates, candidate_costs, nb_elite=1)
 
         assert pop.population.size(1) == max_size
         assert torch.allclose(pop.costs.sort().values, torch.tensor([[5.0, 10.0, 15.0]], device=v_device))
-
-    @pytest.mark.unit
-    def test_population_diversity_impact(self, v_device):
-        """Test that diversity (alpha_diversity) affects biased fitness."""
-        # 3 individuals:
-        # A: Cost 10, Diversity Low
-        # B: Cost 11, Diversity High
-        # If alpha is 100, B should be better than A despite slightly higher cost.
-
-        pop = VectorizedPopulation(size=10, device=v_device, alpha_diversity=10.0)
-
-        # A: [1, 2, 3, 4], B: [1, 3, 2, 4] (High distance between them - different edges)
-        pop_data = torch.tensor([[[1, 2, 3, 4], [1, 2, 3, 4], [1, 3, 2, 4]]], device=v_device)
-        costs = torch.tensor([[10.0, 10.1, 12.0]], device=v_device)
-
-        # With alpha=0, biased_fitness matches cost ranks: Ind 0 (0), Ind 1 (1), Ind 2 (2)
-        pop.alpha_diversity = 0.0
-        pop.initialize(pop_data, costs)
-        assert pop.biased_fitness[0, 0] < pop.biased_fitness[0, 1] < pop.biased_fitness[0, 2]
-
-        # With high alpha, Ind 2 (most diverse) should get much better rank than Ind 1
-        pop.alpha_diversity = 100.0
-        pop.compute_biased_fitness()
-        # Ind 2 is more diverse than Ind 1. Ind 1 and 0 are same, so they have low diversity.
-        # Diversity Rank of Ind 2 should be 0 (best). Ind 0 and 1 will have rank 1 or 2.
-        assert pop.biased_fitness[0, 2] < pop.biased_fitness[0, 1]
 
     @pytest.mark.unit
     def test_population_get_parents_tournament(self, v_device):
@@ -369,7 +343,7 @@ class TestVectorizedPopulation:
         pop = VectorizedPopulation(size=P, device=v_device)
         population = torch.stack([torch.randperm(N) + 1 for _ in range(B * P)]).view(B, P, N).to(v_device)
         costs = torch.rand((B, P), device=v_device)
-        pop.initialize(population, costs)
+        pop.initialize(population, costs, nb_elite=2)
 
         n_off = 4
         p1, p2 = pop.get_parents(n_offspring=n_off)

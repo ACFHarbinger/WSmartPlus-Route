@@ -7,7 +7,7 @@ from logic.src.utils.configs.setup_worker import setup_model
 class TestSetupUtils:
     """Class for setup_utils tests."""
 
-    @patch("logic.src.utils.functions.load_model")
+    @patch("logic.src.utils.model.loader.load_model")
     def test_setup_model_am(self, mock_load):
         """Test setup_model for Attention Model."""
         mock_model = MagicMock()

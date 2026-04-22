@@ -158,10 +158,10 @@ class TestHGS:
     def test_population_diversity(self, device):
         """Test population diversity calculation."""
         B, P, N = 1, 10, 5
-        pop = VectorizedPopulation(size=5, device=device, alpha_diversity=1.0)
+        pop = VectorizedPopulation(size=5, device=device)
         population = torch.stack([torch.randperm(N, device=device) + 1 for _ in range(P)]).unsqueeze(0)
         costs = torch.rand((B, P), device=device)
-        pop.initialize(population, costs)
+        pop.initialize(population, costs, nb_elite=2)
 
         assert pop.biased_fitness is not None
         assert pop.diversity_scores is not None

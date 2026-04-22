@@ -62,10 +62,10 @@ class TestBBPolicy:
         # We mock gurobipy to avoid license issues in CI/Test env if needed,
         # but here we want to test if the logic holds.
         # However, for a unit test of the ADAPTER, we can mock run_bb.
-        with patch("logic.src.policies.branch_and_bound.policy_bb.run_bb_optimizer") as mock_run:
+        with patch("logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.policy_bb.run_bb_optimizer") as mock_run:
             mock_run.return_value = ([[1, 2]], 25.0)
             policy = cast(Callable, RouteConstructorRegistry.get("bb"))()
-            tour, cost, extra = policy.execute(**bb_test_data)
+            tour, cost, extra, *_ = policy.execute(**bb_test_data)
 
             assert tour[0] == 0
             assert tour[-1] == 0
@@ -80,7 +80,7 @@ class TestBBPolicy:
             policy = RouteConstructorRegistry.get("bb")
             assert policy is not None
             instance = policy()
-            tour, cost, extra = instance.execute(**bb_test_data)
+            tour, cost, extra, *_ = instance.execute(**bb_test_data)
 
             assert isinstance(tour, list)
             assert tour[0] == 0
