@@ -4,7 +4,6 @@ from unittest.mock import patch
 import numpy as np
 import pandas as pd
 import pytest
-
 from logic.src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container import TAG, Container
 
 

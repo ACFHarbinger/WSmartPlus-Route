@@ -1,10 +1,24 @@
-"""model.py module.
+"""
+Neural Model interface module.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    IModel: Protocol for Neural Models
 
 Example:
-    >>> import model
+    >>> from logic.src.interfaces.model import IModel
+    >>> class MyModel(IModel):
+    ...     def forward(self, td: TensorDict, **kwargs: Any) -> Any:
+    ...         return {}
+    ...     def to(self, device: torch.device) -> "IModel":
+    ...         return self
+    ...     def eval(self) -> "IModel":
+    ...         return self
+    ...     def train(self) -> "IModel":
+    ...         return self
+    ...
+    >>> model = MyModel()
+    >>> model.forward(TensorDict({}, {}))
+    {}
 """
 
 from typing import Any, Protocol, runtime_checkable
@@ -17,6 +31,9 @@ from tensordict import TensorDict
 class IModel(Protocol):
     """
     Protocol for Neural Models.
+
+    Attributes:
+        None: No attributes
     """
 
     def forward(self, td: TensorDict, **kwargs: Any) -> Any:
@@ -25,6 +42,9 @@ class IModel(Protocol):
         Args:
             td (TensorDict): Description of td.
             kwargs (Any): Description of kwargs.
+
+        Returns:
+            Any: Description of return value.
         """
         ...
 
@@ -33,13 +53,24 @@ class IModel(Protocol):
 
         Args:
             device (torch.device): Description of device.
+
+        Returns:
+            IModel: Description of return value.
         """
         ...
 
     def eval(self) -> "IModel":
-        """Eval."""
+        """Eval.
+
+        Returns:
+            IModel: Description of return value.
+        """
         ...
 
     def train(self) -> "IModel":
-        """Train."""
+        """Train.
+
+        Returns:
+            IModel: Description of return value.
+        """
         ...

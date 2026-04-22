@@ -26,6 +26,14 @@ Usage Context
 -------------
 These keys validate config files and CLI arguments. Missing keys trigger
 default value fallbacks in logic/src/configs/hpo.py.
+
+Attributes:
+    HOP_KEYS: Tuple of HPO configuration keys
+
+Example:
+    >>> from logic.src.constants import HOP_KEYS
+    >>> HOP_KEYS[0]
+    'hpo_method'
 """
 
 from typing import Tuple

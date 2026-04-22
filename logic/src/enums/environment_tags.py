@@ -1,7 +1,36 @@
+"""
+Environment enum for WSmart-Route.
+
+Attributes:
+    EnvironmentTag: Enum for environment tags
+
+Example:
+    >>> from logic.src.enums import EnvironmentTag
+    >>> EnvironmentTag.EUCLIDEAN
+    <EnvironmentTag.EUCLIDEAN: 1>
+"""
+
 from enum import Enum, auto
 
 
 class EnvironmentTag(Enum):
+    """
+    Environment tags for WSmart-Route.
+
+    Attributes:
+        EUCLIDEAN: Nodes have (x,y) coordinates
+        GRAPH: Fully defined by a distance matrix (non-Euclidean possible)
+        CAPACITATED: Vehicle load limits
+        TIME_WINDOWS: Strict [early, late] arrival constraints
+        MULTI_DEPOT: Multiple start/end locations
+        MULTI_PERIOD: Decisions span across a time horizon (days/weeks)
+        DETERMINISTIC: All info known at t=0
+        STOCHASTIC: Node demands/presence are random variables
+        DYNAMIC: Nodes appear over time during execution
+        MIN_DISTANCE: Canonical VRP
+        MAX_PROFIT: Orienteering / Prize-collecting
+    """
+
     # Spatial Topology
     EUCLIDEAN = auto()  # Nodes have (x,y) coordinates
     GRAPH = auto()  # Fully defined by a distance matrix (non-Euclidean possible)

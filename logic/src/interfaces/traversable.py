@@ -3,6 +3,10 @@
 This module defines the ITraversable protocol for duck typing with
 configuration objects (dict, DictConfig, dataclass).
 
+Attributes:
+    _T: Type variable for generic typing
+    ITraversable: Protocol for duck typing with configuration objects
+
 Example:
     >>> from logic.src.interfaces.traversable import ITraversable
     >>> def extract_param(config: ITraversable, key: str) -> Any:
@@ -36,23 +40,50 @@ class ITraversable(Protocol):
     """
 
     def __getitem__(self, key: Any, /) -> Any:
-        """Get value by key. Positional-only to match dict."""
+        """
+        Get value by key. Positional-only to match dict.
+
+        Args:
+            key: Configuration key (string)
+
+        Returns:
+            Configuration value
+        """
         ...
 
     def __contains__(self, key: Any, /) -> bool:
-        """Check if key exists. Positional-only to match dict."""
+        """
+        Check if key exists. Positional-only to match dict.
+
+        Args:
+            key: Configuration key (string)
+
+        Returns:
+            True if key exists, False otherwise
+        """
         ...
 
     def __iter__(self) -> Iterator[Any]:
-        """Support iteration over keys (required for mapping-like behavior)."""
+        """
+        Support iteration over keys (required for mapping-like behavior).
+
+        Returns:
+            Iterator over keys
+        """
         ...
 
     def __len__(self) -> int:
-        """Return the number of items."""
+        """
+        Return the number of items.
+
+        Returns:
+            Number of items
+        """
         ...
 
     def keys(self) -> Any:
-        """Return available configuration keys.
+        """
+        Return available configuration keys.
 
         Returns:
             Iterable of key names
@@ -60,7 +91,8 @@ class ITraversable(Protocol):
         ...
 
     def items(self) -> Any:
-        """Return key-value pairs.
+        """
+        Return key-value pairs.
 
         Returns:
             Iterable of (key, value) tuples
@@ -68,7 +100,8 @@ class ITraversable(Protocol):
         ...
 
     def values(self) -> Any:
-        """Return all values.
+        """
+        Return all values.
 
         Returns:
             Iterable of values
@@ -76,13 +109,35 @@ class ITraversable(Protocol):
         ...
 
     @overload
-    def get(self, key: str, /) -> Optional[Any]: ...
+    def get(self, key: str, /) -> Optional[Any]:
+        """
+        Get value by key with optional default.
+
+        Args:
+            key: Configuration key (string)
+
+        Returns:
+            Configuration value or None
+        """
+        ...
 
     @overload
-    def get(self, key: str, default: _T, /) -> Union[Any, _T]: ...
+    def get(self, key: str, default: _T, /) -> Union[Any, _T]:
+        """
+        Get value by key with optional default.
+
+        Args:
+            key: Configuration key (string)
+            default: Value to return if key not found
+
+        Returns:
+            Configuration value or default
+        """
+        ...
 
     def get(self, key: str, default: Any = None, /) -> Any:
-        """Get value by key with optional default.
+        """
+        Get value by key with optional default.
 
         Args:
             key: Configuration key (string)

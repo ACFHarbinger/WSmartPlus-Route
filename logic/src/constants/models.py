@@ -24,6 +24,29 @@ Propagation flow:
         → Model tensors (graph_size = num_loc + 1)
         → Classical policies (n_nodes = num_loc)
         → Simulator context (graph_size)
+
+Attributes:
+    SUB_NET_ENCS: List of models requiring sub-network encoders
+    PRED_ENC_MODELS: List of models with predictive encoders
+    ENC_DEC_MODELS: List of models with separate encoder-decoder architecture
+    NODE_DIM: Dimension of node features
+    STATIC_DIM: Dimension of static coordinate features
+    DEPOT_DIM: Dimension of depot coordinate features
+    WC_STEP_CONTEXT_OFFSET: Offset for waste collection step context
+    VRPP_STEP_CONTEXT_OFFSET: Offset for vehicle routing with profit problem step context
+    DEFAULT_TEMPORAL_HORIZON: Default lookahead horizon for time-dependent models
+    TANH_CLIPPING: Tanh clipping value for numerical stability
+    NORM_EPSILON: Epsilon for normalization stability
+    NUMERICAL_EPSILON: Epsilon for numerical stability
+    FEED_FORWARD_EXPANSION: Expansion factor for feed-forward networks
+    DEFAULT_MOE_KWARGS: Default Mixture of Experts configuration
+
+Example:
+    >>> from logic.src.constants import DEFAULT_MOE_KWARGS
+    >>> DEFAULT_MOE_KWARGS["encoder"]["num_experts"]
+    4
+    >>> DEFAULT_MOE_KWARGS["decoder"]["light_version"]
+    True
 """
 
 from typing import List

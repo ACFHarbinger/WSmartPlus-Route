@@ -4,7 +4,6 @@ Unit tests for the GridBase and Simulation classes in the wsmart_bin_analysis mo
 
 import numpy as np
 import pandas as pd
-
 from logic.src.pipeline.simulations.wsmart_bin_analysis.Deliverables.simulation import GridBase, Simulation
 
 

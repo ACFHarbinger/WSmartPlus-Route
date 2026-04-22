@@ -1,10 +1,18 @@
-"""__init__.py module.
+"""
+Base CLI module.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    ConfigsParser: Custom ArgumentParser to handle string-based nargs correctly.
+    UpdateFunctionMapActionFactory: Factory for mapping string update functions.
+    LowercaseAction: Action to convert argument value to lowercase.
+    StoreDictKeyPair: Custom action to parse key=value into a dictionary.
 
 Example:
-    >>> import __init__
+    >>> from logic.src.cli.base import ConfigsParser, UpdateFunctionMapActionFactory, LowercaseAction, StoreDictKeyPair
+    >>> parser = ConfigsParser()
+    >>> parser.add_argument('--test', action='store_true')
+    >>> parser.parse_args(['--test'])
+    Namespace(test=True)
 """
 
 from .lowercase_action import LowercaseAction

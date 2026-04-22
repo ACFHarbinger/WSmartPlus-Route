@@ -1,8 +1,56 @@
-# logic/src/policies/tags.py
+"""
+Policy enum for WSmart-Route.
+
+Attributes:
+    PolicyTag: Enum for policy tags
+
+Example:
+    >>> from logic.src.enums import PolicyTag
+    >>> PolicyTag.EXACT
+    <PolicyTag.EXACT: 1>
+"""
+
 from enum import Enum, auto
 
 
 class PolicyTag(Enum):
+    """
+    Policy tags for WSmart-Route.
+
+    Attributes:
+        EXACT: Provably optimal (Branch & Bound, Set Partitioning)
+        SOLVER: Solvers (Branch & Bound, Set Partitioning)
+        DECOMPOSITION: Decomposition methods (Column Generation, Branch & Price, Lagrangian Relaxation)
+        HEURISTIC: Rule-based approximations (Greedy, Clarke-Wright)
+        META_HEURISTIC: High-level search frameworks (ALNS, HGS, Tabu Search)
+        HYPER_HEURISTIC: Algorithms that search the space of algorithms
+        MATHEURISTIC: Hybrids of meta-heuristics and exact MIP/Set Partitioning solvers
+        REINFORCEMENT_LEARNING: Reinforcement Learning controllers (PPO, A2C)
+        NEURAL_COMBINATORIAL_OPTIMIZATION: Neural Combinatorial Optimization (POMO, SymNCO, Attention Models)
+        ORCHESTRATOR: Orchestrators (Bandits, ALNS Roulettes, RL Managers)
+        TRAJECTORY_BASED: Single-solution trackers (Simulated Annealing, Local Search)
+        POPULATION_BASED: Multi-solution trackers (Genetic Algorithms, Memetic Algorithms)
+        SWARM_INTELLIGENCE: ACO, Particle Swarm
+        MATH_PROGRAMMING: Column Generation, Branch & Price, Lagrangian Relaxation
+        EVOLUTIONARY_ALGORITHM: Evolutionary algorithms (Genetic Algorithms, Evolution Strategies, etc.)
+        LOCAL_SEARCH: Local search algorithms (2-Opt, Relocate, Cross Exchange, etc.)
+        NEIGHBORHOOD_SEARCH: Neighborhood search algorithms (Variable Neighborhood Search, etc.)
+        LARGE_NEIGHBORHOOD_SEARCH: Large neighborhood search algorithms (LNS, ALNS, Ruin & Recreate variants)
+        MEMETIC_SEARCH: Memetic search algorithms (Genetic Algorithms + Local Search)
+        ADAPTIVE_ALGORITHM: Adaptive Algorithms
+        SINGLE_PERIOD: Standard VRP, TSP
+        MULTI_PERIOD: PVRP, Inventory Routing (Inventory constraints across time)
+        DETERMINISTIC: All parameters known
+        STOCHASTIC: Handles distributions (Stochastic Demands, Markov Decision Processes)
+        DYNAMIC: Online routing (orders arrive during execution)
+        PROFIT_AWARE: Orienteering, VRP with Profits (evaluates p_i over c_i)
+        ORIENTEERING: Orienteering, Team Orienteering
+        TIME_WINDOWS: Strictly enforces [e_i, l_i] temporal bounds
+        ANYTIME: Can be safely interrupted at any time to return the current best solution
+        GPU_ACCELERATED: PyTorch/Tensor-based algorithms (POMO, NCO models)
+        PARALLELIZABLE: Multi-threaded evaluators (e.g., population evaluations in HGS)
+    """
+
     # ==========================================
     # 1. PARADIGM (The overarching mathematical philosophy)
     # ==========================================

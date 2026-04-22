@@ -1,10 +1,16 @@
-"""store_dict_key.py module.
+"""
+StoreDictKeyPair action module.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    StoreDictKeyPair: Custom action to parse key=value into a dictionary.
 
 Example:
-    >>> import store_dict_key
+    >>> from logic.src.cli.base.store_dict_key import StoreDictKeyPair
+    >>> action = StoreDictKeyPair(option_strings=['--param'], dest='params')
+    >>> namespace = argparse.Namespace()
+    >>> action(None, namespace, ['key=value'])
+    >>> namespace.params
+    {'key': 'value'}
 """
 
 import argparse
@@ -12,7 +18,13 @@ from typing import Any, Optional, Sequence, Union
 
 
 class StoreDictKeyPair(argparse.Action):
-    """Custom action to parse key=value into a dictionary."""
+    """
+    Custom action to parse key=value into a dictionary.
+
+    Attributes:
+        dest: Destination attribute in the namespace.
+        nargs: Number of arguments.
+    """
 
     def __call__(
         self,
@@ -31,6 +43,9 @@ class StoreDictKeyPair(argparse.Action):
 
         Raises:
             argparse.ArgumentError: If a string does not follow the 'key=value' format.
+
+        Returns:
+            None
         """
         my_dict = {}
         if values is None:

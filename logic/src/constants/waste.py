@@ -32,6 +32,20 @@ Critical Fill Threshold
 -----------------------
 CRITICAL_FILL_THRESHOLD defines the fill level that triggers priority collection.
 Used in: mandatory bin selection, overflow prediction, service level agreements.
+
+Attributes:
+  MAP_DEPOTS: Waste management facility mappings (dataset → depot code)
+  WASTE_TYPES: Waste type translations (English → Portuguese official nomenclature)
+  CRITICAL_FILL_THRESHOLD: Fill level threshold triggering priority collection
+
+Example:
+  >>> from logic.src.constants import MAP_DEPOTS, WASTE_TYPES, CRITICAL_FILL_THRESHOLD
+  >>> MAP_DEPOTS["mixrmbac"]
+  'CTEASO'
+  >>> WASTE_TYPES["plastic"]
+  'Mistura de embalagens'
+  >>> CRITICAL_FILL_THRESHOLD
+  0.9
 """
 
 from typing import Dict

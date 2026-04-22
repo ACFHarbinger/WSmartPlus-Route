@@ -6,7 +6,6 @@ import os
 
 import pandas as pd
 import pytest
-
 from logic.src.pipeline.simulations.wsmart_bin_analysis.Deliverables.container import Container
 from logic.src.pipeline.simulations.wsmart_bin_analysis.Deliverables.save_load import (
     load_container_structured,

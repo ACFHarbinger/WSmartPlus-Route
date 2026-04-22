@@ -29,6 +29,14 @@ and built-ins. Used by:
 
 All functions accept iterables (list, tuple, numpy array) and return scalars
 except "quant" which returns a list of quantile values.
+
+Attributes:
+   STATS_FUNCTION_MAP: Statistical function registry mapping string keys to callables
+
+Example:
+   >>> from logic.src.constants import STATS_FUNCTION_MAP
+   >>> STATS_FUNCTION_MAP["mean"]([1, 2, 3, 4, 5])
+   3
 """
 
 import statistics

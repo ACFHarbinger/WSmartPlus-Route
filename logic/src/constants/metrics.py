@@ -48,6 +48,14 @@ Canonical Categories
 - **cost**: Routing cost (tour length in km, or normalized cost units)
 - **overflows**: Number of bins that overflowed (exceeded capacity)
 - **initial_overflows**: Overflow count at episode reset/initialization
+
+Attributes:
+    METRIC_MAPPING: Dictionary mapping canonical metric names to their aliases
+
+Example:
+    >>> from logic.src.constants import METRIC_MAPPING
+    >>> METRIC_MAPPING["collection"]
+    ['reward_waste', 'collection', 'total_collected', 'collected_waste', 'real_collection']
 """
 
 # Metric name mapping: canonical names → list of equivalent aliases.
