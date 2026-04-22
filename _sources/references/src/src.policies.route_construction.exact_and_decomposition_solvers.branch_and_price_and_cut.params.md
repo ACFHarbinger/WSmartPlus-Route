@@ -315,6 +315,28 @@
 
 ````
 
+````{py:attribute} rcspp_timeout
+:canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.rcspp_timeout
+:type: float
+:value: >
+   30.0
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.rcspp_timeout
+```
+
+````
+
+````{py:attribute} rcspp_max_labels
+:canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.rcspp_max_labels
+:type: int
+:value: >
+   1000000
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.rcspp_max_labels
+```
+
+````
+
 ````{py:attribute} use_swc_tcf_initialization
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_initialization
 :type: bool
@@ -344,38 +366,6 @@
    False
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.use_swc_tcf_primal_heuristic
-```
-
-````
-
-````{py:attribute} multi_day_mode
-:canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.multi_day_mode
-:type: bool
-:value: >
-   False
-
-```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.multi_day_mode
-```
-
-````
-
-````{py:attribute} adp_model_path
-:canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.adp_model_path
-:type: str
-:value: <Multiline-String>
-
-```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.adp_model_path
-```
-
-````
-
-````{py:attribute} adp_model_type
-:canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.adp_model_type
-:type: str
-:value: >
-   'sklearn'
-
-```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.adp_model_type
 ```
 
 ````

@@ -29,6 +29,7 @@ src.ui.pages.hpo_tracker
 src.ui.pages.benchmark
 src.ui.pages.training
 src.ui.pages.data_explorer_charts
+src.ui.pages.algorithms
 src.ui.pages.experiment_tracker
 src.ui.pages.experiment_tracker_mlflow
 ```

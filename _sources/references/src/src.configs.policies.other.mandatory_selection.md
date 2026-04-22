@@ -119,6 +119,18 @@
   - ```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.LagrangianSelectionConfig
     :summary:
     ```
+* - {py:obj}`BernoulliSelectionConfig <src.configs.policies.other.mandatory_selection.BernoulliSelectionConfig>`
+  - ```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.BernoulliSelectionConfig
+    :summary:
+    ```
+* - {py:obj}`KMeansSectorSelectionConfig <src.configs.policies.other.mandatory_selection.KMeansSectorSelectionConfig>`
+  - ```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.KMeansSectorSelectionConfig
+    :summary:
+    ```
+* - {py:obj}`StaggeredRegularSelectionConfig <src.configs.policies.other.mandatory_selection.StaggeredRegularSelectionConfig>`
+  - ```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.StaggeredRegularSelectionConfig
+    :summary:
+    ```
 * - {py:obj}`MandatorySelectionConfig <src.configs.policies.other.mandatory_selection.MandatorySelectionConfig>`
   - ```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.MandatorySelectionConfig
     :summary:
@@ -966,6 +978,63 @@ Bases: {py:obj}`src.configs.policies.other.mandatory_selection.KnapsackSelection
 
 `````
 
+`````{py:class} BernoulliSelectionConfig
+:canonical: src.configs.policies.other.mandatory_selection.BernoulliSelectionConfig
+
+```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.BernoulliSelectionConfig
+```
+
+````{py:attribute} p
+:canonical: src.configs.policies.other.mandatory_selection.BernoulliSelectionConfig.p
+:type: float
+:value: >
+   0.5
+
+```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.BernoulliSelectionConfig.p
+```
+
+````
+
+`````
+
+`````{py:class} KMeansSectorSelectionConfig
+:canonical: src.configs.policies.other.mandatory_selection.KMeansSectorSelectionConfig
+
+```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.KMeansSectorSelectionConfig
+```
+
+````{py:attribute} n_sectors
+:canonical: src.configs.policies.other.mandatory_selection.KMeansSectorSelectionConfig.n_sectors
+:type: int
+:value: >
+   5
+
+```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.KMeansSectorSelectionConfig.n_sectors
+```
+
+````
+
+`````
+
+`````{py:class} StaggeredRegularSelectionConfig
+:canonical: src.configs.policies.other.mandatory_selection.StaggeredRegularSelectionConfig
+
+```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.StaggeredRegularSelectionConfig
+```
+
+````{py:attribute} period
+:canonical: src.configs.policies.other.mandatory_selection.StaggeredRegularSelectionConfig.period
+:type: int
+:value: >
+   1
+
+```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.StaggeredRegularSelectionConfig.period
+```
+
+````
+
+`````
+
 `````{py:class} MandatorySelectionConfig
 :canonical: src.configs.policies.other.mandatory_selection.MandatorySelectionConfig
 
@@ -1265,6 +1334,39 @@ Bases: {py:obj}`src.configs.policies.other.mandatory_selection.KnapsackSelection
    'field(...)'
 
 ```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.lagrangian
+```
+
+````
+
+````{py:attribute} bernoulli
+:canonical: src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.bernoulli
+:type: src.configs.policies.other.mandatory_selection.BernoulliSelectionConfig
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.bernoulli
+```
+
+````
+
+````{py:attribute} kmeans_sector
+:canonical: src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.kmeans_sector
+:type: src.configs.policies.other.mandatory_selection.KMeansSectorSelectionConfig
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.kmeans_sector
+```
+
+````
+
+````{py:attribute} staggered_regular
+:canonical: src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.staggered_regular
+:type: src.configs.policies.other.mandatory_selection.StaggeredRegularSelectionConfig
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.staggered_regular
 ```
 
 ````

@@ -458,34 +458,24 @@
 
 ````
 
-````{py:attribute} multi_day_mode
-:canonical: src.configs.policies.bpc.BPCConfig.multi_day_mode
-:type: bool
+````{py:attribute} rcspp_timeout
+:canonical: src.configs.policies.bpc.BPCConfig.rcspp_timeout
+:type: float
 :value: >
-   False
+   30.0
 
-```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.multi_day_mode
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.rcspp_timeout
 ```
 
 ````
 
-````{py:attribute} adp_model_path
-:canonical: src.configs.policies.bpc.BPCConfig.adp_model_path
-:type: str
-:value: <Multiline-String>
-
-```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.adp_model_path
-```
-
-````
-
-````{py:attribute} adp_model_type
-:canonical: src.configs.policies.bpc.BPCConfig.adp_model_type
-:type: str
+````{py:attribute} rcspp_max_labels
+:canonical: src.configs.policies.bpc.BPCConfig.rcspp_max_labels
+:type: int
 :value: >
-   'sklearn'
+   1000000
 
-```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.adp_model_type
+```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.rcspp_max_labels
 ```
 
 ````

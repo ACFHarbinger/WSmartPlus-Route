@@ -602,6 +602,18 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.LagrangianSelectionConfig.cost_per_km"><code class="docutils literal notranslate"><span class="pre">LagrangianSelectionConfig.cost_per_km</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.BernoulliSelectionConfig"><code class="docutils literal notranslate"><span class="pre">BernoulliSelectionConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.BernoulliSelectionConfig.p"><code class="docutils literal notranslate"><span class="pre">BernoulliSelectionConfig.p</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.KMeansSectorSelectionConfig"><code class="docutils literal notranslate"><span class="pre">KMeansSectorSelectionConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.KMeansSectorSelectionConfig.n_sectors"><code class="docutils literal notranslate"><span class="pre">KMeansSectorSelectionConfig.n_sectors</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.StaggeredRegularSelectionConfig"><code class="docutils literal notranslate"><span class="pre">StaggeredRegularSelectionConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.StaggeredRegularSelectionConfig.period"><code class="docutils literal notranslate"><span class="pre">StaggeredRegularSelectionConfig.period</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig"><code class="docutils literal notranslate"><span class="pre">MandatorySelectionConfig</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.strategy"><code class="docutils literal notranslate"><span class="pre">MandatorySelectionConfig.strategy</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.max_fill"><code class="docutils literal notranslate"><span class="pre">MandatorySelectionConfig.max_fill</span></code></a></li>
@@ -630,6 +642,9 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.thompson_dispatcher"><code class="docutils literal notranslate"><span class="pre">MandatorySelectionConfig.thompson_dispatcher</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.wasserstein"><code class="docutils literal notranslate"><span class="pre">MandatorySelectionConfig.wasserstein</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.lagrangian"><code class="docutils literal notranslate"><span class="pre">MandatorySelectionConfig.lagrangian</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.bernoulli"><code class="docutils literal notranslate"><span class="pre">MandatorySelectionConfig.bernoulli</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.kmeans_sector"><code class="docutils literal notranslate"><span class="pre">MandatorySelectionConfig.kmeans_sector</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.staggered_regular"><code class="docutils literal notranslate"><span class="pre">MandatorySelectionConfig.staggered_regular</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.params"><code class="docutils literal notranslate"><span class="pre">MandatorySelectionConfig.params</span></code></a></li>
 </ul>
 </li>
@@ -738,7 +753,16 @@ nested dataclasses for each algorithm.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.configs.policies.other.mandatory_selection.LagrangianSelectionConfig" title="src.configs.policies.other.mandatory_selection.LagrangianSelectionConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LagrangianSelectionConfig</span></code></a></p></td>
 <td><p>Configuration for Lagrangian relaxation based selection.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig" title="src.configs.policies.other.mandatory_selection.MandatorySelectionConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MandatorySelectionConfig</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.configs.policies.other.mandatory_selection.BernoulliSelectionConfig" title="src.configs.policies.other.mandatory_selection.BernoulliSelectionConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BernoulliSelectionConfig</span></code></a></p></td>
+<td><p>Configuration for independent Bernoulli trial selection.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.configs.policies.other.mandatory_selection.KMeansSectorSelectionConfig" title="src.configs.policies.other.mandatory_selection.KMeansSectorSelectionConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">KMeansSectorSelectionConfig</span></code></a></p></td>
+<td><p>Configuration for geographic sector-based selection.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.configs.policies.other.mandatory_selection.StaggeredRegularSelectionConfig" title="src.configs.policies.other.mandatory_selection.StaggeredRegularSelectionConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StaggeredRegularSelectionConfig</span></code></a></p></td>
+<td><p>Configuration for phased-staggered periodic selection.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig" title="src.configs.policies.other.mandatory_selection.MandatorySelectionConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MandatorySelectionConfig</span></code></a></p></td>
 <td><p>Main configuration for mandatory bin selection.</p></td>
 </tr>
 </tbody>
@@ -1248,6 +1272,42 @@ nested dataclasses for each algorithm.</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.BernoulliSelectionConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.mandatory_selection.</span></span><span class="sig-name descname"><span class="pre">BernoulliSelectionConfig</span></span><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.BernoulliSelectionConfig" title="Link to this definition">#</a></dt>
+<dd><p>Configuration for independent Bernoulli trial selection.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.BernoulliSelectionConfig.p">
+<span class="sig-name descname"><span class="pre">p</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.BernoulliSelectionConfig.p" title="Link to this definition">#</a></dt>
+<dd><p>0.5</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.KMeansSectorSelectionConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.mandatory_selection.</span></span><span class="sig-name descname"><span class="pre">KMeansSectorSelectionConfig</span></span><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.KMeansSectorSelectionConfig" title="Link to this definition">#</a></dt>
+<dd><p>Configuration for geographic sector-based selection.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.KMeansSectorSelectionConfig.n_sectors">
+<span class="sig-name descname"><span class="pre">n_sectors</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.KMeansSectorSelectionConfig.n_sectors" title="Link to this definition">#</a></dt>
+<dd><p>5</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.StaggeredRegularSelectionConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.mandatory_selection.</span></span><span class="sig-name descname"><span class="pre">StaggeredRegularSelectionConfig</span></span><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.StaggeredRegularSelectionConfig" title="Link to this definition">#</a></dt>
+<dd><p>Configuration for phased-staggered periodic selection.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.StaggeredRegularSelectionConfig.period">
+<span class="sig-name descname"><span class="pre">period</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.StaggeredRegularSelectionConfig.period" title="Link to this definition">#</a></dt>
+<dd><p>1</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.MandatorySelectionConfig">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.mandatory_selection.</span></span><span class="sig-name descname"><span class="pre">MandatorySelectionConfig</span></span><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig" title="Link to this definition">#</a></dt>
 <dd><p>Main configuration for mandatory bin selection.</p>
@@ -1444,6 +1504,24 @@ params: Additional strategy-specific parameters as a dictionary.</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.bernoulli">
+<span class="sig-name descname"><span class="pre">bernoulli</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.configs.policies.other.mandatory_selection.BernoulliSelectionConfig" title="src.configs.policies.other.mandatory_selection.BernoulliSelectionConfig"><span class="pre">src.configs.policies.other.mandatory_selection.BernoulliSelectionConfig</span></a></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.bernoulli" title="Link to this definition">#</a></dt>
+<dd><p>‘field(…)’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.kmeans_sector">
+<span class="sig-name descname"><span class="pre">kmeans_sector</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.configs.policies.other.mandatory_selection.KMeansSectorSelectionConfig" title="src.configs.policies.other.mandatory_selection.KMeansSectorSelectionConfig"><span class="pre">src.configs.policies.other.mandatory_selection.KMeansSectorSelectionConfig</span></a></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.kmeans_sector" title="Link to this definition">#</a></dt>
+<dd><p>‘field(…)’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.staggered_regular">
+<span class="sig-name descname"><span class="pre">staggered_regular</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.configs.policies.other.mandatory_selection.StaggeredRegularSelectionConfig" title="src.configs.policies.other.mandatory_selection.StaggeredRegularSelectionConfig"><span class="pre">src.configs.policies.other.mandatory_selection.StaggeredRegularSelectionConfig</span></a></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.staggered_regular" title="Link to this definition">#</a></dt>
+<dd><p>‘field(…)’</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.params">
 <span class="sig-name descname"><span class="pre">params</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.params" title="Link to this definition">#</a></dt>
 <dd><p>‘field(…)’</p>
@@ -1636,6 +1714,18 @@ params: Additional strategy-specific parameters as a dictionary.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.LagrangianSelectionConfig.cost_per_km"><code class="docutils literal notranslate"><span class="pre">LagrangianSelectionConfig.cost_per_km</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.BernoulliSelectionConfig"><code class="docutils literal notranslate"><span class="pre">BernoulliSelectionConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.BernoulliSelectionConfig.p"><code class="docutils literal notranslate"><span class="pre">BernoulliSelectionConfig.p</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.KMeansSectorSelectionConfig"><code class="docutils literal notranslate"><span class="pre">KMeansSectorSelectionConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.KMeansSectorSelectionConfig.n_sectors"><code class="docutils literal notranslate"><span class="pre">KMeansSectorSelectionConfig.n_sectors</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.StaggeredRegularSelectionConfig"><code class="docutils literal notranslate"><span class="pre">StaggeredRegularSelectionConfig</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.StaggeredRegularSelectionConfig.period"><code class="docutils literal notranslate"><span class="pre">StaggeredRegularSelectionConfig.period</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig"><code class="docutils literal notranslate"><span class="pre">MandatorySelectionConfig</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.strategy"><code class="docutils literal notranslate"><span class="pre">MandatorySelectionConfig.strategy</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.max_fill"><code class="docutils literal notranslate"><span class="pre">MandatorySelectionConfig.max_fill</span></code></a></li>
@@ -1664,6 +1754,9 @@ params: Additional strategy-specific parameters as a dictionary.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.thompson_dispatcher"><code class="docutils literal notranslate"><span class="pre">MandatorySelectionConfig.thompson_dispatcher</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.wasserstein"><code class="docutils literal notranslate"><span class="pre">MandatorySelectionConfig.wasserstein</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.lagrangian"><code class="docutils literal notranslate"><span class="pre">MandatorySelectionConfig.lagrangian</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.bernoulli"><code class="docutils literal notranslate"><span class="pre">MandatorySelectionConfig.bernoulli</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.kmeans_sector"><code class="docutils literal notranslate"><span class="pre">MandatorySelectionConfig.kmeans_sector</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.staggered_regular"><code class="docutils literal notranslate"><span class="pre">MandatorySelectionConfig.staggered_regular</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.params"><code class="docutils literal notranslate"><span class="pre">MandatorySelectionConfig.params</span></code></a></li>
 </ul>
 </li>

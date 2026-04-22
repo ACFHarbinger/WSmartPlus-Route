@@ -227,6 +227,17 @@
 
 ````
 
+````{py:attribute} acceptance_criterion
+:canonical: src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams.acceptance_criterion
+:type: typing.Optional[logic.src.interfaces.acceptance_criterion.IAcceptanceCriterion]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams.acceptance_criterion
+```
+
+````
+
 ````{py:method} __post_init__() -> None
 :canonical: src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params.KSACOParams.__post_init__
 

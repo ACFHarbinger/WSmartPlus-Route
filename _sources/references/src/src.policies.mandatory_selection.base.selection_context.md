@@ -194,6 +194,28 @@
 
 ````
 
+````{py:attribute} coordinates
+:canonical: src.policies.mandatory_selection.base.selection_context.SelectionContext.coordinates
+:type: typing.Optional[numpy.typing.NDArray[numpy.float64]]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.mandatory_selection.base.selection_context.SelectionContext.coordinates
+```
+
+````
+
+````{py:attribute} seed
+:canonical: src.policies.mandatory_selection.base.selection_context.SelectionContext.seed
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.mandatory_selection.base.selection_context.SelectionContext.seed
+```
+
+````
+
 ````{py:attribute} horizon_days
 :canonical: src.policies.mandatory_selection.base.selection_context.SelectionContext.horizon_days
 :type: int

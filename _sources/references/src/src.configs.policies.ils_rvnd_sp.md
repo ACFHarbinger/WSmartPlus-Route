@@ -251,17 +251,6 @@ Bases: {py:obj}`src.configs.policies.abc.ABCConfig`
 
 ````
 
-````{py:attribute} acceptance
-:canonical: src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.acceptance
-:type: logic.src.configs.policies.other.acceptance_criteria.AcceptanceConfig
-:value: >
-   'field(...)'
-
-```{autodoc2-docstring} src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.acceptance
-```
-
-````
-
 ````{py:attribute} mandatory_selection
 :canonical: src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.mandatory_selection
 :type: typing.Optional[typing.List[typing.Any]]
@@ -280,6 +269,17 @@ Bases: {py:obj}`src.configs.policies.abc.ABCConfig`
    'field(...)'
 
 ```{autodoc2-docstring} src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.route_improvement
+```
+
+````
+
+````{py:attribute} acceptance_criterion
+:canonical: src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.acceptance_criterion
+:type: logic.src.configs.policies.other.acceptance_criteria.AcceptanceConfig
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.acceptance_criterion
 ```
 
 ````

@@ -642,7 +642,7 @@
 :canonical: src.configs.policies.other.acceptance_criteria.AcceptanceConfig.method
 :type: str
 :value: >
-   'only_improving'
+   'oi'
 
 ```{autodoc2-docstring} src.configs.policies.other.acceptance_criteria.AcceptanceConfig.method
 ```

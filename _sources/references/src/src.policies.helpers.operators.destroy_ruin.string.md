@@ -31,7 +31,7 @@
 
 ### API
 
-````{py:function} _sisr_ruin_pass(routes: typing.List[typing.List[int]], adjacency: typing.List[typing.Tuple[float, int]], ks: int, ls_max: float, rng: random.Random) -> typing.Set[int]
+````{py:function} _sisr_ruin_pass(routes: typing.List[typing.List[int]], adjacency: typing.List[typing.Tuple[float, int]], ks: int, ls_max: float, rng: random.Random, alpha: float = 0.01) -> typing.Set[int]
 :canonical: src.policies.helpers.operators.destroy_ruin.string._sisr_ruin_pass
 
 ```{autodoc2-docstring} src.policies.helpers.operators.destroy_ruin.string._sisr_ruin_pass

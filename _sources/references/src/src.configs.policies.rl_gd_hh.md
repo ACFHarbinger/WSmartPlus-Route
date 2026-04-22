@@ -150,17 +150,6 @@
 
 ````
 
-````{py:attribute} acceptance
-:canonical: src.configs.policies.rl_gd_hh.RLGDHHConfig.acceptance
-:type: logic.src.configs.policies.other.acceptance_criteria.AcceptanceConfig
-:value: >
-   'field(...)'
-
-```{autodoc2-docstring} src.configs.policies.rl_gd_hh.RLGDHHConfig.acceptance
-```
-
-````
-
 ````{py:attribute} mandatory_selection
 :canonical: src.configs.policies.rl_gd_hh.RLGDHHConfig.mandatory_selection
 :type: typing.Optional[typing.List[typing.Any]]
@@ -179,6 +168,17 @@
    'field(...)'
 
 ```{autodoc2-docstring} src.configs.policies.rl_gd_hh.RLGDHHConfig.route_improvement
+```
+
+````
+
+````{py:attribute} acceptance_criterion
+:canonical: src.configs.policies.rl_gd_hh.RLGDHHConfig.acceptance_criterion
+:type: logic.src.configs.policies.other.acceptance_criteria.AcceptanceConfig
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.policies.rl_gd_hh.RLGDHHConfig.acceptance_criterion
 ```
 
 ````

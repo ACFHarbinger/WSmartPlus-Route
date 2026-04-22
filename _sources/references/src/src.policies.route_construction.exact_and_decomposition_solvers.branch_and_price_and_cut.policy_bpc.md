@@ -51,14 +51,6 @@ Bases: {py:obj}`logic.src.policies.route_construction.base.base_routing_policy.B
 
 ````
 
-````{py:method} execute(**kwargs: typing.Any) -> typing.Tuple[typing.Union[typing.List[int], typing.List[typing.List[int]]], float, float, typing.Optional[logic.src.interfaces.context.search_context.SearchContext], typing.Optional[logic.src.interfaces.context.multi_day_context.MultiDayContext]]
-:canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.policy_bpc.BPCPolicy.execute
-
-```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.policy_bpc.BPCPolicy.execute
-```
-
-````
-
 ````{py:method} _run_solver(sub_dist_matrix: numpy.ndarray, sub_wastes: typing.Dict[int, float], capacity: float, revenue: float, cost_unit: float, values: typing.Dict[str, typing.Any], mandatory_nodes: typing.List[int], **kwargs: typing.Any) -> typing.Tuple[typing.List[typing.List[int]], float, float]
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.policy_bpc.BPCPolicy._run_solver
 

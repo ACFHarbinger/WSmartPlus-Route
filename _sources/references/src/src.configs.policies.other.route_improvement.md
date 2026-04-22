@@ -440,13 +440,13 @@
 ```{autodoc2-docstring} src.configs.policies.other.route_improvement.SimulatedAnnealingPostConfig
 ```
 
-````{py:attribute} acceptance
-:canonical: src.configs.policies.other.route_improvement.SimulatedAnnealingPostConfig.acceptance
+````{py:attribute} acceptance_criterion
+:canonical: src.configs.policies.other.route_improvement.SimulatedAnnealingPostConfig.acceptance_criterion
 :type: src.configs.policies.other.acceptance_criteria.AcceptanceConfig
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.other.route_improvement.SimulatedAnnealingPostConfig.acceptance
+```{autodoc2-docstring} src.configs.policies.other.route_improvement.SimulatedAnnealingPostConfig.acceptance_criterion
 ```
 
 ````
@@ -566,13 +566,13 @@
 ```{autodoc2-docstring} src.configs.policies.other.route_improvement.RuinRecreatePostConfig
 ```
 
-````{py:attribute} acceptance
-:canonical: src.configs.policies.other.route_improvement.RuinRecreatePostConfig.acceptance
+````{py:attribute} acceptance_criterion
+:canonical: src.configs.policies.other.route_improvement.RuinRecreatePostConfig.acceptance_criterion
 :type: src.configs.policies.other.acceptance_criteria.AcceptanceConfig
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.other.route_improvement.RuinRecreatePostConfig.acceptance
+```{autodoc2-docstring} src.configs.policies.other.route_improvement.RuinRecreatePostConfig.acceptance_criterion
 ```
 
 ````
@@ -651,13 +651,13 @@
 ```{autodoc2-docstring} src.configs.policies.other.route_improvement.AdaptiveLNSPostConfig
 ```
 
-````{py:attribute} acceptance
-:canonical: src.configs.policies.other.route_improvement.AdaptiveLNSPostConfig.acceptance
+````{py:attribute} acceptance_criterion
+:canonical: src.configs.policies.other.route_improvement.AdaptiveLNSPostConfig.acceptance_criterion
 :type: src.configs.policies.other.acceptance_criteria.AcceptanceConfig
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.other.route_improvement.AdaptiveLNSPostConfig.acceptance
+```{autodoc2-docstring} src.configs.policies.other.route_improvement.AdaptiveLNSPostConfig.acceptance_criterion
 ```
 
 ````

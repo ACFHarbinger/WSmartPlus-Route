@@ -172,13 +172,13 @@
 
 ````
 
-````{py:attribute} acceptance
-:canonical: src.configs.policies.lb_vns.LocalBranchingVNSConfig.acceptance
+````{py:attribute} acceptance_criterion
+:canonical: src.configs.policies.lb_vns.LocalBranchingVNSConfig.acceptance_criterion
 :type: logic.src.configs.policies.other.acceptance_criteria.AcceptanceConfig
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.lb_vns.LocalBranchingVNSConfig.acceptance
+```{autodoc2-docstring} src.configs.policies.lb_vns.LocalBranchingVNSConfig.acceptance_criterion
 ```
 
 ````

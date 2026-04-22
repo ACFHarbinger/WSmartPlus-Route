@@ -183,13 +183,13 @@
 
 ````
 
-````{py:attribute} acceptance
-:canonical: src.configs.policies.rts.RTSConfig.acceptance
+````{py:attribute} acceptance_criterion
+:canonical: src.configs.policies.rts.RTSConfig.acceptance_criterion
 :type: src.configs.policies.other.acceptance_criteria.AcceptanceConfig
 :value: >
    'AcceptanceConfig(...)'
 
-```{autodoc2-docstring} src.configs.policies.rts.RTSConfig.acceptance
+```{autodoc2-docstring} src.configs.policies.rts.RTSConfig.acceptance_criterion
 ```
 
 ````

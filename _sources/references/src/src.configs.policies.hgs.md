@@ -337,13 +337,13 @@
 
 ````
 
-````{py:attribute} acceptance
-:canonical: src.configs.policies.hgs.HGSConfig.acceptance
+````{py:attribute} acceptance_criterion
+:canonical: src.configs.policies.hgs.HGSConfig.acceptance_criterion
 :type: src.configs.policies.other.acceptance_criteria.AcceptanceConfig
 :value: >
    'AcceptanceConfig(...)'
 
-```{autodoc2-docstring} src.configs.policies.hgs.HGSConfig.acceptance
+```{autodoc2-docstring} src.configs.policies.hgs.HGSConfig.acceptance_criterion
 ```
 
 ````

@@ -64,7 +64,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.configs.policies.hgs';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.configs.policies.oi" href="src.configs.policies.oi.html" />
+    <link rel="next" title="src.configs.policies.vpl" href="src.configs.policies.vpl.html" />
     <link rel="prev" title="src.configs.policies.sa" href="src.configs.policies.sa.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -498,7 +498,7 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">HGSConfig.profit_aware_operators</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.mandatory_selection"><code class="docutils literal notranslate"><span class="pre">HGSConfig.mandatory_selection</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.route_improvement"><code class="docutils literal notranslate"><span class="pre">HGSConfig.route_improvement</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.acceptance"><code class="docutils literal notranslate"><span class="pre">HGSConfig.acceptance</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.acceptance_criterion"><code class="docutils literal notranslate"><span class="pre">HGSConfig.acceptance_criterion</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -567,7 +567,8 @@ penalty_decrease: Multiplier for decreasing penalty.
 engine: Solver engine to use (‘custom’, ‘pyvrp’).
 vrpp: Whether this is a VRPP problem.
 mandatory_selection: List of mandatory strategy config files.
-route_improvement: List of route improvement operations to apply.</p>
+route_improvement: List of route improvement operations to apply.
+acceptance_criterion: Acceptance criterion config for local search.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.hgs.HGSConfig.time_limit">
 <span class="sig-name descname"><span class="pre">time_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.hgs.HGSConfig.time_limit" title="Link to this definition">#</a></dt>
@@ -737,8 +738,8 @@ route_improvement: List of route improvement operations to apply.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.hgs.HGSConfig.acceptance">
-<span class="sig-name descname"><span class="pre">acceptance</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="src.configs.policies.other.acceptance_criteria.html#src.configs.policies.other.acceptance_criteria.AcceptanceConfig" title="src.configs.policies.other.acceptance_criteria.AcceptanceConfig"><span class="pre">src.configs.policies.other.acceptance_criteria.AcceptanceConfig</span></a></em><a class="headerlink" href="#src.configs.policies.hgs.HGSConfig.acceptance" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="src.configs.policies.hgs.HGSConfig.acceptance_criterion">
+<span class="sig-name descname"><span class="pre">acceptance_criterion</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="src.configs.policies.other.acceptance_criteria.html#src.configs.policies.other.acceptance_criteria.AcceptanceConfig" title="src.configs.policies.other.acceptance_criteria.AcceptanceConfig"><span class="pre">src.configs.policies.other.acceptance_criteria.AcceptanceConfig</span></a></em><a class="headerlink" href="#src.configs.policies.hgs.HGSConfig.acceptance_criterion" title="Link to this definition">#</a></dt>
 <dd><p>‘AcceptanceConfig(…)’</p>
 </dd></dl>
 
@@ -769,11 +770,11 @@ route_improvement: List of route improvement operations to apply.</p>
       </div>
     </a>
     <a class="right-next"
-       href="src.configs.policies.oi.html"
+       href="src.configs.policies.vpl.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.oi</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.policies.vpl</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -825,7 +826,7 @@ route_improvement: List of route improvement operations to apply.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">HGSConfig.profit_aware_operators</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.mandatory_selection"><code class="docutils literal notranslate"><span class="pre">HGSConfig.mandatory_selection</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.route_improvement"><code class="docutils literal notranslate"><span class="pre">HGSConfig.route_improvement</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.acceptance"><code class="docutils literal notranslate"><span class="pre">HGSConfig.acceptance</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.hgs.HGSConfig.acceptance_criterion"><code class="docutils literal notranslate"><span class="pre">HGSConfig.acceptance_criterion</span></code></a></li>
 </ul>
 </li>
 </ul>

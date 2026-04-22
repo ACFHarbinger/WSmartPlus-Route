@@ -488,6 +488,7 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_ks.KSparseACOConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">KSparseACOConfig.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_ks.KSparseACOConfig.mandatory_selection"><code class="docutils literal notranslate"><span class="pre">KSparseACOConfig.mandatory_selection</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_ks.KSparseACOConfig.route_improvement"><code class="docutils literal notranslate"><span class="pre">KSparseACOConfig.route_improvement</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_ks.KSparseACOConfig.acceptance_criterion"><code class="docutils literal notranslate"><span class="pre">KSparseACOConfig.acceptance_criterion</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -543,7 +544,8 @@ local_search: Whether to apply local search after construction.
 local_search_iterations: Number of local search iterations.
 elitist_weight: Weight for elitist pheromone update.
 mandatory_selection: List of mandatory strategy config files.
-route_improvement: List of route improvement operations to apply.</p>
+route_improvement: List of route improvement operations to apply.
+acceptance_criterion: Acceptance criterion config for local search.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.aco_ks.KSparseACOConfig.n_ants">
 <span class="sig-name descname"><span class="pre">n_ants</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.aco_ks.KSparseACOConfig.n_ants" title="Link to this definition">#</a></dt>
@@ -652,6 +654,12 @@ route_improvement: List of route improvement operations to apply.</p>
 <dd><p>None</p>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.aco_ks.KSparseACOConfig.acceptance_criterion">
+<span class="sig-name descname"><span class="pre">acceptance_criterion</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="src.configs.policies.other.acceptance_criteria.html#src.configs.policies.other.acceptance_criteria.AcceptanceConfig" title="src.configs.policies.other.acceptance_criteria.AcceptanceConfig"><span class="pre">src.configs.policies.other.acceptance_criteria.AcceptanceConfig</span></a></em><a class="headerlink" href="#src.configs.policies.aco_ks.KSparseACOConfig.acceptance_criterion" title="Link to this definition">#</a></dt>
+<dd><p>‘AcceptanceConfig(…)’</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -725,6 +733,7 @@ route_improvement: List of route improvement operations to apply.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_ks.KSparseACOConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">KSparseACOConfig.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_ks.KSparseACOConfig.mandatory_selection"><code class="docutils literal notranslate"><span class="pre">KSparseACOConfig.mandatory_selection</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_ks.KSparseACOConfig.route_improvement"><code class="docutils literal notranslate"><span class="pre">KSparseACOConfig.route_improvement</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_ks.KSparseACOConfig.acceptance_criterion"><code class="docutils literal notranslate"><span class="pre">KSparseACOConfig.acceptance_criterion</span></code></a></li>
 </ul>
 </li>
 </ul>

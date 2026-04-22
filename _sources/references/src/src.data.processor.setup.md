@@ -34,7 +34,7 @@
 ```
 ````
 
-````{py:function} setup_dist_path_tup(bins_coordinates, size, dist_method, dm_filepath, env_filename, gapik_file, symkey_name, device, edge_thresh, edge_method, focus_idx=None)
+````{py:function} setup_dist_path_tup(bins_coordinates, size, dist_method, dm_filepath, env_filename, gapik_file, symkey_name, edge_thresh, edge_method, focus_idx=None)
 :canonical: src.data.processor.setup.setup_dist_path_tup
 
 ```{autodoc2-docstring} src.data.processor.setup.setup_dist_path_tup

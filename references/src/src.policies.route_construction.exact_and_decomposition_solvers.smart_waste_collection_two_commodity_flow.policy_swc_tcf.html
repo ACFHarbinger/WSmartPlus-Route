@@ -473,7 +473,6 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.policy_swc_tcf.SWCTCFPolicy._config_class"><code class="docutils literal notranslate"><span class="pre">SWCTCFPolicy._config_class()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.policy_swc_tcf.SWCTCFPolicy._get_config_key"><code class="docutils literal notranslate"><span class="pre">SWCTCFPolicy._get_config_key()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.policy_swc_tcf.SWCTCFPolicy._run_solver"><code class="docutils literal notranslate"><span class="pre">SWCTCFPolicy._run_solver()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.policy_swc_tcf.SWCTCFPolicy.execute"><code class="docutils literal notranslate"><span class="pre">SWCTCFPolicy.execute()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -547,38 +546,21 @@ config: SWCTCFConfig dataclass, raw dict from YAML, or None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.policy_swc_tcf.SWCTCFPolicy._run_solver">
 <span class="sig-name descname"><span class="pre">_run_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sub_dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.policy_swc_tcf.SWCTCFPolicy._run_solver" title="Link to this definition">#</a></dt>
-<dd><p>Legacy single-day solver fallback.
-SWC-TCF uses a specialized execute() method for historical reasons.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.policy_swc_tcf.SWCTCFPolicy.execute">
-<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.context.search_context.SearchContext</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.context.multi_day_context.MultiDayContext</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.policy_swc_tcf.SWCTCFPolicy.execute" title="Link to this definition">#</a></dt>
-<dd><p>Execute the Smart Waste Collection - Two-Commodity Flow (SWC-TCF) solver logic.</p>
-<p>This method coordinates the execution of the SWC-TCF formulation, which
-uses a flow-based Mixed-Integer Linear Program (MILP) to solve the
-routing problem. It supports multiple backends (Gurobi, Hexaly, Pyomo)
-and is specifically tuned for constraints found in the original Ramos
-et al. (2018) smart waste collection study.</p>
+<dd><p>Execute core Smart Waste Collection - Two-Commodity Flow (SWC-TCF) solver.</p>
+<p>This implementation adapts the flow-based MILP model to the standardized
+agnostic routing interface. It resolves backends (Gurobi, Pyomo, OR-Tools)
+and handles the translation of local sub-problem data into solver-specific
+formats.</p>
 <p>Args:
-**kwargs: Context dictionary containing:
-- area (str): The operational area (e.g., “Rio Maior”).
-- waste_type (str): The type of waste (e.g., “plastic”).
-- bins (BCollection): The bin collection object or fill amounts.
-- distance_matrix (np.ndarray): Symmetric distance matrix.
-- mandatory_nodes (List[int]): Bins that MUST be collected.
-- search_context (Optional[SearchContext]): Context for tracking
-recursive solver statistics.
-- multi_day_context (Optional[MultiDayContext]): Context for
-inter-day state propagation.</p>
+sub_dist_matrix: Symmetric distance matrix for the sub-problem.
+sub_wastes: Mapping of node indices to fill percentages (0..100).
+capacity: Vehicle capacity in percentage points (relative to 100% per bin).
+revenue: Euro per percentage point of fill collected.
+cost_unit: Euro per kilometer traveled.
+values: Merged configuration dictionary from Policy and defaults.
+mandatory_nodes: Local indices of bins that MUST be collected.</p>
 <p>Returns:
-Tuple[List[int], float, float, Optional[SearchContext], Optional[MultiDayContext]]:
-A 5-tuple containing:
-- route: The optimized collection route (flat list).
-- cost: Total travel cost calculated based on the route.
-- profit: Total net profit (Total Revenue - Total Cost).
-- search_context: The propagated or initialized search context.
-- multi_day_context: The final multi-day state metadata.</p>
+Tuple[List[List[int]], float, float]: (routes, profit, travel_cost)</p>
 </dd></dl>
 
 </dd></dl>
@@ -639,7 +621,6 @@ A 5-tuple containing:
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.policy_swc_tcf.SWCTCFPolicy._config_class"><code class="docutils literal notranslate"><span class="pre">SWCTCFPolicy._config_class()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.policy_swc_tcf.SWCTCFPolicy._get_config_key"><code class="docutils literal notranslate"><span class="pre">SWCTCFPolicy._get_config_key()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.policy_swc_tcf.SWCTCFPolicy._run_solver"><code class="docutils literal notranslate"><span class="pre">SWCTCFPolicy._run_solver()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.policy_swc_tcf.SWCTCFPolicy.execute"><code class="docutils literal notranslate"><span class="pre">SWCTCFPolicy.execute()</span></code></a></li>
 </ul>
 </li>
 </ul>

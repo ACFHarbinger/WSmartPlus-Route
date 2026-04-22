@@ -469,6 +469,8 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.operators.destroy_ruin.cluster._kruskal_two_clusters"><code class="docutils literal notranslate"><span class="pre">_kruskal_two_clusters()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.operators.destroy_ruin.cluster._find_cross_route_neighbor"><code class="docutils literal notranslate"><span class="pre">_find_cross_route_neighbor()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.operators.destroy_ruin.cluster.cluster_removal"><code class="docutils literal notranslate"><span class="pre">cluster_removal()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.operators.destroy_ruin.cluster.cluster_profit_removal"><code class="docutils literal notranslate"><span class="pre">cluster_profit_removal()</span></code></a></li>
 </ul>
@@ -505,8 +507,14 @@ None</p>
 <h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.helpers.operators.destroy_ruin.cluster._kruskal_two_clusters" title="src.policies.helpers.operators.destroy_ruin.cluster._kruskal_two_clusters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_kruskal_two_clusters</span></code></a></p></td>
+<td><p>Split a route into two clusters via Kruskal’s MST (Pisinger &amp; Ropke 2007 §5.1.4).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.helpers.operators.destroy_ruin.cluster._find_cross_route_neighbor" title="src.policies.helpers.operators.destroy_ruin.cluster._find_cross_route_neighbor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_find_cross_route_neighbor</span></code></a></p></td>
+<td><p>Return (best_node, route_idx) of the closest unremoved node from a different route.</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.helpers.operators.destroy_ruin.cluster.cluster_removal" title="src.policies.helpers.operators.destroy_ruin.cluster.cluster_removal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cluster_removal</span></code></a></p></td>
-<td><p>Remove a geographic cluster of nodes based on spatial proximity.</p></td>
+<td><p>Remove clusters of nodes using Kruskal’s MST partitioning.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.policies.helpers.operators.destroy_ruin.cluster.cluster_profit_removal" title="src.policies.helpers.operators.destroy_ruin.cluster.cluster_profit_removal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cluster_profit_removal</span></code></a></p></td>
 <td><p>Remove a group of nodes based on similarity in their profit contributions.</p></td>
@@ -518,27 +526,48 @@ None</p>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py function">
+<dt class="sig sig-object py" id="src.policies.helpers.operators.destroy_ruin.cluster._kruskal_two_clusters">
+<span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.destroy_ruin.cluster.</span></span><span class="sig-name descname"><span class="pre">_kruskal_two_clusters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.operators.destroy_ruin.cluster._kruskal_two_clusters" title="Link to this definition">#</a></dt>
+<dd><p>Split a route into two clusters via Kruskal’s MST (Pisinger &amp; Ropke 2007 §5.1.4).</p>
+<p>Builds the MST by adding edges in ascending r_ij = d(i,j)/d_max order and
+terminates after adding n-2 edges, leaving exactly two connected components.</p>
+<p>Args:
+route: Node IDs to partition.
+dist_matrix: Distance matrix.
+d_max: Global maximum distance for normalization.</p>
+<p>Returns:
+Two lists of node IDs representing the two clusters.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.helpers.operators.destroy_ruin.cluster._find_cross_route_neighbor">
+<span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.destroy_ruin.cluster.</span></span><span class="sig-name descname"><span class="pre">_find_cross_route_neighbor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pivot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pivot_route_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.operators.destroy_ruin.cluster._find_cross_route_neighbor" title="Link to this definition">#</a></dt>
+<dd><p>Return (best_node, route_idx) of the closest unremoved node from a different route.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="src.policies.helpers.operators.destroy_ruin.cluster.cluster_removal">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.operators.destroy_ruin.cluster.</span></span><span class="sig-name descname"><span class="pre">cluster_removal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_remove</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">random.Random</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.operators.destroy_ruin.cluster.cluster_removal" title="Link to this definition">#</a></dt>
-<dd><p>Remove a geographic cluster of nodes based on spatial proximity.</p>
+<dd><p>Remove clusters of nodes using Kruskal’s MST partitioning.</p>
 <p><strong>Paper Reference</strong>: Pisinger &amp; Ropke (2007), §5.1.4 — <em>Cluster Removal</em>.</p>
-<p><strong>Relationship to the Paper</strong>: The cluster removal heuristic in the paper
-runs Kruskal’s MST algorithm on the relatedness graph (using edge weight
-<code class="docutils literal notranslate"><span class="pre">r_{ij}</span></code>) and terminates when two connected components remain.  One
-component is chosen at random and its nodes are removed.  If fewer than
-<code class="docutils literal notranslate"><span class="pre">q</span></code> nodes have been selected, the process is repeated on a different
-route.</p>
-<p><strong>This implementation</strong> is a geographic-proximity simplification: it picks
-a random seed node and removes the <code class="docutils literal notranslate"><span class="pre">n_remove</span> <span class="pre">-</span> <span class="pre">1</span></code> spatially closest
-nodes.  This is equivalent to the single-cluster phase of the paper but
-omits the iterative multi-route extension and the explicit MST computation.
-The simplification is appropriate for VRPP instances with a homogeneous
-fleet, where inter-request distance is the dominant relatedness component.</p>
+<p>Implements the algorithm as described in the paper:</p>
+<ol class="arabic simple">
+<li><p>Pick a random route and partition it into two clusters by running Kruskal’s
+minimum spanning tree algorithm on the route’s relatedness graph
+(edge weight <code class="docutils literal notranslate"><span class="pre">r_ij</span> <span class="pre">=</span> <span class="pre">d(i,j)</span> <span class="pre">/</span> <span class="pre">d_max</span></code>), terminating when two connected
+components remain (i.e., after adding <code class="docutils literal notranslate"><span class="pre">|route|</span> <span class="pre">-</span> <span class="pre">2</span></code> edges).</p></li>
+<li><p>Randomly select one of the two clusters and remove its nodes.</p></li>
+<li><p>If fewer than <code class="docutils literal notranslate"><span class="pre">q</span></code> nodes have been removed, pick a random already-removed
+node as pivot, find the most-related unremoved node from a <strong>different</strong>
+route (minimum <code class="docutils literal notranslate"><span class="pre">d(pivot,</span> <span class="pre">node)</span></code>), and partition that route into two
+clusters using the same Kruskal procedure.  Add one of the two clusters.</p></li>
+<li><p>Repeat step 3 until <code class="docutils literal notranslate"><span class="pre">q</span></code> nodes have been removed.</p></li>
+</ol>
 <p>Args:
 routes (List[List[int]]): Current routes.
-n_remove (int): Number of nodes to remove.
-dist_matrix (np.ndarray): Distance matrix.
-nodes (List[int]): List of all node IDs.
+n_remove (int): Target number of nodes to remove.
+dist_matrix (np.ndarray): Distance/cost matrix with depot at index 0.
+nodes (List[int]): All node IDs (unused; retained for API compatibility).
 rng (Optional[Random]): Random number generator.</p>
 <p>Returns:
 Tuple[List[List[int]], List[int]]: Partial routes and list of removed node IDs.</p>
@@ -616,6 +645,8 @@ Tuple[List[List[int]], List[int]]: Partial routes and list of removed node IDs.<
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.operators.destroy_ruin.cluster._kruskal_two_clusters"><code class="docutils literal notranslate"><span class="pre">_kruskal_two_clusters()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.operators.destroy_ruin.cluster._find_cross_route_neighbor"><code class="docutils literal notranslate"><span class="pre">_find_cross_route_neighbor()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.operators.destroy_ruin.cluster.cluster_removal"><code class="docutils literal notranslate"><span class="pre">cluster_removal()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.operators.destroy_ruin.cluster.cluster_profit_removal"><code class="docutils literal notranslate"><span class="pre">cluster_profit_removal()</span></code></a></li>
 </ul>

@@ -472,7 +472,6 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.policy_bpc.BPCPolicy"><code class="docutils literal notranslate"><span class="pre">BPCPolicy</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.policy_bpc.BPCPolicy._config_class"><code class="docutils literal notranslate"><span class="pre">BPCPolicy._config_class()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.policy_bpc.BPCPolicy._get_config_key"><code class="docutils literal notranslate"><span class="pre">BPCPolicy._get_config_key()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.policy_bpc.BPCPolicy.execute"><code class="docutils literal notranslate"><span class="pre">BPCPolicy.execute()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.policy_bpc.BPCPolicy._run_solver"><code class="docutils literal notranslate"><span class="pre">BPCPolicy._run_solver()</span></code></a></li>
 </ul>
 </li>
@@ -529,25 +528,6 @@ config: BPCConfig dataclass, raw dict from YAML, or None.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.policy_bpc.BPCPolicy._get_config_key">
 <span class="sig-name descname"><span class="pre">_get_config_key</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.policy_bpc.BPCPolicy._get_config_key" title="Link to this definition">#</a></dt>
 <dd><p>Return config key for BPC.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.policy_bpc.BPCPolicy.execute">
-<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.context.search_context.SearchContext</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.interfaces.context.multi_day_context.MultiDayContext</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.policy_bpc.BPCPolicy.execute" title="Link to this definition">#</a></dt>
-<dd><p>Execute the Branch-and-Price-and-Cut (BPC) solver logic.</p>
-<p>This method coordinates the execution of the BPC algorithm, which is the
-most advanced exact optimization technique in the framework for single-day
-deterministic routing.</p>
-<p>Args:
-**kwargs: Context dictionary containing parameters needed for the subproblem.</p>
-<p>Returns:
-Tuple[Union[List[int], List[List[int]]], float, float, Optional[SearchContext], Optional[MultiDayContext]]:
-A 5-tuple containing:
-- tour: The optimized collection routes (flat or nested).
-- cost: Total travel cost of the routes.
-- profit: Total net profit (Revenue + Future Value - Cost).
-- search_context: The enriched search context after BPC execution.
-- multi_day_context: The final multi-day state metadata.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -640,7 +620,6 @@ Tuple[List[List[int]], float, float]: A 3-tuple containing:
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.policy_bpc.BPCPolicy"><code class="docutils literal notranslate"><span class="pre">BPCPolicy</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.policy_bpc.BPCPolicy._config_class"><code class="docutils literal notranslate"><span class="pre">BPCPolicy._config_class()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.policy_bpc.BPCPolicy._get_config_key"><code class="docutils literal notranslate"><span class="pre">BPCPolicy._get_config_key()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.policy_bpc.BPCPolicy.execute"><code class="docutils literal notranslate"><span class="pre">BPCPolicy.execute()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.policy_bpc.BPCPolicy._run_solver"><code class="docutils literal notranslate"><span class="pre">BPCPolicy._run_solver()</span></code></a></li>
 </ul>
 </li>

@@ -227,4 +227,15 @@
 
 ````
 
+````{py:attribute} acceptance_criterion
+:canonical: src.configs.policies.aco_ks.KSparseACOConfig.acceptance_criterion
+:type: src.configs.policies.other.acceptance_criteria.AcceptanceConfig
+:value: >
+   'AcceptanceConfig(...)'
+
+```{autodoc2-docstring} src.configs.policies.aco_ks.KSparseACOConfig.acceptance_criterion
+```
+
+````
+
 `````

@@ -149,7 +149,7 @@ Bases: {py:obj}`Exception`
 ```
 ````
 
-````{py:function} _solve_farkas_pricing_step(master: logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem, pricing_solver: logic.src.policies.helpers.solvers_and_matheuristics.RCSPPSolver, branching_constraints: typing.List[logic.src.policies.helpers.solvers_and_matheuristics.AnyBranchingConstraint], farkas_duals: typing.Any, max_routes: int = 5) -> typing.Tuple[int, bool]
+````{py:function} _solve_farkas_pricing_step(master: logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem, pricing_solver: logic.src.policies.helpers.solvers_and_matheuristics.RCSPPSolver, branching_constraints: typing.List[logic.src.policies.helpers.solvers_and_matheuristics.AnyBranchingConstraint], farkas_duals: typing.Any, max_routes: int = 5, timeout: typing.Optional[float] = None) -> typing.Tuple[int, bool]
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._solve_farkas_pricing_step
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._solve_farkas_pricing_step
@@ -163,7 +163,7 @@ Bases: {py:obj}`Exception`
 ```
 ````
 
-````{py:function} _solve_pricing_step(master: logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem, pricing_solver: logic.src.policies.helpers.solvers_and_matheuristics.RCSPPSolver, branching_constraints: typing.Optional[typing.List[logic.src.policies.helpers.solvers_and_matheuristics.AnyBranchingConstraint]] = None, max_routes: int = 5, optimality_gap: float = 0.0001, rc_tolerance: float = 1e-05, use_swc_tcf_heuristic_pricing: bool = False) -> typing.Tuple[int, bool]
+````{py:function} _solve_pricing_step(master: logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem, pricing_solver: logic.src.policies.helpers.solvers_and_matheuristics.RCSPPSolver, branching_constraints: typing.Optional[typing.List[logic.src.policies.helpers.solvers_and_matheuristics.AnyBranchingConstraint]] = None, max_routes: int = 5, optimality_gap: float = 0.0001, rc_tolerance: float = 1e-05, use_swc_tcf_heuristic_pricing: bool = False, timeout: typing.Optional[float] = None) -> typing.Tuple[int, bool]
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._solve_pricing_step
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._solve_pricing_step

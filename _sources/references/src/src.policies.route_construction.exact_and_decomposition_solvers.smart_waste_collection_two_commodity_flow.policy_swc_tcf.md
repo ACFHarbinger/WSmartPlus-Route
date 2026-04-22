@@ -56,12 +56,4 @@ Bases: {py:obj}`logic.src.policies.route_construction.base.base_routing_policy.B
 
 ````
 
-````{py:method} execute(**kwargs: typing.Any) -> typing.Tuple[typing.List[int], float, float, typing.Optional[logic.src.interfaces.context.search_context.SearchContext], typing.Optional[logic.src.interfaces.context.multi_day_context.MultiDayContext]]
-:canonical: src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.policy_swc_tcf.SWCTCFPolicy.execute
-
-```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.policy_swc_tcf.SWCTCFPolicy.execute
-```
-
-````
-
 `````

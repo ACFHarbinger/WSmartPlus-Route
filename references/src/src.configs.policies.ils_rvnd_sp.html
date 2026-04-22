@@ -490,9 +490,9 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.engine"><code class="docutils literal notranslate"><span class="pre">ILSRVNDSPConfig.engine</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.framework"><code class="docutils literal notranslate"><span class="pre">ILSRVNDSPConfig.framework</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.local_search_iterations"><code class="docutils literal notranslate"><span class="pre">ILSRVNDSPConfig.local_search_iterations</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.acceptance"><code class="docutils literal notranslate"><span class="pre">ILSRVNDSPConfig.acceptance</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.mandatory_selection"><code class="docutils literal notranslate"><span class="pre">ILSRVNDSPConfig.mandatory_selection</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.route_improvement"><code class="docutils literal notranslate"><span class="pre">ILSRVNDSPConfig.route_improvement</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.acceptance_criterion"><code class="docutils literal notranslate"><span class="pre">ILSRVNDSPConfig.acceptance_criterion</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -654,12 +654,6 @@ document.write(`
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.acceptance">
-<span class="sig-name descname"><span class="pre">acceptance</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">logic.src.configs.policies.other.acceptance_criteria.AcceptanceConfig</span></em><a class="headerlink" href="#src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.acceptance" title="Link to this definition">#</a></dt>
-<dd><p>‘field(…)’</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.mandatory_selection">
 <span class="sig-name descname"><span class="pre">mandatory_selection</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.mandatory_selection" title="Link to this definition">#</a></dt>
 <dd><p>‘field(…)’</p>
@@ -668,6 +662,12 @@ document.write(`
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.route_improvement">
 <span class="sig-name descname"><span class="pre">route_improvement</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.route_improvement" title="Link to this definition">#</a></dt>
+<dd><p>‘field(…)’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.acceptance_criterion">
+<span class="sig-name descname"><span class="pre">acceptance_criterion</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">logic.src.configs.policies.other.acceptance_criteria.AcceptanceConfig</span></em><a class="headerlink" href="#src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.acceptance_criterion" title="Link to this definition">#</a></dt>
 <dd><p>‘field(…)’</p>
 </dd></dl>
 
@@ -746,9 +746,9 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.engine"><code class="docutils literal notranslate"><span class="pre">ILSRVNDSPConfig.engine</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.framework"><code class="docutils literal notranslate"><span class="pre">ILSRVNDSPConfig.framework</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.local_search_iterations"><code class="docutils literal notranslate"><span class="pre">ILSRVNDSPConfig.local_search_iterations</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.acceptance"><code class="docutils literal notranslate"><span class="pre">ILSRVNDSPConfig.acceptance</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.mandatory_selection"><code class="docutils literal notranslate"><span class="pre">ILSRVNDSPConfig.mandatory_selection</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.route_improvement"><code class="docutils literal notranslate"><span class="pre">ILSRVNDSPConfig.route_improvement</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.ils_rvnd_sp.ILSRVNDSPConfig.acceptance_criterion"><code class="docutils literal notranslate"><span class="pre">ILSRVNDSPConfig.acceptance_criterion</span></code></a></li>
 </ul>
 </li>
 </ul>

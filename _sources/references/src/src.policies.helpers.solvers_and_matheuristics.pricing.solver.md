@@ -59,7 +59,7 @@
 
 ````
 
-`````{py:class} RCSPPSolver(n_nodes: int, cost_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, revenue_per_kg: float, cost_per_km: float, mandatory_nodes: typing.Optional[typing.Set[int]] = None, use_ng_routes: bool = True, ng_neighborhood_size: int = 8, ng_neighborhoods: typing.Optional[typing.Dict[int, typing.Set[int]]] = None, node_prizes: typing.Optional[typing.Dict[int, float]] = None)
+`````{py:class} RCSPPSolver(n_nodes: int, cost_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, revenue_per_kg: float, cost_per_km: float, mandatory_nodes: typing.Optional[typing.Set[int]] = None, use_ng_routes: bool = True, ng_neighborhood_size: int = 8, ng_neighborhoods: typing.Optional[typing.Dict[int, typing.Set[int]]] = None, node_prizes: typing.Optional[typing.Dict[int, float]] = None, timeout: float = 30.0, max_labels: int = 1000000)
 :canonical: src.policies.helpers.solvers_and_matheuristics.pricing.solver.RCSPPSolver
 
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.pricing.solver.RCSPPSolver
@@ -119,7 +119,7 @@
 
 ````
 
-````{py:method} solve(dual_values: typing.Union[typing.Dict[int, float], typing.Dict[str, typing.Any]], max_routes: int = 10, branching_constraints: typing.Optional[typing.List[logic.src.policies.helpers.solvers_and_matheuristics.branching.constraints.AnyBranchingConstraint]] = None, capacity_cut_duals: typing.Optional[typing.Dict[typing.FrozenSet[int], float]] = None, sri_cut_duals: typing.Optional[typing.Dict[typing.FrozenSet[int], float]] = None, edge_clique_cut_duals: typing.Optional[typing.Dict[typing.Tuple[int, int], float]] = None, forced_nodes: typing.Optional[typing.Set[int]] = None, rf_conflicts: typing.Optional[typing.Dict[int, typing.Set[int]]] = None, is_farkas: bool = False, exact_mode: bool = False) -> typing.List[logic.src.policies.helpers.solvers_and_matheuristics.common.route.Route]
+````{py:method} solve(dual_values: typing.Union[typing.Dict[int, float], typing.Dict[str, typing.Any]], max_routes: int = 10, branching_constraints: typing.Optional[typing.List[logic.src.policies.helpers.solvers_and_matheuristics.branching.constraints.AnyBranchingConstraint]] = None, capacity_cut_duals: typing.Optional[typing.Dict[typing.FrozenSet[int], float]] = None, sri_cut_duals: typing.Optional[typing.Dict[typing.FrozenSet[int], float]] = None, edge_clique_cut_duals: typing.Optional[typing.Dict[typing.Tuple[int, int], float]] = None, forced_nodes: typing.Optional[typing.Set[int]] = None, rf_conflicts: typing.Optional[typing.Dict[int, typing.Set[int]]] = None, is_farkas: bool = False, exact_mode: bool = False, timeout: typing.Optional[float] = None) -> typing.List[logic.src.policies.helpers.solvers_and_matheuristics.common.route.Route]
 :canonical: src.policies.helpers.solvers_and_matheuristics.pricing.solver.RCSPPSolver.solve
 
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.pricing.solver.RCSPPSolver.solve

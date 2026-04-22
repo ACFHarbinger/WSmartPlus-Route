@@ -183,13 +183,13 @@
 
 ````
 
-````{py:attribute} acceptance
-:canonical: src.configs.policies.alns.ALNSConfig.acceptance
+````{py:attribute} acceptance_criterion
+:canonical: src.configs.policies.alns.ALNSConfig.acceptance_criterion
 :type: src.configs.policies.other.acceptance_criteria.AcceptanceConfig
 :value: >
    'field(...)'
 
-```{autodoc2-docstring} src.configs.policies.alns.ALNSConfig.acceptance
+```{autodoc2-docstring} src.configs.policies.alns.ALNSConfig.acceptance_criterion
 ```
 
 ````
