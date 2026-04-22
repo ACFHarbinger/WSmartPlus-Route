@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import heapq
 import logging
+import time
 from typing import TYPE_CHECKING, Any, Dict, FrozenSet, List, Optional, Set, Tuple, Union, cast
 
 import numpy as np
@@ -55,6 +56,8 @@ class RCSPPSolver:
         ng_neighborhood_size: int = 8,
         ng_neighborhoods: Optional[Dict[int, Set[int]]] = None,
         node_prizes: Optional[Dict[int, float]] = None,
+        timeout: float = 30.0,
+        max_labels: int = 1000000,
     ) -> None:
         self.n_nodes = n_nodes
         self.cost_matrix = cost_matrix
@@ -67,6 +70,8 @@ class RCSPPSolver:
         self.depot = 0
         self.use_ng_routes = use_ng_routes
         self.ng_neighborhood_size = ng_neighborhood_size
+        self.timeout = timeout
+        self.max_labels = max_labels
 
         self.labels_generated: int = 0
         self.labels_dominated: int = 0
@@ -371,7 +376,23 @@ class RCSPPSolver:
         completed_routes: List[Label] = []
         global_max_rc = -float("inf")
 
+        start_time = time.monotonic()
         while queue:
+            # Emergency termination for state-space explosion
+            if self.labels_generated > self.max_labels:
+                logger.warning(
+                    f"RCSPP explosion: terminated early after {self.max_labels} labels. "
+                    "Consider reducing ng_neighborhood_size or enabling use_swc_tcf_heuristic_pricing."
+                )
+                break
+
+            if (time.monotonic() - start_time) > self.timeout:
+                logger.warning(
+                    f"RCSPP timeout: terminated early after {self.timeout} seconds. "
+                    "Instance may be too large for exact pricing at this node."
+                )
+                break
+
             _, _, current = heapq.heappop(queue)
             u = current.node
 

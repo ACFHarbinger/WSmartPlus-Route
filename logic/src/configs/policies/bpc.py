@@ -49,6 +49,15 @@ class BPCConfig:
         use_swc_tcf_initialization: Whether to use SWC-TCF for RMP initialization.
         use_swc_tcf_heuristic_pricing: Whether to use SWC-TCF as a fast heuristic pricer.
         use_swc_tcf_primal_heuristic: Whether to use SWC-TCF as a primal heuristic at nodes.
+        rcspp_timeout: Safety cap for single pricer call (seconds).
+        rcspp_max_labels: Safety cap to prevent OOM in RCSPP.
+        lr_pre_pruning: Whether to enable pre-pruning using the Lagrangian Relaxation (LR) heuristic.
+        lr_lambda_init: Initial lambda value for LR heuristic.
+        lr_max_subgradient_iters: Maximum iterations for LR subgradient updates.
+        lr_subgradient_theta: Step size parameter for LR subgradient updates.
+        lr_op_time_limit: Time limit for LR operations (seconds).
+        lr_pre_pruning_depth_limit: Depth limit for LR pre-pruning.
+        lr_warm_start_cg: Whether to warm-start column generation with LR solutions.
     """
 
     time_limit: float = 60.0
@@ -90,6 +99,5 @@ class BPCConfig:
     lr_op_time_limit: float = 3.0
     lr_pre_pruning_depth_limit: int = -1
     lr_warm_start_cg: bool = False
-    multi_day_mode: bool = False
-    adp_model_path: str = ""
-    adp_model_type: str = "sklearn"
+    rcspp_timeout: float = 30.0  # Safety cap for single pricer call
+    rcspp_max_labels: int = 1000000  # Safety cap to prevent OOM
