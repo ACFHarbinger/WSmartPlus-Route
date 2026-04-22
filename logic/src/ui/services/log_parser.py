@@ -1,4 +1,3 @@
-# Copyright (c) WSmart-Route. All rights reserved.
 """
 Custom log parsing logic for simulation outputs.
 

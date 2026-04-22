@@ -26,6 +26,7 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.interfaces.context.search_context import SearchContext
 from logic.src.interfaces.mandatory_selection import IMandatorySelectionStrategy
 from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
@@ -35,6 +36,12 @@ from logic.src.policies.mandatory_selection.base.selection_registry import Manda
 logger = logging.getLogger(__name__)
 
 
+@GlobalRegistry.register(
+    PolicyTag.SELECTION,
+    PolicyTag.ORCHESTRATOR,
+    PolicyTag.ADAPTIVE_ALGORITHM,
+    PolicyTag.STOCHASTIC,
+)
 @MandatorySelectionRegistry.register("dispatcher_thompson")
 class ThompsonDispatcher(IMandatorySelectionStrategy):
     """

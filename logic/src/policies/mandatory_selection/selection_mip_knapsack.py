@@ -73,6 +73,7 @@ from typing import Any, List, Optional, Tuple
 import numpy as np
 from scipy.optimize import Bounds, LinearConstraint, milp
 
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.interfaces.context.search_context import SearchContext
 from logic.src.interfaces.mandatory_selection import IMandatorySelectionStrategy
 from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
@@ -174,6 +175,12 @@ def _compute_overflow_risk(
 # ---------------------------------------------------------------------------
 
 
+@GlobalRegistry.register(
+    PolicyTag.SELECTION,
+    PolicyTag.MATHEURISTIC,
+    PolicyTag.MATH_PROGRAMMING,
+    PolicyTag.PROFIT_AWARE,
+)
 @MandatorySelectionRegistry.register("mip_knapsack")
 class MIPKnapsackSelection(IMandatorySelectionStrategy):
     """Exact 0/1 multiple-knapsack selection minimising expected overflow loss.

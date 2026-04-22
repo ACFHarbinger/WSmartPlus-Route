@@ -4,12 +4,17 @@ Path Refinement Route Improver.
 
 from typing import Any, List, Tuple
 
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.interfaces import IRouteImprovement
 from logic.src.interfaces.context.search_context import ImprovementMetrics
 
 from .base import RouteImproverRegistry
 
 
+@GlobalRegistry.register(
+    PolicyTag.IMPROVEMENT,
+    PolicyTag.HEURISTIC,
+)
 @RouteImproverRegistry.register("path")
 class PathRouteImprover(IRouteImprovement):
     """

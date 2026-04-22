@@ -1,5 +1,6 @@
 from typing import Any, List, Tuple
 
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.interfaces.context.search_context import ImprovementMetrics
 from logic.src.interfaces.route_improvement import IRouteImprovement
 from logic.src.policies.helpers.operators.recreate_repair import greedy_insertion, greedy_profit_insertion
@@ -13,6 +14,10 @@ from .common.helpers import (
 )
 
 
+@GlobalRegistry.register(
+    PolicyTag.IMPROVEMENT,
+    PolicyTag.HEURISTIC,
+)
 @RouteImproverRegistry.register("cheapest_insertion")
 class CheapestInsertionRouteImprover(IRouteImprovement):
     """

@@ -1,4 +1,3 @@
-# Copyright (c) WSmart-Route. All rights reserved.
 """
 KPI card HTML generation and number formatting utilities.
 

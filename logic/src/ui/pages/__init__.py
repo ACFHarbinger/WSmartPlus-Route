@@ -2,6 +2,7 @@
 Dashboard components for the Streamlit UI.
 """
 
+from .algorithms import render_algorithms
 from .benchmark import render_benchmark_analysis
 from .data_explorer import render_data_explorer
 from .experiment_tracker import render_experiment_tracker
@@ -17,4 +18,5 @@ __all__ = [
     "render_data_explorer",
     "render_experiment_tracker",
     "render_hpo_tracker",
+    "render_algorithms",
 ]

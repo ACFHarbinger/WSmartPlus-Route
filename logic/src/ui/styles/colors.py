@@ -1,4 +1,3 @@
-# Copyright (c) WSmart-Route. All rights reserved.
 """
 Color palettes and page configuration for the dashboard.
 

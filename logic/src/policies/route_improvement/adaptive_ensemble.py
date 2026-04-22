@@ -8,6 +8,7 @@ route improvement strategies (phases) using a performance-weighted Roulette Whee
 import random
 from typing import Any, List, Tuple
 
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.interfaces.context.search_context import ImprovementMetrics
 from logic.src.interfaces.route_improvement import IRouteImprovement
 
@@ -15,6 +16,11 @@ from .base import RouteImproverRegistry
 from .common.helpers import split_tour, to_numpy, tour_distance
 
 
+@GlobalRegistry.register(
+    PolicyTag.IMPROVEMENT,
+    PolicyTag.ORCHESTRATOR,
+    PolicyTag.ADAPTIVE_ALGORITHM,
+)
 @RouteImproverRegistry.register("adaptive_ensemble")
 class AdaptiveEnsembleRouteImprover(IRouteImprovement):
     """
