@@ -9,7 +9,9 @@ from logic.src.ui.components.charts import create_stacked_bar_chart
 from logic.src.ui.pages.simulation.map import render_bin_heatmap
 
 # Load styles dynamically
-styles_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "json", "bin_styles.json")
+styles_path = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "json", "bin_styles.json"
+)
 with open(styles_path, "r", encoding="utf-8") as f:
     BIN_STYLES = json.load(f)
 

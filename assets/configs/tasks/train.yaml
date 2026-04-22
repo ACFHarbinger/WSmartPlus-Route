@@ -158,30 +158,30 @@ model:
 # =============================================================================
 mandatory_selection:
   strategy: "lookahead" # Default strategy for training
-
-  # LastMinute/Manager threshold
-  threshold:
-    0.7 # Fill level threshold (0-1). Bins >= threshold are mandatory.
-    # For manager: probability threshold for mandatory decision.
-
-  # Regular parameters
-  frequency: 3 # Collection frequency in days (for strategy=regular)
-
-  # ServiceLevel parameters
-  confidence_factor: 1.0 # Standard deviations for statistical prediction (σ multiplier)
-
-  # Revenue parameters
-  revenue_kg: 1.0 # Revenue per kg of waste collected
-  bin_capacity: 1.0 # Maximum bin capacity
-  revenue_threshold: 0.0 # Minimum revenue to justify collection
-
-  # Common parameters
   max_fill: 1.0 # Overflow threshold (bins at max_fill overflow)
 
-  # Manager (HRL high-level policy) parameters
-  hidden_dim: 128 # Manager network hidden dimension
-  lstm_hidden: 64 # LSTM hidden size for temporal encoding
-  history_length: 10 # Number of past timesteps in waste history
-  critical_threshold: 0.9 # Fill level considered critical for manager
-  manager_weights: null # Path to pre-trained manager checkpoint (optional)
-  device: "cuda" # Device for manager inference
+  lookahead:
+    threshold: 0.7
+    horizon_days: 3
+
+  last_minute:
+    threshold: 0.7
+
+  regular:
+    frequency: 3
+
+  service_level:
+    confidence_factor: 1.0
+
+  revenue:
+    revenue_kg: 1.0
+    bin_capacity: 1.0
+    revenue_threshold: 0.0
+
+  manager:
+    hidden_dim: 128
+    lstm_hidden: 64
+    history_length: 10
+    manager_critical_threshold: 0.9
+    manager_weights: null
+    device: "cuda"

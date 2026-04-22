@@ -165,7 +165,7 @@ class VRPInstanceBuilder:
         fill_arr = fill_arr * MAX_CAPACITY_PERCENT
 
         if self._problem_name == "swcvrp":
-            noise = np.random.normal(self._noise_mean, np.sqrt(self._noise_variance), fill_arr.shape)
+            noise = self.np_rng.normal(self._noise_mean, np.sqrt(self._noise_variance), fill_arr.shape)
             noisy_fill_arr = np.clip(fill_arr + noise, 0, MAX_CAPACITY_PERCENT)
         else:
             noisy_fill_arr = fill_arr.copy()
@@ -210,7 +210,11 @@ class VRPInstanceBuilder:
         # Handle noise for stochastic variants
         if self._problem_name == "swcvrp":
             real_waste = torch.tensor(fill_vals, dtype=torch.float32, device=device)
-            noise = torch.randn_like(real_waste) * np.sqrt(self._noise_variance) + self._noise_mean
+            noise = (
+                torch.randn(real_waste.shape, dtype=torch.float32, device=device, generator=self.generator)
+                * np.sqrt(self._noise_variance)
+                + self._noise_mean
+            )
             noisy_waste = torch.clamp(real_waste + noise, 0, MAX_WASTE)
 
             # For TensorDict, we usually want (bs, num_loc) for waste.
@@ -261,7 +265,7 @@ class VRPInstanceBuilder:
             )
             remaining_coords_size = self._dataset_size - self._focus_size
             if remaining_coords_size > 0:
-                random_coords = np.random.uniform(
+                random_coords = self.np_rng.uniform(
                     mm_arr[0],  # type: ignore[index]
                     mm_arr[1],  # type: ignore[index]
                     size=(remaining_coords_size, self._problem_size + 1, mm_arr.shape[-1]),  # type: ignore[union-attr]
@@ -277,6 +281,6 @@ class VRPInstanceBuilder:
             grid = None
             idx = np.array(range(self._problem_size))
             coord_size = 2 if self._method != "triple" else 3
-            depot = np.random.uniform(size=(self._dataset_size, coord_size))
-            loc = np.random.uniform(size=(self._dataset_size, self._problem_size, coord_size))
+            depot = self.np_rng.uniform(size=(self._dataset_size, coord_size))
+            loc = self.np_rng.uniform(size=(self._dataset_size, self._problem_size, coord_size))
         return depot, loc, grid, idx

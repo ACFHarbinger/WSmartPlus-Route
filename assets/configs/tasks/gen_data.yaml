@@ -52,10 +52,10 @@ data:
     #  focus_graph: "graphs_50V_1N_plastic.json"
     #  n_days: 30
     - num_loc: 100
-      n_samples: 1
+      n_samples: 12800
       area: "riomaior"
       waste_type: "plastic"
-      focus_size: 1
+      focus_size: 12800
       focus_graph: "graphs_100V_1N_plastic.json"
       n_days: 30
     #- num_loc: 170
