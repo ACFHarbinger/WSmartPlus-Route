@@ -50,8 +50,14 @@ An exact intra-route solver applying the Held-Karp dynamic programming algorithm
 ### Fast TSP Refinement ✅
 A high-speed, scalable local search heuristic. Individual routes are isolated, stripped of depot connections, and delegated to a highly optimized C++ TSP backend for intra-sequence optimization. The backend applies a combination of 2-opt, 3-opt, or Or-opt moves using efficient data structures (neighbor lists, don't-look bits) to guarantee local optimality before the route is reintegrated into the multi-route solution.
 
+### Lin-Kernighan (LK) Refinement ✅
+The foundational variable-depth intra-route heuristic. Rather than evaluating edge exchanges of a fixed cardinality $k$ (as in 2-opt or 3-opt), it dynamically constructs sequential $k$-opt moves. It iteratively removes and adds edges to the tour, maintaining a running positive gain, and unbounds the depth $k$ until no further sequential improvement can be found. This allows the search trajectory to bypass shallow local minima that trap fixed-depth operators.
+
 ### Lin-Kernighan-Helsgaun (LKH) Refinement ✅
 The premier heuristic for the TSP sub-problem. LKH dynamically constructs variable-depth $k$-opt sequential exchanges, beginning from a promising 2-opt or 3-opt improving move and recursively extending the exchange chain until no further gain is achievable. The Helsgaun extension restricts the candidate set at each step using $\alpha$-nearness bounds derived from the minimum 1-tree, containing the otherwise exponential search space while enabling 5-opt and partition moves that standard local search cannot reach. Produces near-optimal solutions on instances with thousands of nodes.
+
+### Lin-Kernighan-Helsgaun 2 (LKH-2) Refinement ✅
+An advanced extension of the LKH architecture. While the original LKH relies strictly on symmetric $\alpha$-nearness 1-trees, LKH-2 generalizes the variable-depth search to accommodate asymmetric edge costs (ATSP), time windows, and multiple depots via sophisticated problem transformations and tour partitioning techniques. It efficiently maps complex constrained VRP sub-problems into symmetric TSP variants that its highly optimized 5-opt and general $k$-opt engine can resolve, extending LKH's near-optimal precision to heavily constrained problem classes.
 
 ---
 

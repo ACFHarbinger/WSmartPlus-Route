@@ -943,6 +943,11 @@ def _column_generation_loop(  # noqa: C901
             in_arcs[bc.v] = bc.u
 
     for _iteration in range(max_cg_iterations):
+        if _iteration % 5 == 0:
+            logger.info(
+                f"Node {node_depth} CG Iteration {_iteration}/{max_cg_iterations} - Current LP Obj: {obj_val:.2f}"
+            )
+
         if time_limit and (time.monotonic() - start_time) > time_limit:
             timed_out = True
             break
@@ -1340,6 +1345,8 @@ def run_bpc(  # noqa: C901
         use_ng_routes=params.use_ng_routes,
         ng_neighborhood_size=params.ng_neighborhood_size,
         node_prizes=kwargs.get("node_prizes"),
+        timeout=params.rcspp_timeout,
+        max_labels=params.rcspp_max_labels,
     )
 
     if getattr(params, "use_swc_tcf_initialization", False):
@@ -1406,6 +1413,7 @@ def run_bpc(  # noqa: C901
         sep_engine,
     )
     nodes_explored = 0
+    logger.info(f"BPC Solver started: instance size {n_nodes} nodes, max BB nodes: {max_bb_nodes}")
 
     # 6. Branch-and-Bound Loop
     while not bb_tree.is_empty() and nodes_explored < max_bb_nodes:

@@ -71,16 +71,13 @@ class BPCParams:
     exact_mode: bool = False  # Task 3: Enable strict exact management
     strong_branching_size: int = 5  # Task 1: Number of candidates for strong branching
     cg_at_root_only: bool = False  # Paper Table 2: Run column generation only at root node
+    rcspp_timeout: float = 30.0  # Safety cap for single pricer call
+    rcspp_max_labels: int = 1000000  # Safety cap to prevent OOM
 
-    # Matheuristic Integration Flags (SWC-TCF)
+    # Two-Commodity Flow Integration Flags (SWC-TCF)
     use_swc_tcf_initialization: bool = False
     use_swc_tcf_heuristic_pricing: bool = False
     use_swc_tcf_primal_heuristic: bool = False
-
-    # Multi-period adaptation and Adaptive Dynamic Programming Machine Learning model
-    multi_day_mode: bool = False
-    adp_model_path: str = ""
-    adp_model_type: str = "sklearn"
 
     # ---------------------------------------------------------------------------
     # Lagrangian Relaxation Pre-Pruning

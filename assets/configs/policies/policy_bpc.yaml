@@ -144,14 +144,6 @@ bpc:
     - lr_pre_pruning_depth_limit: -1
     - lr_warm_start_cg: false
 
-    - multi_day_mode: false
-      # Whether to operate in multi-period stochastic mode.
-      # If true, enables ADP-based value function approximation (BPC-ADP).
-    - adp_model_path: ""
-      # Path to the pre-trained XGBoost (.pkl) or Torch (.pt) model for state evaluation.
-    - adp_model_type: "sklearn"
-      # Type of the ADP model: "sklearn" or "torch". (default: "sklearn")
-
     # ---------------------------------------------------------------------
     # RCSPP Pricing Relaxation
     # ---------------------------------------------------------------------
@@ -162,6 +154,10 @@ bpc:
     - ng_neighborhood_size: 8
       # Size of memory-set for ng-routes (ignored if use_ng_routes is false)
       # Range: 4-12 (higher = tighter bound, slower pricing)
+    - rcspp_timeout: 30.0
+      # Safety cap for single pricer call (seconds).
+    - rcspp_max_labels: 1000000
+      # Safety cap to prevent OOM in RCSPP.
 
     # ---------------------------------------------------------------------
     # Advanced Cutting Plane Strategy
