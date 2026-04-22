@@ -9,6 +9,7 @@ from typing import Any, Dict, List, Tuple
 
 import numpy as np
 
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.interfaces.context.search_context import AcceptanceMetrics, ImprovementMetrics
 from logic.src.interfaces.route_improvement import IRouteImprovement
 from logic.src.policies.route_construction.acceptance_criteria.boltzmann_metropolis_criterion import (
@@ -19,6 +20,12 @@ from .base import RouteImproverRegistry
 from .common.helpers import assemble_tour, route_distance, route_load, split_tour, to_numpy, tour_distance
 
 
+@GlobalRegistry.register(
+    PolicyTag.IMPROVEMENT,
+    PolicyTag.META_HEURISTIC,
+    PolicyTag.STOCHASTIC,
+    PolicyTag.TRAJECTORY_BASED,
+)
 @RouteImproverRegistry.register("simulated_annealing")
 class SimulatedAnnealingRouteImprover(IRouteImprovement):
     """

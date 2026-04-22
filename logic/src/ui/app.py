@@ -1,4 +1,3 @@
-# Copyright (c) WSmart-Route. All rights reserved.
 """
 MLOps Control Tower Dashboard - Main Entry Point.
 
@@ -19,6 +18,7 @@ from logic.src.ui.components.sidebar import (
     render_mode_selector,
 )
 from logic.src.ui.pages import (
+    render_algorithms,
     render_benchmark_analysis,
     render_data_explorer,
     render_experiment_tracker,
@@ -63,6 +63,9 @@ def main() -> None:
     elif mode == "hpo_tracker":
         with st.spinner("Loading HPO Tracker..."):
             render_hpo_tracker()
+    elif mode == "algorithms":
+        with st.spinner("Loading Algorithms..."):
+            render_algorithms()
     else:
         with st.spinner("Loading Benchmark Analysis..."):
             render_benchmark_analysis()

@@ -4,12 +4,17 @@ Multi-Phase Route Improver.
 
 from typing import Any, List, Tuple
 
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.interfaces.context.search_context import ImprovementMetrics
 from logic.src.interfaces.route_improvement import IRouteImprovement
 
 from .base import RouteImproverRegistry
 
 
+@GlobalRegistry.register(
+    PolicyTag.IMPROVEMENT,
+    PolicyTag.ORCHESTRATOR,
+)
 @RouteImproverRegistry.register("multi_phase")
 class MultiPhaseRouteImprover(IRouteImprovement):
     """

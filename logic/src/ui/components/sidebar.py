@@ -1,4 +1,3 @@
-# Copyright (c) WSmart-Route. All rights reserved.
 """
 Sidebar control panel widgets for the dashboard.
 
@@ -42,10 +41,11 @@ def render_mode_selector() -> str:
             "Benchmark Analysis",
             "Data Explorer",
             "Experiment Tracker",
+            "Algorithms Registry",
             "Hyperparameter Optimization Tracker",
         ],
         index=1,  # Default to Simulation
-        help="Switch between training metrics, simulation visualization, simulation summary, benchmark analysis, data exploration, and experiment tracking",
+        help="Switch between training metrics, simulation visualization, simulation summary, benchmark analysis, data exploration, experiment tracking, and algorithms registry",
     )
 
     mode_map = {
@@ -55,6 +55,7 @@ def render_mode_selector() -> str:
         "Benchmark Analysis": "benchmark",
         "Data Explorer": "data_explorer",
         "Experiment Tracker": "experiment_tracker",
+        "Algorithms Registry": "algorithms",
         "Hyperparameter Optimization Tracker": "hpo_tracker",
     }
     return mode_map.get(mode, "simulation")

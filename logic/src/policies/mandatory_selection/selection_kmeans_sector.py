@@ -29,6 +29,7 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.interfaces.context.search_context import SearchContext
 from logic.src.interfaces.mandatory_selection import IMandatorySelectionStrategy
 from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
@@ -85,6 +86,11 @@ def _fit_kmeans(coordinates: np.ndarray, n_sectors: int) -> np.ndarray:
     return labels
 
 
+@GlobalRegistry.register(
+    PolicyTag.SELECTION,
+    PolicyTag.HEURISTIC,
+    PolicyTag.DETERMINISTIC,
+)
 @MandatorySelectionRegistry.register("kmeans_sector")
 class KMeansGeographicSectorSelection(IMandatorySelectionStrategy):
     """
