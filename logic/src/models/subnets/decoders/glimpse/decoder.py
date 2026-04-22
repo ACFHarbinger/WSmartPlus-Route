@@ -164,8 +164,8 @@ class GlimpseDecoder(nn.Module):
 
         i = 0
         while not state.all_finished() and i < max_steps:
-            log_p, mask = self._get_log_p(fixed, state, mask=mask)
-            selected = self._select_node(log_p.exp(), mask, strategy=strategy_name)  # type: ignore[arg-type]
+            log_p, _ = self._get_log_p(fixed, state, mask=mask)
+            selected = self._select_node(log_p.exp(), _, strategy=strategy_name)  # type: ignore[arg-type]
 
             state = state.update(selected)
 
@@ -271,7 +271,10 @@ class GlimpseDecoder(nn.Module):
         query = self._get_parallel_step_context(fixed.node_embeddings, state)
 
         # 1. Resolve the mask and ensure it's not None for the type checker
-        current_mask = mask if mask is not None else state.get_mask()
+        # We combine the state mask (visited nodes) with the optional external mask.
+        current_mask = state.get_mask()
+        if mask is not None:
+            current_mask = current_mask | mask if current_mask is not None else mask
 
         if current_mask is None:
             raise ValueError("A mask must be provided either as an argument or via the state.")
