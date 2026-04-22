@@ -335,7 +335,7 @@ def _lds_reinsert(  # noqa: C901
             # This is the naive lower bound from Section 2.2
             lb = current_plan_cost + delta
             if lb >= current_best[0]:
-                continue  # Prune; also prunes all subsequent (costlier) positions
+                break  # Positions are sorted ascending; all remaining are also pruned
 
         # --- Apply insertion ---
         node_waste = wastes.get(v, 0.0)
