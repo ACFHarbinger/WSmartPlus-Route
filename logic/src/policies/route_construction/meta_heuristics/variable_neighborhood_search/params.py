@@ -63,7 +63,7 @@ class VNSParams:
         # Handle Acceptance Criterion Injection
         from logic.src.policies.route_construction.acceptance_criteria.base.factory import AcceptanceCriterionFactory
 
-        acceptance_cfg = getattr(config, "acceptance", None)
+        acceptance_cfg = getattr(config, "acceptance_criterion", None)
         if acceptance_cfg:
             params.acceptance_criterion = AcceptanceCriterionFactory.create(
                 name=acceptance_cfg.method,

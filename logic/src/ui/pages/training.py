@@ -2,8 +2,10 @@
 Training Monitor mode for the Streamlit dashboard.
 """
 
+import os
 from typing import Any, Dict, List, Optional
 
+import jinja2
 import pandas as pd
 import streamlit as st
 
@@ -25,6 +27,11 @@ from logic.src.ui.services.data_loader import (
     load_hparams,
     load_multiple_training_runs,
 )
+
+# Set up template loader
+template_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "templates")
+jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir))
+STATUS_TEMPLATE = jinja_env.get_template("status_pill.html")
 
 # ---------------------------------------------------------------------------
 # Section renderers
@@ -125,25 +132,19 @@ def _render_convergence_status(runs_data: Dict[str, pd.DataFrame]) -> None:
 
         if rel_improvement < threshold:
             plateau_epochs = window
-            # Check how far back the plateau extends
             for i in range(window + 1, min(len(valid), 50)):
                 val = float(valid.iloc[-i])
                 if abs(val - best_recent) / (abs(val) + 1e-8) > threshold:
                     break
                 plateau_epochs = i
 
-            st.markdown(
-                f'<span class="status-pill warning">{run_name}: Loss plateaued for ~{plateau_epochs} epochs</span>',
-                unsafe_allow_html=True,
+            html_msg = STATUS_TEMPLATE.render(
+                status="warning", message=f"{run_name}: Loss plateaued for ~{plateau_epochs} epochs"
             )
+            st.markdown(html_msg, unsafe_allow_html=True)
         else:
-            st.markdown(
-                f'<span class="status-pill good">{run_name}: Converging (improving)</span>',
-                unsafe_allow_html=True,
-            )
-
-
-# Chart-heavy sections in training_charts.py
+            html_msg = STATUS_TEMPLATE.render(status="good", message=f"{run_name}: Converging (improving)")
+            st.markdown(html_msg, unsafe_allow_html=True)
 
 
 # ---------------------------------------------------------------------------

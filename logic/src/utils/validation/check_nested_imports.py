@@ -1,8 +1,17 @@
 import argparse
 import ast
 import os
+from collections import defaultdict
 from pathlib import Path
-from typing import List, Set, Tuple
+from typing import Dict, List, Set, Tuple
+
+try:
+    from rich.console import Console
+    from rich.table import Table
+
+    RICH_AVAILABLE = True
+except ImportError:
+    RICH_AVAILABLE = False
 
 
 def is_type_checking_block(node: ast.stmt) -> bool:
@@ -53,10 +62,35 @@ def is_suppress_import_error_block(node: ast.stmt) -> bool:
     return False
 
 
+def is_constant_expression(node: ast.AST) -> bool:
+    """Recursively check if an expression consists only of constants and uppercase names."""
+    if isinstance(node, (ast.Constant, getattr(ast, "Str", type(None)), getattr(ast, "Num", type(None)))):
+        return True
+    if isinstance(node, (ast.NameConstant, getattr(ast, "NameConstant", type(None)))):
+        return True
+    if isinstance(node, ast.Name):
+        return node.id.isupper()
+    if isinstance(node, (ast.List, ast.Tuple, ast.Set)):
+        return all(is_constant_expression(elt) for elt in node.elts)
+    if isinstance(node, ast.Dict):
+        return all(is_constant_expression(k) for k in node.keys if k) and all(
+            is_constant_expression(v) for v in node.values if v
+        )
+    if isinstance(node, ast.UnaryOp):
+        return is_constant_expression(node.operand)
+    if isinstance(node, ast.BinOp):
+        return is_constant_expression(node.left) and is_constant_expression(node.right)
+    if isinstance(node, ast.BoolOp):
+        return all(is_constant_expression(v) for v in node.values)
+    if isinstance(node, ast.Compare):
+        return is_constant_expression(node.left) and all(is_constant_expression(v) for v in node.comparators)
+    return False
+
+
 def is_header_assignment(node: ast.stmt) -> bool:
     """
     Check if a node is a header-safe assignment.
-    Allowed: Constants, os.environ updates, and Logger initialization.
+    Allowed: Constants, collections of constants, os.environ updates, and Logger initialization.
     """
     if not isinstance(node, ast.Assign):
         return False
@@ -81,8 +115,15 @@ def is_header_assignment(node: ast.stmt) -> bool:
         if func_name in ("get_pylogger", "getLogger", "logging.getLogger"):
             return True
 
-    # 3. Allow simple constant values (True, False, None, strings, numbers)
-    return isinstance(node.value, (ast.Constant, ast.NameConstant, ast.Num, ast.Str))
+    # 3. Allow constants and collections of constants
+    return is_constant_expression(node.value)
+
+
+def is_constant_guarded_if(node: ast.stmt) -> bool:
+    """Check if a node is an `if` block where the test involves only constants/uppercase names."""
+    if not isinstance(node, ast.If):
+        return False
+    return is_constant_expression(node.test)
 
 
 def is_header_setup_call(node: ast.stmt) -> bool:
@@ -165,7 +206,10 @@ def analyze_file(filepath: Path, ignore_factories: bool = False) -> List[Tuple[i
             if isinstance(node, (ast.Import, ast.ImportFrom)):
                 valid_top_level_imports.add(node)
             elif (
-                is_type_checking_block(node) or is_import_error_try_block(node) or is_suppress_import_error_block(node)
+                is_type_checking_block(node)
+                or is_import_error_try_block(node)
+                or is_suppress_import_error_block(node)
+                or is_constant_guarded_if(node)
             ):
                 valid_top_level_imports.update(extract_all_imports(node))  # type: ignore[arg-type]
             elif is_header_assignment(node) or is_header_setup_call(node):
@@ -193,12 +237,44 @@ def analyze_file(filepath: Path, ignore_factories: bool = False) -> List[Tuple[i
     return sorted(nested_imports, key=lambda x: x[0])
 
 
-def main():
+def print_stats_table(all_results: Dict[str, List[Tuple[int, str]]], target_root: Path) -> None:
+    """Print a Rich table summarising nested import counts per top-level subdirectory."""
+    if not RICH_AVAILABLE:
+        print("Rich not available, skipping stats table")
+        return
+
+    pkg_counts: Dict[str, int] = defaultdict(int)
+    for filepath_str, results in all_results.items():
+        rel = os.path.relpath(filepath_str, str(target_root))
+        top = rel.split(os.sep)[0]
+        pkg_counts[top] += len(results)
+
+    console = Console()
+    table = Table(title="Nested Import Summary by Package", title_style="bold magenta")
+    table.add_column("Package / Directory", style="cyan")
+    table.add_column("Nested Imports", justify="right", style="yellow")
+
+    total = sum(pkg_counts.values())
+    for pkg, count in sorted(pkg_counts.items(), key=lambda x: -x[1]):
+        pct = f"{count / total * 100:.1f}%" if total else "0%"
+        table.add_row(pkg, f"{count}  ({pct})")
+
+    table.add_section()
+    table.add_row("[bold]TOTAL[/bold]", f"[bold]{total}[/bold]")
+    console.print(table)
+
+
+def main() -> None:
     parser = argparse.ArgumentParser(description="Find nested/delayed imports in Python files.")
     parser.add_argument("directory", type=str, help="The target directory to scan")
     parser.add_argument("-e", "--exclude", nargs="+", default=[], help="Directories to exclude")
     parser.add_argument(
         "-i", "--ignore_factories", action="store_true", help="Ignore nested imports inside Factory classes"
+    )
+    parser.add_argument(
+        "--stats",
+        action="store_true",
+        help="Print a summary table of nested import counts grouped by top-level package",
     )
     args = parser.parse_args()
 
@@ -214,6 +290,7 @@ def main():
 
     files_found = 0
     total_imports = 0
+    all_results: Dict[str, List[Tuple[int, str]]] = {}
     for root, dirs, files in os.walk(target_root):
         dirs[:] = [d for d in dirs if d not in args.exclude]
         for filename in files:
@@ -221,6 +298,7 @@ def main():
                 filepath = Path(root) / filename
                 results = analyze_file(filepath, ignore_factories=args.ignore_factories)
                 if results:
+                    all_results[str(filepath)] = results
                     files_found += 1
                     print(f"\n📄 {filepath}")
                     for line_no, name in results:
@@ -229,6 +307,10 @@ def main():
 
     print("\n" + "=" * 60)
     print(f"Done! Found {total_imports} nested imports across {files_found} files.")
+
+    if args.stats and all_results:
+        print()
+        print_stats_table(all_results, target_root)
 
 
 if __name__ == "__main__":

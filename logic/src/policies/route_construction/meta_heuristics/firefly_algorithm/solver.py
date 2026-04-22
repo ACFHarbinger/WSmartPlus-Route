@@ -27,10 +27,11 @@ from logic.src.policies.helpers.operators import (
     greedy_profit_insertion,
     random_removal,
 )
-from logic.src.policies.helpers.operators.heuristics.greedy_initialization import build_greedy_routes
-
-from ..ant_colony_optimization_k_sparse.params import KSACOParams
-from .params import FAParams
+from logic.src.policies.helpers.operators.solution_initialization.greedy_si import build_greedy_routes
+from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params import (
+    KSACOParams,
+)
+from logic.src.policies.route_construction.meta_heuristics.firefly_algorithm.params import FAParams
 
 
 class FASolver:

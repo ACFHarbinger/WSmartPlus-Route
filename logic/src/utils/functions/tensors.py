@@ -8,7 +8,7 @@ from typing import Any, Callable, List, Optional, TypeVar, cast
 
 import torch
 
-from logic.src.interfaces import ITraversable
+from logic.src.interfaces.traversable import ITraversable
 
 T = TypeVar("T")
 

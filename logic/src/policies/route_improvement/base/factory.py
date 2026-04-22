@@ -27,21 +27,35 @@ class RouteImproverFactory:
         """
         Create a route improver instance by name.
         """
-        from ..adaptive_large_neighborhood_search import AdaptiveLargeNeighborhoodSearchRouteImprover
-        from ..cheapest_insertion import CheapestInsertionRouteImprover
-        from ..cross_exchange import CrossExchangeRouteImprover
-        from ..fast_tsp import FastTSPRouteImprover
-        from ..guided_local_search import GuidedLocalSearchRouteImprover
-        from ..lkh import LinKernighanHelsgaunRouteImprover
-        from ..local_search import ClassicalLocalSearchRouteImprover
-        from ..multi_phase import MultiPhaseRouteImprover
-        from ..or_opt import OrOptRouteImprover
-        from ..path import PathRouteImprover
-        from ..profitable_detour import ProfitableDetourRouteImprover
-        from ..random_local_search import RandomLocalSearchRouteImprover
-        from ..regret_k_insertion import RegretKInsertionRouteImprover
-        from ..ruin_recreate import RuinRecreateRouteImprover
-        from ..simulated_annealing import SimulatedAnnealingRouteImprover
+        from logic.src.policies.route_improvement.adaptive_ensemble import AdaptiveEnsembleRouteImprover
+        from logic.src.policies.route_improvement.adaptive_large_neighborhood_search import (
+            AdaptiveLargeNeighborhoodSearchRouteImprover,
+        )
+        from logic.src.policies.route_improvement.branch_and_price import BranchAndPriceRouteImprover
+        from logic.src.policies.route_improvement.cheapest_insertion import CheapestInsertionRouteImprover
+        from logic.src.policies.route_improvement.cross_exchange import CrossExchangeRouteImprover
+        from logic.src.policies.route_improvement.dp_route_reopt import DPRouteReoptRouteImprover
+        from logic.src.policies.route_improvement.fast_tsp import FastTSPRouteImprover
+        from logic.src.policies.route_improvement.fix_and_optimize import FixAndOptimizeRouteImprover
+        from logic.src.policies.route_improvement.guided_local_search import GuidedLocalSearchRouteImprover
+        from logic.src.policies.route_improvement.learned import LearnedRouteImprover
+        from logic.src.policies.route_improvement.lkh import LinKernighanHelsgaunRouteImprover
+        from logic.src.policies.route_improvement.local_search import ClassicalLocalSearchRouteImprover
+        from logic.src.policies.route_improvement.mip_lns import MIPLNSRouteImprover
+        from logic.src.policies.route_improvement.multi_phase import MultiPhaseRouteImprover
+        from logic.src.policies.route_improvement.neural_selector import NeuralSelectorRouteImprover
+        from logic.src.policies.route_improvement.node_exchange_steepest import NodeExchangeSteepestRouteImprover
+        from logic.src.policies.route_improvement.or_opt import OrOptRouteImprover
+        from logic.src.policies.route_improvement.or_opt_steepest import OrOptSteepestRouteImprover
+        from logic.src.policies.route_improvement.path import PathRouteImprover
+        from logic.src.policies.route_improvement.profitable_detour import ProfitableDetourRouteImprover
+        from logic.src.policies.route_improvement.random_local_search import RandomLocalSearchRouteImprover
+        from logic.src.policies.route_improvement.regret_k_insertion import RegretKInsertionRouteImprover
+        from logic.src.policies.route_improvement.ruin_recreate import RuinRecreateRouteImprover
+        from logic.src.policies.route_improvement.set_partitioning import SetPartitioningRouteImprover
+        from logic.src.policies.route_improvement.set_partitioning_polish import SetPartitioningPolishRouteImprover
+        from logic.src.policies.route_improvement.simulated_annealing import SimulatedAnnealingRouteImprover
+        from logic.src.policies.route_improvement.steepest_two_opt import SteepestTwoOptRouteImprover
 
         cls = RouteImproverRegistry.get_route_improver_class(name)
         if not cls:
@@ -77,6 +91,30 @@ class RouteImproverFactory:
                 return AdaptiveLargeNeighborhoodSearchRouteImprover()
             elif n_lower == "multi_phase":
                 return MultiPhaseRouteImprover()
+            elif n_lower == "branch_and_price":
+                return BranchAndPriceRouteImprover()
+            elif n_lower in ["dp", "dp_route_reopt"]:
+                return DPRouteReoptRouteImprover()
+            elif n_lower == "fix_and_optimize":
+                return FixAndOptimizeRouteImprover()
+            elif n_lower == "learned":
+                return LearnedRouteImprover()
+            elif n_lower == "node_exchange_steepest":
+                return NodeExchangeSteepestRouteImprover()
+            elif n_lower == "or_opt_steepest":
+                return OrOptSteepestRouteImprover()
+            elif n_lower == "set_partitioning":
+                return SetPartitioningRouteImprover()
+            elif n_lower == "set_partitioning_polish":
+                return SetPartitioningPolishRouteImprover()
+            elif n_lower == "steepest_two_opt":
+                return SteepestTwoOptRouteImprover()
+            elif n_lower == "mip_lns":
+                return MIPLNSRouteImprover()
+            elif n_lower == "neural_selector":
+                return NeuralSelectorRouteImprover(config=None)
+            elif n_lower == "adaptive_ensemble":
+                return AdaptiveEnsembleRouteImprover()
 
             raise ValueError(f"Unknown route improver: {name}")
         return cls()
@@ -89,21 +127,35 @@ class RouteImproverFactory:
         Args:
             config: RouteImprovingConfig instance.
         """
-        from ..adaptive_large_neighborhood_search import AdaptiveLargeNeighborhoodSearchRouteImprover
-        from ..cheapest_insertion import CheapestInsertionRouteImprover
-        from ..cross_exchange import CrossExchangeRouteImprover
-        from ..fast_tsp import FastTSPRouteImprover
-        from ..guided_local_search import GuidedLocalSearchRouteImprover
-        from ..lkh import LinKernighanHelsgaunRouteImprover
-        from ..local_search import ClassicalLocalSearchRouteImprover
-        from ..multi_phase import MultiPhaseRouteImprover
-        from ..or_opt import OrOptRouteImprover
-        from ..path import PathRouteImprover
-        from ..profitable_detour import ProfitableDetourRouteImprover
-        from ..random_local_search import RandomLocalSearchRouteImprover
-        from ..regret_k_insertion import RegretKInsertionRouteImprover
-        from ..ruin_recreate import RuinRecreateRouteImprover
-        from ..simulated_annealing import SimulatedAnnealingRouteImprover
+        from logic.src.policies.route_improvement.adaptive_ensemble import AdaptiveEnsembleRouteImprover
+        from logic.src.policies.route_improvement.adaptive_large_neighborhood_search import (
+            AdaptiveLargeNeighborhoodSearchRouteImprover,
+        )
+        from logic.src.policies.route_improvement.branch_and_price import BranchAndPriceRouteImprover
+        from logic.src.policies.route_improvement.cheapest_insertion import CheapestInsertionRouteImprover
+        from logic.src.policies.route_improvement.cross_exchange import CrossExchangeRouteImprover
+        from logic.src.policies.route_improvement.dp_route_reopt import DPRouteReoptRouteImprover
+        from logic.src.policies.route_improvement.fast_tsp import FastTSPRouteImprover
+        from logic.src.policies.route_improvement.fix_and_optimize import FixAndOptimizeRouteImprover
+        from logic.src.policies.route_improvement.guided_local_search import GuidedLocalSearchRouteImprover
+        from logic.src.policies.route_improvement.learned import LearnedRouteImprover
+        from logic.src.policies.route_improvement.lkh import LinKernighanHelsgaunRouteImprover
+        from logic.src.policies.route_improvement.local_search import ClassicalLocalSearchRouteImprover
+        from logic.src.policies.route_improvement.mip_lns import MIPLNSRouteImprover
+        from logic.src.policies.route_improvement.multi_phase import MultiPhaseRouteImprover
+        from logic.src.policies.route_improvement.neural_selector import NeuralSelectorRouteImprover
+        from logic.src.policies.route_improvement.node_exchange_steepest import NodeExchangeSteepestRouteImprover
+        from logic.src.policies.route_improvement.or_opt import OrOptRouteImprover
+        from logic.src.policies.route_improvement.or_opt_steepest import OrOptSteepestRouteImprover
+        from logic.src.policies.route_improvement.path import PathRouteImprover
+        from logic.src.policies.route_improvement.profitable_detour import ProfitableDetourRouteImprover
+        from logic.src.policies.route_improvement.random_local_search import RandomLocalSearchRouteImprover
+        from logic.src.policies.route_improvement.regret_k_insertion import RegretKInsertionRouteImprover
+        from logic.src.policies.route_improvement.ruin_recreate import RuinRecreateRouteImprover
+        from logic.src.policies.route_improvement.set_partitioning import SetPartitioningRouteImprover
+        from logic.src.policies.route_improvement.set_partitioning_polish import SetPartitioningPolishRouteImprover
+        from logic.src.policies.route_improvement.simulated_annealing import SimulatedAnnealingRouteImprover
+        from logic.src.policies.route_improvement.steepest_two_opt import SteepestTwoOptRouteImprover
 
         processors: List[IRouteImprovement] = []
         if not config.methods:
@@ -164,11 +216,19 @@ class RouteImproverFactory:
                     seed=config.guided_local_search.seed,
                 )
             elif method_lower == "simulated_annealing":
+                # Extract Boltzmann params if present in acceptance config
+                t_init = 10.0
+                alpha = 0.999
+                if config.simulated_annealing.acceptance_criterion.method == "bmc":
+                    bmc_cfg = config.simulated_annealing.acceptance_criterion.params
+                    if bmc_cfg:
+                        t_init = getattr(bmc_cfg, "initial_temp", t_init)
+                        alpha = getattr(bmc_cfg, "alpha", alpha)
+
                 processor = SimulatedAnnealingRouteImprover(
-                    sa_iterations=config.simulated_annealing.sa_iterations,
-                    sa_t_init=config.simulated_annealing.sa_t_init,
-                    sa_t_min=config.simulated_annealing.sa_t_min,
-                    sa_cooling=config.simulated_annealing.sa_cooling,
+                    sa_iterations=config.simulated_annealing.iterations,
+                    sa_t_init=t_init,
+                    sa_cooling=alpha,
                     params=config.simulated_annealing.params,
                     seed=config.simulated_annealing.seed,
                 )
@@ -199,8 +259,8 @@ class RouteImproverFactory:
                 processor = RuinRecreateRouteImprover(
                     lns_iterations=config.ruin_recreate.lns_iterations,
                     ruin_fraction=config.ruin_recreate.ruin_fraction,
-                    lns_acceptance=config.ruin_recreate.lns_acceptance,
-                    lns_sa_temperature=config.ruin_recreate.lns_sa_temperature,
+                    lns_acceptance=config.ruin_recreate.acceptance_criterion.method,
+                    repair_k=config.ruin_recreate.repair_k,
                     cost_per_km=config.ruin_recreate.cost_per_km,
                     revenue_kg=config.ruin_recreate.revenue_kg,
                     seed=config.ruin_recreate.seed,
@@ -219,6 +279,71 @@ class RouteImproverFactory:
                     phases=config.multi_phase.phases,
                     seed=config.multi_phase.seed,
                 )
+            elif method_lower == "branch_and_price":
+                processor = BranchAndPriceRouteImprover(
+                    bp_max_iterations=config.branch_and_price.bp_max_iterations,
+                    bp_max_routes_per_iteration=config.branch_and_price.bp_max_routes_per_iteration,
+                    bp_optimality_gap=config.branch_and_price.bp_optimality_gap,
+                    bp_branching_strategy=config.branch_and_price.bp_branching_strategy,
+                    bp_max_branch_nodes=config.branch_and_price.bp_max_branch_nodes,
+                    bp_use_exact_pricing=config.branch_and_price.bp_use_exact_pricing,
+                    bp_use_ng_routes=config.branch_and_price.bp_use_ng_routes,
+                    bp_ng_neighborhood_size=config.branch_and_price.bp_ng_neighborhood_size,
+                    bp_tree_search_strategy=config.branch_and_price.bp_tree_search_strategy,
+                    bp_vehicle_limit=config.branch_and_price.bp_vehicle_limit,
+                    bp_cleanup_frequency=config.branch_and_price.bp_cleanup_frequency,
+                    bp_cleanup_threshold=config.branch_and_price.bp_cleanup_threshold,
+                    bp_early_termination_gap=config.branch_and_price.bp_early_termination_gap,
+                    bp_allow_heuristic_ryan_foster=config.branch_and_price.bp_allow_heuristic_ryan_foster,
+                    bp_time_limit=config.branch_and_price.bp_time_limit,
+                    bp_use_cspy=config.branch_and_price.bp_use_cspy,
+                    seed=config.branch_and_price.seed,
+                )
+            elif method_lower in ["dp", "dp_route_reopt"]:
+                processor = DPRouteReoptRouteImprover(
+                    dp_max_nodes=config.dp_max_nodes,
+                )
+            elif method_lower == "fix_and_optimize":
+                processor = FixAndOptimizeRouteImprover(
+                    fo_n_free=config.fix_and_optimize.fo_n_free,
+                    fo_free_fraction=config.fix_and_optimize.fo_free_fraction,
+                    fo_time_limit=config.fix_and_optimize.fo_time_limit,
+                    seed=config.fix_and_optimize.seed,
+                )
+            elif method_lower == "learned":
+                processor = LearnedRouteImprover(
+                    learned_weights_path=config.learned.learned_weights_path,
+                    learned_max_iter=config.learned.learned_max_iter,
+                    learned_min_improvement=config.learned.learned_min_improvement,
+                    learned_neighborhood_size=config.learned.learned_neighborhood_size,
+                    seed=config.learned.seed,
+                )
+            elif method_lower == "set_partitioning":
+                processor = SetPartitioningRouteImprover(
+                    sp_n_perturbations=config.set_partitioning.sp_n_perturbations,
+                    sp_include_dp=config.set_partitioning.sp_include_dp,
+                    sp_time_limit=config.set_partitioning.sp_time_limit,
+                    ruin_fraction=config.set_partitioning.ruin_fraction,
+                    seed=config.set_partitioning.seed,
+                )
+            elif method_lower == "set_partitioning_polish":
+                processor = SetPartitioningPolishRouteImprover(
+                    route_pool=config.set_partitioning_polish.route_pool,
+                    sp_time_limit=config.set_partitioning_polish.sp_time_limit,
+                    seed=config.set_partitioning_polish.seed,
+                )
+            elif method_lower == "node_exchange_steepest":
+                processor = NodeExchangeSteepestRouteImprover()
+            elif method_lower == "or_opt_steepest":
+                processor = OrOptSteepestRouteImprover()
+            elif method_lower == "steepest_two_opt":
+                processor = SteepestTwoOptRouteImprover()
+            elif method_lower == "mip_lns":
+                processor = MIPLNSRouteImprover()
+            elif method_lower == "neural_selector":
+                processor = NeuralSelectorRouteImprover(config=config)
+            elif method_lower == "adaptive_ensemble":
+                processor = AdaptiveEnsembleRouteImprover()
             else:
                 # Fallback to registry
                 processor = cls.create(method)

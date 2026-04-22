@@ -1,4 +1,3 @@
-# Copyright (c) WSmart-Route. All rights reserved.
 """
 Plotly charts for benchmark visualization.
 """

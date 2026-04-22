@@ -34,6 +34,7 @@ Usage::
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -44,6 +45,25 @@ try:
     import pydeck as pdk
 except ImportError:
     pdk = None
+
+# 1. Load the raw HTML tooltip string
+template_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "templates")
+tooltip_path = os.path.join(template_dir, "pydeck_tooltip.html")
+try:
+    with open(tooltip_path, "r", encoding="utf-8") as f:
+        PYDECK_TOOLTIP_HTML = f.read().strip()
+except FileNotFoundError:
+    PYDECK_TOOLTIP_HTML = "Bin Tooltip Missing"
+
+# 2. Load the Tooltip CSS Dictionary
+json_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "json")
+style_path = os.path.join(json_dir, "pydeck_style.json")
+try:
+    with open(style_path, "r", encoding="utf-8") as f:
+        PYDECK_TOOLTIP_STYLE = json.load(f)
+except (FileNotFoundError, json.JSONDecodeError):
+    # Fallback just in case
+    PYDECK_TOOLTIP_STYLE = {}
 
 # ---------------------------------------------------------------------------
 # Main render function
@@ -165,8 +185,8 @@ def render_pydeck_animated_map(
         initial_view_state=view_state,
         map_style=map_style,
         tooltip={
-            "html": ("<b>Bin:</b> {bin_id}<br/><b>Fill Level:</b> {fill_pct}%"),
-            "style": {"backgroundColor": "#1e1e2e", "color": "#cdd6f4"},
+            "html": PYDECK_TOOLTIP_HTML,
+            "style": PYDECK_TOOLTIP_STYLE,
         },
     )
 

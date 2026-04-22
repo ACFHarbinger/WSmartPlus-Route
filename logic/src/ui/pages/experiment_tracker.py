@@ -11,8 +11,10 @@ MLflow Explorer, ZenML Pipeline Runs, Artifacts.
 """
 
 import json
+import os
 from typing import Any, Dict, List, Optional
 
+import jinja2
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
@@ -30,6 +32,11 @@ from logic.src.ui.services.tracking_service import (
     load_tracking_runs,
 )
 from logic.src.ui.styles.kpi import create_kpi_row
+
+# Set up template loader
+template_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "templates")
+jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir))
+HOVER_TEMPLATE = jinja_env.get_template("plotly_hover.html")
 
 # ---------------------------------------------------------------------------
 # Colour palette for multi-run overlays
@@ -210,7 +217,7 @@ def _render_metric_explorer(run_id: str) -> None:
                 name=key,
                 marker=dict(size=4, color=color),
                 line=dict(color=color),
-                hovertemplate=f"<b>{key}</b><br>Step: %{{x}}<br>Value: %{{y:.4f}}<extra></extra>",
+                hovertemplate=HOVER_TEMPLATE.render(label=key),
             )
         )
 
@@ -291,7 +298,7 @@ def _render_run_comparison(runs: List[Dict[str, Any]]) -> None:
                 mode="lines",
                 name=short_label,
                 line=dict(color=color, width=2),
-                hovertemplate=f"<b>{short_label}</b><br>Step: %{{x}}<br>Value: %{{y:.4f}}<extra></extra>",
+                hovertemplate=HOVER_TEMPLATE.render(label=short_label),
             )
         )
 

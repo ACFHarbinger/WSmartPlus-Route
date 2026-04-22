@@ -99,6 +99,7 @@ alns:
       # See: docs/MUST_GO_STRATEGIES.md
 
     - route_improvement: []
+    - acceptance_criterion: {method: "bmc", params: {initial_temp: 100, alpha: 0.995}}
       # Route refinement heuristics applied after ALNS (e.g., 2-opt, relocate)
       # Empty list = use raw ALNS output
       # Options: ["2opt_intra", "relocate", "swap"]

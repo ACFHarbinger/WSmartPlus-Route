@@ -11,6 +11,7 @@ import numpy as np
 
 from logic.src.configs.policies.other import RLConfig
 from logic.src.configs.policies.rl_hvpl import RLHVPLConfig
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_hybrid_volleyball_premier_league.params import (
@@ -23,6 +24,13 @@ from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighb
 from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.params import KSACOParams
 
 
+@GlobalRegistry.register(
+    PolicyTag.REINFORCEMENT_LEARNING,
+    PolicyTag.META_HEURISTIC,
+    PolicyTag.POPULATION_BASED,
+    PolicyTag.CONSTRUCTION,
+    PolicyTag.PROFIT_AWARE,
+)
 @RouteConstructorRegistry.register("rl_hvpl")
 class RLHVPLPolicy(BaseRoutingPolicy):
     """

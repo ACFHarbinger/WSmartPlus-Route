@@ -1,0 +1,4 @@
+{{ popup_text }}<br>Lat: {{ lat }}<br>Lng: {{ lng }}<br>Fill: {{ fill_level }}%
+{% if is_mandatory %}<br><b style='color: #fd7e14;'>Mandatory</b>{% endif %}
+{% if is_served %}<br><b style='color: #28a745;'>Served</b>{% endif %}
+{% if not is_toured %}<br><i>Not in route</i>{% endif %}

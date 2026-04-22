@@ -14,9 +14,46 @@ Example:
 
 from typing import Any, Optional, Type, cast
 
-from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
+from logic.src.interfaces.mandatory_selection import IMandatorySelectionStrategy
 
 from .selection_registry import MandatorySelectionRegistry
+
+# Strategy to sub-config attribute mapping in MandatorySelectionConfig
+CONFIG_MAPPING = {
+    "last_minute": "last_minute",
+    "regular": "regular",
+    "service_level": "service_level",
+    "revenue": "revenue",
+    "revenue_threshold": "revenue",
+    "lookahead": "lookahead",
+    "deadline": "deadline",
+    "multi_day_prob": "multi_day_prob",
+    "pareto_front": "pareto_front",
+    "profit_per_km": "profit_per_km",
+    "spatial_synergy": "spatial_synergy",
+    "stochastic_regret": "stochastic_regret",
+    "combined": "combined",
+    "manager": "manager",
+    "mip_knapsack": "mip_knapsack",
+    "fractional_knapsack": "fractional_knapsack",
+    "rollout": "rollout",
+    "whittle": "whittle",
+    "cvar": "cvar",
+    "savings": "savings",
+    "set_cover": "set_cover",
+    "submodular_greedy": "modular_greedy",
+    "supermodular_greedy": "modular_greedy",
+    "greedy_routing_heuristic": "modular_greedy",
+    "learned": "learned",
+    "wasserstein_robust": "wasserstein",
+    "dispatcher_thompson": "thompson_dispatcher",
+    "dispatcher_portfolio": "thompson_dispatcher",
+    "lagrangian": "lagrangian",
+    "filter_and_fan": "filter_and_fan",
+    "bernoulli_random": "bernoulli_random",
+    "kmeans_sector": "kmeans_sector",
+    "staggered_regular": "staggered_regular",
+}
 
 
 class MandatorySelectionFactory:
@@ -32,30 +69,36 @@ class MandatorySelectionFactory:
             **kwargs: Arguments to pass to the strategy constructor.
         """
         # Lazy imports to avoid circular dependencies and keep strategies separated
-        from ..selection_combined import CombinedSelection
-        from ..selection_cvar import CVaRSelection
-        from ..selection_deadline import DeadlineDrivenSelection
-        from ..selection_dispatcher_portfolio import PortfolioDispatcher
-        from ..selection_dispatcher_thompson import ThompsonDispatcher
-        from ..selection_lagrangian import LagrangianSelection
-        from ..selection_last_minute import LastMinuteSelection
-        from ..selection_learned import LearnedSelection
-        from ..selection_lookahead import LookaheadSelection
-        from ..selection_multi_day_prob import MultiDayOverflowSelection
-        from ..selection_pareto import ParetoFrontSelection
-        from ..selection_profit_per_km import ProfitPerKmSelection
-        from ..selection_regular import RegularSelection
-        from ..selection_revenue import RevenueThresholdSelection
-        from ..selection_rollout import RolloutSelection
-        from ..selection_savings import SavingsSelection
-        from ..selection_service_level import ServiceLevelSelection
-        from ..selection_set_cover import SetCoverSelection
-        from ..selection_spatial_synergy import SpatialSynergySelection
-        from ..selection_stochastic_regret import StochasticRegretSelection
-        from ..selection_submodular_greedy import SubmodularGreedySelection
-        from ..selection_supermodular_greedy import SupermodularGreedySelection
-        from ..selection_wasserstein import WassersteinRobustSelection
-        from ..selection_whittle import WhittleIndexSelection
+        from logic.src.policies.mandatory_selection.selection_bernoulli_random import BernoulliRandomSelection
+        from logic.src.policies.mandatory_selection.selection_combined import CombinedSelection
+        from logic.src.policies.mandatory_selection.selection_cvar import CVaRSelection
+        from logic.src.policies.mandatory_selection.selection_deadline import DeadlineDrivenSelection
+        from logic.src.policies.mandatory_selection.selection_dispatcher_portfolio import PortfolioDispatcher
+        from logic.src.policies.mandatory_selection.selection_dispatcher_thompson import ThompsonDispatcher
+        from logic.src.policies.mandatory_selection.selection_filter_and_fan import FilterAndFanSelection
+        from logic.src.policies.mandatory_selection.selection_fractional_knapsack import FractionalKnapsackSelection
+        from logic.src.policies.mandatory_selection.selection_kmeans_sector import KMeansGeographicSectorSelection
+        from logic.src.policies.mandatory_selection.selection_lagrangian import LagrangianSelection
+        from logic.src.policies.mandatory_selection.selection_last_minute import LastMinuteSelection
+        from logic.src.policies.mandatory_selection.selection_learned import LearnedSelection
+        from logic.src.policies.mandatory_selection.selection_lookahead import LookaheadSelection
+        from logic.src.policies.mandatory_selection.selection_mip_knapsack import MIPKnapsackSelection
+        from logic.src.policies.mandatory_selection.selection_multi_day_prob import MultiDayOverflowSelection
+        from logic.src.policies.mandatory_selection.selection_pareto import ParetoFrontSelection
+        from logic.src.policies.mandatory_selection.selection_profit_per_km import ProfitPerKmSelection
+        from logic.src.policies.mandatory_selection.selection_regular import RegularSelection
+        from logic.src.policies.mandatory_selection.selection_revenue import RevenueThresholdSelection
+        from logic.src.policies.mandatory_selection.selection_rollout import RolloutSelection
+        from logic.src.policies.mandatory_selection.selection_savings import SavingsSelection
+        from logic.src.policies.mandatory_selection.selection_service_level import ServiceLevelSelection
+        from logic.src.policies.mandatory_selection.selection_set_cover import SetCoverSelection
+        from logic.src.policies.mandatory_selection.selection_spatial_synergy import SpatialSynergySelection
+        from logic.src.policies.mandatory_selection.selection_staggered_regular import StaggeredRegularSelection
+        from logic.src.policies.mandatory_selection.selection_stochastic_regret import StochasticRegretSelection
+        from logic.src.policies.mandatory_selection.selection_submodular_greedy import SubmodularGreedySelection
+        from logic.src.policies.mandatory_selection.selection_supermodular_greedy import SupermodularGreedySelection
+        from logic.src.policies.mandatory_selection.selection_wasserstein import WassersteinRobustSelection
+        from logic.src.policies.mandatory_selection.selection_whittle import WhittleIndexSelection
 
         default_map = {
             "service_level": ServiceLevelSelection,
@@ -64,6 +107,8 @@ class MandatorySelectionFactory:
             "last_minute": LastMinuteSelection,
             "revenue": RevenueThresholdSelection,
             "revenue_threshold": RevenueThresholdSelection,
+            "mip_knapsack": MIPKnapsackSelection,
+            "fractional_knapsack": FractionalKnapsackSelection,
             "combined": CombinedSelection,
             "deadline": DeadlineDrivenSelection,
             "multi_day_prob": MultiDayOverflowSelection,
@@ -84,6 +129,10 @@ class MandatorySelectionFactory:
             "wasserstein_robust": WassersteinRobustSelection,
             "dispatcher_thompson": ThompsonDispatcher,
             "dispatcher_portfolio": PortfolioDispatcher,
+            "filter_and_fan": FilterAndFanSelection,
+            "bernoulli_random": BernoulliRandomSelection,
+            "kmeans_sector": KMeansGeographicSectorSelection,
+            "staggered_regular": StaggeredRegularSelection,
         }
 
         # Check explicit registry first
@@ -108,7 +157,7 @@ class MandatorySelectionFactory:
         raise ValueError(f"Unknown selection strategy: {name}")
 
     @classmethod
-    def create_from_config(cls, config: Any) -> IMandatorySelectionStrategy:  # noqa: C901
+    def create_from_config(cls, config: Any) -> IMandatorySelectionStrategy:
         """
         Create a selection strategy from a MandatorySelectionConfig object.
 
@@ -116,117 +165,44 @@ class MandatorySelectionFactory:
             config: MandatorySelectionConfig instance.
         """
         if config.strategy is None:
-            # Default to all if no strategy specified? Or raise?
-            # MandatorySelectionAction currently handles None by skipping.
             raise ValueError("No strategy specified in MandatorySelectionConfig")
 
-        # Map config fields to strategy kwargs
-        # This mapping depends on how strategies use their parameters.
-        # Based on current implementation, many use 'threshold' from Context,
-        # but some might take params in __init__.
-        params = config.params.copy()
+        strategy_name = config.strategy.lower()
+        params = config.params.copy() if hasattr(config, "params") else {}
 
-        # Forward EOQ parameters if present
-        for eoq_key in ("use_eoq_threshold", "holding_cost_per_kg_day", "ordering_cost_per_visit"):
-            if hasattr(config, eoq_key):
-                params[eoq_key] = getattr(config, eoq_key)
+        attr_name = CONFIG_MAPPING.get(strategy_name)
+        if attr_name and hasattr(config, attr_name):
+            sub_config = getattr(config, attr_name)
+            # Convert dataclass to dict for kwargs
+            from dataclasses import asdict
 
-        if config.strategy == "last_minute":
-            params["threshold"] = config.threshold
-        elif config.strategy == "regular":
-            params["threshold"] = config.frequency  # RegularSelection uses threshold as frequency
-        elif config.strategy == "service_level":
-            params["threshold"] = config.confidence_factor
-        elif config.strategy == "revenue":
-            params.update(
-                {
-                    "revenue_kg": config.revenue_kg,
-                    "bin_capacity": config.bin_capacity,
-                    "revenue_threshold": config.revenue_threshold,
-                }
-            )
-        elif config.strategy == "combined":
-            params.update({"strategies": config.combined_strategies, "logic": config.logic})
-        elif config.strategy in ("deadline", "multi_day_prob"):
-            params.update({"horizon_days": config.horizon_days, "threshold": config.threshold})
-        elif config.strategy == "pareto_front":
-            params["threshold"] = config.threshold
-        elif config.strategy == "profit_per_km":
-            params.update(
-                {
-                    "threshold": config.threshold,
-                    "revenue_kg": config.revenue_kg,
-                }
-            )
-        elif config.strategy == "spatial_synergy":
-            params.update(
-                {
-                    "critical_threshold": config.critical_threshold,
-                    "synergy_threshold": config.synergy_threshold,
-                    "radius": config.radius,
-                }
-            )
-        elif config.strategy == "stochastic_regret":
-            params["threshold"] = config.threshold
-        elif config.strategy == "lagrangian":
-            params.update({"n_vehicles": config.n_vehicles, "cost_per_km": config.cost_per_km})
-        elif config.strategy == "rollout":
-            params.update(
-                {
-                    "rollout_horizon": config.rollout_horizon,
-                    "rollout_base_policy": config.rollout_base_policy,
-                    "rollout_n_scenarios": config.rollout_n_scenarios,
-                }
-            )
-        elif config.strategy == "whittle":
-            params.update(
-                {
-                    "whittle_discount": config.whittle_discount,
-                    "whittle_grid_size": config.whittle_grid_size,
-                    "n_vehicles": config.n_vehicles,
-                }
-            )
-        elif config.strategy == "cvar":
-            params.update({"cvar_alpha": config.cvar_alpha, "threshold": config.threshold})
-        elif config.strategy == "savings":
-            params["savings_min_fill_ratio"] = config.savings_min_fill_ratio
-        elif config.strategy == "set_cover":
-            params.update(
-                {
-                    "service_radius": config.service_radius,
-                    "critical_threshold": config.critical_threshold,
-                }
-            )
-        elif config.strategy == "submodular_greedy":
-            params.update(
-                {
-                    "submodular_alpha": config.submodular_alpha,
-                    "submodular_budget": config.submodular_budget,
-                }
-            )
-        elif config.strategy == "learned":
-            params.update(
-                {
-                    "learned_model_path": config.learned_model_path,
-                    "learned_threshold": config.learned_threshold,
-                }
-            )
-        elif config.strategy == "wasserstein_robust":
-            params.update(
-                {
-                    "wasserstein_radius": config.wasserstein_radius,
-                    "wasserstein_p": config.wasserstein_p,
-                    "threshold": config.threshold,
-                }
-            )
-        elif config.strategy in ("dispatcher_thompson", "dispatcher_portfolio"):
-            params.update(
-                {
-                    "dispatcher_state_path": config.dispatcher_state_path,
-                    "dispatcher_candidate_strategies": config.dispatcher_candidate_strategies,
-                    "dispatcher_exploration": config.dispatcher_exploration,
-                    "dispatcher_mode": config.dispatcher_mode,
-                }
-            )
+            # Check if sub_config is indeed a dataclass (it should be in structured config)
+            if hasattr(sub_config, "__dataclass_fields__"):
+                sub_params = asdict(sub_config)
+                # Some strategies use 'threshold' as 'frequency' or 'confidence_factor'
+                # but we've standardized the sub-configs to use the correct names.
+                # However, the strategy __init__ might still expect 'threshold'.
+                # We'll map them here if necessary.
+                if strategy_name == "regular" and "frequency" in sub_params:
+                    sub_params["threshold"] = sub_params.pop("frequency")
+                elif strategy_name == "service_level" and "confidence_factor" in sub_params:
+                    sub_params["threshold"] = sub_params.pop("confidence_factor")
+                elif strategy_name == "learned" and "learned_threshold" in sub_params:
+                    sub_params["threshold"] = sub_params.pop("learned_threshold")
+                elif strategy_name == "bernoulli_random" and "p" in sub_params:
+                    sub_params["threshold"] = sub_params.pop("p")
+                elif strategy_name == "kmeans_sector" and "n_sectors" in sub_params:
+                    sub_params["threshold"] = sub_params.pop("n_sectors")
+                elif strategy_name == "staggered_regular" and "period" in sub_params:
+                    sub_params["threshold"] = sub_params.pop("period")
+
+                params.update(sub_params)
+            elif isinstance(sub_config, dict):
+                params.update(sub_config)
+
+        # Special handling for CombinedSelection which needs the list of configs
+        if strategy_name == "combined" and "combined_strategies" not in params and "strategies" in params:
+            # If it's the new CombinedSelectionConfig, it uses 'strategies'
+            params["combined_strategies"] = params.pop("strategies")
 
         return cls.create_strategy(config.strategy, **params)

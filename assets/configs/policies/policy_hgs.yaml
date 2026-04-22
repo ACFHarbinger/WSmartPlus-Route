@@ -169,6 +169,7 @@ hgs:
       # See: docs/MUST_GO_STRATEGIES.md
 
     - route_improvement: []
+    - acceptance_criterion: {method: "oi"}
       # HGS local search is comprehensive; external route improvement redundant
       # Empty = use HGS output directly
 # =============================================================================

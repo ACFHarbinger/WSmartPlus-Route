@@ -42,12 +42,22 @@ from typing import Any, Dict, List, Optional, Tuple, Type
 import numpy as np
 
 from logic.src.configs.policies import PHConfig
+from logic.src.enums import GlobalRegistry, PolicyTag
+from logic.src.interfaces.context.multi_day_context import MultiDayContext
+from logic.src.interfaces.context.problem_context import ProblemContext
+from logic.src.interfaces.context.solution_context import SolutionContext
 from logic.src.policies.route_construction.base.base_multi_period_policy import BaseMultiPeriodRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
 from .ph_engine import ProgressiveHedgingEngine
 
 
+@GlobalRegistry.register(
+    PolicyTag.DECOMPOSITION,
+    PolicyTag.STOCHASTIC,
+    PolicyTag.MULTI_PERIOD,
+    PolicyTag.PROFIT_AWARE,
+)
 @RouteConstructorRegistry.register("ph")
 class ProgressiveHedgingPolicy(BaseMultiPeriodRoutingPolicy):
     """Policy adapter for Progressive Hedging decomposition.
@@ -76,12 +86,9 @@ class ProgressiveHedgingPolicy(BaseMultiPeriodRoutingPolicy):
 
     def _run_multi_period_solver(
         self,
-        tree: Any,
-        capacity: float,
-        revenue: float,
-        cost_unit: float,
-        **kwargs: Any,
-    ) -> Tuple[List[List[List[int]]], float, Dict[str, Any]]:
+        problem: ProblemContext,
+        multi_day_ctx: Optional[MultiDayContext],
+    ) -> Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
         """
         Execute the Progressive Hedging (PH) decomposition solver logic.
 
@@ -91,31 +98,40 @@ class ProgressiveHedgingPolicy(BaseMultiPeriodRoutingPolicy):
         Augmented Lagrangian penalties) is used to force scenario-specific
         decisions toward a single implementable policy for Day 0.
 
+        PH enables horizontal decomposition of the stochastic integer routing
+        problem, iterativeley solving scenario-specific subproblems and
+        updating dual multipliers to encourage consensus at the root node.
+
         Args:
-            tree (ScenarioTree): Tree of future fill rate realizations.
-            capacity (float): Maximum vehicle collection capacity.
-            revenue (float): Revenue obtained per kilogram of waste collected.
-            cost_unit (float): Monetary cost incurred per kilometer traveled.
-            **kwargs: Additional context, including:
-                - distance_matrix (np.ndarray): Symmetric distance matrix.
-                - mandatory (List[int]): Bins that MUST be collected today.
+            problem: The current ProblemContext containing the state, ScenarioTree,
+                and problem constants (capacity, revenue, etc.).
+            multi_day_ctx: Optional context for spanning multiple rolling days.
 
         Returns:
-            Tuple[List[List[List[int]]], float, Dict[str, Any]]:
-                A 3-tuple containing:
+            Tuple[SolutionContext, List[List[List[int]]], Dict[str, Any]]:
+                - today_solution: Standardized solution context for Day 0.
                 - full_plan: Collection plan for all days and scenarios (aggregated).
-                - expected_profit: Expected objective value under the consensus policy.
                 - stats: Execution statistics, including convergence metrics (dual residuals).
         """
-        return self.engine.solve(
-            sub_dist_matrix=kwargs["distance_matrix"],
+        tree = problem.scenario_tree
+        if tree is None:
+            raise ValueError("PH requires a ScenarioTree in ProblemContext.")
+
+        engine = ProgressiveHedgingEngine(config=self.config)  # type: ignore[arg-type]
+        full_plan, expected_profit, stats = engine.solve(
+            sub_dist_matrix=problem.distance_matrix,
             scenario_tree=tree,
-            capacity=capacity,
-            revenue=revenue,
-            cost_unit=cost_unit,
-            mandatory_nodes=kwargs.get("mandatory", []),
-            **kwargs,
+            capacity=problem.capacity,
+            revenue=problem.revenue_per_kg,
+            cost_unit=problem.cost_per_km,
+            mandatory_nodes=problem.mandatory,
         )
+
+        # Extract Day 0 route
+        today_route = full_plan[0][0] if full_plan and full_plan[0] else []
+        sol_ctx = SolutionContext.from_problem(problem, today_route)
+
+        return sol_ctx, full_plan, stats
 
     def _run_solver(
         self,

@@ -33,13 +33,13 @@ References:
 """
 
 import time
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.policies.helpers.branching_solvers.vrpp_model import VRPPModel
+from logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model import VRPPModel
 
-from .master_problem import MasterProblem
+from .master_problem import InventoryMasterProblem, MasterProblem
 from .params import ILSBDParams
 from .scenario import ScenarioGenerator
 from .subproblem import RecourseEvaluator
@@ -63,13 +63,13 @@ class IntegerLShapedEngine:
 
     Usage example::
 
-        from logic.src.policies.helpers.branching_solvers.vrpp_model import VRPPModel
-        from logic.src.policies.integer_l_shaped.ils_engine import IntegerLShapedEngine
-        from logic.src.policies.integer_l_shaped.params import ILSBDParams
+        from logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model import VRPPModel
+        from logic.src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.ils_bd_engine import IntegerLShapedEngine
+        from logic.src.policies.route_construction.exact_and_decomposition_solvers.integer_l_shaped_benders_decomposition.params import ILSBDParams
 
         model = VRPPModel(n_nodes=..., cost_matrix=..., wastes=..., ...)
         engine = IntegerLShapedEngine(model, ILSBDParams())
-        routes, y_hat, profit, stats = engine.solve(sub_wastes)
+        routes, y_hat, profit, stats = engine.solve(tree)
 
     Attributes:
         model: VRPPModel encoding the deterministic problem structure.
@@ -99,14 +99,20 @@ class IntegerLShapedEngine:
         self._scenario_gen = ScenarioGenerator()
         self._evaluator = RecourseEvaluator()
 
-    def solve(
+    def solve(  # noqa: C901
         self,
         tree: Any,
+        demand_matrix: Optional[np.ndarray] = None,
+        bin_capacities: Optional[np.ndarray] = None,
+        initial_inventory: Optional[np.ndarray] = None,
     ) -> Tuple[List[List[int]], Dict[int, float], float, Dict[str, Any]]:
-        r"""Run the Multi-Period Integer L-Shaped Benders decomposition.
+        r"""Run the (standard or Multi-Period) Integer L-Shaped Benders decomposition.
 
         Args:
             tree: A ScenarioTree object.
+            demand_matrix: Optional mean demand increments per day per node.
+            bin_capacities: Optional bin capacities per node.
+            initial_inventory: Optional initial fill levels per node.
 
         Returns:
             Tuple of (routes, y_hat, profit, stats).
@@ -133,10 +139,48 @@ class IntegerLShapedEngine:
         scenarios = get_all_paths(tree.root, [])
 
         # ------------------------------------------------------------------
-        # Step 1: Build master problem (once)
+        # Step 1: Build master problem
         # ------------------------------------------------------------------
-        master = MasterProblem(model=self.model, params=self.params)
-        master.build()
+        is_multi_period = self.params.horizon > 1
+        master: MasterProblem
+
+        if is_multi_period:
+            # Multi-period stochastic inventory routing
+            N = len(self.model.customers)
+            T = self.params.horizon
+
+            # Build defaults if not provided
+            if demand_matrix is None:
+                demand_matrix = np.zeros((T, N), dtype=float)
+                customers_list = list(self.model.customers)
+                if hasattr(tree, "get_scenarios_at_day"):
+                    for t in range(T):
+                        scs = tree.get_scenarios_at_day(t) if t > 0 else []
+                        if scs:
+                            sc = scs[0]  # Mean scenario
+                            for idx, node in enumerate(customers_list):
+                                if hasattr(sc, "wastes") and node - 1 < len(sc.wastes):
+                                    demand_matrix[t, idx] = float(sc.wastes[node - 1])
+
+            bin_caps = bin_capacities if bin_capacities is not None else np.full(N, 100.0)
+            init_inv = initial_inventory if initial_inventory is not None else np.zeros(N)
+
+            master = InventoryMasterProblem(
+                model=self.model,
+                params=self.params,
+                horizon=T,
+                demand_matrix=demand_matrix,
+                bin_capacities=bin_caps,
+                initial_inventory=init_inv,
+                stockout_penalty=self.params.stockout_penalty,
+                big_m=self.params.big_m,
+            )
+            master.build()
+            master.build_inventory()
+        else:
+            # Standard single-period stochastic VRPP
+            master = MasterProblem(model=self.model, params=self.params)
+            master.build()
 
         # Tracking state
         best_routes: List[List[int]] = []
@@ -159,7 +203,9 @@ class IntegerLShapedEngine:
                 break
 
             # Update Gurobi time limit to remaining wall-clock budget
-            master._gurobi_model.Params.TimeLimit = remaining  # type: ignore[union-attr]
+            # we also respect master_time_limit if provided
+            m_time = min(remaining, self.params.master_time_limit)
+            master._gurobi_model.Params.TimeLimit = m_time  # type: ignore[union-attr]
 
             # ---- 2a. Solve master problem --------------------------------
             routes, y_hat, theta_hat, obj_MP = master.solve()
@@ -210,6 +256,11 @@ class IntegerLShapedEngine:
         self.stats["total_time"] = time.perf_counter() - t_start
         # Sync cut count from master's authoritative counter
         self.stats["benders_cuts_added"] = int(master.stats["benders_cuts"])
+
+        if is_multi_period and isinstance(master, InventoryMasterProblem):
+            self.stats["inventory_plan"] = master.get_inventory_plan()
+            self.stats["collection_plan"] = master.get_collection_plan()
+            self.stats["horizon"] = self.params.horizon
 
         return best_routes, best_y_hat, best_profit, self.stats
 

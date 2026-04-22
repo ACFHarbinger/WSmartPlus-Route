@@ -21,10 +21,12 @@ import signal
 from contextlib import contextmanager
 from typing import Any, Dict, List, Optional, Tuple
 
+import networkx as nx
 import numpy as np
 
+from logic.src.enums import GlobalRegistry, PolicyTag
+from logic.src.interfaces.context.search_context import ImprovementMetrics
 from logic.src.interfaces.route_improvement import IRouteImprovement
-from logic.src.policies.context.search_context import ImprovementMetrics
 
 from .base import RouteImproverRegistry
 from .common.helpers import (
@@ -90,6 +92,12 @@ def _time_limit(seconds: float):
         signal.signal(signal.SIGALRM, old_handler)
 
 
+@GlobalRegistry.register(
+    PolicyTag.IMPROVEMENT,
+    PolicyTag.EXACT,
+    PolicyTag.SOLVER,
+    PolicyTag.DECOMPOSITION,
+)
 @RouteImproverRegistry.register("branch_and_price")
 class BranchAndPriceRouteImprover(IRouteImprovement):
     """
@@ -359,8 +367,6 @@ class BranchAndPriceRouteImprover(IRouteImprovement):
         **kwargs: Any,
     ) -> Optional[List[List[int]]]:
         """Delegate to vrpy (secondary fallback path)."""
-        import networkx as nx
-
         time_limit = kwargs.get("bp_time_limit", self.config.get("bp_time_limit", 120.0))
         cspy = kwargs.get("bp_use_cspy", self.config.get("bp_use_cspy", True))
 

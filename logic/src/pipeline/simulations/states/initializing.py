@@ -26,7 +26,12 @@ from logic.src.data.processor import (
     setup_basedata,
     setup_dist_path_tup,
 )
+from logic.src.pipeline.simulations.actions.base import _flatten_config
+from logic.src.pipeline.simulations.bins import Bins
+from logic.src.pipeline.simulations.checkpoints import SimulationCheckpoint
 from logic.src.pipeline.simulations.repository import load_area_and_waste_type_params
+from logic.src.pipeline.simulations.states.base.base import SimState
+from logic.src.pipeline.simulations.states.running import RunningState
 from logic.src.tracking.logging.log_utils import setup_system_logger
 from logic.src.tracking.logging.logger_writer import setup_logger_redirection
 from logic.src.utils.configs.config_loader import load_config
@@ -34,14 +39,8 @@ from logic.src.utils.configs.setup_env import setup_env
 from logic.src.utils.configs.setup_manager import setup_hrl_manager
 from logic.src.utils.configs.setup_worker import setup_model
 
-from ..actions.base import _flatten_config
-from ..bins import Bins
-from ..checkpoints import SimulationCheckpoint
-from .base import SimState
-from .running import RunningState
-
 if TYPE_CHECKING:
-    from .base import SimulationContext
+    from logic.src.pipeline.simulations.states.base.base import SimulationContext
 
 
 class InitializingState(SimState):
@@ -146,22 +145,22 @@ class InitializingState(SimState):
 
         neural_cfg_path = os.path.join(ROOT_DIR, "assets", "configs", "policies", "policy_neural.yaml")
         pol_parts = ctx.pol_name.lower().replace("_", " ").replace("-", " ").split()
-        is_neural = any(kw in pol_parts for kw in ["neural", "amgat", "am", "ptr", "ddam", "transgcn"]) or any(
-            kw in model_name for kw in ["neural", "amgat", "am", "ptr", "ddam", "transgcn"]
+        is_neural = any(kw in pol_parts for kw in ["na", "amgat", "am", "ptr", "ddam", "transgcn"]) or any(
+            kw in model_name for kw in ["na", "amgat", "am", "ptr", "ddam", "transgcn"]
         )
 
         # Look for neural keywords in model_name or context's pol_name
         is_neural_arch = any(kw in model_name for kw in ["am", "ptr", "transgcn", "ddam"]) or any(
-            kw in ctx.pol_name.lower().split("_") for kw in ["neural", "am", "ptr", "transgcn", "ddam"]
+            kw in ctx.pol_name.lower().split("_") for kw in ["na", "am", "ptr", "transgcn", "ddam"]
         )
 
         if is_neural and (is_neural_arch or model_name == "") and os.path.exists(neural_cfg_path):
             try:
                 neural_cfg = load_config(neural_cfg_path)
                 if neural_cfg and ctx.config is not None:
-                    if "neural" in neural_cfg:
+                    if "na" in neural_cfg:
                         # Flatten specific neural sub-configs if they are lists
-                        for pol_key, pol_val in neural_cfg["neural"].items():
+                        for pol_key, pol_val in neural_cfg["na"].items():
                             ctx.config[pol_key] = _flatten_config(pol_val)
                     else:
                         ctx.config.update(neural_cfg)
@@ -189,8 +188,8 @@ class InitializingState(SimState):
 
         sim = ctx.cfg.sim
         pol_parts = ctx.pol_name.lower().replace("_", " ").replace("-", " ").split()
-        is_neural = any(kw in pol_parts for kw in ["neural", "amgat", "am", "ptr", "ddam", "transgcn"]) or any(
-            kw in model_name for kw in ["neural", "amgat", "am", "ptr", "ddam", "transgcn"]
+        is_neural = any(kw in pol_parts for kw in ["na", "amgat", "am", "ptr", "ddam", "transgcn"]) or any(
+            kw in model_name for kw in ["na", "amgat", "am", "ptr", "ddam", "transgcn"]
         )
         should_load_neural = is_neural or any(model_name.startswith(kw) for kw in ["am", "ddam", "ptr"])
 
@@ -198,7 +197,7 @@ class InitializingState(SimState):
         # Architecture check: also include common neural architecture keywords
         is_neural_arch = (
             any(kw in model_name for kw in ["am", "ptr", "transgcn", "ddam"])
-            or any(kw in pol_parts for kw in ["neural", "amgat", "am", "ptr", "ddam"])
+            or any(kw in pol_parts for kw in ["na", "amgat", "am", "ptr", "ddam"])
             or "amgat" in ctx.pol_name.lower()
         )
 
@@ -275,7 +274,6 @@ class InitializingState(SimState):
             sim.env_file,
             sim.gapik_file,
             sim.symkey_name,
-            ctx.device,
             sim.graph.edge_threshold,
             sim.graph.edge_method,
             ctx.indices,
@@ -286,12 +284,12 @@ class InitializingState(SimState):
             model_name = ctx.pol_cfg["model"].get("name", "").lower()
 
         pol_parts = ctx.pol_name.lower().replace("_", " ").replace("-", " ").split()
-        is_neural = any(kw in pol_parts for kw in ["neural", "amgat", "am", "ptr", "ddam", "transgcn"]) or any(
-            kw in model_name for kw in ["neural", "amgat", "am", "ptr", "ddam", "transgcn"]
+        is_neural = any(kw in pol_parts for kw in ["na", "amgat", "am", "ptr", "ddam", "transgcn"]) or any(
+            kw in model_name for kw in ["na", "amgat", "am", "ptr", "ddam", "transgcn"]
         )
         # Look for neural keywords in model_name or context's pol_name
         is_neural_arch = any(kw in model_name for kw in ["am", "ptr", "transgcn", "ddam"]) or any(
-            kw in ctx.pol_name.lower().split("_") for kw in ["neural", "am", "ptr", "transgcn", "ddam"]
+            kw in ctx.pol_name.lower().split("_") for kw in ["na", "am", "ptr", "transgcn", "ddam"]
         )
 
         if is_neural and (is_neural_arch or model_name == ""):

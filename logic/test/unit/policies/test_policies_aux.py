@@ -21,7 +21,7 @@ from logic.src.policies.helpers.local_search import local_search_base
 # HGS and ALNS auxiliary imports
 from logic.src.policies.helpers.operators import destroy as destroy_operators
 from logic.src.policies.helpers.operators import repair as repair_operators
-from logic.src.policies.helpers.operators.crossover import ordered_crossover
+from logic.src.policies.helpers.operators.crossover_recombination import ordered_crossover
 
 # Look-ahead auxiliary imports
 from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.check import (

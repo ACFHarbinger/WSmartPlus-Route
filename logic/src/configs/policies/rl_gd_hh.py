@@ -55,15 +55,12 @@ class RLGDHHConfig:
     # --- Problem Flags ---
     vrpp: bool = True
 
-    # --- Acceptance Criterion ---
-    # Default to Great Deluge to maintain parity with Ozcan et al. (2010)
-    acceptance: AcceptanceConfig = field(
+    # --- Infrastructure Hooks ---
+    mandatory_selection: Optional[List[Any]] = field(default_factory=list)
+    route_improvement: Optional[List[Any]] = field(default_factory=list)
+    acceptance_criterion: AcceptanceConfig = field(
         default_factory=lambda: AcceptanceConfig(
             method="great_deluge",
             params={"quality_lb": 0.0},
         )
     )
-
-    # --- Infrastructure Hooks ---
-    mandatory_selection: Optional[List[Any]] = field(default_factory=list)
-    route_improvement: Optional[List[Any]] = field(default_factory=list)

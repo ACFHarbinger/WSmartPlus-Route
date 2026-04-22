@@ -1,4 +1,3 @@
-# Copyright (c) WSmart-Route. All rights reserved.
 """
 Data loading and caching services for the dashboard.
 
@@ -6,6 +5,7 @@ Provides cached access to training logs and simulation outputs.
 """
 
 import json
+import os
 import sqlite3
 import statistics
 from pathlib import Path
@@ -142,15 +142,7 @@ def load_multiple_training_runs(version_names: List[str]) -> Dict[str, pd.DataFr
 
 @st.cache_data(ttl=60)
 def load_policy_params(policy_name: str, sample_id: int) -> Dict[str, Any]:
-    """Retrieve structured policy configuration from the tracking database.
-
-    Args:
-        policy_name: Name of the routing policy.
-        sample_id: Index of the simulation instance.
-
-    Returns:
-        Dict of parameters matching the prefix 'policy_params/{policy_name}/s{sample_id}/'.
-    """
+    """Retrieve structured policy configuration from the tracking database."""
     db_path = get_project_root() / "assets" / "tracking" / "tracking.db"
     if not db_path.exists():
         return {}
@@ -159,18 +151,15 @@ def load_policy_params(policy_name: str, sample_id: int) -> Dict[str, Any]:
     params: Dict[str, Any] = {}
 
     try:
-        # We use raw sqlite3 here to avoid adding a heavy dependency on TrackingStore if not needed,
-        # but following the prefix-matching logic for policy_params.
         conn = sqlite3.connect(str(db_path), timeout=5.0)
         conn.row_factory = sqlite3.Row
 
-        # Get params from the latest run that has these keys
-        query = """
-            SELECT key, value
-            FROM params
-            WHERE key LIKE ?
-            ORDER BY id DESC
-        """
+        # 1. Dynamically load the SQL query from the external file
+        query_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data_loader_query.sql")
+        with open(query_path, "r", encoding="utf-8") as f:
+            query = f.read()
+
+        # 2. Execute the loaded query
         rows = conn.execute(query, (f"{prefix}%",)).fetchall()
 
         for row in rows:

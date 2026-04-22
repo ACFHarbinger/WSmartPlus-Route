@@ -19,7 +19,6 @@ from torch import nn
 
 from logic.src.envs import get_env
 from logic.src.envs.base.base import RL4COEnvBase
-from logic.src.utils.decoding import batchify, unbatchify
 
 from .decoder import ImprovementDecoder
 from .encoder import ImprovementEncoder
@@ -101,6 +100,8 @@ class ImprovementPolicy(nn.Module, ABC):
             env = get_env(self.env_name or "tsp_kopt")
 
         # Initial solution generation (done by env.reset)
+        from logic.src.utils.decoding import batchify, unbatchify
+
         td = env.reset(td)
 
         # Batch for multiple starts if requested

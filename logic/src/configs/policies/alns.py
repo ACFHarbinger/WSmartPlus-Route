@@ -25,6 +25,7 @@ class ALNSConfig:
         engine: Solver engine to use ('custom', 'alns').
         mandatory_selection: List of mandatory strategy config files.
         route_improvement: List of route improvement operations to apply.
+        acceptance_criterion: Acceptance criterion config for local search.
     """
 
     time_limit: float = 60.0
@@ -41,8 +42,8 @@ class ALNSConfig:
     extended_operators: bool = False
     mandatory_selection: Optional[List[MandatorySelectionConfig]] = None
     route_improvement: Optional[List[RouteImprovingConfig]] = None
-    acceptance: AcceptanceConfig = field(
+    acceptance_criterion: AcceptanceConfig = field(
         default_factory=lambda: AcceptanceConfig(
-            method="boltzmann", params=BoltzmannAcceptanceConfig(initial_temp=100.0, alpha=0.995)
+            method="bmc", params=BoltzmannAcceptanceConfig(initial_temp=100.0, alpha=0.995)
         )
     )

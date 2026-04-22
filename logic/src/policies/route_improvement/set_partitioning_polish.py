@@ -10,9 +10,10 @@ SetPartitioningRouteImprover.
 import logging
 from typing import Any, List, Tuple
 
+from logic.src.enums import GlobalRegistry, PolicyTag
+from logic.src.interfaces.context.search_context import ImprovementMetrics
 from logic.src.interfaces.route_improvement import IRouteImprovement
-from logic.src.policies.context.search_context import ImprovementMetrics
-from logic.src.policies.helpers.operators.intensification import (
+from logic.src.policies.helpers.operators.intensification_fixing import (
     set_partitioning_polish,
     set_partitioning_polish_profit,
 )
@@ -46,6 +47,10 @@ except ImportError:
     logger.warning("set_partitioning_polish: gurobipy not installed; route improver will no-op.")
 
 
+@GlobalRegistry.register(
+    PolicyTag.IMPROVEMENT,
+    PolicyTag.MATHEURISTIC,
+)
 @RouteImproverRegistry.register("set_partitioning_polish")
 class SetPartitioningPolishRouteImprover(IRouteImprovement):
     """

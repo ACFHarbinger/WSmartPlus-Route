@@ -16,6 +16,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 import numpy as np
 
 from logic.src.configs.policies.lkh3 import LKH3Config
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.graph_augmentation import (
@@ -29,6 +30,12 @@ from logic.src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_
 from .params import LKH3Params
 
 
+@GlobalRegistry.register(
+    PolicyTag.MATHEURISTIC,
+    PolicyTag.META_HEURISTIC,
+    PolicyTag.LOCAL_SEARCH,
+    PolicyTag.PROFIT_AWARE,
+)
 @RouteConstructorRegistry.register("lkh3")
 class LKH3Policy(BaseRoutingPolicy):
     """LKH-3 policy class.

@@ -4,14 +4,21 @@ Classical Local Search Route Improver.
 
 from typing import Any, List, Tuple
 
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.interfaces import IRouteImprovement
-from logic.src.policies.context.search_context import ImprovementMetrics
-from logic.src.policies.helpers.operators.intensification import INTENSIFICATION_OPERATORS
+from logic.src.interfaces.context.search_context import ImprovementMetrics
+from logic.src.policies.helpers.operators.intensification_fixing import INTENSIFICATION_OPERATORS
 
 from .base import RouteImproverRegistry
 from .common.helpers import assemble_tour, split_tour, to_numpy
 
 
+@GlobalRegistry.register(
+    PolicyTag.IMPROVEMENT,
+    PolicyTag.HEURISTIC,
+    PolicyTag.LOCAL_SEARCH,
+    PolicyTag.TRAJECTORY_BASED,
+)
 @RouteImproverRegistry.register("classical_local_search")
 class ClassicalLocalSearchRouteImprover(IRouteImprovement):
     """

@@ -25,91 +25,6 @@ def _safe_json_dumps(value: Any) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Schema
-# ---------------------------------------------------------------------------
-
-_SCHEMA_SQL = """
-PRAGMA journal_mode = WAL;
-PRAGMA synchronous  = NORMAL;
-
-CREATE TABLE IF NOT EXISTS experiments (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    name        TEXT    NOT NULL UNIQUE,
-    created_at  TEXT    NOT NULL,
-    description TEXT    DEFAULT '',
-    tags        TEXT    DEFAULT '{}'
-);
-
-CREATE TABLE IF NOT EXISTS runs (
-    id            TEXT    PRIMARY KEY,
-    experiment_id INTEGER NOT NULL,
-    name          TEXT,
-    status        TEXT    NOT NULL DEFAULT 'running',
-    run_type      TEXT    NOT NULL DEFAULT 'generic',
-    start_time    TEXT    NOT NULL,
-    end_time      TEXT,
-    artifact_dir  TEXT    DEFAULT '',
-    error_message TEXT,
-    FOREIGN KEY (experiment_id) REFERENCES experiments(id)
-);
-
-CREATE TABLE IF NOT EXISTS run_tags (
-    run_id TEXT NOT NULL,
-    key    TEXT NOT NULL,
-    value  TEXT NOT NULL,
-    PRIMARY KEY (run_id, key),
-    FOREIGN KEY (run_id) REFERENCES runs(id)
-);
-
-CREATE TABLE IF NOT EXISTS params (
-    run_id TEXT NOT NULL,
-    key    TEXT NOT NULL,
-    value  TEXT NOT NULL,
-    PRIMARY KEY (run_id, key),
-    FOREIGN KEY (run_id) REFERENCES runs(id)
-);
-
-CREATE TABLE IF NOT EXISTS metrics (
-    id        INTEGER PRIMARY KEY AUTOINCREMENT,
-    run_id    TEXT    NOT NULL,
-    key       TEXT    NOT NULL,
-    value     REAL    NOT NULL,
-    step      INTEGER NOT NULL DEFAULT 0,
-    timestamp TEXT    NOT NULL,
-    FOREIGN KEY (run_id) REFERENCES runs(id)
-);
-CREATE INDEX IF NOT EXISTS idx_metrics_run_key ON metrics (run_id, key);
-
-CREATE TABLE IF NOT EXISTS artifacts (
-    id            INTEGER PRIMARY KEY AUTOINCREMENT,
-    run_id        TEXT    NOT NULL,
-    name          TEXT    NOT NULL,
-    path          TEXT    NOT NULL,
-    artifact_type TEXT    DEFAULT 'file',
-    file_hash     TEXT,
-    size_bytes    INTEGER,
-    created_at    TEXT    NOT NULL,
-    metadata      TEXT    DEFAULT '{}',
-    FOREIGN KEY (run_id) REFERENCES runs(id)
-);
-
-CREATE TABLE IF NOT EXISTS dataset_events (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    run_id      TEXT    NOT NULL,
-    event_type  TEXT    NOT NULL,
-    file_path   TEXT,
-    file_hash   TEXT,
-    prev_hash   TEXT,
-    size_bytes  INTEGER,
-    shape       TEXT,
-    metadata    TEXT    DEFAULT '{}',
-    timestamp   TEXT    NOT NULL,
-    FOREIGN KEY (run_id) REFERENCES runs(id)
-);
-"""
-
-
-# ---------------------------------------------------------------------------
 # Store
 # ---------------------------------------------------------------------------
 
@@ -127,6 +42,12 @@ class TrackingStore:
     def __init__(self, db_path: str) -> None:
         self.db_path = db_path
         os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+        # Load queries dynamically to decouple SQL from Python
+        queries_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "queries.json")
+        with open(queries_path, "r", encoding="utf-8") as f:
+            self.queries = json.load(f)
+
         self._apply_schema()
 
     # ------------------------------------------------------------------
@@ -150,10 +71,14 @@ class TrackingStore:
             conn.close()
 
     def _apply_schema(self) -> None:
+        schema_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "schema.sql")
+        with open(schema_path, "r", encoding="utf-8") as f:
+            schema_sql = f.read()
+
         with self._conn() as conn:
-            conn.executescript(_SCHEMA_SQL)
+            conn.executescript(schema_sql)
             with suppress(sqlite3.OperationalError):
-                conn.execute("ALTER TABLE dataset_events ADD COLUMN shape TEXT;")
+                conn.execute(self.queries["alter_dataset_events"])
 
     @staticmethod
     def _now() -> str:
@@ -163,25 +88,16 @@ class TrackingStore:
     # Experiments
     # ------------------------------------------------------------------
 
-    def get_or_create_experiment(
-        self,
-        name: str,
-        description: str = "",
-        tags: Optional[Dict[str, Any]] = None,
-    ) -> int:
-        """Return the id of an existing experiment or create a new one."""
+    def get_or_create_experiment(self, name: str, description: str = "", tags: Optional[Dict[str, Any]] = None) -> int:
         tags_json = json.dumps(tags or {})
         with self._conn() as conn:
-            conn.execute(
-                "INSERT OR IGNORE INTO experiments (name, created_at, description, tags) VALUES (?, ?, ?, ?)",
-                (name, self._now(), description, tags_json),
-            )
-            row = conn.execute("SELECT id FROM experiments WHERE name = ?", (name,)).fetchone()
+            conn.execute(self.queries["insert_experiment"], (name, self._now(), description, tags_json))
+            row = conn.execute(self.queries["get_experiment_id"], (name,)).fetchone()
             return int(row["id"])
 
     def list_experiments(self) -> List[Dict[str, Any]]:
         with self._conn() as conn:
-            rows = conn.execute("SELECT * FROM experiments ORDER BY created_at DESC").fetchall()
+            rows = conn.execute(self.queries["list_experiments"]).fetchall()
             return [dict(r) for r in rows]
 
     # ------------------------------------------------------------------
@@ -189,44 +105,24 @@ class TrackingStore:
     # ------------------------------------------------------------------
 
     def create_run(
-        self,
-        run_id: str,
-        experiment_id: int,
-        name: Optional[str],
-        run_type: str,
-        artifact_dir: str,
+        self, run_id: str, experiment_id: int, name: Optional[str], run_type: str, artifact_dir: str
     ) -> None:
         with self._conn() as conn:
-            conn.execute(
-                """INSERT INTO runs (id, experiment_id, name, status, run_type, start_time, artifact_dir)
-                   VALUES (?, ?, ?, 'running', ?, ?, ?)""",
-                (run_id, experiment_id, name, run_type, self._now(), artifact_dir),
-            )
+            conn.execute(self.queries["insert_run"], (run_id, experiment_id, name, run_type, self._now(), artifact_dir))
 
-    def finish_run(
-        self,
-        run_id: str,
-        status: str = "completed",
-        error: Optional[str] = None,
-    ) -> None:
+    def finish_run(self, run_id: str, status: str = "completed", error: Optional[str] = None) -> None:
         with self._conn() as conn:
-            conn.execute(
-                "UPDATE runs SET status = ?, end_time = ?, error_message = ? WHERE id = ?",
-                (status, self._now(), error, run_id),
-            )
+            conn.execute(self.queries["update_run_status"], (status, self._now(), error, run_id))
 
     def get_run(self, run_id: str) -> Optional[Dict[str, Any]]:
         with self._conn() as conn:
-            row = conn.execute("SELECT * FROM runs WHERE id = ?", (run_id,)).fetchone()
+            row = conn.execute(self.queries["get_run"], (run_id,)).fetchone()
             return dict(row) if row else None
 
     def list_runs(
-        self,
-        experiment_id: Optional[int] = None,
-        run_type: Optional[str] = None,
-        status: Optional[str] = None,
+        self, experiment_id: Optional[int] = None, run_type: Optional[str] = None, status: Optional[str] = None
     ) -> List[Dict[str, Any]]:
-        query = "SELECT * FROM runs WHERE 1=1"
+        query = self.queries["list_runs_base"]
         args: List[Any] = []
         if experiment_id is not None:
             query += " AND experiment_id = ?"
@@ -238,54 +134,41 @@ class TrackingStore:
             query += " AND status = ?"
             args.append(status)
         query += " ORDER BY start_time DESC"
+
         with self._conn() as conn:
             rows = conn.execute(query, args).fetchall()
             return [dict(r) for r in rows]
 
     # ------------------------------------------------------------------
-    # Tags
+    # Tags & Params
     # ------------------------------------------------------------------
 
     def set_tag(self, run_id: str, key: str, value: str) -> None:
         with self._conn() as conn:
-            conn.execute(
-                "INSERT OR REPLACE INTO run_tags (run_id, key, value) VALUES (?, ?, ?)",
-                (run_id, key, value),
-            )
+            conn.execute(self.queries["insert_tag"], (run_id, key, value))
 
     def set_tags(self, run_id: str, tags: Dict[str, str]) -> None:
         with self._conn() as conn:
-            conn.executemany(
-                "INSERT OR REPLACE INTO run_tags (run_id, key, value) VALUES (?, ?, ?)",
-                [(run_id, k, str(v)) for k, v in tags.items()],
-            )
+            conn.executemany(self.queries["insert_tag"], [(run_id, k, str(v)) for k, v in tags.items()])
 
     def get_tags(self, run_id: str) -> Dict[str, str]:
         with self._conn() as conn:
-            rows = conn.execute("SELECT key, value FROM run_tags WHERE run_id = ?", (run_id,)).fetchall()
+            rows = conn.execute(self.queries["get_tags"], (run_id,)).fetchall()
             return {r["key"]: r["value"] for r in rows}
-
-    # ------------------------------------------------------------------
-    # Params
-    # ------------------------------------------------------------------
 
     def log_param(self, run_id: str, key: str, value: Any) -> None:
         with self._conn() as conn:
-            conn.execute(
-                "INSERT OR REPLACE INTO params (run_id, key, value) VALUES (?, ?, ?)",
-                (run_id, key, _safe_json_dumps(value)),
-            )
+            conn.execute(self.queries["insert_param"], (run_id, key, _safe_json_dumps(value)))
 
     def log_params(self, run_id: str, params: Dict[str, Any]) -> None:
         with self._conn() as conn:
             conn.executemany(
-                "INSERT OR REPLACE INTO params (run_id, key, value) VALUES (?, ?, ?)",
-                [(run_id, k, _safe_json_dumps(v)) for k, v in params.items()],
+                self.queries["insert_param"], [(run_id, k, _safe_json_dumps(v)) for k, v in params.items()]
             )
 
     def get_params(self, run_id: str) -> Dict[str, Any]:
         with self._conn() as conn:
-            rows = conn.execute("SELECT key, value FROM params WHERE run_id = ?", (run_id,)).fetchall()
+            rows = conn.execute(self.queries["get_params"], (run_id,)).fetchall()
             return {r["key"]: json.loads(r["value"]) for r in rows}
 
     # ------------------------------------------------------------------
@@ -294,43 +177,25 @@ class TrackingStore:
 
     def log_metric(self, run_id: str, key: str, value: float, step: int = 0) -> None:
         with self._conn() as conn:
-            conn.execute(
-                "INSERT INTO metrics (run_id, key, value, step, timestamp) VALUES (?, ?, ?, ?, ?)",
-                (run_id, key, float(value), step, self._now()),
-            )
+            conn.execute(self.queries["insert_metric"], (run_id, key, float(value), step, self._now()))
 
-    def log_metrics_batch(
-        self,
-        run_id: str,
-        metrics: List[Tuple[str, float, int]],
-    ) -> None:
-        """Insert a batch of ``(key, value, step)`` tuples in one transaction."""
+    def log_metrics_batch(self, run_id: str, metrics: List[Tuple[str, float, int]]) -> None:
         now = self._now()
         with self._conn() as conn:
-            conn.executemany(
-                "INSERT INTO metrics (run_id, key, value, step, timestamp) VALUES (?, ?, ?, ?, ?)",
-                [(run_id, k, float(v), s, now) for k, v, s in metrics],
-            )
+            conn.executemany(self.queries["insert_metric"], [(run_id, k, float(v), s, now) for k, v, s in metrics])
 
     def get_metric_history(self, run_id: str, key: str) -> List[Dict[str, Any]]:
         with self._conn() as conn:
-            rows = conn.execute(
-                "SELECT value, step, timestamp FROM metrics WHERE run_id = ? AND key = ? ORDER BY step",
-                (run_id, key),
-            ).fetchall()
+            rows = conn.execute(self.queries["get_metric_history"], (run_id, key)).fetchall()
             return [dict(r) for r in rows]
 
     def get_latest_metrics(self, run_id: str) -> Dict[str, float]:
         with self._conn() as conn:
-            rows = conn.execute(
-                """SELECT key, value FROM metrics
-                   WHERE id IN (SELECT MAX(id) FROM metrics WHERE run_id = ? GROUP BY key)""",
-                (run_id,),
-            ).fetchall()
+            rows = conn.execute(self.queries["get_latest_metrics"], (run_id,)).fetchall()
             return {r["key"]: r["value"] for r in rows}
 
     # ------------------------------------------------------------------
-    # Artifacts
+    # Artifacts & Dataset Events
     # ------------------------------------------------------------------
 
     def log_artifact(
@@ -344,37 +209,16 @@ class TrackingStore:
         metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
         with self._conn() as conn:
-            # Check if artifact already exists to avoid duplicates
-            existing = conn.execute(
-                "SELECT id FROM artifacts WHERE run_id = ? AND path = ?",
-                (run_id, path),
-            ).fetchone()
-
+            existing = conn.execute(self.queries["check_artifact"], (run_id, path)).fetchone()
             if existing:
                 return
-
             conn.execute(
-                """INSERT INTO artifacts
-                   (run_id, name, path, artifact_type, file_hash, size_bytes, created_at, metadata)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
-                (
-                    run_id,
-                    name,
-                    path,
-                    artifact_type,
-                    file_hash,
-                    size_bytes,
-                    self._now(),
-                    json.dumps(metadata or {}),
-                ),
+                self.queries["insert_artifact"],
+                (run_id, name, path, artifact_type, file_hash, size_bytes, self._now(), json.dumps(metadata or {})),
             )
 
-    def get_artifacts(
-        self,
-        run_id: str,
-        artifact_type: Optional[str] = None,
-    ) -> List[Dict[str, Any]]:
-        query = "SELECT * FROM artifacts WHERE run_id = ?"
+    def get_artifacts(self, run_id: str, artifact_type: Optional[str] = None) -> List[Dict[str, Any]]:
+        query = self.queries["get_artifacts_base"]
         args: List[Any] = [run_id]
         if artifact_type:
             query += " AND artifact_type = ?"
@@ -382,10 +226,6 @@ class TrackingStore:
         with self._conn() as conn:
             rows = conn.execute(query, args).fetchall()
             return [dict(r) for r in rows]
-
-    # ------------------------------------------------------------------
-    # Dataset events
-    # ------------------------------------------------------------------
 
     def log_dataset_event(
         self,
@@ -400,10 +240,7 @@ class TrackingStore:
     ) -> None:
         with self._conn() as conn:
             conn.execute(
-                """INSERT INTO dataset_events
-                   (run_id, event_type, file_path, file_hash, prev_hash,
-                    size_bytes, shape, metadata, timestamp)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                self.queries["insert_dataset_event"],
                 (
                     run_id,
                     event_type,
@@ -419,8 +256,5 @@ class TrackingStore:
 
     def get_dataset_events(self, run_id: str) -> List[Dict[str, Any]]:
         with self._conn() as conn:
-            rows = conn.execute(
-                "SELECT * FROM dataset_events WHERE run_id = ? ORDER BY timestamp",
-                (run_id,),
-            ).fetchall()
+            rows = conn.execute(self.queries["get_dataset_events"], (run_id,)).fetchall()
             return [dict(r) for r in rows]

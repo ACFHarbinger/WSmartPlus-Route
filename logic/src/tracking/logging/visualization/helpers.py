@@ -9,7 +9,7 @@ from torch import nn
 
 from logic.src.models.core.attention_model import AttentionModel
 from logic.src.models.subnets.factories.attention import AttentionComponentFactory
-from logic.src.utils.functions import load_problem
+from logic.src.utils.model.problem_factory import load_problem
 
 
 def get_batch(device, size=50, batch_size=32, temporal_horizon=0):

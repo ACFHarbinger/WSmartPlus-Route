@@ -24,12 +24,11 @@ try:
 except ImportError:
     DataLineageCallback = None  # type: ignore[assignment,misc]
 
+from logic.src.pipeline.simulations.checkpoints import CheckpointError, checkpoint_manager
+from logic.src.pipeline.simulations.day_context import SimulationDayContext, run_day
+from logic.src.pipeline.simulations.states.base.base import SimState
+from logic.src.pipeline.simulations.states.finishing import FinishingState
 from logic.src.tracking.logging.log_utils import final_simulation_summary
-
-from ..checkpoints import CheckpointError, checkpoint_manager
-from ..day_context import SimulationDayContext, run_day
-from .base import SimState
-from .finishing import FinishingState
 
 if TYPE_CHECKING:
     from .base import SimulationContext
@@ -97,7 +96,7 @@ class RunningState(SimState):
 
         # 1. START WITH GLOBAL CONFIGS (mandatory, route_improvement)
         if ctx.config:
-            for g_key in ["mandatory", "route_improvement"]:
+            for g_key in ["mandatory_selection", "route_improvement"]:
                 if g_key in ctx.config:
                     current_policy_config[g_key] = ctx.config[g_key]
 

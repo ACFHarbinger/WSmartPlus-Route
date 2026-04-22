@@ -8,6 +8,7 @@ to permit unified execution by the factory manager.
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
@@ -15,13 +16,36 @@ from .params import SAParams
 from .solver import SASolver
 
 
+@GlobalRegistry.register(
+    PolicyTag.META_HEURISTIC,
+    PolicyTag.TRAJECTORY_BASED,
+    PolicyTag.LOCAL_SEARCH,
+    PolicyTag.CONSTRUCTION,
+    PolicyTag.PROFIT_AWARE,
+)
 @RouteConstructorRegistry.register("sa")
 class SAPolicy(BaseRoutingPolicy):
-    """
-    Simulated Annealing (SA) policy adapter.
+    r"""
+    Simulated Annealing (SA) Policy - Stochastic Trajectory-Based Optimization.
 
-    Instantiates the thermodynamic solver and executes the Markov chain
-    search over the specified routing graph.
+    This policy implements the Simulated Annealing metaheuristic, inspired by the
+    metallurgical process of heating and controlled cooling to achieve a low-energy
+    state.
+
+    Search Logic:
+    1.  **Neighbor Generation**: Proposes small, stochastic modifications to the
+        current route (e.g., 2-opt, relocate, swap).
+    2.  **Acceptance Criterion**: Employs the Metropolis-Hastings rule. It always
+        accepts improving moves and accepts deteriorating moves with a probability
+        $P = \exp(-\Delta / T)$, where $\Delta$ is the loss in profit and $T$ is
+        the current temperature.
+    3.  **Cooling Schedule**: Systematically reduces $T$ over time, transitioning
+        the search from exploration (early stage) to intensification (late stage).
+
+    SA is robust against premature convergence and is highly effective at escaping
+    the narrow basins of attraction in the routing landscape.
+
+    Registry key: ``"sa"``
     """
 
     def __init__(self, config: Optional[Union[Dict[str, Any], Any]] = None):

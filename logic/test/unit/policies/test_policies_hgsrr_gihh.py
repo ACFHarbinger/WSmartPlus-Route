@@ -7,7 +7,7 @@ and the Hyper-Heuristic with Two Guidance Indicators (GIHH) policies.
 
 import numpy as np
 import pytest
-from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search_ruin_and_recreate import HGSRRSolver, HGSRRParams
+from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search_with_ruin_and_recreate import HGSRRSolver, HGSRRParams
 from logic.src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic import GIHHSolver, GIHHParams
 from logic.src.policies.route_construction.base.factory import RouteConstructorFactory
 

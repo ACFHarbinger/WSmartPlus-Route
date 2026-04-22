@@ -1,8 +1,9 @@
 """
 Mandatory Selection Config module.
 
-Configures the vectorized selection strategy used during training
-to determine which bins must be collected.
+Configures the strategies used to determine which bins must be collected
+during simulation or training. This module follows the modular pattern of
+nested dataclasses for each algorithm.
 """
 
 from dataclasses import dataclass, field
@@ -10,88 +11,102 @@ from typing import Any, Dict, List, Optional
 
 
 @dataclass
-class MandatorySelectionConfig:
-    """Configuration for mandatory bin selection during training.
+class LastMinuteSelectionConfig:
+    """Configuration for threshold-based last-minute selection."""
 
-    The mandatory selector determines which bins are mandatory collection
-    targets during training, enforcing routing constraints based on
-    fill levels, predictions, or other criteria.
-
-    Attributes:
-        strategy: Name of the selection strategy. Options:
-            - "last_minute": Threshold-based (collect when fill > threshold)
-            - "regular": Periodic collection on scheduled days
-            - "lookahead": Predictive (collect if overflow within N days)
-            - "revenue": Revenue-based (collect if revenue exceeds threshold)
-            - "service_level": Statistical overflow prediction
-            - "deadline": Deterministic days-to-overflow (floor-based)
-            - "multi_day_prob": Stochastic overflow risk over K days
-            - "pareto_front": Multi-objective (urgency x distance) optimization
-            - "profit_per_km": Spatial ROI (Expected revenue / distance)
-            - "spatial_synergy": Critical bins + opportunistic neighbors
-            - "stochastic_regret": Expected overflow volume minimization
-            - "manager": Neural network-based selection (MandatoryManager)
-            - "combined": Combine multiple strategies with OR logic
-            - None: No mandatory constraint (default behavior)
-        threshold: General parameter used as:
-            - Fill level threshold for last_minute (0-1).
-            - Lookahead horizon for deadline (days).
-            - Risk probability for multi_day_prob (0-1).
-            - Lookahead days filter for pareto_front.
-            - Economic threshold for profit_per_km.
-            - Expected overflow tolerance for stochastic_regret.
-        frequency: Collection frequency for regular strategy (days).
-        confidence_factor: Standard deviations for service_level strategy.
-        revenue_kg: Revenue per kg for revenue/profit_per_km strategies.
-        bin_capacity: Bin capacity for revenue calculation.
-        revenue_threshold: Minimum revenue threshold for revenue strategy.
-        max_fill: Maximum fill level (overflow threshold).
-        horizon_days: Lookahead window (days) for deadline/multi_day_prob.
-        critical_threshold: Fill level for marking a bin as "critical" (spatial_synergy).
-        synergy_threshold: Fill level for "opportunistic" neighbors (spatial_synergy).
-        radius: Distance radius for opportunistic collection (spatial_synergy).
-        combined_strategies: List of strategy configs for combined selector.
-        hidden_dim: Hidden dimension for manager network.
-        lstm_hidden: LSTM hidden dimension for manager network.
-        history_length: Temporal history length for manager network.
-        manager_critical_threshold: Critical fill threshold for manager network.
-        manager_weights: Path to pre-trained manager weights.
-        device: Device for manager computation ('cpu' or 'cuda').
-        params: Additional strategy-specific parameters.
-    """
-
-    strategy: Optional[str] = None
-
-    # LastMinute parameters
     threshold: float = 0.7
 
-    # Regular parameters
+
+@dataclass
+class RegularSelectionConfig:
+    """Configuration for periodic collection on scheduled days."""
+
     frequency: int = 3
 
-    # ServiceLevel parameters
+
+@dataclass
+class ServiceLevelSelectionConfig:
+    """Configuration for statistical overflow prediction."""
+
     confidence_factor: float = 1.0
 
-    # Revenue parameters
+
+@dataclass
+class RevenueSelectionConfig:
+    """Configuration for revenue-based selection."""
+
     revenue_kg: float = 1.0
     bin_capacity: float = 1.0
     revenue_threshold: float = 0.0
 
-    # Common parameters
-    max_fill: float = 1.0
 
-    # Multi-day horizon (multi_day_prob, deadline strategies)
+@dataclass
+class LookaheadSelectionConfig:
+    """Configuration for predictive collection within a horizon."""
+
     horizon_days: int = 3
+    threshold: float = 0.7  # specific usage depends on implementation
 
-    # SpatialSynergy parameters
+
+@dataclass
+class DeadlineSelectionConfig:
+    """Configuration for deterministic days-to-overflow selection."""
+
+    horizon_days: int = 3
+    threshold: float = 0.9  # used as urgency threshold
+
+
+@dataclass
+class MultiDayProbSelectionConfig:
+    """Configuration for stochastic overflow risk over K days."""
+
+    horizon_days: int = 3
+    threshold: float = 0.5  # risk probability threshold
+
+
+@dataclass
+class ParetoFrontSelectionConfig:
+    """Configuration for multi-objective (urgency x distance) optimization."""
+
+    threshold: float = 0.5
+
+
+@dataclass
+class ProfitPerKmSelectionConfig:
+    """Configuration for spatial ROI (Expected revenue / distance)."""
+
+    threshold: float = 0.0
+    revenue_kg: float = 1.0
+
+
+@dataclass
+class SpatialSynergySelectionConfig:
+    """Configuration for critical bins + opportunistic neighbors."""
+
     critical_threshold: float = 0.90
     synergy_threshold: float = 0.60
     radius: float = 10.0
 
-    # Combined strategy configs (list of dicts with strategy configs)
-    combined_strategies: Optional[list] = None
+
+@dataclass
+class StochasticRegretSelectionConfig:
+    """Configuration for expected overflow volume minimization."""
+
+    threshold: float = 0.1
+
+
+@dataclass
+class CombinedSelectionConfig:
+    """Configuration for combining multiple strategies with OR/AND logic."""
+
+    strategies: Optional[List[Dict[str, Any]]] = None
     logic: str = "or"
 
-    # Manager (neural network) parameters
+
+@dataclass
+class MandatoryManagerSelectionConfig:
+    """Configuration for neural network-based selection (MandatoryManager)."""
+
     hidden_dim: int = 128
     lstm_hidden: int = 64
     history_length: int = 10
@@ -99,49 +114,204 @@ class MandatorySelectionConfig:
     manager_weights: Optional[str] = None
     device: str = "cuda"
 
-    # Additional parameters
-    params: Dict[str, Any] = field(default_factory=dict)
 
-    # --- Knapsack / economic coupling ---
+@dataclass
+class KnapsackSelectionConfig:
+    """Base configuration for knapsack-based economic coupling."""
+
     n_vehicles: int = 1
-    cost_per_km: float = 0.0
+    cost_per_km: float = 0.1
     use_eoq_threshold: bool = False
     holding_cost_per_kg_day: float = 0.0
     ordering_cost_per_visit: float = 0.0
 
-    # --- Rollout strategy ---
+
+@dataclass
+class MIPKnapsackSelectionConfig(KnapsackSelectionConfig):
+    """Configuration for exact 0/1 multiple-knapsack MIP selection."""
+
+    overflow_penalty_frac: float = 1.0  # additional penalty for overflow event
+
+
+@dataclass
+class FractionalKnapsackSelectionConfig(KnapsackSelectionConfig):
+    """Configuration for greedy net-profit density selection."""
+
+
+@dataclass
+class RolloutSelectionConfig:
+    """Configuration for rollout-based predictive selection."""
+
     rollout_horizon: int = 5
     rollout_base_policy: str = "last_minute"
     rollout_n_scenarios: int = 1
     rollout_discount: float = 0.95
 
-    # --- Whittle index ---
+
+@dataclass
+class WhittleSelectionConfig:
+    """Configuration for Whittle index-based allocation."""
+
     whittle_discount: float = 0.95
     whittle_grid_size: int = 21
+    n_vehicles: int = 1
 
-    # --- CVaR ---
+
+@dataclass
+class CVaRSelectionConfig:
+    """Configuration for Conditional Value at Risk selection."""
+
     cvar_alpha: float = 0.95
+    threshold: float = 0.0
 
-    # --- Savings / Clarke-Wright ---
+
+@dataclass
+class SavingsSelectionConfig:
+    """Configuration for savings-based (Clarke-Wright) pre-selection."""
+
     savings_min_fill_ratio: float = 0.5
 
-    # --- Set-cover ---
-    service_radius: float = 5.0
 
-    # --- (Super/Sub-)Modular greedy ---
+@dataclass
+class SetCoverSelectionConfig:
+    """Configuration for set-covering based selection."""
+
+    service_radius: float = 5.0
+    critical_threshold: float = 0.90
+
+
+@dataclass
+class ModularGreedySelectionConfig:
+    """Configuration for (Super/Sub-)Modular greedy selection."""
+
     modular_alpha: float = 1.0
     modular_budget: int = 0
 
-    # --- Learned / imitation selection ---
+
+@dataclass
+class LearnedSelectionConfig:
+    """Configuration for imitation/learned selection models."""
+
     learned_model_path: Optional[str] = None
     learned_threshold: float = 0.5
 
-    # --- Contextual Thompson sampling dispatcher ---
+
+@dataclass
+class ThompsonDispatcherSelectionConfig:
+    """Configuration for contextual Thompson sampling dispatcher."""
+
     dispatcher_state_path: Optional[str] = None
     dispatcher_candidate_strategies: Optional[List[str]] = None
     dispatcher_exploration: float = 1.0
     dispatcher_mode: str = "union"
 
-    # --- Distributionally robust ---
+
+@dataclass
+class WassersteinSelectionConfig:
+    """Configuration for distributionally robust Wasserstein selection."""
+
     wasserstein_radius: float = 0.1
     wasserstein_p: int = 1
+
+
+@dataclass
+class LagrangianSelectionConfig:
+    """Configuration for Lagrangian relaxation based selection."""
+
+    n_vehicles: int = 1
+    cost_per_km: float = 0.1
+
+
+@dataclass
+class BernoulliSelectionConfig:
+    """Configuration for independent Bernoulli trial selection."""
+
+    p: float = 0.5
+
+
+@dataclass
+class KMeansSectorSelectionConfig:
+    """Configuration for geographic sector-based selection."""
+
+    n_sectors: int = 5
+
+
+@dataclass
+class StaggeredRegularSelectionConfig:
+    """Configuration for phased-staggered periodic selection."""
+
+    period: int = 1
+
+
+@dataclass
+class MandatorySelectionConfig:
+    """Main configuration for mandatory bin selection.
+
+    Composes algorithm-specific parameters and execution settings.
+
+    Attributes:
+        strategy: Primary selection strategy name.
+        max_fill: Global overflow threshold (0.0 to 1.0 or 100.0).
+        last_minute: Params for LastMinuteSelection.
+        regular: Params for RegularSelection.
+        service_level: Params for ServiceLevelSelection.
+        revenue: Params for RevenueSelection.
+        lookahead: Params for LookaheadSelection.
+        deadline: Params for DeadlineDrivenSelection.
+        multi_day_prob: Params for MultiDayOverflowSelection.
+        pareto_front: Params for ParetoFrontSelection.
+        profit_per_km: Params for ProfitPerKmSelection.
+        spatial_synergy: Params for SpatialSynergySelection.
+        stochastic_regret: Params for StochasticRegretSelection.
+        combined: Params for CombinedSelection.
+        manager: Params for neural MandatoryManager.
+        mip_knapsack: Params for MIPKnapsackSelection.
+        fractional_knapsack: Params for FractionalKnapsackSelection.
+        rollout: Params for RolloutSelection.
+        whittle: Params for WhittleIndexSelection.
+        cvar: Params for CVaRSelection.
+        savings: Params for SavingsSelection.
+        set_cover: Params for SetCoverSelection.
+        modular_greedy: Params for ModularGreedySelection.
+        learned: Params for LearnedSelection.
+        thompson_dispatcher: Params for ThompsonDispatcher.
+        wasserstein: Params for WassersteinSelection.
+        lagrangian: Params for LagrangianSelection.
+        params: Additional strategy-specific parameters as a dictionary.
+    """
+
+    strategy: Optional[str] = None
+    max_fill: float = 1.0
+
+    # Strategy-specific sub-configs
+    last_minute: LastMinuteSelectionConfig = field(default_factory=LastMinuteSelectionConfig)
+    regular: RegularSelectionConfig = field(default_factory=RegularSelectionConfig)
+    service_level: ServiceLevelSelectionConfig = field(default_factory=ServiceLevelSelectionConfig)
+    revenue: RevenueSelectionConfig = field(default_factory=RevenueSelectionConfig)
+    lookahead: LookaheadSelectionConfig = field(default_factory=LookaheadSelectionConfig)
+    deadline: DeadlineSelectionConfig = field(default_factory=DeadlineSelectionConfig)
+    multi_day_prob: MultiDayProbSelectionConfig = field(default_factory=MultiDayProbSelectionConfig)
+    pareto_front: ParetoFrontSelectionConfig = field(default_factory=ParetoFrontSelectionConfig)
+    profit_per_km: ProfitPerKmSelectionConfig = field(default_factory=ProfitPerKmSelectionConfig)
+    spatial_synergy: SpatialSynergySelectionConfig = field(default_factory=SpatialSynergySelectionConfig)
+    stochastic_regret: StochasticRegretSelectionConfig = field(default_factory=StochasticRegretSelectionConfig)
+    combined: CombinedSelectionConfig = field(default_factory=CombinedSelectionConfig)
+    manager: MandatoryManagerSelectionConfig = field(default_factory=MandatoryManagerSelectionConfig)
+    mip_knapsack: MIPKnapsackSelectionConfig = field(default_factory=MIPKnapsackSelectionConfig)
+    fractional_knapsack: FractionalKnapsackSelectionConfig = field(default_factory=FractionalKnapsackSelectionConfig)
+    rollout: RolloutSelectionConfig = field(default_factory=RolloutSelectionConfig)
+    whittle: WhittleSelectionConfig = field(default_factory=WhittleSelectionConfig)
+    cvar: CVaRSelectionConfig = field(default_factory=CVaRSelectionConfig)
+    savings: SavingsSelectionConfig = field(default_factory=SavingsSelectionConfig)
+    set_cover: SetCoverSelectionConfig = field(default_factory=SetCoverSelectionConfig)
+    modular_greedy: ModularGreedySelectionConfig = field(default_factory=ModularGreedySelectionConfig)
+    learned: LearnedSelectionConfig = field(default_factory=LearnedSelectionConfig)
+    thompson_dispatcher: ThompsonDispatcherSelectionConfig = field(default_factory=ThompsonDispatcherSelectionConfig)
+    wasserstein: WassersteinSelectionConfig = field(default_factory=WassersteinSelectionConfig)
+    lagrangian: LagrangianSelectionConfig = field(default_factory=LagrangianSelectionConfig)
+    bernoulli: BernoulliSelectionConfig = field(default_factory=BernoulliSelectionConfig)
+    kmeans_sector: KMeansSectorSelectionConfig = field(default_factory=KMeansSectorSelectionConfig)
+    staggered_regular: StaggeredRegularSelectionConfig = field(default_factory=StaggeredRegularSelectionConfig)
+
+    # Additional parameters
+    params: Dict[str, Any] = field(default_factory=dict)

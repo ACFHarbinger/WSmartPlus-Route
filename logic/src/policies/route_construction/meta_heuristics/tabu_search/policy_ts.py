@@ -7,15 +7,42 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 import numpy as np
 
 from logic.src.configs.policies.ts import TSConfig
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.meta_heuristics.tabu_search.params import TSParams
 from logic.src.policies.route_construction.meta_heuristics.tabu_search.solver import TSSolver
 
 
+@GlobalRegistry.register(
+    PolicyTag.META_HEURISTIC,
+    PolicyTag.TRAJECTORY_BASED,
+    PolicyTag.LOCAL_SEARCH,
+    PolicyTag.CONSTRUCTION,
+    PolicyTag.PROFIT_AWARE,
+)
 @RouteConstructorRegistry.register("ts")
 class TSPolicy(BaseRoutingPolicy):
-    """Tabu Search policy class."""
+    """
+    Tabu Search (TS) Policy - Advanced Local Search with Deterministic Memory.
+
+    Tabu Search enhances local search by using a short-term memory (the "Tabu List")
+    to prevent the algorithm from returning to recently visited solutions.
+
+    Key Mechanisms:
+    1.  **Tabu List**: Stores forbidden moves (e.g., recently moved nodes) to
+        enforce a diversifying search trajectory and cycle avoidance.
+    2.  **Aspiration Criterion**: Allows a tabu move if it results in a new
+        best-found solution, overriding the tabu status to ensure optimality.
+    3.  **Intensification & Diversification**: Periodically restarts or adjusts
+        parameters to focus on high-quality regions or explore untouched areas
+        of the search space.
+
+    By systematically managing its search history, Tabu Search can navigate
+    complex routing topologies with high efficiency and precision.
+
+    Registry key: ``"ts"``
+    """
 
     def __init__(self, config: Optional[Union[TSConfig, Dict[str, Any]]] = None):
         super().__init__(config)

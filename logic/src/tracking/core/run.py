@@ -10,8 +10,8 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from typing_extensions import Literal
 
-from ..validation.hashing import hash_file
-from .store import TrackingStore
+from logic.src.tracking.core.store import TrackingStore
+from logic.src.tracking.validation.hashing import hash_file
 
 # ---------------------------------------------------------------------------
 # Module-level active-run registry (one per process)

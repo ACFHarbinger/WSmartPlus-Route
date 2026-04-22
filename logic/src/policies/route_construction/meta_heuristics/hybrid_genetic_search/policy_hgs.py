@@ -11,18 +11,47 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 import numpy as np
 
 from logic.src.configs.policies import HGSConfig
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
 from .dispatcher import run_hgs
 
 
+@GlobalRegistry.register(
+    PolicyTag.META_HEURISTIC,
+    PolicyTag.POPULATION_BASED,
+    PolicyTag.EVOLUTIONARY_ALGORITHM,
+    PolicyTag.MEMETIC_SEARCH,
+    PolicyTag.CONSTRUCTION,
+    PolicyTag.PROFIT_AWARE,
+    PolicyTag.PARALLELIZABLE,
+)
 @RouteConstructorRegistry.register("hgs")
 class HGSPolicy(BaseRoutingPolicy):
     """
-    Hybrid Genetic Search policy class.
+    Hybrid Genetic Search (HGS) Policy - State-of-the-Art Evolutionary Routing.
 
-    Visits pre-selected 'mandatory' bins using evolutionary optimization.
+    This policy implements the Hybrid Genetic Search algorithm, specifically
+    optimized for Capacitated Vehicle Routing Problems (CVRP) and variants. It
+    is widely considered one of the most powerful heuristics for VRP due to its
+    synergistic combination of population management and aggressive local search.
+
+    Algorithm Logic:
+    1.  **Exploration (Genetic)**: Maintains a population of solutions and
+        generates offspring using advanced crossover operators (e.g., PIX, OX)
+        that preserve spatial clusters and route segments.
+    2.  **Intensification (Local Search)**: Every offspring undergoes a rigorous
+        "education" phase using a highly optimized Local Search engine (SWAP*,
+        Relocate, 2-Opt) to reach a local optimum.
+    3.  **Diversity Management**: Employs a biased fitness function that rewards
+        both quality (low cost) and diversity (uniqueness in the population),
+        preventing premature convergence and maintaining a healthy search.
+
+    HGS is the primary engine for solving large-scale, static routing instances
+    within the framework.
+
+    Registry key: ``"hgs"``
     """
 
     def __init__(self, config: Optional[Union[HGSConfig, Dict[str, Any]]] = None):

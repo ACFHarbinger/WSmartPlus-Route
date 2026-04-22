@@ -26,4 +26,4 @@ class RTSConfig:
     profit_aware_operators: bool = False
     mandatory_selection: Optional[List[Any]] = field(default_factory=list)
     route_improvement: Optional[List[Any]] = field(default_factory=list)
-    acceptance: AcceptanceConfig = AcceptanceConfig(method="ac", params=AspirationConfig())
+    acceptance_criterion: AcceptanceConfig = AcceptanceConfig(method="ac", params=AspirationConfig())

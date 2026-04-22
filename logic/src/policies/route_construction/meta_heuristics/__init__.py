@@ -1,4 +1,7 @@
 from .adaptive_large_neighborhood_search import policy_alns as policy_alns
+from .adaptive_large_neighborhood_search_with_inter_period_operators import (
+    policy_alns_ipo as policy_alns_ipo,
+)
 from .ant_colony_optimization_k_sparse import policy_aco_ks as policy_aco_ks
 from .artificial_bee_colony import policy_abc as policy_abc
 from .augmented_hybrid_volleyball_premier_league import policy_ahvpl as policy_ahvpl
@@ -13,8 +16,9 @@ from .genius import policy_genius as policy_genius
 from .guided_local_search import policy_gls as policy_gls
 from .harmony_search import policy_hs as policy_hs
 from .hybrid_genetic_search import policy_hgs as policy_hgs
-from .hybrid_genetic_search_adaptive_large_neighborhood_search import policy_hgs_alns as policy_hgs_alns
-from .hybrid_genetic_search_ruin_and_recreate import policy_hgs_rr as policy_hgs_rr
+from .hybrid_genetic_search_with_adaptive_diversity_control import policy_hgs_adc as policy_hgs_adc
+from .hybrid_genetic_search_with_adaptive_large_neighborhood_search import policy_hgs_alns as policy_hgs_alns
+from .hybrid_genetic_search_with_ruin_and_recreate import policy_hgs_rr as policy_hgs_rr
 from .hybrid_memetic_search import policy_hms as policy_hms
 from .hybrid_volleyball_premier_league import policy_hvpl as policy_hvpl
 from .iterated_local_search import policy_ils as policy_ils
@@ -24,6 +28,10 @@ from .memetic_algorithm import policy_ma as policy_ma
 from .memetic_algorithm_dual_population import policy_ma_dp as policy_ma_dp
 from .memetic_algorithm_island_model import policy_ma_im as policy_ma_im
 from .memetic_algorithm_tolerance_based_selection import policy_ma_ts as policy_ma_ts
+from .multi_period_ant_colony_optimization import policy_mp_aco as policy_mp_aco
+from .multi_period_iterated_local_search import policy_mp_ils as policy_mp_ils
+from .multi_period_particle_swarm_optimization import policy_mp_pso as policy_mp_pso
+from .multi_period_simulated_annealing import policy_mp_sa as policy_mp_sa
 from .particle_swarm_optimization import policy_pso as policy_pso
 from .particle_swarm_optimization_distance_based_algorithm import policy_psoda as policy_psoda
 from .particle_swarm_optimization_memetic_algorithm import policy_psoma as policy_psoma
@@ -40,6 +48,7 @@ from .volleyball_premier_league import policy_vpl as policy_vpl
 
 __all__ = [
     "policy_alns",
+    "policy_alns_ipo",
     "policy_aco_ks",
     "policy_abc",
     "policy_ahvpl",
@@ -56,6 +65,7 @@ __all__ = [
     "policy_hgs",
     "policy_hgs_alns",
     "policy_hgs_rr",
+    "policy_hgs_adc",
     "policy_hms",
     "policy_hvpl",
     "policy_ils",
@@ -78,4 +88,8 @@ __all__ = [
     "policy_ts",
     "policy_vns",
     "policy_vpl",
+    "policy_mp_aco",
+    "policy_mp_ils",
+    "policy_mp_pso",
+    "policy_mp_sa",
 ]

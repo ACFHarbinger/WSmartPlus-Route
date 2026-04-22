@@ -14,16 +14,17 @@ References:
     for the capacitated vehicle routing problem". Mathematical Programming, 100(2), 423-445.
 """
 
+import warnings
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 import numpy as np
 
-from logic.src.policies.helpers.branching_solvers import (
+from logic.src.policies.helpers.solvers_and_matheuristics import (
     CapacityCut,
     PCSubtourEliminationCut,
     SeparationEngine,
 )
-from logic.src.policies.helpers.branching_solvers.vrpp_model import VRPPModel
+from logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model import VRPPModel
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.heuristics import (
     construct_initial_solution,
     construct_nn_solution,
@@ -41,6 +42,14 @@ except ImportError:
     GUROBI_AVAILABLE = False
     gp: Any = None  # type: ignore[assignment,no-redef]
     GRB: Any = None  # type: ignore[assignment,misc,no-redef]
+
+
+try:
+    import networkx as nx
+
+    NETWORKX_AVAILABLE = True
+except ImportError:
+    NETWORKX_AVAILABLE = False
 
 
 class BranchAndCutSolver:
@@ -631,14 +640,13 @@ class BranchAndCutSolver:
 
         # Find connected components of fractional support graph (edges > 0.1)
         support_edges = [(u, v) for (u, v), val in zip(self.model.edges, x_vals, strict=False) if val > 0.1]
-        try:
-            import networkx as nx
-
+        if NETWORKX_AVAILABLE:
             G = nx.Graph()
             G.add_nodes_from(range(self.model.n_nodes))
             G.add_edges_from(support_edges)
             components = list(nx.connected_components(G))
-        except ImportError:
+        else:
+            warnings.warn("NetworkX not available, skipping stochastic capacity cuts", stacklevel=2)
             return  # Requires networkx
 
         num_s = len(self.scenarios)
@@ -739,14 +747,13 @@ class BranchAndCutSolver:
             return
 
         support_edges = [(u, v) for (u, v), val in zip(self.model.edges, x_vals, strict=False) if val > 0.1]
-        try:
-            import networkx as nx
-
+        if NETWORKX_AVAILABLE:
             G = nx.Graph()
             G.add_nodes_from(range(self.model.n_nodes))
             G.add_edges_from(support_edges)
             components = list(nx.connected_components(G))
-        except ImportError:
+        else:
+            warnings.warn("NetworkX not available, skipping lot-sizing cuts", stacklevel=2)
             return
 
         y_val_dict = {i: y_vals[idx] for idx, i in enumerate(self.model.customers)}

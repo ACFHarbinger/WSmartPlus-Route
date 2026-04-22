@@ -5,10 +5,10 @@ Eval Config module.
 from dataclasses import dataclass, field
 from typing import List, Optional
 
-from ..envs.graph import GraphConfig
-from ..envs.objective import ObjectiveConfig
-from ..models.decoding import DecodingConfig
-from ..policies.neural import NeuralConfig
+from logic.src.configs.envs.graph import GraphConfig
+from logic.src.configs.envs.objective import ObjectiveConfig
+from logic.src.configs.models.decoding import DecodingConfig
+from logic.src.configs.policies.na import NeuralAgentConfig
 
 
 @dataclass
@@ -43,7 +43,7 @@ class EvalConfig:
     offset: int = 0
     eval_batch_size: int = 256
     decoding: DecodingConfig = field(default_factory=DecodingConfig)
-    policy: NeuralConfig = field(default_factory=NeuralConfig)
+    policy: NeuralAgentConfig = field(default_factory=NeuralAgentConfig)
     seed: int = 42
     data_distribution: Optional[str] = None
     no_cuda: bool = False

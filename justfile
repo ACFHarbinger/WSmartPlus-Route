@@ -27,8 +27,10 @@ marker := "fast"
 strategy := "greedy"
 distribution := "gamma3"
 n_cores := "20"
-policies := "abc,aco_hh,aco_ks,ahvpl,aks,alns,bb,bc,bp,bpc,cf_rs,cvrp,de,ema,es_mcl,es_mkl,es_mpl,fa,filo,ga,gd,genius,gihh,gls,gphh,hgs_alns,hgs_rr,hgs,hmm_gd_hh,hms,hs,hulk,hvpl,ie,ils_rvnd_sp,ils,kgls,ks,lahc,lb_vns,lb,lca,ma_dp,ma_im,ma_ts,ma,oba,oi,popmusic,pso,psoda,psoma,qde,rens,rl_ahvpl,rl_alns,rl_gd_hh,rl_hvpl,rrt,rts,sa,sans,sca,schc,sisr,slc,ss_hh,swc_tcf,ta,ts,tsp,vns,vpl"
+policies := "alns,hgs,sans,aco_ks,aco_hh,pso,psoma,swc_tcf"
 
+#policies := "abc,abpc_hg,aco_hh,aco_ks,adp,ahvpl,aks,alns_ipo,alns,amphh,arco,bb,bc,bp,bpc,cf_rs,cgh,cp_sat,cvrp,de,es_mcl,es_mkl,es_mpl,esdp,fa,filo,ga,genius,gihh,gls,gp_hh,gp_mp_hh,hgs_adc,hgs_alns,hgs_rr,hgs,hmm_gd_hh,hms,hs,hulk,hvpl,ils_bd,ils_rvnd_sp,ils,kgls,ks,lb_vns,lb,lbbd,lca,lkh3,lrh,ma_dp,ma_im,ma_ts,ma,mhh,mp_aco,mp_ils,mp_pso,mp_sa,ph,phh,popmusic,pso,psoda,psoma,qde,rens,rfo,rl_ahvpl,rl_alns,rl_gd_hh,rl_hvpl,rts,sa,sans,sca,shh,sisr,slc,src,ss_hh,st_ef,swc_tcf,ts,tsp,vns,vpl"
+#abpc,adp,alns_ipo,amphh,cgh,cp_sat,esdp,gp_mp_hh,hgs_adc,ks,lbbd,lrh,mhh,mp_aco,mp_ils,mp_pso,phh
 # --- Setup & Environment ---
 
 # Sync dependencies using uv
@@ -43,7 +45,7 @@ install:
 # Train a model with Hydra configs
 
 # Usage: just train problem=wcvrp model=am size=50 epochs=100
-train problem=problem model=model size=size epochs=epochs encoder=encoder decoder=decoder batch_size=batch_size temporal_horizon=temporal_horizon area=area distribution=distribution train_data_size="12800" val_data_size="128":
+train problem=problem model=model size=size epochs=epochs encoder=encoder decoder=decoder batch_size=batch_size temporal_horizon=temporal_horizon area=area distribution=distribution:
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "🚀 STARTING HYDRA TRAINING SESSION"
     @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
@@ -64,8 +66,6 @@ train problem=problem model=model size=size epochs=epochs encoder=encoder decode
         env.graph.num_loc={{ size }} \
         env.graph.area={{ area }} \
         train.data_distribution={{ distribution }} \
-        train.train_data_size={{ train_data_size }} \
-        train.val_data_size={{ val_data_size }} \
         hpo.n_trials=0 \
         train.n_epochs={{ epochs }} \
         train.batch_size={{ batch_size }}
@@ -118,7 +118,7 @@ test-sim policies=policies days=days area=area size=size samples=samples problem
 # Generate data with Hydra configs
 
 # Usage: just gen-data wcvrp 100 emp test_simulator 10 31
-gen-data problem=problem distribution=distribution data_type="test_simulator":
+gen-data problem=problem distribution=distribution data_type="train_time":
     @printf "{{ cyan }}╔════════════════════════════════════════════════════════════╗{{ reset }}\n"
     @printf "{{ cyan }}║{{ reset }} {{ bold }}%-58s{{ reset }}   {{ cyan }}║{{ reset }}\n" "📁 GENERATING DATASET"
     @printf "{{ cyan }}╠════════════════════════════════════════════════════════════╣{{ reset }}\n"
@@ -139,9 +139,11 @@ gui:
 dashboard:
     uv run streamlit run dashboard.py
 
-# Count lines of code and comments
-count-loc:
-    uv run python logic/src/utils/validation/count_loc.py logic/src
+# --- Codebase Validation ---
+
+# Count lines of code and comments (use --group-by-dir N to aggregate by directory depth)
+count-loc group_by="0":
+    uv run python logic/src/utils/validation/count_loc.py logic/src --group-by-dir {{ group_by }}
 
 # Tree view of lines of code and comments
 tree-loc:
@@ -160,9 +162,51 @@ check-google-docs:
 check-multi-classes:
     uv run python logic/src/utils/validation/check_multi_classes.py logic/src --exclude pipeline/simulations/wsmart_bin_analysis/test
 
-# Check for nested imports
+# Find all relative imports (from .module import ...) with optional stats or exclude_same_package=true
+check-relative-imports exclude_same_package="":
+    uv run python logic/src/utils/validation/check_relative_imports.py logic/src \
+        --exclude pipeline/simulations/wsmart_bin_analysis/test --stats \
+        {{ if exclude_same_package != "" { "--exclude-same-package" } else { "" } }}
+
+# Check for nested imports (add --stats for a per-package summary table)
 check-nested-imports:
     uv run python logic/src/utils/validation/check_nested_imports.py logic/src --exclude pipeline/simulations/wsmart_bin_analysis/test --ignore_factories
+
+# Check for nested imports with a per-package summary table
+check-nested-imports-stats:
+    uv run python logic/src/utils/validation/check_nested_imports.py logic/src --exclude pipeline/simulations/wsmart_bin_analysis/test --ignore_factories --stats
+
+# Detect circular import chains using Tarjan's SCC algorithm
+check-circular-imports html="":
+    uv run python logic/src/utils/validation/check_circular_imports.py logic/src \
+        --exclude pipeline/simulations/wsmart_bin_analysis/test \
+        {{ if html != "" { "--html " + html } else { "" } }}
+
+# Check that all concrete classes fully implement their ABC/Protocol interface contracts
+check-interface-compliance:
+    uv run python logic/src/utils/validation/check_interface_compliance.py logic/src
+
+# Measure type annotation coverage per file (worst-coverage files shown first)
+check-type-coverage sort="coverage" limit="40":
+    uv run python logic/src/utils/validation/check_type_coverage.py logic/src \
+        --sort {{ sort }} --limit {{ limit }}
+
+# Generate interactive module-level import graph (opens in browser)
+# Scans from repo root so logic/gui layers are correctly distinguished.
+
+# Use depth=N to collapse to top-N package levels; set html= to change output path.
+module-graph html="module_graph.html" depth="3":
+    uv run python logic/src/utils/validation/visualize_module_graph.py . \
+        --exclude .venv venv node_modules \
+        --html {{ html }} --depth {{ depth }}
+
+# Create a graph with exported and imported dependencies (function, classes, etc.)
+dependency-graph target_file="logic/src/utils/helpers/wrappers.py" target_name="greedy_day_route":
+    uv run python logic/src/utils/validation/trace_dependencies.py logic/src {{ target_file }} {{ target_name }}
+
+# Check for embedded languages in the Python source code
+check-embedded-languages:
+    uv run python logic/src/utils/validation/check_embedded_languages.py logic/src
 
 # --- Advanced Testing & Benchmarks ---
 

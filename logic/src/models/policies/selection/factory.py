@@ -2,7 +2,7 @@
 Factory functions for creating vectorized selectors.
 """
 
-from typing import Optional
+from typing import Any, Optional, cast
 
 from logic.src.interfaces import ITraversable
 
@@ -143,8 +143,6 @@ def get_vectorized_selector(name: str, **kwargs) -> VectorizedSelector:
 
     if name.lower() not in selectors:
         raise ValueError(f"Unknown selector: {name}. Available: {list(selectors.keys())}")
-
-    from typing import Any, cast
 
     selector_cls = cast(Any, selectors[name.lower()])
     return cast(VectorizedSelector, selector_cls(**kwargs))

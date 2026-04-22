@@ -1,16 +1,17 @@
 """
 Steepest 2-opt Route Improver.
 
-Delegates to operators.intensification.two_opt_steepest (or its profit
+Delegates to operators.improvement_descent.two_opt_steepest (or its profit
 variant when revenue/cost are configured) to drive each route to a strict
 intra-route 2-opt local minimum.
 """
 
 from typing import Any, List, Tuple
 
+from logic.src.enums import GlobalRegistry, PolicyTag
+from logic.src.interfaces.context.search_context import ImprovementMetrics
 from logic.src.interfaces.route_improvement import IRouteImprovement
-from logic.src.policies.context.search_context import ImprovementMetrics
-from logic.src.policies.helpers.operators.intensification import (
+from logic.src.policies.helpers.operators.improvement_descent import (
     two_opt_steepest,
     two_opt_steepest_profit,
 )
@@ -19,6 +20,11 @@ from .base import RouteImproverRegistry
 from .common.helpers import assemble_tour, split_tour, to_numpy
 
 
+@GlobalRegistry.register(
+    PolicyTag.IMPROVEMENT,
+    PolicyTag.HEURISTIC,
+    PolicyTag.LOCAL_SEARCH,
+)
 @RouteImproverRegistry.register("steepest_two_opt")
 class SteepestTwoOptRouteImprover(IRouteImprovement):
     """

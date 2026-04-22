@@ -107,13 +107,15 @@ References:
 import logging
 import time
 import warnings
+from types import SimpleNamespace
 from typing import Any, Dict, List, Optional, Set, Tuple, Union, cast
 
 import gurobipy as gp
 import numpy as np
 from gurobipy import GRB
 
-from logic.src.policies.helpers.branching_solvers import (
+from logic.src.policies.helpers.operators.recreate_repair.greedy import greedy_insertion, greedy_profit_insertion
+from logic.src.policies.helpers.solvers_and_matheuristics import (
     AnyBranchingConstraint,
     BranchAndBoundTree,
     BranchNode,
@@ -122,14 +124,13 @@ from logic.src.policies.helpers.branching_solvers import (
     SeparationEngine,
     VRPPMasterProblem,
 )
-from logic.src.policies.helpers.branching_solvers.lagrangian_relaxation.subgradient_optimization import (
+from logic.src.policies.helpers.solvers_and_matheuristics.lagrangian_relaxation.subgradient_optimization import (
     run_subgradient,
 )
-from logic.src.policies.helpers.branching_solvers.lagrangian_relaxation.uncapacitated_orienteering_problem import (
+from logic.src.policies.helpers.solvers_and_matheuristics.lagrangian_relaxation.uncapacitated_orienteering_problem import (
     solve_uncapacitated_op,
 )
-from logic.src.policies.helpers.branching_solvers.vrpp_model import VRPPModel
-from logic.src.policies.helpers.operators.repair.greedy import greedy_insertion, greedy_profit_insertion
+from logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model import VRPPModel
 from logic.src.policies.route_construction.base.factory import RouteConstructorFactory
 from logic.src.tracking.viz_mixin import PolicyStateRecorder
 
@@ -288,7 +289,7 @@ def _apply_branching_to_master(
     forced_nodes: Set[int] = set()
 
     # Define child-local constraints
-    from logic.src.policies.helpers.branching_solvers.branching import (
+    from logic.src.policies.helpers.solvers_and_matheuristics.branching import (
         FleetSizeBranchingConstraint,
         NodeVisitationBranchingConstraint,
     )
@@ -340,6 +341,7 @@ def _solve_farkas_pricing_step(
     branching_constraints: List[AnyBranchingConstraint],
     farkas_duals: Any,
     max_routes: int = 5,
+    timeout: Optional[float] = None,
 ) -> Tuple[int, bool]:
     """
     Phase I Pricing: Solve RCSPP with the Farkas dual ray to restore feasibility.
@@ -353,7 +355,7 @@ def _solve_farkas_pricing_step(
     forced_nodes: Set[int] = set()
     rf_conflicts: Dict[int, Set[int]] = {}
 
-    from logic.src.policies.helpers.branching_solvers.branching import (
+    from logic.src.policies.helpers.solvers_and_matheuristics.branching import (
         NodeVisitationBranchingConstraint,
         RyanFosterBranchingConstraint,
     )
@@ -374,6 +376,7 @@ def _solve_farkas_pricing_step(
         forced_nodes=forced_nodes,
         rf_conflicts=rf_conflicts,
         is_farkas=True,
+        timeout=timeout,
     )
 
     added = 0
@@ -430,6 +433,7 @@ def _solve_pricing_step(
     optimality_gap: float = 1e-4,
     rc_tolerance: float = 1e-5,
     use_swc_tcf_heuristic_pricing: bool = False,
+    timeout: Optional[float] = None,
 ) -> Tuple[int, bool]:
     """
     Phase II Pricing: Solve the RCSPP pricing subproblem for profitable columns.
@@ -456,7 +460,7 @@ def _solve_pricing_step(
     forced_nodes: Set[int] = set()
     rf_conflicts: Dict[int, Set[int]] = {}
 
-    from logic.src.policies.helpers.branching_solvers.branching import (
+    from logic.src.policies.helpers.solvers_and_matheuristics.branching import (
         NodeVisitationBranchingConstraint,
         RyanFosterBranchingConstraint,
     )
@@ -513,6 +517,7 @@ def _solve_pricing_step(
         branching_constraints=branching_constraints,
         forced_nodes=forced_nodes,
         rf_conflicts=rf_conflicts,
+        timeout=timeout,
     )
 
     if not routes:
@@ -764,8 +769,6 @@ def _compute_lr_bound_at_node(
     # Create a temporary BBParams-compatible object to call run_subgradient.
     # run_subgradient accepts a params object with these specific fields; we
     # use a SimpleNamespace to avoid a hard dependency on BBParams in bpc_engine.
-    from types import SimpleNamespace
-
     lr_params = SimpleNamespace(
         lr_lambda_init=params.lr_lambda_init,
         lr_max_subgradient_iters=params.lr_max_subgradient_iters,
@@ -825,7 +828,7 @@ def _extract_forced_sets_from_constraints(
     Returns:
         (forced_in, forced_out) sets of customer indices.
     """
-    from logic.src.policies.helpers.branching_solvers.branching import (
+    from logic.src.policies.helpers.solvers_and_matheuristics.branching import (
         NodeVisitationBranchingConstraint,
     )
 
@@ -902,7 +905,7 @@ def _column_generation_loop(  # noqa: C901
     elementary_nodes: Set[int] = set()
 
     # Extract nodes from Ryan-Foster branches
-    from logic.src.policies.helpers.branching_solvers.branching import (
+    from logic.src.policies.helpers.solvers_and_matheuristics.branching import (
         NodeVisitationBranchingConstraint,
         RyanFosterBranchingConstraint,
     )
@@ -930,7 +933,7 @@ def _column_generation_loop(  # noqa: C901
     # Task 5: Arc Conflict Pre-check (Exactness Rule)
     # Scan branching constraints for conflicting must_use arcs.
     # At most one must_use arc can exit node u, and at most one can enter node v.
-    from logic.src.policies.helpers.branching_solvers.branching import EdgeBranchingConstraint
+    from logic.src.policies.helpers.solvers_and_matheuristics.branching import EdgeBranchingConstraint
 
     out_arcs: Dict[int, int] = {}
     in_arcs: Dict[int, int] = {}
@@ -944,6 +947,11 @@ def _column_generation_loop(  # noqa: C901
             in_arcs[bc.v] = bc.u
 
     for _iteration in range(max_cg_iterations):
+        if _iteration % 5 == 0:
+            logger.info(
+                f"Node {node_depth} CG Iteration {_iteration}/{max_cg_iterations} - Current LP Obj: {obj_val:.2f}"
+            )
+
         if time_limit and (time.monotonic() - start_time) > time_limit:
             timed_out = True
             break
@@ -984,10 +992,24 @@ def _column_generation_loop(  # noqa: C901
                         _apply_branching_to_master(
                             master, branching_constraints or [], branching_strategy=branching_strategy
                         )
+                        # After the UB-reset inside _apply_branching_to_master, re-disable any
+                        # non-elementary (cyclic) routes that cycle detection had suppressed.
+                        # Without this, the sifting→reset→LP cycle keeps re-selecting the same
+                        # cyclic routes, causing an infinite loop within one day's BPC solve.
+                        for _nr, _nv in zip(master.routes, master.lambda_vars, strict=False):
+                            if _nv.UB > 0.5 and len(set(_nr.nodes)) != len(_nr.nodes):
+                                _nv.UB = 0.0
                         _inner_iter += 1
                         continue
 
             try:
+                # Bound the LP solve to remaining wall-clock time so a single degenerate
+                # master LP cannot blow past the node's overall time budget. Python-side
+                # time checks only fire between Gurobi calls, so a single optimize() call
+                # with no TimeLimit can overshoot the global limit on degenerate instances.
+                if time_limit is not None and master.model is not None:
+                    _remaining_t = max(0.1, time_limit - (time.monotonic() - start_time))
+                    master.model.Params.TimeLimit = _remaining_t
                 obj_val, route_vals = master.solve_lp_relaxation()  # type: ignore[assignment]
                 if obj_val is None:
                     raise RuntimeError("LP relaxation returned non-optimal status at B&B node")
@@ -1000,11 +1022,13 @@ def _column_generation_loop(  # noqa: C901
                             "LP is infeasible but Farkas duals are unavailable. "
                             "Gurobi may have returned INF_OR_UNBD — check model bounds."
                         )
+                    _rem_t = max(0.1, time_limit - (time.monotonic() - start_time)) if time_limit else None
                     added, _ = _solve_farkas_pricing_step(
                         master,
                         pricing_solver,
                         branching_constraints,  # type: ignore[arg-type]
                         farkas,
+                        timeout=_rem_t,
                     )
                     if added == 0:
                         raise RuntimeError("LP infeasible at B&B node - Farkas pricing failed to find columns")
@@ -1034,6 +1058,7 @@ def _column_generation_loop(  # noqa: C901
                 converged = True
                 break
 
+            _rem_t = max(0.1, time_limit - (time.monotonic() - start_time)) if time_limit else None
             added, pricing_exhausted = _solve_pricing_step(
                 master,
                 pricing_solver,
@@ -1042,6 +1067,7 @@ def _column_generation_loop(  # noqa: C901
                 optimality_gap=optimality_gap,
                 rc_tolerance=rc_tolerance,
                 use_swc_tcf_heuristic_pricing=use_swc_tcf_heuristic_pricing,
+                timeout=_rem_t,
             )
 
             if added == 0:
@@ -1323,10 +1349,11 @@ def run_bpc(  # noqa: C901
         capacity,
         R,
         C,
-        m_set,
         use_ng_routes=params.use_ng_routes,
         ng_neighborhood_size=params.ng_neighborhood_size,
         node_prizes=kwargs.get("node_prizes"),
+        timeout=params.rcspp_timeout,
+        max_labels=params.rcspp_max_labels,
     )
 
     if getattr(params, "use_swc_tcf_initialization", False):
@@ -1393,6 +1420,7 @@ def run_bpc(  # noqa: C901
         sep_engine,
     )
     nodes_explored = 0
+    logger.info(f"BPC Solver started: instance size {n_nodes} nodes, max BB nodes: {max_bb_nodes}")
 
     # 6. Branch-and-Bound Loop
     while not bb_tree.is_empty() and nodes_explored < max_bb_nodes:
@@ -1518,6 +1546,7 @@ def run_bpc(  # noqa: C901
             # Fix 12: Snapshot-and-restore ng-neighborhoods
             ng_snapshot = pricing_solver.save_ng_snapshot()
             try:
+                _rem_t = max(0.1, time_limit - (time.monotonic() - start_time)) if time_limit else None
                 lp_obj, route_values, node_final_basis, node_timed_out = _column_generation_loop(
                     master=master,
                     pricing_solver=pricing_solver,
@@ -1525,7 +1554,7 @@ def run_bpc(  # noqa: C901
                     branching_constraints=branching_constraints,
                     max_cg_iterations=max_cg_iter,
                     max_cuts=max_cuts,
-                    time_limit=time_limit,
+                    time_limit=_rem_t,
                     start_time=start_time,
                     max_routes_per_pricing=max_routes_per_pricing,
                     vehicle_limit=master.vehicle_limit,
@@ -1555,6 +1584,17 @@ def run_bpc(  # noqa: C901
             current_node.lp_basis = node_final_basis
         except BPCPruningException:
             # Node provably cannot improve the incumbent — skip without marking infeasible
+            continue
+        except gp.GurobiError as e:
+            # GurobiError (e.g. licensing, memory, degenerate model) is not a RuntimeError,
+            # so it would escape the inner except and propagate to checkpoint_manager,
+            # converting to CheckpointError and silently terminating the simulation.
+            logger.warning(
+                "GurobiError at B&B node depth=%d: %s. Marking node infeasible.",
+                current_node.depth,
+                e,
+            )
+            current_node.is_infeasible = True
             continue
         except RuntimeError as e:
             if "Conflicting must_use" in str(e):
@@ -1627,7 +1667,9 @@ def run_bpc(  # noqa: C901
             if swc_tcf is not None:
                 # Extract forced nodes from branching constraints to guide heuristic
                 forced_nodes_heuristic = set()
-                from logic.src.policies.helpers.branching_solvers.branching import NodeVisitationBranchingConstraint
+                from logic.src.policies.helpers.solvers_and_matheuristics.branching import (
+                    NodeVisitationBranchingConstraint,
+                )
 
                 for bc in branching_constraints or []:
                     if isinstance(bc, NodeVisitationBranchingConstraint) and bc.forced:
@@ -1727,7 +1769,7 @@ def run_bpc(  # noqa: C901
                 f"Primary branching strategy '{branching_strategy_name}' returned no "
                 "branching candidate at a fractional node. Falling back to edge branching."
             )
-            from logic.src.policies.helpers.branching_solvers.branching import EdgeBranching
+            from logic.src.policies.helpers.solvers_and_matheuristics.branching import EdgeBranching
 
             res = EdgeBranching.find_branching_arc(master.routes, route_values)
             if res is None:

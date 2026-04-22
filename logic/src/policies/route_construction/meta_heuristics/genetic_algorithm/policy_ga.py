@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 import numpy as np
 
 from logic.src.configs.policies.ga import GAConfig
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
@@ -14,9 +15,33 @@ from .params import GAParams
 from .solver import GASolver
 
 
+@GlobalRegistry.register(
+    PolicyTag.META_HEURISTIC,
+    PolicyTag.POPULATION_BASED,
+    PolicyTag.EVOLUTIONARY_ALGORITHM,
+    PolicyTag.CONSTRUCTION,
+    PolicyTag.PROFIT_AWARE,
+)
 @RouteConstructorRegistry.register("ga")
 class GAPolicy(BaseRoutingPolicy):
-    """Genetic Algorithm policy class."""
+    """
+    Genetic Algorithm (GA) Policy - Population-Based Evolutionary Routing.
+
+    This policy employs a Genetic Algorithm to discover high-quality routing
+    solutions through simulated evolution. It maintains a population of diverse
+    routes (individuals) and iteratively applies biological operators:
+    1.  **Selection**: Prioritizes "fitter" individuals (better profit/cost)
+        for reproduction using Tournament or Roulette Wheel selection.
+    2.  **Crossover**: Combines spatial features of two parent routes to
+        produce offspring, preserving efficient sub-tours (e.g., OX, PMX).
+    3.  **Mutation**: Introduces stochastic variations (e.g., swap, inverse,
+        2-opt) to maintain population diversity and escape local optima.
+
+    The GA is particularly effective at exploring large search spaces and
+    parallelizing the optimization of complex multi-vehicle configurations.
+
+    Registry key: ``"ga"``
+    """
 
     def __init__(self, config: Optional[Union[GAConfig, Dict[str, Any]]] = None):
         super().__init__(config)

@@ -9,8 +9,9 @@ orchestrating the Gurobi optimization process.
 from typing import Any, Dict, List, Optional, Tuple, Type
 
 from logic.src.configs.policies.lb_vns import LocalBranchingVNSConfig
-from logic.src.policies.context.multi_day_context import MultiDayContext
-from logic.src.policies.context.search_context import SearchContext
+from logic.src.enums import GlobalRegistry, PolicyTag
+from logic.src.interfaces.context.multi_day_context import MultiDayContext
+from logic.src.interfaces.context.search_context import SearchContext
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 from logic.src.policies.route_construction.matheuristics.local_branching_variable_neighborhood_search.lb_vns import (
@@ -21,6 +22,13 @@ from logic.src.policies.route_construction.matheuristics.local_branching_variabl
 )
 
 
+@GlobalRegistry.register(
+    PolicyTag.MATHEURISTIC,
+    PolicyTag.NEIGHBORHOOD_SEARCH,
+    PolicyTag.LOCAL_SEARCH,
+    PolicyTag.MATH_PROGRAMMING,
+    PolicyTag.PROFIT_AWARE,
+)
 @RouteConstructorRegistry.register("lb_vns")
 class LocalBranchingVNSPolicy(BaseRoutingPolicy):
     """

@@ -10,9 +10,10 @@ the unchanged fixed routes.
 import logging
 from typing import Any, List, Tuple
 
+from logic.src.enums import GlobalRegistry, PolicyTag
+from logic.src.interfaces.context.search_context import ImprovementMetrics
 from logic.src.interfaces.route_improvement import IRouteImprovement
-from logic.src.policies.context.search_context import ImprovementMetrics
-from logic.src.policies.helpers.operators.intensification import (
+from logic.src.policies.helpers.operators.intensification_fixing import (
     fix_and_optimize,
     fix_and_optimize_profit,
 )
@@ -46,6 +47,11 @@ except ImportError:
     logger.warning("fix_and_optimize: gurobipy not installed; route improver will no-op.")
 
 
+@GlobalRegistry.register(
+    PolicyTag.IMPROVEMENT,
+    PolicyTag.MATHEURISTIC,
+    PolicyTag.MATH_PROGRAMMING,
+)
 @RouteImproverRegistry.register("fix_and_optimize")
 class FixAndOptimizeRouteImprover(IRouteImprovement):
     """

@@ -12,7 +12,6 @@ from tensordict import TensorDict
 from logic.src.envs import get_env
 from logic.src.interfaces import ITraversable
 from logic.src.utils.data.td_state_wrapper import TensorDictStateWrapper
-from logic.src.utils.decoding import beam_search as beam_search_func
 
 
 class BaseProblem:
@@ -87,6 +86,8 @@ class BaseProblem:
     @classmethod
     def beam_search(cls, input, beam_size, cost_weights, model=None, **kwargs):
         """Beam search bridge."""
+        from logic.src.utils.decoding import beam_search as beam_search_func
+
         assert model is not None
         fixed = model.precompute_fixed(input, edges=input.get("edges"))
 

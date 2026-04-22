@@ -66,3 +66,9 @@ sa:
 
   # List of route improvement refinement operations.
   route_improvement: []
+
+  acceptance_criterion:
+    method: "bmc"
+    params:
+      initial_temp: 100.0
+      alpha: 0.95

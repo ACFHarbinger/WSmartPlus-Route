@@ -1,4 +1,3 @@
-# Copyright (c) WSmart-Route. All rights reserved.
 """
 Sidebar control panel widgets for the dashboard.
 
@@ -8,6 +7,7 @@ Provides reusable sidebar components for mode selection and controls.
 import os
 from typing import Any, Dict, List, Tuple
 
+import jinja2
 import streamlit as st
 
 from logic.src.constants import ROOT_DIR
@@ -16,6 +16,10 @@ from logic.src.ui.services.data_loader import (
     discover_simulation_logs,
     discover_training_runs,
 )
+
+# Set up Jinja environment
+template_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "templates")
+jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir))
 
 
 def render_mode_selector() -> str:
@@ -37,10 +41,11 @@ def render_mode_selector() -> str:
             "Benchmark Analysis",
             "Data Explorer",
             "Experiment Tracker",
+            "Algorithms Registry",
             "Hyperparameter Optimization Tracker",
         ],
         index=1,  # Default to Simulation
-        help="Switch between training metrics, simulation visualization, simulation summary, benchmark analysis, data exploration, and experiment tracking",
+        help="Switch between training metrics, simulation visualization, simulation summary, benchmark analysis, data exploration, experiment tracking, and algorithms registry",
     )
 
     mode_map = {
@@ -50,6 +55,7 @@ def render_mode_selector() -> str:
         "Benchmark Analysis": "benchmark",
         "Data Explorer": "data_explorer",
         "Experiment Tracker": "experiment_tracker",
+        "Algorithms Registry": "algorithms",
         "Hyperparameter Optimization Tracker": "hpo_tracker",
     }
     return mode_map.get(mode, "simulation")
@@ -339,27 +345,15 @@ def render_about_section() -> None:
     n_runs = len(discover_training_runs())
     n_logs = len(discover_simulation_logs())
 
-    if n_runs > 0 or n_logs > 0:
-        stats_parts = []
-        if n_runs > 0:
-            stats_parts.append(f"{n_runs} training run{'s' if n_runs != 1 else ''}")
-        if n_logs > 0:
-            stats_parts.append(f"{n_logs} simulation log{'s' if n_logs != 1 else ''}")
+    stats_parts = []
+    if n_runs > 0:
+        stats_parts.append(f"{n_runs} training run{'s' if n_runs != 1 else ''}")
+    if n_logs > 0:
+        stats_parts.append(f"{n_logs} simulation log{'s' if n_logs != 1 else ''}")
 
-        st.sidebar.markdown(
-            f'<div style="text-align: center; color: #5f6368; font-size: 12px; '
-            f'background: #f1f3f4; border-radius: 8px; padding: 8px; margin-bottom: 8px;">'
-            f"{'&nbsp;&bull;&nbsp;'.join(stats_parts)}"
-            f"</div>",
-            unsafe_allow_html=True,
-        )
+    # Render HTML from template
+    template = jinja_env.get_template("sidebar_about.html")
+    about_html = template.render(stats_parts=stats_parts, version=__version__)
 
-    st.sidebar.markdown(
-        f"""
-        <div style="text-align: center; color: #9aa0a6; font-size: 11px;">
-            <p style="margin: 0;">WSmart+ Route</p>
-            <p style="margin: 2px 0 0 0;">MLOps Control Tower v{__version__}</p>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+    # Inject the final rendered HTML into Streamlit
+    st.sidebar.markdown(about_html, unsafe_allow_html=True)

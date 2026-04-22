@@ -45,12 +45,14 @@ class RouteConstructorFactory:
 
         # Learning Heuristic Algorithms (Learning Algorithms + Heuristics)
         import logic.src.policies.route_construction.learning_heuristic_algorithms as learning_heuristic_algorithms  # noqa
-
-        # Acceptance Criterion
+        import logic.src.policies.route_construction.learning_matheuristic_algorithms as learning_matheuristic_algorithms  # noqa
         import logic.src.policies.route_construction.acceptance_criteria as acceptance_criteria  # noqa
 
         # Other Algorithms
         import logic.src.policies.route_construction.other_algorithms as other_algorithms  # noqa
+
+        # Joint Selection and Construction Algorithms
+        import logic.src.policies.selection_and_construction as selection_and_construction  # noqa
 
         cls._registered = True
 

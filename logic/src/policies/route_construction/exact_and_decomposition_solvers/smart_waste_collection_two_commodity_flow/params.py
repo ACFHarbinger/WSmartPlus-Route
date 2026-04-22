@@ -27,16 +27,33 @@ class SWCTCFParams:
 
     @classmethod
     def from_config(cls, config: Any) -> SWCTCFParams:
-        """Create SWCTCFParams from a configuration object or dictionary."""
-        if isinstance(config, dict):
-            return cls(**{k: v for k, v in config.items() if k in {f.name for f in fields(cls)}})
+        """Create SWCTCFParams from a configuration object or dictionary.
 
-        return cls(
-            framework=getattr(config, "framework", "ortools"),
-            engine=getattr(config, "engine", "gurobi"),
-            time_limit=float(getattr(config, "time_limit", 60.0)),
-            seed=getattr(config, "seed", 42),
-        )
+        Performs explicit type casting for numeric fields to ensure consistency
+        with the framework's configuration loading logic.
+        """
+        if config is None:
+            return cls()
+
+        raw_data: Dict[str, Any] = {}
+        if isinstance(config, dict):
+            raw_data = config
+        else:
+            for f in fields(cls):
+                if hasattr(config, f.name):
+                    raw_data[f.name] = getattr(config, f.name)
+
+        kwargs: Dict[str, Any] = {}
+        for f in fields(cls):
+            val = raw_data.get(f.name, getattr(cls, f.name, f.default))
+            if val is not None:
+                if f.type is float or f.type == "float":
+                    val = float(val)
+                elif f.type is int or f.type == "int":
+                    val = int(val)
+            kwargs[f.name] = val
+
+        return cls(**kwargs)
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert Params to a dictionary."""

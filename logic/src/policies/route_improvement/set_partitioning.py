@@ -20,14 +20,15 @@ import logging
 import random
 from typing import Any, List, Set, Tuple
 
+from logic.src.enums import GlobalRegistry, PolicyTag
+from logic.src.interfaces.context.search_context import ImprovementMetrics
 from logic.src.interfaces.route_improvement import IRouteImprovement
-from logic.src.policies.context.search_context import ImprovementMetrics
-from logic.src.policies.helpers.operators.heuristics.large_neighborhood_search import apply_lns
-from logic.src.policies.helpers.operators.intensification import (
+from logic.src.policies.helpers.operators.intensification_fixing import (
     dp_route_reopt,
     set_partitioning_polish,
     set_partitioning_polish_profit,
 )
+from logic.src.policies.helpers.operators.search_heuristics.large_neighborhood_search import apply_lns
 
 from .base import RouteImproverRegistry
 from .common.helpers import (
@@ -67,6 +68,11 @@ def _canonical(route: List[int]) -> Tuple[int, ...]:
     return min(fwd, rev)
 
 
+@GlobalRegistry.register(
+    PolicyTag.IMPROVEMENT,
+    PolicyTag.MATHEURISTIC,
+    PolicyTag.MATH_PROGRAMMING,
+)
 @RouteImproverRegistry.register("set_partitioning")
 class SetPartitioningRouteImprover(IRouteImprovement):
     """

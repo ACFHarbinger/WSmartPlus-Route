@@ -4,13 +4,19 @@ Profitable Detour Route Improver.
 
 from typing import Any, List, Tuple
 
+from logic.src.enums import GlobalRegistry, PolicyTag
+from logic.src.interfaces.context.search_context import ImprovementMetrics
 from logic.src.interfaces.route_improvement import IRouteImprovement
-from logic.src.policies.context.search_context import ImprovementMetrics
 
 from .base import RouteImproverRegistry
 from .common.helpers import assemble_tour, route_load, split_tour, to_numpy
 
 
+@GlobalRegistry.register(
+    PolicyTag.IMPROVEMENT,
+    PolicyTag.HEURISTIC,
+    PolicyTag.PROFIT_AWARE,
+)
 @RouteImproverRegistry.register("profitable_detour")
 class ProfitableDetourRouteImprover(IRouteImprovement):
     """

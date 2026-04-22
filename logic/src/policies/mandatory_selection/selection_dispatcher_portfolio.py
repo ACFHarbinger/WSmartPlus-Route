@@ -14,12 +14,18 @@ Example:
 
 from typing import List, Set, Tuple
 
-from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
-from logic.src.policies.context.search_context import SearchContext
+from logic.src.enums import GlobalRegistry, PolicyTag
+from logic.src.interfaces.context.search_context import SearchContext
+from logic.src.interfaces.mandatory_selection import IMandatorySelectionStrategy
 from logic.src.policies.mandatory_selection.base.selection_context import SelectionContext
 from logic.src.policies.mandatory_selection.base.selection_registry import MandatorySelectionRegistry
 
 
+@GlobalRegistry.register(
+    PolicyTag.SELECTION,
+    PolicyTag.ORCHESTRATOR,
+    PolicyTag.ADAPTIVE_ALGORITHM,
+)
 @MandatorySelectionRegistry.register("dispatcher_portfolio")
 class PortfolioDispatcher(IMandatorySelectionStrategy):
     """

@@ -68,7 +68,9 @@ class Gamma(BaseDistribution):
             generator = torch.Generator()
         if self.option is not None:
             # Use per-node heterogeneous params; fall back to numpy then convert
-            return torch.from_numpy(self._sample_array(size)).float()
+            seed = generator.initial_seed() if generator else None
+            rng = np.random.default_rng(seed)
+            return torch.from_numpy(self._sample_array(size, rng=rng)).float()
 
         m = torch.distributions.Gamma(self.alpha, 1 / self.theta)
         return m.sample(torch.Size(size))

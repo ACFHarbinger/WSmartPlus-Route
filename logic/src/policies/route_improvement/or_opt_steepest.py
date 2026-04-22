@@ -1,16 +1,17 @@
 """
 Steepest Or-opt Route Improver.
 
-Delegates to operators.intensification.or_opt_steepest (or its profit
+Delegates to operators.improvement_descent.or_opt_steepest (or its profit
 variant when revenue/cost are configured) to perform chain relocations
 (lengths 1, 2, 3) until a local minimum is reached.
 """
 
 from typing import Any, List, Tuple
 
+from logic.src.enums import GlobalRegistry, PolicyTag
+from logic.src.interfaces.context.search_context import ImprovementMetrics
 from logic.src.interfaces.route_improvement import IRouteImprovement
-from logic.src.policies.context.search_context import ImprovementMetrics
-from logic.src.policies.helpers.operators.intensification import (
+from logic.src.policies.helpers.operators.improvement_descent import (
     or_opt_steepest,
     or_opt_steepest_profit,
 )
@@ -19,6 +20,11 @@ from .base import RouteImproverRegistry
 from .common.helpers import assemble_tour, split_tour, to_numpy
 
 
+@GlobalRegistry.register(
+    PolicyTag.IMPROVEMENT,
+    PolicyTag.HEURISTIC,
+    PolicyTag.LOCAL_SEARCH,
+)
 @RouteImproverRegistry.register("or_opt_steepest")
 class OrOptSteepestRouteImprover(IRouteImprovement):
     """

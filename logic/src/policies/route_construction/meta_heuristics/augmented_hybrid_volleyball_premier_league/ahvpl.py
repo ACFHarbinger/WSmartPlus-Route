@@ -21,17 +21,24 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.policies.helpers.operators.crossover import ordered_crossover
-
-from ..adaptive_large_neighborhood_search.alns import ALNSSolver
-from ..ant_colony_optimization_k_sparse.solver import KSparseACOSolver
-from ..hybrid_genetic_search.evolution import (
+from logic.src.policies.helpers.operators.crossover_recombination import ordered_crossover
+from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighborhood_search.alns import (
+    ALNSSolver,
+)
+from logic.src.policies.route_construction.meta_heuristics.ant_colony_optimization_k_sparse.solver import (
+    KSparseACOSolver,
+)
+from logic.src.policies.route_construction.meta_heuristics.augmented_hybrid_volleyball_premier_league.params import (
+    AHVPLParams,
+)
+from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.evolution import (
     evaluate,
     update_biased_fitness,
 )
-from ..hybrid_genetic_search.individual import Individual
-from ..hybrid_genetic_search.split import LinearSplit
-from .params import AHVPLParams
+from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.individual import (
+    Individual,
+)
+from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.split import LinearSplit
 
 
 class AHVPLSolver:

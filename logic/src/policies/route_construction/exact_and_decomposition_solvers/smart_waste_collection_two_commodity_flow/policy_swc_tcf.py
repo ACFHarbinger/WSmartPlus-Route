@@ -9,8 +9,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type, Union
 import numpy as np
 
 from logic.src.configs.policies import SWCTCFConfig
-from logic.src.policies.context.multi_day_context import MultiDayContext
-from logic.src.policies.context.search_context import SearchContext
+from logic.src.enums import GlobalRegistry, PolicyTag
 from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
 from logic.src.policies.route_construction.base.factory import RouteConstructorRegistry
 
@@ -18,6 +17,12 @@ from .dispatcher import run_swc_tcf_optimizer
 from .params import SWCTCFParams
 
 
+@GlobalRegistry.register(
+    PolicyTag.EXACT,
+    PolicyTag.MATH_PROGRAMMING,
+    PolicyTag.SOLVER,
+    PolicyTag.PROFIT_AWARE,
+)
 @RouteConstructorRegistry.register("swc_tcf")
 class SWCTCFPolicy(BaseRoutingPolicy):
     """
@@ -66,75 +71,48 @@ class SWCTCFPolicy(BaseRoutingPolicy):
         **kwargs: Any,
     ) -> Tuple[List[List[int]], float, float]:
         """
-        Legacy single-day solver fallback.
-        SWC-TCF uses a specialized execute() method for historical reasons.
-        """
-        return [], 0.0, 0.0
+        Execute core Smart Waste Collection - Two-Commodity Flow (SWC-TCF) solver.
 
-    def execute(
-        self, **kwargs: Any
-    ) -> Tuple[List[int], float, float, Optional[SearchContext], Optional[MultiDayContext]]:
-        """
-        Execute the Smart Waste Collection - Two-Commodity Flow (SWC-TCF) solver logic.
-
-        This method coordinates the execution of the SWC-TCF formulation, which
-        uses a flow-based Mixed-Integer Linear Program (MILP) to solve the
-        routing problem. It supports multiple backends (Gurobi, Hexaly, Pyomo)
-        and is specifically tuned for constraints found in the original Ramos
-        et al. (2018) smart waste collection study.
+        This implementation adapts the flow-based MILP model to the standardized
+        agnostic routing interface. It resolves backends (Gurobi, Pyomo, OR-Tools)
+        and handles the translation of local sub-problem data into solver-specific
+        formats.
 
         Args:
-            **kwargs: Context dictionary containing:
-                - area (str): The operational area (e.g., "Rio Maior").
-                - waste_type (str): The type of waste (e.g., "plastic").
-                - bins (BCollection): The bin collection object or fill amounts.
-                - distance_matrix (np.ndarray): Symmetric distance matrix.
-                - mandatory_nodes (List[int]): Bins that MUST be collected.
-                - search_context (Optional[SearchContext]): Context for tracking
-                  recursive solver statistics.
-                - multi_day_context (Optional[MultiDayContext]): Context for
-                  inter-day state propagation.
+            sub_dist_matrix: Symmetric distance matrix for the sub-problem.
+            sub_wastes: Mapping of node indices to fill percentages (0..100).
+            capacity: Vehicle capacity in percentage points (relative to 100% per bin).
+            revenue: Euro per percentage point of fill collected.
+            cost_unit: Euro per kilometer traveled.
+            values: Merged configuration dictionary from Policy and defaults.
+            mandatory_nodes: Local indices of bins that MUST be collected.
 
         Returns:
-            Tuple[List[int], float, float, Optional[SearchContext], Optional[MultiDayContext]]:
-                A 5-tuple containing:
-                - route: The optimized collection route (flat list).
-                - cost: Total travel cost calculated based on the route.
-                - profit: Total net profit (Total Revenue - Total Cost).
-                - search_context: The propagated or initialized search context.
-                - multi_day_context: The final multi-day state metadata.
+            Tuple[List[List[int]], float, float]: (routes, profit, travel_cost)
         """
-        # 1. Extract context
-        area = kwargs.get("area", "Rio Maior")
-        waste_type = kwargs.get("waste_type", "plastic")
-        bins = kwargs.get("bins")
-        distance_matrix = kwargs.get("distance_matrix")
-        mandatory_nodes = kwargs.get("mandatory_nodes", [])
-        config = kwargs.get("config", {})
+        # 1. Prepare inputs for the dispatcher
+        # sub_wastes is {idx: fill}. Dispatcher expects a list/array.
+        n_nodes = len(sub_wastes)
+        amounts = np.zeros(n_nodes)
+        for i, fill in sub_wastes.items():
+            amounts[i - 1] = fill  # Solver uses 1-based binsids internally for depot mapping
 
-        # 2. Load parameters and merge with config
-        _, _, _, values = self._load_area_params(area, waste_type, config)
-        self._log_solver_params(values, kwargs)
+        binsids = list(range(1, n_nodes + 1))
 
-        # 3. Handle bins input (WSmart+ simulator passes bins object or amounts)
-        amounts = bins
-        if bins is not None and hasattr(bins, "c"):
-            amounts = bins.c
+        # 2. Extract and sanitize parameters
+        params = SWCTCFParams.from_config(values)
+        seed = kwargs.get("seed") if kwargs.get("seed") is not None else getattr(self, "_seed", params.seed)
 
-        # Ensure binsids are present (local 1-based for solver consistency)
-        n_bins = len(amounts) if amounts is not None else 0
-        binsids = list(range(1, n_bins + 1))
+        # Update values with the standardized ones from the adapter
+        values_to_pass = {**values, "Q": capacity, "R": revenue, "C": cost_unit}
 
-        # 4. Initialize type-safe Params
-        params = SWCTCFParams.from_config(self._config or values)
-        seed = kwargs.get("seed") if kwargs.get("seed") is not None else params.seed
-
-        # 5. Run optimizer
-        dual_values = kwargs.get("dual_values")
-        route, profit, cost = run_swc_tcf_optimizer(
-            bins=amounts,  # type: ignore[arg-type]
-            distance_matrix=distance_matrix,  # type: ignore[arg-type]
-            values=values,
+        # 3. Invoke dispatcher
+        # run_swc_tcf_optimizer returns Tuple[List[int], float, float] -> (route, profit, cost)
+        # Note: route is customer sequence (0-depot-0 managed by factory/base).
+        raw_route, profit, cost = run_swc_tcf_optimizer(
+            bins=amounts,
+            distance_matrix=sub_dist_matrix.tolist(),
+            values=values_to_pass,
             binsids=binsids,
             mandatory_nodes=mandatory_nodes,
             number_vehicles=kwargs.get("number_vehicles", 1),
@@ -142,7 +120,11 @@ class SWCTCFPolicy(BaseRoutingPolicy):
             framework=params.framework,
             optimizer=params.engine,
             seed=int(seed) if seed is not None else 42,
-            dual_values=dual_values,
+            dual_values=kwargs.get("dual_values"),
         )
 
-        return route, cost, profit, kwargs.get("search_context"), kwargs.get("multi_day_context")
+        # 4. Normalize route to List[List[int]] format expected by _run_solver signature
+        # Standard dispatcher returns a single flat route list.
+        # We strip the leading depot if present (usually [0, ...]).
+        clean_route = [n for n in raw_route if n != 0]
+        return [clean_route] if clean_route else [], profit, cost

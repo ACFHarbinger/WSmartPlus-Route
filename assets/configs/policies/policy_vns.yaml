@@ -97,6 +97,7 @@ vns:
     # Options: ms_lookahead.yaml, ms_last_minute_*.yaml, ms_regular.yaml
 
     - route_improvement: []
+    - acceptance_criterion: {method: "oi"}
     # Optional route refinement after VNS completes
     # Empty = use VNS output directly
 # =============================================================================

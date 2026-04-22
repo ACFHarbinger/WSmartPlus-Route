@@ -1,7 +1,7 @@
 # Progressive Hedging (PH) Policy Configuration
 # Reference: Rockafellar, R. T., & Wets, R. J. B. (1991). "Scenarios and policy aggregation in optimization under uncertainty."
 
-progressive_hedging:
+ph:
   # Penalty parameter for the quadratic non-anticipativity term.
   # Adjust rho balancing convergence speed vs solution quality.
   rho: 1.0

@@ -17,14 +17,20 @@ from typing import List, Tuple
 
 import numpy as np
 
-from logic.src.interfaces.mandatory import IMandatorySelectionStrategy
-from logic.src.policies.context.search_context import SearchContext
+from logic.src.enums import GlobalRegistry, PolicyTag
+from logic.src.interfaces.context.search_context import SearchContext
+from logic.src.interfaces.mandatory_selection import IMandatorySelectionStrategy
 
 from .base.eoq import resolve_trigger_threshold
 from .base.selection_context import SelectionContext
 from .base.selection_registry import MandatorySelectionRegistry
 
 
+@GlobalRegistry.register(
+    PolicyTag.SELECTION,
+    PolicyTag.HEURISTIC,
+    PolicyTag.PROFIT_AWARE,
+)
 @MandatorySelectionRegistry.register("revenue")
 class RevenueThresholdSelection(IMandatorySelectionStrategy):
     """

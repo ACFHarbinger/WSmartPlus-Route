@@ -6,7 +6,7 @@ Based on Barnhart et al. (1998, 2000) and standard exact VRPP protocols.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, fields
+from dataclasses import MISSING, dataclass, fields
 from typing import Any, Dict, Optional
 
 
@@ -71,16 +71,13 @@ class BPCParams:
     exact_mode: bool = False  # Task 3: Enable strict exact management
     strong_branching_size: int = 5  # Task 1: Number of candidates for strong branching
     cg_at_root_only: bool = False  # Paper Table 2: Run column generation only at root node
+    rcspp_timeout: float = 30.0  # Safety cap for single pricer call
+    rcspp_max_labels: int = 1000000  # Safety cap to prevent OOM
 
-    # Matheuristic Integration Flags (SWC-TCF)
+    # Two-Commodity Flow Integration Flags (SWC-TCF)
     use_swc_tcf_initialization: bool = False
     use_swc_tcf_heuristic_pricing: bool = False
     use_swc_tcf_primal_heuristic: bool = False
-
-    # Multi-period adaptation and Adaptive Dynamic Programming Machine Learning model
-    multi_day_mode: bool = False
-    adp_model_path: str = ""
-    adp_model_type: str = "sklearn"
 
     # ---------------------------------------------------------------------------
     # Lagrangian Relaxation Pre-Pruning
@@ -123,21 +120,44 @@ class BPCParams:
 
     @classmethod
     def from_config(cls, config: Any) -> BPCParams:
-        """Create BPCParams from a configuration object or dictionary."""
-        from dataclasses import MISSING, fields
+        """Create BPCParams from a configuration object or dictionary.
 
+        Performs explicit type casting for numeric fields to ensure compatibility
+        with Hydra/YAML scientific notation which might be loaded as strings.
+        """
+        if config is None:
+            return cls()
+
+        raw_data: Dict[str, Any] = {}
         if isinstance(config, dict):
-            valid_keys = {f.name for f in fields(cls)}
-            return cls(**{k: v for k, v in config.items() if k in valid_keys})  # type: ignore[arg-type]
+            raw_data = config
+        else:
+            # Handle Hydra DictConfig or other object types
+            for f in fields(cls):
+                if hasattr(config, f.name):
+                    raw_data[f.name] = getattr(config, f.name)
 
-        kwargs: Dict[str, Any] = {
-            f.name: getattr(config, f.name, f.default) for f in fields(cls) if f.default is not MISSING
-        }
-        # Fields with default_factory
+        kwargs: Dict[str, Any] = {}
         for f in fields(cls):
-            if f.name not in kwargs:
-                kwargs[f.name] = f.default_factory()  # type: ignore[misc]
-        return cls(**kwargs)  # type: ignore[arg-type]
+            val = raw_data.get(f.name, f.default)
+            if val is MISSING:
+                if f.default_factory is not MISSING:  # type: ignore[comparison-overlap]
+                    val = f.default_factory()  # type: ignore[misc]
+                else:
+                    continue
+
+            # Explicit type casting
+            if val is not None:
+                if f.type is float or f.type == "float":
+                    val = float(val)
+                elif f.type is int or f.type == "int":
+                    val = int(val)
+                elif f.type is bool or f.type == "bool":
+                    val = val.lower() in ("true", "1", "yes") if isinstance(val, str) else bool(val)
+
+            kwargs[f.name] = val
+
+        return cls(**kwargs)
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert BPCParams to a dictionary for backend compatibility."""

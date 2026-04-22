@@ -1,0 +1,10 @@
+<div class="kpi-card" style="background: linear-gradient(135deg, {{ color }} 0%, {{ color_end }} 100%);">
+    <div class="label">{{ label }}</div>
+    <div class="value">{{ value }}</div>
+    {% if delta %}
+        <div class="delta {{ delta_class }}">{{ delta }}</div>
+    {% endif %}
+    {% if sparkline_svg %}
+        <div class="sparkline">{{ sparkline_svg | safe }}</div>
+    {% endif %}
+</div>

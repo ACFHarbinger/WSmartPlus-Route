@@ -1,4 +1,3 @@
-# Copyright (c) WSmart-Route. All rights reserved.
 """
 MLOps Control Tower Dashboard - Root Entry Point.
 

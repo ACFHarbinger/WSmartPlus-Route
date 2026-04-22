@@ -1,13 +1,14 @@
 import pickle
+from abc import ABC, abstractmethod
 from collections import deque
 from typing import Any, Deque, Dict, Optional
 
 import numpy as np
 
-from ..base import RLAgent
+from logic.src.policies.helpers.reinforcement_learning.agents.base import RLAgent
 
 
-class BanditAgent(RLAgent):
+class BanditAgent(RLAgent, ABC):
     """
     Base class for Multi-Armed Bandit (MAB) agents.
 
@@ -98,3 +99,19 @@ class BanditAgent(RLAgent):
         self.counts[action] += 1
         n = self.counts[action]
         self.values[action] += (reward - self.values[action]) / n
+
+    @abstractmethod
+    def select_action(self, state: Any, rng: np.random.Generator) -> int:
+        """
+        Select an arm to pull based on the internal policy.
+
+        This method must be implemented by subclasses (e.g., EpsilonGreedy, UCB).
+
+        Args:
+            state: Contextual state (for contextual bandits).
+            rng: Random number generator for deterministic stability.
+
+        Returns:
+            The index of the selected arm (0-based).
+        """
+        pass

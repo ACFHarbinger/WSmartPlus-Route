@@ -7,10 +7,9 @@ from collections import deque
 from typing import Dict, List, Optional
 
 import numpy as np
-
-from ..weight_strategy import WeightAdjustmentStrategy
-from .pareto_front import ParetoFront
-from .pareto_solution import ParetoSolution
+from logic.src.pipeline.rl.meta.multi_objective.pareto_front import ParetoFront
+from logic.src.pipeline.rl.meta.multi_objective.pareto_solution import ParetoSolution
+from logic.src.pipeline.rl.meta.weight_strategy import WeightAdjustmentStrategy
 
 
 class MORLWeightOptimizer(WeightAdjustmentStrategy):

@@ -5,6 +5,7 @@ KS-ACO (K-Sparse Ant Colony Optimization) configuration.
 from dataclasses import dataclass
 from typing import List, Optional
 
+from .other.acceptance_criteria import AcceptanceConfig
 from .other.mandatory_selection import MandatorySelectionConfig
 from .other.route_improvement import RouteImprovingConfig
 
@@ -30,6 +31,7 @@ class KSparseACOConfig:
         elitist_weight: Weight for elitist pheromone update.
         mandatory_selection: List of mandatory strategy config files.
         route_improvement: List of route improvement operations to apply.
+        acceptance_criterion: Acceptance criterion config for local search.
     """
 
     n_ants: int = 20
@@ -50,3 +52,4 @@ class KSparseACOConfig:
     vrpp: bool = True
     mandatory_selection: Optional[List[MandatorySelectionConfig]] = None
     route_improvement: Optional[List[RouteImprovingConfig]] = None
+    acceptance_criterion: AcceptanceConfig = AcceptanceConfig(method="oi")

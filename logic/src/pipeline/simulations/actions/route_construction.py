@@ -88,8 +88,9 @@ class RouteConstructionAction(SimulationAction):
                 )
 
         # If no nodes to collect, skip policy and return to depot
+        # VRPP policies (vrpp: true) let the solver decide which nodes to visit — don't skip them
         mandatory = context.get("mandatory", [])
-        if not mandatory:
+        if not mandatory and not bool(flat_cfg.get("vrpp", False)):
             context["tour"] = [0, 0]
             context["cost"] = 0.0
             context["extra_output"] = None
@@ -103,7 +104,7 @@ class RouteConstructionAction(SimulationAction):
             day_idx = context.get("day", 0)
             multi_day_context = context.get("multi_day_context")
             if multi_day_context is None:
-                from logic.src.policies.context.multi_day_context import MultiDayContext
+                from logic.src.interfaces.context.multi_day_context import MultiDayContext
 
                 multi_day_context = MultiDayContext.initialize(day_index=day_idx)
 
@@ -118,9 +119,10 @@ class RouteConstructionAction(SimulationAction):
             # Generate tree using bin stats and truth (if method is oracle)
             bins_state = context.get("bins")
             if bins_state is not None:
+                n = len(bins_state.c)
                 bin_stats = {
-                    "means": getattr(bins_state, "u_i", np.zeros(0)),
-                    "stds": np.sqrt(getattr(bins_state, "v_i", np.zeros(0))),
+                    "means": getattr(bins_state, "means", np.zeros(n)),
+                    "stds": getattr(bins_state, "std", np.zeros(n)),
                 }
             else:
                 bin_stats = {"means": np.zeros(0), "stds": np.zeros(0)}
@@ -136,14 +138,23 @@ class RouteConstructionAction(SimulationAction):
             context["multi_day_context"] = multi_day_context
 
             start_time = time.process_time()
-            # Unpack 5 values now: tour, cost, profit, search_context, multi_day_context
+            # 3. Unpack adapter results: tour represents global bin IDs
             results = adapter.execute(**context)
-            tour, cost, profit, extra_output, updated_multi_day = results
+            tour, _, _, extra_output, updated_multi_day = results
             elapsed_time = time.process_time() - start_time
 
+            # --- PRELIMINARY METRICS ---
+            # Calculate preliminary KM from the construction phase. Note that final
+            # definitive metrics (KM and Profit) are re-computed in CollectAction
+            # to account for the entire policy pipeline (mandatory + construction + improvement).
+            from logic.src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp import (
+                get_route_cost,
+            )
+
+            raw_km = get_route_cost(context["distance_matrix"], tour)
+
             context["tour"] = tour
-            context["cost"] = cost
-            context["profit"] = profit
+            context["cost"] = raw_km
             context["extra_output"] = extra_output
             context["time"] = elapsed_time
             # Preserve updated multi-day state for the next simulation day

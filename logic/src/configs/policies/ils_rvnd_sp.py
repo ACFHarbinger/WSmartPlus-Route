@@ -42,9 +42,7 @@ class ILSRVNDSPConfig(ABCConfig):
     framework: str = "ortools"
     local_search_iterations: int = 500
 
-    # Injected Acceptance Criterion
-    acceptance: AcceptanceConfig = field(default_factory=lambda: AcceptanceConfig(method="only_improving"))
-
     # --- Infrastructure Hooks ---
     mandatory_selection: Optional[List[Any]] = field(default_factory=list)
     route_improvement: Optional[List[Any]] = field(default_factory=list)
+    acceptance_criterion: AcceptanceConfig = field(default_factory=lambda: AcceptanceConfig(method="only_improving"))

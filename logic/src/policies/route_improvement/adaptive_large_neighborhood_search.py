@@ -2,9 +2,10 @@ import pickle
 import random
 from typing import Any, List, Tuple
 
+from logic.src.enums import GlobalRegistry, PolicyTag
+from logic.src.interfaces.context.search_context import ImprovementMetrics
 from logic.src.interfaces.route_improvement import IRouteImprovement
-from logic.src.policies.context.search_context import ImprovementMetrics
-from logic.src.policies.helpers.operators.heuristics.large_neighborhood_search import (
+from logic.src.policies.helpers.operators.search_heuristics.large_neighborhood_search import (
     apply_lns,
 )
 
@@ -20,6 +21,12 @@ from .common.helpers import (
 )
 
 
+@GlobalRegistry.register(
+    PolicyTag.IMPROVEMENT,
+    PolicyTag.META_HEURISTIC,
+    PolicyTag.LARGE_NEIGHBORHOOD_SEARCH,
+    PolicyTag.ANYTIME,
+)
 @RouteImproverRegistry.register("adaptive_large_neighborhood_search")
 class AdaptiveLargeNeighborhoodSearchRouteImprover(IRouteImprovement):
     """

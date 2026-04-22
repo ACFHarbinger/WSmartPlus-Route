@@ -5,8 +5,8 @@ Meta-RL Config module.
 from dataclasses import dataclass, field
 from typing import List
 
-from ..envs.graph import GraphConfig
-from ..envs.objective import ObjectiveConfig
+from logic.src.configs.envs.graph import GraphConfig
+from logic.src.configs.envs.objective import ObjectiveConfig
 
 
 @dataclass

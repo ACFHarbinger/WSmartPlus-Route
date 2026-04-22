@@ -3,6 +3,7 @@ import os
 from typing import Any, Dict, List, Optional
 
 import folium
+import jinja2
 import numpy as np
 import pandas as pd
 import streamlit as st
@@ -10,6 +11,10 @@ from streamlit_folium import st_folium
 
 from logic.src.constants import ROOT_DIR
 from logic.src.ui.components.maps import create_bin_heatmap, create_simulation_map
+
+# Set up Jinja environment
+template_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "templates")
+jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir))
 
 
 def load_custom_matrix(controls: Dict[str, Any]) -> Any:
@@ -112,23 +117,9 @@ def render_map_view(display_entry: Any, controls: Dict[str, Any]) -> None:
         dist_strategy=controls.get("distance_strategy", "hsd"),
     )
 
-    legend_html = """
-    <div style="
-        position: fixed; bottom: 30px; left: 30px; z-index: 1000;
-        background: rgba(255,255,255,0.92); padding: 12px 16px;
-        border-radius: 8px; border: 1px solid #ccc;
-        font-size: 13px; line-height: 1.8;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-        color: black;
-    ">
-        <b style="font-size: 14px;">Map Legend</b><br>
-        <span style="color: #007bff;">&#9679;</span> Depot<br>
-        <span style="color: #28a745;">&#9679;</span> Served (collected)<br>
-        <span style="color: #fd7e14;">&#9679;</span> Mandatory (selected)<br>
-        <span style="color: #dc3545;">&#9679;</span> Pending<br>
-        <span style="color: #fd7e14;">&#9901;</span> Mandatory + Served
-    </div>
-    """
+    # Render HTML from template
+    template = jinja_env.get_template("map_legend.html")
+    legend_html = template.render()
     sim_map.get_root().html.add_child(folium.Element(legend_html))  # type: ignore
     st_folium(sim_map, width=None, height=1080, returned_objects=[])
 
