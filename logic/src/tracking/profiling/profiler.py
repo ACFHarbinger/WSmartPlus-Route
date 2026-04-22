@@ -5,12 +5,27 @@ Provides a ``sys.setprofile`` hook that records every function call duration
 within the project to a CSV file.  Writes are accumulated in an in-memory
 buffer and flushed in batches to avoid per-call file-open overhead.
 
-Classes:
+Attributes:
+    _ROOT_DIR: Root directory of the project.
+    _BUFFER_SIZE: Number of log entries to accumulate before flushing to
+        disk.
+    _LIB_DIRS: Substrings that indicate a file should *not* be profiled.
     ExecutionProfiler: Thread-safe, buffered execution profiler.
-
-Functions:
     start_global_profiling: Start the singleton global profiler.
     stop_global_profiling: Stop the profiler and optionally log the CSV.
+
+Example:
+    >>> from logic.src.tracking.profiling import start_global_profiling, stop_global_profiling
+    >>> start_global_profiling()
+    >>> # ... run your training / simulation ...
+    >>> stop_global_profiling()
+    >>> # Now analyze the CSV with ProfilingReport
+    >>> from logic.src.tracking.profiling import ProfilingReport
+    >>> report = ProfilingReport("logs/function_execution_times_2024-01-01_12-00-00.csv")
+    >>> print(report)
+    >>> for entry in report.top_functions(n=10):
+    ...     print(entry)
+    >>> report.log_to_run(top_n=10)
 """
 
 from __future__ import annotations
@@ -60,15 +75,31 @@ class ExecutionProfiler:
 
         timestamp,file,class,function,duration_sec
 
-    Args:
+    Attributes:
         log_dir: Directory for the output CSV (relative to *ROOT_DIR* or
             absolute).
         buffer_size: Number of log entries to accumulate before flushing to
             disk.  A higher value reduces I/O overhead at the cost of more
             memory and potentially losing data on a crash.
+        log_file: Path to the output CSV file.
+        active: Whether the profiler is currently active.
+        _lock: Lock for thread-safe access to the write buffer.
+        _local: Thread-local storage for the call stack.
+        _wall_start: Wall-clock start time (perf_counter).
+        _wall_stop: Wall-clock stop time (perf_counter).
+        _write_buffer: In-memory write buffer; flushed every `buffer_size` entries.
     """
 
     def __init__(self, log_dir: str = "logs", buffer_size: int = _BUFFER_SIZE) -> None:
+        """
+        Initialize the profiler.
+
+        Args:
+            log_dir: Directory for the output CSV (relative to *ROOT_DIR* or
+                absolute).
+            buffer_size: Number of log entries to accumulate before flushing to
+                disk.
+        """
         self.log_dir = os.path.join(_ROOT_DIR, log_dir) if not os.path.isabs(log_dir) else log_dir
         os.makedirs(self.log_dir, exist_ok=True)
         timestamp = time.strftime("%Y-%m-%d_%H-%M-%S")
@@ -98,7 +129,15 @@ class ExecutionProfiler:
     # ------------------------------------------------------------------
 
     def _should_profile(self, filename: str) -> bool:
-        """Return ``True`` when *filename* belongs to the project."""
+        """
+        Return ``True`` when *filename* belongs to the project.
+
+        Args:
+            filename: Path to the file to check.
+
+        Returns:
+            bool
+        """
         if not filename or filename == "<string>":
             return False
         for lib_dir in _LIB_DIRS:
@@ -107,7 +146,15 @@ class ExecutionProfiler:
         return filename.startswith(_ROOT_DIR)
 
     def _get_class_name(self, frame: Any) -> str:
-        """Extract class name from *frame* locals (instance or class method)."""
+        """
+        Extract class name from *frame* locals (instance or class method).
+
+        Args:
+            frame: Frame to extract class name from.
+
+        Returns:
+            str
+        """
         if "self" in frame.f_locals:
             return frame.f_locals["self"].__class__.__name__
         if "cls" in frame.f_locals:
@@ -121,7 +168,17 @@ class ExecutionProfiler:
     # ------------------------------------------------------------------
 
     def profile_hook(self, frame: Any, event: str, arg: Any) -> None:  # noqa: ARG002
-        """Profile hook installed via ``sys.setprofile``."""
+        """
+        Profile hook installed via ``sys.setprofile``.
+
+        Args:
+            frame: Frame to profile.
+            event: Event to profile.
+            arg: Argument to profile.
+
+        Returns:
+            None
+        """
         if not self.active:
             return
 
@@ -144,7 +201,15 @@ class ExecutionProfiler:
             self._handle_return(frame)
 
     def _handle_return(self, frame: Any) -> None:
-        """Process a ``return`` event: compute duration and buffer the entry."""
+        """
+        Process a ``return`` event: compute duration and buffer the entry.
+
+        Args:
+            frame: Frame to process.
+
+        Returns:
+            None
+        """
         frame_id = id(frame)
         stack = self._local.call_stack
 
@@ -172,7 +237,12 @@ class ExecutionProfiler:
                 self._flush_locked()
 
     def _flush_locked(self) -> None:
-        """Write buffered entries to disk.  Caller must hold ``self._lock``."""
+        """
+        Write buffered entries to disk.  Caller must hold ``self._lock``.
+
+        Returns:
+            None
+        """
         if not self._write_buffer:
             return
         try:
@@ -183,7 +253,12 @@ class ExecutionProfiler:
             pass
 
     def flush(self) -> None:
-        """Flush the write buffer to disk (thread-safe)."""
+        """
+        Flush the write buffer to disk (thread-safe).
+
+        Returns:
+            None
+        """
         with self._lock:
             self._flush_locked()
 
@@ -192,7 +267,12 @@ class ExecutionProfiler:
     # ------------------------------------------------------------------
 
     def start(self) -> None:
-        """Activate the profiler and install the global hook."""
+        """
+        Activate the profiler and install the global hook.
+
+        Returns:
+            None
+        """
         if not self.active:
             self.active = True
             self._wall_start = time.perf_counter()
@@ -202,7 +282,12 @@ class ExecutionProfiler:
             logger.info(f"Global execution profiling started. Logging to {self.log_file}")
 
     def stop(self) -> None:
-        """Deactivate the profiler, flush the write buffer, and remove hooks."""
+        """
+        Deactivate the profiler, flush the write buffer, and remove hooks.
+
+        Returns:
+            None
+        """
         if self.active:
             self.active = False
             self._wall_stop = time.perf_counter()
@@ -213,7 +298,12 @@ class ExecutionProfiler:
 
     @property
     def wall_elapsed(self) -> Optional[float]:
-        """Wall-clock seconds the profiler was active, or ``None``."""
+        """
+        Wall-clock seconds the profiler was active, or ``None``.
+
+        Returns:
+            Optional[float]
+        """
         if self._wall_start is None:
             return None
         end = self._wall_stop if self._wall_stop is not None else time.perf_counter()
@@ -224,7 +314,8 @@ class ExecutionProfiler:
     # ------------------------------------------------------------------
 
     def get_report(self) -> Any:
-        """Flush pending writes and return a :class:`ProfilingReport` for this run.
+        """
+        Flush pending writes and return a :class:`ProfilingReport` for this run.
 
         Returns:
             :class:`ProfilingReport` backed by :attr:`log_file`.
@@ -241,7 +332,8 @@ _profiler_instance: Optional[ExecutionProfiler] = None
 
 
 def start_global_profiling(log_dir: str = "logs", buffer_size: int = _BUFFER_SIZE) -> None:
-    """Initialise and start the singleton global profiler.
+    """
+    Initialise and start the singleton global profiler.
 
     Calling this function more than once is a no-op (the existing profiler is
     reused).  An :func:`atexit` handler is registered so that the write buffer
@@ -251,6 +343,9 @@ def start_global_profiling(log_dir: str = "logs", buffer_size: int = _BUFFER_SIZ
         log_dir: Output directory for the CSV file (relative to *ROOT_DIR* or
             absolute).
         buffer_size: Number of log lines buffered before flushing to disk.
+
+    Returns:
+        None
     """
     global _profiler_instance
     if _profiler_instance is None:
@@ -260,13 +355,17 @@ def start_global_profiling(log_dir: str = "logs", buffer_size: int = _BUFFER_SIZ
 
 
 def stop_global_profiling(log_artifact: bool = True, print_report: bool = True) -> None:
-    """Stop the singleton profiler and optionally register the CSV as an artifact.
+    """
+    Stop the singleton profiler and optionally register the CSV as an artifact.
 
     Args:
         log_artifact: When ``True`` (default), register the CSV file as a
             ``"profiling"`` artifact on the active WSTracker run (if any).
         print_report: When ``True`` (default), print a summary report to
             the terminal showing aggregate statistics.
+
+    Returns:
+        None
     """
     global _profiler_instance
     if _profiler_instance is not None:

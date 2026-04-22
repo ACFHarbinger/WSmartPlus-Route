@@ -1,3 +1,25 @@
+"""
+Hydra dispatch module.
+
+This module provides the unified Hydra entry point for all configuration-driven
+commands in the WSmart-Route application. It handles dispatching to the
+appropriate task handler based on the command-line arguments.
+
+Attributes:
+    cs: ConfigStore instance for registering configurations.
+    ROOT_KEYS: List of root-level keys to filter when pretty-printing configs.
+    hydra_entry_point: Unified entry point for all configuration-driven commands.
+    _run_task: Dispatch to the appropriate task handler.
+    _pretty_print_hydra_config: Pretty print filtered sections of the Hydra configuration.
+
+Example:
+    >>> from logic.controller.hydra_dispatch import hydra_entry_point
+    >>> hydra_entry_point()
+    # Runs the default task (train) with default configuration
+    >>> hydra_entry_point("--task=eval --eval.model_path=path/to/model")
+    # Runs the evaluation task with specified model path
+"""
+
 import os
 from typing import Any
 
@@ -15,7 +37,16 @@ ROOT_KEYS = ["load_dataset", "seed", "device", "experiment_name", "task", "outpu
 
 
 def _pretty_print_hydra_config(cfg: Any, filter_keys: Any = None) -> None:
-    """Pretty print filtered sections of the Hydra configuration."""
+    """
+    Pretty print filtered sections of the Hydra configuration.
+
+    Args:
+        cfg: The Hydra configuration object.
+        filter_keys: Optional list of keys to filter the configuration by.
+
+    Returns:
+        None
+    """
     print("\n" + "=" * 80)
     print("HYDRA CONFIGURATION".center(80))
     print("=" * 80)
@@ -26,7 +57,15 @@ def _pretty_print_hydra_config(cfg: Any, filter_keys: Any = None) -> None:
 
 @hydra.main(version_base=None, config_path=os.path.join(ROOT_DIR, "assets", "configs"), config_name="config")
 def hydra_entry_point(cfg: Config) -> float:
-    """Unified Hydra entry point for all configuration-driven commands."""
+    """
+    Unified Hydra entry point for all configuration-driven commands.
+
+    Args:
+        cfg: The Hydra configuration object.
+
+    Returns:
+        float: The result of the executed task.
+    """
     if cfg.tracking.profile:
         from logic.src.tracking.profiling import start_global_profiling, stop_global_profiling
 
@@ -40,7 +79,15 @@ def hydra_entry_point(cfg: Config) -> float:
 
 
 def _run_task(cfg: Config) -> float:
-    """Dispatch to the appropriate task handler."""
+    """
+    Dispatch to the appropriate task handler.
+
+    Args:
+        cfg: The Hydra configuration object.
+
+    Returns:
+        float: The result of the executed task.
+    """
     task = cfg.task
 
     if task in ("train", "meta_train", "hpo"):

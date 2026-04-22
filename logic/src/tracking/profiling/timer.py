@@ -4,13 +4,26 @@ Named block and function-level timing utilities.
 Provides lightweight wrappers for timing arbitrary code sections and
 automatically forwarding elapsed times to the active WSTracker run.
 
-Classes:
+Attributes:
     BlockTimer: Context-manager timer for a single named code block.
     MultiStepTimer: Multi-phase timer that tracks several sequential phases.
-
-Functions:
     profile_block: Convenience context-manager wrapper around BlockTimer.
     profile_function: Decorator that times every call to a function.
+
+Example:
+    >>> from logic.src.tracking.profiling import BlockTimer, MultiStepTimer, profile_block, profile_function
+    >>> with BlockTimer("data_loading") as t:
+    ...     dataset = load_data()
+    >>> print(t.elapsed)   # seconds
+    >>> t = BlockTimer("training_epoch")
+    >>> t.start()
+    >>> train_one_epoch()
+    >>> t.stop()           # logs automatically
+    >>> profile_block("preprocess"):
+    ...     preprocess()
+    >>> @profile_function
+    ... def my_function():
+    ...     my_function()
 """
 
 from __future__ import annotations
@@ -24,7 +37,8 @@ from logic.src.tracking.core.run import get_active_run
 
 
 class BlockTimer:
-    """Times a named code block and optionally logs elapsed time to WSTracker.
+    """
+    Times a named code block and optionally logs elapsed time to WSTracker.
 
     Usage as a context manager::
 
@@ -39,13 +53,15 @@ class BlockTimer:
         train_one_epoch()
         t.stop()           # logs automatically
 
-    Args:
+    Attributes:
         name: Human-readable label for the timed block.
         log_metric: When ``True`` (default), call :meth:`log_to_run` upon
             :meth:`stop`.
         step: Metric step dimension forwarded to ``Run.log_metric``.
         prefix: Metric key prefix.  The value is logged as
             ``{prefix}/{name}_sec``.
+        elapsed: Elapsed wall-clock seconds.
+        _start: Start time of the current timing interval.
     """
 
     def __init__(
@@ -55,6 +71,18 @@ class BlockTimer:
         step: int = 0,
         prefix: str = "time",
     ) -> None:
+        """
+        Args:
+        name: Human-readable label for the timed block.
+        log_metric: When ``True`` (default), call :meth:`log_to_run` upon
+            :meth:`stop`.
+        step: Metric step dimension forwarded to ``Run.log_metric``.
+        prefix: Metric key prefix.  The value is logged as
+            ``{prefix}/{name}_sec``.
+
+        Returns:
+            None
+        """
         self.name = name
         self.log_metric = log_metric
         self.step = step
@@ -63,12 +91,18 @@ class BlockTimer:
         self.elapsed: float = 0.0
 
     def start(self) -> "BlockTimer":
-        """Record start time and return *self* for chaining."""
+        """
+        Record start time and return *self* for chaining.
+
+        Returns:
+            self
+        """
         self._start = time.perf_counter()
         return self
 
     def stop(self) -> float:
-        """Record stop time, compute elapsed, and optionally log to run.
+        """
+        Record stop time, compute elapsed, and optionally log to run.
 
         Returns:
             Elapsed wall-clock seconds.
@@ -81,20 +115,46 @@ class BlockTimer:
         return self.elapsed
 
     def log_to_run(self) -> None:
-        """Forward the elapsed time to the active WSTracker run (silent no-op
-        when no run is active or an error occurs)."""
+        """
+        Forward the elapsed time to the active WSTracker run (silent no-op
+        when no run is active or an error occurs).
+
+        Returns:
+            None
+        """
         with contextlib.suppress(Exception):
             run = get_active_run()
             if run is not None:
                 run.log_metric(f"{self.prefix}/{self.name}_sec", self.elapsed, step=self.step)
 
     def __enter__(self) -> "BlockTimer":
+        """
+        Enter the runtime context related to this object.
+
+        Returns:
+            self
+        """
         return self.start()
 
     def __exit__(self, *_args: Any) -> None:
+        """
+        Exit the runtime context related to this object.
+
+        Args:
+            _args: Arguments passed to the exit method.
+
+        Returns:
+            None
+        """
         self.stop()
 
     def __repr__(self) -> str:
+        """
+        Return a string representation of the object.
+
+        Returns:
+            str
+        """
         return f"BlockTimer(name={self.name!r}, elapsed={self.elapsed:.4f}s)"
 
 
@@ -118,20 +178,37 @@ class MultiStepTimer:
         print(t)                        # per-phase summary
         t.log_to_run(prefix="epoch")    # emit to WSTracker
 
-    Args:
+    Attributes:
         accumulate: When ``True`` (default), multiple :meth:`start` calls for
             the same phase name add to the existing total rather than
             overwriting it.
+        _phases: Dictionary mapping phase names to lists of recorded durations.
+        _current_phase: The currently active phase name.
+        _phase_start: The start time of the current phase.
     """
 
     def __init__(self, accumulate: bool = True) -> None:
+        """
+        Args:
+            accumulate: When ``True`` (default), multiple :meth:`start` calls for
+                the same phase name add to the existing total rather than
+                overwriting it.
+        """
         self.accumulate = accumulate
         self._phases: Dict[str, List[float]] = {}
         self._current_phase: Optional[str] = None
         self._phase_start: Optional[float] = None
 
     def start(self, phase: str) -> "MultiStepTimer":
-        """Begin timing *phase*.  Implicitly stops the current phase."""
+        """
+        Begin timing *phase*.  Implicitly stops the current phase.
+
+        Args:
+            phase: The name of the phase to start timing.
+
+        Returns:
+            self
+        """
         if self._current_phase is not None:
             self._commit()
         self._current_phase = phase
@@ -139,7 +216,12 @@ class MultiStepTimer:
         return self
 
     def stop(self) -> "MultiStepTimer":
-        """Stop the current phase."""
+        """
+        Stop the current phase.
+
+        Returns:
+            self
+        """
         if self._current_phase is not None:
             self._commit()
             self._current_phase = None
@@ -147,6 +229,12 @@ class MultiStepTimer:
         return self
 
     def _commit(self) -> None:
+        """
+        Commit the current phase's time to the internal storage.
+
+        Returns:
+            None
+        """
         if self._phase_start is None or self._current_phase is None:
             return
         elapsed = time.perf_counter() - self._phase_start
@@ -158,19 +246,46 @@ class MultiStepTimer:
 
     @property
     def total(self) -> float:
-        """Total accumulated time across all phases (seconds)."""
+        """
+        Total accumulated time across all phases (seconds).
+
+        Returns:
+            float
+        """
         return sum(sum(v) for v in self._phases.values())
 
     def phase_total(self, phase: str) -> float:
-        """Accumulated time for *phase* (0.0 if not recorded)."""
+        """
+        Accumulated time for *phase* (0.0 if not recorded).
+
+        Args:
+            phase: The name of the phase to get the total time for.
+
+        Returns:
+            float
+        """
         return sum(self._phases.get(phase, [0.0]))
 
     def summary(self) -> Dict[str, float]:
-        """Return ``{phase: total_seconds}`` for every recorded phase."""
+        """
+        Return ``{phase: total_seconds}`` for every recorded phase.
+
+        Returns:
+            Dict[str, float]
+        """
         return {phase: sum(times) for phase, times in self._phases.items()}
 
     def log_to_run(self, prefix: str = "time", step: int = 0) -> None:
-        """Log per-phase totals and overall total to the active WSTracker run."""
+        """
+        Log per-phase totals and overall total to the active WSTracker run.
+
+        Args:
+            prefix: Metric key prefix.
+            step: Metric step dimension forwarded to ``Run.log_metrics``.
+
+        Returns:
+            None
+        """
         with contextlib.suppress(Exception):
             run = get_active_run()
             if run is not None:
@@ -179,6 +294,12 @@ class MultiStepTimer:
                 run.log_metrics(metrics, step=step)
 
     def __repr__(self) -> str:
+        """
+        Return a string representation of the object.
+
+        Returns:
+            str
+        """
         total = self.total
         lines = [f"MultiStepTimer total={total:.4f}s:"]
         for phase, t in self.summary().items():

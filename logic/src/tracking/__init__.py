@@ -17,11 +17,24 @@ Submodules
 
   Both ``logic.src.tracking.logging``, ``logic.src.tracking.profiling``, and
   ``logic.src.tracking.hooks`` are backwards-compatible shims that re-export from
-  these canonical locations.
+  these canonical locations.'
 
-Typical usage (training)
-------------------------
-::
+Attributes:
+    _DEFAULT_TRACKING_URI: Default tracking URI for MLFlow.
+    init: Initialises the global tracker and returns it.
+    init_worker: Attach an existing run in a worker sub-process.
+    core: Core tracking functionality.
+    database: Database-related functionality.
+    integrations: Integration-related functionality.
+    logging: Logging functionality.
+    profiling: Profiling functionality.
+    hooks: Hook-related functionality.
+    viz_mixin: Output visualization-related functionality.
+
+Example:
+    Training
+    --------
+    ::
 
     import logic.src.tracking as wst
 
@@ -36,9 +49,9 @@ Typical usage (training)
         trainer.fit(model)          # TrackingCallback logs metrics automatically
         run.log_artifact(model_path, artifact_type="model")
 
-Typical usage (simulation, worker process)
-------------------------------------------
-::
+    Simulation, worker process
+    --------------------------
+    ::
 
     # Worker process — called via init_single_sim_worker
     wst.init_worker(tracking_uri="assets/tracking", run_id="<uuid>")
@@ -47,9 +60,9 @@ Typical usage (simulation, worker process)
     if run:
         run.log_metric("gurobi/s0/profit", 123.4, step=day)
 
-Typical usage (hooks integration)
-----------------------------------
-::
+    Hooks integration
+    -----------------
+    ::
 
     from logic.src.tracking.hooks import add_gradient_monitoring_hooks, register_hooks_with_run
     hook_data = add_gradient_monitoring_hooks(model)
@@ -57,9 +70,9 @@ Typical usage (hooks integration)
     run = wst.get_active_run()
     register_hooks_with_run(hook_data, run, prefix="train/hooks")
 
-Typical usage (profiling)
---------------------------
-::
+    Profiling
+    ---------
+    ::
 
     from logic.src.tracking.profiling import start_global_profiling, stop_global_profiling
     start_global_profiling()
