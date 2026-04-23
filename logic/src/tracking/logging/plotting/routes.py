@@ -1,5 +1,19 @@
-"""
-TSP and VRP route visualization.
+"""TSP and VRP route visualization utilities.
+
+This module provides tools for visualizing vehicle routing solutions, including
+Traveling Salesman Problem (TSP) tours and Capacitorized Vehicle Routing Problem
+(CVRP) routes. It supports plotting paths with arrows indicating direction,
+node scatter plots, and waste level bars for collection scenarios.
+
+Attributes:
+    draw_graph: Visualizes coordinate-free graphs using spring layouts.
+    plot_tsp: Renders a single-vehicle TSP tour on a 2D plane.
+    discrete_cmap: Utility for creating N-bin colormaps for vehicle indexing.
+    plot_vehicle_routes: Renders multi-vehicle routes with capacity annotations.
+
+Example:
+    >>> from logic.src.tracking.logging.plotting.routes import plot_tsp
+    >>> plot_tsp(xy_coords, tour_indices, matplotlib_ax)
 """
 
 from __future__ import annotations
@@ -16,11 +30,10 @@ from matplotlib.patches import Rectangle
 
 
 def draw_graph(distance_matrix):
-    """
-    Draws a networkx graph from a distance matrix using spring layout.
+    """Draws a networkx graph from a distance matrix using spring layout.
 
     Args:
-        distance_matrix (np.ndarray): The adjacency/distance matrix.
+        distance_matrix: The adjacency or distance matrix of shape [N, N].
     """
     # 1. Cast nx to Any to bypass the missing-attribute checks
     nx_any = cast(Any, nx)
@@ -41,13 +54,12 @@ def draw_graph(distance_matrix):
 # Code inspired by Google OR Tools plot:
 # https://github.com/google/or-tools/blob/fb12c5ded7423d524fc6c95656a9bdc290a81d4d/examples/python/cvrptw_plot.py
 def plot_tsp(xy, tour, ax1):
-    """
-    Plot the TSP tour on matplotlib axis ax1.
+    """Plot the TSP tour on matplotlib axis ax1.
 
     Args:
-        xy (np.ndarray): Node coordinates [N, 2].
-        tour (np.ndarray): Tour indices [N+1] (including return to start).
-        ax1 (matplotlib.axes.Axes): The axis to plot on.
+        xy: Node coordinates of shape [N, 2].
+        tour: Tour indices of shape [N+1] (including return to start).
+        ax1: The matplotlib axis to plot on.
     """
     ax1.set_xlim(0, 1)
     ax1.set_ylim(0, 1)
@@ -80,15 +92,14 @@ def plot_tsp(xy, tour, ax1):
 
 
 def discrete_cmap(N, base_cmap=None):
-    """
-    Create an N-bin discrete colormap from the specified input map.
+    """Create an N-bin discrete colormap from the specified input map.
 
     Args:
-        N (int): Number of bins.
-        base_cmap (str or Colormap, optional): Base colormap name.
+        N: Number of bins to create.
+        base_cmap: Base colormap name or object. Defaults to "viridis".
 
     Returns:
-        Colormap: Discretized colormap.
+        LinearSegmentedColormap: The discretized colormap.
     """
     # Use the more modern and robust colormaps registry
     if base_cmap is None:
@@ -108,17 +119,16 @@ def plot_vehicle_routes(
     waste_scale=1,
     round_waste=False,
 ):
-    """
-    Plot the vehicle routes on matplotlib axis ax1.
+    """Plot the vehicle routes on matplotlib axis ax1.
 
     Args:
-        data (dict): Dictionary with 'depot', 'locs', 'waste'.
-        route (Tensor): Route indices (single sequence with delimiters).
-        ax1 (matplotlib.axes.Axes): Axis to plot on.
-        markersize (int, optional): Size of markers. Defaults to 5.
-        visualize_waste (bool, optional): Visualize waste levels as bars. Defaults to False.
-        waste_scale (float, optional): Scaling factor for waste values. Defaults to 1.
-        round_waste (bool, optional): Round waste values in labels. Defaults to False.
+        data: Dictionary with 'depot', 'locs', 'waste' tensors.
+        route: Route indices (single sequence with delimiters).
+        ax1: Axis to plot on.
+        markersize: Size of markers. Defaults to 5.
+        visualize_waste: Visualize waste levels as bars. Defaults to False.
+        waste_scale: Scaling factor for waste values. Defaults to 1.
+        round_waste: Round waste values in labels. Defaults to False.
     """
     # Route is one sequence, separating different routes with 0 (depot)
     routes = [r[r != 0] for r in np.split(route.cpu().numpy(), np.where(route == 0)[0]) if (r != 0).any()]

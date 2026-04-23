@@ -1,6 +1,14 @@
-"""
-Visualization utilities for training logs and statistics.
+"""Visualization utilities for training logs and statistics.
+
 Separated from log_utils to isolate heavy plotting dependencies (matplotlib).
+
+Attributes:
+    log_training: Logs training history to Parquet, WandB, and generates Plots.
+    log_plot: Execution function for saving static plots.
+
+Example:
+    >>> from logic.src.tracking.logging.log_visualization import log_plot
+    >>> log_plot(fig=my_fig, fig_filename="plot.png")
 """
 
 import os
@@ -17,8 +25,7 @@ from logic.src.configs import Config
 
 
 def log_training(loss_keys: List[str], table_df: pd.DataFrame, cfg: Union[Config, DictConfig]) -> None:
-    """
-    Logs comprehensive training history to Parquet, WandB, and generates Plots.
+    """Logs comprehensive training history to Parquet, WandB, and generates Plots.
 
     Args:
         loss_keys: List of loss column names.
@@ -84,12 +91,11 @@ def log_training(loss_keys: List[str], table_df: pd.DataFrame, cfg: Union[Config
 
 
 def log_plot(visualize: bool = False, **kwargs: Any) -> None:
-    """
-    Execution function for saving static plots.
+    """Execution function for saving static plots.
 
     Args:
         visualize: Whether to show the plot. Defaults to False.
-        **kwargs: Must contain 'fig' (matplotlib Figure) and 'fig_filename' (str).
+        kwargs: Must contain 'fig' (matplotlib Figure) and 'fig_filename' (str).
     """
     kwargs["fig"].savefig(kwargs["fig_filename"], bbox_inches="tight")
     if visualize:

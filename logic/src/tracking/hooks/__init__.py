@@ -1,37 +1,23 @@
-"""
-PyTorch Hooks Utilities for WSmart-Route.
+"""PyTorch hooks and instrumentation utilities for WSmart-Route.
 
-This module provides comprehensive hooks for monitoring, debugging, and optimizing
-neural network training. Hooks can capture intermediate outputs, track gradients,
-monitor memory usage, and analyze weight updates.
+This package provides a comprehensive suite of hooks for monitoring, debugging,
+and optimizing neural network training and inference. It enables developers to
+capture intermediate activations, track gradient flow, monitor GPU memory
+utilization, and analyze weight evolution with minimal boilerplate.
 
-Usage Categories:
-    - Attention Hooks: Capture attention weights and masks
-    - Gradient Hooks: Monitor gradient flow and detect vanishing/exploding gradients
-    - Activation Hooks: Track activations, dead neurons, and sparsity
-    - Memory Hooks: Profile GPU memory usage and detect leaks
-    - Weight Hooks: Monitor weight updates and distribution changes
+Attributes:
+    add_attention_hooks: Utility to record attention head weights and masks.
+    add_gradient_monitoring_hooks: Utility to diagnose gradient flow issues.
+    add_activation_capture_hooks: Utility to record layer-wise activations.
+    add_memory_profiling_hooks: Utility to profile GPU memory consumption.
+    add_weight_change_monitor_hook: Utility to track parameter evolution.
+    register_hooks_with_run: Utility to log hook summaries to a tracking Run.
 
 Example:
-    >>> from logic.src.tracking.hooks import (
-    ...     add_gradient_monitoring_hooks,
-    ...     add_activation_capture_hooks,
-    ...     add_memory_profiling_hooks,
-    ... )
-    >>>
-    >>> # Monitor gradients during training
-    >>> grad_hooks = add_gradient_monitoring_hooks(model)
+    >>> from logic.src.tracking.hooks import add_gradient_monitoring_hooks
+    >>> hook_data = add_gradient_monitoring_hooks(model)
     >>> loss.backward()
-    >>> print_gradient_statistics(grad_hooks['gradients'])
-    >>>
-    >>> # Capture activations
-    >>> act_hooks = add_activation_capture_hooks(model, layer_types=(nn.Linear,))
-    >>> output = model(input)
-    >>> for name, activation in act_hooks['activations'].items():
-    ...     print(f"{name}: {activation.shape}")
-    >>>
-    >>> # Log hook stats to an active tracking run
-    >>> register_hooks_with_run(grad_hooks, run, prefix="train/hooks")
+    >>> # Statistics are automatically recorded in hook_data
 """
 
 from __future__ import annotations
@@ -122,18 +108,19 @@ __all__ = [
 
 
 def register_hooks_with_run(hook_data: Dict[str, Any], run: Any, prefix: str = "hooks") -> None:
-    """Log hook statistics to a tracking Run as params.
+    """Logs hook statistics and diagnostic summaries to a tracking Run.
 
-    Reads the result dict returned by any of the ``add_*_hook`` functions and
-    serialises the numeric summaries as flat params on *run* so they appear in
-    the experiment database alongside other hyper-parameters.
+    This function parses the data dictionaries returned by hook registration
+    functions and converts numeric summaries into flat parameters for the
+    experiment manager. This allows visualization of gradient health and
+    memory usage alongside hyper-parameters in the tracking UI.
 
     Args:
-        hook_data: Dict returned by one of the hook-registration helpers (must
-            contain at least one of ``gradients``, ``statistics``, ``sparsity``,
-            ``memory_stats``, ``dead_neurons``).
-        run: An active :class:`logic.src.tracking.core.run.Run` instance.
-        prefix: Key prefix used when logging params (default ``"hooks"``).
+        hook_data: Dict mapping created by hook helpers. Must contain at least
+            one of 'gradients', 'statistics', 'sparsity', 'memory_stats', or
+            'dead_neurons'.
+        run: An active tracking Run instance (e.g., MLflow, WandB, or WSTracker).
+        prefix: Path prefix for generated parameter names. Defaults to 'hooks'.
     """
     if run is None:
         return
@@ -142,10 +129,18 @@ def register_hooks_with_run(hook_data: Dict[str, Any], run: Any, prefix: str = "
 
     # Gradient statistics
     gradients = hook_data.get("gradients", {})
-    for layer, stats in gradients.items():
-        for stat_name, val in stats.items():
-            if isinstance(val, (int, float)):
-                params[f"{prefix}/grad/{layer}/{stat_name}"] = round(float(val), 6)
+    if isinstance(gradients, list):
+        # Format from add_gradient_monitoring_hooks is a list of dicts
+        for stat_entry in gradients:
+            layer = stat_entry.get("name", "unknown")
+            for stat_name, val in stat_entry.items():
+                if stat_name != "name" and isinstance(val, (int, float)):
+                    params[f"{prefix}/grad/{layer}/{stat_name}"] = round(float(val), 6)
+    elif isinstance(gradients, dict):
+        for layer, stats in gradients.items():
+            for stat_name, val in stats.items():
+                if isinstance(val, (int, float)):
+                    params[f"{prefix}/grad/{layer}/{stat_name}"] = round(float(val), 6)
 
     # Activation statistics (already-computed final stats dict)
     statistics = hook_data.get("statistics", {})

@@ -1,11 +1,15 @@
-"""
-MLOps Control Tower Dashboard - Main Entry Point.
+"""Main entry point for the MLOps Control Tower Dashboard.
 
-A unified Streamlit interface for monitoring Deep Learning training
-and visualizing VRP Simulation outputs.
+This module provides a unified Streamlit interface for monitoring deep
+reinforcement learning training sessions and visualizing VRP simulation
+outputs in a Digital Twin environment.
 
-Usage:
-    streamlit run logic/src/pipeline/ui/app.py
+Attributes:
+    main: The top-level launcher for the multi-page dashboard.
+
+Example:
+    To launch the dashboard from the project root:
+    $ streamlit run logic/src/ui/app.py
 """
 
 import time
@@ -32,7 +36,11 @@ from logic.src.ui.styles.css import CUSTOM_CSS
 
 
 def main() -> None:
-    """Main entry point for the dashboard."""
+    """Orchestrates the dashboard layout and page navigation.
+
+    Initializes the page configuration, applies custom styling, and
+    dispatches rendering to the selected sub-page based on sidebar input.
+    """
     # Page configuration
     st.set_page_config(**get_page_config())
 

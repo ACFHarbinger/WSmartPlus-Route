@@ -1,6 +1,28 @@
-"""
-Logging systems for terminal, file, and GUI communication.
-This module acts as a facade, delegating to specialized sub-modules.
+"""Logging systems for terminal, file, and GUI communication.
+
+This module acts as a facade, delegating to specialized sub-modules for
+analysis, GUI communication, metrics logging, and storage.
+
+Attributes:
+    log_values: Records generic metric values.
+    log_epoch: Logs training progress for an epoch.
+    get_loss_stats: Computes loss statistics from log buffers.
+    setup_system_logger: Initializes main system loggers.
+    sort_log: Sorts log records by timestamp.
+    log_to_json: Serializes log buffer to JSON.
+    log_to_json2: Alternative JSON serialization.
+    log_to_pickle: Serializes log buffer to Pickle.
+    update_log: Appends new records to a log file.
+    load_log_dict: Loads a log file into a dictionary.
+    output_stats: Prints statistical analysis of logs.
+    runs_per_policy: Aggregates run counts by policy.
+    final_simulation_summary: Produces end-of-sim summary table.
+    send_daily_output_to_gui: Dispatches daily updates to the GUI layer.
+    send_final_output_to_gui: Dispatches final results to the GUI layer.
+
+Example:
+    >>> from logic.src.tracking.logging.log_utils import log_epoch
+    >>> log_epoch(epoch=1, loss=0.5, accuracy=0.90)
 """
 
 from .modules.analysis import (

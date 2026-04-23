@@ -1,5 +1,19 @@
-"""
-Analysis utilities for simulation logs.
+"""Analysis utilities for experiment and simulation logs.
+
+This module provides tools for aggregating, summarizing, and reporting
+on experimental results. It handles loading log directories, computing
+mean and standard deviation statistics across multiple runs, and generating
+human-readable summaries for different routing policies and graph sizes.
+
+Attributes:
+    load_log_dict: Loads file paths for log JSONs grouped by problem size.
+    output_stats: Computes and persists statistical summaries (mean/std).
+    runs_per_policy: Detects and counts valid samples per solver policy.
+    final_simulation_summary: Prints a formatted metric report to the logger.
+
+Example:
+    >>> from logic.src.tracking.logging.modules.analysis import output_stats
+    >>> output_stats("logs/run1", 100, ["greedy", "alns"], ["profit", "km"])
 """
 
 import json
@@ -22,7 +36,17 @@ def load_log_dict(
     show_incomplete: bool = False,
     lock: Optional[threading.Lock] = None,
 ) -> Dict[str, str]:
-    """Load log file paths from directories keyed by graph size."""
+    """Load log file paths from directories keyed by graph size.
+
+    Args:
+        dir_paths: List of directory paths to scan.
+        nsamples: List of sample counts corresponding to each path.
+        show_incomplete: Whether to print warnings for missing samples. Defaults to False.
+        lock: Optional thread lock for safe file reading. Defaults to None.
+
+    Returns:
+        Dict[str, str]: Map of graph sizes to their corresponding mean log path.
+    """
     logs: Dict[str, str] = {}
     for path, ns in zip(dir_paths, nsamples, strict=False):
         gsize = int(os.path.basename(path).split("_")[1])
@@ -48,7 +72,20 @@ def output_stats(
     print_output: bool = False,
     lock: Optional[threading.Lock] = None,
 ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
-    """Compute mean and std statistics for policies and write to JSON."""
+    """Compute mean and std statistics for policies and write to JSON.
+
+    Args:
+        dir_path: Directory contains the 'log_full' results.
+        nsamples: Number of simulation samples in the full log.
+        policies: List of policy names to include in statistics.
+        keys: Metric names (e.g. 'profit', 'km') to aggregate.
+        sort_log_func: Optional function to reorder entries. Defaults to None.
+        print_output: Whether to print results to stdout. Defaults to False.
+        lock: Optional thread lock for concurrent file access. Defaults to None.
+
+    Returns:
+        Tuple[Dict[str, Any], Dict[str, Any]]: Mean dict and Std-dev dict.
+    """
     mean_filename = os.path.join(dir_path, f"log_mean_{nsamples}N.json")
     std_filename = os.path.join(dir_path, f"log_std_{nsamples}N.json")
     acquired = lock.acquire(timeout=udef.LOCK_TIMEOUT) if lock is not None else True
@@ -104,7 +141,18 @@ def runs_per_policy(
     print_output: bool = False,
     lock: Optional[threading.Lock] = None,
 ) -> List[Dict[str, List[int]]]:
-    """Count runs per policy from full log files."""
+    """Count runs per policy from full log files.
+
+    Args:
+        dir_paths: List of output directories to inspect.
+        nsamples: Expected sample counts for each directory.
+        policies: List of policy names to search for.
+        print_output: Whether to print counts to stdout. Defaults to False.
+        lock: Optional thread lock for path scanning. Defaults to None.
+
+    Returns:
+        List[Dict[str, List[int]]]: For each path, a map of policy to sample IDs found.
+    """
     runs_ls = []
     for path, ns in zip(dir_paths, nsamples, strict=False):
         dit: Dict[str, List[int]] = {pol: [] for pol in policies}
@@ -127,7 +175,13 @@ def runs_per_policy(
 
 
 def final_simulation_summary(log: Dict[str, Any], policy: str, n_samples: int) -> None:
-    """Log a final summary of simulation statistics for a policy."""
+    """Log a final summary of simulation statistics for a policy.
+
+    Args:
+        log: The summary log dictionary containing policy keys.
+        policy: The specific policy name to summarize.
+        n_samples: Total number of samples involved in the run.
+    """
     if policy not in log:
         logger.warning(f"Policy {policy} not found in log for summary.")
         return

@@ -1,4 +1,19 @@
-"""Central experiment tracker — the main entry-point of WSTracker."""
+"""Central experiment tracker — the main entry-point of WSTracker.
+
+This module provides the central coordination for tracking experiments. It
+manages the instantiation of the tracking store and orchestrates the
+creation and retrieval of tracked runs.
+
+Attributes:
+    Tracker: Central coordinator for experiment tracking.
+    get_tracker: Utility for singleton-style access to the active tracker.
+
+Example:
+    >>> from logic.src.tracking.core.tracker import Tracker
+    >>> tracker = Tracker(tracking_uri="./mlruns")
+    >>> with tracker.start_run("Optimization-v1") as run:
+    ...     run.log_param("optimizer", "adam")
+"""
 
 from __future__ import annotations
 
@@ -17,7 +32,14 @@ _tracker: Optional["Tracker"] = None
 
 
 def get_tracker() -> Optional["Tracker"]:
-    """Return the process-global :class:`Tracker` instance, or ``None``."""
+    """Returns the process-global Tracker instance.
+
+    Usually initialized by the training entry point via the wst.init() factory.
+
+    Returns:
+        Optional[Tracker]: The current process-global tracker instance, or
+            None if not yet initialized.
+    """
     return _tracker
 
 
@@ -27,21 +49,27 @@ def get_tracker() -> Optional["Tracker"]:
 
 
 class Tracker:
-    """Centralized MLFlow-style experiment tracker for WSmart-Route.
+    """Centralized experiment tracker for WSmart-Route.
 
-    A single :class:`Tracker` instance manages the SQLite database and
-    coordinates the creation of :class:`~logic.src.tracking.core.run.Run`
-    objects.  One tracker is typically shared across the lifetime of a
-    training session or simulation batch.
+    A single Tracker instance manages the SQLite database connectivity and
+    coordinates the creation of Run objects. It acts as the primary
+    administration layer for experiments and runs, ensuring that artifacts
+    and metrics are logically grouped.
 
-    Args:
-        tracking_uri: Directory that will hold ``tracking.db`` and the
-            ``artifacts/`` sub-tree.
-        buffer_size: Number of metric points to buffer per run before
-            flushing to SQLite.
+    Attributes:
+        tracking_uri: Directory holding 'tracking.db' and the 'artifacts/' tree.
+        buffer_size: Default metric buffer size for runs created by this tracker.
     """
 
     def __init__(self, tracking_uri: str, buffer_size: int = 200) -> None:
+        """Initializes a new experiment tracker.
+
+        Args:
+            tracking_uri: Directory that will hold the tracking database and
+                the artifact storage sub-tree.
+            buffer_size: Number of metric points to buffer per run before
+                flushing to SQLite. Defaults to 200.
+        """
         self.tracking_uri = tracking_uri
         self.buffer_size = buffer_size
 
@@ -66,24 +94,23 @@ class Tracker:
         tags: Optional[Dict[str, str]] = None,
         description: str = "",
     ) -> Run:
-        """Create a new run and return it as a context manager.
+        """Creates a new run record and returns an active run instance.
 
-        Example::
-
-            with tracker.start_run("AM-VRPP-50", run_type="training") as run:
-                run.log_params({"lr": 1e-4})
-                trainer.fit(model)
+        The returned run object is intended to be used as a context manager to
+        ensure status is correctly updated on completion or failure.
 
         Args:
-            experiment_name: Name of the parent experiment (created if absent).
-            run_name: Optional human-readable run label.
-            run_type: Semantic type: ``'training'``, ``'simulation'``,
-                ``'evaluation'``, or ``'data_gen'``.
-            tags: Key/value metadata to attach immediately.
-            description: Free-text experiment description (first call only).
+            experiment_name: Name of the parent experiment. Created if it
+                does not exist.
+            run_name: Optional human-readable label for the run.
+            run_type: Category identifier (e.g., 'training', 'simulation',
+                'evaluation', 'data_gen').
+            tags: Initial metadata tags to attach to the run.
+            description: Detailed text for the experiment. Only applied if
+                creating a new experiment.
 
         Returns:
-            A :class:`~logic.src.tracking.core.run.Run` instance.
+            Run: A fresh tracking run instance.
         """
         exp_id = self._store.get_or_create_experiment(experiment_name, description)
         run_id = str(uuid.uuid4())
@@ -100,20 +127,20 @@ class Tracker:
         return run
 
     def attach_run(self, run_id: str) -> Run:
-        """Attach to an *existing* run and register it as the active run.
+        """Attaches to an existing run ID and registers it as active.
 
-        Useful in worker sub-processes that share the same database but need
-        to write under the parent process's run context.
+        Specifically useful for distributed workers or sub-processes that need
+        to log back into a run initiated by a parent process. This restores
+        the artifact directory context from the database.
 
         Args:
-            run_id: UUID of the run created by the parent process.
+            run_id: Unique UUID string identifying the target run.
 
         Returns:
-            A :class:`~logic.src.tracking.core.run.Run` that writes to
-            the existing database record.
+            Run: A tracking run instance re-attached to the existing database record.
 
         Raises:
-            ValueError: If *run_id* does not exist in the store.
+            ValueError: If the provided run_id cannot be found in the store.
         """
         run_data = self._store.get_run(run_id)
         if run_data is None:
@@ -128,7 +155,11 @@ class Tracker:
     # ------------------------------------------------------------------
 
     def list_experiments(self) -> List[Dict[str, Any]]:
-        """Return all experiments ordered by creation time (newest first)."""
+        """Retrieves a list of all experiments managed by this tracker.
+
+        Returns:
+            List[Dict[str, Any]]: Experiment records ordered by creation date.
+        """
         return self._store.list_experiments()
 
     def list_runs(
@@ -137,7 +168,17 @@ class Tracker:
         run_type: Optional[str] = None,
         status: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
-        """Return runs, optionally filtered by experiment, type, or status."""
+        """Retrieves a filtered list of runs across all experiments.
+
+        Args:
+            experiment_name: Optional filter to restrict results to a specific
+                experiment name.
+            run_type: Optional filter by run category (e.g., 'training').
+            status: Optional filter by terminal status (e.g., 'completed').
+
+        Returns:
+            List[Dict[str, Any]]: Matching run records ordered by start time.
+        """
         exp_id: Optional[int] = None
         if experiment_name:
             for exp in self._store.list_experiments():
@@ -147,5 +188,13 @@ class Tracker:
         return self._store.list_runs(experiment_id=exp_id, run_type=run_type, status=status)
 
     def get_run(self, run_id: str) -> Optional[Dict[str, Any]]:
-        """Return the raw run record dict, or ``None`` if not found."""
+        """Retrieves the record for a specific run.
+
+        Args:
+            run_id: Unique UUID string identifying the run.
+
+        Returns:
+            Optional[Dict[str, Any]]: The run record dictionary containing
+                metadata and artifact locations, or None if not found.
+        """
         return self._store.get_run(run_id)

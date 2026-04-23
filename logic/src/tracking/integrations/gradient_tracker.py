@@ -1,32 +1,29 @@
-"""
-Gradient norm and weight distribution tracker for PyTorch Lightning training.
+"""Gradient and weight distribution tracker for PyTorch Lightning.
 
-Logs per-layer gradient norms, global gradient norm, weight distributions,
-and grad/weight ratios to W&B or TensorBoard to monitor for mode collapse,
-vanishing gradients, or exploding gradients during neural routing model training.
+This module provides the :class:`GradientTrackerCallback` which monitors
+gradient norms, weight distributions, and stability ratios during training.
+It integrates with W&B and TensorBoard to provide visual diagnostics for neural
+routing model convergence.
 
-Zero-interference design: all logging is guarded by ``log_freq`` / ``hist_freq``
-parameters and does NOT modify any tensor states.
+Attributes:
+    GradientTrackerCallback: Callback for monitoring gradient and weight dynamics.
 
-Usage (Hydra config):
-    callbacks:
-      - gradient_tracker:
-          _target_: logic.src.pipeline.callbacks.pytorch.gradient_tracker.GradientTrackerCallback
-          log_freq: 50
-          hist_freq: 200
-          log_histograms: true
-          prefix: "debug/"
+Example:
+    >>> from logic.src.tracking.integrations.gradient_tracker import GradientTrackerCallback
+    >>> tracker = GradientTrackerCallback(log_freq=10, prefix="train/debug/")
 """
 
 from __future__ import annotations
 
 import math
 import warnings
-from typing import Any, Dict, List, Optional, Set, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, cast
 
-import pytorch_lightning as pl
-import torch.nn as nn
 from pytorch_lightning.callbacks import Callback
+
+if TYPE_CHECKING:
+    import pytorch_lightning as pl
+    import torch.nn as nn
 
 try:
     from pytorch_lightning.loggers import TensorBoardLogger, WandbLogger
@@ -41,31 +38,20 @@ except ImportError:
 
 
 class GradientTrackerCallback(Callback):
-    """
-    Tracks gradient norms and weight distributions per layer during training.
+    """Tracks gradient norms and weight distributions per layer during training.
 
-    Logs the following metrics to the active logger (W&B or TensorBoard):
+    Logs diagnostic metrics including global and per-layer gradient norms,
+    grad/weight ratios, and optional histograms to the active logger.
 
-    * ``{prefix}global_grad_norm`` — L2 norm across all tracked parameters.
-    * ``{prefix}grad_norm/{layer}`` — Per-layer gradient L2 norm.
-    * ``{prefix}grad_weight_ratio/{layer}`` — Ratio of gradient norm to weight
-      norm (a stability diagnostic; large values suggest exploding gradients).
-    * ``{prefix}weights/{layer}`` — Weight histogram (W&B / TensorBoard).
-    * ``{prefix}gradients/{layer}`` — Gradient histogram (W&B / TensorBoard).
-
-    Args:
-        log_freq: Log scalar gradient norms every N global training steps. Default 50.
-        hist_freq: Log weight/gradient histograms every N global steps. Default 200.
-        norm_type: Norm type for gradient computation. Accepts 1, 2, or ``float("inf")``.
-            Default 2.0.
-        log_histograms: Whether to log weight and gradient histograms.
-            Requires W&B or TensorBoard logger. Default True.
-        include_bias: Whether to track bias parameters. Default False.
-        layer_filter: Optional list of substrings. Only layers whose parameter
-            name contains at least one substring are tracked. None = track all. Default None.
-        prefix: Metric key prefix prepended to all logged keys. Default ``"debug/"``.
-        max_grad_norm_alert: Emit a ``RuntimeWarning`` when the global gradient
-            norm exceeds this value. Set to None to disable. Default 100.0.
+    Attributes:
+        log_freq: Step frequency for scalar logging.
+        hist_freq: Step frequency for histogram logging.
+        norm_type: L-norm type for gradient calculation.
+        log_histograms: If True, enables weight/gradient histogram capture.
+        include_bias: If True, tracks bias parameters in addition to weights.
+        layer_filter: List of substrings to filter tracked layer names.
+        prefix: Namespace prefix for all logged metric keys.
+        max_grad_norm_alert: Threshold for emitting gradient explosion warnings.
     """
 
     def __init__(
@@ -79,6 +65,18 @@ class GradientTrackerCallback(Callback):
         prefix: str = "debug/",
         max_grad_norm_alert: Optional[float] = 100.0,
     ) -> None:
+        """Initializes the gradient tracking callback.
+
+        Args:
+            log_freq: Scalar logging frequency. Defaults to 50.
+            hist_freq: Histogram logging frequency. Defaults to 200.
+            norm_type: Order of the norm (1, 2, or inf). Defaults to 2.0.
+            log_histograms: Whether to log distribution histograms. Defaults to True.
+            include_bias: Whether to track bias terms. Defaults to False.
+            layer_filter: Optional substrings to filter parameter names.
+            prefix: Metric key prefix. Defaults to "debug/".
+            max_grad_norm_alert: Gradient norm threshold for runtime warnings.
+        """
         super().__init__()
         self.log_freq = log_freq
         self.hist_freq = hist_freq
@@ -97,7 +95,14 @@ class GradientTrackerCallback(Callback):
     # ------------------------------------------------------------------
 
     def _should_track(self, name: str) -> bool:
-        """Return True if this parameter name should be included in logging."""
+        """Determines if a parameter should be included in tracking.
+
+        Args:
+            name: Parameter name (e.g., 'encoder.layers.0.weight').
+
+        Returns:
+            bool: True if the parameter passes all filters.
+        """
         if not self.include_bias and name.endswith(".bias"):
             return False
         if self.layer_filter is None:
@@ -105,7 +110,14 @@ class GradientTrackerCallback(Callback):
         return any(substr in name for substr in self.layer_filter)
 
     def _grad_norm(self, param: nn.Parameter) -> Optional[float]:
-        """Compute gradient norm for one parameter tensor. Returns None if no grad."""
+        """Calculates the gradient norm for a single parameter tensor.
+
+        Args:
+            param: The parameter object to inspect.
+
+        Returns:
+            Optional[float]: The computed norm, or None if no gradient exists.
+        """
         if param.grad is None:
             return None
         if math.isinf(self.norm_type):
@@ -113,7 +125,14 @@ class GradientTrackerCallback(Callback):
         return param.grad.data.norm(self.norm_type).item()
 
     def _detect_logger(self, trainer: pl.Trainer) -> Optional[str]:
-        """Return ``'wandb'``, ``'tensorboard'``, or None for the active logger."""
+        """Identifies the active experiment logger type.
+
+        Args:
+            trainer: The PyTorch Lightning trainer instance.
+
+        Returns:
+            Optional[str]: 'wandb', 'tensorboard', or None.
+        """
         if WandbLogger is None or TensorBoardLogger is None:
             return None
         for logger in trainer.loggers:
@@ -132,11 +151,11 @@ class GradientTrackerCallback(Callback):
         trainer: pl.Trainer,
         pl_module: pl.LightningModule,
     ) -> None:
-        """
-        Hook called immediately after ``loss.backward()``.
+        """Hook called immediately after backward pass to log gradient norms.
 
-        Logs per-layer gradient norms and the global grad norm every
-        ``log_freq`` steps. Does NOT clip or modify any gradients.
+        Args:
+            trainer: Active Lightning trainer.
+            pl_module: Active Lightning module.
         """
         if not trainer.is_global_zero:
             return
@@ -197,10 +216,14 @@ class GradientTrackerCallback(Callback):
         batch: Any,
         batch_idx: int,
     ) -> None:
-        """
-        Log weight and gradient histograms every ``hist_freq`` steps.
+        """Hook called at batch end to log distribution histograms.
 
-        Dispatches to W&B or TensorBoard depending on the active logger.
+        Args:
+            trainer: Active Lightning trainer.
+            pl_module: Active Lightning module.
+            outputs: Batch outputs.
+            batch: Data batch.
+            batch_idx: Global batch index.
         """
         if not trainer.is_global_zero:
             return
@@ -223,7 +246,12 @@ class GradientTrackerCallback(Callback):
         pl_module: pl.LightningModule,
         step: int,
     ) -> None:
-        """Send weight and gradient histograms to W&B."""
+        """Serializes and sends histograms to Weights & Biases.
+
+        Args:
+            pl_module: Lightning module containing parameters.
+            step: Global step index.
+        """
         if wandb is None or wandb.run is None:
             return
 
@@ -248,7 +276,13 @@ class GradientTrackerCallback(Callback):
         pl_module: pl.LightningModule,
         step: int,
     ) -> None:
-        """Send weight and gradient histograms to TensorBoard."""
+        """Serializes and sends histograms to TensorBoard.
+
+        Args:
+            trainer: Lightning trainer instance.
+            pl_module: Lightning module containing parameters.
+            step: Global step index.
+        """
         if TensorBoardLogger is None:
             return
 

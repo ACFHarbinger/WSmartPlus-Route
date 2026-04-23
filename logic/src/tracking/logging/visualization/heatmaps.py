@@ -1,7 +1,17 @@
-"""
-Heatmap visualization tools.
+"""Heatmap visualization tools for model interpretability.
 
-Functions for plotting attention weights and logit lens analysis.
+This module provides tools for visualizing internal model states as heatmaps.
+It includes support for plotting attention weights across transformer layers
+and implementing the 'Logit Lens' technique to observe the evolution of
+action probability distributions through sequential encoder blocks.
+
+Attributes:
+    plot_attention_heatmaps: Visualizes Q, K, V weight matrices as heatmaps.
+    plot_logit_lens: Projects intermediate layers to detection logits.
+
+Example:
+    >>> from logic.src.tracking.logging.visualization import heatmaps
+    >>> heatmaps.plot_attention_heatmaps(model, "output/heatmaps/")
 """
 
 import os
@@ -16,13 +26,12 @@ import matplotlib.pyplot as plt
 
 
 def plot_attention_heatmaps(model, output_dir, epoch=0):
-    """
-    Plots heatmaps of attention weights (Query, Key, Value) for all layers.
+    """Plots heatmaps of attention weights (Query, Key, Value) for all layers.
 
     Args:
-        model (nn.Module): The model.
-        output_dir (str): Directory to save images.
-        epoch (int, optional): Current epoch. Defaults to 0.
+        model: The PyTorch neural network to inspect.
+        output_dir: Directory where the generated images will be saved.
+        epoch: Current training epoch index. Defaults to 0.
     """
     print("Plotting Attention Heatmaps...")
     if not os.path.exists(output_dir):
@@ -62,16 +71,19 @@ def plot_attention_heatmaps(model, output_dir, epoch=0):
 
 
 def plot_logit_lens(model, x_batch, output_file, epoch=0):
-    """
-    Implements the 'Logit Lens' technique for Attention Models.
-    Project intermediate encoder layer outputs through the decoder's
+    """Implements the 'Logit Lens' technique for Attention Models.
+
+    Projects intermediate encoder layer outputs through the decoder's
     attention mechanism to see what the 'best' node is at each layer.
 
     Args:
-        model (nn.Module): The Attention Model.
-        x_batch (dict): Input batch.
-        output_file (str): Filename to save the heatmap.
-        epoch (int): Current epoch.
+        model: The Attention Model instance.
+        x_batch: Input batch of graph data.
+        output_file: File path where the heatmap image will be saved.
+        epoch: Current training epoch index.
+
+    Returns:
+        None
     """
     print("Computing Logit Lens...")
     model.eval()

@@ -1,8 +1,17 @@
 """Simulation pipeline hooks for WSTracker.
 
-Provides :class:`SimulationRunTracker`, a lightweight helper that wraps an
-active :class:`~logic.src.tracking.core.run.Run` and adds simulation-specific
-logging conventions (per-day metrics, per-policy aggregates, final results).
+This module provides :class:`SimulationRunTracker`, a lightweight helper that
+wraps an active WSTracker run and adds simulation-specific logging conventions.
+It ensures that multi-policy and multi-sample simulation experiments are
+correctly namespaced and traceable in the experiment database.
+
+Attributes:
+    SimulationRunTracker: Helper for namespaced logging in simulation runs.
+
+Example:
+    >>> tracker = get_sim_tracker("ALNS", 42)
+    >>> if tracker:
+    ...     tracker.log_day(1, {"profit": 1500.0})
 """
 
 from __future__ import annotations
@@ -17,20 +26,27 @@ from logic.src.tracking.core.run import Run, get_active_run
 class SimulationRunTracker:
     """Simulation-specific metric logger wrapping an active :class:`Run`.
 
-    Each instance corresponds to one ``(policy, sample_id)`` pair inside
-    a larger simulation experiment.  All metric keys are namespaced as::
+    Provides a namespaced interface for logging per-day metrics and final
+    aggregates. All keys are prefixed with ``{policy}/s{sample}`` to allow
+    multiple independent simulation evaluations to be recorded within the
+    same parent experiment run.
 
-        {policy_name}/sample_{sample_id}/{metric}
-
-    so multiple policies and samples can coexist inside a single parent run.
-
-    Args:
-        run: The active tracking run.
-        policy_name: Name of the routing policy being evaluated.
-        sample_id: Index of the simulation instance/seed.
+    Attributes:
+        _run: The active tracking run being used as a sink.
+        policy_name: Name of the evaluation policy.
+        sample_id: Index of the current simulation seed/sample.
+        _start_wall: Monotonic start time for calculation of wall-clock duration.
+        _prefix: Precomputed namespace prefix for metric keys.
     """
 
     def __init__(self, run: Run, policy_name: str, sample_id: int) -> None:
+        """Initializes the simulation tracker.
+
+        Args:
+            run: The active tracking run.
+            policy_name: Name of the routing policy.
+            sample_id: Numeric index of the simulation sample.
+        """
         self._run = run
         self.policy_name = policy_name
         self.sample_id = sample_id
@@ -42,12 +58,11 @@ class SimulationRunTracker:
     # ------------------------------------------------------------------
 
     def log_day(self, day: int, metrics: Dict[str, Any]) -> None:
-        """Log scalar metrics for a single simulation day.
+        """Logs scalar metrics for a single simulation day.
 
         Args:
-            day: The day index (used as the ``step`` dimension).
-            metrics: Key/value pairs of day metrics
-                (non-numeric values are silently ignored).
+            day: Current simulation day (used as step).
+            metrics: Dictionary of metrics to log. Non-numeric values are skipped.
         """
         tagged: Dict[str, float] = {}
         for k, v in metrics.items():
@@ -61,11 +76,11 @@ class SimulationRunTracker:
     # ------------------------------------------------------------------
 
     def log_final(self, metric_keys: List[str], metric_values: List[Any]) -> None:
-        """Log the end-of-simulation aggregated metrics.
+        """Logs end-of-simulation summary metrics and total wall-clock time.
 
         Args:
-            metric_keys: Ordered list of metric names (e.g. ``SIM_METRICS``).
-            metric_values: Corresponding numeric values.
+            metric_keys: Names of the aggregated metrics.
+            metric_values: Scalar values corresponding to the keys.
         """
         prefix = f"{self._prefix}/final"
         for key, val in zip(metric_keys, metric_values, strict=False):
@@ -81,7 +96,11 @@ class SimulationRunTracker:
     # ------------------------------------------------------------------
 
     def log_failure(self, error: str) -> None:
-        """Tag the parent run with a failure notice for this (policy, sample)."""
+        """Logs a failure tag to the run for documentation of crashed samples.
+
+        Args:
+            error: Descriptive error message or stack trace snippet.
+        """
         tag_key = f"error.{self.policy_name}.s{self.sample_id}"
         self._run.set_tag(tag_key, error[:250])
 
@@ -95,15 +114,18 @@ def get_sim_tracker(
     policy_name: str,
     sample_id: int,
 ) -> Optional[SimulationRunTracker]:
-    """Return a :class:`SimulationRunTracker` for the active run, or ``None``.
+    """Obtains a properly initialized simulation tracker for the active run.
 
-    This is the primary entry-point used inside simulation worker processes
-    to obtain a properly namespaced tracker without access to the parent
-    Tracker instance.
+    This factory is the preferred method for workers to initialize tracking
+    without requiring direct access to a global tracker instance.
 
     Args:
-        policy_name: Policy name string.
-        sample_id: Sample/seed index.
+        policy_name: Name of the policy.
+        sample_id: Unique sample index.
+
+    Returns:
+        Optional[SimulationRunTracker]: An initialized tracker, or None if no
+            active run is detected.
     """
     run = get_active_run()
     if run is None:

@@ -1,8 +1,14 @@
-"""
-Simulation analytics functions for the dashboard.
+"""Simulation analytics and statistical computation services.
 
-Extracted from ``data_loader.py`` to keep module sizes under 400 LoC.
-Functions are re-exported from ``data_loader.py`` for backward compatibility.
+This module provides specialized logic for computing aggregate performance
+metrics across multi-day simulation runs. It supports cumulative totals,
+day-over-day delta calculation, and descriptive statistics (mean, std,
+min, max) for all primary performance indicators.
+
+Example:
+    >>> from logic.src.ui.services.simulation_analytics import compute_cumulative_stats
+    >>> totals = compute_cumulative_stats(log_entries, policy="greedy")
+    >>> print(f"Total distance: {totals['Total Distance (km)']:.2f} km")
 """
 
 import statistics as stats_mod
@@ -18,7 +24,16 @@ def _filter_entries(
     policy: Optional[str] = None,
     sample_id: Optional[int] = None,
 ) -> List[DayLogEntry]:
-    """Filter entries by policy and/or sample_id."""
+    """Internal helper to filter entries by policy and sample ID.
+
+    Args:
+        entries: Master list of log entries.
+        policy: Optional filter for policy identifier.
+        sample_id: Optional filter for simulation sample index.
+
+    Returns:
+        List[DayLogEntry]: The filtered subset of entries.
+    """
     result = entries
     if policy:
         result = [e for e in result if e.policy == policy]
@@ -32,16 +47,15 @@ def compute_cumulative_stats(
     policy: Optional[str] = None,
     sample_id: Optional[int] = None,
 ) -> Dict[str, float]:
-    """
-    Compute cumulative totals across all days for a policy/sample.
+    """Computes cumulative totals across all days for a policy and sample.
 
     Args:
-        entries: All log entries.
-        policy: Optional policy filter.
-        sample_id: Optional sample filter.
+        entries: Master list of log entries.
+        policy: Optional filter for policy identifier.
+        sample_id: Optional filter for simulation sample index.
 
     Returns:
-        Dict with total_profit, total_km, total_kg, total_overflows, total_cost, avg_efficiency.
+        Dict[str, float]: Mapping of 'Total <Metric>' to its cumulative value.
     """
     filtered = _filter_entries(entries, policy, sample_id)
     if not filtered:
@@ -76,17 +90,16 @@ def compute_day_deltas(
     policy: Optional[str] = None,
     sample_id: Optional[int] = None,
 ) -> Dict[str, Optional[float]]:
-    """
-    Compute metric deltas between current day and previous day.
+    """Computes metric deltas between the current day and the previous day.
 
     Args:
-        entries: All log entries.
-        current_day: The day to compute deltas for.
-        policy: Optional policy filter.
-        sample_id: Optional sample filter.
+        entries: Master list of log entries.
+        current_day: The simulation day for which to compute deltas.
+        policy: Optional filter for policy identifier.
+        sample_id: Optional filter for simulation sample index.
 
     Returns:
-        Dict of metric_name -> delta (current - previous), or None if no previous.
+        Dict[str, Optional[float]]: Metric names mapped to their day-over-day change.
     """
     filtered = _filter_entries(entries, policy, sample_id)
 
@@ -114,15 +127,14 @@ def compute_summary_statistics(
     entries: List[DayLogEntry],
     policy: Optional[str] = None,
 ) -> Dict[str, Dict[str, float]]:
-    """
-    Compute descriptive statistics (mean, std, min, max, total) per metric across all days.
+    """Computes aggregate descriptive statistics across all simulation days.
 
     Args:
-        entries: All log entries.
-        policy: Optional policy filter.
+        entries: Master list of log entries.
+        policy: Optional filter for policy identifier.
 
     Returns:
-        Dict of metric_name -> {mean, std, min, max, total}.
+        Dict[str, Dict[str, float]]: Metric names mapped to {mean, std, min, max, total}.
     """
     filtered = _filter_entries(entries, policy)
     if not filtered:
@@ -158,18 +170,17 @@ def get_metric_history(
     sample_id: Optional[int] = None,
     last_n_days: int = 7,
 ) -> List[float]:
-    """
-    Get the last N days of mean values for a metric (for sparklines).
+    """Gets the last N days of mean values for a metric (used for sparklines).
 
     Args:
-        entries: All log entries.
-        metric: The metric name.
-        policy: Optional policy filter.
-        sample_id: Optional sample filter.
-        last_n_days: Number of recent days to include.
+        entries: Master list of log entries.
+        metric: The specific metric identifier to track.
+        policy: Optional filter for policy identifier.
+        sample_id: Optional filter for simulation sample index.
+        last_n_days: Number of historical days to retrieve. Defaults to 7.
 
     Returns:
-        List of mean values ordered by day (oldest first).
+        List[float]: Sequence of daily mean values (oldest first).
     """
     filtered = _filter_entries(entries, policy, sample_id)
     if not filtered:

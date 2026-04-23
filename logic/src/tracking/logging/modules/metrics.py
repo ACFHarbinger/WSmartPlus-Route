@@ -1,5 +1,18 @@
-"""
-Metrics logging for training (terminal, WandB, TensorBoard).
+"""Training metrics logging and synchronization.
+
+This module provides functions for recording real-time training progress across
+multiple backends, including standard console output, TensorBoard, and
+Weights & Biases (WandB). It handles loss aggregation, gradient norm
+tracking, and epoch-level statistics generation.
+
+Attributes:
+    log_values: Per-step metric logging to all active backends.
+    log_epoch: Summarizes loss metrics at the end of an epoch.
+    get_loss_stats: Computes descriptive statistics for a loss distribution.
+
+Example:
+    >>> from logic.src.tracking.logging.modules import metrics
+    >>> metrics.log_values(cost, norms, epoch, batch_id, step, l_dict, tb, cfg)
 """
 
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -22,7 +35,18 @@ def log_values(
     tb_logger: Any,
     cfg: Union[Config, DictConfig],
 ) -> None:
-    """Logs training metrics to console, TensorBoard, and WandB."""
+    """Logs training metrics to console, TensorBoard, and WandB.
+
+    Args:
+        cost: The batch cost tensor.
+        grad_norms: Tuple of (raw_norms, clipped_norms).
+        epoch: Current training epoch index.
+        batch_id: Index of the current batch within the epoch.
+        step: Global training step index.
+        l_dict: Dictionary of auxiliary losses (e.g. nll, reinforce).
+        tb_logger: TensorBoard SummaryWriter instance.
+        cfg: Root Hydra configuration.
+    """
     avg_cost: float = cost.mean().item()
     norms, norms_clipped = grad_norms
     train = cfg.train
@@ -82,7 +106,14 @@ def log_epoch(
     epoch_loss: Dict[str, List[torch.Tensor]],
     cfg: Union[Config, DictConfig],
 ) -> None:
-    """Logs summary statistics for a completed epoch."""
+    """Logs summary statistics for a completed epoch.
+
+    Args:
+        x_tup: Tuple of (unit_name, index) e.g., ("epoch", 10).
+        loss_keys: List of keys to summarize from the epoch_loss dict.
+        epoch_loss: Map of keys to lists of per-step loss tensors.
+        cfg: Root Hydra configuration.
+    """
     wandb_mode: str = getattr(cfg.rl, "wandb_mode", "disabled")
 
     log_str: str = f"Finished {x_tup[0]} {x_tup[1]} log:"
@@ -102,7 +133,14 @@ def log_epoch(
 
 
 def get_loss_stats(epoch_loss: Dict[str, List[torch.Tensor]]) -> List[float]:
-    """Computes mean, std, min, and max for each loss key."""
+    """Computes mean, std, min, and max for each loss key.
+
+    Args:
+        epoch_loss: Map of keys to lists of per-step loss tensors.
+
+    Returns:
+        List[float]: Flattened list of [mean, std, min, max] for each key.
+    """
     loss_stats: List[float] = []
     for key in epoch_loss:
         loss_tensor: torch.Tensor = torch.cat(epoch_loss[key]).float()

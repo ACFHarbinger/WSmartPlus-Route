@@ -1,9 +1,14 @@
 """Entrypoint for the tracking database CLI.
 
-Usage::
-    python -m logic.src.tracking.database inspect
-    python -m logic.src.tracking.database compact
-    python -m logic.src.tracking.database clean
+This module provides the command-line interface for the WSmart-Route tracking
+system. It exposes subcommands for database inspection, maintenance, analytics,
+and data export.
+
+Attributes:
+    main: Function responsible for parsing arguments and dispatching commands.
+
+Example:
+    $ python -m logic.src.tracking.database stats --experiment AM-VRPP-50
 """
 
 import argparse
@@ -20,6 +25,17 @@ from logic.src.tracking.database import (
 
 
 def main() -> None:
+    """Parses command-line arguments and executes the requested database command.
+
+    Supported subcommands:
+        inspect: Print database overview and recent runs.
+        clean: Delete all data, preserve schema.
+        compact: Integrity check, WAL checkpoint, VACUUM.
+        stats: Show comprehensive database statistics.
+        metrics: Show per-metric evolution statistics.
+        prune: Remove stale or failed runs.
+        export: Serializes a run record to JSON.
+    """
     parser = argparse.ArgumentParser(
         prog="commands",
         description="WSmart-Route tracking database management commands.",

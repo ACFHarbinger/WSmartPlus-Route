@@ -1,7 +1,17 @@
-"""
-Visualization helper utilities.
+"""Visualization helper utilities for the tracking system.
 
-Provides data generation and model loading functions used across visualization modules.
+This module provides support tools for model visualization, including
+synthetic data generation for testing, a model wrapper for loss landscape
+analysis, and model loading functions that recover states from checkpoints.
+
+Attributes:
+    get_batch: Generates a random batch of routing data.
+    MyModelWrapper: Adapter class for loss-landscapes integration.
+    load_model_instance: Reconstructs a model from a saved state.
+
+Example:
+    >>> from logic.src.tracking.logging.visualization import helpers
+    >>> batch = helpers.get_batch(device, size=50)
 """
 
 import torch
@@ -13,17 +23,16 @@ from logic.src.utils.model.problem_factory import load_problem
 
 
 def get_batch(device, size=50, batch_size=32, temporal_horizon=0):
-    """
-    Generates a random batch of VRP-like data for visualization purposes.
+    """Generates a random batch of VRP-like data for visualization purposes.
 
     Args:
-        device (torch.device): Device to creating tensors on.
-        size (int, optional): Graph size. Defaults to 50.
-        batch_size (int, optional): Batch size. Defaults to 32.
-        temporal_horizon (int, optional): Temporal horizon for features. Defaults to 0.
+        device: Device to create tensors on (e.g. 'cpu' or 'cuda').
+        size: Number of nodes in the graph. Defaults to 50.
+        batch_size: Number of instances in the batch. Defaults to 32.
+        temporal_horizon: Time steps for dynamic features. Defaults to 0.
 
     Returns:
-        dict: Batch dictionary with keys 'depot', 'loc', 'dist', 'waste', etc.
+        Dict[str, torch.Tensor]: Batch dictionary containing 'depot', 'loc', etc.
     """
     # TODO: This should ideally use the problem's generate_instance or make_dataset
     all_coords = torch.rand(batch_size, size + 1, 2, device=device)
@@ -49,12 +58,21 @@ def get_batch(device, size=50, batch_size=32, temporal_horizon=0):
 
 
 class MyModelWrapper(nn.Module):
-    """
-    Wraps a model to conform to the interface expected by loss-landscapes library.
+    """Wraps a model to conform to the interface expected by loss-landscapes.
+
+    This adapter ensures that the model can be called with a standardized
+    forward signature during 3D loss surface perturbations.
+
+    Attributes:
+        model (nn.Module): The underlying neural network being wrapped.
     """
 
     def __init__(self, model):
-        """Initializes the wrapper."""
+        """Initializes the wrapper.
+
+        Args:
+            model: The neural network model to wrap for visualization.
+        """
         super().__init__()
         self.model = model
 
@@ -67,23 +85,33 @@ class MyModelWrapper(nn.Module):
         mask=None,
         expert_pi=None,
     ):
-        """Forward pass of the model."""
+        """Forward pass of the model.
+
+        Args:
+            input: Input batch data.
+            cost_weights: Scaling factors for loss components. Defaults to None.
+            return_pi: Whether to return the policy distribution. Defaults to False.
+            pad: Whether to pad the input sequences. Defaults to False.
+            mask: Optional attention mask. Defaults to None.
+            expert_pi: Ground truth policy for comparison. Defaults to None.
+
+        Returns:
+            Any: The output of the underlying model.
+        """
         return self.model(input, cost_weights, return_pi, pad, mask, expert_pi)
 
 
 def load_model_instance(model_path, device, size=100, problem_name="wcvrp"):
-    """
-    Loads a model for visualization, instantiating it with default architecture parameters.
-    Note: Architecture parameters are currently hardcoded for visualization defaults.
+    """Loads a model for visualization with default architecture parameters.
 
     Args:
-        model_path (str): Path to checkpoint.
-        device (torch.device): Device.
-        size (int, optional): Problem size. Defaults to 100.
-        problem_name (str, optional): Problem name. Defaults to 'wcvrp'.
+        model_path: Absolute or relative path to the .pt checkpoint.
+        device: Device to load the model onto.
+        size: Expected problem graph size. Defaults to 100.
+        problem_name: Name of the problem environment. Defaults to 'wcvrp'.
 
     Returns:
-        nn.Module: Loaded model.
+        nn.Module: The instantiated and loaded AttentionModel.
     """
     # This is a bit brittle as it assumes specific model args.
     # Ideally should load args from checkpoint or args.json

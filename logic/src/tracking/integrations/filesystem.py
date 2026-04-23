@@ -1,196 +1,174 @@
-"""Filesystem-level data file tracking for WSTracker.
+"""Filesystem-level change tracking for WSTracker.
 
-:class:`FilesystemTracker` wraps an active :class:`~logic.src.tracking.core.run.Run`
-and provides a higher-level API for recording the full lifecycle of dataset
-files on disk: generation, loading, saving, and SHA-256-based change detection.
+This module provides the :class:`FilesystemTracker` which coordinates with a
+tracking run to record file-level dataset events. It implements SHA-256
+content hashing and OS-level stat collection (size, timestamps) to maintain
+data lineage across training and evaluation runs.
+
+Attributes:
+    FilesystemTracker: Tracks filesystem-level data events and lineage.
+
+Example:
+    >>> from logic.src.tracking.integrations.filesystem import FilesystemTracker
+    >>> tracker = FilesystemTracker(run)
+    >>> tracker.on_load("data/vrp_50_test.pkl")
 """
 
 from __future__ import annotations
 
+import hashlib
 import os
-from typing import Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple
 
-from logic.src.tracking.core.run import Run
-from logic.src.tracking.validation.hashing import hash_file
+if TYPE_CHECKING:
+    from logic.src.tracking.core.run import Run
 
 
 class FilesystemTracker:
-    """Tracks data file changes and dataset mutations within a single run.
+    """Tracks filesystem-level data events and content lineage.
 
-    Maintains a hash registry for registered files and can detect on-disk
-    modifications by comparing the current SHA-256 against the stored value.
+    Monitors file loading and saving events, capturing SHA-256 hashes and
+    metadata to ensure the integrity and traceability of localized datasets.
 
-    Args:
-        run: The active tracking run to associate events with.
+    Attributes:
+        _run: The active tracking run instance.
+        _hash_cache: In-memory cache to avoid redundant hashing of large files.
     """
 
-    def __init__(self, run: Run) -> None:
+    def __init__(self, run: Optional[Run]) -> None:
+        """Initializes the filesystem mutation tracker.
+
+        Args:
+            run: The active tracking run. If None, operations become no-ops.
+        """
         self._run = run
-        self._watched: Dict[str, Optional[str]] = {}  # path -> last hash
+        self._hash_cache: Dict[str, str] = {}
 
-    # ------------------------------------------------------------------
-    # Event methods
-    # ------------------------------------------------------------------
-
-    def track_load(
-        self,
-        file_path: str,
-        shape: Optional[tuple] = None,
-        metadata: Optional[Dict[str, Any]] = None,
-    ) -> None:
-        """Record a data file **load** event and register the file for monitoring.
+    def on_load(self, path: str, metadata: Optional[Dict[str, Any]] = None) -> str:
+        """Records a 'load' event for a specific file.
 
         Args:
-            file_path: Path to the loaded dataset file.
-            shape: Shape of the loaded dataset.
-            metadata: Extra context (e.g. problem type, graph size).
-        """
-        self._run.log_dataset_event(
-            "load",
-            file_path=file_path,
-            shape=shape,
-            metadata={**(metadata or {})},
-        )
-        if os.path.exists(file_path):
-            self._watched[file_path] = hash_file(file_path)
-
-    def track_generate(
-        self,
-        file_path: Optional[str],
-        shape: tuple,
-        problem: str,
-        graph_size: int,
-        metadata: Optional[Dict[str, Any]] = None,
-    ) -> None:
-        """Record a data **generation** event.
-
-        Args:
-            file_path: Output path of the generated file (may be ``None`` for
-                in-memory generation).
-            shape: Shape of the generated dataset.
-            problem: Problem type string (e.g. ``'vrpp'``).
-            graph_size: Number of nodes.
-            metadata: Extra context dict.
-        """
-        meta: Dict[str, Any] = {
-            "problem": problem,
-            "graph_size": graph_size,
-        }
-        if metadata:
-            meta.update(metadata)
-        self._run.log_dataset_event(
-            "generate",
-            file_path=file_path,
-            shape=shape,
-            metadata=meta,
-        )
-        if file_path and os.path.exists(file_path):
-            self._watched[file_path] = hash_file(file_path)
-
-    def track_mutation(
-        self,
-        description: str,
-        shape: Optional[tuple] = None,
-        metadata: Optional[Dict[str, Any]] = None,
-    ) -> None:
-        """Record an **in-memory mutation** event (e.g. epoch dataset regeneration).
-
-        Args:
-            description: Human-readable description of the mutation.
-            shape: Shape of the mutated dataset.
-            metadata: Extra context dict.
-        """
-        meta: Dict[str, Any] = {
-            "description": description,
-        }
-        if metadata:
-            meta.update(metadata)
-        self._run.log_dataset_event(
-            "mutate",
-            shape=shape,
-            metadata=meta,
-        )
-
-    def track_save(
-        self,
-        file_path: str,
-        shape: Optional[tuple] = None,
-        metadata: Optional[Dict[str, Any]] = None,
-    ) -> None:
-        """Record a dataset **save** event and update the hash registry.
-
-        Args:
-            file_path: Path to the written file.
-            shape: Shape of the written data.
-            metadata: Extra context dict.
-        """
-        self._run.log_dataset_event(
-            "save",
-            file_path=file_path,
-            shape=shape,
-            metadata={**(metadata or {})},
-        )
-        if os.path.exists(file_path):
-            self._watched[file_path] = hash_file(file_path)
-
-    # ------------------------------------------------------------------
-    # Change detection
-    # ------------------------------------------------------------------
-
-    def watch(self, file_path: str) -> None:
-        """Register *file_path* for future change detection without logging."""
-        if os.path.exists(file_path):
-            self._watched[file_path] = hash_file(file_path)
-
-    def check_changes(self, paths: Optional[List[str]] = None) -> List[str]:
-        """Scan watched files (or *paths*) for on-disk hash changes.
-
-        Any file whose hash differs from the registered value is logged as a
-        ``hash_change`` event, and the registry is updated.
-
-        Args:
-            paths: Specific paths to check.  If ``None``, all watched files
-                are checked.
+            path: Local filesystem path to the dataset file.
+            metadata: Extra contextual information (e.g., source_url, tags).
 
         Returns:
-            List of file paths that changed.
+            str: The SHA-256 hash of the loaded file.
         """
-        check = paths if paths is not None else list(self._watched.keys())
-        changed: List[str] = []
-        for fpath in check:
-            if not os.path.exists(fpath):
-                continue
-            current = hash_file(fpath)
-            prev = self._watched.get(fpath)
-            if prev is not None and current != prev:
-                self._run.log_dataset_event(
-                    "hash_change",
-                    file_path=fpath,
-                    metadata={
-                        "detected_by": "FilesystemTracker.check_changes",
-                        "file_hash": current,
-                        "prev_hash": prev,
-                        "size_bytes": os.path.getsize(fpath),
-                    },
-                )
-                changed.append(fpath)
-            if current is not None:
-                self._watched[fpath] = current
-        return changed
+        if self._run is None or not os.path.exists(path):
+            return ""
 
-    def scan_directory(self, directory: str) -> None:
-        """Register all files in *directory* for future change detection.
+        file_hash = self._hash_file(path)
+        size_bytes, _ = self._get_stats(path)
 
-        Files already in the registry are updated; new files are added.
+        meta: Dict[str, Any] = {
+            "event": "load",
+            "size_bytes": size_bytes,
+        }
+        if metadata:
+            meta.update(metadata)
+
+        self._run.log_dataset_event(
+            event_type="load",
+            file_path=path,
+            file_hash=file_hash,
+            size_bytes=size_bytes,
+            metadata=meta,
+        )
+        return file_hash
+
+    def on_save(self, path: str, prev_hash: Optional[str] = None, metadata: Optional[Dict[str, Any]] = None) -> str:
+        """Records a 'save' or 'mutate' event for a file.
 
         Args:
-            directory: Path to a directory to scan recursively.
+            path: Local filesystem path where the data was written.
+            prev_hash: Previous known SHA-256 hash for lineage tracking.
+            metadata: Extra context for the save event.
+
+        Returns:
+            str: The SHA-256 hash of the saved file.
         """
-        if not os.path.isdir(directory):
-            return
-        for root, _, files in os.walk(directory):
-            for fname in files:
-                fpath = os.path.join(root, fname)
-                h = hash_file(fpath)
-                if h is not None:
-                    self._watched[fpath] = h
+        if self._run is None or not os.path.exists(path):
+            return ""
+
+        # Bust the cache since the file was just written/mutated
+        if path in self._hash_cache:
+            del self._hash_cache[path]
+
+        file_hash = self._hash_file(path)
+        size_bytes, _ = self._get_stats(path)
+
+        meta: Dict[str, Any] = {
+            "event": "save",
+            "size_bytes": size_bytes,
+        }
+        if metadata:
+            meta.update(metadata)
+
+        self._run.log_dataset_event(
+            event_type="save",
+            file_path=path,
+            file_hash=file_hash,
+            prev_hash=prev_hash,
+            size_bytes=size_bytes,
+            metadata=meta,
+        )
+        return file_hash
+
+    def on_stat(self, path: str) -> Dict[str, Any]:
+        """Provides high-level metadata statistics for a file without logging an event.
+
+        Args:
+            path: Local filesystem path.
+
+        Returns:
+            Dict[str, Any]: Dictionary containing 'hash' and 'size_bytes'.
+        """
+        if not os.path.exists(path):
+            return {}
+
+        return {
+            "hash": self._hash_file(path),
+            "size_bytes": os.path.getsize(path),
+        }
+
+    def clear_cache(self) -> None:
+        """Clears the internal hash cache to force re-computation."""
+        self._hash_cache.clear()
+
+    # ------------------------------------------------------------------
+    # Internal helpers
+    # ------------------------------------------------------------------
+
+    def _hash_file(self, path: str) -> str:
+        """Computes the SHA-256 hash of a file with internal caching.
+
+        Args:
+            path: Absolute or relative path to the file.
+
+        Returns:
+            str: Hexadecimal SHA-256 string.
+        """
+        if path in self._hash_cache:
+            return self._hash_cache[path]
+
+        sha256 = hashlib.sha256()
+        with open(path, "rb") as f:
+            while chunk := f.read(8192):
+                sha256.update(chunk)
+
+        h = sha256.hexdigest()
+        self._hash_cache[path] = h
+        return h
+
+    @staticmethod
+    def _get_stats(path: str) -> Tuple[int, float]:
+        """Retrieves size and modification time for a file.
+
+        Args:
+            path: Path to the file.
+
+        Returns:
+            Tuple[int, float]: (size_bytes, mtime).
+        """
+        stat = os.stat(path)
+        return stat.st_size, stat.st_mtime

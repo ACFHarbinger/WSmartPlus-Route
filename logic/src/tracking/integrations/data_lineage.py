@@ -1,35 +1,22 @@
 """Data-lineage tracking callback for simulation runs.
 
-Hooks into the day-by-day simulation loop to record two complementary
-streams of information into the centralised WSTracker:
+This module provides the :class:`DataLineageCallback` which hooks into the
+simulation loop to record per-day KPI scalars and periodic snapshots of
+bin fill level distributions. It ensures full traceability of data evolution
+throughout multi-day simulation episodes.
 
-1. **Scalar KPIs per day** — logged via :class:`SimulationRunTracker` so
-   every per-day metric (``profit``, ``kg``, ``km``, etc.) is queryable
-   as a time-series in the tracking database.
+Attributes:
+    DataLineageCallback: Step-level data lineage and KPI tracker for simulations.
 
-2. **Bin fill distribution snapshots** — logged via
-   :class:`RuntimeDataTracker` so the statistical shape of the fill
-   levels (mean, std, min, max) is recorded at configurable intervals,
-   making distribution drift across the simulation visible in the
-   experiment database.
-
-Typical usage
--------------
-The callback is created once per ``(policy, sample)`` pair and wired
-into :class:`~logic.src.pipeline.simulations.states.running.RunningState`::
-
-    cb = DataLineageCallback(pol_name, sample_id, log_freq=5)
-    cb.on_simulation_start(sim_context)
-
-    for day in range(1, total_days + 1):
-        day_ctx = run_day(day_ctx)
-        cb.on_step_end(day_ctx, day)
+Example:
+    >>> cb = DataLineageCallback(policy_name="HNA", sample_id=0, log_freq=5)
+    >>> cb.on_simulation_start(sim_context)
 """
 
 from __future__ import annotations
 
 import contextlib
-from typing import Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Dict, Optional
 
 import numpy as np
 import torch
@@ -38,29 +25,35 @@ from logic.src.tracking.core.run import get_active_run
 from logic.src.tracking.integrations.data import RuntimeDataTracker
 from logic.src.tracking.integrations.simulation import SimulationRunTracker
 
+if TYPE_CHECKING:
+    from logic.src.tracking.integrations.simulation import SimulationRunTracker
+
 
 class DataLineageCallback:
     """Step-level data lineage and KPI tracker for a simulation run.
 
-    Records two complementary streams per ``(policy, sample_id)`` pair:
+    Records two complementary streams per policy/sample pair: per-day KPIs
+    (profit, distance, etc.) and throttled bin fill distribution snapshots
+    for drift analysis.
 
-    * **Per-day KPIs** (every step) — profit, km, kg, overflows, etc. —
-      forwarded to :class:`SimulationRunTracker` as time-series metrics
-      so they can be trended and compared across runs.
-
-    * **Bin fill distribution snapshots** (every *log_freq* steps) —
-      captured via :class:`RuntimeDataTracker`; records mean/std/min/max
-      of fill levels so distribution drift is visible in the DB.
-
-    Args:
-        policy_name: Policy name used for metric key namespacing.
-        sample_id: Sample/seed index used for metric key namespacing.
-        log_freq: Take a fill-distribution snapshot every *log_freq* days
-            (default ``1`` = every day).  Raise to ``5`` or ``10`` for
-            long simulations to reduce write pressure.
+    Attributes:
+        _policy_name: Name of the policy being evaluated.
+        _sample_id: Unique index for the current simulation sample.
+        _log_freq: Frequency (in days) for distribution snapshots.
+        _step_count: Internal counter of simulation steps.
+        _data_tracker: Instance of RuntimeDataTracker for distribution logging.
+        _sim_tracker: Instance of SimulationRunTracker for KPI logging.
     """
 
     def __init__(self, policy_name: str, sample_id: int, log_freq: int = 1) -> None:
+        """Initializes the data lineage callback.
+
+        Args:
+            policy_name: Name of the policy for namespacing metrics.
+            sample_id: Sample index for namespacing metrics.
+            log_freq: Frequency of distribution snapshots in simulation days.
+                Defaults to 1.
+        """
         self._policy_name = policy_name
         self._sample_id = sample_id
         self._log_freq = max(1, log_freq)
@@ -73,14 +66,10 @@ class DataLineageCallback:
     # ------------------------------------------------------------------
 
     def on_simulation_start(self, context: Any) -> None:
-        """Snapshot the initial bin fill distribution and attach trackers.
-
-        Should be called **once** before the day loop begins, after the
-        simulation context has been fully initialised (bins loaded).
+        """Initializes trackers and snapshots the baseline bin distribution.
 
         Args:
-            context: :class:`~logic.src.pipeline.simulations.states.base.context.SimulationContext`
-                — ``context.bins`` is accessed to snapshot fill levels.
+            context: The simulation context containing initialized bins.
         """
         run = get_active_run()
         if run is None:
@@ -107,12 +96,11 @@ class DataLineageCallback:
                 )
 
     def on_step_end(self, day_context: Any, day: int) -> None:
-        """Log per-day KPIs and (throttled) fill-distribution snapshots.
+        """Logs daily KPIs and throttled distribution snapshots.
 
         Args:
-            day_context: :class:`~logic.src.pipeline.simulations.day_context.SimulationDayContext`
-                — ``daily_log`` dict and ``bins`` are read from here.
-            day: Current simulation day index (used as metric step).
+            day_context: Context for the current simulation day.
+            day: Current simulation day index.
         """
         self._step_count += 1
 
@@ -130,7 +118,6 @@ class DataLineageCallback:
                     )
 
             # Cumulative bins scalars not present in dlog (km, profit, kg totals).
-            # Logging the cumulative series lets consumers derive per-day deltas.
             bins = getattr(day_context, "bins", None)
             if bins is not None:
                 _log_cumulative_bins(self._sim_tracker, bins, day)
@@ -152,20 +139,13 @@ class DataLineageCallback:
 # ---------------------------------------------------------------------------
 
 
-def _log_cumulative_bins(sim_tracker: "SimulationRunTracker", bins: Any, day: int) -> None:
-    """Log cumulative bins scalar state as time-series metrics.
+def _log_cumulative_bins(sim_tracker: SimulationRunTracker, bins: Any, day: int) -> None:
+    """Logs cumulative bin state scalars (km, kg, profit) as time-series metrics.
 
-    These values are not present in ``daily_log`` because they are accumulated
-    on the bins object rather than recorded per-day.  Logging the cumulative
-    series at each step lets consumers derive per-day deltas by differencing.
-
-    Scalars logged (all namespaced under ``{policy}/s{sample}/cumul/``):
-
-    * ``km``        — total distance travelled so far (``bins.travel``)
-    * ``kg``        — total waste collected (``bins.collected`` sum)
-    * ``kg_lost``   — total waste lost to overflow (``bins.lost`` sum)
-    * ``overflows`` — total overflow events (``bins.inoverflow`` sum)
-    * ``profit``    — cumulative net profit (``bins.profit``)
+    Args:
+        sim_tracker: The active simulation KPI tracker.
+        bins: The bins object containing cumulative state.
+        day: Current simulation day.
     """
     prefix = f"{sim_tracker._prefix}/cumul"
     scalars: Dict[str, float] = {}
@@ -198,15 +178,13 @@ def _log_cumulative_bins(sim_tracker: "SimulationRunTracker", bins: Any, day: in
 
 
 def _bins_to_tensor_dict(bins: Any) -> Dict[str, torch.Tensor]:
-    """Convert key :class:`~logic.src.pipeline.simulations.bins.base.Bins`
-    numpy arrays to a ``{name: tensor}`` dict for ``RuntimeDataTracker``.
+    """Converts bin numpy arrays to a tensor dictionary for tracking.
 
-    The four arrays tracked are:
+    Args:
+        bins: The bins object to extract data from.
 
-    * ``fill`` — observed fill level per bin (``bins.c``), 0–100 %
-    * ``real_fill`` — ground-truth fill level (``bins.real_c``), 0–100 %
-    * ``lost`` — cumulative waste lost to overflow per bin
-    * ``inoverflow`` — cumulative overflow events per bin
+    Returns:
+        Dict[str, torch.Tensor]: Mapping of field names to torch tensors.
     """
     mapping = {
         "fill": "c",

@@ -1,33 +1,18 @@
 """ZenML secondary sink and stack helpers for WSTracker runs.
 
-:class:`ZenMLBridge` attaches to a :class:`~logic.src.tracking.core.run.Run`
-via :meth:`~logic.src.tracking.core.run.Run.add_sink` and mirrors every metric,
-parameter, and artifact write to the ZenML-managed MLflow experiment tracker.
+This module provides the :class:`ZenMLBridge` which enables integration between
+WSTracker and the ZenML environment. It mirrors experiment data to a
+ZenML-managed MLflow experiment tracker. It also provides utility functions
+for programmatic ZenML stack configuration.
 
-Unlike :class:`MLflowBridge`, this class does **not** configure MLflow itself
-(no ``set_tracking_uri``, ``set_experiment``, or ``start_run`` calls).  It
-assumes that ZenML's stack has already started an MLflow run for the current
-step.  All methods are silent no-ops when ``mlflow.active_run()`` is ``None``.
+Attributes:
+    ZenMLBridge: A sink that forwards experiment data to ZenML-managed MLflow.
 
-Typical usage (inside a ZenML step)
--------------------------------------
-::
-
-    from zenml import step
-    from logic.src.tracking.integrations.zenml_bridge import ZenMLBridge
-
-    @step(experiment_tracker="mlflow_tracker")
-    def run_training_step(config_dict: Dict[str, Any]) -> float:
-        bridge = ZenMLBridge()
-        val_reward = run_training(cfg, sinks=[bridge])
-        return val_reward
-
-Module-level helpers
-----------------------
-* :func:`configure_zenml_stack` — register an MLflow experiment tracker and
-  create a named local ZenML stack programmatically.
-* :func:`extract_zenml_step_output` — retrieve a step artifact from the last
-  pipeline run via the ZenML client.
+Example:
+    >>> @step(experiment_tracker="mlflow_tracker")
+    ... def train_step():
+    ...     bridge = ZenMLBridge.attach(run)
+    ...     # Metrics now flow through WSTracker -> ZenML -> MLflow
 """
 
 from __future__ import annotations
@@ -54,22 +39,19 @@ except ImportError:
 
 
 class ZenMLBridge:
-    """Forwards :class:`Run` events to the ZenML-managed MLflow experiment tracker.
+    """Forwards :class:`Run` events to ZenML-managed MLflow.
 
-    This sink is a transparent no-op when no MLflow run is active (i.e. when
-    called outside a ZenML step decorated with
-    ``experiment_tracker="mlflow_tracker"``).  ZenML owns the MLflow run
-    lifecycle — ``finish()`` is therefore an explicit no-op on this class.
+    This sink assumes that ZenML has already initialized an MLflow run for the
+    current execution context. It acts as a passive proxy, delegating lifecycle
+    management (start/stop) to the ZenML framework while mirroring actual
+    experiment data points.
 
-    The sink protocol implemented here mirrors :class:`MLflowBridge`:
-
-    * ``log_metric(key, value, step)``
-    * ``log_params(params)``
-    * ``log_artifact(path)``
-    * ``finish(status)`` — **no-op**
+    Attributes:
+        _mlflow: Cached reference to the mlflow module.
     """
 
     def __init__(self) -> None:
+        """Initializes the ZenML bridge."""
         self._mlflow = mlflow
 
     # ------------------------------------------------------------------
@@ -77,7 +59,11 @@ class ZenMLBridge:
     # ------------------------------------------------------------------
 
     def _has_active_run(self) -> bool:
-        """Return True only when an MLflow run is currently active."""
+        """Determines if a ZenML-owned MLflow run is currently active.
+
+        Returns:
+            bool: True if metrics can be forwarded to an active MLflow run.
+        """
         if self._mlflow is None:
             return False
         with contextlib.suppress(Exception):
@@ -89,14 +75,24 @@ class ZenMLBridge:
     # ------------------------------------------------------------------
 
     def log_metric(self, key: str, value: float, step: int) -> None:
-        """Forward a scalar metric to the active ZenML-managed MLflow run."""
+        """Forwards a scalar metric to the active ZenML experiment tracker.
+
+        Args:
+            key: Name of the metric.
+            value: Scalar value.
+            step: Training or evaluation step index.
+        """
         if not self._has_active_run():
             return
         with contextlib.suppress(Exception):
             self._mlflow.log_metric(key, value, step=step)  # type: ignore[union-attr]
 
     def log_params(self, params: Dict[str, Any]) -> None:
-        """Forward parameters to the active MLflow run (values coerced to str)."""
+        """Forwards multiple parameters to the active ZenML experiment tracker.
+
+        Args:
+            params: Mapping of parameter names to values (coerced to strings).
+        """
         if not self._has_active_run():
             return
         with contextlib.suppress(Exception):
@@ -106,14 +102,22 @@ class ZenMLBridge:
                 self._mlflow.log_params(dict(items[i : i + 100]))  # type: ignore[union-attr]
 
     def log_artifact(self, path: str) -> None:
-        """Forward a local file path as an MLflow artifact."""
+        """Forwards a local file artifact to the ZenML-managed MLflow storage.
+
+        Args:
+            path: Absolute path to the file to log.
+        """
         if not self._has_active_run():
             return
         with contextlib.suppress(Exception):
             self._mlflow.log_artifact(path)  # type: ignore[union-attr]
 
     def finish(self, status: str = "completed") -> None:
-        """No-op: ZenML ends the MLflow run when the step exits."""
+        """Terminates tracking. (No-op as ZenML manages the run lifecycle).
+
+        Args:
+            status: Final status of the WSTracker run.
+        """
         # Intentionally empty — calling mlflow.end_run() here would terminate
         # ZenML's experiment tracking run prematurely.
 
@@ -123,13 +127,13 @@ class ZenMLBridge:
 
     @classmethod
     def attach(cls, run: Run) -> "ZenMLBridge":
-        """Create a :class:`ZenMLBridge` and attach it to *run*.
+        """Factory method to create and attach a bridge to an existing run.
 
         Args:
-            run: The active :class:`Run` to mirror into ZenML's MLflow tracker.
+            run: The WSTracker run instance to mirror.
 
         Returns:
-            The created :class:`ZenMLBridge` instance (already attached).
+            ZenMLBridge: The initialized and attached bridge instance.
         """
         bridge = cls()
         run.add_sink(bridge)
@@ -145,27 +149,17 @@ def configure_zenml_stack(
     mlflow_tracking_uri: str,
     stack_name: str = "wsmart-route-stack",
 ) -> bool:
-    """Register an MLflow experiment tracker and create a local ZenML stack.
+    """Configures a local ZenML stack with MLflow tracking.
 
-    Programmatically sets up a ZenML stack named *stack_name* that contains:
-
-    * The default local artifact store.
-    * The default local orchestrator.
-    * An MLflow experiment tracker pointed at *mlflow_tracking_uri*.
-
-    If the stack or its components already exist the function silently reuses
-    them.  All :class:`zenml.client.Client` calls are wrapped in
-    :func:`contextlib.suppress` so a missing or misconfigured ZenML
-    installation never raises.
+    Programmatically initializes a stack with an associated MLflow experiment
+    tracker. If the components already exist, they are activated for use.
 
     Args:
-        mlflow_tracking_uri: URI for the MLflow tracking server (local path,
-            ``http://`` address, or ``databricks``).
-        stack_name: Name for the ZenML stack to create or reuse.
+        mlflow_tracking_uri: URI for the MLflow tracking server.
+        stack_name: Unique name for the ZenML stack.
 
     Returns:
-        ``True`` if the stack was configured and activated successfully,
-        ``False`` on any error.
+        bool: True if configuration and activation were successful.
     """
     if Client is None or StackComponentType is None:
         logger.warning("ZenML not installed; cannot configure stack.")
@@ -204,14 +198,14 @@ def extract_zenml_step_output(
     pipeline_name: str,
     step_name: str,
 ) -> Optional[Any]:
-    """Read a step artifact from the most recent ZenML pipeline run.
+    """Retrieves a primary output artifact from the most recent run of a pipeline.
 
     Args:
-        pipeline_name: Name of the ZenML pipeline (as registered in the store).
-        step_name: Name of the step whose primary output to load.
+        pipeline_name: Name of the registered ZenML pipeline.
+        step_name: Name of the step whose output should be loaded.
 
     Returns:
-        The materialised Python object, or ``None`` on any error.
+        Optional[Any]: The materialized Python object, or None if not found.
     """
     with contextlib.suppress(Exception):
         if Client is None:

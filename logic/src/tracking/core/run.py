@@ -1,4 +1,22 @@
-"""Run lifecycle management for the WSTracker."""
+"""Run lifecycle management for the WSTracker.
+
+Provides the core recording interface for tracking individual experiments.
+Manages buffered metric writes, parameter logging, tag management,
+artifact registration, and dataset lifecycle event tracking.
+
+Attributes:
+    get_active_run: Function to retrieve the current process-level active run.
+    set_active_run: Function to set the process-level active run.
+    Run: Main class for interacting with an individual tracked run.
+
+Example:
+    >>> from logic.src.tracking.core.run import Run
+    >>> from logic.src.tracking.core.store import TrackingStore
+    >>> store = TrackingStore("tracking.db")
+    >>> with Run("uuid-123", store, "./artifacts") as run:
+    ...     run.log_param("lr", 0.001)
+    ...     run.log_metric("loss", 0.5, step=1)
+"""
 
 from __future__ import annotations
 
@@ -22,12 +40,23 @@ _registry_lock = threading.Lock()
 
 
 def get_active_run() -> Optional["Run"]:
-    """Return the active :class:`Run` for the current process, or ``None``."""
+    """Returns the active Run instance for the current process.
+
+    Returns:
+        Optional[Run]: The current process-global active run, or None if no
+            run is active.
+    """
     return _active_run
 
 
 def set_active_run(run: Optional["Run"]) -> None:
-    """Set the active :class:`Run` for the current process."""
+    """Sets the active Run instance for the current process.
+
+    This is usually called automatically by the Run context manager.
+
+    Args:
+        run: The Run instance to register as active, or None to clear the registry.
+    """
     global _active_run
     with _registry_lock:
         _active_run = run
@@ -39,7 +68,16 @@ def set_active_run(run: Optional["Run"]) -> None:
 
 
 def _flatten_dict(d: Dict[str, Any], prefix: str = "", sep: str = ".") -> Dict[str, Any]:
-    """Recursively flatten a nested dict using dot-separated keys."""
+    """Recursively flattens a nested dictionary using separator-joined keys.
+
+    Args:
+        d: The nested dictionary to flatten.
+        prefix: Current key prefix for recursive calls.
+        sep: Separator character between nested levels.
+
+    Returns:
+        Dict[str, Any]: A single-level dictionary with flattened keys.
+    """
     result: Dict[str, Any] = {}
     for k, v in d.items():
         key = f"{prefix}{sep}{k}" if prefix else k
@@ -51,6 +89,14 @@ def _flatten_dict(d: Dict[str, Any], prefix: str = "", sep: str = ".") -> Dict[s
 
 
 def _safe_float(v: Any) -> Optional[float]:
+    """Safely converts a value to a float, returning None on failure or overflow.
+
+    Args:
+        v: The value to convert.
+
+    Returns:
+        Optional[float]: The converted float value, or None if invalid.
+    """
     try:
         fval = float(v)
         if math.isnan(fval) or math.isinf(fval):
@@ -68,18 +114,15 @@ def _safe_float(v: Any) -> Optional[float]:
 class Run:
     """A single tracked experiment run.
 
-    Provides methods to log metrics, parameters, tags, artifacts, and
-    dataset lifecycle events.  All metric writes are buffered in memory
-    and flushed to SQLite in batches for efficiency.
+    Provides high-level methods to log metrics, parameters, tags, artifacts, and
+    dataset lifecycle events. Metric writes are buffered in memory and flushed
+    to SQLite in batches to maximize I/O performance.
 
-    This class is **thread-safe**: multiple threads in the same process
-    may call :meth:`log_metric` / :meth:`log_metrics` concurrently.
+    This class is thread-safe; multiple threads may log concurrently.
 
-    Args:
-        run_id: UUID string identifying the run.
-        store: Backend storage instance.
-        artifact_dir: Root directory for artifact files.
-        buffer_size: Number of metric entries to buffer before a flush.
+    Attributes:
+        run_id: Unique UUID string identifying the run in the database.
+        artifact_dir: Root directory where this run's artifacts are stored.
     """
 
     def __init__(
@@ -89,6 +132,14 @@ class Run:
         artifact_dir: str,
         buffer_size: int = 200,
     ) -> None:
+        """Initializes a new tracking run.
+
+        Args:
+            run_id: UUID string identifying the run.
+            store: Persistent storage backend instance.
+            artifact_dir: Local directory for storing artifact files.
+            buffer_size: Number of metrics to buffer before an automatic flush.
+        """
         self.run_id = run_id
         self._store = store
         self.artifact_dir = artifact_dir
@@ -111,36 +162,45 @@ class Run:
     # ------------------------------------------------------------------
 
     def add_sink(self, sink: Any) -> "Run":
-        """Attach a secondary logging sink to this run.
+        """Attaches a secondary logging sink to this run.
 
         The sink receives forwarded calls for every metric, param, and
-        artifact logged hereafter.  It must implement:
-
-        * ``log_metric(key: str, value: float, step: int)``
-        * ``log_params(params: dict)``
-        * ``log_artifact(path: str)``
-        * ``finish(status: str)``
-
-        Errors raised by the sink are silently suppressed so a broken
-        secondary backend never disrupts the primary WSTracker writes.
+        artifact logged. Sinks are useful for mirroring data to external
+        services like MLflow or W&B.
 
         Args:
-            sink: Any object implementing the sink protocol above.
+            sink: Object implementing log_metric, log_params, log_artifact,
+                and finish methods.
 
         Returns:
-            ``self`` for method chaining.
+            Run: Self for method chaining.
         """
         self._sinks.append(sink)
         return self
 
-    def set_tag(self, key: str, value: str) -> "Run":
-        """Attach a metadata tag to this run."""
+    def set_tag(self, key: str, value: Any) -> "Run":
+        """Attaches a metadata tag to this run.
+
+        Args:
+            key: Semantic name for the tag.
+            value: Tag value (will be cast to string).
+
+        Returns:
+            Run: Self for method chaining.
+        """
         if not self._closed:
             self._store.set_tag(self.run_id, key, str(value))
         return self
 
-    def set_tags(self, tags: Dict[str, str]) -> "Run":
-        """Attach multiple metadata tags to this run."""
+    def set_tags(self, tags: Dict[str, Any]) -> "Run":
+        """Attaches multiple metadata tags to this run.
+
+        Args:
+            tags: Dictionary of tag keys and values.
+
+        Returns:
+            Run: Self for method chaining.
+        """
         if not self._closed:
             self._store.set_tags(self.run_id, {k: str(v) for k, v in tags.items()})
         return self
@@ -150,13 +210,28 @@ class Run:
     # ------------------------------------------------------------------
 
     def log_param(self, key: str, value: Any) -> "Run":
-        """Record a single configuration parameter (set-once semantics)."""
+        """Records a single configuration parameter.
+
+        Args:
+            key: Name of the parameter.
+            value: Parameter value.
+
+        Returns:
+            Run: Self for method chaining.
+        """
         if not self._closed:
             self._store.log_param(self.run_id, key, value)
         return self
 
     def log_params(self, params: Dict[str, Any]) -> "Run":
-        """Record multiple configuration parameters, flattening nested dicts."""
+        """Records multiple configuration parameters, flattening nested dicts.
+
+        Args:
+            params: Dictionary of parameters to log.
+
+        Returns:
+            Run: Self for method chaining.
+        """
         if not self._closed:
             flat = _flatten_dict(params)
             self._store.log_params(self.run_id, flat)
@@ -170,7 +245,16 @@ class Run:
     # ------------------------------------------------------------------
 
     def log_metric(self, key: str, value: Any, step: int = 0) -> "Run":
-        """Log a single scalar metric value at the given step."""
+        """Logs a single scalar metric value.
+
+        Args:
+            key: Name of the metric.
+            value: Scalar value to log (must be convertible to float).
+            step: Training or simulation step index.
+
+        Returns:
+            Run: Self for method chaining.
+        """
         if self._closed:
             return self
         fval = _safe_float(value)
@@ -186,7 +270,15 @@ class Run:
         return self
 
     def log_metrics(self, metrics: Dict[str, Any], step: int = 0) -> "Run":
-        """Log a dict of scalar metric values at the given step."""
+        """Logs a dictionary of scalar metric values.
+
+        Args:
+            metrics: Mapping of metric keys to values.
+            step: Training or simulation step index.
+
+        Returns:
+            Run: Self for method chaining.
+        """
         if self._closed:
             return self
         with self._buffer_lock:
@@ -199,13 +291,20 @@ class Run:
         return self
 
     def flush(self) -> "Run":
-        """Force-flush any buffered metrics to the store."""
+        """Force-flushes any buffered metrics to the storage backend.
+
+        Returns:
+            Run: Self for method chaining.
+        """
         with self._buffer_lock:
             self._flush_metrics_locked()
         return self
 
     def _flush_metrics_locked(self) -> None:
-        """Flush buffer — caller must hold ``_buffer_lock``."""
+        """Internal helper to flush the metric buffer.
+
+        Caller must hold `_buffer_lock`.
+        """
         if self._metric_buffer:
             self._store.log_metrics_batch(self.run_id, self._metric_buffer)
             self._metric_buffer.clear()
@@ -221,14 +320,16 @@ class Run:
         artifact_type: str = "file",
         metadata: Optional[Dict[str, Any]] = None,
     ) -> "Run":
-        """Register a file as an artifact of this run.
+        """Registers a local file as an artifact of this run.
 
         Args:
-            path: Path to the file.
-            name: Human-readable name (defaults to basename of *path*).
-            artifact_type: Semantic type, e.g. ``'model'``, ``'checkpoint'``,
-                ``'config'``, ``'result'``.
-            metadata: Arbitrary extra metadata dict.
+            path: Local path to the artifact file.
+            name: Human-readable name (defaults to file basename).
+            artifact_type: Semantic category (e.g., 'model', 'plot').
+            metadata: Additional JSON-serializable metadata.
+
+        Returns:
+            Run: Self for method chaining.
         """
         if self._closed or not os.path.exists(path):
             return self
@@ -251,7 +352,17 @@ class Run:
         dir_path: str,
         artifact_type: str = "file",
     ) -> "Run":
-        """Register every file in *dir_path* as an artifact."""
+        """Registers every file in a directory as an artifact.
+
+        Note: This is non-recursive.
+
+        Args:
+            dir_path: Path to the directory.
+            artifact_type: Semantic category applied to all files.
+
+        Returns:
+            Run: Self for method chaining.
+        """
         if not os.path.isdir(dir_path):
             return self
         for fname in os.listdir(dir_path):
@@ -268,17 +379,19 @@ class Run:
         self,
         event_type: str,
         file_path: Optional[str] = None,
-        shape: Optional[tuple] = None,
+        shape: Optional[Tuple[int, ...]] = None,
         metadata: Optional[Dict[str, Any]] = None,
     ) -> "Run":
-        """Record a data-lifecycle event.
+        """Records a data-lifecycle event (e.g., loading, mutation).
 
         Args:
-            event_type: One of ``'load'``, ``'generate'``, ``'mutate'``,
-                ``'save'``, ``'hash_change'``, ``'schema_change'``.
-            file_path: Path to the data file (optional).
-            shape: Shape of the data item (optional).
-            metadata: Arbitrary extra context dict.
+            event_type: Semantic event (load, save, generate, hash_change).
+            file_path: Path to the associated data file if applicable.
+            shape: Logical shape of the dataset.
+            metadata: Extra contextual information.
+
+        Returns:
+            Run: Self for method chaining.
         """
         if self._closed:
             return self
@@ -306,7 +419,14 @@ class Run:
         return self
 
     def watch_file(self, file_path: str) -> "Run":
-        """Register the current hash of *file_path* for future change detection."""
+        """Registers the current SHA-256 of a file for change detection.
+
+        Args:
+            file_path: Path to the file to monitor.
+
+        Returns:
+            Run: Self for method chaining.
+        """
         if os.path.exists(file_path):
             h = hash_file(file_path)
             if h is not None:
@@ -314,10 +434,16 @@ class Run:
         return self
 
     def check_file_changed(self, file_path: str) -> bool:
-        """Return ``True`` and record an event if *file_path* has changed.
+        """Determines if a watched file has changed on disk.
 
-        The internal hash map is updated on every call regardless of the result,
-        so the next call uses the latest version as the baseline.
+        Updating the baseline hash on every call ensures subsequent checks
+        measure drift from the most recent confirmed state.
+
+        Args:
+            file_path: Path to the file to check.
+
+        Returns:
+            bool: True if the file hash has changed since the last observation.
         """
         if not os.path.exists(file_path):
             return False
@@ -343,7 +469,12 @@ class Run:
     # ------------------------------------------------------------------
 
     def finish(self, status: str = "completed", error: Optional[str] = None) -> None:
-        """Flush buffers and mark this run as finished in the store."""
+        """Concludes the run, flushing buffers and updating state.
+
+        Args:
+            status: Final status (completed, failed, killed).
+            error: Optional error message summarizing the failure.
+        """
         if not self._closed:
             self.flush()
             self._store.finish_run(self.run_id, status=status, error=error)
@@ -356,6 +487,11 @@ class Run:
 
     # Context-manager support
     def __enter__(self) -> "Run":
+        """Enters the tracking context, registering this as the active run.
+
+        Returns:
+            Run: The active run instance.
+        """
         set_active_run(self)
         return self
 
@@ -365,6 +501,18 @@ class Run:
         exc_val: Any,
         _exc_tb: Any,
     ) -> Literal[False]:
+        """Exits the context, automatically finishing the run.
+
+        Handles exception logging if the context was exited via an error.
+
+        Args:
+            exc_type: Type of the exception if one occurred.
+            exc_val: Exception instance.
+            _exc_tb: Traceback object.
+
+        Returns:
+            Literal[False]: Always returns False to propagate exceptions.
+        """
         if exc_type is not None:
             self.finish(status="failed", error=str(exc_val))
         else:
@@ -376,28 +524,65 @@ class Run:
     # ------------------------------------------------------------------
 
     def get_params(self) -> Dict[str, Any]:
-        """Return all logged parameters."""
+        """Retrieves all configuration parameters logged for this run.
+
+        Returns:
+            Dict[str, Any]: Dictionary mapping parameter keys to values.
+        """
         return self._store.get_params(self.run_id)
 
     def get_tags(self) -> Dict[str, str]:
-        """Return all logged tags."""
+        """Retrieves all metadata tags logged for this run.
+
+        Returns:
+            Dict[str, str]: Dictionary mapping tag keys to values.
+        """
         return self._store.get_tags(self.run_id)
 
     def get_latest_metrics(self) -> Dict[str, float]:
-        """Return the latest value for every logged metric key."""
+        """Retrieves the most recent value for every logged metric.
+
+        Returns:
+            Dict[str, float]: Dictionary mapping metric keys to their latest scalars.
+        """
         return self._store.get_latest_metrics(self.run_id)
 
     def get_metric_history(self, key: str) -> List[Dict[str, Any]]:
-        """Return the full step-indexed history for a metric *key*."""
+        """Retrieves the full evolution history for a specific metric.
+
+        Args:
+            key: Semantic name of the metric to query.
+
+        Returns:
+            List[Dict[str, Any]]: Step-indexed records containing 'value',
+                'step', and 'timestamp'.
+        """
         return self._store.get_metric_history(self.run_id, key)
 
     def get_artifacts(self, artifact_type: Optional[str] = None) -> List[Dict[str, Any]]:
-        """Return registered artifacts, optionally filtered by *artifact_type*."""
+        """Retrieves Registered artifacts for this run.
+
+        Args:
+            artifact_type: Optional filter by semantic category.
+
+        Returns:
+            List[Dict[str, Any]]: Artifact records mapping attributes like
+                'name', 'path', and 'metadata'.
+        """
         return self._store.get_artifacts(self.run_id, artifact_type=artifact_type)
 
     def get_dataset_events(self) -> List[Dict[str, Any]]:
-        """Return all dataset lifecycle events in chronological order."""
+        """Retrieves all data-lifecycle events in chronological order.
+
+        Returns:
+            List[Dict[str, Any]]: Event records containing type, path, and context.
+        """
         return self._store.get_dataset_events(self.run_id)
 
     def __repr__(self) -> str:
+        """Returns a string representation of the Run state.
+
+        Returns:
+            str: Developer-readable string summary.
+        """
         return f"Run(id={self.run_id!r}, closed={self._closed})"

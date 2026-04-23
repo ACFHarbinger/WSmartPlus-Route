@@ -1,8 +1,19 @@
-"""
-Gradient monitoring and diagnostic hooks.
+"""Gradient monitoring and diagnostic hooks for PyTorch models.
 
-Useful for debugging vanishing/exploding gradients, monitoring gradient flow,
-and identifying problematic layers during training.
+This module provides specialized backward hooks to inspect and influence the
+backpropagation process. It includes utilities for detecting exploding or
+vanishing gradients, automated clipping, NaN/Inf detection, and statistical
+analysis of gradient flow across layers.
+
+Attributes:
+    add_gradient_monitoring_hooks: Utility to register diagnostic stats hooks.
+    add_gradient_clipping_hook: Utility for per-layer gradient norm clipping.
+    add_gradient_nan_detector_hook: Utility to trap numerical instability.
+
+Example:
+    >>> from logic.src.tracking.hooks.gradient_hooks import add_gradient_nan_detector_hook
+    >>> handles = add_gradient_nan_detector_hook(model, raise_on_nan=True)
+    >>> loss.backward()  # Raises ValueError if NaNs are found
 """
 
 from __future__ import annotations
@@ -19,40 +30,40 @@ def add_gradient_monitoring_hooks(
     gradient_threshold: float = 10.0,
     verbose: bool = True,
 ) -> Dict[str, Any]:
-    """
-    Register backward hooks to monitor gradient statistics across layers.
+    """Registers backward hooks to monitor gradient statistics across layers.
 
     Detects vanishing/exploding gradients and provides layer-wise statistics.
 
     Args:
         model: PyTorch model to monitor.
-        layer_names: Specific layer names to monitor. If None, monitors all parameters.
+        layer_names: Specific layer names to monitor. If None, monitors all.
+            Defaults to None.
         gradient_threshold: Threshold for detecting exploding gradients.
-        verbose: Print warnings for abnormal gradients.
+            Defaults to 10.0.
+        verbose: If True, prints warnings for abnormal gradients to stdout.
+            Defaults to True.
 
     Returns:
-        dict: Contains 'gradients' (list of gradient stats) and 'handles' (hook handles).
-
-    Example:
-        >>> hook_data = add_gradient_monitoring_hooks(model)
-        >>> # Train for one step
-        >>> loss.backward()
-        >>> # Check gradient stats
-        >>> for stat in hook_data['gradients']:
-        ...     print(f"{stat['name']}: mean={stat['mean']:.6f}, max={stat['max']:.6f}")
+        Dict[str, Any]: Mapping containing 'gradients' (stats) and 'handles'.
     """
-    gradient_stats = []
-    handles = []
+    gradient_stats: List[Dict[str, Any]] = []
+    hook_handles: List[Any] = []
 
-    def gradient_hook(name: str) -> Callable:
-        """Create a hook that captures gradient statistics for a named parameter."""
+    def gradient_hook(name: str) -> Callable[[torch.Tensor], None]:
+        """Creates a backward hook that captures stats for a parameter.
+
+        Args:
+            name: Human-readable name for the parameter.
+
+        Returns:
+            Callable: The registered backward hook.
+        """
 
         def hook(grad: torch.Tensor) -> None:
-            """
-            Backward hook that captures gradient statistics.
+            """Internal hook that computes and records gradient metrics.
 
             Args:
-                grad: The gradient of the parameter.
+                grad: The gradient tensor flowing backward.
             """
             if grad is None:
                 return
@@ -80,9 +91,9 @@ def add_gradient_monitoring_hooks(
     for name, param in model.named_parameters():
         if param.requires_grad and (layer_names is None or name in layer_names):
             handle = param.register_hook(gradient_hook(name))
-            handles.append(handle)
+            hook_handles.append(handle)
 
-    return {"gradients": gradient_stats, "handles": handles}
+    return {"gradients": gradient_stats, "handles": hook_handles}
 
 
 def add_gradient_clipping_hook(
@@ -90,42 +101,44 @@ def add_gradient_clipping_hook(
     max_norm: float = 1.0,
     layer_names: Optional[List[str]] = None,
 ) -> List[Any]:
-    """
-    Register hooks to clip gradients per-layer during backward pass.
+    """Registers hooks to clip gradients per-layer during backward pass.
 
     Useful as an alternative to global gradient clipping when specific layers
-    have gradient issues.
+    have gradient instability.
 
     Args:
-        model: PyTorch model.
-        max_norm: Maximum gradient norm per layer.
-        layer_names: Specific layers to clip. If None, clips all.
+        model: The target model.
+        max_norm: Maximum gradient norm allowed per layer. Defaults to 1.0.
+        layer_names: Specific layers to clip. If None, clips all trainable.
+            Defaults to None.
 
     Returns:
-        list: Hook handles.
-
-    Example:
-        >>> handles = add_gradient_clipping_hook(model, max_norm=1.0)
-        >>> loss.backward()  # Gradients automatically clipped
+        List[Any]: List of hook handles for later removal.
     """
-    handles = []
+    handles: List[Any] = []
 
-    def clip_hook(max_norm: float) -> Callable:
-        """Create gradient clipping hook."""
+    def clip_hook(norm_val: float) -> Callable[[torch.Tensor], torch.Tensor]:
+        """Creates a hook that clips the gradient norm in-place.
+
+        Args:
+            norm_val: The clipping threshold.
+
+        Returns:
+            Callable: The registered clipping hook.
+        """
 
         def hook(grad: torch.Tensor) -> torch.Tensor:
-            """
-            Backward hook that clips gradient norm.
+            """In-place gradient clipping hook.
 
             Args:
-                grad: The gradient of the parameter.
+                grad: The incoming gradient.
 
             Returns:
-                torch.Tensor: Clipped gradient.
+                torch.Tensor: The clipped gradient tensor.
             """
             if grad is None:
                 return grad
-            return torch.nn.utils.clip_grad_norm_(grad, max_norm)
+            return torch.nn.utils.clip_grad_norm_(grad, norm_val)
 
         return hook
 
@@ -141,39 +154,37 @@ def add_gradient_accumulation_hook(
     model: nn.Module,
     accumulation_steps: int = 4,
 ) -> Dict[str, Any]:
-    """
-    Register hooks to track gradient accumulation statistics.
+    """Registers hooks to track gradient accumulation statistics.
 
     Useful when using gradient accumulation to understand how gradients
-    evolve across micro-batches.
+    evolve and stabilize across multiple micro-batches.
 
     Args:
-        model: PyTorch model.
-        accumulation_steps: Number of accumulation steps to track.
+        model: The target model.
+        accumulation_steps: Maximum history length of accumulation steps.
+            Defaults to 4.
 
     Returns:
-        dict: Contains accumulated gradient stats and handles.
-
-    Example:
-        >>> hook_data = add_gradient_accumulation_hook(model, accumulation_steps=4)
-        >>> for _ in range(4):
-        ...     loss = compute_loss()
-        ...     loss.backward()  # Accumulate gradients
-        >>> # Check accumulated gradient stats
-        >>> print(hook_data['accumulated_norms'])
+        Dict[str, Any]: Mapping with 'accumulated_norms' and 'handles'.
     """
     accumulated_norms: Dict[str, List[float]] = {name: [] for name, _ in model.named_parameters()}
-    handles = []
+    hook_handles: List[Any] = []
 
-    def accumulation_hook(name: str) -> Callable:
-        """Track gradient norm accumulation."""
+    def accumulation_hook(name: str) -> Callable[[torch.Tensor], None]:
+        """Creates a hook to record the current gradient norm.
+
+        Args:
+            name: Parameter name.
+
+        Returns:
+            Callable: The registered accumulation hook.
+        """
 
         def hook(grad: torch.Tensor) -> None:
-            """
-            Backward hook that tracks gradient accumulation statistics.
+            """Hook that records the norm and trims history to accumulation_steps.
 
             Args:
-                grad: The gradient of the parameter.
+                grad: The current gradient.
             """
             if grad is not None:
                 accumulated_norms[name].append(grad.norm().item())
@@ -186,11 +197,11 @@ def add_gradient_accumulation_hook(
     for name, param in model.named_parameters():
         if param.requires_grad:
             handle = param.register_hook(accumulation_hook(name))
-            handles.append(handle)
+            hook_handles.append(handle)
 
     return {
         "accumulated_norms": accumulated_norms,
-        "handles": handles,
+        "handles": hook_handles,
     }
 
 
@@ -198,36 +209,37 @@ def add_gradient_nan_detector_hook(
     model: nn.Module,
     raise_on_nan: bool = True,
 ) -> List[Any]:
-    """
-    Register hooks to detect NaN/Inf gradients and optionally raise errors.
-
-    Critical for catching numerical instabilities early in training.
+    """Registers hooks to trap NaN/Inf values during backpropagation.
 
     Args:
-        model: PyTorch model.
-        raise_on_nan: If True, raises ValueError when NaN detected.
+        model: The target model.
+        raise_on_nan: If True, raises ValueError immediately on detection.
+            Defaults to True.
 
     Returns:
-        list: Hook handles.
-
-    Example:
-        >>> handles = add_gradient_nan_detector_hook(model, raise_on_nan=True)
-        >>> loss.backward()  # Raises error if NaN gradients occur
+        List[Any]: List of hook handles.
     """
-    handles = []
+    handles: List[Any] = []
 
-    def nan_detector_hook(name: str, raise_error: bool) -> Callable:
-        """Detect NaN/Inf in gradients."""
+    def nan_detector_hook(name: str, raise_error: bool) -> Callable[[torch.Tensor], None]:
+        """Creates a hook that scans the gradient for non-finite values.
+
+        Args:
+            name: Parameter name.
+            raise_error: Whether to raise an exception.
+
+        Returns:
+            Callable: The registered detector hook.
+        """
 
         def hook(grad: torch.Tensor) -> None:
-            """
-            Backward hook that detects NaN/Inf in gradients.
+            """Scans for NaN/Inf and raises or warns accordingly.
 
             Args:
-                grad: The gradient of the parameter.
+                grad: The current gradient.
 
             Raises:
-                ValueError: If NaN/Inf detected and raise_error is True.
+                ValueError: If NaN/Inf is detected and raise_error is True.
             """
             if grad is None:
                 return
@@ -253,15 +265,10 @@ def add_gradient_nan_detector_hook(
 
 
 def remove_all_hooks(hook_data: Dict[str, Any]) -> None:
-    """
-    Remove all registered hooks from a hook data dictionary.
+    """Removes all registered hooks represented in the hook data mapping.
 
     Args:
-        hook_data: Dictionary returned by hook registration functions.
-
-    Example:
-        >>> hook_data = add_gradient_monitoring_hooks(model)
-        >>> remove_all_hooks(hook_data)  # Clean up
+        hook_data: Mapping returned by registration functions.
     """
     if "handles" in hook_data:
         for handle in hook_data["handles"]:
@@ -270,17 +277,11 @@ def remove_all_hooks(hook_data: Dict[str, Any]) -> None:
 
 
 def print_gradient_statistics(gradient_stats: List[Dict[str, Any]], top_k: int = 10) -> None:
-    """
-    Print formatted gradient statistics.
+    """Prints a formatted summary of gradient magnitudes for analysis.
 
     Args:
-        gradient_stats: List of gradient statistics from monitoring hooks.
-        top_k: Number of top layers to display (by gradient magnitude).
-
-    Example:
-        >>> hook_data = add_gradient_monitoring_hooks(model)
-        >>> loss.backward()
-        >>> print_gradient_statistics(hook_data['gradients'], top_k=5)
+        gradient_stats: Captured stats from monitoring hooks.
+        top_k: Number of layers with largest norm to display. Defaults to 10.
     """
     if not gradient_stats:
         print("No gradient statistics available.")

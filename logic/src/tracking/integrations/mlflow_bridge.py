@@ -1,29 +1,16 @@
 """MLflow secondary sink for WSTracker runs.
 
-:class:`MLflowBridge` attaches to a :class:`~logic.src.tracking.core.run.Run`
-via :meth:`~logic.src.tracking.core.run.Run.add_sink` and mirrors every
-metric, parameter, and artifact write to an MLflow tracking server.  It acts
-as a transparent secondary backend — primary WSTracker writes are unaffected
+This module provides the :class:`MLflowBridge` which attaches to a WSTracker run
+and mirrors every metric, parameter, and artifact write to an MLflow tracking
+server. It acts as a transparent secondary backend, ensuring fail-safe logging
 even if the MLflow server is unreachable.
 
-Typical usage
--------------
-::
+Attributes:
+    MLflowBridge: A sink that forwards experiment data to MLflow.
 
-    import mlflow
-    import logic.src.tracking as wst
-    from logic.src.tracking.integrations.mlflow_bridge import MLflowBridge
-
-    tracker = wst.init(experiment_name="AM-VRPP-50")
-    with tracker.start_run("AM-VRPP-50", run_type="training") as run:
-        bridge = MLflowBridge.attach(
-            run,
-            mlflow_tracking_uri="http://localhost:5000",
-            experiment_name="AM-VRPP-50",
-            run_name=run.run_id[:8],
-        )
-        run.log_params({"lr": 1e-4})   # written to both WSTracker and MLflow
-        run.log_metric("val/reward", 0.95, step=1)
+Example:
+    >>> bridge = MLflowBridge.attach(run, "http://localhost:5000", "VRPP-HNA")
+    >>> run.log_metric("reward", 0.9)  # Mirrored to MLflow automatically
 """
 
 from __future__ import annotations
@@ -42,23 +29,13 @@ except ImportError:
 class MLflowBridge:
     """Forwards :class:`Run` events to an MLflow tracking server.
 
-    This object satisfies the sink protocol expected by
-    :meth:`~logic.src.tracking.core.run.Run.add_sink`:
+    Satisfies the sink protocol expected by the WSTracker run system. It
+    encapsulates all MLflow communication, providing exception safety and
+    asynchronous-like behavior by suppressing errors from the remote server.
 
-    * ``log_metric(key, value, step)``
-    * ``log_params(params)``
-    * ``log_artifact(path)``
-    * ``finish(status)``
-
-    All methods catch and suppress every exception so a broken or
-    unreachable MLflow server never disrupts the training loop.
-
-    Args:
-        mlflow_tracking_uri: MLflow tracking server URI or local path.
-            Passed to ``mlflow.set_tracking_uri()``.
-        experiment_name: MLflow experiment name.
-        run_name: Optional human-readable run name shown in the UI.
-        tags: Extra key/value tags attached to the MLflow run.
+    Attributes:
+        _mlflow: Cached reference to the mlflow module.
+        _active_run: The active MLflow run handle.
     """
 
     def __init__(
@@ -68,6 +45,14 @@ class MLflowBridge:
         run_name: Optional[str] = None,
         tags: Optional[Dict[str, str]] = None,
     ) -> None:
+        """Initializes the MLflow bridge and starts a remote run.
+
+        Args:
+            mlflow_tracking_uri: URI of the MLflow tracking server.
+            experiment_name: Name of the experiment in MLflow.
+            run_name: Optional display name for the run.
+            tags: Dictionary of tags to attach to the MLflow run.
+        """
         self._mlflow = mlflow
         self._active_run: Optional[Any] = None
         if mlflow is not None:
@@ -84,14 +69,24 @@ class MLflowBridge:
     # ------------------------------------------------------------------
 
     def log_metric(self, key: str, value: float, step: int) -> None:
-        """Forward a scalar metric to MLflow."""
+        """Forwards a scalar metric to the MLflow tracking server.
+
+        Args:
+            key: Name of the metric.
+            value: Scalar value.
+            step: Training or evaluation step index.
+        """
         if self._mlflow is None or self._active_run is None:
             return
         with contextlib.suppress(Exception):
             self._mlflow.log_metric(key, value, step=step)
 
     def log_params(self, params: Dict[str, Any]) -> None:
-        """Forward parameters to MLflow (values coerced to str)."""
+        """Forwards multiple parameters to the MLflow tracking server.
+
+        Args:
+            params: Mapping of parameter names to values (coerced to strings).
+        """
         if self._mlflow is None or self._active_run is None:
             return
         with contextlib.suppress(Exception):
@@ -102,14 +97,22 @@ class MLflowBridge:
                 self._mlflow.log_params(dict(items[i : i + 100]))
 
     def log_artifact(self, path: str) -> None:
-        """Forward a local file path as an MLflow artifact."""
+        """Forwards a local file artifact to the MLflow storage backend.
+
+        Args:
+            path: Absolute path to the file to log.
+        """
         if self._mlflow is None or self._active_run is None:
             return
         with contextlib.suppress(Exception):
             self._mlflow.log_artifact(path)
 
     def finish(self, status: str = "completed") -> None:
-        """End the MLflow run, mapping WSTracker status to MLflow status."""
+        """Terminates the MLflow run and updates the final status.
+
+        Args:
+            status: Final status of the WSTracker run.
+        """
         if self._mlflow is None or self._active_run is None:
             return
         with contextlib.suppress(Exception):
@@ -129,18 +132,18 @@ class MLflowBridge:
         experiment_name: str,
         run_name: Optional[str] = None,
         tags: Optional[Dict[str, str]] = None,
-    ) -> "MLflowBridge":
-        """Create a bridge and immediately attach it to *run*.
+    ) -> MLflowBridge:
+        """Factory method to create and attach a bridge to an existing run.
 
         Args:
-            run: The active :class:`Run` to mirror.
-            mlflow_tracking_uri: MLflow server URI or local path.
+            run: The WSTracker run instance to mirror.
+            mlflow_tracking_uri: URI of the MLflow tracking server.
             experiment_name: MLflow experiment name.
-            run_name: Optional display name for the MLflow run.
-            tags: Extra tags forwarded to the MLflow run.
+            run_name: Optional display name for the run.
+            tags: Optional tags to attach to the MLflow run.
 
         Returns:
-            The created :class:`MLflowBridge` instance (already attached).
+            MLflowBridge: The initialized and attached bridge instance.
         """
         bridge = cls(
             mlflow_tracking_uri=mlflow_tracking_uri,
