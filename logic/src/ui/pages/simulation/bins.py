@@ -1,3 +1,22 @@
+"""Bin state inspection and visualization components for simulation results.
+
+This module provides interactive tools for auditing individual waste bin
+states throughout a simulation day. It includes heatmaps for fill level
+visualization, tabular inspectors for selective bin filtering, and
+detailed collection breakdowns with cross-referencing to mandatory set
+assignments.
+
+Example:
+    render_bin_tab(selected_entry)
+
+Attributes:
+    BIN_STYLES: Visual configuration mapping for bin status indicators.
+    style_bin_table: Applies conditional CSS formatting to bin DataFrames.
+    render_bin_state_inspector: Main UI component for auditing bin levels.
+    render_collection_details: Visualizes specific collection events.
+    render_bin_tab: Orchestrates the integrated bins analysis tab.
+"""
+
 import json
 import os
 from typing import Any
@@ -17,7 +36,14 @@ with open(styles_path, "r", encoding="utf-8") as f:
 
 
 def style_bin_table(df: pd.DataFrame) -> Any:
-    """Apply conditional formatting to the bin state table."""
+    """Applies conditional formatting to the bin state exploration table.
+
+    Args:
+        df: The raw bin state DataFrame.
+
+    Returns:
+        Any: A Styler object with applied gradients and status indicators.
+    """
     return (
         df.style.background_gradient(
             subset=["Fill Before (%)"],
@@ -46,7 +72,14 @@ def style_bin_table(df: pd.DataFrame) -> Any:
 
 
 def render_bin_state_inspector(display_entry: Any) -> None:
-    """Render detailed bin state inspection table."""
+    """Renders a filtered table for inspect individual waste bin states.
+
+    Displays fill levels before/after collection, mandatory status, and
+    overflow alerts for all bins in the simulation environment.
+
+    Args:
+        display_entry: The simulation telemetry record for the current day.
+    """
     st.subheader("Bin State Inspector")
     data = display_entry.data
     bin_states_before = data.get("bin_state_c", [])
@@ -114,7 +147,11 @@ def render_bin_state_inspector(display_entry: Any) -> None:
 
 
 def render_collection_details(display_entry: Any) -> None:
-    """Render collection details for the day."""
+    """Renders high-level metrics and breakdown for bin collection events.
+
+    Args:
+        display_entry: The simulation telemetry record for the current day.
+    """
     st.subheader("Collection Details")
     data = display_entry.data
     bin_collected = data.get("bin_state_collected", [])
@@ -170,7 +207,11 @@ def render_collection_details(display_entry: Any) -> None:
 
 
 def render_bin_tab(display_entry: Any) -> None:
-    """Render the Bins tab content."""
+    """Orchestrates and renders the integrated Bins analysis tab content.
+
+    Args:
+        display_entry: The simulation telemetry record for the current day.
+    """
     st.subheader("Bin Fill Level Heatmap")
     render_bin_heatmap(display_entry)
     render_bin_state_inspector(display_entry)

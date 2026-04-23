@@ -1,3 +1,16 @@
+"""Simulation Digital Twin visualization components.
+
+This package provides interactive mapping, tour reconstruction, and KPI
+analysis for VRP simulation outputs. It integrates geospatial rendering
+with temporal policy comparison.
+
+Example:
+    render_simulation_visualizer()
+
+Attributes:
+    render_simulation_visualizer: Real-time Digital Twin orchestrator.
+"""
+
 from typing import Any, List
 
 import streamlit as st
@@ -36,7 +49,11 @@ from .tour import render_raw_data_view, render_tour_details
 
 
 def render_simulation_visualizer() -> None:
-    """Render the Simulation Digital Twin mode."""
+    """Orchestrates and renders the core Simulation Digital Twin mode.
+
+    Manages log discovery, temporal filtering, geospatial tour reconstruction,
+    and interactive KPI analysis.
+    """
     st.title("Simulation Digital Twin")
     st.markdown("Visualize VRP simulation outputs with interactive maps.")
 

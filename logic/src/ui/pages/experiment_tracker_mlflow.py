@@ -1,7 +1,15 @@
-"""
-MLflow explorer section for the Experiment Tracker page.
+"""MLflow explorer section for the Experiment Tracker page.
 
-Extracted from ``experiment_tracker.py`` to keep module sizes under 400 LoC.
+This module provides specialized visualization and data retrieval for MLflow
+tracking servers. It supports cross-experiment run auditing, metric history
+plotting, and hyperparameter inspection.
+
+Example:
+    render_mlflow_tracker("http://localhost:5000")
+
+Attributes:
+    HOVER_TEMPLATE: Jinja2 template for interactive Plotly tooltips.
+    _PALETTE: Standardized color sequence for multi-run charting.
 """
 
 import os
@@ -38,7 +46,12 @@ _PALETTE = [
 
 
 def _render_mlflow_explorer(tracking_uri: str, experiment_name: str) -> None:
-    """Full MLflow runs explorer with metric charting."""
+    """Renders the comprehensive MLflow run explorer interface.
+
+    Args:
+        tracking_uri: The URI or filesystem path to the MLflow server.
+        experiment_name: Optional filter for a specific experiment name.
+    """
     st.subheader("🧪 MLflow Runs")
 
     # The type is Union[DataFrame, list[Run]]

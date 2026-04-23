@@ -1,5 +1,18 @@
-"""
-Data loading service for benchmark results.
+"""Data loading and aggregation services for benchmark results.
+
+This module provides specialized logic for parsing high-performance
+benchmarking logs (JSONL) and transforming them into analysis-ready
+DataFrames. It supports performance metrics, latency tracking, and
+throughput comparisons across hardware levels.
+
+Attributes:
+    load_benchmark_data: Parses the main benchmark log file into a DataFrame.
+    get_unique_benchmarks: Extracts sorted list of benchmark identifiers.
+
+Example:
+    >>> from logic.src.ui.services.benchmark_loader import load_benchmark_data
+    >>> df = load_benchmark_data()
+    >>> print(f"Loaded {len(df)} benchmark entries.")
 """
 
 import json
@@ -11,17 +24,23 @@ import streamlit as st
 
 
 def get_benchmark_log_path() -> Path:
-    """Get the path to the benchmark log file."""
+    """Retrieves the absolute path to the benchmark log file.
+
+    Returns:
+        Path: The filesystem path to benchmarks.jsonl.
+    """
     return Path("logs/benchmarks/benchmarks.jsonl")
 
 
 @st.cache_data(ttl=30)
 def load_benchmark_data() -> pd.DataFrame:
-    """
-    Load benchmark results from JSONL file.
+    """Parses benchmark results from the JSONL log file into a DataFrame.
+
+    Filters specifically for 'performance_benchmark' records and flattens
+    associated metrics and metadata for easier analysis.
 
     Returns:
-        DataFrame with flattened benchmark entries.
+        pd.DataFrame: A DataFrame sorted by timestamp (descending).
     """
     log_path = get_benchmark_log_path()
     if not log_path.exists():
@@ -66,7 +85,14 @@ def load_benchmark_data() -> pd.DataFrame:
 
 
 def get_unique_benchmarks(df: pd.DataFrame) -> List[str]:
-    """Get unique benchmark names from the data."""
+    """Extracts a sorted list of unique benchmark identifiers from the data.
+
+    Args:
+        df: The benchmark results DataFrame.
+
+    Returns:
+        List[str]: Unique benchmark names found in the 'benchmark' column.
+    """
     if df.empty or "benchmark" not in df.columns:
         return []
     return sorted(df["benchmark"].unique().tolist())

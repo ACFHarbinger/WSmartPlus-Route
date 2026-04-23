@@ -1,8 +1,21 @@
-"""
-Section renderers for the Simulation Summary page.
+"""Section renderers for the Simulation Summary page.
 
-Extracted from ``simulation_summary.py`` to keep module sizes under 400 LoC.
-Functions are re-exported from the original module for backward compatibility.
+This module provides specialized visualization components for analyzing
+aggregate simulation results. It includes renderers for KPI overviews,
+comprehensive performance tables, metric rankings, Pareto front analysis,
+cross-distribution comparisons, and daily time-series trends.
+
+Example:
+    _render_kpi_overview(summary_df, "All")
+
+Attributes:
+    _filter_by_dist: Utility to filter analysis DataFrames by distribution.
+    _render_kpi_overview: Displays top-level status cards.
+    _render_summary_table: Renders the master policy comparison table.
+    _render_metric_bar_chart: Visualizes metric rankings across policies.
+    _render_pareto: Performs multi-objective tradeoff analysis.
+    _render_distribution_comparison: Analyzes policy stability across environments.
+    _render_daily_timeseries: Visualizes temporal performance dynamics.
 """
 
 from typing import Any, Dict, List, cast
@@ -35,14 +48,27 @@ _DISPLAY_METRICS = [
 
 
 def _filter_by_dist(df: pd.DataFrame, dist_filter: str) -> pd.DataFrame:
-    """Apply distribution filter to a DataFrame. Returns filtered copy."""
+    """Applies a distribution filter to the provided DataFrame.
+
+    Args:
+        df: The input analysis DataFrame containing a 'Distribution' column.
+        dist_filter: The distribution name to filter by (or "All").
+
+    Returns:
+        pd.DataFrame: A filtered copy of the original DataFrame.
+    """
     if dist_filter == "All":
         return df
     return pd.DataFrame(df.loc[df["Distribution"] == dist_filter]).reset_index(drop=True)
 
 
 def _render_kpi_overview(summary_df: pd.DataFrame, dist_filter: str) -> None:
-    """Render top-level KPI cards with best values across filtered policies."""
+    """Renders top-level KPI cards for best-performing policies.
+
+    Args:
+        summary_df: The master summary statistical DataFrame.
+        dist_filter: Active distribution filter from user controls.
+    """
     df = _filter_by_dist(summary_df, dist_filter)
     if df.empty:
         return
@@ -101,7 +127,12 @@ def _render_kpi_overview(summary_df: pd.DataFrame, dist_filter: str) -> None:
 
 
 def _render_summary_table(summary_df: pd.DataFrame, dist_filter: str) -> None:
-    """Render the policy comparison table with mean +/- std."""
+    """Renders a formatted policy comparison table with confidence intervals.
+
+    Args:
+        summary_df: The master summary statistical DataFrame.
+        dist_filter: Active distribution filter from user controls.
+    """
     st.subheader("Policy Comparison")
 
     df = _filter_by_dist(summary_df, dist_filter)
@@ -138,7 +169,12 @@ def _render_summary_table(summary_df: pd.DataFrame, dist_filter: str) -> None:
 
 
 def _render_metric_bar_chart(summary_df: pd.DataFrame, dist_filter: str) -> None:
-    """Render a bar chart ranking policies by a selected metric."""
+    """Renders a ranked bar chart for a selected performance metric.
+
+    Args:
+        summary_df: The master summary statistical DataFrame.
+        dist_filter: Active distribution filter from user controls.
+    """
     st.subheader("Metric Ranking")
 
     df = _filter_by_dist(summary_df, dist_filter)
@@ -189,7 +225,12 @@ def _render_metric_bar_chart(summary_df: pd.DataFrame, dist_filter: str) -> None
 
 
 def _render_pareto(summary_df: pd.DataFrame, dist_filter: str) -> None:
-    """Render Pareto front scatter for two user-selected metrics."""
+    """Renders a Pareto front tradeoff analysis between two selected metrics.
+
+    Args:
+        summary_df: The master summary statistical DataFrame.
+        dist_filter: Active distribution filter from user controls.
+    """
     st.subheader("Pareto Front Analysis")
 
     df = _filter_by_dist(summary_df, dist_filter)
@@ -258,7 +299,11 @@ def _render_pareto(summary_df: pd.DataFrame, dist_filter: str) -> None:
 
 
 def _render_distribution_comparison(summary_df: pd.DataFrame) -> None:
-    """Render side-by-side comparison of the same policy across distributions."""
+    """Renders a side-by-side comparison of policies across different environments.
+
+    Args:
+        summary_df: The master summary statistical DataFrame.
+    """
     st.subheader("Distribution Comparison")
 
     distributions = sorted(summary_df["Distribution"].unique().tolist())
@@ -360,7 +405,12 @@ def _render_distribution_comparison(summary_df: pd.DataFrame) -> None:
 
 
 def _render_daily_timeseries(daily_df: pd.DataFrame, dist_filter: str) -> None:
-    """Render daily metric time-series overlaid per policy."""
+    """Renders temporal performance dynamics overlaid across multiple policies.
+
+    Args:
+        daily_df: Long-form DataFrame containing daily metric records.
+        dist_filter: Active distribution filter from user controls.
+    """
     st.subheader("Daily Time-Series")
 
     if daily_df.empty:

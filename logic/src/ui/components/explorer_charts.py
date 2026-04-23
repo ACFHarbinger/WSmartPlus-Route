@@ -1,8 +1,17 @@
-"""
-Plotly chart generators for the Data Explorer and analysis pages.
+"""Plotly chart generators for the Data Explorer and analysis pages.
 
-Extracted from ``charts.py`` to keep module sizes under 400 LoC.
-Functions here are re-exported from ``charts.py`` for backward compatibility.
+This module provides specialized visualization components for interactive
+dataset profiling and multi-objective tradeoff analysis. It includes
+area charts, histograms, box plots, Pareto front visualizations, and
+correlation matrices.
+
+Example:
+    fig = create_correlation_matrix_chart(df)
+
+Attributes:
+    create_area_chart: Renders filled area plots with line overlays.
+    calculate_pareto_front: Mathematical utility for dominates-testing.
+    create_pareto_scatter_chart: Visualizes objective efficiency.
 """
 
 from typing import Any, Dict, List, Optional

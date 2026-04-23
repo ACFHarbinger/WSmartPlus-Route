@@ -107,7 +107,7 @@ __all__ = [
 ]
 
 
-def register_hooks_with_run(hook_data: Dict[str, Any], run: Any, prefix: str = "hooks") -> None:
+def register_hooks_with_run(hook_data: Dict[str, Any], run: Any, prefix: str = "hooks") -> None:  # noqa: C901
     """Logs hook statistics and diagnostic summaries to a tracking Run.
 
     This function parses the data dictionaries returned by hook registration

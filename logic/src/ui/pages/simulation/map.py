@@ -1,3 +1,20 @@
+"""Geospatial visualization and route mapping components.
+
+This module provides specialized tools for rendering interactive Leaflet
+maps (via Folium) for waste collection routes. It includes support for
+custom distance matrices, tour reconstruction, real-time bin status
+indicators, and fill-level heatmaps for spatial analysis.
+
+Example:
+    render_map_view(display_entry, controls)
+
+Attributes:
+    load_custom_matrix: Loads and slices distance matrices from the filesystem.
+    reconstruct_tour: Transforms raw node IDs into geospatial coordinates.
+    render_map_view: Main UI component for rendering the interactive route map.
+    render_bin_heatmap: Visualizes bin fill states as a spatial heatmap.
+"""
+
 import json
 import os
 from typing import Any, Dict, List, Optional
@@ -18,7 +35,15 @@ jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir))
 
 
 def load_custom_matrix(controls: Dict[str, Any]) -> Any:
-    """Load a custom distance matrix if selected."""
+    """Loads and slices a custom distance matrix based on user configuration.
+
+    Args:
+        controls: User filter settings containing 'distance_strategy',
+            'selected_matrix_file', and 'selected_sample'.
+
+    Returns:
+        Optional[pd.DataFrame]: The sliced distance matrix or None on failure.
+    """
     dist_matrix = None
     if controls.get("distance_strategy") == "load_matrix":
         selected_file = controls.get("selected_matrix_file")
@@ -67,7 +92,15 @@ def load_custom_matrix(controls: Dict[str, Any]) -> Any:
 
 
 def reconstruct_tour(tour: List[Any], all_bin_coords: Optional[List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
-    """Convert a sequence of node integers back into full coordinate dictionaries."""
+    """Transforms a sequence of node identifiers into coordinate dictionaries.
+
+    Args:
+        tour: Sequence of node integers or existing coordinate dicts.
+        all_bin_coords: Master list of all available bin coordinates.
+
+    Returns:
+        List[Dict[str, Any]]: Sequence of point dictionaries with lat/lng.
+    """
     if not tour or isinstance(tour[0], dict):
         return tour
 
@@ -86,7 +119,12 @@ def reconstruct_tour(tour: List[Any], all_bin_coords: Optional[List[Dict[str, An
 
 
 def render_map_view(display_entry: Any, controls: Dict[str, Any]) -> None:
-    """Render the route map."""
+    """Renders the comprehensive interactive route map.
+
+    Args:
+        display_entry: The simulation telemetry record for the current day.
+        controls: User filter settings including routing and display options.
+    """
     st.subheader("Route Map")
 
     data = display_entry.data
@@ -125,7 +163,11 @@ def render_map_view(display_entry: Any, controls: Dict[str, Any]) -> None:
 
 
 def render_bin_heatmap(display_entry: Any) -> None:
-    """Render bin fill level heatmap."""
+    """Renders a spatial heatmap representing bin fill levels.
+
+    Args:
+        display_entry: The simulation telemetry record for the current day.
+    """
     data = display_entry.data
     tour = data.get("tour", [])
     bin_states = data.get("bin_state_c", [])

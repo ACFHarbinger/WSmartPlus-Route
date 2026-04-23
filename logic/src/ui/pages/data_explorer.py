@@ -1,12 +1,16 @@
-"""
-Data Explorer mode for the Streamlit dashboard.
+"""Data Explorer mode for the Streamlit dashboard.
 
-Provides interactive file loading, table viewing, statistical profiling,
-correlation analysis, and advanced charting for CSV, XLSX, PKL, JSON, and
-JSONL data files.  Includes VRPP/WCVRP dataset splitting heuristics and
-simulation-output analysis features (distribution filtering, Pareto front).
+This module provides a comprehensive environment for interactive visual
+discovery of DRL and OR datasets. It supports high-performance TensorDict
+(.td) lazy loading, automated VRPP instance splitting, simulation result
+warehousing, and classical statistical profiling.
 
-Ported & enhanced from ``gui/src/tabs/analysis/``.
+Example:
+    render_data_explorer()
+
+Attributes:
+    _META_COLUMNS: Internal tracking keys for simulation result pivoting.
+    render_data_explorer: Main entry point for the explorer dashboard.
 """
 
 import gc
@@ -50,7 +54,18 @@ _MAX_WIDE_COLS = 200
 
 
 def _td_tensor_to_df(key: str, arr: "np.ndarray") -> Optional[pd.DataFrame]:  # noqa: F821
-    """Convert a single TensorDict tensor array to a display DataFrame."""
+    """Converts a single TensorDict tensor array to a display-ready DataFrame.
+
+    Handles dimensional mapping (coord flattening, node normalization) for
+    VRPP-style datasets.
+
+    Args:
+        key: The tensor key name (e.g., 'coords', 'demand').
+        arr: The numerical array extracted from the tensor.
+
+    Returns:
+        Optional[pd.DataFrame]: A reshaped DataFrame or None if unrenderable.
+    """
     shape = arr.shape
 
     if arr.ndim == 1:
@@ -96,7 +111,16 @@ def _collect_td_metadata(
     td: Any,
     keys: List[str],
 ) -> Tuple[List[str], List[str], List[str], List[Dict[str, Any]]]:
-    """Scan TensorDict keys and return (coord_keys, depot_keys, scalar_keys, summary_rows)."""
+    """Scans TensorDict keys and extracts structural metadata.
+
+    Args:
+        td: A PyTorch TensorDict instance.
+        keys: List of keys to scan within the TensorDict.
+
+    Returns:
+        Tuple[List[str], List[str], List[str], List[Dict[str, Any]]]:
+            Indices for coordinates, depots, scalars, and summary records.
+    """
     coord_keys: List[str] = []
     depot_keys: List[str] = []
     scalar_keys: List[str] = []
@@ -131,13 +155,14 @@ def _collect_td_metadata(
 
 
 def _load_td_file(uploaded_file: Any, cache_key: str) -> Dict[str, pd.DataFrame]:
-    """Load a TensorDict (.td) file into named DataFrames.
+    """Loads a TensorDict (.td) file into named DataFrames from an uploaded buffer.
 
-    Produces:
-    - A ``Structure`` summary table (key, shape, dtype, min/max/mean/std).
-    - One DataFrame per tensor key, reshaped for tabular display.
-    - Session-state metadata (``{cache_key}_is_td``, ``{cache_key}_td_meta``)
-      consumed by the TD Overview tab.
+    Args:
+        uploaded_file: The Streamlit UploadedFile object.
+        cache_key: Unique identifier for session state caching.
+
+    Returns:
+        Dict[str, pd.DataFrame]: Mapping of tensor names to reshaped DataFrames.
     """
     tables: Dict[str, pd.DataFrame] = {}
     name = uploaded_file.name
@@ -195,7 +220,17 @@ def _load_td_file(uploaded_file: Any, cache_key: str) -> Dict[str, pd.DataFrame]
 
 
 def _process_raw_to_dfs(raw_data: Any) -> List[pd.DataFrame]:
-    """Recursively convert raw data into a flat list of DataFrames."""
+    """Recursively converts primitive raw data into a flat list of DataFrames.
+
+    Supports nested lists, dictionaries, and NumPy arrays commonly found
+    in legacy Pickle (.pkl) exports.
+
+    Args:
+        raw_data: Unstructured data payload from file loader.
+
+    Returns:
+        List[pd.DataFrame]: List of successfully converted DataFrames.
+    """
     dfs: List[pd.DataFrame] = []
 
     if isinstance(raw_data, pd.DataFrame):
@@ -233,7 +268,15 @@ def _process_raw_to_dfs(raw_data: Any) -> List[pd.DataFrame]:
 
 
 def _try_vrpp_split(df: pd.DataFrame) -> Optional[List[Tuple[str, pd.DataFrame]]]:
-    """Attempt VRPP/WCVRP 4-column heuristic split."""
+    """Attempts a VRPP/WCVRP 4-column semantic split on a raw DataFrame.
+
+    Args:
+        df: Input DataFrame with potentially 4 high-level columns.
+
+    Returns:
+        Optional[List[Tuple[str, pd.DataFrame]]]: List of semantically split
+            DataFrames (Depots, Locations, etc.) if heuristic matches.
+    """
     if df.shape[1] != 4:
         return None
 
@@ -291,7 +334,15 @@ def _pivot_json_data(
     data: Dict[str, Any],
     file_id: str = "",
 ) -> Dict[str, List[Any]]:
-    """Flatten nested simulation JSON into columnar form with metadata."""
+    """Flattens nested simulation multi-run JSON into columnar form.
+
+    Args:
+        data: Raw nested dictionary from JSON file.
+        file_id: Optional identifier for the source file.
+
+    Returns:
+        Dict[str, List[Any]]: Flattened data columns with policy/dist labels.
+    """
     metrics: Dict[str, List[Any]] = defaultdict(list)
     policy_names: List[str] = []
     distributions: List[str] = []
@@ -324,7 +375,14 @@ def _pivot_json_data(
 
 
 def _load_json_file(uploaded_file: Any) -> Dict[str, pd.DataFrame]:
-    """Load a JSON simulation results file."""
+    """Loads a JSON simulation results or configuration file.
+
+    Args:
+        uploaded_file: The Streamlit UploadedFile object.
+
+    Returns:
+        Dict[str, pd.DataFrame]: Parsed tables from JSON content.
+    """
     tables: Dict[str, pd.DataFrame] = {}
     name = uploaded_file.name
     try:
@@ -349,7 +407,14 @@ def _load_json_file(uploaded_file: Any) -> Dict[str, pd.DataFrame]:
 
 
 def _load_jsonl_file(uploaded_file: Any) -> Dict[str, pd.DataFrame]:
-    """Load a JSONL file (one JSON object per line)."""
+    """Loads a JSONL (newline-delimited JSON) file.
+
+    Args:
+        uploaded_file: The Streamlit UploadedFile object.
+
+    Returns:
+        Dict[str, pd.DataFrame]: Concatenated DataFrame of record objects.
+    """
     tables: Dict[str, pd.DataFrame] = {}
     name = uploaded_file.name
     try:
@@ -366,7 +431,14 @@ def _load_jsonl_file(uploaded_file: Any) -> Dict[str, pd.DataFrame]:
 
 
 def _load_npz_file(uploaded_file: Any) -> Dict[str, pd.DataFrame]:
-    """Load a .npz file into named DataFrames, one per array key."""
+    """Loads a .npz NumPy archive file into named DataFrames.
+
+    Args:
+        uploaded_file: The Streamlit UploadedFile object.
+
+    Returns:
+        Dict[str, pd.DataFrame]: Mapping of array keys to DataFrames.
+    """
     tables: Dict[str, pd.DataFrame] = {}
     data = np.load(uploaded_file)
     for key in data.files:
@@ -388,7 +460,15 @@ def _load_npz_file(uploaded_file: Any) -> Dict[str, pd.DataFrame]:
 
 
 def _load_uploaded_file(uploaded_file: Any, cache_key: str = "") -> Dict[str, pd.DataFrame]:
-    """Parse an uploaded file into named DataFrames."""
+    """Parses an uploaded file into named DataFrames based on file extension.
+
+    Args:
+        uploaded_file: The Streamlit UploadedFile object.
+        cache_key: Optional identifier for session state caching.
+
+    Returns:
+        Dict[str, pd.DataFrame]: Consolidated mapping of discovered tables.
+    """
     name = uploaded_file.name
     tables: Dict[str, pd.DataFrame] = {}
 
@@ -432,20 +512,17 @@ def _load_uploaded_file(uploaded_file: Any, cache_key: str = "") -> Dict[str, pd
 
 
 def _load_td_from_path(path: str, cache_key: str) -> Dict[str, pd.DataFrame]:
-    """Load a .td file from a local filesystem path with minimal memory footprint.
+    """Loads a .td file from a local filesystem path with minimal RAM impact.
 
-    Unlike the upload variant (which pre-converts every tensor to a DataFrame),
-    this function:
+    Uses lazy structural extraction to avoid loading full tensor payloads
+    into session state.
 
-    1. Loads the TensorDict directly via ``torch.load(path)`` — no intermediate
-       bytes buffer.
-    2. Extracts only the structure metadata (shapes, dtypes, per-tensor stats).
-    3. Immediately frees the TensorDict from RAM (``del td``).
-    4. Stores the file path in ``td_meta["filepath"]`` so individual tensors can
-       be loaded on demand when the user selects them.
+    Args:
+        path: Absolute or relative filesystem path to the .td file.
+        cache_key: Unique identifier for session state caching.
 
-    The result is that session state only holds a small structure-summary
-    DataFrame, keeping dashboard interactions fast regardless of file size.
+    Returns:
+        Dict[str, pd.DataFrame]: Mapping containing structural summary table.
     """
     if torch is None:
         st.error("PyTorch is required for TensorDict files. Run: `pip install torch`")
@@ -497,11 +574,15 @@ def _lazy_load_td_tensor(
     key: str,
     cache_key: str,
 ) -> Optional[pd.DataFrame]:
-    """Return a DataFrame for one tensor key, loading from disk if not yet cached.
+    """Retrieves a DataFrame for one specific tensor key, loading from disk on demand.
 
-    Results are stored in ``st.session_state`` under
-    ``"{cache_key}_tensor_{key}"`` so subsequent accesses within the same
-    session are instantaneous.
+    Args:
+        td_meta: Metadata dictionary containing the source filepath.
+        key: The tensor key to load.
+        cache_key: Unique identifier for session state caching.
+
+    Returns:
+        Optional[pd.DataFrame]: The loaded and reshaped DataFrame or None.
     """
     tensor_state_key = f"{cache_key}_tensor_{key}"
     if tensor_state_key in st.session_state:
@@ -530,7 +611,14 @@ def _lazy_load_td_tensor(
 
 
 def _safe_nunique(s: pd.Series) -> int:
-    """Safely calculate unique values, falling back to string if unhashable."""
+    """Safely calculates unique value counts, handling unhashable objects.
+
+    Args:
+        s: Input pandas Series.
+
+    Returns:
+        int: Total unique value count.
+    """
     try:
         return int(s.nunique())
     except TypeError:
@@ -549,7 +637,15 @@ def _render_raw_data_tab(
     row_limit: int,
     precision: int,
 ) -> None:
-    """Render the Raw Data tab with optional column/row filtering."""
+    """Renders the Raw Data explorer tab with filtering and export options.
+
+    Args:
+        df: Input DataFrame to visualize.
+        selected_table: The name/key of the currently active table.
+        visible_columns: Optional list of columns to display.
+        row_limit: Maximum number of rows to render.
+        precision: Decimal precision for numerical formatting.
+    """
     display_df = df
 
     # Apply column filter
@@ -574,7 +670,11 @@ def _render_raw_data_tab(
 
 
 def _render_statistics_tab(df: pd.DataFrame) -> None:
-    """Render the Statistics tab with data profiling and descriptive stats."""
+    """Renders the Statistics tab with data profiling and descriptive records.
+
+    Args:
+        df: Input DataFrame to analyze.
+    """
 
     # --- Data profile summary ---
     st.subheader("Data Profile")
@@ -611,7 +711,11 @@ def _render_statistics_tab(df: pd.DataFrame) -> None:
 
 
 def _render_correlation_tab(df: pd.DataFrame) -> None:
-    """Render the Correlation tab with matrix heatmap and pair scatter."""
+    """Renders the Correlation tab with matrix heatmaps and pair analysis.
+
+    Args:
+        df: Input DataFrame to analyze.
+    """
 
     numeric_cols = _numeric_columns(df)
     if len(numeric_cols) < 2:
@@ -662,7 +766,14 @@ def _render_correlation_tab(df: pd.DataFrame) -> None:
 
 
 def _render_sidebar_controls(df: pd.DataFrame) -> Dict[str, Any]:
-    """Render Data Explorer sidebar controls. Returns settings dict."""
+    """Renders global Data Explorer control widgets in the sidebar.
+
+    Args:
+        df: The currently active DataFrame (used for column discovery).
+
+    Returns:
+        Dict[str, Any]: Current settings for visibility, limits, and precision.
+    """
     st.sidebar.markdown("---")
     st.sidebar.subheader("Data Explorer Settings")
 
@@ -713,7 +824,17 @@ def _resolve_selected_df(
     selected_table: str,
     cache_key: str,
 ) -> Optional[pd.DataFrame]:
-    """Return the DataFrame for *selected_table*, lazy-loading when needed."""
+    """Resolves and loads the DataFrame for a specific selection identifier.
+
+    Args:
+        tables: Mapping of already loaded DataFrames.
+        td_meta: Metadata for TensorDict lazy loading.
+        selected_table: The target key to resolve.
+        cache_key: Unique identifier for session state caching.
+
+    Returns:
+        Optional[pd.DataFrame]: The resolved DataFrame or None.
+    """
     if selected_table in tables:
         return tables[selected_table]
     with st.spinner(f"Loading tensor '{selected_table}'…"):
@@ -726,7 +847,11 @@ def _resolve_selected_df(
 
 
 def render_data_explorer() -> None:
-    """Render the Data Explorer page."""
+    """Renders the main Data Explorer page application.
+
+    Orchestrates file discovery, ingestion, caching, and multi-tab rendering
+    for all supported data formats.
+    """
     st.title("Data Explorer")
     st.markdown(
         "Upload and analyse CSV, XLSX, NPZ, PKL, JSON, JSONL, or TensorDict (.td) "

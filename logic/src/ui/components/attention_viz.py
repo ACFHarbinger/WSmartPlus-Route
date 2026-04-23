@@ -1,31 +1,21 @@
-"""
-Streamlit component for visualising Transformer attention maps.
+"""Streamlit component for visualising Transformer attention maps.
 
 Renders interactive attention weight visualisations produced by
 ``logic.src.tracking.hooks.attention_hooks.add_attention_hooks``.
 
-Three display modes (chosen automatically based on the ``node_coords`` argument):
+Supports three display modes:
+1. **Heatmap**: Pure attention matrix grid.
+2. **Bipartite graph**: Normalised 2nd positions with weighted edges.
+3. **Geo overlay**: Mapbox map with attention arcs for lat/lon data.
 
-* **Heatmap** — Pure attention matrix rendered as a colour grid. Used when no
-  node coordinates are provided.
-* **Bipartite graph** — Nodes plotted at their normalised 2-D positions with
-  edges weighted by attention strength. Used when coords are in ``[0, 1]``.
-* **Geo overlay** — Nodes plotted on a Mapbox map with attention arcs.
-  Activated when coordinate values exceed 1.0 (i.e., lat/lon scale).
+Example:
+    render_attention_viz(hook_data, node_coords=coords)
 
-Usage::
-
-    from logic.src.ui.components.attention_viz import render_attention_viz
-    from logic.src.tracking.hooks.attention_hooks import add_attention_hooks
-
-    hook_data = add_attention_hooks(model.encoder)
-    model(td)  # run inference to populate hook_data
-
-    render_attention_viz(
-        hook_data,
-        node_coords=coords_np,   # (N, 2)  — optional
-        title="Encoder Self-Attention",
-    )
+Attributes:
+    render_attention_viz: Main orchestrator for attention visualization.
+    _render_geo: Geospatial renderer for lat/lon coordinates.
+    _render_bipartite: Normalised layout renderer.
+    _render_heatmap: Coordinate-free matrix renderer.
 """
 
 from __future__ import annotations
@@ -171,8 +161,21 @@ def _render_geo(
     top_k: int,
     min_alpha: float,
     height: int,
-) -> Any:
-    """Attention arcs on a Mapbox scatter-map (lat/lon coordinates)."""
+) -> go.Figure:
+    """Renders attention arcs on a Mapbox scatter-map (lat/lon coordinates).
+
+    Args:
+        attn: Normalized attention matrix [N, N].
+        coords: Geospatial coordinates [N, 2].
+        center: Map center (lat, lon).
+        zoom: Initial zoom level.
+        top_k: Number of highest attention edges to draw.
+        min_alpha: Opacity threshold for visibility.
+        height: Plot height in pixels.
+
+    Returns:
+        go.Figure: Interactive Mapbox figure.
+    """
 
     n = attn.shape[0]
     lats, lons = coords[:n, 0], coords[:n, 1]
@@ -227,8 +230,20 @@ def _render_bipartite(
     min_alpha: float,
     height: int,
     color_scale: str,
-) -> Any:
-    """Attention edges overlaid on a 2-D node layout (normalised coordinates)."""
+) -> go.Figure:
+    """Renders attention edges overlaid on a 2-D node layout.
+
+    Args:
+        attn: Normalized attention matrix [N, N].
+        coords: Normalised coordinates [N, 2].
+        top_k: Number of highest attention edges to draw.
+        min_alpha: Opacity threshold for visibility.
+        height: Plot height in pixels.
+        color_scale: Plotly color scale name.
+
+    Returns:
+        go.Figure: Interactive bipartite graph.
+    """
 
     n = attn.shape[0]
     xy = coords[:n, :2].astype(float).copy()
@@ -287,8 +302,17 @@ def _render_bipartite(
     return fig
 
 
-def _render_heatmap(attn: np.ndarray, height: int, color_scale: str) -> Any:
-    """Standard attention matrix heatmap (no node coordinates required)."""
+def _render_heatmap(attn: np.ndarray, height: int, color_scale: str) -> go.Figure:
+    """Renders the standard attention matrix heatmap.
+
+    Args:
+        attn: Normalized attention matrix [N, N].
+        height: Plot height in pixels.
+        color_scale: Plotly color scale name.
+
+    Returns:
+        go.Figure: Heatmap figure.
+    """
 
     n = attn.shape[0]
     fig = go.Figure(
@@ -315,20 +339,28 @@ def _render_heatmap(attn: np.ndarray, height: int, color_scale: str) -> Any:
 
 
 def _to_numpy(tensor: Any) -> np.ndarray:
-    """Convert a PyTorch tensor or list to a float32 NumPy array."""
+    """Converts a PyTorch tensor or list to a float32 NumPy array.
+
+    Args:
+        tensor: Multi-dimensional array-like object.
+
+    Returns:
+        np.ndarray: Resulting NumPy array.
+    """
     if hasattr(tensor, "detach"):
         return tensor.detach().cpu().float().numpy()
     return np.asarray(tensor, dtype=np.float32)
 
 
 def _extract_head(attn_np: np.ndarray, head_idx: int = 0) -> np.ndarray:
-    """
-    Extract an ``(N, N)`` attention matrix from a tensor of arbitrary leading dims.
+    """Extracts an (N, N) attention matrix from mixed-dimension inputs.
 
-    Shapes handled:
-    - ``(B, H, N, N)`` → ``attn_np[0, head_idx]``
-    - ``(H, N, N)``    → ``attn_np[head_idx]``
-    - ``(N, N)``       → returned as-is
+    Args:
+        attn_np: Input attention weights.
+        head_idx: Index of the attention head to extract.
+
+    Returns:
+        np.ndarray: Sliced (N, N) attention weight matrix.
     """
     if attn_np.ndim == 4:
         h = min(head_idx, attn_np.shape[1] - 1)
@@ -344,7 +376,16 @@ def _top_k_edges(
     top_k: int,
     min_alpha: float,
 ) -> List[Tuple[float, int, int]]:
-    """Return the top-K ``(weight, src, dst)`` edges by attention weight."""
+    """Identifies the top-K attention edges by weight.
+
+    Args:
+        attn: Normalized attention matrix [N, N].
+        top_k: Maximum number of edges to return.
+        min_alpha: Minimum weight threshold.
+
+    Returns:
+        List[Tuple[float, int, int]]: Sorted list of (weight, src, dst).
+    """
     n = attn.shape[0]
     edges = [(float(attn[i, j]), i, j) for i in range(n) for j in range(n) if i != j and float(attn[i, j]) > min_alpha]
     edges.sort(key=lambda x: -x[0])

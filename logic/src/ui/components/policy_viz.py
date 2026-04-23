@@ -1,30 +1,17 @@
-"""
-Policy Visualization Dispatcher.
+"""Policy Visualization Dispatcher.
 
-Single entry-point Streamlit component that renders the telemetry
-captured by :class:`~logic.src.models.policies.viz_mixin.PolicyVizMixin`
-for any registered policy type.
+This module provides a unified UI entry-point for rendering telemetry
+captured by :class:`~logic.src.models.policies.viz_mixin.PolicyVizMixin`.
+It automatically dispatches to algorithm-specific renderers based on
+detected data signatures.
 
-Usage::
-
-    from logic.src.ui.components.policy_viz import render_policy_viz
-
-    # After running a policy that carries PolicyVizMixin:
+Example:
     render_policy_viz(policy.get_viz_data())
 
-The dispatcher inspects the keys present in *viz_data* and automatically
-routes to the correct sub-renderer:
-
-======================  ===========================================
-Key signature           Renderer
-======================  ===========================================
-``d_idx`` present       :func:`_render_alns`  (ALNS)
-``generation`` present  :func:`_render_hgs`   (HGS)
-``tau_mean`` present    :func:`_render_aco`   (ACO)
-``perturb_mode`` present:func:`_render_ils`   (ILS)
-``n_selected`` present  :func:`_render_selector` (any selector)
-fallback                :func:`_render_rls`   (RLS / generic)
-======================  ===========================================
+Attributes:
+    render_policy_viz: Main dispatcher for policy telemetry.
+    _ema: Utility for exponential moving average smoothing.
+    _ALNS_OP_NAMES: Human-readable mapping for ALNS operators.
 """
 
 from typing import Any, Dict, List, Optional
@@ -81,7 +68,15 @@ def render_policy_viz(
 
 
 def _ema(values: List[float], window: int) -> List[float]:
-    """Apply exponential moving average smoothing."""
+    """Applies exponential moving average smoothing to a list of values.
+
+    Args:
+        values: Raw telemetry list.
+        window: Smoothing window size.
+
+    Returns:
+        List[float]: Smoothed value list.
+    """
     if window <= 1 or not values:
         return values
     alpha = 2.0 / (window + 1)
@@ -92,6 +87,14 @@ def _ema(values: List[float], window: int) -> List[float]:
 
 
 def _bar_counts(values: List[Any]) -> Dict[Any, int]:
+    """Computes categorical frequency counts for bar chart plotting.
+
+    Args:
+        values: List of categorical identifiers.
+
+    Returns:
+        Dict[Any, int]: Mapping of category to frequency.
+    """
     counts: Dict[Any, int] = {}
     for v in values:
         counts[v] = counts.get(v, 0) + 1
@@ -109,6 +112,13 @@ _ALNS_OP_NAMES = {
 
 
 def _render_alns(data: Dict[str, List[Any]], height: int, smooth: int) -> None:
+    """Renders comprehensive ALNS iteration telemetry.
+
+    Args:
+        data: ALNS-specific telemetry dictionary.
+        height: Chart height in pixels.
+        smooth: EMA smoothing window.
+    """
     st.markdown("**ALNS – Iteration Telemetry**")
 
     iterations = data.get("iteration", list(range(len(data.get("best_cost", [])))))
@@ -215,6 +225,13 @@ def _render_alns(data: Dict[str, List[Any]], height: int, smooth: int) -> None:
 
 
 def _render_hgs(data: Dict[str, List[Any]], height: int, smooth: int) -> None:
+    """Renders HGS population fitness and stagnation telemetry.
+
+    Args:
+        data: HGS-specific telemetry dictionary.
+        height: Chart height in pixels.
+        smooth: EMA smoothing window.
+    """
     st.markdown("**HGS – Generation Telemetry**")
 
     generations = data.get("generation", list(range(len(data.get("best_cost", [])))))
@@ -289,6 +306,13 @@ def _render_hgs(data: Dict[str, List[Any]], height: int, smooth: int) -> None:
 
 
 def _render_aco(data: Dict[str, List[Any]], height: int, smooth: int) -> None:
+    """Renders ACO pheromone dynamics and convergence trajectories.
+
+    Args:
+        data: ACO-specific telemetry dictionary.
+        height: Chart height in pixels.
+        smooth: EMA smoothing window.
+    """
     st.markdown("**ACO – Pheromone & Cost Telemetry**")
 
     iterations = data.get("iteration", list(range(len(data.get("global_best_cost", [])))))
@@ -370,6 +394,13 @@ _PERTURB_COLORS = {"double_bridge": "#2196F3", "shuffle": "#FF9800", "random_swa
 
 
 def _render_ils(data: Dict[str, List[Any]], height: int, smooth: int) -> None:
+    """Renders ILS restart history and perturbation usage patterns.
+
+    Args:
+        data: ILS-specific telemetry dictionary.
+        height: Chart height in pixels.
+        smooth: EMA smoothing window.
+    """
     st.markdown("**ILS – Restart & Perturbation Telemetry**")
 
     restarts = data.get("restart", list(range(len(data.get("best_cost", [])))))
@@ -435,6 +466,12 @@ def _render_ils(data: Dict[str, List[Any]], height: int, smooth: int) -> None:
 
 
 def _render_selector(data: Dict[str, List[Any]], height: int) -> None:
+    """Renders bin selection strategy call telemetry.
+
+    Args:
+        data: Selector-specific telemetry dictionary.
+        height: Chart height in pixels.
+    """
     st.markdown("**Selection Strategy – Call Telemetry**")
 
     calls = list(range(len(data.get("n_selected", []))))
@@ -498,6 +535,13 @@ def _render_selector(data: Dict[str, List[Any]], height: int) -> None:
 
 
 def _render_rls(data: Dict[str, List[Any]], height: int, smooth: int) -> None:
+    """Renders generic policy iteration telemetry as multi-metric curves.
+
+    Args:
+        data: Generic telemetry dictionary.
+        height: Chart height in pixels.
+        smooth: EMA smoothing window.
+    """
     st.markdown("**RLS / Generic Policy – Iteration Telemetry**")
 
     iterations = data.get("iteration", list(range(len(next(iter(data.values()), [])))))

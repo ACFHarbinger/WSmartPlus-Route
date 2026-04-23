@@ -1,31 +1,20 @@
-"""
-Streamlit page for Optuna hyperparameter optimisation (HPO) tracking.
+"""Streamlit page for Optuna hyperparameter optimisation (HPO) tracking.
 
-Pulls a live or completed Optuna study from a SQLite / MySQL storage backend
-and renders four interactive analysis views:
+This module provides a comprehensive suite of visualization tools for
+analyzing HPO studies. It supports FANOVA importance analysis, 2D contour
+plots, and parallel coordinate discoveries to optimize model architectures
+and solver parameters.
 
-* **Parallel Coordinates** — All trials as lines across all hyperparameter axes.
-* **Parameter Importance** — FANOVA-based importance scores with Slice plots for
-  the top-4 most influential parameters.
-* **Optimisation History** — Objective value over trial number, with rolling best.
-* **Contour Plots** — 2-D contour surfaces for pairs of hyperparameters.
-
-Integration into the existing dashboard::
-
-    # In logic/src/ui/app.py add a new mode branch:
-    elif mode == "hpo_tracker":
-        render_hpo_tracker()
-
-    # In logic/src/ui/components/sidebar.py, add "hpo_tracker" to the
-    # mode selector options list.
-
-Standalone usage::
-
-    from logic.src.ui.pages.hpo_tracker import render_hpo_tracker
+Example:
     render_hpo_tracker(
         storage_url="sqlite:///assets/hpo/study.db",
-        study_name="vrpp_am_sweep",
+        study_name="vrpp_am_sweep"
     )
+
+Attributes:
+    render_hpo_tracker: Main orchestrator for the HPO dashboard.
+    _load_study: Graceful loader for Optuna storage backends.
+    _apply_layout: Consistent visual styling for Plotly figures.
 """
 
 from typing import Any, Dict, List, Optional
@@ -56,29 +45,22 @@ def render_hpo_tracker(
     importance_evaluator: str = "fanova",
     height: int = 600,
 ) -> None:
-    """
-    Render the full HPO tracking dashboard in Streamlit.
+    """Renders the full HPO tracking dashboard in Streamlit.
 
     Connects to an Optuna study and renders interactive optimisation views.
     All chart dimensions and displayed study names are driven by the function
-    arguments so there are no hardcoded values in the render logic.
+    arguments.
 
     Args:
         storage_url: SQLAlchemy connection string for the Optuna storage backend.
-            SQLite example: ``"sqlite:///assets/hpo/study.db"``.
-            MySQL example:  ``"mysql://user:pass@host/db"``.
-        study_name: Name of the study to visualise. When None, a study picker
-            dropdown is shown if multiple studies exist in storage.
+        study_name: Name of the study to visualise (None = picker).
         n_top_trials: Number of best trials highlighted in the trial table.
-            Default 10.
-        show_parallel_coords: Render parallel coordinate plot. Default True.
-        show_importance: Render FANOVA importance + slice plots. Default True.
-        show_history: Render optimisation history curve. Default True.
-        show_contour: Render 2-D contour plots (expensive for many params).
-            Default False.
-        importance_evaluator: ``"fanova"`` (default) or
-            ``"mean_decrease_impurity"`` for the importance algorithm.
-        height: Chart height in pixels for all plots. Default 600.
+        show_parallel_coords: Render parallel coordinate plot.
+        show_importance: Render FANOVA importance + slice plots.
+        show_history: Render optimisation history curve.
+        show_contour: Render 2-D contour plots.
+        importance_evaluator: "fanova" or "mean_decrease_impurity".
+        height: Chart height in pixels for all plots.
     """
     if optuna is None or ov is None:
         st.error("**optuna** is required for HPO tracking. Run: `pip install optuna plotly`")
@@ -152,7 +134,14 @@ def render_hpo_tracker(
 
 
 def _render_hpo_kpis(study: Any, trials: List[Any], n_complete: int, optuna: Any) -> None:
-    """Render the header KPI metrics."""
+    """Renders the header KPI metrics for the study.
+
+    Args:
+        study: The active Optuna study object.
+        trials: List of all trials in the study.
+        n_complete: Count of trials with COMPLETE state.
+        optuna: The optuna module instance.
+    """
     kpi_cols = st.columns(4)
     kpi_cols[0].metric("Study", study.study_name)
     kpi_cols[1].metric("Total Trials", len(trials))
@@ -161,7 +150,14 @@ def _render_hpo_kpis(study: Any, trials: List[Any], n_complete: int, optuna: Any
 
 
 def _render_tab_parallel_coords(study: Any, ov: Any, height: int, *args) -> None:
-    """Render the Parallel Coordinates tab."""
+    """Renders the Parallel Coordinates tab.
+
+    Args:
+        study: The active Optuna study.
+        ov: The optuna.visualization module.
+        height: Plot height in pixels.
+        args: Variable arguments for compatibility.
+    """
     st.subheader("Parallel Coordinate Plot")
     st.caption("Each coloured line represents one trial. Lines are coloured by objective value.")
     try:
@@ -173,7 +169,14 @@ def _render_tab_parallel_coords(study: Any, ov: Any, height: int, *args) -> None
 
 
 def _render_tab_importance(study: Any, ov: Any, height: int, evaluator_name: str) -> None:
-    """Render the Parameter Importance tab."""
+    """Renders the Parameter Importance tab.
+
+    Args:
+        study: The active Optuna study.
+        ov: The optuna.visualization module.
+        height: Plot height in pixels.
+        evaluator_name: Name of the importance algorithm.
+    """
 
     st.subheader("Hyperparameter Importance")
     st.caption(f"Importance scores via **{evaluator_name}**. Higher bars = greater influence on the objective.")
@@ -195,7 +198,14 @@ def _render_tab_importance(study: Any, ov: Any, height: int, evaluator_name: str
 
 
 def _render_tab_history(study: Any, ov: Any, height: int, *args) -> None:
-    """Render the Optimisation History tab."""
+    """Renders the Optimisation History tab.
+
+    Args:
+        study: The active Optuna study.
+        ov: The optuna.visualization module.
+        height: Plot height in pixels.
+        args: Variable arguments for compatibility.
+    """
     st.subheader("Optimisation History")
     st.caption("Objective value per trial. The green line shows the rolling best.")
     try:
@@ -207,7 +217,14 @@ def _render_tab_history(study: Any, ov: Any, height: int, *args) -> None:
 
 
 def _render_tab_contour(study: Any, ov: Any, height: int, *args) -> None:
-    """Render the Contour Plots tab."""
+    """Renders the Contour Plots tab.
+
+    Args:
+        study: The active Optuna study.
+        ov: The optuna.visualization module.
+        height: Plot height in pixels.
+        args: Variable arguments for compatibility.
+    """
     st.subheader("2-D Contour Plots")
     st.caption("Objective surface over pairs of hyperparameters. Select parameters via the Optuna figure controls.")
     try:
@@ -228,7 +245,16 @@ def _load_study(
     study_name: Optional[str],
     optuna: Any,
 ) -> Optional[Any]:
-    """Load an Optuna study from storage with graceful error handling."""
+    """Loads an Optuna study from storage with graceful error handling.
+
+    Args:
+        storage_url: Connection string for the storage backend.
+        study_name: Name of study to load (None = picker).
+        optuna: The optuna module instance.
+
+    Returns:
+        Optional[Any]: The loaded study object or None.
+    """
     optuna.logging.set_verbosity(optuna.logging.WARNING)
 
     try:
@@ -256,14 +282,27 @@ def _load_study(
 
 
 def _build_evaluator(name: str, optuna: Any) -> Any:
-    """Instantiate the requested FANOVA/MDI importance evaluator."""
+    """Instantiates the requested importance evaluator.
+
+    Args:
+        name: Name of evaluated algorithm ('fanova' or 'mdi').
+        optuna: The optuna module instance.
+
+    Returns:
+        Any: The importance evaluator instance.
+    """
     if name == "fanova":
         return optuna.importance.FanovaImportanceEvaluator()
     return optuna.importance.MeanDecreaseImpurityImportanceEvaluator()
 
 
 def _apply_layout(fig: Any, height: int) -> None:
-    """Apply consistent Plotly layout settings to all Optuna figures."""
+    """Applies consistent Plotly layout settings to Optuna figures.
+
+    Args:
+        fig: The Plotly figure to modify.
+        height: Target height in pixels.
+    """
     fig.update_layout(
         height=height,
         template="plotly_white",
@@ -275,7 +314,12 @@ def _render_trial_table(
     completed_trials: List[Any],
     n_top: int,
 ) -> None:
-    """Render the top-N completed trials as an interactive DataFrame."""
+    """Renders the top-N completed trials as an interactive DataFrame.
+
+    Args:
+        completed_trials: List of trials with COMPLETE state.
+        n_top: Maximum number of rows to display.
+    """
 
     st.subheader(f"Top {n_top} Completed Trials")
 

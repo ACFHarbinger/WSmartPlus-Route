@@ -5,6 +5,12 @@ metrics across multi-day simulation runs. It supports cumulative totals,
 day-over-day delta calculation, and descriptive statistics (mean, std,
 min, max) for all primary performance indicators.
 
+Attributes:
+    compute_cumulative_stats: Computes totals across all days.
+    compute_day_deltas: Computes change from previous day.
+    compute_summary_statistics: Computes mean, std, etc. per metric.
+    get_metric_history: Returns historical mean values.
+
 Example:
     >>> from logic.src.ui.services.simulation_analytics import compute_cumulative_stats
     >>> totals = compute_cumulative_stats(log_entries, policy="greedy")
