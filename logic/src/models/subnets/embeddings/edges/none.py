@@ -1,15 +1,20 @@
-"""none.py module.
+"""Null edge embedding module.
+
+This module provides the NoEdgeEmbedding layer, which constructs fully-connected
+graphs with zero-valued edge attributes for problems where edge features are ignored.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    NoEdgeEmbedding: Placeholder edge encoder for non-graph tasks.
 
 Example:
-    >>> import none
+    >>> from logic.src.models.subnets.embeddings.edges.none import NoEdgeEmbedding
+    >>> embedder = NoEdgeEmbedding(embed_dim=128)
+    >>> pyg_batch = embedder(td, init_embeddings)
 """
 
 from __future__ import annotations
 
-from typing import List
+from typing import Any, List
 
 import torch
 from torch import nn
@@ -20,21 +25,24 @@ from logic.src.utils.ops import get_full_graph_edge_index
 
 
 class NoEdgeEmbedding(nn.Module):
-    """
-    Dummy edge embedding for problems that don't use edge features.
+    """Dummy edge embedding for problems that don't use edge features.
 
-    Creates a fully-connected graph with zero-valued edge embeddings.
-    Useful for problems where only node features matter (e.g., scheduling).
+    Creates a fully-connected graph structure with zero-valued edge embeddings.
+    Useful for architectural consistency in models that expect graph-structured
+    inputs even when edges carry no information.
+
+    Attributes:
+        embed_dim (int): Dimensionality of the output zero-embeddings.
+        self_loop (bool): Whether to include self-loops in the graph.
     """
 
-    def __init__(self, embed_dim: int, self_loop: bool = False, **kwargs):
-        """
-        Initialize NoEdgeEmbedding.
+    def __init__(self, embed_dim: int, self_loop: bool = False, **kwargs: Any) -> None:
+        """Initializes NoEdgeEmbedding.
 
         Args:
-            embed_dim: Embedding dimension.
-            self_loop: Whether to include self-loops.
-            **kwargs: Unused arguments.
+            embed_dim: Resulting edge feature dimension.
+            self_loop: Whether to include self-loops in the generated graph.
+            kwargs: Unused arguments captured for registry compatibility.
         """
         assert Batch is not None, (
             "torch_geometric is required for NoEdgeEmbedding. Install via: pip install torch_geometric"
@@ -43,16 +51,15 @@ class NoEdgeEmbedding(nn.Module):
         self.embed_dim = embed_dim
         self.self_loop = self_loop
 
-    def forward(self, td, init_embeddings: torch.Tensor):
-        """
-        Generate dummy edge embeddings.
+    def forward(self, td: Any, init_embeddings: torch.Tensor) -> Batch:
+        """Generates zero-valued edge embeddings for a fully-connected graph.
 
         Args:
-           td: TensorDict.
-           init_embeddings: Node embeddings.
+            td: Current problem instance data.
+            init_embeddings: Static node embeddings of shape (batch, nodes, dim).
 
         Returns:
-            Batch with dummy edge attributes.
+            Batch: PyG Batch object with zeroed edge_attr.
         """
         data_list: List[BaseData] = []
         n = init_embeddings.shape[1]

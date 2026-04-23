@@ -1,5 +1,23 @@
-"""
-Common policy base classes and templates.
+"""Common neural policy templates and base components.
+
+This package provides abstract base classes and modular components for building
+DRL policies, including support for autoregressive decoding, iterative
+improvement, and transductive search.
+
+Attributes:
+    ConstructivePolicy: Base for models that build solutions step-by-step.
+    AutoregressiveDecoder: Shared logic for sequential token generation.
+    AutoregressiveEncoder: Neural feature extraction for routing states.
+    ImprovementPolicy: Template for models that refine existing solutions.
+    NonAutoregressivePolicy: Parallel output generation (e.g., heatmaps).
+    TransductiveModel: Base for models with online optimization components.
+    TimeTrackingPolicy: Timing wrapper for performance profiling.
+
+Example:
+    >>> from logic.src.models.common import ConstructivePolicy
+    >>> class MyNewModel(ConstructivePolicy):
+    ...     def pre_forward(self, td, env):
+    ...         return self.encoder(td)
 """
 
 from .autoregressive.constructive import ConstructivePolicy

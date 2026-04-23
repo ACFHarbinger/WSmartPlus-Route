@@ -1,12 +1,21 @@
-"""
-Decoder based on Multi-Head Attention (MHA).
+"""Decoder based on Multi-Head Attention (MHA).
 
-Decodes the problem embedding into a sequence of nodes (visits) using a
-glimpse attention mechanism. Supports greedy decoding, sampling, and beam search.
+This module implements a constructive decoder that uses multi-head attention
+with a glimpse mechanism to autonomously select nodes in routing problems.
+
+Attributes:
+    GlimpseDecoder: Autoregressive decoder using MHA and glimpse mechanisms.
+
+Example:
+    >>> from logic.src.models.subnets.decoders.glimpse.decoder import GlimpseDecoder
+    >>> decoder = GlimpseDecoder(embed_dim=128, hidden_dim=512, problem=tsp_env)
+    >>> log_p, pi, cost, _ = decoder(input_tensor, node_embeddings)
 """
+
+from __future__ import annotations
 
 import math
-from typing import Any, Optional, Union
+from typing import Any, Dict, Optional, Tuple, Union
 
 import torch
 from torch import nn
@@ -16,8 +25,27 @@ from logic.src.models.subnets.decoders.glimpse.attention import make_heads, one_
 
 
 class GlimpseDecoder(nn.Module):
-    """
-    Decoder based on Multi-Head Attention (MHA).
+    """Decoder based on Multi-Head Attention (MHA).
+
+    Attributes:
+        embed_dim (int): Dimensionality of embeddings.
+        problem (Any): Problem environment for state management.
+        n_heads (int): Number of attention heads.
+        mask_inner (bool): Whether to mask visited nodes in glimpse.
+        mask_logits (bool): Whether to mask visited nodes in final probabilities.
+        tanh_clipping (float): Clipping range for logits.
+        mask_graph (bool): Whether to apply graph-level masking.
+        shrink_size (Optional[int]): Optimization parameter for state shrinking.
+        pomo_size (int): Size for POMO (Parallel Optimal Model Optimization).
+        spatial_bias (bool): Whether to apply spatial bias in attention.
+        spatial_bias_scale (float): Scaling factor for spatial bias.
+        strategy (Optional[str]): Decoding strategy (e.g., "greedy", "sampling").
+        seed (int): Random seed for reproducibility.
+        generator (torch.Generator): Random number generator for selection.
+        project_node_embeddings (nn.Linear): Linear projection for V/K/Q.
+        project_fixed_context (nn.Linear): Projection for the static graph context.
+        project_step_context (nn.Linear): Projection for the dynamic step context.
+        step_context_dim (int): Dimensionality of the step context embedding.
     """
 
     def __init__(
@@ -36,26 +64,26 @@ class GlimpseDecoder(nn.Module):
         spatial_bias_scale: float = 1.0,
         strategy: Optional[str] = None,
         seed: int = 42,
-        **kwargs,
-    ):
-        """Initialize Class.
+        **kwargs: Any,
+    ) -> None:
+        """Initializes class.
 
         Args:
-            embed_dim (int): Description of embed_dim.
-            hidden_dim (int): Description of hidden_dim.
-            problem (Any): Description of problem.
-            n_heads (int): Description of n_heads.
-            mask_inner (bool): Description of mask_inner.
-            mask_logits (bool): Description of mask_logits.
-            tanh_clipping (float): Description of tanh_clipping.
-            mask_graph (bool): Description of mask_graph.
-            shrink_size (Optional[int]): Description of shrink_size.
-            pomo_size (int): Description of pomo_size.
-            spatial_bias (bool): Description of spatial_bias.
-            spatial_bias_scale (float): Description of spatial_bias_scale.
-            strategy (Optional[str]): Description of strategy.
-            seed (int): Description of seed.
-            kwargs (Any): Description of kwargs.
+            embed_dim: Node embedding dimensionality.
+            hidden_dim: Hidden dimension size for layers.
+            problem: Problem environment class.
+            n_heads: Number of attention heads.
+            mask_inner: Whether to mask inner attention.
+            mask_logits: Whether to mask output logits.
+            tanh_clipping: Logit clipping value.
+            mask_graph: Whether to use graph masking.
+            shrink_size: Batch shrinkage parameter.
+            pomo_size: Number of POMO augmentation starts.
+            spatial_bias: Apply spatial bias flag.
+            spatial_bias_scale: Scale for spatial bias.
+            strategy: Default decoding strategy.
+            seed: Initialization seed for selection.
+            kwargs: Additional keyword arguments.
         """
         super().__init__()
         self.embed_dim = embed_dim
@@ -84,31 +112,57 @@ class GlimpseDecoder(nn.Module):
 
     @property
     def device(self) -> torch.device:
-        """Get device of the model."""
+        """Gets the device of the model.
+
+        Returns:
+            torch.device: Model device.
+        """
         return next(self.parameters()).device
 
-    def set_step_context_dim(self, dim: int):
-        """Sets the dimension of the step context projection."""
+    def set_step_context_dim(self, dim: int) -> None:
+        """Sets the dimension of the step context projection.
+
+        Args:
+            dim: New dimensionality for step context.
+        """
         self.step_context_dim = dim
         self.project_step_context = nn.Linear(dim, self.embed_dim, bias=False)
 
-    def set_strategy(self, strategy: str, temp: Optional[float] = None):
-        """Sets the decoding strategy and temperature."""
+    def set_strategy(self, strategy: str, temp: Optional[float] = None) -> None:
+        """Sets the decoding strategy and temperature.
+
+        Args:
+            strategy: Strategy name (e.g., "greedy").
+            temp: Softmax temperature (optional).
+        """
         self.strategy = strategy
         if temp is not None:
             self.temp = temp
 
     def forward(
         self,
-        input: Union[torch.Tensor, dict[str, torch.Tensor]],
+        input: Union[torch.Tensor, Dict[str, torch.Tensor]],
         embeddings: torch.Tensor,
         fixed_context: Optional[torch.Tensor] = None,
         init_context: Optional[torch.Tensor] = None,
         env: Optional[Any] = None,
         expert_pi: Optional[torch.Tensor] = None,
         **kwargs: Any,
-    ):
-        """Standard Module forward wrapper."""
+    ) -> Tuple[torch.Tensor, torch.Tensor, Optional[torch.Tensor], Optional[Any]]:
+        """Standard Module forward wrapper.
+
+        Args:
+            input: Input features or state dictionary.
+            embeddings: Contextual node embeddings.
+            fixed_context: Precomputed fixed context.
+            init_context: Initial context.
+            env: Environment instance.
+            expert_pi: Expert actions.
+            kwargs: Additional keyword arguments.
+
+        Returns:
+            Tuple: Log probabilities, actions, costs, and final internal state.
+        """
         return self._inner(
             input,
             embeddings,
@@ -121,15 +175,28 @@ class GlimpseDecoder(nn.Module):
 
     def _inner(
         self,
-        nodes: Union[torch.Tensor, dict[str, torch.Tensor]],
+        nodes: Union[torch.Tensor, Dict[str, torch.Tensor]],
         embeddings: torch.Tensor,
         fixed_context: Optional[torch.Tensor] = None,
         init_context: Optional[torch.Tensor] = None,
         env: Optional[Any] = None,
         expert_pi: Optional[torch.Tensor] = None,
         **kwargs: Any,
-    ):
-        """Constructive decoding loop."""
+    ) -> Tuple[torch.Tensor, torch.Tensor, Optional[torch.Tensor], Optional[Any]]:
+        """Constructive decoding loop.
+
+        Args:
+            nodes: Input features of the nodes.
+            embeddings: Contextual embeddings from the encoder.
+            fixed_context: Fixed context for the problem.
+            init_context: Initial step context.
+            env: Environment class instance.
+            expert_pi: Ground truth expert actions.
+            kwargs: Additional keywords.
+
+        Returns:
+            Tuple: Log probabilities, action sequences, costs, and final state.
+        """
         outputs = []
         sequences = []
 
@@ -141,7 +208,7 @@ class GlimpseDecoder(nn.Module):
         fixed = self._precompute(embeddings)
 
         # Allow overriding strategy via kwargs (e.g. from AttentionModel.forward)
-        strategy_name = kwargs.get("strategy", self.strategy)
+        strategy_name = kwargs.get("strategy", self.strategy) or "greedy"
 
         # Mask can be passed via kwargs
         mask = kwargs.get("mask")
@@ -164,8 +231,8 @@ class GlimpseDecoder(nn.Module):
 
         i = 0
         while not state.all_finished() and i < max_steps:
-            log_p, _ = self._get_log_p(fixed, state, mask=mask)
-            selected = self._select_node(log_p.exp(), _, strategy=strategy_name)  # type: ignore[arg-type]
+            log_p, current_mask = self._get_log_p(fixed, state, mask=mask)
+            selected = self._select_node(log_p.exp(), current_mask, strategy=strategy_name)
 
             state = state.update(selected)
 
@@ -195,8 +262,20 @@ class GlimpseDecoder(nn.Module):
 
         return _log_p, pi, cost, final_td
 
-    def _select_node(self, probs: torch.Tensor, mask: Optional[torch.Tensor], strategy: str = "greedy"):
-        """Selection logic."""
+    def _select_node(self, probs: torch.Tensor, mask: Optional[torch.Tensor], strategy: str = "greedy") -> torch.Tensor:
+        """Internal node selection logic.
+
+        Args:
+            probs: Probabilities for selecting the next node.
+            mask: Valid node mask.
+            strategy: Selection strategy name.
+
+        Returns:
+            torch.Tensor: Selected node indices.
+
+        Raises:
+            ValueError: If an unknown strategy is specified.
+        """
         assert (probs == probs).all(), "Probs contain NaN"
 
         if strategy == "greedy":
@@ -223,8 +302,12 @@ class GlimpseDecoder(nn.Module):
 
         return selected
 
-    def __getstate__(self):
-        """Prepare state for pickling (handle non-picklable Generator)."""
+    def __getstate__(self) -> Dict[str, Any]:
+        """Prepare state for pickling (handle non-picklable Generator).
+
+        Returns:
+            Dict[str, Any]: State dictionary with generator metadata.
+        """
         state = self.__dict__.copy()
         # Generator is not picklable, save state as tensor
         state["generator_state"] = self.generator.get_state()
@@ -232,8 +315,12 @@ class GlimpseDecoder(nn.Module):
         del state["generator"]
         return state
 
-    def __setstate__(self, state):
-        """Restore state after unpickling."""
+    def __setstate__(self, state: Dict[str, Any]) -> None:
+        """Restore state after unpickling.
+
+        Args:
+            state: State dictionary containing generator state.
+        """
         gen_state = state.pop("generator_state")
         gen_device = state.pop("generator_device")
         self.__dict__.update(state)
@@ -242,7 +329,15 @@ class GlimpseDecoder(nn.Module):
         self.generator.set_state(gen_state)
 
     def _precompute(self, embeddings: torch.Tensor, num_steps: int = 1) -> AttentionDecoderCache:
-        """Precompute K,V for the attention mechanism."""
+        """Precompute K, V for the attention mechanism.
+
+        Args:
+            embeddings: Node embeddings from the encoder.
+            num_steps: Unused.
+
+        Returns:
+            AttentionDecoderCache: Cache object containing keys and values.
+        """
         node_embeddings = embeddings
         graph_context = self.project_fixed_context(node_embeddings.mean(1))
 
@@ -266,8 +361,22 @@ class GlimpseDecoder(nn.Module):
         normalize: bool = True,
         mask_val: float = -math.inf,
         mask: Optional[torch.Tensor] = None,
-    ):
-        """Compute log probabilities for the current state."""
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Compute log probabilities for the current state.
+
+        Args:
+            fixed: Fixed keys/values in the attention mechanism.
+            state: Current environment state.
+            normalize: Whether to apply log-softmax.
+            mask_val: Value for masked-out logits.
+            mask: Optional additional mask.
+
+        Returns:
+            Tuple: Log probabilities and the resolved mask.
+
+        Raises:
+            ValueError: If no mask is available from state or argument.
+        """
         query = self._get_parallel_step_context(fixed.node_embeddings, state)
 
         # 1. Resolve the mask and ensure it's not None for the type checker
@@ -298,8 +407,19 @@ class GlimpseDecoder(nn.Module):
             return torch.log_softmax(logits, dim=-1), current_mask
         return logits, current_mask
 
-    def _get_parallel_step_context(self, embeddings: torch.Tensor, state: Any, from_depot: bool = False):
-        """Extract step context from state and project."""
+    def _get_parallel_step_context(
+        self, embeddings: torch.Tensor, state: Any, from_depot: bool = False
+    ) -> torch.Tensor:
+        """Extract step context from state and project.
+
+        Args:
+            embeddings: Node embeddings.
+            state: Current environment state.
+            from_depot: Flag for starting from depot.
+
+        Returns:
+            torch.Tensor: Projected step context query.
+        """
         current_node = state.get_current_node()
         batch_size = embeddings.size(0)
 
@@ -325,8 +445,19 @@ class GlimpseDecoder(nn.Module):
         mask: Optional[torch.Tensor],
         return_entropy: bool = False,
         kl_loss: bool = False,
-    ):
-        """Utility for loss calculation."""
+    ) -> Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor]]:
+        """Utility for log-likelihood and entropy calculation.
+
+        Args:
+            _log_p: Log probability predictions.
+            a: Actions taken.
+            mask: Valid sample mask.
+            return_entropy: Whether to return entropy of distribution.
+            kl_loss: Unused flag.
+
+        Returns:
+            Union: Log-likelihood or (log-likelihood, entropy).
+        """
         log_p = _log_p.gather(2, a.unsqueeze(-1)).squeeze(-1)
 
         if mask is not None:
@@ -347,8 +478,19 @@ class GlimpseDecoder(nn.Module):
         expand_size: Optional[int] = None,
         normalize: bool = False,
         max_calc_batch_size: int = 4096,
-    ):
-        """Proposals for beam search."""
+    ) -> torch.Tensor:
+        """Proposals for beam search.
+
+        Args:
+            beam: Beam object.
+            fixed: Static attention cache.
+            expand_size: Number of children to expand.
+            normalize: Softmax normalization flag.
+            max_calc_batch_size: Batching limit.
+
+        Returns:
+            torch.Tensor: Log probabilities for expansion candidates.
+        """
         # Implementation depends on external Beam structure
         # Simplified for now
         log_p, _ = self._get_log_p(fixed, beam.state, normalize=normalize)

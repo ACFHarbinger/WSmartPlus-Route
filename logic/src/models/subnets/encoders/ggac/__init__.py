@@ -1,10 +1,11 @@
 """__init__.py module.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    GatedGraphAttConvEncoder: Gated Graph Attention Convolution Encoder.
 
 Example:
-    >>> import __init__
+    >>> from logic.src.models.subnets.encoders.ggac import GatedGraphAttConvEncoder
+    >>> encoder = GatedGraphAttConvEncoder(n_layers=3, embed_dim=128)
 """
 
 from .encoder import GatedGraphAttConvEncoder as GatedGraphAttConvEncoder

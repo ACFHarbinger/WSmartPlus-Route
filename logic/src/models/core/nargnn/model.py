@@ -1,11 +1,19 @@
-"""
-NARGNN Model: REINFORCE wrapper for non-autoregressive GNNs.
+"""NARGNN Model: Non-Autoregressive GNN for routing.
+
+This module provides the `NARGNN` wrapper, which employs a edge-based Graph
+Neural Network to predict a heatmap of edge inclusion probabilities. This
+heatmap is then used to construct solutions in a single non-autoregressive
+pass (or via sampling), with the model refined using REINFORCE.
+
+Attributes:
+    NARGNN: Training wrapper for edge-based heatmap models.
 """
 
 from __future__ import annotations
 
 from typing import Any, Dict, Optional
 
+import torch
 from tensordict import TensorDict
 from torch import nn
 
@@ -15,10 +23,16 @@ from .policy import NARGNNPolicy
 
 
 class NARGNN(nn.Module):
-    """
-    NARGNN Model.
+    """NARGNN training wrapper for REINFORCE.
 
-    REINFORCE-based training wrapper for NARGNNPolicy.
+    Assembles the `NARGNNPolicy` and computes standard reinforcement learning
+    losses against various baseline strategies to handle the discrete
+    construction rewards.
+
+    Attributes:
+        policy (NARGNNPolicy): The underlying heatmap-prediction GNN policy.
+        baseline_type (Optional[str]): Method for advantage calculation.
+        _baseline_val (Optional[torch.Tensor]): State for 'exponential' baseline.
     """
 
     def __init__(
@@ -28,10 +42,17 @@ class NARGNN(nn.Module):
         num_layers_heatmap_generator: int = 5,
         num_layers_graph_encoder: int = 15,
         baseline: Optional[str] = "rollout",
-        **kwargs,
-    ):
-        """
-        Initialize NARGNN model.
+        **kwargs: Any,
+    ) -> None:
+        """Initializes the NARGNN wrapper.
+
+        Args:
+            embed_dim: Internal feature dimensionality.
+            env_name: Optimization task identifier.
+            num_layers_heatmap_generator: Depth of the heatmap MLP.
+            num_layers_graph_encoder: Depth of the GNN message-passing stack.
+            baseline: RL baseline strategy ('rollout', 'exponential').
+            **kwargs: Extra parameters for NARGNNPolicy.
         """
         super().__init__()
         self.policy = NARGNNPolicy(
@@ -42,23 +63,30 @@ class NARGNN(nn.Module):
             **kwargs,
         )
         self.baseline_type = baseline
-        self._baseline_val = None
+        self._baseline_val: Optional[torch.Tensor] = None
 
     def forward(
         self,
         td: TensorDict,
         env: Optional[RL4COEnvBase] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
-        """
-        Forward pass for training.
+        """Executes heatmap generation and computes REINFORCE loss.
+
+        Args:
+            td: problem state container.
+            env: Optional environment for reward calculation.
+            **kwargs: Additional parameters for policy execution.
+
+        Returns:
+            Dict[str, Any]: Result map including reward, likelihood, and 'loss'.
         """
         out = self.policy(td, env, **kwargs)
 
         reward = out["reward"]
         log_likelihood = out["log_likelihood"]
 
-        # Compute baseline
+        # Compute baseline statefully or per-batch
         if self.baseline_type == "exponential":
             if self._baseline_val is None:
                 self._baseline_val = reward.mean().detach()
@@ -70,7 +98,7 @@ class NARGNN(nn.Module):
         else:
             baseline = 0.0
 
-        # REINFORCE loss
+        # Loss calculation: REINFORCE advantage
         advantage = reward - baseline
         loss = -(advantage.detach() * log_likelihood).mean()
         out["loss"] = loss
@@ -78,11 +106,11 @@ class NARGNN(nn.Module):
 
         return out
 
-    def set_strategy(self, strategy: str, **kwargs):
-        """Set strategy.
+    def set_strategy(self, strategy: str, **kwargs: Any) -> None:
+        """Configures the action selection tactic (e.g., 'greedy', 'sampling').
 
         Args:
-            strategy (str): Description of strategy.
-            kwargs (Any): Description of kwargs.
+            strategy: Selection mode identifier.
+            **kwargs: Parameters like 'num_starts' or 'temperature'.
         """
         self.policy.set_strategy(strategy, **kwargs)

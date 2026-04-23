@@ -1,6 +1,14 @@
-"""Gated Graph Attention Convolution Encoder."""
+"""Gated Graph Attention Convolution Encoder.
 
-from typing import Optional
+Attributes:
+    GatedGraphAttConvEncoder: Gated Graph Attention Convolution Encoder using stacked AttentionGatedConvolutionLayers.
+
+Example:
+    >>> from logic.src.models.subnets.encoders.ggac import GatedGraphAttConvEncoder
+    >>> encoder = GatedGraphAttConvEncoder(n_heads=8, embed_dim=128, n_layers=3)
+"""
+
+from typing import Any, List, Optional
 
 import torch
 from torch import nn
@@ -13,8 +21,7 @@ from .attention_gated_convolution_layer import AttentionGatedConvolutionLayer
 
 
 class GatedGraphAttConvEncoder(TransformerEncoderBase):
-    """
-    Gated Graph Attention Convolution Encoder using stacked AttentionGatedConvolutionLayers.
+    """Gated Graph Attention Convolution Encoder using stacked AttentionGatedConvolutionLayers.
 
     This encoder combines graph attention mechanisms with gated convolutions and supports
     edge embeddings derived from distance matrices.
@@ -22,50 +29,11 @@ class GatedGraphAttConvEncoder(TransformerEncoderBase):
     Inherits from TransformerEncoderBase for common encoder patterns like layer stacking,
     dropout, and configuration management.
 
-    Parameters
-    ----------
-    n_heads : int
-        Number of attention heads.
-    embed_dim : int
-        Embedding dimension.
-    n_layers : int
-        Number of encoder layers.
-    n_sublayers : Optional[int], default=None
-        Number of sublayers (unused, kept for API compatibility).
-    feed_forward_hidden : int, default=512
-        Hidden dimension for feed-forward layers.
-    normalization : str, default="batch"
-        Normalization type: "batch", "layer", "instance", or "group".
-    epsilon_alpha : float, default=1e-05
-        Epsilon for normalization stability.
-    learn_affine : bool, default=True
-        Whether to learn affine parameters in normalization.
-    track_stats : bool, default=False
-        Whether to track running stats in batch norm.
-    momentum_beta : float, default=0.1
-        Momentum for batch norm running stats.
-    locresp_k : float, default=1.0
-        Local response normalization parameter.
-    n_groups : int, default=3
-        Number of groups for group normalization.
-    activation : str, default="gelu"
-        Activation function name.
-    af_param : float, default=1.0
-        Activation function parameter.
-    threshold : float, default=6.0
-        Activation threshold.
-    replacement_value : float, default=6.0
-        Activation replacement value.
-    n_params : int, default=3
-        Number of activation parameters.
-    uniform_range : list, default=[0.125, 1/3]
-        Uniform range for activation.
-    dropout_rate : float, default=0.1
-        Dropout probability.
-    agg : str, default="sum"
-        Aggregation method for graph convolutions: "sum", "mean", or "max".
-    **kwargs
-        Additional keyword arguments.
+    Attributes:
+        aggregate (str): Aggregation method for graph convolutions: "sum", "mean", or "max".
+        n_sublayers (Optional[int]): Number of sublayers (unused).
+        dist_norm (nn.BatchNorm1d): Normalization layer for raw distances.
+        init_edge_embed (nn.Linear): Projector for initial distance features to edge embeddings.
     """
 
     def __init__(
@@ -87,12 +55,36 @@ class GatedGraphAttConvEncoder(TransformerEncoderBase):
         threshold: float = 6.0,
         replacement_value: float = 6.0,
         n_params: int = 3,
-        uniform_range: Optional[list] = None,
+        uniform_range: Optional[List[float]] = None,
         dropout_rate: float = 0.1,
         agg: str = "sum",
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
-        """Initialize the GatedGraphAttConvEncoder."""
+        """Initializes the GatedGraphAttConvEncoder.
+
+        Args:
+            n_heads: Number of attention heads.
+            embed_dim: Embedding dimension.
+            n_layers: Number of encoder layers.
+            n_sublayers: Number of sublayers (unused, kept for API compatibility).
+            feed_forward_hidden: Hidden dimension for feed-forward layers.
+            normalization: Normalization type ("batch", "layer", "instance", or "group").
+            epsilon_alpha: Epsilon for normalization stability.
+            learn_affine: Whether to learn affine parameters in normalization.
+            track_stats: Whether to track running stats in batch norm.
+            momentum_beta: Momentum for batch norm running stats.
+            locresp_k: Local response normalization parameter.
+            n_groups: Number of groups for group normalization.
+            activation: Activation function name.
+            af_param: Activation function parameter.
+            threshold: Activation threshold.
+            replacement_value: Activation replacement value.
+            n_params: Number of activation parameters.
+            uniform_range: Uniform range for activation.
+            dropout_rate: Dropout probability.
+            agg: Aggregation method for graph convolutions: "sum", "mean", or "max".
+            kwargs: Additional keyword arguments.
+        """
         # Store GGAC-specific parameters BEFORE calling super().__init__()
         # because _create_layer() is called during base class initialization
         self.aggregate = agg
@@ -137,19 +129,13 @@ class GatedGraphAttConvEncoder(TransformerEncoderBase):
         self.init_edge_embed = nn.Linear(1, embed_dim)
 
     def _create_layer(self, layer_idx: int) -> nn.Module:
-        """
-        Create a single AttentionGatedConvolutionLayer.
+        """Creates a single AttentionGatedConvolutionLayer.
 
-        Parameters
-        ----------
-        layer_idx : int
-            Index of the layer being created (0 to n_layers-1).
-            Unused by GGAC but required by base class interface.
+        Args:
+            layer_idx: Index of the layer being created (0 to n_layers-1).
 
-        Returns
-        -------
-        nn.Module
-            AttentionGatedConvolutionLayer instance.
+        Returns:
+            nn.Module: AttentionGatedConvolutionLayer instance.
         """
         # Note: layer_idx is unused but required by base class signature
         _ = layer_idx  # Explicitly mark as unused
@@ -181,40 +167,26 @@ class GatedGraphAttConvEncoder(TransformerEncoderBase):
         mask: Optional[torch.Tensor] = None,
         dist: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
-        """
-        Forward pass with edge embedding support.
+        """Forward pass with edge embedding support.
 
         This encoder supports distance-based edge embeddings, which are initialized
         from a distance matrix and updated through the layers alongside node embeddings.
 
-        GGAC-specific override: Unlike the base class forward, this method handles
-        both node and edge embeddings, with edge embeddings derived from distance matrices.
+        Args:
+            x: Input node features of shape (batch_size, num_nodes, embed_dim).
+            edges: Edge information (unused in GGAC, kept for compatibility).
+            mask: Boolean adjacency mask of shape (batch_size, num_nodes, num_nodes).
+            dist: Distance matrix of shape (batch_size, num_nodes, num_nodes) or
+                (num_nodes, num_nodes). If provided, used to initialize edge embeddings.
 
-        Parameters
-        ----------
-        x : torch.Tensor
-            Input node features of shape (batch_size, num_nodes, embed_dim).
-        edges : Optional[torch.Tensor], default=None
-            Edge information (unused in GGAC, kept for compatibility).
-        mask : Optional[torch.Tensor], default=None
-            Boolean adjacency mask of shape (batch_size, num_nodes, num_nodes).
-            If None, assumes a fully connected graph.
-        dist : Optional[torch.Tensor], default=None
-            Distance matrix of shape (batch_size, num_nodes, num_nodes) or
-            (num_nodes, num_nodes). If provided, used to initialize edge embeddings.
-            This is a GGAC-specific parameter not present in the base class.
+        Returns:
+            torch.Tensor: Encoded node features of shape (batch_size, num_nodes, embed_dim).
 
-        Returns
-        -------
-        torch.Tensor
-            Encoded node features of shape (batch_size, num_nodes, embed_dim).
-
-        Notes
-        -----
-        - Edge embeddings are derived from distance matrices via normalization and linear projection
-        - If no distance matrix provided, edge embeddings are initialized to zeros
-        - The encoder updates both node and edge embeddings through layers, but only returns nodes
-        - The `edges` parameter is kept for API compatibility but `mask` is used for attention
+        Note:
+            - If no distance matrix provided, edge embeddings are initialized to zeros.
+            - The encoder updates both node and edge embeddings through layers, but
+              only returns nodes.
+            - `edges` is kept for API compatibility; `mask` is used for attention.
         """
         # Use mask parameter (edges is kept for base class compatibility but not used)
         adjacency_mask = mask

@@ -2,6 +2,21 @@
 Styling package for the dashboard.
 
 Re-exports all public names from submodules for convenient access.
+
+Attributes:
+    CHART_COLORS: List of default charting colors.
+    CUSTOM_CSS: consolidated CSS string.
+    KPI_COLORS: Mapping of KPI labels to colors.
+    KPI_FALLBACK_COLORS: List of fallback colors for KPIs.
+    KPIDelta: Delta type alias.
+    KPIValue: Value type alias.
+    ROUTE_COLORS: List of route colors.
+    STATUS_COLORS: Mapping of status to colors.
+
+Example:
+    >>> from logic.src.ui.styles import CUSTOM_CSS
+    >>> print(CUSTOM_CSS[:10])
+    <style>
 """
 
 from logic.src.ui.styles.colors import (

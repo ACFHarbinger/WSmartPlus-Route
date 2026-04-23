@@ -1,12 +1,19 @@
-"""
-ACO Decoder: Ant colony solution construction from heatmaps.
+"""DeepACO Decoder: Ant colony solution construction from heatmaps.
 
-Uses pheromone-guided ant colony optimization to construct solutions.
+This module provides the ACO-based decoder which uses pheromone-guided construction
+directed by GNN-predicted heatmaps.
+
+Attributes:
+    ACODecoder: Ant Colony Optimization decoder for solution construction.
+
+Example:
+    >>> from logic.src.models.subnets.decoders.deepaco import ACODecoder
+    >>> decoder = ACODecoder(n_ants=20, alpha=1.0, beta=2.0)
 """
 
 from __future__ import annotations
 
-from typing import Dict, Tuple, Union
+from typing import Any, Dict, Tuple, Union
 
 import torch
 from tensordict import TensorDict
@@ -16,10 +23,20 @@ from logic.src.models.common.non_autoregressive.decoder import NonAutoregressive
 
 
 class ACODecoder(NonAutoregressiveDecoder):
-    """
-    Ant Colony Optimization decoder.
+    """Ant Colony Optimization decoder.
 
-    Constructs solutions using heatmap-guided pheromones.
+    Constructs solutions using heatmap-guided pheromones. Supports greedy
+    selection and deterministic sampling during construction.
+
+    Attributes:
+        n_ants (int): Number of ants per construction.
+        n_iterations (int): Number of ACO iterations.
+        alpha (float): Pheromone importance weight.
+        beta (float): Heuristic (distance) importance weight.
+        rho (float): Pheromone evaporation rate.
+        use_local_search (bool): Whether to apply 2-opt local search.
+        seed (int): Random seed for reproducibility.
+        generator (torch.Generator): Random number generator for selection.
     """
 
     def __init__(
@@ -31,10 +48,9 @@ class ACODecoder(NonAutoregressiveDecoder):
         rho: float = 0.1,
         use_local_search: bool = True,
         seed: int = 42,
-        **kwargs,
-    ):
-        """
-        Initialize ACODecoder.
+        **kwargs: Any,
+    ) -> None:
+        """Initializes the ACODecoder.
 
         Args:
             n_ants: Number of ants per construction.
@@ -43,6 +59,8 @@ class ACODecoder(NonAutoregressiveDecoder):
             beta: Heuristic (distance) importance weight.
             rho: Pheromone evaporation rate.
             use_local_search: Whether to apply 2-opt local search.
+            seed: Random seed for selection.
+            kwargs: Additional keyword arguments.
         """
         super().__init__(**kwargs)
         self.n_ants = n_ants
@@ -55,16 +73,24 @@ class ACODecoder(NonAutoregressiveDecoder):
         self.init_device = kwargs.get("device", "cpu")
         self.generator = torch.Generator(device=self.init_device).manual_seed(self.seed)
 
-    def __getstate__(self):
-        """Prepare state for pickling (handle non-picklable Generator)."""
+    def __getstate__(self) -> Dict[str, Any]:
+        """Prepare state for pickling (handle non-picklable Generator).
+
+        Returns:
+            Dict[str, Any]: State dictionary with generator state metadata.
+        """
         state = self.__dict__.copy()
         state["generator_state"] = self.generator.get_state()
         state["generator_device"] = str(self.generator.device)
         del state["generator"]
         return state
 
-    def __setstate__(self, state):
-        """Restore state after unpickling."""
+    def __setstate__(self, state: Dict[str, Any]) -> None:
+        """Restore state after unpickling.
+
+        Args:
+            state: State dictionary containing generator metadata.
+        """
         gen_state = state.pop("generator_state")
         gen_device = state.pop("generator_device")
         self.__dict__.update(state)
@@ -73,7 +99,11 @@ class ACODecoder(NonAutoregressiveDecoder):
 
     @property
     def device(self) -> torch.device:
-        """Get device of the model."""
+        """Gets the device of the model.
+
+        Returns:
+            torch.device: Current device of the parameters.
+        """
         return next(self.parameters()).device
 
     def forward(
@@ -81,14 +111,30 @@ class ACODecoder(NonAutoregressiveDecoder):
         td: TensorDict,
         heatmap: torch.Tensor,
         env: RL4COEnvBase,
-        **kwargs,
-    ) -> tuple[torch.Tensor, torch.Tensor]:
+        **kwargs: Any,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Produces logits for the current step (for Trajectory Balance training).
+
+        Args:
+            td: TensorDict with current state.
+            heatmap: Edge heatmap [batch, n, n].
+            env: Environment instance.
+            kwargs: Additional keyword arguments.
+
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor]: A tuple containing:
+                - logits: Edge selection logits [batch, num_nodes].
+                - mask: Valid action mask [batch, num_nodes].
         """
-        Produce logits for the current step (for Trajectory Balance training).
-        """
-        current_node = td.get("current_node", torch.zeros(td.batch_size, dtype=torch.long, device=heatmap.device))
+        current_node = td.get(
+            "current_node",
+            torch.zeros(td.batch_size, dtype=torch.long, device=heatmap.device),
+        )
         # heatmap: [batch, n, n]
-        logits = heatmap.gather(1, current_node.view(-1, 1, 1).expand(-1, 1, heatmap.size(-1))).squeeze(1)
+        logits = heatmap.gather(
+            1,
+            current_node.view(-1, 1, 1).expand(-1, 1, heatmap.size(-1)),
+        ).squeeze(1)
         return logits, td["mask"]
 
     def construct(
@@ -98,19 +144,21 @@ class ACODecoder(NonAutoregressiveDecoder):
         env: RL4COEnvBase,
         num_starts: int = 1,
         return_all: bool = False,
-        **kwargs,
+        **kwargs: Any,
     ) -> Dict[str, torch.Tensor]:
-        """
-        Construct solutions using ACO with heatmap pheromones.
+        """Constructs solutions using ACO with heatmap pheromones.
 
         Args:
             td: TensorDict with problem instance.
             heatmap: Edge heatmap [batch, n, n] (log probabilities).
             env: Environment for reward calculation.
             num_starts: Number of independent ACO runs.
+            return_all: Whether to return all ant solutions.
+            kwargs: Additional keyword arguments.
 
         Returns:
-            Dictionary with actions, log_likelihood, reward.
+            Dict[str, torch.Tensor]: Dictionary with 'actions', 'log_likelihood',
+                and 'reward'.
         """
         batch_size, num_nodes, _ = heatmap.shape
 
@@ -128,7 +176,14 @@ class ACODecoder(NonAutoregressiveDecoder):
 
         # Run ants
         if return_all:
-            all_tours, all_costs, all_log_probs, best_tours, best_costs, _ = self._run_ants(  # type: ignore[misc]
+            (
+                all_tours,
+                all_costs,
+                all_log_probs,
+                best_tours,
+                best_costs,
+                _,
+            ) = self._run_ants(  # type: ignore[misc]
                 prob_matrix, dist_matrix, td, env, return_all=True
             )
 
@@ -177,19 +232,28 @@ class ACODecoder(NonAutoregressiveDecoder):
         return_all: bool = False,
     ) -> Union[
         Tuple[torch.Tensor, torch.Tensor, torch.Tensor],
-        Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor],
+        Tuple[
+            torch.Tensor,
+            torch.Tensor,
+            torch.Tensor,
+            torch.Tensor,
+            torch.Tensor,
+            torch.Tensor,
+        ],
     ]:
-        """
-        Run ant colony to construct solutions.
+        """Runs ant colony to construct solutions.
 
         Args:
             prob_matrix: Combined pheromone * heuristic [batch, n, n].
             dist_matrix: Distance matrix [batch, n, n].
             td: TensorDict with problem instance.
-            env: Environment.
+            env: Environment instance.
+            return_all: Whether to return all ant solutions.
 
         Returns:
-            Tuple of (best_tours, best_costs, log_probs).
+            Union[Tuple, Tuple]: Best tours, costs, and mean log probs (if return_all=False),
+                otherwise all tours, all costs, all log probs, best tours, best costs,
+                and mean log prob.
         """
         batch_size, num_nodes, _ = prob_matrix.shape
         device = prob_matrix.device
@@ -220,7 +284,14 @@ class ACODecoder(NonAutoregressiveDecoder):
             all_tours = torch.stack(all_tours_list, dim=1)  # (batch, n_ants, n_nodes)
             all_costs = torch.stack(all_costs_list, dim=1)  # (batch, n_ants)
             all_log_probs = torch.stack(all_log_probs_list, dim=1)  # (batch, n_ants)
-            return all_tours, all_costs, all_log_probs, best_tours, best_costs, total_log_probs / self.n_ants
+            return (
+                all_tours,
+                all_costs,
+                all_log_probs,
+                best_tours,
+                best_costs,
+                total_log_probs / self.n_ants,
+            )
 
         return best_tours, best_costs, total_log_probs / self.n_ants
 
@@ -228,16 +299,15 @@ class ACODecoder(NonAutoregressiveDecoder):
         self,
         prob_matrix: torch.Tensor,
         dist_matrix: torch.Tensor,
-    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-        """
-        Construct a single tour using probabilistic selection.
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        """Constructs a single tour using probabilistic selection.
 
         Args:
             prob_matrix: Selection probabilities [batch, n, n].
             dist_matrix: Distance matrix [batch, n, n].
 
         Returns:
-            Tuple of (tour, cost, log_prob).
+            Tuple[torch.Tensor, torch.Tensor, torch.Tensor]: Tour, cost, and log_prob.
         """
         batch_size, num_nodes, _ = prob_matrix.shape
         device = prob_matrix.device
@@ -280,7 +350,15 @@ class ACODecoder(NonAutoregressiveDecoder):
         tour: torch.Tensor,
         dist_matrix: torch.Tensor,
     ) -> torch.Tensor:
-        """Compute total tour distance."""
+        """Computes total tour distance.
+
+        Args:
+            tour: Tour sequences [batch, num_nodes].
+            dist_matrix: Distance matrix [batch, n, n].
+
+        Returns:
+            torch.Tensor: Total distance for each batch element.
+        """
         batch_size, num_nodes = tour.shape
         device = tour.device
 
@@ -296,16 +374,15 @@ class ACODecoder(NonAutoregressiveDecoder):
         self,
         tours: torch.Tensor,
         dist_matrix: torch.Tensor,
-    ) -> tuple[torch.Tensor, torch.Tensor]:
-        """
-        Apply 2-opt local search to improve tours.
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Applies 2-opt local search to improve tours.
 
         Args:
             tours: Tour sequences [batch, n].
             dist_matrix: Distance matrix [batch, n, n].
 
         Returns:
-            Improved (tours, costs).
+            Tuple[torch.Tensor, torch.Tensor]: Improved tours and costs.
         """
         # Simple 2-opt: try all swaps, keep improvements
         batch_size, num_nodes = tours.shape

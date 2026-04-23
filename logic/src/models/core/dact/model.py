@@ -1,5 +1,16 @@
-"""
-DACT Model implementation.
+"""DACT Model for iterative routing improvement.
+
+This module implements the `DACT` wrapper (Ma et al. 2021), a Dual Aspect
+Collaborative Transformer designed for iterative improvement of VRP solutions.
+It leverages collaborative encoders to process both node and position features.
+
+Attributes:
+    DACT: Primary training wrapper for the DACT policy.
+
+Example:
+    >>> from logic.src.models.core.dact.model import DACT
+    >>> model = DACT(env=my_env)
+    >>> out = model(td, my_env)
 """
 
 from __future__ import annotations
@@ -16,11 +27,16 @@ from .policy import DACTPolicy
 
 
 class DACT(nn.Module):
-    """
-    DACT: Dual Aspect Collaborative Transformer for iterative improvement.
+    """DACT Improvement Model.
 
-    This model wraps a DACTPolicy and provides methods for loss calculation
-    and shared execution steps.
+    Wraps a `DACTPolicy` to provide high-level training and inference interfaces.
+    Specializes in learning local search operators that improve existing solutions
+    through sequential modifications.
+
+    Attributes:
+        env (RL4COEnvBase): Environment for dynamics and rewards.
+        baseline (str): baseline type for REINFORCE.
+        policy (DACTPolicy): The neural improvement operator.
     """
 
     def __init__(
@@ -29,9 +45,17 @@ class DACT(nn.Module):
         policy: Optional[DACTPolicy] = None,
         policy_kwargs: Optional[Dict[str, Any]] = None,
         baseline: str = "rollout",
-        **kwargs,
-    ):
-        """Initialize DACT model."""
+        **kwargs: Any,
+    ) -> None:
+        """Initializes the DACT model.
+
+        Args:
+            env: Targeted RL4CO environment.
+            policy: Optional pre-defined policy instance.
+            policy_kwargs: Config parameters for automatic policy creation.
+            baseline: RL baseline strategy.
+            **kwargs: Extra parameters.
+        """
         super().__init__()
         self.env = env
         self.baseline = baseline
@@ -47,9 +71,19 @@ class DACT(nn.Module):
         td: TensorDict,
         env: Optional[RL4COEnvBase] = None,
         phase: str = "test",
-        **kwargs,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
-        """Forward pass through policy."""
+        """Performs iterative improvement steps.
+
+        Args:
+            td: Environment state container.
+            env: Optional environment override.
+            phase: Execution phase ('train', 'val', 'test').
+            **kwargs: Additional parameters for the policy.
+
+        Returns:
+            Dict[str, Any]: map containing 'reward', 'log_likelihood', etc.
+        """
         if env is None:
             env = self.env
         return self.policy(td, env, phase=phase, **kwargs)
@@ -62,17 +96,24 @@ class DACT(nn.Module):
         reward: Optional[torch.Tensor] = None,
         log_likelihood: Optional[torch.Tensor] = None,
     ) -> Dict[str, Any]:
-        """
-        Calculate loss for iterative improvement.
-        Typically uses REINFORCE with baseline on the final reward.
-        """
-        reward = reward if reward is not None else policy_out["reward"]
-        log_likelihood = log_likelihood if log_likelihood is not None else policy_out["log_likelihood"]
+        """Computes REINFORCE loss for the improvement trajectory.
 
-        # Simple REINFORCE with mean baseline for now
-        # Improvement models often use more complex baselines or PPO
-        advantage = reward - reward.mean()
-        loss = -(advantage * log_likelihood).mean()
+        Args:
+            td: Initial problem state.
+            batch: Data batch.
+            policy_out: Raw policy outputs.
+            reward: Optional reward override.
+            log_likelihood: Optional log-prob override.
+
+        Returns:
+            Dict[str, Any]: Updated policy output containing the 'loss'.
+        """
+        reward_val = reward if reward is not None else policy_out["reward"]
+        log_p = log_likelihood if log_likelihood is not None else policy_out["log_likelihood"]
+
+        # Baseline subtraction to reduce variance
+        advantage = reward_val - reward_val.mean()
+        loss = -(advantage.detach() * log_p).mean()
 
         policy_out["loss"] = loss
         return policy_out
@@ -83,7 +124,16 @@ class DACT(nn.Module):
         batch_idx: int,
         phase: str,
     ) -> Dict[str, Any]:
-        """Step used by training pipelines."""
+        """Universal execution step for Lightning-style pipelines.
+
+        Args:
+            batch: Input data batch.
+            batch_idx: Current batch index.
+            phase: Current mode ('train', 'val').
+
+        Returns:
+            Dict[str, Any]: Fully processed results including loss if training.
+        """
         td = self.env.reset(batch)
         out = self.policy(td, self.env, phase=phase)
 

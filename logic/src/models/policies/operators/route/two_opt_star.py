@@ -1,25 +1,39 @@
+"""2-opt* local search operator.
+
+This module provides a GPU-accelerated implementation of the 2-opt* heuristic,
+frequently referred to as a "Tail Swap", which improves multi-route solutions
+by exchanging the terminal segments of two different routes.
 """
-2-opt* local search operator (tail swap).
-"""
+
+from __future__ import annotations
+
+from typing import Optional, Tuple
 
 import torch
 
 from logic.src.constants.routing import IMPROVEMENT_EPSILON
 
 
-def vectorized_two_opt_star(tours, dist_matrix, max_iterations=200, generator=None):
-    """
-    Vectorized 2-opt* operator. (Tail Swap).
-    Exchanges tails of two different routes. Useful for improving solutions by reconnecting routes.
+def vectorized_two_opt_star(
+    tours: torch.Tensor,
+    dist_matrix: torch.Tensor,
+    max_iterations: int = 200,
+    generator: Optional[torch.Generator] = None,
+) -> torch.Tensor:
+    """Vectorized 2-opt* (Tail Swap) operator.
+
+    Exchanges the 'tail' segments (nodes following positions i and j) between
+    two distinct routes. This move is particularly effective for reconnecting
+    routes and improving fleet-level efficiency.
 
     Args:
-        tours (torch.Tensor): Current tours (B, max_len).
-        dist_matrix (torch.Tensor): Distance matrix.
-        max_iterations (int): Number of attempts.
-        generator (torch.Generator, optional): Random generator.
+        tours: Batch of node sequences of shape [B, L].
+        dist_matrix: Edge cost tensor of shape [B, N, N].
+        max_iterations: Number of random tail-swap pairs to evaluate.
+        generator: Torch device-side RNG.
 
     Returns:
-        torch.Tensor: Updated tours.
+        torch.Tensor: Updated batch of tours of shape [B, L].
     """
     device = tours.device
     B, max_len = tours.shape
@@ -53,13 +67,29 @@ def vectorized_two_opt_star(tours, dist_matrix, max_iterations=200, generator=No
         improved = (gain > IMPROVEMENT_EPSILON) & mask
 
         if improved.any():
-            tours = _apply_two_opt_star_moves(tours, improved, i, j, end_i, end_j, max_len, seq, device)
+            tours = _apply_two_opt_moves(tours, improved, i, j, end_i, end_j, max_len, seq, device)
 
     return tours
 
 
-def _identify_two_opt_star_routes(tours, i, j, seq, B):
-    """Identifies route boundaries for tail swap."""
+def _identify_two_opt_star_routes(
+    tours: torch.Tensor, i: torch.Tensor, j: torch.Tensor, seq: torch.Tensor, B: int
+) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    """Detects route boundaries for inter-route tail exchange.
+
+    Args:
+        tours: Batch of sequences of shape [B, N].
+        i: First split position of shape [B, 1].
+        j: Second split position of shape [B, 1].
+        seq: Coordinate sequence of shape [B, N].
+        B: Batch size.
+
+    Returns:
+        Tuple[torch.Tensor, torch.Tensor, torch.Tensor]: A tuple containing:
+            - end_i: Calculated end index for the first identified route.
+            - end_j: Calculated end index for the second identified route.
+            - mask: Boolean validity mask for the inter-route exchange.
+    """
     is_zero = tours == 0
     end_i = torch.argmax((is_zero & (seq > i)).float(), dim=1).view(B, 1)
     end_j = torch.argmax((is_zero & (seq > j)).float(), dim=1).view(B, 1)
@@ -69,8 +99,29 @@ def _identify_two_opt_star_routes(tours, i, j, seq, B):
     return end_i, end_j, valid & inter_route
 
 
-def _compute_two_opt_star_gain(tours, dist, u, v, i, j, b_idx):
-    """Computes gain for tail swap (broken edges vs new edges)."""
+def _compute_two_opt_star_gain(
+    tours: torch.Tensor,
+    dist: torch.Tensor,
+    u: torch.Tensor,
+    v: torch.Tensor,
+    i: torch.Tensor,
+    j: torch.Tensor,
+    b_idx: torch.Tensor,
+) -> torch.Tensor:
+    """Calculates gain for breaking edges (u, un) and (v, vn).
+
+    Args:
+        tours: Batch of sequences of shape [B, N].
+        dist: Distance matrix of shape [B, N+1, N+1].
+        u: Node at position i of shape [B, 1].
+        v: Node at position j of shape [B, 1].
+        i: First position index of shape [B, 1].
+        j: Second position index of shape [B, 1].
+        b_idx: Batch indices of shape [B, 1].
+
+    Returns:
+        torch.Tensor: Gain tensor of shape [B, 1].
+    """
     un = torch.gather(tours, 1, i + 1)
     vn = torch.gather(tours, 1, j + 1)
     d_curr = dist[b_idx, u, un] + dist[b_idx, v, vn]
@@ -78,29 +129,77 @@ def _compute_two_opt_star_gain(tours, dist, u, v, i, j, b_idx):
     return d_curr - d_new
 
 
-def _apply_two_opt_star_moves(tours, improved, i, j, end_i, end_j, max_len, seq, device):
-    """Applies tail swap using index mapping for segments."""
+def _apply_two_opt_moves(
+    tours: torch.Tensor,
+    improved: torch.Tensor,
+    i: torch.Tensor,
+    j: torch.Tensor,
+    end_i: torch.Tensor,
+    end_j: torch.Tensor,
+    max_len: int,
+    seq: torch.Tensor,
+    device: torch.device,
+) -> torch.Tensor:
+    """Batch tail swap using conditional segment mapping.
+
+    Args:
+        tours: Batch of sequences of shape [B, N].
+        improved: Improvement flag of shape [B].
+        i: Position in first route of shape [B, 1].
+        j: Position in second route of shape [B, 1].
+        end_i: Finish index of first route of shape [B, 1].
+        end_j: Finish index of second route of shape [B, 1].
+        max_len: Total length of tour sequence.
+        seq: Sequence indexes of shape [B, N].
+        device: Hardware identification locator.
+
+    Returns:
+        torch.Tensor: Updated tours of shape [B, N].
+    """
     B = tours.shape[0]
     idx_map = seq.clone()
 
     # R1 before R2
-    m_i_lt_j = (end_i <= j) & improved
+    m_i_lt_j = (end_i <= j) & improved.view(B, 1)
     if m_i_lt_j.any():
         idx_map = _map_tail_swap(idx_map, m_i_lt_j, i, j, end_i, end_j, B, max_len)
 
     # R2 before R1
-    m_j_lt_i = (end_j <= i) & improved
+    m_j_lt_i = (end_j <= i) & improved.view(B, 1)
     if m_j_lt_i.any():
         idx_map = _map_tail_swap(idx_map, m_j_lt_i, j, i, end_j, end_i, B, max_len)
 
     return torch.gather(tours, 1, idx_map)
 
 
-def _map_tail_swap(idx_map, mask, i, j, end_i, end_j, B, max_len):
-    """Constructs the index mapping for a tail swap where first route < second route."""
+def _map_tail_swap(
+    idx_map: torch.Tensor,
+    mask: torch.Tensor,
+    i: torch.Tensor,
+    j: torch.Tensor,
+    end_i: torch.Tensor,
+    end_j: torch.Tensor,
+    B: int,
+    max_len: int,
+) -> torch.Tensor:
+    """Constructs the index mapping for asymmetric route ordering.
+
+    Args:
+        idx_map: Current index map of shape [B, N].
+        mask: Activation mask for this swap configuration of shape [B, N].
+        i: Source route split point of shape [B, 1].
+        j: Target route split point of shape [B, 1].
+        end_i: Source route end of shape [B, 1].
+        end_j: Target route end of shape [B, 1].
+        B: Batch size.
+        max_len: Total tour length.
+
+    Returns:
+        torch.Tensor: Modified index map of shape [B, N].
+    """
     seq_b = torch.arange(max_len, device=idx_map.device).view(1, max_len).expand(B, max_len)
 
-    _len_t1, len_t2 = end_i - (i + 1), end_j - (j + 1)
+    len_t2 = end_j - (j + 1)
     len_gap = j - end_i + 1
 
     # New R1 tail: maps to [j+1, j+len_t2]

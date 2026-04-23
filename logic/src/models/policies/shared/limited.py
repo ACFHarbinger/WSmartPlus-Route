@@ -1,6 +1,12 @@
+"""Limited split algorithm.
+
+This module provides a constrained split algorithm that limits the number of
+vehicles (routes) used when partitioning a giant tour.
 """
-Limited Split Algorithm (Max Vehicles).
-"""
+
+from __future__ import annotations
+
+from typing import Tuple
 
 import torch
 
@@ -8,35 +14,38 @@ from .reconstruction import reconstruct_limited
 
 
 def vectorized_split_limited(
-    B,
-    N,
-    device,
-    max_vehicles,
-    capacity,
-    cum_load,
-    cum_dist_pad,
-    d_0_i,
-    d_i_0,
-    giant_tours,
-):
-    """
-    Limited split using K-step updates (like K shortest path layers).
-    Constrains the solution to use at most `max_vehicles` routes.
+    B: int,
+    N: int,
+    device: torch.device,
+    max_vehicles: int,
+    capacity: float,
+    cum_load: torch.Tensor,
+    cum_dist_pad: torch.Tensor,
+    d_0_i: torch.Tensor,
+    d_i_0: torch.Tensor,
+    giant_tours: torch.Tensor,
+) -> Tuple[torch.Tensor, torch.Tensor]:
+    """Limited split using K-step updates (dynamic programming).
+
+    Constrains the solution to use at most `max_vehicles` routes by iterating
+    through shortest path layers.
 
     Args:
-        B (int): Batch size.
-        N (int): Number of nodes.
-        device: Torch device.
-        max_vehicles (int): Maximum number of vehicles allowed.
-        capacity (float): Vehicle capacity.
-        cum_load (torch.Tensor): Cumulative load tensor.
-        cum_dist_pad (torch.Tensor): Cumulative distance tensor (padded).
-        d_0_i (torch.Tensor): Distance from depot to nodes.
-        d_i_0 (torch.Tensor): Distance from nodes to depot.
-        giant_tours (torch.Tensor): Giant tour indices.
+        B: Batch size.
+        N: Number of customers (total nodes - 1).
+        device: Hardware identification locator.
+        max_vehicles: Maximum routes allowed in the split.
+        capacity: Global vehicle volume constraint.
+        cum_load: Cumulative node loads of shape [B, N+1].
+        cum_dist_pad: Cumulative distance along giant tour of shape [B, N+1].
+        d_0_i: Distance from depot to nodes of shape [B, N].
+        d_i_0: Distance from nodes to depot of shape [B, N].
+        giant_tours: Giant tour node sequences of shape [B, N].
 
     Returns:
-        tuple: (routes_batch, costs)
+        Tuple[torch.Tensor, torch.Tensor]: A tuple containing:
+            - routes_batch: Padded list of routes of shape [B, K, N].
+            - costs: Total calculated cost per batch instance of shape [B].
     """
     indices = torch.arange(N + 1, device=device)
     J = indices.view(1, N + 1, 1).expand(B, N + 1, N + 1)
@@ -53,15 +62,15 @@ def vectorized_split_limited(
 
     # Costs
     # d0_pad (B, N+1)
-    d0_pad = torch.cat([d_0_i, torch.zeros((B, 1), device=device)], dim=1)  # (B, N+1)
+    d0_pad = torch.cat([d_0_i, torch.zeros((B, 1), device=device)], dim=1)
 
     # Matrix Broadcast
     # D_Start[j, i] depends only on j.
-    D_Start = d0_pad.unsqueeze(2).expand(-1, -1, N + 1)  # (B, N+1, N+1) along j
+    D_Start = d0_pad.unsqueeze(2).expand(-1, -1, N + 1)
 
     # D_End[j, i] depends only on i.
     d_end_vec = torch.cat([torch.zeros((B, 1), device=device), d_i_0], dim=1)
-    D_End = d_end_vec.unsqueeze(1).expand(-1, N + 1, -1)  # (B, N+1, N+1) along i
+    D_End = d_end_vec.unsqueeze(1).expand(-1, N + 1, -1)
 
     # Path Dist[j, i] = cum_dist[i] - cum_dist[j+1]
     cd_pad = torch.cat([cum_dist_pad, torch.zeros((B, 1), device=device)], dim=1)  # (B, N+2)

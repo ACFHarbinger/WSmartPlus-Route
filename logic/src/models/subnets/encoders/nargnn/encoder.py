@@ -1,8 +1,16 @@
-"""NARGNN Encoder base implementation."""
+"""NARGNN Encoder base implementation.
+
+Attributes:
+    NARGNNEncoder: Anisotropic Graph Neural Network encoder with edge-gating mechanism.
+
+Example:
+    >>> from logic.src.models.subnets.encoders.nargnn import NARGNNEncoder
+    >>> encoder = NARGNNEncoder(embed_dim=128, env_name="tsp")
+"""
 
 from __future__ import annotations
 
-from typing import Optional, Tuple
+from typing import Any, Optional, Tuple
 
 import torch
 from tensordict import TensorDict
@@ -17,8 +25,17 @@ from .gnn_encoder import SimplifiedGNNEncoder
 
 
 class NARGNNEncoder(NonAutoregressiveEncoder):
-    """
-    Anisotropic Graph Neural Network encoder with edge-gating mechanism.
+    """Anisotropic Graph Neural Network encoder with edge-gating mechanism.
+
+    This encoder processes graph structured data to generate node embeddings and
+    edge heatmap logits for non-autoregressive solution construction.
+
+    Attributes:
+        env_name (str): Name of the environment (e.g., "tsp", "vrp").
+        init_embedding (nn.Module): Initial node embedding layer.
+        edge_embedding (nn.Module): Initial edge embedding layer.
+        graph_network (nn.Module): GNN encoder for processing node and edge features.
+        heatmap_generator (nn.Module): Module for generating edge logits from embeddings.
     """
 
     def __init__(
@@ -35,24 +52,24 @@ class NARGNNEncoder(NonAutoregressiveEncoder):
         agg_fn: str = "mean",
         linear_bias: bool = True,
         k_sparse: Optional[int] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
-        """Initialize Class.
+        """Initializes the NARGNNEncoder.
 
         Args:
-            embed_dim (int): Description of embed_dim.
-            env_name (str): Description of env_name.
-            init_embedding (Optional[nn.Module]): Description of init_embedding.
-            edge_embedding (Optional[nn.Module]): Description of edge_embedding.
-            graph_network (Optional[nn.Module]): Description of graph_network.
-            heatmap_generator (Optional[nn.Module]): Description of heatmap_generator.
-            num_layers_heatmap_generator (int): Description of num_layers_heatmap_generator.
-            num_layers_graph_encoder (int): Description of num_layers_graph_encoder.
-            act_fn (str): Description of act_fn.
-            agg_fn (str): Description of agg_fn.
-            linear_bias (bool): Description of linear_bias.
-            k_sparse (Optional[int]): Description of k_sparse.
-            kwargs (Any): Description of kwargs.
+            embed_dim: Dimension of node and edge embeddings.
+            env_name: Name of the problem environment.
+            init_embedding: Optional custom initial embedding module.
+            edge_embedding: Optional custom edge embedding module.
+            graph_network: Optional custom GNN encoder module.
+            heatmap_generator: Optional custom heatmap generator module.
+            num_layers_heatmap_generator: Number of layers in the heatmap generator.
+            num_layers_graph_encoder: Number of layers in the GNN encoder.
+            act_fn: Activation function used within GNN layers.
+            agg_fn: Aggregation function for GNN message passing.
+            linear_bias: Whether to use bias in linear layers.
+            k_sparse: Number of nearest neighbors for sparse edge construction.
+            kwargs: Additional keyword arguments.
         """
         super().__init__()
         self.env_name = env_name
@@ -87,7 +104,18 @@ class NARGNNEncoder(NonAutoregressiveEncoder):
         )
 
     def forward(self, td: TensorDict) -> Tuple[torch.Tensor, torch.Tensor]:  # type: ignore
-        """Forward pass."""
+        """Forward pass of the NARGNN encoder.
+
+        Processes the input TensorDict to produce edge heatmap logits and node embeddings.
+
+        Args:
+            td: TensorDict containing problem instance data.
+
+        Returns:
+            Tuple containing:
+                - heatmap_logits (torch.Tensor): Logits for edge selection.
+                - node_embed (torch.Tensor): Final node embeddings.
+        """
         node_embed = self.init_embedding(td)
         graph = self.edge_embedding(td, node_embed)
 

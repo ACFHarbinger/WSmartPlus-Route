@@ -1,5 +1,16 @@
-"""
-MatNet Model: REINFORCE wrapper for matrix-based models.
+"""MatNet Model for matrix-aware routing.
+
+This module provides the `MatNet` wrapper (Kwon et al. 2021), designed for
+problems with matrix-form inputs (e.g., ATSP, FFSP). It uses a REINFORCE-based
+training scheme with various baseline options.
+
+Attributes:
+    MatNet: Primary wrapper for matrix-based neural combinatorial optimization.
+
+Example:
+    >>> from logic.src.models.core.matnet.model import MatNet
+    >>> model = MatNet(embed_dim=256, baseline="rollout")
+    >>> out = model(td, env)
 """
 
 from __future__ import annotations
@@ -15,10 +26,15 @@ from .policy import MatNetPolicy
 
 
 class MatNet(nn.Module):
-    """
-    MatNet Model.
+    """MatNet training wrapper for REINFORCE.
 
-    REINFORCE-based training wrapper for MatNetPolicy.
+    Assembles the `MatNetPolicy` and manages the reinforcement learning baseline
+    logic (exponential or rollout) to compute stable gradient updates.
+
+    Attributes:
+        policy (MatNetPolicy): The underlying matrix encoder-decoder policy.
+        baseline_type (str): Identifier for the baseline method ('rollout', 'exponential').
+        _baseline_val (Optional[torch.Tensor]): Internal state for exponential baseline.
     """
 
     def __init__(
@@ -31,10 +47,20 @@ class MatNet(nn.Module):
         normalization: str = "instance",
         baseline: str = "rollout",
         env_name: Optional[str] = None,
-        **kwargs,
-    ):
-        """
-        Initialize MatNet model.
+        **kwargs: Any,
+    ) -> None:
+        """Initializes the MatNet wrapper.
+
+        Args:
+            embed_dim: Internal feature dimensionality.
+            hidden_dim: Hidden layer expansion size.
+            num_layers: Depth of the matrix encoder.
+            n_heads: Attention head count.
+            tanh_clipping: Range for logit clipping.
+            normalization: Type of normalization layer.
+            baseline: RL baseline strategy ('rollout', 'exponential', 'none').
+            env_name: Optional environment identifier.
+            **kwargs: Extra arguments passed to MatNetPolicy.
         """
         super().__init__()
         self.policy = MatNetPolicy(
@@ -44,25 +70,31 @@ class MatNet(nn.Module):
             n_heads=n_heads,
             tanh_clipping=tanh_clipping,
             normalization=normalization,
-            problem=None,  # Handled by policy if needed
+            problem=None,
             **kwargs,
         )
         self.baseline_type = baseline
-        self._baseline_val = None
+        self._baseline_val: Optional[Any] = None
 
     def forward(
         self,
         td: TensorDict,
         env: Optional[RL4COEnvBase] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
-        """
-        Forward pass for training.
+        """Performs a forward pass and computes the REINFORCE loss.
+
+        Args:
+            td: Problem state container.
+            env: Optional environment for reward calculation.
+            **kwargs: Additional parameters for the policy execution.
+
+        Returns:
+            Dict[str, Any]: Results containing rewards, actions, and calculated loss.
         """
         out = self.policy(td, env, **kwargs)
 
-        # MatNetPolicy returns {"log_p": log_p, "actions": actions}
-        # We need to compute reward if not present
+        # Ensure reward is available for RL
         if "reward" not in out and env is not None:
             out["reward"] = env.get_reward(td, out["actions"])
 
@@ -70,7 +102,7 @@ class MatNet(nn.Module):
             reward = out["reward"]
             log_likelihood = out["log_p"]
 
-            # Compute baseline
+            # Compute advantage against the selected baseline
             if self.baseline_type == "exponential":
                 if self._baseline_val is None:
                     self._baseline_val = reward.mean().detach()
@@ -82,7 +114,7 @@ class MatNet(nn.Module):
             else:
                 baseline = 0.0
 
-            # REINFORCE loss
+            # Compute standard REINFORCE loss: -E[(R - b) * log_p]
             advantage = reward - baseline
             loss = -(advantage.detach() * log_likelihood).mean()
             out["loss"] = loss
@@ -90,11 +122,11 @@ class MatNet(nn.Module):
 
         return out
 
-    def set_strategy(self, strategy: str, **kwargs):
-        """Set strategy.
+    def set_strategy(self, strategy: str, **kwargs: Any) -> None:
+        """Configures the action selection tactic in the policy.
 
         Args:
-            strategy (str): Description of strategy.
-            kwargs (Any): Description of kwargs.
+            strategy: Identifier for the mode (e.g. 'greedy', 'sampling').
+            **kwargs: Additional strategy parameters (e.g. temperature).
         """
         self.policy.set_strategy(strategy, **kwargs)

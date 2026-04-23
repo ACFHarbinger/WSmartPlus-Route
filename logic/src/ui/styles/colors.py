@@ -3,9 +3,20 @@ Color palettes and page configuration for the dashboard.
 
 Provides semantic color mappings for KPI cards, charts, routes, and status indicators,
 plus the Streamlit page configuration.
+
+Attributes:
+    KPI_COLORS: Mapping of metric names to gradient color tuples (start, end).
+    KPI_FALLBACK_COLORS: List of fallback gradient tuples for unknown metrics.
+    CHART_COLORS: Default color sequence for categorical charts.
+    ROUTE_COLORS: Distinct colors for different vehicle routes.
+    STATUS_COLORS: Semantic colors for status levels (good, warning, error, info).
+
+Example:
+    >>> from logic.src.ui.styles.colors import KPI_COLORS
+    >>> color, color_end = KPI_COLORS.get("Profit", ("#667eea", "#5a67d8"))
 """
 
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List, Tuple
 
 # Semantic color palette for KPI cards — each metric gets a distinct gradient
 KPI_COLORS: Dict[str, Tuple[str, str]] = {
@@ -81,12 +92,15 @@ STATUS_COLORS: Dict[str, str] = {
 }
 
 
-def get_page_config() -> dict:
-    """
-    Get Streamlit page configuration.
+def get_page_config() -> Dict[str, Any]:
+    """Get Streamlit page configuration.
 
     Returns:
-        Dict with page config settings.
+        Dict[str, Any]: Dictionary containing page configuration settings:
+            - page_title (str): Title of the dashboard.
+            - page_icon (str): Emoji or image path for the browser tab.
+            - layout (str): "wide" or "centered".
+            - initial_sidebar_state (str): "expanded" or "collapsed".
     """
     return {
         "page_title": "WSmart+ Control Tower",

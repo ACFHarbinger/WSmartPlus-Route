@@ -1,14 +1,33 @@
-"""Normalized activation functions (Softmax, etc.) with adaptive options."""
+"""
+Normalized activation functions (Softmax, etc.) with adaptive options.
+
+Attributes:
+    NormalizedActivationFunction: Wrapper for diverse normalized activation layers.
+
+Example:
+    >>> import torch
+    >>> from logic.src.models.subnets.modules.normalized_activation_function import NormalizedActivationFunction
+    >>> act = NormalizedActivationFunction(naf_name="softmax", dim=-1)
+    >>> x = torch.randn(1, 10)
+    >>> out = act(x)
+"""
 
 import math
 from typing import Optional, Sequence
 
+import torch
 from torch import nn
 
 
 class NormalizedActivationFunction(nn.Module):
     """
     Wrapper for normalized activation functions (Softmax, LogSoftmax, etc.).
+
+    Provides a unified interface for standard PyTorch normalized activations
+    and more complex ones like AdaptiveLogSoftmax.
+
+    Attributes:
+        norm_activation (nn.Module): The underlying normalization layer.
     """
 
     def __init__(
@@ -24,12 +43,16 @@ class NormalizedActivationFunction(nn.Module):
         Initializes the normalized activation function.
 
         Args:
-            naf_name: Name of the normalized activation function ('softmax', 'logsoftmax', etc.).
-            dim: Dimension along which the activation is applied.
-            n_classes: Number of classes (for adaptive softmax).
-            cutoffs: Cutoffs for adaptive softmax clusters.
-            dval: Divisor value for adaptive softmax.
-            bias: Whether to use bias in adaptive softmax.
+            naf_name (str): Name of the normalized activation function
+                ('softmax', 'logsoftmax', 'softmin', 'softmax2d', 'adaptivelogsoftmax').
+            dim (Optional[int]): Dimension along which the activation is applied. Defaults to -1.
+            n_classes (Optional[int]): Number of classes (required for adaptive softmax).
+            cutoffs (Optional[Sequence[int]]): Cutoffs for adaptive softmax clusters.
+            dval (Optional[float]): Divisor value for adaptive softmax. Defaults to 4.0.
+            bias (Optional[bool]): Whether to insert bias in adaptive softmax. Defaults to False.
+
+        Raises:
+            ValueError: If unknown activation name or missing required parameters.
         """
         super(NormalizedActivationFunction, self).__init__()
         self.norm_activation: nn.Module
@@ -60,22 +83,26 @@ class NormalizedActivationFunction(nn.Module):
         if isinstance(self.norm_activation, nn.AdaptiveLogSoftmaxWithLoss):
             self.init_parameters()
 
-    def init_parameters(self):
-        """Initializes the parameters if applicable."""
+    def init_parameters(self) -> None:
+        """Initializes the parameters using Xavier-like uniform distribution.
+
+        Only applies if the underlying activation has learnable parameters
+        (e.g., AdaptiveLogSoftmax).
+        """
         for param in self.parameters():
             stdv = 1.0 / math.sqrt(param.size(-1))
             param.data.uniform_(-stdv, stdv)
 
-    def forward(self, input, mask=None):
+    def forward(self, input: torch.Tensor, mask: Optional[torch.Tensor] = None) -> torch.Tensor:
         """
         Applies the normalized activation function to the input.
 
         Args:
-            input: Input tensor.
-            mask: Optional mask (not used by all activations).
+            input (torch.Tensor): Input tensor.
+            mask (Optional[torch.Tensor]): Optional mask or target (used by AdaptiveLogSoftmax).
 
         Returns:
-            Output tensor.
+            torch.Tensor: Normalized output or log probabilities.
         """
         if isinstance(self.norm_activation, nn.AdaptiveLogSoftmaxWithLoss):
             # If mask is provided, treat it as the target for loss calculation

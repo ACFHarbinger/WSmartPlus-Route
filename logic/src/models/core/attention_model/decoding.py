@@ -1,5 +1,11 @@
-"""
-Decoding logic for AttentionModel.
+"""Decoding strategies for Attention Models.
+
+This module provides common decoding logic used by attention-based constructive
+policies, including greedy selection, sampling, and advanced search methods
+like Beam Search and POMO.
+
+Attributes:
+    DecodingMixin: Mixin class providing decoding-related utilities.
 """
 
 from __future__ import annotations
@@ -10,41 +16,46 @@ import torch
 
 
 class DecodingMixin:
-    """Mixin for decoding strategies (Greedy, Sampling, Beam Search, POMO)."""
+    """Mixin for managing constructive decoding strategies.
+
+    Provides high-level interfaces for controlling how the model selects actions
+    during solution construction (e.g., greedy, sampling, or search). This mixin
+    is intended to be inherited by models that use the common decoder subnets.
+
+    Attributes:
+        strategy (str): Current selection mode ('greedy', 'sampling', 'beam').
+        temp (Optional[float]): Softmax temperature for sampling diversity.
+    """
 
     def __init__(self) -> None:
-        """Initialize Class.
-
-        Args:
-            None.
-        """
-        # Type hints
+        """Initializes the decoding mixin state."""
         self.strategy: str = "greedy"
         self.temp: Optional[float] = None
-        self.problem: Any
 
-    def set_strategy(self, strategy: str, temp: Optional[float] = None):
-        """
-        Set the decoding strategy for the model.
+    def set_strategy(self, strategy: str, temp: Optional[float] = None) -> None:
+        """Configures the current action selection strategy.
 
         Args:
-            strategy: The decoding strategy ('greedy' or 'sampling').
-            temp: Temperature for sampling. Defaults to None.
+            strategy: Identifier for the decoding tactic ('greedy' or 'sampling').
+            temp: Scaling factor for sampling probabilities. Higher values
+                increase exploration.
         """
         self.strategy = strategy
         if temp is not None:
             self.temp = temp
 
-    def beam_search(self, *args: Any, **kwargs: Any):
-        """
-        Perform beam search decoding.
+    def beam_search(self, *args: Any, **kwargs: Any) -> Any:
+        """Executes a beam search exploration.
+
+        Delegates the search logic to the problem instance, providing the
+        model itself as the transition heuristic.
 
         Args:
-            *args: Variable length argument list passed to the problem's beam_search.
-            **kwargs: Arbitrary keyword arguments passed to the problem's beam_search.
+            *args: Positional arguments for the problem-specific beam search.
+            **kwargs: Keyword arguments for beam width, depth, etc.
 
         Returns:
-            The result of the beam search.
+            Any: The best tour discovered within the beam width.
         """
         return self.problem.beam_search(*args, **kwargs, model=self)
 
@@ -55,23 +66,23 @@ class DecodingMixin:
         expand_size: Optional[int] = None,
         normalize: bool = False,
         max_calc_batch_size: int = 4096,
-    ):
-        """
-        Propose expansions for beam search.
+    ) -> Any:
+        """Generates candidate nodes for beam expansion.
+
+        This method bridges the beam search logic and the model's decoder,
+        typically requesting log-probabilities for the next step.
 
         Args:
-            beam: The current beam state.
-            fixed: The precomputed fixed embeddings.
-            expand_size: The number of expansions to propose. Defaults to None.
-            normalize: Whether to normalize probabilities. Defaults to False.
-            max_calc_batch_size: Max batch size for calculation. Defaults to 4096.
+            beam: Current state of the construction beam.
+            fixed: Pre-encoded graph embeddings.
+            expand_size: Number of top-k candidates to propose.
+            normalize: Whether to re-normalize probabilities after masking.
+            max_calc_batch_size: Throughput cap for parallel expansion.
 
         Returns:
-            Proposed expansions (indices and probabilities).
+            Any: A structure containing predicted indices and their log-probs.
         """
-        # Delegate to decoder's detailed proposal method if available
-        # logic.src.models.subnets.modules/decoder.py usually handles this
-        return self.decoder.propose_expansions(beam, fixed, expand_size, normalize, max_calc_batch_size)  # type: ignore[attr-defined]
+        return self.decoder.propose_expansions(beam, fixed, expand_size, normalize, max_calc_batch_size)
 
     def sample_many(
         self,
@@ -80,24 +91,26 @@ class DecodingMixin:
         batch_rep: int = 1,
         iter_rep: int = 1,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        """
-        Sample multiple solutions for the same input (e.g., for POMO or validation).
+        """Constructs multiple solutions for the same input instances.
+
+        Useful for validation, bootstrapping, or the POMO (Parallelized Open
+        Multi-Start) algorithm.
 
         Args:
-            input: The input data.
-            cost_weights: Weights for different cost components. Defaults to None.
-            batch_rep: Batch replication factor (for POMO).
-            iter_rep: Iteration replication factor (for multiple sampling passes).
+            input: Dictionry/TensorDict of problem data.
+            cost_weights: Scaling factors for objectives in multi-objective cases.
+            batch_rep: Number of parallel construction starts per batch element.
+            iter_rep: Number of sequential sampling passes per batch element.
 
         Returns:
-            tuple: (costs, pis)
-                costs: Tensor of costs for each sampled solution.
-                pis: Tensor of action indices for each sampled solution.
+            Tuple[torch.Tensor, torch.Tensor]:
+                - costs (torch.Tensor): Calculated path lengths [batch, ...].
+                - pis (torch.Tensor): Tour sequences [batch, nodes].
         """
         from logic.src.utils.functions import sample_many as _sample_many
 
         return _sample_many(
-            lambda i: self.forward(  # type: ignore[attr-defined]
+            lambda i: self.forward(
                 i,
                 strategy="sampling",
                 return_pi=True,

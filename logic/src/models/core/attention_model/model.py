@@ -1,10 +1,22 @@
-"""
-Main AttentionModel class assembling all mixins.
+"""Attention Model (AM) core module.
+
+This module provides the implementation of the Attention Model (Kool et al. 2019),
+a graph-based neural network that uses multi-head attention to constructively
+solve Vehicle Routing Problems. It supports various problem domains
+including TSP, VRPP, and WCVRP.
+
+Attributes:
+    AttentionModel: The primary constructive neural routing policy.
+
+Example:
+    >>> from logic.src.models.core.attention_model.model import AttentionModel
+    >>> model = AttentionModel(embed_dim=128, hidden_dim=512, problem=env.problem, ...)
+    >>> out = model(td, env, strategy="greedy")
 """
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, cast
+from typing import Any, Dict, Optional, Tuple, Union, cast
 
 import torch
 import torch.utils.checkpoint
@@ -30,12 +42,26 @@ from .decoding import DecodingMixin
 
 
 class AttentionModel(DecodingMixin, nn.Module):
-    """
-    Attention Model for Vehicle Routing Problems.
+    """Attention Model for neural combinatorial optimization.
 
-    This model uses an Encoder-Decoder architecture with Multi-Head Attention to solve
-    various VRP instances (VRPP, WCVRP, CWCVRP). It encodes the problem graph and
-    constructively decodes the solution one step at a time.
+    This model implements an Encoder-Decoder architecture where the encoder
+    processes node features into a latent graph representation, and the decoder
+    sequentially constructs routes by attending to the encoded nodes and
+    the current search state.
+
+    Attributes:
+        embed_dim (int): Dimensionality of node and graph embeddings.
+        hidden_dim (int): Hidden dimension for feed-forward sublayers.
+        n_heads (int): Number of multi-head attention heads.
+        problem (Any): Problem definition object (e.g., VRPP instance).
+        encoder (nn.Module): The graph attention encoder.
+        decoder (nn.Module): The autoregressive attention decoder.
+        context_embedder (nn.Module): Initial feature projection module.
+        pomo_size (int): Parallel start size for POMO (if enabled).
+        checkpoint_encoder (bool): Whether to use gradient checkpointing on encoding.
+        aggregation_graph (str): Global aggregation method ('avg', 'max', 'sum').
+        temporal_horizon (int): Number of future steps to consider for dynamics.
+        tanh_clipping (float): Logit clipping value for stable training.
     """
 
     def __init__(
@@ -68,19 +94,46 @@ class AttentionModel(DecodingMixin, nn.Module):
         connection_type: str = "residual",
         hyper_expansion: int = FEED_FORWARD_EXPANSION,
         decoder_type: str = "attention",
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
-        """
-        Initialize the Attention Model.
+        """Initializes the multi-head Attention Model.
+
+        Args:
+            embed_dim: Latent representation size.
+            hidden_dim: Expansion size for feed-forward layers.
+            problem: Reference to the problem environment/definition.
+            component_factory: Factory to instantiate encoder/decoder subnets.
+            n_encode_layers: Depth of the graph encoder.
+            n_encode_sublayers: Optional sub-depth override for encoder.
+            n_decode_layers: Depth of the sequential decoder.
+            dropout_rate: Probability for dropout layers.
+            aggregation: Local node aggregation strategy.
+            aggregation_graph: Global context pooling strategy.
+            tanh_clipping: Clipping range for attention logits.
+            mask_inner: Enable masking in intermediate attention blocks.
+            mask_logits: Enable masking of invalid nodes in final selection.
+            mask_graph: Whether to mask the entire graph structure.
+            norm_config: Normalization settings.
+            activation_config: Non-linear activation settings.
+            n_heads: Parallel attention head count.
+            checkpoint_encoder: Enable memory-efficient gradient checkpointing.
+            shrink_size: Compressed size for specific decoder variants.
+            pomo_size: Count of augmentation starts for POMO.
+            temporal_horizon: Look-ahead steps for time-varying problems.
+            spatial_bias: Inject spatial position relative distance into attention.
+            spatial_bias_scale: Magnitude of the spatial bias injection.
+            entropy_weight: Regularization coefficient for action entropy.
+            predictor_layers: Number of MLP layers for value/action prediction.
+            connection_type: Type of skip connection ('residual', 'dense').
+            hyper_expansion: Internal expansion factor for FFN.
+            decoder_type: Decoder architectural variant ('attention', 'pointer').
+            **kwargs: Catch-all for experimental and future parameters.
         """
         nn.Module.__init__(self)
         DecodingMixin.__init__(self)
 
-        if norm_config is None:
-            norm_config = NormalizationConfig()
-
-        if activation_config is None:
-            activation_config = ActivationConfig()
+        norm_config = norm_config or NormalizationConfig()
+        activation_config = activation_config or ActivationConfig()
 
         self._init_parameters(
             embed_dim,
@@ -96,10 +149,8 @@ class AttentionModel(DecodingMixin, nn.Module):
 
         self._init_context_embedder(temporal_horizon)
 
-        # Make step context dim dependent on problem/decoder
-        step_context_dim = 2 * embed_dim + (embed_dim if is_tsp_problem(problem) else embed_dim)
-        # Note: Logic for step_context_dim can be more complex depending on the specific problem
-        # and decoder implementation, but this serves as a baseline.
+        # Baseline step context dim matches graph latent size
+        step_context_dim = 2 * embed_dim + embed_dim
 
         self._init_components(
             component_factory,
@@ -137,8 +188,20 @@ class AttentionModel(DecodingMixin, nn.Module):
         aggregation_graph: str,
         temporal_horizon: int,
         tanh_clipping: float,
-    ):
-        """Initialize basic model parameters."""
+    ) -> None:
+        """Helper to initialize class member parameters.
+
+        Args:
+            embed_dim: Embedding size.
+            hidden_dim: Subnet hidden size.
+            problem: Domain problem object.
+            n_heads: Attention head count.
+            pomo_size: POMO parallel construction count.
+            checkpoint_encoder: Encoder checkpointing flag.
+            aggregation_graph: Pooling strategy identifier.
+            temporal_horizon: Look-ahead depth.
+            tanh_clipping: Softmax clipping constant.
+        """
         self.embed_dim = embed_dim
         self.hidden_dim = hidden_dim
         self.n_heads = n_heads
@@ -149,8 +212,12 @@ class AttentionModel(DecodingMixin, nn.Module):
         self.temporal_horizon = temporal_horizon
         self.tanh_clipping = tanh_clipping
 
-    def _init_context_embedder(self, temporal_horizon: int):
-        """Initialize the context embedder strategy."""
+    def _init_context_embedder(self, temporal_horizon: int) -> None:
+        """Initializes the problem-specific initial projection network.
+
+        Args:
+            temporal_horizon: Look-ahead steps for dynamic features.
+        """
         if is_vrpp_problem(self.problem):
             self.context_embedder = VRPPContextEmbedder(self.embed_dim, temporal_horizon=self.temporal_horizon)
         elif is_wc_problem(self.problem):
@@ -164,20 +231,20 @@ class AttentionModel(DecodingMixin, nn.Module):
             )
 
     @property
-    def is_vrpp(self):
-        """Is vrpp.
+    def is_vrpp(self) -> bool:
+        """Determines if the model is configured for VRP with Profits.
 
         Returns:
-            Any: Description.
+            bool: True if the problem is a VRPP variant.
         """
         return is_vrpp_problem(self.problem)
 
     @property
-    def is_wc(self):
-        """Is wc.
+    def is_wc(self) -> bool:
+        """Determines if the model is configured for Waste Collection.
 
         Returns:
-            Any: Description.
+            bool: True if the problem is a WCVRP variant.
         """
         return is_wc_problem(self.problem)
 
@@ -203,9 +270,31 @@ class AttentionModel(DecodingMixin, nn.Module):
         spatial_bias: bool,
         spatial_bias_scale: float,
         decoder_type: str = "attention",
-    ):
-        """Initialize encoder and decoder components using the factory."""
-        # Encoder
+    ) -> None:
+        """Initializes the graph encoder and sequential decoder using the factory.
+
+        Args:
+            component_factory: The object responsible for building subnets.
+            step_context_dim: Input size for decoder's current search state.
+            n_encode_layers: Graph attention encoder depth.
+            n_encode_sublayers: Optional sub-depth override for encoder blocks.
+            n_decode_layers: Autoregressive decoder depth.
+            norm_config: Layer normalization configuration.
+            activation_config: Activation function configuration.
+            dropout_rate: Network dropout probability.
+            aggregation: GNN node pooling type.
+            hyper_expansion: Internal MLP expansion factor.
+            connection_type: Skip connection architecture.
+            predictor_layers: MLP depth for final logit prediction.
+            tanh_clipping: Value of TANH clipping for attention.
+            mask_inner: Enable masking inside transformer blocks.
+            mask_logits: Enable node visit masking in final softmax.
+            mask_graph: Global graph structure masking flag.
+            shrink_size: Compression factor for efficient decoders.
+            spatial_bias: Enable relative distance distance injection.
+            spatial_bias_scale: Multiplier for distance bias.
+            decoder_type: Architectural style of the decoder.
+        """
         self.encoder = component_factory.create_encoder(
             embed_dim=self.embed_dim,
             n_layers=n_encode_layers,
@@ -223,7 +312,6 @@ class AttentionModel(DecodingMixin, nn.Module):
             spatial_bias_scale=spatial_bias_scale,
         )
 
-        # Decoder
         self.decoder = component_factory.create_decoder(
             embed_dim=self.embed_dim,
             hidden_dim=self.hidden_dim,
@@ -244,15 +332,16 @@ class AttentionModel(DecodingMixin, nn.Module):
             decoder_type=decoder_type,
         )
 
-    def _get_initial_embeddings(self, input: Dict[str, torch.Tensor]):
-        """
-        Get initial node embeddings from the context embedder.
+    def _get_initial_embeddings(self, input: Dict[str, torch.Tensor]) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        """Processes raw instance data into initial node embeddings.
 
         Args:
-            input: The input data dictionary.
+            input: Key-tensor mapping of instance data (e.g., node coordinates).
 
         Returns:
-            Tuple containing (initial node embeddings, initial context).
+            Tuple[torch.Tensor, Optional[torch.Tensor]]:
+                - embeddings (torch.Tensor): Initial Projected feature vectors.
+                - init_context (Optional[torch.Tensor]): Global problem context if any.
         """
         return self.context_embedder(input), None
 
@@ -267,44 +356,49 @@ class AttentionModel(DecodingMixin, nn.Module):
         expert_pi: Optional[torch.Tensor] = None,
         **kwargs: Any,
     ) -> Dict[str, Any]:
-        """
-        Forward pass of the Attention Model.
+        """Executes the complete constructive search pipeline.
+
+        Performs: (1) Initial embedding, (2) Graph encoding via Attention Encoder,
+        (3) Global context aggregation, and (4) Sequential construction via Decoder.
 
         Args:
-            input: Problem state dictionary/TensorDict.
-            env: Environment instance.
-            strategy: Decoding strategy ('greedy' or 'sampling').
-            return_pi: Whether to return the policy log probabilities.
-            pad: Whether to pad keys for non-square matrices (unused here, kept for API compat).
-            mask: Optional mask for valid nodes.
-            expert_pi: Optional expert policy for imitation learning.
-            **kwargs: Additional arguments.
+            input: TensorDict or dictionary containing the problem instance.
+            env: The environment managing state transitions.
+            strategy: Decoding strategy (e.g., 'greedy', 'sampling', 'beam').
+            return_pi: Whether to return the full action distribution / log-likelihood.
+            pad: API compatibility flag for sequence padding.
+            mask: Optional node-level validity mask.
+            expert_pi: Target actions for supervised training / imitation.
+            **kwargs: Additional parameters for internal calls.
 
         Returns:
-            Dictionary containing 'reward', 'cost', 'log_likelihood', and optionally 'pi'.
+            Dict[str, Any]: Construction results containing:
+                - cost (torch.Tensor): Path lengths of the routes.
+                - reward (torch.Tensor): Normalized negative costs for RL.
+                - log_likelihood (torch.Tensor): Cumulative log prob of solution.
+                - actions (torch.Tensor, optional): The node sequences.
+                - td (TensorDict, optional): Final environment state.
         """
-        # Ensure embedding init
+        # Ensure embedding init if dynamic projection is needed
         if not hasattr(self, "project_node_embeddings"):
-            # Should have been called in __init__, but safe guard
             pass
 
-        # Use efficient embeddings
+        # 1. Project raw features to latent space
         embeddings, init_context = self._get_initial_embeddings(input)
 
-        # Pass through Encoder
+        # 2. Encode graph features sequentially or via checkpointing
         if self.checkpoint_encoder and self.training:
-            # Gradient checkpointing for memory efficiency
             outputs = cast(
-                torch.Tensor, torch.utils.checkpoint.checkpoint(self.encoder, embeddings, mask, use_reentrant=False)
+                torch.Tensor,
+                torch.utils.checkpoint.checkpoint(self.encoder, embeddings, mask, use_reentrant=False),
             )
         else:
             outputs = self.encoder(embeddings, mask)
 
-        # Graph aggregation for context
+        # 3. Pool node embeddings for global graph context
         graph_context = self._aggregate_graph_context(outputs)
 
-        # Pass through Decoder
-        # The decoder handles autoregressive steps
+        # 4. Construct solution step-by-step
         out_dec = self.decoder(
             input,
             outputs,
@@ -316,7 +410,7 @@ class AttentionModel(DecodingMixin, nn.Module):
             expert_pi=expert_pi,
         )
 
-        # Handle varying return counts from legacy / experimental decoders
+        # Result packaging (handling variant decoder return structures)
         if isinstance(out_dec, tuple):
             if len(out_dec) == 4:
                 _log_p, pi, cost, final_td = out_dec
@@ -335,7 +429,7 @@ class AttentionModel(DecodingMixin, nn.Module):
             final_td = None
 
         reward = -cost if cost is not None else torch.tensor(0.0, device=outputs.device)
-        out = {"cost": cost, "reward": reward, "td": final_td}  # RL maximizes reward
+        out = {"cost": cost, "reward": reward, "td": final_td}
 
         if _log_p is not None:
             out["log_likelihood"] = _log_p
@@ -349,7 +443,14 @@ class AttentionModel(DecodingMixin, nn.Module):
         return out
 
     def _aggregate_graph_context(self, outputs: torch.Tensor) -> torch.Tensor:
-        """Helper to aggregate node embeddings into a graph-level context."""
+        """Aggregates per-node embeddings into a summary graph-level representation.
+
+        Args:
+            outputs: Encoded node embeddings [batch, nodes, dim].
+
+        Returns:
+            torch.Tensor: Pooled graph context vector [batch, dim].
+        """
         if self.aggregation_graph == "avg":
             return outputs.mean(dim=1)
         if self.aggregation_graph == "max":
@@ -358,23 +459,24 @@ class AttentionModel(DecodingMixin, nn.Module):
             return outputs.sum(dim=1)
         return outputs.mean(dim=1)
 
-    def precompute_fixed(self, input: Dict[str, torch.Tensor], edges: Optional[torch.Tensor]):
-        """
-        Precompute fixed embeddings for the input.
+    def precompute_fixed(self, input: Dict[str, torch.Tensor], edges: Optional[torch.Tensor] = None) -> Any:
+        """Precomputes and caches the graph-level state for efficient search.
+
+        Used primarily in beam search or local search, where the graph embeddings
+        remain constant across many iterations.
 
         Args:
-            input: The input data.
-            edges: Edge information for the graph.
+            input: Raw problem instance data.
+            edges: Optional graph connectivity information.
 
         Returns:
-            CachedLookup: A cached lookup object containing precomputed decoder state.
+            CachedLookup: A lookup object for the pre-encoded graph state.
         """
         from logic.src.utils.decoding import CachedLookup
 
         embeddings, init_context = self._get_initial_embeddings(input)
         out = self.decoder(input, embeddings, init_context, None, precompute_only=True)
 
-        # Handle varying return counts from legacy / experimental decoders
         if isinstance(out, tuple):
             if len(out) >= 3:
                 _log_p, _pi, _cost = out[:3]
@@ -383,29 +485,26 @@ class AttentionModel(DecodingMixin, nn.Module):
         else:
             _log_p = out
 
-        # Return a lookup object compatible with beam search
-        # Note: The exact structure depends on what beam_search expects
-        # This is a simplified placeholder based on typical usage
         return CachedLookup(embeddings=embeddings, context=init_context)
 
-    def expand(self, t):
-        """
-        Expand tensor or dictionary of tensors for POMO.
+    def expand(self, t: Union[torch.Tensor, ITensorDictLike, None]) -> Any:
+        """Expands instance features to support parallel POMO constructions.
+
+        Repeats batch elements to create multiple starts per instance (e.g.,
+        one starting at each possible node).
 
         Args:
-            t (torch.Tensor or dict or None): Input to expand.
+            t: Tensor, TensorDict, or dictionary to expand.
 
         Returns:
-            Expanded input.
+            Any: The expanded container with [batch * pomo_size, ...] shape.
         """
         if t is None:
             return None
-        # Use ITensorDictLike protocol for dict-like tensor containers
         if isinstance(t, ITensorDictLike):
             return t.__class__({k: self.expand(v) for k, v in t.items()})  # type: ignore[call-arg]
 
         # Expand (Batch, ...) -> (Batch * POMO, ...)
-        # We repeat the batch elements
         bs = t.size(0)
         shape = (bs, self.pomo_size) + t.shape[1:]
         return t.unsqueeze(1).expand(shape).reshape(-1, *t.shape[1:])

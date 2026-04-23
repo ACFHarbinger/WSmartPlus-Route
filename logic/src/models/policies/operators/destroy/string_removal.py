@@ -1,9 +1,11 @@
-"""
-String removal operator (vectorized).
+"""String removal operator.
 
-String removal (SISR - Slack Induction by String Removal) removes contiguous
-sequences of nodes to create large spatial gaps that can be efficiently rearranged.
+This module provides a GPU-accelerated implementation of the Slack Induction by
+String Removal (SISR) heuristic, which minimizes routing costs by removing
+contiguous sequences (strings) of nodes to create large spatial gaps.
 """
+
+from __future__ import annotations
 
 from typing import Optional, Tuple
 
@@ -17,39 +19,23 @@ def vectorized_string_removal(
     avg_string_len: float = 3.0,
     generator: Optional[torch.Generator] = None,
 ) -> Tuple[torch.Tensor, torch.Tensor]:
-    """
-    Vectorized string removal across a batch of tours using PyTorch.
+    """Vectorized string removal across a batch of tours using PyTorch.
 
     String removal removes contiguous sequences (strings) of nodes from routes.
-    The key insight is that removing adjacent customers creates a large contiguous
-    "hole" in the route, providing more flexibility for reinsertion compared to
-    random removal.
-
-    Algorithm:
-    1. While removed < n_remove:
-        a. Select random seed node from tour
-        b. Determine string length using geometric distribution
-        c. Remove string starting at seed (up to max_string_len)
-        d. Mark removed nodes
-    2. Return tours with removed nodes marked as -1
+    The length of each string follows a geometric-like distribution controlled
+    by avg_string_len and capped by max_string_len.
 
     Args:
-        tours: Batch of tours [B, N] where B=batch size, N=tour length
-        n_remove: Number of nodes to remove from each tour
-        max_string_len: Maximum length of a string to remove (default: 4)
-        avg_string_len: Average string length for geometric distribution (default: 3.0)
-        generator (Optional[torch.Generator]): PyTorch generator for random number generation.
+        tours: Batch of node sequences of shape [B, N].
+        n_remove: Number of nodes to remove from each tour.
+        max_string_len: Maximum length of a removed string.
+        avg_string_len: Average string length for geometric distribution.
+        generator: Torch device-side RNG.
 
     Returns:
-        Tuple[torch.Tensor, torch.Tensor]:
-            - Modified tours [B, N] with removed nodes replaced by padding (-1)
-            - Removed nodes [B, n_remove] indices of removed nodes
-
-    Note:
-        - Tours should include depot as node 0 (depot not removed)
-        - Removed nodes are marked as -1 in returned tours
-        - String length follows geometric-like distribution: P(L=k) ~ (1-1/avg)^(k-1)
-        - Stops early if not enough nodes available
+        Tuple[torch.Tensor, torch.Tensor]: A tuple containing:
+            - modified_tours: Sequence with removed nodes marked as -1 (shape [B, N]).
+            - removed_nodes_indices: Index positions of the removed nodes per instance (shape [B, n_remove]).
     """
     device = tours.device
 
@@ -89,7 +75,6 @@ def vectorized_string_removal(
             ]
 
             # Determine string length using geometric distribution
-            # L = 1 + geometric samples
             string_len = 1
             p_continue = 1.0 - 1.0 / avg_string_len
 
@@ -104,7 +89,7 @@ def vectorized_string_removal(
                 node_idx = seed_idx + offset
                 if node_idx < N and available_mask[node_idx]:
                     removed_mask[b, node_idx] = True
-                    removed_list[b, removed_count[b]] = node_idx
+                    removed_list[b, int(removed_count[b].item())] = node_idx
                     removed_count[b] += 1
                     remaining_to_remove -= 1
 

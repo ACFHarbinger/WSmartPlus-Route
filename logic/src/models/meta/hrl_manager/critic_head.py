@@ -1,27 +1,33 @@
-"""critic_head.py module.
+"""Critic Head for State Value Estimation.
+
+This module provides the `CriticHead`, which estimates the expected cumulative
+discounted reward from a given global problem state.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
-
-Example:
-    >>> import critic_head
+    CriticHead: MLP-based value function estimator.
 """
+
+from __future__ import annotations
 
 import torch
 from torch import nn
 
 
 class CriticHead(nn.Module):
-    """
-    Critic head for value estimation.
+    """MLP head for value function estimation in PPO.
+
+    Projects the combined global problem features to a single scalar value.
+
+    Attributes:
+        net (nn.Sequential): MLP layers (Linear -> ReLU -> Linear).
     """
 
-    def __init__(self, input_dim: int, hidden_dim: int):
-        """Initialize Class.
+    def __init__(self, input_dim: int, hidden_dim: int) -> None:
+        """Initializes the critic head.
 
         Args:
-            input_dim (int): Description of input_dim.
-            hidden_dim (int): Description of hidden_dim.
+            input_dim: size of the incoming feature vector (pooled spatial + global).
+            hidden_dim: width of the intermediate representation.
         """
         super().__init__()
         self.net = nn.Sequential(
@@ -31,12 +37,12 @@ class CriticHead(nn.Module):
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Forward.
+        """Estimates the state value.
 
         Args:
-            x (torch.Tensor): Description of x.
+            x: current global feature representation [B, D].
 
         Returns:
-            Any: Description of return value.
+            torch.Tensor: predicted value scalars [B, 1].
         """
         return self.net(x)

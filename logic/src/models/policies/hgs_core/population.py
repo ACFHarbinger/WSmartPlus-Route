@@ -1,6 +1,17 @@
+"""HGS Population Management.
+
+Provides specialized data structures and management logic for maintaining
+a diverse pool of high-quality solutions throughout the evolutionary search.
+
+Attributes:
+    VectorizedPopulation: Class managing a diverse pool of elite solutions.
+
+Example:
+    >>> from logic.src.models.policies.hgs_core import VectorizedPopulation
+    >>> pop = VectorizedPopulation(size=50, device="cuda")
 """
-HGS Population Management.
-"""
+
+from __future__ import annotations
 
 from typing import Any, Optional, Tuple
 
@@ -10,29 +21,29 @@ from .evaluation import calc_broken_pairs_distance
 
 
 class VectorizedPopulation:
+    """Manages a diverse population of solutions for the HGS algorithm.
+
+    Coordinates the storage, evaluation, and selection of solutions across a
+    batch of independent search instances. Implements biased fitness functions
+    that balance objective costs with solution diversity.
+
+    Attributes:
+        max_size: Maximum number of individuals allowed in the population.
+        device: Hardware device where tensors are stored.
+        generator: Torch RNG for stochastic operations (e.g., parent selection).
+        population: Tensor of candidate solutions (giant tours) of shape [B, P, N].
+        costs: Objective cost for each individual of shape [B, P].
+        biased_fitness: Calculated biased fitness ranking of shape [B, P].
+        diversity_scores: Diversity metrics for each solution of shape [B, P].
     """
-    Manages a population of solutions for the HGS algorithm.
 
-    Handles:
-    - Storage of solutions (giant tours), costs, and fitness metrics.
-    - Diversity calculation (Broken Pairs Distance).
-    - Biased fitness computation (ranking by cost and diversity).
-    - Survivor selection.
-
-    Args:
-        size (int): Maximum population size.
-        device: Torch device.
-        generator (Optional[torch.Generator]): Torch random number generator.
-    """
-
-    def __init__(self, size: int, device: Any, generator: Optional[torch.Generator] = None):
-        """
-        Initialize the population.
+    def __init__(self, size: int, device: Any, generator: Optional[torch.Generator] = None) -> None:
+        """Initializes the population management state.
 
         Args:
-            size (int): Max population size.
-            device: Computing device.
-            generator (Optional[torch.Generator]): Torch random number generator.
+            size: Maximum allowed population size (P).
+            device: Computing device for tensor operations.
+            generator: Optional Torch random number generator.
         """
         self.max_size = size
         self.device = device
@@ -42,8 +53,12 @@ class VectorizedPopulation:
         self.biased_fitness: torch.Tensor = torch.empty(0)  # (B, P)
         self.diversity_scores: torch.Tensor = torch.empty(0)  # (B, P)
 
-    def __getstate__(self):
-        """Prepare state for pickling."""
+    def __getstate__(self) -> Dict[str, Any]:
+        """Prepares the population state for pickling.
+
+        Returns:
+            Dict[str, Any]: State dictionary with generator state metadata.
+        """
         state = self.__dict__.copy()
         if "generator" in state and state["generator"] is not None:
             state["generator_state"] = state["generator"].get_state()
@@ -51,8 +66,12 @@ class VectorizedPopulation:
             del state["generator"]
         return state
 
-    def __setstate__(self, state):
-        """Restore state after unpickling."""
+    def __setstate__(self, state: Dict[str, Any]) -> None:
+        """Restores the population state from a pickle bundle.
+
+        Args:
+            state: Dictionary containing the persisted state.
+        """
         gen_state = state.pop("generator_state", None)
         gen_device = state.pop("generator_device", None)
         self.__dict__.update(state)
@@ -62,16 +81,14 @@ class VectorizedPopulation:
         else:
             self.generator = torch.Generator(device="cpu")
 
-    def initialize(self, initial_pop: torch.Tensor, initial_costs: torch.Tensor, nb_elite: int):
-        """
-        Initializes the population with a set of starting solutions.
+    def initialize(self, initial_pop: torch.Tensor, initial_costs: torch.Tensor, nb_elite: int) -> None:
+        """Initializes the population with a set of starting solutions.
 
         Args:
-            initial_pop (torch.Tensor): Initial solutions (giant tours). Shape (B, N) or (B, P0, N).
-            initial_costs (torch.Tensor): Costs of initial solutions. Shape (B,) or (B, P0).
-            nb_elite (int): Number of elite individuals for biased fitness.
+            initial_pop: Starting solutions of shape [B, N] or [B, P0, N].
+            initial_costs: Costs of initial solutions of shape [B] or [B, P0].
+            nb_elite: Number of elite individuals to protect in biased fitness.
         """
-
         if initial_pop.dim() == 2:
             initial_pop = initial_pop.unsqueeze(1)  # (B, 1, N)
 
@@ -83,24 +100,24 @@ class VectorizedPopulation:
         self.costs = initial_costs
         self.compute_biased_fitness(nb_elite)
 
-    def add_individuals(self, candidates: torch.Tensor, costs: torch.Tensor, nb_elite: int):
-        """
-        Merges new individuals into the population and selects survivors based on biased fitness.
-        Maintains the population size at or below `max_size`.
+    def add_individuals(self, candidates: torch.Tensor, costs: torch.Tensor, nb_elite: int) -> None:
+        """Merges new individuals into the pool and performs survivor selection.
+
+        Maintains the population size by ranking all individuals (current pool
+        plus candidates) via biased fitness and keeping only the top `max_size`.
 
         Args:
-            candidates (torch.Tensor): New solutions to add. Shape (B, C, N).
-            costs (torch.Tensor): Costs of new solutions. Shape (B, C).
-            nb_elite (int): Number of elite individuals for biased fitness.
+            candidates: New solutions to evaluate of shape [B, C, N].
+            costs: Costs of new candidates of shape [B, C].
+            nb_elite: Number of elite individuals to protect in rankings.
         """
-
         if candidates.dim() == 2:
             candidates = candidates.unsqueeze(1)
             costs = costs.unsqueeze(1)
 
         # 1. Concatenate
-        combined_pop = torch.cat([self.population, candidates], dim=1)  # (B, P+C, N)
-        combined_costs = torch.cat([self.costs, costs], dim=1)  # (B, P+C)
+        combined_pop = torch.cat([self.population, candidates], dim=1)
+        combined_costs = torch.cat([self.costs, costs], dim=1)
 
         # 2. Update state temporarily
         self.population = combined_pop
@@ -109,42 +126,30 @@ class VectorizedPopulation:
         # 3. Compute Fitness & Survivor Selection
         self.compute_biased_fitness(nb_elite)
 
-        # Select best P based on biased fitness
-        # We want smallest biased_fitness (rank sum)
-
         if self.population.size(1) > self.max_size:
             # Sort by fitness (ascending, smaller is better)
             _, indices = torch.sort(self.biased_fitness, dim=1)
-            survivors = indices[:, : self.max_size]  # (B, max_size)
+            survivors = indices[:, : self.max_size]
 
             # Gather survivors
             B, _, N = self.population.size()
-
-            # Gather population
             surv_expanded = survivors.unsqueeze(2).expand(-1, -1, N)
             self.population = torch.gather(self.population, 1, surv_expanded)
-
-            # Gather costs
             self.costs = torch.gather(self.costs, 1, survivors)
-
-            # Gather fitness
             self.biased_fitness = torch.gather(self.biased_fitness, 1, survivors)
 
-            # Gather diversity (optional)
             if self.diversity_scores is not None and self.diversity_scores.numel() > 0:
                 self.diversity_scores = torch.gather(self.diversity_scores, 1, survivors)
 
-    def compute_biased_fitness(self, nb_elite: int):
-        """
-        Compute Biased Fitness for all individuals in the population.
-        BF(I) = Rank_C(I) + (1 - N_elite/|Pop|) * Rank_D(I).
-        Lower is better for both ranks (0 is best).
-        Updates `self.biased_fitness` and `self.diversity_scores`.
+    def compute_biased_fitness(self, nb_elite: int) -> None:
+        """Calculates biased fitness ranking for all individuals.
+
+        BF(I) = Rank_C(I) + (1 - N_elite/|Pop|) * Rank_D(I)
+        where Rank_C is cost rank and Rank_D is diversity rank. Lower is better.
 
         Args:
-            nb_elite (int): Number of elite individuals to protect.
+            nb_elite: Number of elite individuals defined in the search config.
         """
-
         B, P, N = self.population.size()
 
         # 1. Rank by Cost (Ascending: lower cost is better, Rank 0)
@@ -160,25 +165,23 @@ class VectorizedPopulation:
         div_ranks = torch.argsort(div_indices, dim=1).float()
 
         # 3. Combine
-        # Parameterless Biased Fitness (Vidal 2022)
         diversity_weight = 1.0 - (nb_elite / P)
         self.biased_fitness = cost_ranks + diversity_weight * div_ranks
 
     def get_parents(self, n_offspring: int = 1) -> Tuple[torch.Tensor, torch.Tensor]:
-        """
-        Selects parents for crossover using binary tournament selection based on biased fitness.
+        """Selects parent pairs for recombination via binary tournament.
 
         Args:
-            n_offspring (int): Number of offspring to produce (pairs of parents).
+            n_offspring: Number of parent pairs to select for the next generation.
 
         Returns:
-            tuple: (parents1, parents2). Both valid tensors of shape (B, n_offspring, N).
+            Tuple[torch.Tensor, torch.Tensor]: A pair of parent tensors each
+                of shape [B, n_offspring, N].
         """
-
         B, P, N = self.population.size()
 
-        def tournament():
-            """Selects indices using binary tournament."""
+        def tournament() -> torch.Tensor:
+            """Selects indices using binary tournament based on biased fitness."""
             idx_a = torch.randint(0, P, (B, n_offspring), device=self.device, generator=self.generator)
             idx_b = torch.randint(0, P, (B, n_offspring), device=self.device, generator=self.generator)
             fit_a = torch.gather(self.biased_fitness, 1, idx_a)

@@ -1,10 +1,17 @@
-"""__init__.py module.
+"""DACT: Dual Aspect Collaborative Transformer.
+
+This package implements the DACT architecture (Ma et al. 2021) for iterative
+improvement of routing solutions. It decomposes the problem into spatial
+(node) and sequential (tour position) aspects.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    DACT: Training and inference wrapper.
+    DACTPolicy: Neural improvement policy.
+    DACTEncoder: Dual aspect Transformer encoder.
+    DACTDecoder: Pairwise move prediction decoder.
 
 Example:
-    >>> import __init__
+    >>> from logic.src.models.core.dact import DACT
 """
 
 from .decoder import DACTDecoder as DACTDecoder

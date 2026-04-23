@@ -1,4 +1,21 @@
-"""Standard Graph Convolutional Network (GCN) layer."""
+"""Standard Graph Convolutional Network (GCN) layer.
+
+This module provides the GraphConvolution layer, which performs neighborhood
+aggregation on node features based on a graph adjacency matrix.
+
+Attributes:
+    GraphConvolution: Standard graph convolution layer for node feature aggregation.
+
+Example:
+    >>> import torch
+    >>> from logic.src.models.subnets.modules.graph_convolution import GraphConvolution
+    >>> model = GraphConvolution(in_channels=128, out_channels=128)
+    >>> x = torch.randn(1, 10, 128)
+    >>> adj = torch.eye(10)
+    >>> out = model(x, adj)
+"""
+
+from __future__ import annotations
 
 import math
 
@@ -15,11 +32,17 @@ except (ImportError, OSError):
 
 
 class GraphConvolution(nn.Module):
-    """
-    Standard Graph Convolution layer.
+    """Standard Graph Convolution layer.
 
-    Performs message passing by aggregating features from neighbors:
+    Performs message passing by aggregating features from neighbors according to:
     h_i' = W * h_i + Agg({h_j})
+
+    Attributes:
+        in_channels (int): Dimensionality of input node features.
+        out_channels (int): Dimensionality of output node features.
+        aggregation (str): Pooling strategy ('sum', 'mean', 'max').
+        linear (nn.Linear): Transformation layer for input features.
+        bias (Optional[nn.Parameter]): Learnable bias vector.
     """
 
     def __init__(
@@ -28,20 +51,24 @@ class GraphConvolution(nn.Module):
         out_channels: int,
         aggregation: str = "sum",
         bias: bool = True,
-    ):
-        """
+    ) -> None:
+        """Initializes GraphConvolution.
+
         Args:
-            in_channels: Dimension of input node features.
-            out_channels: Dimension of output node features.
-            aggregation: Aggregation method ('sum', 'mean', 'max').
-            bias: Whether to include a learnable bias term.
+            in_channels: Input feature dimensionality.
+            out_channels: Output feature dimensionality.
+            aggregation: Strategy for neighborhood pooling ('sum', 'mean', 'max').
+            bias: Whether to add a learnable bias term.
+
+        Raises:
+            ImportError: If 'max' aggregation is requested but PyTorch Geometric
+                is not installed.
         """
         if not PYG_AVAILABLE and aggregation == "max":
             raise ImportError(
-                "torch_geometric is required for GraphConvolution with 'max' aggregation. "
-                "The library could not be loaded, possibly due to a CUDA mismatch."
+                "torch_geometric is required for 'max' aggregation in GCN. Check your dependencies and CUDA version."
             )
-        super(GraphConvolution, self).__init__()
+        super().__init__()
         self.in_channels = in_channels
         self.out_channels = out_channels
         self.aggregation = aggregation
@@ -53,20 +80,22 @@ class GraphConvolution(nn.Module):
             self.register_parameter("bias", None)
         self.init_parameters()
 
-    def init_parameters(self):
-        """Initializes the parameters of the layer using uniform distribution."""
+    def init_parameters(self) -> None:
+        """Initializes the linear layer weights using a uniform distribution."""
         for param in self.parameters():
-            stdv = 1.0 / math.sqrt(param.size(-1))
-            param.data.uniform_(-stdv, stdv)
+            if param.dim() > 0:
+                stdv = 1.0 / math.sqrt(param.size(-1))
+                param.data.uniform_(-stdv, stdv)
 
-    def forward(self, h, mask):
-        """
+    def forward(self, h: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+        """Applies graph convolution to a batch of node features.
+
         Args:
-            h: Input node features (B x V x H_1)
-            mask: Graph adjacency matrix (V x V) - shared across all batches
+            h: Input features of shape (batch, nodes, in_channels).
+            mask: Adjacency/mask matrix of shape (nodes, nodes) or (batch, nodes, nodes).
 
         Returns:
-            Updated node features (B x V x H_2)
+            torch.Tensor: Updated features of shape (batch, nodes, out_channels).
         """
         batch_size, num_nodes = h.size(0), h.size(1)
         support = self.linear(h)
@@ -117,14 +146,15 @@ class GraphConvolution(nn.Module):
             out += self.bias
         return out
 
-    def single_graph_forward(self, h, adj):
-        """
+    def single_graph_forward(self, h: torch.Tensor, adj: torch.Tensor) -> torch.Tensor:
+        """Applies graph convolution to a single unbatched graph.
+
         Args:
-            h: Input node features (N x H_1)
-            adj: Graph adjacency matrix (N x N)
+            h: Node features of shape (nodes, in_channels).
+            adj: Single graph adjacency matrix of shape (nodes, nodes).
 
         Returns:
-            Updated node features (N x H_2)
+            torch.Tensor: Updated features of shape (nodes, out_channels).
         """
         support = self.linear(h)
         if self.aggregation == "max":

@@ -1,11 +1,14 @@
-"""
-Critic Network for RL4CO.
+"""Critic Network for estimating graph-level state values.
+
+This module provides the `CriticNetwork` class, which serves as the base
+Value function for Actor-Critic algorithms. It aggregates node-level latent
+representations into a single scalar value prediction.
 """
 
 from __future__ import annotations
 
 import copy
-from typing import Optional
+from typing import Any, Optional
 
 import torch
 from tensordict import TensorDict
@@ -16,8 +19,16 @@ from logic.src.models.subnets.encoders.gat import GraphAttentionEncoder
 
 
 class CriticNetwork(nn.Module):
-    """
-    Critic Network for estimating Value(State).
+    """Critic Network for estimating Value(State).
+
+    Uses a graph encoder to process node features, followed by an aggregation
+    step and a linear MLP head to predict the expected future reward.
+
+    Attributes:
+        aggregation: Pooling method ('avg', 'sum', 'max').
+        init_embedding: Problem-specific feature projector.
+        encoder: Graph neural network for message passing.
+        value_head: MLP layers mapping embeddings to values.
     """
 
     def __init__(
@@ -31,9 +42,22 @@ class CriticNetwork(nn.Module):
         dropout_rate: float = 0.0,
         aggregation: str = "avg",
         encoder: Optional[nn.Module] = None,
-        **kwargs,
-    ):
-        """Initialize CriticNetwork."""
+        **kwargs: Any,
+    ) -> None:
+        """Initialize the CriticNetwork.
+
+        Args:
+            env_name: Name of the environment (defines the embedding layer).
+            embed_dim: Latent representation dimensionality.
+            hidden_dim: Dimensionality of the value head MLP.
+            n_layers: Number of encoder layers if not provided.
+            n_heads: Number of attention heads.
+            normalization: Type of normalization layer.
+            dropout_rate: Dropout probability.
+            aggregation: Aggregation strategy for node features.
+            encoder: Optional pre-defined encoder to reuse.
+            **kwargs: Additional parameters for the encoder.
+        """
         super().__init__()
         self.aggregation = aggregation
 
@@ -59,9 +83,13 @@ class CriticNetwork(nn.Module):
         )
 
     def forward(self, td: TensorDict) -> torch.Tensor:
-        """
-        Estimate value of state.
-        Output: (batch_size, 1)
+        """Estimate the total expected return for the current graph state.
+
+        Args:
+            td: TensorDict containing instance features and current state.
+
+        Returns:
+            torch.Tensor: State value prediction of shape [batch, 1].
         """
         init_embeds = self.init_embedding(td)
         edges = td.get("edges", None)
@@ -83,9 +111,23 @@ class CriticNetwork(nn.Module):
         return value
 
 
-def create_critic_from_actor(policy: nn.Module, backbone_name: str = "encoder", **critic_kwargs):
-    """
-    Create a critic network re-using the encoder from the policy.
+def create_critic_from_actor(policy: nn.Module, backbone_name: str = "encoder", **critic_kwargs: Any) -> CriticNetwork:
+    """Create a critic network by cloning the backbone of an existing policy.
+
+    Useful for Actor-Critic methods where the encoder features are shared
+    between the policy and the value network.
+
+    Args:
+        policy: The actor policy containing the encoder.
+        backbone_name: Attribute name of the encoder within the policy.
+        **critic_kwargs: Overrides for the CriticNetwork configuration.
+
+    Returns:
+        CriticNetwork: An initialized critic with an independent copy of the
+            actor's backbone.
+
+    Raises:
+        ValueError: If the specified backbone name is not found in the policy.
     """
     encoder = getattr(policy, backbone_name, None)
     if encoder is None:

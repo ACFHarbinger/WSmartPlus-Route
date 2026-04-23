@@ -1,10 +1,11 @@
-"""
-Shaw removal (relatedness-based) operator (vectorized).
+"""Shaw removal operator.
 
-The Shaw removal heuristic removes nodes that are similar (related) to a seed node
-based on distance, time windows, and waste. This creates clusters of related nodes
-that can be efficiently rearranged during repair.
+This module provides a GPU-accelerated implementation of the Shaw removal
+heuristic (relatedness-based), which ejects nodes from the tour that are
+similar based on distance, demand, and time windows.
 """
+
+from __future__ import annotations
 
 from typing import Optional, Tuple
 
@@ -23,49 +24,28 @@ def vectorized_shaw_removal(
     randomization_factor: float = 2.0,
     generator: Optional[torch.Generator] = None,
 ) -> Tuple[torch.Tensor, torch.Tensor]:
-    """
-    Vectorized Shaw removal across a batch of tours using PyTorch.
+    """Vectorized Shaw removal across a batch of tours using PyTorch.
 
-    Shaw removal computes relatedness between nodes based on multiple criteria:
-    - Distance: phi * d(i,j) / max_dist
-    - Time windows: chi * |T_i - T_j| / max_time
-    - Waste: psi * |q_i - q_j| / max_waste
-
-    Nodes with low relatedness scores (high similarity) to already-removed nodes
-    are selected for removal, creating clusters of related nodes.
-
-    Algorithm:
-    1. Select random seed node for each tour in batch
-    2. While removed < n_remove:
-        a. Compute relatedness of all remaining nodes to removed set
-        b. Rank by relatedness (lower = more related)
-        c. Select using randomized power law: idx = (uniform^p) * len(candidates)
-        d. Add to removed set
-    3. Return tours with selected nodes marked for removal
+    Shaw removal computes relatedness between nodes based on distance,
+    time windows, and waste. Nodes with high similarity to the removed
+    set are prioritized for subsequent removal to create clean clusters.
 
     Args:
-        tours: Batch of tours [B, N] where B=batch size, N=tour length
-        distance_matrix: Pairwise distances [B, N+1, N+1] or [N+1, N+1] (shared)
-        n_remove: Number of nodes to remove from each tour
-        wastes: Node wastes [B, N+1] or [N+1] (optional, for waste relatedness)
-        time_windows: Time windows [B, N+1, 2] or [N+1, 2] (optional, [earliest, latest])
-        phi: Weight for distance component (default: 9.0)
-        chi: Weight for time window component (default: 3.0)
-        psi: Weight for waste component (default: 2.0)
-        randomization_factor: Power for randomized selection (default: 2.0)
-            Higher values = more randomness
-        generator (Optional[torch.Generator]): PyTorch generator for random number generation.
+        tours: Batch of sequences of shape [B, N].
+        distance_matrix: Edge weights of shape [B, N+1, N+1] or [N+1, N+1].
+        n_remove: Number of nodes to remove per tour.
+        wastes: Node demands of shape [B, N+1] or [N+1].
+        time_windows: Windows metadata of shape [B, N+1, 2] or [N+1, 2].
+        phi: Weight for distance relatedness.
+        chi: Weight for time window relatedness.
+        psi: Weight for waste relatedness.
+        randomization_factor: Power for randomized selection (p-value).
+        generator: Torch device-side RNG.
 
     Returns:
-        Tuple[torch.Tensor, torch.Tensor]:
-            - Modified tours [B, N] with removed nodes replaced by padding (-1)
-            - Removed nodes [B, n_remove] indices of removed nodes
-
-    Note:
-        - Tours should include depot as node 0
-        - Removed nodes are marked as -1 in returned tours
-        - Works with both batched and shared distance/waste matrices
-        - Time windows are optional; if not provided, chi is ignored
+        Tuple[torch.Tensor, torch.Tensor]: A tuple containing:
+            - modified_tours: Batch of tours with removed nodes marked (shape [B, N]).
+            - removed_nodes: IDs of the removed nodes per instance (shape [B, n_remove]).
     """
     # Prepare inputs
     tours, distance_matrix, wastes, time_windows, is_batch = _prepare_shaw_inputs(
@@ -74,9 +54,14 @@ def vectorized_shaw_removal(
     device = tours.device
 
     # Initialize parameters and tracks
-    distance_matrix, wastes, time_windows, max_dist, max_waste, max_time = _init_shaw_params(
-        tours, distance_matrix, wastes, time_windows
-    )
+    (
+        distance_matrix,
+        wastes,
+        time_windows,
+        max_dist,
+        max_waste,
+        max_time,
+    ) = _init_shaw_params(tours, distance_matrix, wastes, time_windows)
     B, N = tours.shape
     removed_mask = torch.zeros(B, N, dtype=torch.bool, device=device)
     removed_list = torch.full((B, n_remove), -1, dtype=torch.long, device=device)
@@ -86,10 +71,19 @@ def vectorized_shaw_removal(
     valid_counts = valid_mask.sum(dim=1)
 
     # Random seed selection
-    _select_seed_nodes(B, valid_mask, valid_counts, removed_mask, removed_list, removed_count, device, generator)
+    _select_seed_nodes(
+        B,
+        valid_mask,
+        valid_counts,
+        removed_mask,
+        removed_list,
+        removed_count,
+        device,
+        generator,
+    )
 
     # Iteratively select related nodes
-    for _step in range(1, n_remove):
+    for _ in range(1, n_remove):
         relatedness_sum = _calculate_relatedness_batch(
             B,
             N,
@@ -138,8 +132,30 @@ def vectorized_shaw_removal(
     )
 
 
-def _prepare_shaw_inputs(tours, distance_matrix, wastes, time_windows):
-    """Ensures all inputs are batched tensors."""
+def _prepare_shaw_inputs(
+    tours: torch.Tensor,
+    distance_matrix: torch.Tensor,
+    wastes: Optional[torch.Tensor],
+    time_windows: Optional[torch.Tensor],
+) -> Tuple[
+    torch.Tensor,
+    torch.Tensor,
+    Optional[torch.Tensor],
+    Optional[torch.Tensor],
+    bool,
+]:
+    """Ensures all inputs are batched tensors.
+
+    Args:
+        tours: Input tour sequences.
+        distance_matrix: Global distance metadata.
+        wastes: Optional demand metadata.
+        time_windows: Optional temporal metadata.
+
+    Returns:
+        Tuple[torch.Tensor, torch.Tensor, Optional[torch.Tensor], Optional[torch.Tensor], bool]:
+            Batched tours, distance_matrix, wastes, time_windows, and a batch flag.
+    """
     is_batch = tours.dim() == 2
     if not is_batch:
         tours = tours.unsqueeze(0)
@@ -152,36 +168,80 @@ def _prepare_shaw_inputs(tours, distance_matrix, wastes, time_windows):
     return tours, distance_matrix, wastes, time_windows, is_batch
 
 
-def _select_seed_nodes(B, valid_mask, valid_counts, removed_mask, removed_list, removed_count, device, generator):
-    """Selects a random seed node for each tour."""
+def _select_seed_nodes(
+    B: int,
+    valid_mask: torch.Tensor,
+    valid_counts: torch.Tensor,
+    removed_mask: torch.Tensor,
+    removed_list: torch.Tensor,
+    removed_count: torch.Tensor,
+    device: torch.device,
+    generator: Optional[torch.Generator],
+) -> None:
+    """Selects a random seed node for each tour.
+
+    Args:
+        B: Batch instances count.
+        valid_mask: Boolean mask of non-depot nodes.
+        valid_counts: Total valid nodes per tour.
+        removed_mask: Target boolean tracker for removals.
+        removed_list: Ordered list of removed node IDs.
+        removed_count: Running total of removals per instance.
+        device: Hardware identification locator.
+        generator: PyTorch random number generator.
+    """
     for b in range(B):
         if valid_counts[b] > 0:
             valid_indices = torch.where(valid_mask[b])[0]
-            seed_idx = valid_indices[torch.randint(len(valid_indices), (1,), device=device, generator=generator)]
+            seed_idx = int(
+                valid_indices[torch.randint(len(valid_indices), (1,), device=device, generator=generator)].item()
+            )
             removed_mask[b, seed_idx] = True
             removed_list[b, 0] = seed_idx
             removed_count[b] = 1
 
 
 def _calculate_relatedness_batch(
-    B,
-    N,
-    tours,
-    distance_matrix,
-    wastes,
-    time_windows,
-    removed_mask,
-    removed_count,
-    valid_counts,
-    max_dist,
-    max_waste,
-    max_time,
-    phi,
-    psi,
-    chi,
-    device,
-):
-    """Calculates relatedness scores for all nodes against removed nodes."""
+    B: int,
+    N: int,
+    tours: torch.Tensor,
+    distance_matrix: torch.Tensor,
+    wastes: Optional[torch.Tensor],
+    time_windows: Optional[torch.Tensor],
+    removed_mask: torch.Tensor,
+    removed_count: torch.Tensor,
+    valid_counts: torch.Tensor,
+    max_dist: float,
+    max_waste: float,
+    max_time: float,
+    phi: float,
+    psi: float,
+    chi: float,
+    device: torch.device,
+) -> torch.Tensor:
+    """Calculates relatedness scores for all nodes against removed nodes.
+
+    Args:
+        B: Batch instances count.
+        N: Full sequence length.
+        tours: Current sequences of shape [B, N].
+        distance_matrix: Distance metadata of shape [B, N+1, N+1].
+        wastes: Optional demand metadata.
+        time_windows: Optional temporal metadata.
+        removed_mask: Tracker for already removed nodes.
+        removed_count: Count of nodes already removed per instance.
+        valid_counts: Number of non-depot nodes per instance.
+        max_dist: Maximum pairwise distance (for normalization).
+        max_waste: Maximum node demand.
+        max_time: Maximum earliest temporal window.
+        phi: Distance similarity weight.
+        psi: Waste similarity weight.
+        chi: Temporal similarity weight.
+        device: Hardware identification locator.
+
+    Returns:
+        torch.Tensor: Computed relatedness score tensor of shape [B, N].
+    """
     relatedness_sum = torch.zeros((B, N), device=device)
 
     for b in range(B):
@@ -213,19 +273,33 @@ def _calculate_relatedness_batch(
 
 
 def _select_next_removal_batch(
-    B,
-    n_remove,
-    randomization_factor,
-    relatedness_scores,
-    removed_mask,
-    removed_list,
-    removed_count,
-    valid_mask,
-    valid_counts,
-    device,
-    generator,
-):
-    """Selects the next node to remove using randomized power law."""
+    B: int,
+    n_remove: int,
+    randomization_factor: float,
+    relatedness_scores: torch.Tensor,
+    removed_mask: torch.Tensor,
+    removed_list: torch.Tensor,
+    removed_count: torch.Tensor,
+    valid_mask: torch.Tensor,
+    valid_counts: torch.Tensor,
+    device: torch.device,
+    generator: Optional[torch.Generator],
+) -> None:
+    """Selects the next node to remove using randomized power law.
+
+    Args:
+        B: Batch instances count.
+        n_remove: Target number of removals.
+        randomization_factor: Selection stochasticity (p-value).
+        relatedness_scores: Precomputed similarity tensor of shape [B, N].
+        removed_mask: Boolean tracker for exclusions.
+        removed_list: Ordered list of removals IDs.
+        removed_count: Running total of removals.
+        valid_mask: Boolean identifier for non-depot nodes.
+        valid_counts: Total count of valid nodes per sequence.
+        device: Hardware identification locator.
+        generator: PyTorch random number generator.
+    """
     for b in range(B):
         if removed_count[b] >= n_remove or removed_count[b] >= valid_counts[b]:
             continue
@@ -252,26 +326,42 @@ def _select_next_removal_batch(
 
         # Mark as removed
         removed_mask[b, selected_node_idx] = True
-        removed_list[b, removed_count[b]] = selected_node_idx
+        removed_list[b, int(removed_count[b].item())] = selected_node_idx
         removed_count[b] += 1
 
 
-def _init_shaw_params(tours, distance_matrix, wastes, time_windows):
-    """Initialize max values for normalization."""
-    B, N = tours.shape
+def _init_shaw_params(
+    tours: torch.Tensor,
+    distance_matrix: torch.Tensor,
+    wastes: Optional[torch.Tensor],
+    time_windows: Optional[torch.Tensor],
+) -> Tuple[torch.Tensor, Optional[torch.Tensor], Optional[torch.Tensor], float, float, float]:
+    """Initialize max values for normalization.
+
+    Args:
+        tours: Current sequences of shape [B, N].
+        distance_matrix: Global distance weights.
+        wastes: Optional demand metadata.
+        time_windows: Optional temporal metadata.
+
+    Returns:
+        Tuple[torch.Tensor, Optional[torch.Tensor], Optional[torch.Tensor], float, float, float]:
+            Processed distance_matrix, wastes, time_windows, max_dist, max_waste, and max_time.
+    """
+    B, _ = tours.shape
 
     # Ensure distance matrix is batched
     if distance_matrix.dim() == 2:
         distance_matrix = distance_matrix.unsqueeze(0).expand(B, -1, -1)
 
-    max_dist = distance_matrix.max().item()
+    max_dist = float(distance_matrix.max().item())
     max_dist = max_dist if max_dist > 1e-6 else 1.0
 
     max_waste = 1.0
     if wastes is not None:
         if wastes.dim() == 1:
             wastes = wastes.unsqueeze(0).expand(B, -1)
-        max_waste = wastes.max().item()
+        max_waste = float(wastes.max().item())
         max_waste = max_waste if max_waste > 1e-6 else 1.0
 
     max_time = 1.0
@@ -279,7 +369,7 @@ def _init_shaw_params(tours, distance_matrix, wastes, time_windows):
         if time_windows.dim() == 2:
             time_windows = time_windows.unsqueeze(0).expand(B, -1, -1)
         # Max of earliest times
-        max_time = time_windows[:, :, 0].max().item()
+        max_time = float(time_windows[:, :, 0].max().item())
         max_time = max_time if max_time > 1e-6 else 1.0
 
     return distance_matrix, wastes, time_windows, max_dist, max_waste, max_time

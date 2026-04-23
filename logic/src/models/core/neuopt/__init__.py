@@ -1,10 +1,17 @@
-"""__init__.py module.
+"""Neural Optimizer (NeuOpt).
+
+This package implements the NeuOpt architecture for iterative combinatorial
+optimization. It provides a Transformer-based global state encoder and
+a pairwise decoder for identifying high-quality local improvements.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    NeuOpt: Primary solver wrapper for neural iterative optimization.
+    NeuOptPolicy: Policy coordinating NeuOpt encoder and decoder.
+    NeuOptEncoder: Deep Transformer node-feature representation encoder.
+    NeuOptDecoder: Pairwise action decoder for move selection.
 
 Example:
-    >>> import __init__
+    >>> from logic.src.models.core.neuopt import NeuOpt
 """
 
 from .decoder import NeuOptDecoder as NeuOptDecoder

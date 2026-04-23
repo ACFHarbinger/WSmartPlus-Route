@@ -1,10 +1,11 @@
 """__init__.py module.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    MDAMGraphAttentionEncoder: Multi-Decoder Attention Model Graph Attention Encoder.
 
 Example:
-    >>> import __init__
+    >>> from logic.src.models.subnets.encoders.mdam import MDAMGraphAttentionEncoder
+    >>> encoder = MDAMGraphAttentionEncoder(n_layers=3, embed_dim=128)
 """
 
 from .encoder import MDAMGraphAttentionEncoder as MDAMGraphAttentionEncoder

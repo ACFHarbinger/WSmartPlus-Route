@@ -1,4 +1,14 @@
-"""Graph Convolution Encoder."""
+"""Graph Convolution Encoder.
+
+Attributes:
+    GraphConvolutionEncoder: Encoder based on Gated Graph Convolutions.
+
+Example:
+    >>> from logic.src.models.subnets.encoders.gcn import GraphConvolutionEncoder
+    >>> encoder = GraphConvolutionEncoder(n_layers=3, feed_forward_hidden=128)
+"""
+
+from typing import Any
 
 import torch
 from torch import nn
@@ -8,48 +18,47 @@ from logic.src.models.subnets.modules import GatedGraphConvolution
 
 
 class GraphConvolutionEncoder(nn.Module):
-    """
-    Encoder based on Gated Graph Convolutions.
+    """Encoder based on Gated Graph Convolutions.
 
     Uses stacked GatedGraphConvolution layers for node and edge feature updates.
     Unlike transformer-based encoders, this encoder operates on graph structure
     directly using graph convolution operations.
 
-    Parameters
-    ----------
-    n_layers : int
-        Number of graph convolution layers.
-    feed_forward_hidden : int
-        Hidden dimension for node and edge features.
-    agg : str, default="sum"
-        Aggregation method for neighbor features: "sum", "mean", or "max".
-    norm : str, default="layer"
-        Normalization type: "batch", "layer", "instance", or "group".
-    learn_affine : bool, default=True
-        Whether to learn affine parameters in normalization.
-    track_norm : bool, default=False
-        Whether to track running statistics in normalization.
-    gated : bool, default=True
-        Whether to use gated update mechanism in graph convolutions.
-    *args
-        Additional positional arguments.
-    **kwargs
-        Additional keyword arguments.
+    Attributes:
+        norm_config (NormalizationConfig): Normalization configuration.
+        n_layers (int): Number of graph convolution layers.
+        hidden_dim (int): Hidden dimension for node and edge features.
+        agg (str): Aggregation method for neighbor features.
+        gated (bool): Whether to use gated update mechanism.
+        init_embed_edges (nn.Embedding): Initial edge embedding layer.
+        layers (nn.ModuleList): Stack of gated graph convolution layers.
     """
 
     def __init__(
         self,
-        n_layers,
-        feed_forward_hidden,
-        agg="sum",
-        norm="layer",
-        learn_affine=True,
-        track_norm=False,
-        gated=True,
-        *args,
-        **kwargs,
-    ):
-        """Initialize the GCN Encoder."""
+        n_layers: int,
+        feed_forward_hidden: int,
+        agg: str = "sum",
+        norm: str = "layer",
+        learn_affine: bool = True,
+        track_norm: bool = False,
+        gated: bool = True,
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
+        """Initializes the GraphConvolutionEncoder.
+
+        Args:
+            n_layers: Number of graph convolution layers.
+            feed_forward_hidden: Hidden dimension size for node and edge features.
+            agg: Aggregation method: "sum", "mean", or "max".
+            norm: Normalization type: "batch", "layer", "instance", or "group".
+            learn_affine: Whether to learn affine parameters in normalization.
+            track_norm: Whether to track running statistics in normalization.
+            gated: Whether to use gated mechanism in graph convolutions.
+            args: Additional positional arguments.
+            kwargs: Additional keyword arguments.
+        """
         super(GraphConvolutionEncoder, self).__init__()
 
         # Create normalization config for consistency with other encoders
@@ -82,28 +91,20 @@ class GraphConvolutionEncoder(nn.Module):
             ]
         )
 
-    def forward(self, x, edges):
-        """
-        Forward pass through graph convolution layers.
+    def forward(self, x: torch.Tensor, edges: torch.Tensor) -> torch.Tensor:
+        """Forward pass through graph convolution layers.
 
-        Parameters
-        ----------
-        x : torch.Tensor
-            Input node features of shape (batch_size, num_nodes, hidden_dim).
-        edges : torch.Tensor
-            Graph adjacency information. Can be:
-            - Dense: (batch_size, num_nodes, num_nodes) - adjacency matrix
-            - Sparse: (batch_size, 2, num_edges) - edge index list
+        Args:
+            x: Input node features of shape (batch_size, num_nodes, hidden_dim).
+            edges: Graph adjacency information. Can be dense (batch_size, num_nodes,
+                num_nodes) or sparse (batch_size, 2, num_edges).
 
-        Returns
-        -------
-        torch.Tensor
-            Updated node features of shape (batch_size, num_nodes, hidden_dim).
+        Returns:
+            torch.Tensor: Updated node features of shape (batch_size, num_nodes, hidden_dim).
 
-        Notes
-        -----
-        If edges are provided in sparse format (edge index list), they are
-        converted to dense adjacency matrices before processing.
+        Note:
+            If edges are provided in sparse format (edge index list), they are
+            converted to dense adjacency matrices before processing.
         """
         batch_size, num_nodes, _ = x.size()
 

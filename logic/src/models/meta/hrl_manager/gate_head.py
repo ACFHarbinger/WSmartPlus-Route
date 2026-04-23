@@ -1,27 +1,34 @@
-"""gate_head.py module.
+"""Gate Head for Route Dispatch Decisions.
+
+This module provides the `GateHead`, which determines whether to initiate
+a routing cycle based on global occupancy and predicted urgency.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
-
-Example:
-    >>> import gate_head
+    GateHead: MLP-based binary categorical decision head.
 """
+
+from __future__ import annotations
 
 import torch
 from torch import nn
 
 
 class GateHead(nn.Module):
-    """
-    Head for routing decision (gate).
+    """MLP head for fleet dispatch gating.
+
+    Produces categorical logits for the binary decision: dispatching vs skipping
+    the routing cycle for the current period.
+
+    Attributes:
+        net (nn.Sequential): MLP layers (Linear -> ReLU -> Linear).
     """
 
-    def __init__(self, input_dim: int, hidden_dim: int):
-        """Initialize Class.
+    def __init__(self, input_dim: int, hidden_dim: int) -> None:
+        """Initializes the gate head.
 
         Args:
-            input_dim (int): Description of input_dim.
-            hidden_dim (int): Description of hidden_dim.
+            input_dim: size of pooled global features.
+            hidden_dim: width of the intermediate layer.
         """
         super().__init__()
         self.net = nn.Sequential(
@@ -31,12 +38,12 @@ class GateHead(nn.Module):
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Forward.
+        """Predicts dispatch logits.
 
         Args:
-            x (torch.Tensor): Description of x.
+            x: global state representation [B, D].
 
         Returns:
-            Any: Description of return value.
+            torch.Tensor: logits for [Skip, Dispatch] [B, 2].
         """
         return self.net(x)

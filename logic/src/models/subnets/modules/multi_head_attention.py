@@ -1,5 +1,17 @@
-"""
-Multi-Head Attention module for transformer-based models.
+"""Multi-Head Attention module for transformer-based models.
+
+This module provides the MultiHeadAttention layer, which allows the model to
+jointly attend to information from different representation subspaces.
+
+Attributes:
+    MultiHeadAttention: Implementation of scaled dot-product multi-head attention.
+
+Example:
+    >>> import torch
+    >>> from logic.src.models.subnets.modules.multi_head_attention import MultiHeadAttention
+    >>> mha = MultiHeadAttention(n_heads=8, input_dim=128, embed_dim=128)
+    >>> q = torch.randn(1, 10, 128)
+    >>> out = mha(q)
 """
 
 from __future__ import annotations
@@ -12,11 +24,24 @@ from torch import nn
 
 
 class MultiHeadAttention(nn.Module):
-    """
-    Multi-Head Attention mechanism.
+    """Multi-Head Attention mechanism.
 
-    Allows the model to jointly attend to information from different representation subspaces
-    at different positions. Implements scaled dot-product attention.
+    Allows the model to jointly attend to information from different representation
+    subspaces at different positions using scaled dot-product attention.
+
+    Attributes:
+        n_heads (int): Number of attention heads.
+        input_dim (int): Dimensionality of the input features.
+        embed_dim (int): Total embedding dimensionality (output dimension).
+        val_dim (int): Dimensionality of value vectors per head.
+        key_dim (int): Dimensionality of key/query vectors per head.
+        norm_factor (float): Scaling factor for dot-product attention (1 / sqrt(key_dim)).
+        W_query (nn.Parameter): Learnable query projection weights.
+        W_key (nn.Parameter): Learnable key projection weights.
+        W_val (nn.Parameter): Learnable value projection weights.
+        W_out (nn.Parameter): Learnable output projection weights.
+        last_attn (Tuple[Optional[torch.Tensor], Optional[torch.Tensor]]): Cached
+            last attention weights and mask.
     """
 
     last_attn: Tuple[Optional[torch.Tensor], Optional[torch.Tensor]]
@@ -29,15 +54,16 @@ class MultiHeadAttention(nn.Module):
         val_dim: Optional[int] = None,
         key_dim: Optional[int] = None,
     ) -> None:
-        """
+        """Initializes MultiHeadAttention.
+
         Args:
-            n_heads: Number of attention heads.
-            input_dim: Dimensionality of the input features.
-            embed_dim: Total embedding dimension (output dimension).
-            val_dim: Dimension of value vectors per head.
-            key_dim: Dimension of key/query vectors per head.
+            n_heads: Number of parallel attention heads.
+            input_dim: Feature dimensionality of the input sequence.
+            embed_dim: Total dimensionality of the output representation.
+            val_dim: Dimension of value vectors per head. Defaults to `embed_dim // n_heads`.
+            key_dim: Dimension of key/query vectors per head. Defaults to `val_dim`.
         """
-        super(MultiHeadAttention, self).__init__()
+        super().__init__()
         if val_dim is None:
             val_dim = embed_dim // n_heads
         if key_dim is None:
@@ -58,7 +84,7 @@ class MultiHeadAttention(nn.Module):
         self.last_attn = (None, None)
 
     def init_parameters(self) -> None:
-        """Initializes the parameters of the attention layers using Xavier uniform initialization."""
+        """Initializes the attention weights using Xavier-like uniform distribution."""
         for param in self.parameters():
             if param.dim() > 0:
                 stdv: float = 1.0 / math.sqrt(param.size(-1))
@@ -70,17 +96,16 @@ class MultiHeadAttention(nn.Module):
         h: Optional[torch.Tensor] = None,
         mask: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
-        """
-        Computes the multi-head attention.
+        """Computes the multi-head attention update.
 
         Args:
-            q: Queries tensor of shape (batch_size, n_query, input_dim).
-            h: Key/Value keys tensor of shape (batch_size, graph_size, input_dim).
-               If None, defaults to q (self-attention).
-            mask: Attention mask of shape (batch_size, n_query, graph_size).
+            q: Queries tensor of shape (batch, n_query, input_dim).
+            h: Key/Value keys tensor of shape (batch, graph_size, input_dim).
+                Defaults to `q` (self-attention) if None.
+            mask: Boolean attention mask (batch, n_query, graph_size).
 
         Returns:
-            context vectors (aggregated values) of shape (batch_size, n_query, embed_dim).
+            torch.Tensor: Context vectors of shape (batch, n_query, embed_dim).
         """
         if h is None:
             h = q

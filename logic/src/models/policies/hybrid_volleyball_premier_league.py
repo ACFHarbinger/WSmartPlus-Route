@@ -1,12 +1,16 @@
-"""
-Vectorized Hybrid Volleyball Premier League (HVPL) Policy.
+"""Vectorized Hybrid Volleyball Premier League (HVPL) Policy.
+
+This module implements the HVPL algorithm, a population-based meta-heuristic
+that mimics the competition and coaching dynamics of a professional sports
+league. It fuses constructionist capabilities (ACO) with improvement
+heuristics (ALNS) using a parallelized population management system on the GPU.
 """
 
 from __future__ import annotations
 
 import random
 import time
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import torch
 from tensordict import TensorDict
@@ -14,17 +18,27 @@ from tensordict import TensorDict
 from logic.src.constants.simulation import VEHICLE_CAPACITY
 from logic.src.envs.base.base import RL4COEnvBase
 from logic.src.models.common.autoregressive.policy import AutoregressivePolicy
-from logic.src.models.policies.adaptive_large_neighborhood_search import VectorizedALNS
+from logic.src.models.policies.adaptive_large_neighborhood_search import (
+    VectorizedALNS,
+)
 from logic.src.models.policies.hgs import VectorizedHGS
 from logic.src.models.policies.shared.linear import vectorized_linear_split
 
 
 class VectorizedHVPL(AutoregressivePolicy):
-    """
-    Vectorized Hybrid Volleyball Premier League (HVPL) Policy.
+    """Vectorized HVPL Policy for high-performance routing.
 
-    Combines Vectorized ACO construction with Vectorized ALNS coaching
-    in a population-based framework optimized for GPU execution.
+    Maintains a league of 'teams' (giant tours) which undergo a coaching phase
+    (ALNS refinement), global competition (best-tour tracking), and a substitution
+    phase (replacing low-performers via ACO construction).
+
+    Attributes:
+        n_teams: Population size (teams) per problem instance.
+        max_iterations: Number of seasons/cycles to simulate.
+        sub_rate: Portion of teams to replace per cycle.
+        time_limit: Wall-clock runtime constraint in seconds.
+        aco_iterations: Iterations for the construction phase.
+        alns_iterations: Internal iterations for the coaching phase.
     """
 
     def __init__(
@@ -39,8 +53,23 @@ class VectorizedHVPL(AutoregressivePolicy):
         device: str = "cuda",
         generator: Optional[torch.Generator] = None,
         rng: Optional[random.Random] = None,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
+        """Initialize the HVPL policy.
+
+        Args:
+            env_name: Problem environment identifier.
+            n_teams: Number of concurrent solutions in the pool.
+            max_iterations: Maximum cycle limit.
+            sub_rate: Crossover/replacement probability.
+            time_limit: Total timeout in seconds.
+            aco_iterations: Iterations for structural initialization.
+            alns_iterations: Coaching intensity per cycles.
+            device: Hardware target.
+            generator: Torch RNG instance.
+            rng: Python random module instance.
+            **kwargs: Additional hyperparameters.
+        """
         super().__init__(env_name=env_name, device=device, generator=generator, rng=rng, **kwargs)
         self.n_teams = n_teams
         self.max_iterations = max_iterations
@@ -50,9 +79,12 @@ class VectorizedHVPL(AutoregressivePolicy):
         self.alns_iterations = alns_iterations
 
     def __getstate__(self) -> Dict[str, Any]:
-        """Return state for pickling."""
+        """Prepare state for serialization, stripping hardware-bound RNGs.
+
+        Returns:
+            Dict[str, Any]: Attribute map suitable for pickling.
+        """
         state = self.__dict__.copy()
-        # Handle torch.Generator which is not picklable
         if "generator" in state:
             gen = state["generator"]
             state["generator_state"] = gen.get_state()
@@ -61,11 +93,14 @@ class VectorizedHVPL(AutoregressivePolicy):
         return state
 
     def __setstate__(self, state: Dict[str, Any]) -> None:
-        """Restore state after pickling."""
+        """Restore search parameters and re-initialize device RNGs.
+
+        Args:
+            state: Serialized attribute dictionary.
+        """
         if "generator_state" in state:
             gen_state = state.pop("generator_state")
             gen_device = state.pop("generator_device")
-            # Create a new generator on the same device
             gen = torch.Generator(device=gen_device)
             gen.set_state(gen_state)
             state["generator"] = gen
@@ -80,13 +115,29 @@ class VectorizedHVPL(AutoregressivePolicy):
         max_steps: Optional[int] = None,
         phase: str = "train",
         return_actions: bool = True,
-        **kwargs,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
-        """
-        Run vectorized HVPL.
+        """Execute the HVPL simulation loop.
+
+        Args:
+            td: Problem state data.
+            env: Relevant environment instance.
+            strategy: Search strategy (ignored).
+            num_starts: Number of restarts (not applicable).
+            max_steps: Sequence length limit (ignored).
+            phase: Current execution phase ('train', 'val', or 'test').
+            return_actions: Whether to include action tensors.
+            **kwargs: Runtime overrides.
+
+        Returns:
+            Dict[str, Any]: Optimized results dictionary including:
+                - actions (torch.Tensor): Padded action sequences.
+                - reward (torch.Tensor): Calculated reward for the solution.
+                - cost (torch.Tensor): Raw objective value from the engine.
+                - log_likelihood (torch.Tensor): Zero vector (HVPL is non-pi).
         """
         batch_size = td.batch_size[0]
-        device = td.device
+        device = td.device if td.device is not None else td["locs"].device
         start_time = time.time()
 
         # 1. Setup Data
@@ -111,19 +162,25 @@ class VectorizedHVPL(AutoregressivePolicy):
             if time.time() - start_time > self.time_limit:
                 break
 
-            # 4. Coaching Phase (Vectorized ALNS)
+            # 4. Coaching Phase (Vectorized ALNS refinement)
             instance_costs, coached_routes_list = self._coaching_phase(
                 population_tours, expanded_dist, expanded_waste, expanded_capacity
             )
 
-            # 5. Global Competition
-            improved = self._global_competition(instance_costs, coached_routes_list, best_tours, best_costs, num_nodes)
+            # 5. Global Competition (Select iteration best per batch)
+            improved = self._global_competition(
+                instance_costs,
+                mentored_routes_list=coached_routes_list,
+                best_tours=best_tours,
+                best_costs=best_costs,
+                num_nodes=num_nodes,
+            )
 
-            # 6. Pheromone Update
+            # 6. Pheromone Update (Stochastic reinforcement of best edges)
             if improved.any():
                 tau = self._update_pheromones(tau, best_tours, best_costs)
 
-            # 7. Substitution Phase
+            # 7. Substitution Phase (Replace weakest solutions)
             if self.sub_rate > 0:
                 self._substitution_phase(population_tours, instance_costs, dist_matrix, tau, eta)
 
@@ -131,9 +188,19 @@ class VectorizedHVPL(AutoregressivePolicy):
         return self._format_output(td, best_tours, dist_matrix, waste, capacity, env=env)
 
     def _setup_data(self, td: TensorDict) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-        """Extract problem data from TensorDict."""
+        """Extract and compute necessary tensors from the TensorDict state.
+
+        Args:
+            td: Input state bundle.
+
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor, torch.Tensor]: A tuple containing:
+                - dist_matrix: Euclidean cost tensor of shape [B, N, N].
+                - waste: Falling levels of shape [B, N].
+                - capacity: Scalar or per-route limits of shape [B].
+        """
         batch_size = td.batch_size[0]
-        device = td.device
+        device = td.device if td.device is not None else td["locs"].device
         locs = td["locs"]
         num_nodes = locs.shape[1]
 
@@ -152,9 +219,25 @@ class VectorizedHVPL(AutoregressivePolicy):
         return dist_matrix, waste, capacity
 
     def _coaching_phase(
-        self, population_tours: torch.Tensor, dist: torch.Tensor, waste: torch.Tensor, capacity: torch.Tensor
+        self,
+        population_tours: torch.Tensor,
+        dist: torch.Tensor,
+        waste: torch.Tensor,
+        capacity: torch.Tensor,
     ) -> Tuple[torch.Tensor, List[List[int]]]:
-        """Run vectorized ALNS on the population."""
+        """Apply ALNS improvement search to the entire population.
+
+        Args:
+            population_tours: Candidate giant tours of shape [B, K, N].
+            dist: Expanded distances of shape [B*K, N, N].
+            waste: Expanded demands of shape [B*K, N].
+            capacity: Expanded limits of shape [B*K].
+
+        Returns:
+            Tuple[torch.Tensor, List[List[int]]]: A tuple containing:
+                - instance_costs: Refinement costs per team of shape [B, K].
+                - coached_routes_list: Nested route collections from ALNS.
+        """
         batch_size = population_tours.shape[0]
         device = population_tours.device
 
@@ -171,12 +254,23 @@ class VectorizedHVPL(AutoregressivePolicy):
     def _global_competition(
         self,
         instance_costs: torch.Tensor,
-        coached_routes_list: List[List[int]],
+        mentored_routes_list: Union[List[List[int]], List[torch.Tensor]],
         best_tours: torch.Tensor,
         best_costs: torch.Tensor,
         num_nodes: int,
     ) -> torch.Tensor:
-        """Update best global solutions."""
+        """Find batch improvements and update the elite giant tours.
+
+        Args:
+            instance_costs: Costs for all teams of shape [B, K].
+            mentored_routes_list: Refined routes from ALNS.
+            best_tours: Persistent elite tours of shape [B, N-1].
+            best_costs: Persistent elite costs of shape [B].
+            num_nodes: Total node count.
+
+        Returns:
+            torch.Tensor: Boolean improvement flag per batch instance of shape [B].
+        """
         batch_size = instance_costs.shape[0]
         device = best_tours.device
 
@@ -187,16 +281,24 @@ class VectorizedHVPL(AutoregressivePolicy):
         for b in range(batch_size):
             best_idx = int(min_idx[b].item())
             flat_idx = b * self.n_teams + best_idx
-            routes = coached_routes_list[flat_idx]
+            routes = mentored_routes_list[flat_idx]
 
             if isinstance(routes, torch.Tensor):
                 nodes = routes[routes != 0]
             else:
                 nodes = torch.tensor([n for n in routes if n != 0], device=device)
 
-            # Standardize length to exactly num_nodes - 1 (customers)
             if nodes.size(0) < num_nodes - 1:
-                nodes = torch.cat([nodes, torch.zeros(num_nodes - 1 - nodes.size(0), dtype=torch.long, device=device)])
+                nodes = torch.cat(
+                    [
+                        nodes,
+                        torch.zeros(
+                            num_nodes - 1 - nodes.size(0),
+                            dtype=torch.long,
+                            device=device,
+                        ),
+                    ]
+                )
             elif nodes.size(0) > num_nodes - 1:
                 nodes = nodes[: num_nodes - 1]
             best_tours[b] = nodes
@@ -210,7 +312,15 @@ class VectorizedHVPL(AutoregressivePolicy):
         tau: torch.Tensor,
         eta: torch.Tensor,
     ) -> None:
-        """Substitute worst teams with new ACO constructions."""
+        """Identify worst performers and replace them via re-construction.
+
+        Args:
+            population_tours: Current giant tour pool of shape [B, K, N-1].
+            instance_costs: Recorded team performance of shape [B, K].
+            dist_matrix: Global problem distances of shape [B, N, N].
+            tau: Pheromone trails for guided construction of shape [B, N, N].
+            eta: Heuristic visibility of shape [B, N, N].
+        """
         batch_size = population_tours.shape[0]
         n_sub = int(self.n_teams * self.sub_rate)
         if n_sub > 0:
@@ -230,7 +340,23 @@ class VectorizedHVPL(AutoregressivePolicy):
         capacity: torch.Tensor,
         env: Optional[RL4COEnvBase] = None,
     ) -> Dict[str, Any]:
-        """Final conversion to split routes and packaged output."""
+        """Final conversion from giant tours to split routes and output dicts.
+
+        Args:
+            td: Input state for metadata access.
+            best_tours: Final elite tours of shape [B, N-1].
+            dist_matrix: Problem scaling of shape [B, N, N].
+            waste: Demands of shape [B, N].
+            capacity: Constraints of shape [B].
+            env: Environment instance for reward sizing.
+
+        Returns:
+            Dict[str, Any]: Final results bundle dictionary with:
+                - actions (torch.Tensor): Padded action sequences.
+                - reward (torch.Tensor): Calculated reward/cost for the solution.
+                - cost (torch.Tensor): Raw objective value from the engine.
+                - log_likelihood (torch.Tensor): Zero vector (HVPL is non-pi).
+        """
         batch_size = best_tours.shape[0]
         device = best_tours.device
 
@@ -246,7 +372,6 @@ class VectorizedHVPL(AutoregressivePolicy):
 
         padded_actions = torch.stack(all_actions)
 
-        # Compute reward using the same cost function as the model
         reward = VectorizedHGS._compute_reward(td, env, padded_actions)
 
         return {
@@ -257,9 +382,23 @@ class VectorizedHVPL(AutoregressivePolicy):
         }
 
     def _aco_construct(
-        self, dist_matrix: torch.Tensor, tau: torch.Tensor, eta: torch.Tensor, n_ants_per_instance: int
+        self,
+        dist_matrix: torch.Tensor,
+        tau: torch.Tensor,
+        eta: torch.Tensor,
+        n_ants_per_instance: int,
     ) -> torch.Tensor:
-        """Parallelized ACO construction for multiple ants per problem instance."""
+        """Parallelized construction utilizing iteration pheromone state.
+
+        Args:
+            dist_matrix: Distances of shape [B, N, N].
+            tau: Shared pheromones of shape [B, N, N].
+            eta: Heuristic data of shape [B, N, N].
+            n_ants_per_instance: Concurrent walkers per instance.
+
+        Returns:
+            torch.Tensor: Constructed giant tours of shape [B, K, N-1].
+        """
         batch_size, num_nodes, _ = dist_matrix.shape
         device = dist_matrix.device
 
@@ -267,7 +406,11 @@ class VectorizedHVPL(AutoregressivePolicy):
         eta_k = eta.unsqueeze(1).expand(-1, n_ants_per_instance, -1, -1)
 
         current_node = torch.zeros((batch_size, n_ants_per_instance), dtype=torch.long, device=device)
-        visited = torch.zeros((batch_size, n_ants_per_instance, num_nodes), dtype=torch.bool, device=device)
+        visited = torch.zeros(
+            (batch_size, n_ants_per_instance, num_nodes),
+            dtype=torch.bool,
+            device=device,
+        )
         visited.scatter_(2, current_node.unsqueeze(2), 1)
 
         tours = []
@@ -291,7 +434,16 @@ class VectorizedHVPL(AutoregressivePolicy):
         return torch.stack(tours, dim=2)
 
     def _update_pheromones(self, tau: torch.Tensor, best_tours: torch.Tensor, best_costs: torch.Tensor) -> torch.Tensor:
-        """Global pheromone update based on best solutions."""
+        """Update pheromone intensities based on global batch performance.
+
+        Args:
+            tau: Current trails [B, N, N].
+            best_tours: Elite sequences [B, N-1].
+            best_costs: Elite costs [B].
+
+        Returns:
+            torch.Tensor: Reinforced pheromone matrix [B, N, N].
+        """
         batch_size, N_minus_1 = best_tours.shape
         num_nodes = N_minus_1 + 1
         device = tau.device

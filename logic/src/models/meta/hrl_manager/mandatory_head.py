@@ -1,27 +1,34 @@
-"""mandatory_head.py module.
+"""Mandatory Selection Head for Node Categorization.
+
+This module provides the `MandatorySelectionHead`, which determines if a node must
+be collected in the current period based on local and spatial context.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
-
-Example:
-    >>> import mandatory_head
+    MandatorySelectionHead: MLP-based binary categorical selection head.
 """
+
+from __future__ import annotations
 
 import torch
 from torch import nn
 
 
 class MandatorySelectionHead(nn.Module):
-    """
-    Head for selecting mandatory nodes.
+    """MLP head for per-node mandatory status selection.
+
+    Produces categorical logits for each node independently, indicating whether
+    the node is 'optional' (opportunistic collection) or 'mandatory' (must collect).
+
+    Attributes:
+        net (nn.Sequential): MLP layers (Linear -> ReLU -> Linear).
     """
 
-    def __init__(self, input_dim: int, hidden_dim: int):
-        """Initialize Class.
+    def __init__(self, input_dim: int, hidden_dim: int) -> None:
+        """Initializes the selection head.
 
         Args:
-            input_dim (int): Description of input_dim.
-            hidden_dim (int): Description of hidden_dim.
+            input_dim: size of node embeddings (spatial + temporal fused).
+            hidden_dim: width of the intermediate representation.
         """
         super().__init__()
         self.net = nn.Sequential(
@@ -31,12 +38,12 @@ class MandatorySelectionHead(nn.Module):
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Forward.
+        """Predicts selection logits per node.
 
         Args:
-            x (torch.Tensor): Description of x.
+            x: local node embeddings [B, N, D].
 
         Returns:
-            Any: Description of return value.
+            torch.Tensor: logits for [Optional, Mandatory] [B, N, 2].
         """
         return self.net(x)

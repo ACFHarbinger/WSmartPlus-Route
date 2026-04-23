@@ -1,8 +1,21 @@
-"""
-Temporal Attention Model Policy.
+"""Temporal Attention Model (TAM) Policy.
+
+This module implements the policy for the Temporal Attention Model, which
+integrates recurrent fill-level estimation into the constructive routing
+framework for RL4CO environments.
+
+Attributes:
+    TemporalAMPolicy: Policy wrapper with temporal prediction and fusion capabilities.
+
+Example:
+    >>> from logic.src.models.core.temporal_attention_model.policy import TemporalAMPolicy
+    >>> policy = TemporalAMPolicy(env_name="wcvrp", temporal_horizon=5)
+    >>> out = policy(td, env)
 """
 
-from typing import Optional, Union
+from __future__ import annotations
+
+from typing import Any, Dict, Optional, Union
 
 import torch
 from tensordict import TensorDict
@@ -10,18 +23,24 @@ from torch import nn
 
 from logic.src.envs.base.base import RL4COEnvBase
 from logic.src.models.core.attention_model.policy import AttentionModelPolicy
-from logic.src.models.subnets.helpers.gru_fill_predictor import GatedRecurrentUnitFillPredictor
-from logic.src.models.subnets.helpers.lstm_fill_predictor import LongShortTermMemoryFillPredictor
 from logic.src.models.subnets.modules.activation_function import ActivationFunction
+from logic.src.models.subnets.other.gru_fill_predictor import GatedRecurrentUnitFillPredictor
+from logic.src.models.subnets.other.lstm_fill_predictor import LongShortTermMemoryFillPredictor
 from logic.src.utils.data.td_state_wrapper import TensorDictStateWrapper
 
 
 class TemporalAMPolicy(AttentionModelPolicy):
-    """
-    Temporal Attention Model Policy.
+    """Routing policy with integrated temporal forecasting.
 
-    Incorporates historical waste data and fill level predictions using
-    a Gated Recurrent Fill Predictor.
+    Extends canonical attention policies by adding a time-series sub-network
+    to predict node fill levels, fusing these predictions with spatial features
+    prior to graph encoding.
+
+    Attributes:
+        fill_predictor (Union[LSTM, GRU]): History-aware state estimator.
+        temporal_embed (nn.Linear): Linear mapping for scalar predictions.
+        combine_embeddings (nn.Sequential): MLP for feature fusion.
+        temporal_horizon (int): Input history window size.
     """
 
     fill_predictor: Union[LongShortTermMemoryFillPredictor, GatedRecurrentUnitFillPredictor]
@@ -36,9 +55,19 @@ class TemporalAMPolicy(AttentionModelPolicy):
         temporal_horizon: int = 5,
         predictor_layers: int = 2,
         predictor_type: str = "gru",
-        **kwargs,
-    ):
-        """Initialize TemporalAMPolicy."""
+        **kwargs: Any,
+    ) -> None:
+        """Initializes the TemporalAMPolicy.
+
+        Args:
+            env_name: Targeted environment identifier.
+            embed_dim: Latent vector size.
+            hidden_dim: Hidden size for predictor and combiner.
+            temporal_horizon: Number of time-steps for history input.
+            predictor_layers: Depth of the RNN predictor.
+            predictor_type: Recurrent cell variant ('gru', 'lstm').
+            **kwargs: Extra parameters for base policy and subnets.
+        """
         super().__init__(
             env_name=env_name,
             embed_dim=embed_dim,
@@ -47,28 +76,29 @@ class TemporalAMPolicy(AttentionModelPolicy):
         )
         self.temporal_horizon = temporal_horizon
 
-        # Sub-components for temporal features
+        # Predictive component instantiation
+        dropout_rate = kwargs.get("dropout_rate", 0.1)
         if predictor_type == "lstm":
             self.fill_predictor = LongShortTermMemoryFillPredictor(
                 input_dim=1,
                 hidden_dim=hidden_dim,
                 num_layers=predictor_layers,
-                dropout=kwargs.get("dropout_rate", 0.1),
+                dropout=dropout_rate,
             )
         else:
             self.fill_predictor = GatedRecurrentUnitFillPredictor(  # type: ignore[assignment]
                 input_dim=1,
                 hidden_dim=hidden_dim,
                 num_layers=predictor_layers,
-                dropout=kwargs.get("dropout_rate", 0.1),
+                dropout=dropout_rate,
             )
 
         self.temporal_embed = nn.Linear(1, embed_dim)
 
-        # Combiner for base and temporal embeddings
+        activation_fn = kwargs.get("activation_function", "gelu")
         self.combine_embeddings = nn.Sequential(
             nn.Linear(embed_dim * 2, embed_dim),
-            ActivationFunction(kwargs.get("activation_function", "gelu")),
+            ActivationFunction(activation_fn),
             nn.Linear(embed_dim, embed_dim),
         )
 
@@ -79,12 +109,25 @@ class TemporalAMPolicy(AttentionModelPolicy):
         strategy: str = "sampling",
         num_starts: int = 1,
         actions: Optional[torch.Tensor] = None,
-        **kwargs,
-    ) -> dict:
+        **kwargs: Any,
+    ) -> Dict[str, Any]:
+        """Performs constructive decoding with proactive state estimation.
+
+        Args:
+            td: problem state container (expects 'fill_history').
+            env: environment logic provider.
+            strategy: constructive search strategy.
+            num_starts: start count for multi-solution search.
+            actions: target tour indices for force-decoding.
+            **kwargs: additional arguments.
+
+        Returns:
+            Dict[str, Any]: result dictionary with rewards and constructed actions.
+
+        Raises:
+            AssertionError: If encoder/decoder are uninitialized.
         """
-        Forward pass with temporal feature prediction.
-        """
-        # 1. Prepare temporal features (fill_history)
+        # 1. Handle missing temporal features (cold start)
         if "fill_history" not in td.keys():
             batch_size = td.batch_size[0]
             num_nodes = td["locs"].shape[1]
@@ -93,58 +136,60 @@ class TemporalAMPolicy(AttentionModelPolicy):
                 device=td.device,
             )
 
-        fill_history = td["fill_history"]  # (batch, nodes, horizon, 1)
+        # 2. Predict next-state features from history
+        fill_history = td["fill_history"]  # [batch, nodes, horizon, 1]
         batch_size, num_nodes, horizon, _ = fill_history.size()
 
-        # Predict future fills
-        # Reshape to (batch * nodes, horizon, 1) for GRU
         h_flat = fill_history.view(batch_size * num_nodes, horizon, 1)
-        predicted_fills = self.fill_predictor(h_flat)  # (batch * nodes, 1)
+        predicted_fills = self.fill_predictor(h_flat)
         predicted_fills = predicted_fills.view(batch_size, num_nodes, 1)
 
-        # 2. Get base embeddings
-        init_embeds = self.init_embedding(td)  # (batch, nodes, embed_dim)
-
-        # 3. Create temporal embeddings
-        fill_embeds = self.temporal_embed(predicted_fills)  # (batch, nodes, embed_dim)
-
-        # 4. Combine
+        # 3. Form fused initial latent representation
+        init_embeds = self.init_embedding(td)
+        fill_embeds = self.temporal_embed(predicted_fills)
         combined_embeds = self.combine_embeddings(torch.cat([init_embeds, fill_embeds], dim=-1))
 
-        # 2. Encoder
-        edges = td.get("edges", None)
+        # 4. Encoding
+        edges = td.get("edges")
         assert self.encoder is not None, "Encoder is not initialized"
         embeddings = self.encoder(combined_embeds, edges)
 
-        # 3. Decoder Precomputation
+        # 5. Precompute stationary decoder features
         assert self.decoder is not None, "Decoder is not initialized"
         fixed = self.decoder._precompute(embeddings)
 
-        # Start the actual training loop
-        log_likelihood: Union[torch.Tensor, float] = 0.0
-        entropy: Union[torch.Tensor, float] = 0.0
+        # 6. Sequential constructive loop
+        log_likelihood: torch.Tensor | float = 0.0
+        entropy: torch.Tensor | float = 0.0
         output_actions = []
         step_idx = 0
-        # Assuming environment is already reset
+
         while not td["done"].all():
-            # Wrap state
             assert self.env_name is not None, "env_name must be set"
             state_wrapper = TensorDictStateWrapper(td, self.env_name)
             logits, mask = self.decoder._get_log_p(fixed, state_wrapper)
-            logits = logits[:, 0, :]
 
+            # Flatten multi-head logits if applicable
+            if logits.dim() == 3:
+                logits = logits[:, 0, :]
+
+            # Clean mask for action selection
             if mask.dim() == 3:
                 mask = mask.squeeze(1)
             valid_mask = ~mask
 
             if actions is not None:
+                # Teacher forcing / Evaluation
                 action = actions[:, step_idx]
                 probs = torch.softmax(logits.masked_fill(~valid_mask, float("-inf")), dim=-1)
                 log_p = torch.log(probs.gather(1, action.unsqueeze(-1)) + 1e-10).squeeze(-1)
             else:
+                # Active strategy selection (sampling/greedy)
                 action, log_p, entropy_step = self._select_action(logits, valid_mask, strategy)
-                entropy = entropy + entropy_step
+                if isinstance(entropy_step, torch.Tensor):
+                    entropy = entropy + entropy_step
 
+            # Step environment
             td["action"] = action
             td = env.step(td)["next"].clone()
 
@@ -152,11 +197,14 @@ class TemporalAMPolicy(AttentionModelPolicy):
             output_actions.append(action)
             step_idx += 1
 
-        reward = env.get_reward(td, torch.stack(output_actions, dim=1))
+        # 7. Finalize result
+        constructed_actions = torch.stack(output_actions, dim=1)
+        reward = env.get_reward(td, constructed_actions)
 
         return {
             "reward": reward,
             "log_likelihood": log_likelihood,
-            "actions": torch.stack(output_actions, dim=1),
+            "actions": constructed_actions,
             "entropy": entropy,
+            "td": td,
         }

@@ -1,14 +1,21 @@
-"""nonautoregressive_decoder.py module.
+"""Non-autoregressive Decoder base module.
+
+This module provides the abstract base class for decoders that construct
+solutions from pre-computed edge or node heatmaps, typical in one-shot
+prediction models.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    NonAutoregressiveDecoder: Abstract base class for heatmap-based decoders.
 
 Example:
-    >>> import nonautoregressive_decoder
+    >>> from logic.src.models.common.non_autoregressive.decoder import NonAutoregressiveDecoder
+    >>> # subclass and implement forward...
 """
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from typing import Dict, Tuple
+from typing import Any, Dict, Tuple
 
 import torch
 from tensordict import TensorDict
@@ -18,15 +25,22 @@ from logic.src.envs.base.base import RL4COEnvBase
 
 
 class NonAutoregressiveDecoder(nn.Module, ABC):
-    """
-    Base class for non-autoregressive decoders.
+    """Base class for non-autoregressive decoders.
 
     NAR decoders construct solutions from heatmaps using various methods
-    like Ant Colony Optimization, greedy decoding, or sampling.
+    like Ant Colony Optimization, search heuristics, greedy decoding,
+    or stochastic sampling.
+
+    Attributes:
+        kwargs (Dict[str, Any]): Additional parameters for the decoder.
     """
 
-    def __init__(self, **kwargs):
-        """Initialize NonAutoregressiveDecoder."""
+    def __init__(self, **kwargs: Any) -> None:
+        """Initializes the NonAutoregressiveDecoder.
+
+        Args:
+            **kwargs: Additional parameters passed to the parent Module.
+        """
         super().__init__()
 
     @abstractmethod
@@ -35,18 +49,20 @@ class NonAutoregressiveDecoder(nn.Module, ABC):
         td: TensorDict,
         heatmap: torch.Tensor,
         env: RL4COEnvBase,
-        **kwargs,
+        **kwargs: Any,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        """
-        Produce logits and mask for the current step.
+        """Produces logits and mask for the current construction step.
 
         Args:
-            td: TensorDict containing current state.
-            heatmap: Pre-computed heatmap from encoder.
-            env: Environment.
+            td: TensorDict containing the current environment state.
+            heatmap: Pre-computed feature heatmap (e.g., edge probabilities).
+            env: Environment object for transition logic.
+            **kwargs: Additional arguments for step-wise decoding.
 
         Returns:
-            Tuple of (logits, mask).
+            Tuple[torch.Tensor, torch.Tensor]:
+                - logits: Predicted action logits.
+                - mask: Valid action mask for the current state.
         """
         raise NotImplementedError
 
@@ -55,10 +71,21 @@ class NonAutoregressiveDecoder(nn.Module, ABC):
         td: TensorDict,
         heatmap: torch.Tensor,
         env: RL4COEnvBase,
-        **kwargs,
+        **kwargs: Any,
     ) -> Dict[str, torch.Tensor]:
-        """
-        Full construction of solutions from heatmaps.
-        Default implementation returns empty dict, subclasses should override.
+        """Performs full solution construction from the provided heatmap.
+
+        Subclasses should override this method to implement specific routing
+        algorithms (e.g., ACO, Guided Search).
+
+        Args:
+            td: TensorDict containing the problem instance.
+            heatmap: Global heatmap representing edge or node importance.
+            env: Environment object used for state management.
+            **kwargs: Configuration parameters for the construction process.
+
+        Returns:
+            Dict[str, torch.Tensor]: Dictionary of construction results,
+                typically including 'actions', 'log_likelihood', and 'reward'.
         """
         return {}

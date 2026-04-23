@@ -1,12 +1,19 @@
-"""
-Vectorized Adaptive Large Neighborhood Search (ALNS) Policy.
+"""Vectorized Adaptive Large Neighborhood Search (ALNS) Policy.
 
-This module implements a vectorized version of the ALNS algorithm for
-Vehicle Routing Problems (VRP), optimized for GPU execution using PyTorch.
+This module implements a high-performance, GPU-optimized version of the
+ALNS meta-heuristic. It utilizes a hybrid optimization strategy: treating the
+global solution as a giant tour for fast TSP-based local search, and
+synchronizing with a CVRP route split periodically to enforce capacity
+constraints and apply inter-route operators (e.g., Cross-exchange, Swap*).
+
+Attributes:
+    VectorizedALNS: Solver for parallelized neighborhood search on CUDA.
 """
+
+from __future__ import annotations
 
 import time
-from typing import List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import torch
 
@@ -28,30 +35,45 @@ from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 
 class VectorizedALNS(PolicyVizMixin):
-    """
-    Vectorized Adaptive Large Neighborhood Search Solver.
+    """Parallelized Adaptive Large Neighborhood Search.
+
+    Explores complex neighborhood topographies by dynamically selecting weighted
+    destroy and repair operators. Optimized for batch execution on NVIDIA GPUs.
+
+    Attributes:
+        dist_matrix (torch.Tensor): pairwise distance cost tensor [B, N, N].
+        wastes (torch.Tensor): demand/fill levels for each bin [B, N].
+        vehicle_capacity (float): maximum load per vehicle.
+        time_limit (float): execution timeout in seconds.
+        device (torch.device): hardware target for tensor operations.
+        seed (int): RNG seed for reproducible search.
+        generator (torch.Generator): hardware-local random number generator.
+        destroy_ops (List[Callable]): pool of candidate removal operators.
+        repair_ops (List[Callable]): pool of candidate insertion operators.
+        d_weights (torch.Tensor): adaptive probabilities for destroy operators [D].
+        r_weights (torch.Tensor): adaptive probabilities for repair operators [R].
     """
 
     def __init__(
         self,
-        dist_matrix,
-        wastes,
-        vehicle_capacity,
-        time_limit=1.0,
+        dist_matrix: torch.Tensor,
+        wastes: torch.Tensor,
+        vehicle_capacity: float,
+        time_limit: float = 1.0,
         device: str = "cuda",
         seed: int = 42,
         generator: Optional[torch.Generator] = None,
-    ):
-        """
-        Initialize the Vectorized ALNS solver.
+    ) -> None:
+        """Initializes the vectorized ALNS solver.
 
         Args:
-            dist_matrix: Distance matrix [B, N, N].
-            wastes: Bin wastes [B, N].
-            vehicle_capacity: Vehicle capacity constraint.
-            time_limit: Time limit for solving in seconds.
-            device: Computation device ('cpu' or 'cuda').
-            generator: PyTorch generator for random number generation.
+            dist_matrix: problem distance tensor [B, N, N].
+            wastes: bin fill levels [B, N].
+            vehicle_capacity: payload constraint for individual vehicles.
+            time_limit: maximum time allowed for the optimization loop.
+            device: computation device ('cpu' or 'cuda').
+            seed: random constant for search reproducibility.
+            generator: existing torch generator to share state.
         """
         self.dist_matrix = dist_matrix
         self.wastes = wastes
@@ -64,14 +86,22 @@ class VectorizedALNS(PolicyVizMixin):
         else:
             self.generator = torch.Generator(device=self.device).manual_seed(self.seed)
 
-        self.destroy_ops = [vectorized_random_removal, vectorized_worst_removal, vectorized_cluster_removal]
+        self.destroy_ops = [
+            vectorized_random_removal,
+            vectorized_worst_removal,
+            vectorized_cluster_removal,
+        ]
         self.repair_ops = [vectorized_greedy_insertion, vectorized_regret_k_insertion]
 
         self.d_weights = torch.ones(len(self.destroy_ops), device=device)
         self.r_weights = torch.ones(len(self.repair_ops), device=device)
 
-    def __getstate__(self):
-        """Prepare state for pickling."""
+    def __getstate__(self) -> Dict[str, Any]:
+        """Prepares the solver for serialization, handling non-picklable RNG.
+
+        Returns:
+            Dict[str, Any]: Attribute map with generator state extracted.
+        """
         state = self.__dict__.copy()
         if "generator" in state and state["generator"] is not None:
             state["generator_state"] = state["generator"].get_state()
@@ -79,8 +109,12 @@ class VectorizedALNS(PolicyVizMixin):
             del state["generator"]
         return state
 
-    def __setstate__(self, state):
-        """Restore state after unpickling."""
+    def __setstate__(self, state: Dict[str, Any]) -> None:
+        """Restores search state and RNG parameters from persistent storage.
+
+        Args:
+            state: Serialized dictionary of solver attributes.
+        """
         gen_state = state.pop("generator_state", None)
         gen_device = state.pop("generator_device", None)
         self.__dict__.update(state)
@@ -99,9 +133,26 @@ class VectorizedALNS(PolicyVizMixin):
         start_temp: float = 0.5,
         cooling_rate: float = 0.9995,
     ) -> Tuple[List[List[int]], torch.Tensor]:
-        """
-        High-performance ALNS Solve.
-        Optimizes the giant tour as a TSP and splits only at the end.
+        """Optimizes the provided solutions using adaptive search.
+
+        Employs a split-and-solve strategy:
+        1. Neighborhood moves are evaluated on a 'giant tour' (TSP) for speed.
+        2. Solutions are periodically split into feasibility routes (CVRP) to apply
+           inter-route optimization (Swap*, 2-opt*).
+        3. Acceptance is governed by a Simulated Annealing criterion.
+
+        Args:
+            initial_solutions: baseline node sequences [B, N].
+            n_iterations: number of improvement cycles to execute.
+            time_limit: overrides class wall-clock timeout if provided.
+            max_vehicles: upper bound on fleet size for the split operator.
+            start_temp: initial Simulated Annealing temperature.
+            cooling_rate: decay multiplier for SA temperature per step.
+
+        Returns:
+            Tuple[List[List[int]], torch.Tensor]:
+                - best_routes: optimized node sequences split by depots.
+                - final_costs: objective values for the best discovered tours [B].
         """
         B, N = initial_solutions.size()
         device = initial_solutions.device
@@ -110,7 +161,7 @@ class VectorizedALNS(PolicyVizMixin):
         current_solutions = initial_solutions.clone()
 
         # Initial TSP costs (dist_matrix[prev, curr])
-        def get_tsp_costs(tours):
+        def get_tsp_costs(tours: torch.Tensor) -> torch.Tensor:
             """Compute total TSP distance for each tour in the batch."""
             padded = torch.zeros(B, N + 2, dtype=torch.long, device=device)
             padded[:, 1:-1] = tours
@@ -135,36 +186,57 @@ class VectorizedALNS(PolicyVizMixin):
             repair_op = self.repair_ops[r_idx]
 
             n_remove = torch.randint(
-                max(1, int(N * 0.1)), max(2, int(N * 0.4) + 1), (1,), device=device, generator=self.generator
+                max(1, int(N * 0.1)),
+                max(2, int(N * 0.4) + 1),
+                (1,),
+                device=device,
+                generator=self.generator,
             ).item()
 
             # 2. Destroy & Repair (Fast TSP operators)
             if destroy_op == vectorized_random_removal:
                 partial, removed = destroy_op(current_solutions, int(n_remove), generator=self.generator)  # type: ignore[operator]
             else:
-                partial, removed = destroy_op(current_solutions, self.dist_matrix, n_remove, generator=self.generator)  # type: ignore[operator]
+                partial, removed = destroy_op(
+                    current_solutions,
+                    self.dist_matrix,
+                    int(n_remove),
+                    generator=self.generator,
+                )  # type: ignore[operator]
 
             candidate_solutions = repair_op(partial, removed, self.dist_matrix)  # type: ignore[operator]
 
             # 3. Fast Education (TSP Local Search)
             if i % 20 == 0:
                 candidate_solutions = vectorized_two_opt(
-                    candidate_solutions, self.dist_matrix, max_iterations=20, generator=self.generator
+                    candidate_solutions,
+                    self.dist_matrix,
+                    max_iterations=20,
+                    generator=self.generator,
                 )
                 candidate_solutions = vectorized_relocate(
-                    candidate_solutions, self.dist_matrix, max_iterations=10, generator=self.generator
+                    candidate_solutions,
+                    self.dist_matrix,
+                    max_iterations=10,
+                    generator=self.generator,
                 )
                 candidate_solutions = vectorized_swap(
-                    candidate_solutions, self.dist_matrix, max_iterations=10, generator=self.generator
+                    candidate_solutions,
+                    self.dist_matrix,
+                    max_iterations=10,
+                    generator=self.generator,
                 )
                 if N > 40 and i % 100 == 0:
                     candidate_solutions = vectorized_three_opt(
-                        candidate_solutions, self.dist_matrix, max_iterations=5, generator=self.generator
+                        candidate_solutions,
+                        self.dist_matrix,
+                        max_iterations=5,
+                        generator=self.generator,
                     )
 
             # 3b. Advanced Inter-Route Education (Periodic)
             if i > 0 and i % 100 == 0:
-                # 1. Split into CVRP routes (returns list of lists)
+                # 1. Split into CVRP routes
                 routes_list, _ = vectorized_linear_split(
                     candidate_solutions,
                     self.dist_matrix,
@@ -182,30 +254,46 @@ class VectorizedALNS(PolicyVizMixin):
 
                 # 3. Apply inter-route operators
                 routes_tensor = vectorized_two_opt_star(
-                    routes_tensor, self.dist_matrix, max_iterations=10, generator=self.generator
+                    routes_tensor,
+                    self.dist_matrix,
+                    max_iterations=10,
+                    generator=self.generator,
                 )
                 routes_tensor = vectorized_swap_star(
-                    routes_tensor, self.dist_matrix, max_iterations=10, generator=self.generator
+                    routes_tensor,
+                    self.dist_matrix,
+                    max_iterations=10,
+                    generator=self.generator,
                 )
 
                 # 4. Flatten back to giant tour
                 flattened = []
                 for b_idx in range(B):
-                    # extract non-zero nodes (customers)
                     nodes = routes_tensor[b_idx]
                     mask_nz = nodes != 0
                     flat_nodes = nodes[mask_nz]
-                    # Ensure it has exactly N customers (it should if split was complete)
+                    # Ensure consistency with global node count N
                     if flat_nodes.size(0) < N:
-                        # Re-attach missing nodes if any or pad
                         existing = set(flat_nodes.tolist())
                         all_c = set(candidate_solutions[b_idx].tolist())
                         missing = list(all_c - existing)
                         if missing:
-                            flat_nodes = torch.cat([flat_nodes, torch.tensor(missing, device=device, dtype=torch.long)])
+                            flat_nodes = torch.cat(
+                                [
+                                    flat_nodes,
+                                    torch.tensor(missing, device=device, dtype=torch.long),
+                                ]
+                            )
                         if flat_nodes.size(0) < N:
                             flat_nodes = torch.cat(
-                                [flat_nodes, torch.zeros(N - flat_nodes.size(0), device=device, dtype=torch.long)]
+                                [
+                                    flat_nodes,
+                                    torch.zeros(
+                                        N - flat_nodes.size(0),
+                                        device=device,
+                                        dtype=torch.long,
+                                    ),
+                                ]
                             )
                     elif flat_nodes.size(0) > N:
                         flat_nodes = flat_nodes[:N]
@@ -250,7 +338,11 @@ class VectorizedALNS(PolicyVizMixin):
 
         # Final conversion to CVRP routes using optimal split
         best_routes, final_costs = vectorized_linear_split(
-            best_solutions, self.dist_matrix, self.wastes, self.vehicle_capacity, max_vehicles=max_vehicles
+            best_solutions,
+            self.dist_matrix,
+            self.wastes,
+            self.vehicle_capacity,
+            max_vehicles=max_vehicles,
         )
 
         return best_routes, final_costs

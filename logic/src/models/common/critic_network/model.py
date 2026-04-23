@@ -1,62 +1,78 @@
-"""
-Backward-compatibility shim for CriticNetwork.
+"""Backward-compatibility shim for CriticNetwork.
 
-The canonical CriticNetwork implementation is now in
-``logic.src.models.critic``. This module re-exports both
-the new (TensorDict-based) and legacy (problem/factory-based) versions.
-
-**New code should import from** ``logic.src.models.critic``.
+This module provides the legacy implementation of the critic network and
+re-exports the canonical `CriticNetwork` from the policy module. It serves
+as a bridge for older problem-based pipelines.
 """
+
+from __future__ import annotations
 
 import warnings
+from typing import Any, Dict
 
+import torch
 from torch import nn
 
 # Re-export the canonical CriticNetwork and factory
-from logic.src.models.common.critic_network.policy import CriticNetwork, create_critic_from_actor  # noqa: F401
-from logic.src.models.subnets.embeddings import VRPPContextEmbedder, WCVRPContextEmbedder
+from logic.src.models.common.critic_network.policy import (  # noqa: F401
+    CriticNetwork,
+    create_critic_from_actor,
+)
+from logic.src.models.subnets.embeddings import (
+    VRPPContextEmbedder,
+    WCVRPContextEmbedder,
+)
 from logic.src.models.subnets.modules import ActivationFunction
 
 
 class LegacyCriticNetwork(nn.Module):
-    """
-    Legacy Critic Network using problem objects and component factories.
+    """Legacy Critic Network using problem objects and component factories.
 
     This is the original implementation kept for backward compatibility with
-    the legacy training pipeline. New code should use
-    ``logic.src.models.critic.CriticNetwork`` instead.
+    the legacy training pipeline. It evaluates graph states by aggregating
+    node embeddings and passing them through a value head.
+
+    Attributes:
+        hidden_dim: Dimensionality of the value head hidden layers.
+        embed_dim: Dimensionality of the node embeddings.
+        aggregation_graph: Graph aggregation mode ('avg', 'sum', 'max').
+        is_wc: Whether the problem is waste-collection based.
+        is_vrpp: Whether the problem is VRPP-based.
+        context_embedder: Problem-specific node feature encoder.
+        encoder: The graph neural network used for feature extraction.
+        value_head: Linear layers to predict state value.
     """
 
     def __init__(
         self,
-        problem,
-        component_factory,
-        embed_dim,
-        hidden_dim,
-        n_layers,
-        n_sublayers,
-        encoder_normalization="batch",
-        activation="gelu",
-        n_heads=8,
-        aggregation_graph="avg",
-        dropout_rate=0.0,
-        temporal_horizon=0,
-    ):
-        """Initialize Class.
+        problem: Any,
+        component_factory: Any,
+        embed_dim: int,
+        hidden_dim: int,
+        n_layers: int,
+        n_sublayers: int,
+        encoder_normalization: str = "batch",
+        activation: str = "gelu",
+        n_heads: int = 8,
+        aggregation_graph: str = "avg",
+        dropout_rate: float = 0.0,
+        temporal_horizon: int = 0,
+    ) -> None:
+        """Initialize the LegacyCriticNetwork.
 
         Args:
-            problem (Any): Description of problem.
-            component_factory (Any): Description of component_factory.
-            embed_dim (Any): Description of embed_dim.
-            hidden_dim (Any): Description of hidden_dim.
-            n_layers (Any): Description of n_layers.
-            n_sublayers (Any): Description of n_sublayers.
-            encoder_normalization (Any): Description of encoder_normalization.
-            activation (Any): Description of activation.
-            n_heads (Any): Description of n_heads.
-            aggregation_graph (Any): Description of aggregation_graph.
-            dropout_rate (Any): Description of dropout_rate.
-            temporal_horizon (Any): Description of temporal_horizon.
+            problem: Problem instance defining the environment type.
+            component_factory: Factory used to instantiate the encoder.
+            embed_dim: Input dimensionality of node features.
+            hidden_dim: Hidden dimensionality for the value head.
+            n_layers: Number of layers in the encoder.
+            n_sublayers: Number of sub-layers per encoder block.
+            encoder_normalization: Normalization type for the encoder.
+            activation: Nonlinearity to use (e.g., 'relu', 'gelu').
+            n_heads: Number of attention heads in the encoder.
+            aggregation_graph: Message aggregation strategy.
+            dropout_rate: Dropout probability.
+            temporal_horizon: Look-ahead horizon for dynamic features.
         """
         super().__init__()
         warnings.warn(
@@ -99,28 +115,28 @@ class LegacyCriticNetwork(nn.Module):
             nn.Linear(hidden_dim, 1),
         )
 
-    def _init_embed(self, nodes):
-        """init embed.
+    def _init_embed(self, nodes: torch.Tensor) -> torch.Tensor:
+        """Initialize node embeddings from raw node features.
 
         Args:
-            nodes (Any): Description of nodes.
+            nodes: Raw node feature tensor.
 
         Returns:
-            Any: Description of return value.
+            torch.Tensor: Initial latent representations.
         """
         return self.context_embedder.init_node_embeddings(nodes)
 
-    def forward(self, inputs):
-        """Forward.
+    def forward(self, inputs: Dict[str, Any]) -> torch.Tensor:
+        """Estimate the state value for the given input instance.
 
         Args:
-            inputs (Any): Description of inputs.
+            inputs: Dictionary containing 'nodes' and optional 'edges'.
 
         Returns:
-            Any: Description of return value.
+            torch.Tensor: Scalar value prediction of shape [batch, 1].
         """
-        edges = inputs.get("edges", None)
-        embeddings = self.encoder(self._init_embed(inputs), edges)
+        edges = inputs.get("edges")
+        embeddings = self.encoder(self._init_embed(inputs["nodes"]), edges)
         if self.aggregation_graph == "avg":
             graph_embeddings = embeddings.mean(1)
         elif self.aggregation_graph == "sum":

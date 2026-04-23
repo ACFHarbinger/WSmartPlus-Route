@@ -1,21 +1,55 @@
-"""
-MatNet Attention Module.
+"""MatNet Attention Module.
+
+This module provides the MixedScoreMHA layer, which implements the dual-stream
+attention mechanism for matching problems (e.g., assignment problems) as
+proposed in MatNet.
+
+Attributes:
+    MixedScoreMHA: Dual-stream attention mechanism for matching problems.
+
+Example:
+    >>> import torch
+    >>> from logic.src.models.subnets.modules.matnet_attention import MixedScoreMHA
+    >>> row_emb = torch.randn(1, 4, 128)
+    >>> col_emb = torch.randn(1, 4, 128)
+    >>> matrix = torch.randn(1, 4, 4)
+    >>> model = MixedScoreMHA(n_heads=8, embed_dim=128)
+    >>> row_out, col_out = model(row_emb, col_emb, matrix)
 """
 
 from __future__ import annotations
 
 import math
-from typing import Optional
+from typing import Optional, Tuple
 
 import torch
 from torch import nn
 
 
 class MixedScoreMHA(nn.Module):
-    """
-    Mixed-Score Multi-Head Attention for MatNet.
-    Computes attention scores by combining row and column representations with matrix elements.
-    Reference: MatNet (Kwon et al., 2021)
+    """Mixed-Score Multi-Head Attention for MatNet.
+
+    Computes attention scores by combining row and column representations with
+    raw cost matrix elements, allowing for structured cross-representation communication.
+
+    Reference:
+        Kwon, Y. D., et al. (2021). MatNet: Matrix-based Neural Networks for
+        Combinatorial Optimization. Advances in Neural Information Processing Systems.
+
+    Attributes:
+        n_heads (int): Number of parallel attention heads.
+        embed_dim (int): Input and output feature dimensionality.
+        key_dim (int): Dimensionality of keys and queries per head.
+        norm_factor (float): Scaling factor for dot-product attention (1 / sqrt(key_dim)).
+        W_query_row (nn.Linear): Dimensionality mapping for row queries.
+        W_key_row (nn.Linear): Dimensionality mapping for row keys.
+        W_val_row (nn.Linear): Dimensionality mapping for row values.
+        W_query_col (nn.Linear): Dimensionality mapping for column queries.
+        W_key_col (nn.Linear): Dimensionality mapping for column keys.
+        W_val_col (nn.Linear): Dimensionality mapping for column values.
+        W_mat (nn.Parameter): Learnable scaling factor for the cost matrix elements.
+        W_out_row (nn.Linear): Final output projection for row update.
+        W_out_col (nn.Linear): Final output projection for column update.
     """
 
     def __init__(
@@ -23,14 +57,13 @@ class MixedScoreMHA(nn.Module):
         n_heads: int,
         embed_dim: int,
         key_dim: Optional[int] = None,
-    ):
-        """
-        Initialize MixedScoreMHA.
+    ) -> None:
+        """Initializes MixedScoreMHA.
 
         Args:
-            n_heads: Number of heads.
-            embed_dim: Embedding dimension.
-            key_dim: Key dimension.
+            n_heads: Number of parallel attention heads.
+            embed_dim: Feature dimensionality of row and column embeddings.
+            key_dim: Dimensionality of internal keys/queries. Defaults to `embed_dim // n_heads`.
         """
         super().__init__()
         if key_dim is None:
@@ -59,24 +92,42 @@ class MixedScoreMHA(nn.Module):
 
         self.init_parameters()
 
-    def init_parameters(self):
-        """Initialize parameters."""
+    def init_parameters(self) -> None:
+        """Initializes weight parameters using Xavier uniform initialization."""
         nn.init.xavier_uniform_(self.W_mat)
 
     def forward(
-        self, row_emb: torch.Tensor, col_emb: torch.Tensor, matrix: torch.Tensor, mask: Optional[torch.Tensor] = None
-    ) -> tuple[torch.Tensor, torch.Tensor]:
-        """
+        self,
+        row_emb: torch.Tensor,
+        col_emb: torch.Tensor,
+        matrix: torch.Tensor,
+        mask: Optional[torch.Tensor] = None,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Mixed-score forward pass computing mutual attention between rows and columns.
+
         Args:
-            row_emb: [batch, row_size, embed_dim]
-            col_emb: [batch, col_size, embed_dim]
-            matrix: [batch, row_size, col_size]
+            row_emb: Row embeddings of shape (batch, row_size, dim).
+            col_emb: Column embeddings of shape (batch, col_size, dim).
+            matrix: External cost/similarity matrix of shape (batch, row_size, col_size).
+            mask: Optional tensor mask for invalid entries.
+
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor]: A tuple containing:
+                - Updated row embeddings of shape (batch, row_size, dim).
+                - Updated column embeddings of shape (batch, col_size, dim).
         """
         batch_size, row_size, _ = row_emb.size()
 
-        # Projections and reshape to [batch, n_heads, size, key_dim]
-        def project(linear, emb):
-            """Project and reshape."""
+        def project(linear: nn.Linear, emb: torch.Tensor) -> torch.Tensor:
+            """Projects and reshapes embedding for multi-head attention.
+
+            Args:
+                linear: Projection layer.
+                emb: Input embedding.
+
+            Returns:
+                torch.Tensor: Reshaped projection (batch, heads, size, key_dim).
+            """
             out = linear(emb)
             return out.view(batch_size, -1, self.n_heads, self.key_dim).transpose(1, 2)
 
@@ -96,7 +147,6 @@ class MixedScoreMHA(nn.Module):
         compatibility = self.norm_factor * (score1 + score2 + score3)
 
         if mask is not None:
-            # mask is likely [batch, row_size, col_size] or similar
             if mask.dim() == 3:
                 compatibility.masked_fill_(mask.unsqueeze(1), -1e9)
             else:
@@ -112,10 +162,16 @@ class MixedScoreMHA(nn.Module):
         # New col embeddings from row values
         col_heads = torch.matmul(attn_col.transpose(-2, -1), row_v)  # [batch, n_heads, col_size, key_dim]
 
-        # Reshape and project out
-        def project_out(linear, heads):
-            """Project out."""
-            # heads is [batch, n_heads, size, key_dim]
+        def project_out(linear: nn.Linear, heads: torch.Tensor) -> torch.Tensor:
+            """Reshapes and applies final linear transformation to heads.
+
+            Args:
+                linear: Output projection layer.
+                heads: Multi-head attention outputs.
+
+            Returns:
+                torch.Tensor: Combined output tensor.
+            """
             out = heads.transpose(1, 2).reshape(batch_size, -1, self.n_heads * self.key_dim)
             return linear(out)
 

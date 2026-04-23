@@ -1,4 +1,18 @@
-"""Sinusoidal positional embedding."""
+"""Sinusoidal positional embedding module.
+
+This module provides the AbsolutePositionalEmbedding layer, which implements
+standard sinusoidal positional encodings for transformer-based architectures.
+
+Attributes:
+    AbsolutePositionalEmbedding: Sine/Cosine absolute positional encoder.
+
+Example:
+    >>> from logic.src.models.subnets.embeddings.positional.absolute_positional_embedding import AbsolutePositionalEmbedding
+    >>> pe = AbsolutePositionalEmbedding(embed_dim=128)
+    >>> x = pe(x)
+"""
+
+from __future__ import annotations
 
 import math
 
@@ -7,17 +21,24 @@ from torch import nn
 
 
 class AbsolutePositionalEmbedding(nn.Module):
-    """Sinusoidal positional embedding."""
+    """Sinusoidal positional embedding.
+
+    Implements absolute positional encodings using alternating sine and cosine
+    functions of different frequencies to represent item positions in a sequence.
+
+    Attributes:
+        embed_dim (int): Dimensionality of the embeddings.
+        pe (torch.Tensor): Precomputed positional encoding buffer.
+    """
 
     pe: torch.Tensor
 
-    def __init__(self, embed_dim: int, max_len: int = 5000):
-        """
-        Initialize AbsolutePositionalEmbedding.
+    def __init__(self, embed_dim: int, max_len: int = 5000) -> None:
+        """Initializes AbsolutePositionalEmbedding.
 
         Args:
-            embed_dim: Embedding dimension.
-            max_len: Maximum sequence length.
+            embed_dim: Internal embedding dimensionality.
+            max_len: Maximum supported sequence length for the lookup buffer.
         """
         super().__init__()
         self.embed_dim = embed_dim
@@ -31,12 +52,12 @@ class AbsolutePositionalEmbedding(nn.Module):
         self.register_buffer("pe", pe.unsqueeze(0))
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Add positional encoding to input.
+        """Adds positional encoding to the input tensor.
 
         Args:
-            x: Input tensor of shape (batch, seq_len, embed_dim)
+            x: Input tensor of shape (batch, seq_len, embed_dim).
 
         Returns:
-            Tensor with positional encoding added
+            torch.Tensor: Augmented tensor with sinusoidal features.
         """
         return x + self.pe[:, : x.size(1)]

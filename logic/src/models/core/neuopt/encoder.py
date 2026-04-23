@@ -1,15 +1,16 @@
-"""encoder.py module.
+"""NeuOpt Encoder implementation.
+
+This module provides the `NeuOptEncoder`, a deep Transformer-based architecture
+designed to encode the spatial and topological state of a combinatorial problem
+for iterative optimization.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
-
-Example:
-    >>> import encoder
+    NeuOptEncoder: Transformer encoder for global problem state representation.
 """
 
 from __future__ import annotations
 
-from typing import cast
+from typing import Any, cast
 
 import torch
 from tensordict import TensorDict
@@ -20,8 +21,16 @@ from logic.src.models.subnets.modules import MultiHeadAttention, Normalization
 
 
 class NeuOptEncoder(ImprovementEncoder):
-    """
-    NeuOpt Encoder: Transformer-based state encoding.
+    """NeuOpt Encoder for global solution state representation.
+
+    Iteratively refines node embeddings using a stack of self-attention layers
+    to capture long-range dependencies and spatial relationships within the
+    routing problem.
+
+    Attributes:
+        num_layers (int): depth of the Transformer stack.
+        init_proj (nn.Linear): Linear projection for raw coordinates.
+        layers (nn.ModuleList): list of self-attention and feed-forward blocks.
     """
 
     def __init__(
@@ -29,16 +38,15 @@ class NeuOptEncoder(ImprovementEncoder):
         embed_dim: int = 128,
         num_heads: int = 8,
         num_layers: int = 3,
-        **kwargs,
-    ):
-        """
-        Initialize NeuOptEncoder.
+        **kwargs: Any,
+    ) -> None:
+        """Initializes the NeuOpt encoder.
 
         Args:
-            embed_dim: Embedding dimension.
-            num_heads: Number of attention heads.
-            num_layers: Number of transformer layers.
-            **kwargs: Unused arguments.
+            embed_dim: dimensionality of the feature space.
+            num_heads: count of parallel attention heads.
+            num_layers: number of stacked Transformer blocks.
+            **kwargs: Unused parameters.
         """
         super().__init__(embed_dim=embed_dim)
         self.num_layers = num_layers
@@ -65,9 +73,15 @@ class NeuOptEncoder(ImprovementEncoder):
             ]
         )
 
-    def forward(self, td: TensorDict, **kwargs) -> torch.Tensor:
-        """
-        Encode graph state.
+    def forward(self, td: TensorDict, **kwargs: Any) -> torch.Tensor:
+        """Encodes the problem instance into high-dimensional node features.
+
+        Args:
+            td: state container with environment data ('locs', 'depot').
+            **kwargs: Unused.
+
+        Returns:
+            torch.Tensor: Encoded node embeddings [B, N, embed_dim].
         """
         depot = td["depot"].unsqueeze(1)
         customers = td["locs"]

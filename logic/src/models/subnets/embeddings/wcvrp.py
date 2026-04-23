@@ -1,5 +1,15 @@
-"""
-WCVRP Embedding module.
+"""WCVRP Embedding module.
+
+This module provides the WCVRPInitEmbedding layer, which encodes locations
+and fill levels for Waste Collection Vehicle Routing Problems.
+
+Attributes:
+    WCVRPInitEmbedding: Initial feature encoder for WCVRP instances.
+
+Example:
+    >>> from logic.src.models.subnets.embeddings.wcvrp import WCVRPInitEmbedding
+    >>> embed = WCVRPInitEmbedding(embed_dim=128)
+    >>> h = embed(td)
 """
 
 from __future__ import annotations
@@ -10,14 +20,21 @@ from torch import nn
 
 
 class WCVRPInitEmbedding(nn.Module):
-    """Initial embedding for WCVRP problems."""
+    """Initial embedding for WCVRP problems.
 
-    def __init__(self, embed_dim: int = 128):
-        """
-        Initialize WCVRPInitEmbedding.
+    Projects static node features (coordinates and container fill levels)
+    into a high-dimensional embedding space.
+
+    Attributes:
+        node_embed (nn.Linear): Linear projection for customer node features.
+        depot_embed (nn.Linear): Specialized linear projection for depot location.
+    """
+
+    def __init__(self, embed_dim: int = 128) -> None:
+        """Initializes WCVRPInitEmbedding.
 
         Args:
-            embed_dim: Embedding dimension.
+            embed_dim: Internal embedding dimensionality.
         """
         super().__init__()
         # Node features: x, y, waste (fill_level)
@@ -25,14 +42,13 @@ class WCVRPInitEmbedding(nn.Module):
         self.depot_embed = nn.Linear(2, embed_dim)
 
     def forward(self, td: TensorDict) -> torch.Tensor:
-        """
-        Forward pass for WCVRP embedding.
+        """Encodes WCVRP instance features into initial node embeddings.
 
         Args:
-            td: TensorDict containing 'locs', 'waste' (fill levels), 'depot'.
+            td: TensorDict containing instance metadata ('locs', 'waste', 'depot').
 
         Returns:
-            Embeddings tensor [batch, num_nodes, embed_dim].
+            torch.Tensor: Initial node embeddings of shape (batch, num_nodes, dim).
         """
         locs = td["locs"]
         waste = td.get("waste")  # Fill levels

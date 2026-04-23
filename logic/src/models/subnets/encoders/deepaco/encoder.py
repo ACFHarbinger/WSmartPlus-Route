@@ -1,12 +1,18 @@
-"""
-DeepACO Encoder: GNN-based heatmap predictor.
+"""DeepACO Encoder: GNN-based heatmap predictor.
 
 Predicts edge log-probabilities (heatmap) for guiding ant colony construction.
+
+Attributes:
+    DeepACOEncoder: GNN-based encoder for DeepACO.
+
+Example:
+    >>> from logic.src.models.subnets.encoders.deepaco import DeepACOEncoder
+    >>> encoder = DeepACOEncoder(embed_dim=128, num_layers=3)
 """
 
 from __future__ import annotations
 
-from typing import Tuple, Union
+from typing import Any, Tuple, Union
 
 import torch
 import torch.nn.functional as F
@@ -17,11 +23,18 @@ from logic.src.models.common.non_autoregressive.encoder import NonAutoregressive
 
 
 class DeepACOEncoder(NonAutoregressiveEncoder):
-    """
-    GNN-based encoder for DeepACO.
+    """GNN-based encoder for DeepACO.
 
     Predicts edge heatmap (log probabilities) from problem instance.
     Uses message passing to aggregate neighbor information.
+
+    Attributes:
+        num_layers (int): Number of GNN layers.
+        num_heads (int): Number of attention heads.
+        input_dim (int): Input feature dimension.
+        init_embed (nn.Linear): Initial projection layer.
+        layers (nn.ModuleList): GNN layer stack.
+        edge_predictor (nn.Sequential): Predictor for edge logits.
     """
 
     def __init__(
@@ -32,10 +45,9 @@ class DeepACOEncoder(NonAutoregressiveEncoder):
         feedforward_dim: int = 512,
         dropout: float = 0.0,
         input_dim: int = 2,
-        **kwargs,
-    ):
-        """
-        Initialize DeepACOEncoder.
+        **kwargs: Any,
+    ) -> None:
+        """Initializes the DeepACOEncoder.
 
         Args:
             embed_dim: Embedding dimension.
@@ -44,6 +56,7 @@ class DeepACOEncoder(NonAutoregressiveEncoder):
             feedforward_dim: Feed-forward hidden dimension.
             dropout: Dropout rate.
             input_dim: Input feature dimension (default 2 for 2D coordinates).
+            kwargs: Additional keyword arguments.
         """
         super().__init__(embed_dim=embed_dim, **kwargs)
         self.num_layers = num_layers
@@ -78,17 +91,19 @@ class DeepACOEncoder(NonAutoregressiveEncoder):
         self,
         td: TensorDict,
         return_embeddings: bool = False,
-        **kwargs,
+        **kwargs: Any,
     ) -> Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor]]:
-        """
-        Compute edge heatmap logits.
+        """Computes edge heatmap logits.
 
         Args:
             td: TensorDict with 'locs' [batch, num_nodes, 2].
             return_embeddings: If True, also return node embeddings.
+            kwargs: Additional keyword arguments for compatibility.
 
         Returns:
-            Heatmap tensor [batch, num_nodes, num_nodes] with edge log probabilities.
+            Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor]]: Heatmap tensor
+                [batch, num_nodes, num_nodes] with edge log probabilities, and optionally
+                node embeddings.
         """
         locs = td["locs"]  # [batch, num_nodes, input_dim]
         batch_size, num_nodes, _ = locs.shape

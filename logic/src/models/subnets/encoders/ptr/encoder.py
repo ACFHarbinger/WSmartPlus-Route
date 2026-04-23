@@ -1,19 +1,32 @@
-"""Pointer Network Encoder."""
+"""Pointer Network Encoder.
+
+Attributes:
+    PointerEncoder: Maps a graph represented as an input sequence to a hidden vector.
+
+Example:
+    >>> from logic.src.models.subnets.encoders.ptr import PointerEncoder
+    >>> encoder = PointerEncoder(input_dim=2, hidden_dim=128)
+"""
 
 import math
+from typing import Tuple
 
 import torch
 from torch import nn
 
 
 class PointerEncoder(nn.Module):
-    """
-    Maps a graph represented as an input sequence to a hidden vector.
+    """Maps a graph represented as an input sequence to a hidden vector.
+
+    Attributes:
+        hidden_dim (int): Hidden dimension size.
+        lstm (nn.LSTM): LSTM layer for sequence processing.
+        init_hx (nn.Parameter): Trainable initial hidden state.
+        init_cx (nn.Parameter): Trainable initial cell state.
     """
 
-    def __init__(self, input_dim, hidden_dim):
-        """
-        Initializes the PointerEncoder.
+    def __init__(self, input_dim: int, hidden_dim: int) -> None:
+        """Initializes the PointerEncoder.
 
         Args:
             input_dim: Input dimension.
@@ -24,19 +37,32 @@ class PointerEncoder(nn.Module):
         self.lstm = nn.LSTM(input_dim, hidden_dim)
         self.init_hx, self.init_cx = self.init_hidden(hidden_dim)
 
-    def forward(self, x, hidden):
-        """
-        Forward pass.
+    def forward(
+        self, x: torch.Tensor, hidden: Tuple[torch.Tensor, torch.Tensor]
+    ) -> Tuple[torch.Tensor, Tuple[torch.Tensor, torch.Tensor]]:
+        """Forward pass of the encoder.
 
         Args:
-            x: Input sequence.
-            hidden: Initial hidden state.
+            x: Input sequence of shape (seq_len, batch, input_dim).
+            hidden: Initial hidden and cell states (h_0, c_0).
+
+        Returns:
+            Tuple containing:
+                - output: LSTM output sequence.
+                - hidden: Final hidden and cell states (h_n, c_n).
         """
         output, hidden = self.lstm(x, hidden)
         return output, hidden
 
-    def init_hidden(self, hidden_dim):
-        """Trainable initial hidden state"""
+    def init_hidden(self, hidden_dim: int) -> Tuple[nn.Parameter, nn.Parameter]:
+        """Initializes trainable initial hidden and cell states.
+
+        Args:
+            hidden_dim: Dimension of the hidden state.
+
+        Returns:
+            Tuple containing the initial hidden state (hx) and cell state (cx).
+        """
         std = 1.0 / math.sqrt(hidden_dim)
         enc_init_hx = nn.Parameter(torch.FloatTensor(hidden_dim))
         enc_init_hx.data.uniform_(-std, std)

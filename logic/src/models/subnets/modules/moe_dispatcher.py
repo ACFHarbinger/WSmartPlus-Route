@@ -1,114 +1,123 @@
-"""Sparse Dispatcher for Mixture of Experts."""
+"""Sparse Dispatcher for Mixture of Experts.
+
+This module provides the SparseDispatcher, a utility for efficient routing of
+batch elements to different experts in a Mixture-of-Experts (MoE) layer and
+the subsequent combination of their results.
+
+Attributes:
+    SparseDispatcher: Helper for routing inputs to experts and combining outputs.
+
+Example:
+    >>> import torch
+    >>> from logic.src.models.subnets.modules.moe_dispatcher import SparseDispatcher
+    >>> gates = torch.tensor([[0.8, 0.2, 0.0], [0.0, 0.5, 0.5]])
+    >>> dispatcher = SparseDispatcher(num_experts=3, gates=gates)
+    >>> x = torch.randn(2, 128)
+    >>> expert_inputs = dispatcher.dispatch(x)
+    >>> # Processes expert_inputs...
+"""
+
+from __future__ import annotations
+
+from typing import List
 
 import torch
 
 
-class SparseDispatcher(object):
-    """
-    Helper for implementing a mixture of experts.
+class SparseDispatcher:
+    """Efficient batch routing and combining for Mixture-of-Experts.
 
-    The purpose of this class is to create input minibatches for the experts
-    and to combine the results of the experts to form a unified output tensor.
+    Creates specialized micro-batches for each expert by filtering the master batch
+    based on gating decisions. It handles the mapping of samples to active experts
+    and provides a mechanism to aggregate the weighted outputs.
 
-    There are two functions:
-        * **dispatch**: take an input Tensor and create input Tensors for each expert.
-        * **combine**: take output Tensors from each expert and form a combined output
-        Tensor. Outputs from different experts for the same batch element are
-        summed together, weighted by the provided "gates".
-
-    The class is initialized with a "gates" Tensor, which specifies which
-    batch elements go to which experts, and the weights to use when combining
-    the outputs. Batch element b is sent to expert e iff ``gates[b, e] != 0``.
-    The inputs and outputs are all two-dimensional [batch, depth].
-    Caller is responsible for collapsing additional dimensions prior to
-    calling this class and reshaping the output to the original shape.
-    See ``common_layers.reshape_like()``.
-
-    Example use:
-
-    .. code-block:: python
-
-        # gates: a float32 Tensor with shape [batch_size, num_experts]
-        # inputs: a float32 Tensor with shape [batch_size, input_size]
-        # experts: a list of length num_experts containing sub-networks.
-        dispatcher = SparseDispatcher(num_experts, gates)
-        expert_inputs = dispatcher.dispatch(inputs)
-        expert_outputs = [experts[i](expert_inputs[i]) for i in range(num_experts)]
-        outputs = dispatcher.combine(expert_outputs)
-
-    The preceding code sets the output for a particular example b to:
-    ``output[b] = Sum_i(gates[b, i] * experts[i](inputs[b]))``
-
-    This class takes advantage of sparsity in the gate matrix by including in the
-    Tensors for expert i only the batch elements for which ``gates[b, i] > 0``.
+    Attributes:
+        _gates (torch.Tensor): Raw gating weights for the entire batch.
+        _num_experts (int): Total number of parallel expert networks.
+        _expert_index (torch.Tensor): Sorted indices of experts selected for each sample.
+        _batch_index (torch.Tensor): Mapping from expert-local indices back to global.
+        _part_sizes (List[int]): Number of samples assigned to each expert.
+        _nonzero_gates (torch.Tensor): Gating weights for exactly the active selections.
     """
 
-    def __init__(self, num_experts, gates):
-        """Create a SparseDispatcher."""
+    def __init__(self, num_experts: int, gates: torch.Tensor) -> None:
+        """Initializes SparseDispatcher.
 
+        Args:
+            num_experts: Number of экспертов in the MoE layer.
+            gates: Sparse gating weights of shape (batch, num_experts).
+        """
         self._gates = gates
         self._num_experts = num_experts
-        # sort experts
+
+        # Sort experts to create contiguous micro-batches
         sorted_experts, index_sorted_experts = torch.nonzero(gates).sort(0)
-        # drop indices
+
+        # Separate sorted results
         _, self._expert_index = sorted_experts.split(1, dim=1)
-        # get according batch index for each expert
+
+        # Extract according global batch index for each expert assignment
         self._batch_index = torch.nonzero(gates)[index_sorted_experts[:, 1], 0]
-        # calculate num samples that each expert gets
+
+        # Calculate number of samples that each expert receives
         self._part_sizes = (gates > 0).sum(0).tolist()
-        # expand gates to match with self._batch_index
+
+        # Gather gating weights for exactly these active pairs
         gates_exp = gates[self._batch_index.flatten()]
         self._nonzero_gates = torch.gather(gates_exp, 1, self._expert_index)
 
-    def dispatch(self, inp):
-        """Create one input Tensor for each expert.
-        The `Tensor` for a expert `i` contains the slices of `inp` corresponding
-        to the batch elements `b` where `gates[b, i] > 0`.
-        Args:
-            inp: a `Tensor` of shape "[batch_size, <extra_input_dims>]`
-        Returns:
-            a list of `num_experts` `Tensor`s with shapes
-                [expert_batch_size_i, <extra_input_dims>]`.
-        """
+    def dispatch(self, inp: torch.Tensor) -> List[torch.Tensor]:
+        """Creates specialized input tensors for each expert.
 
-        # assigns samples to experts whose gate is nonzero
-        # expand according to batch index so we can just split by _part_sizes
+        Expert `i` receives a tensor containing only the slices of `inp` where
+        `gates[b, i] > 0`.
+
+        Args:
+            inp: Global input tensor of shape (batch_size, feature_dim).
+
+        Returns:
+            List[torch.Tensor]: A list of length `num_experts` containing tensors of
+                expert-dependent batch sizes.
+        """
+        # Assign samples to experts whose gate is nonzero
         inp_exp = inp[self._batch_index].squeeze(1)
-        return torch.split(inp_exp, self._part_sizes, dim=0)
+        return list(torch.split(inp_exp, self._part_sizes, dim=0))
 
-    def combine(self, expert_out, multiply_by_gates=True):
-        """Sum together the expert output, weighted by the gates.
-        The slice corresponding to a particular batch element `b` is computed
-        as the sum over all experts `i` of the expert output, weighted by the
-        corresponding gate values.  If `multiply_by_gates` is set to False, the
-        call values are ignored.
+    def combine(self, expert_out: List[torch.Tensor], multiply_by_gates: bool = True) -> torch.Tensor:
+        """Aggregates expert outputs into a single batch tensor.
+
+        Results are weighted by their corresponding gate values before summation
+        at overlap positions.
+
         Args:
-            expert_out: a list of `num_experts` `Tensor`s, each with shape
-                [expert_batch_size_i, <extra_output_dims>]`.
-            multiply_by_gates: a boolean
+            expert_out: List of output tensors from each expert.
+            multiply_by_gates: If True, scales outputs by gating intensity.
+
         Returns:
-            a `Tensor` with shape `[batch_size, <extra_output_dims>]`.
+            torch.Tensor: Combined output tensor of shape (batch_size, feature_dim).
         """
-        # apply exp to expert outputs, so we are not longer in log space
         stitched = torch.cat(expert_out, 0)
 
         if multiply_by_gates:
             stitched = stitched.mul(self._nonzero_gates)
+
+        # Prepare accumulator
         zeros = torch.zeros(
             self._gates.size(0),
             expert_out[-1].size(-1),
             requires_grad=True,
             device=stitched.device,
         )
-        # combine samples that have been processed by the same k experts
+
+        # Sum contributions based on original batch indices
         combined = zeros.index_add(0, self._batch_index, stitched.float())
         return combined
 
-    def expert_to_gates(self):
-        """Gate values corresponding to the examples in the per-expert `Tensor`s.
+    def expert_to_gates(self) -> List[torch.Tensor]:
+        """Retrieves gating values mapped to the specific expert input tensors.
+
         Returns:
-            a list of `num_experts` one-dimensional `Tensor`s with type `tf.float32`
-                and shapes `[expert_batch_size_i]`
+            List[torch.Tensor]: A list of gating scalars for each expert's block.
         """
-        # split nonzero gates for each expert
-        return torch.split(self._nonzero_gates, self._part_sizes, dim=0)
+        # Split nonzero gates for each expert
+        return list(torch.split(self._nonzero_gates, self._part_sizes, dim=0))

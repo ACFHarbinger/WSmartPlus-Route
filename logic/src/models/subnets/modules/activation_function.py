@@ -1,3 +1,21 @@
+"""Activation Function module.
+
+This module provides the ActivationFunction wrapper, which simplifies the
+instantiation of various PyTorch nonlinearities through a unified interface.
+
+Attributes:
+    ActivationFunction: Configurable activation layer factory.
+
+Example:
+    >>> import torch
+    >>> from logic.src.models.subnets.modules.activation_function import ActivationFunction
+    >>> act = ActivationFunction(af_name="relu")
+    >>> x = torch.randn(1, 10)
+    >>> out = act(x)
+"""
+
+from __future__ import annotations
+
 import math
 from typing import Optional, Tuple
 
@@ -8,11 +26,17 @@ from logic.src.configs.models.activation_function import ActivationConfig
 
 
 class ActivationFunction(nn.Module):
-    """
-    Wrapper for various activation functions in PyTorch.
+    """Wrapper for various activation functions in PyTorch.
 
     Provides a unified interface to instantiate different activation functions
-    by name, with support for parameters like threshold, negative slope, etc.
+    by name, with support for parameters like threshold, negative slope, and
+    learnable parameters.
+
+    Attributes:
+        activation (nn.Module): The underlying PyTorch activation module.
+        tval (float): Stored threshold value for manual clipping.
+        rval (float): Stored replacement value for manual clipping.
+        apply_threshold (bool): Whether manual threshold clipping is active.
     """
 
     def __init__(
@@ -25,21 +49,20 @@ class ActivationFunction(nn.Module):
         urange: Optional[Tuple[float, float]] = None,
         inplace: Optional[bool] = False,
         activation_config: Optional[ActivationConfig] = None,
-    ):
-        """
-        Initializes the activation function.
+    ) -> None:
+        """Initializes ActivationFunction.
 
         Args:
             af_name: Name of the activation function (e.g., 'relu', 'leakyrelu').
-            fparam: Float parameter for activations (e.g., alpha for ELU, negative_slope for LeakyReLU).
-            tval: Threshold value (used in Softshrink, Hardshrink, etc.).
-            rval: Replacement value (used in global replacement logic if needed).
-            n_params: Number of parameters for PReLU.
-            urange: Uniform range for RReLU (lower, upper).
+            fparam: Primary float parameter (e.g., negative_slope, alpha).
+            tval: Threshold value for shrinking or thresholding.
+            rval: Replacement value for threshold-clipping.
+            n_params: Parameter count for multi-channel activations (e.g., PReLU).
+            urange: Optional range for Hardtanh or RReLU.
             inplace: Whether to perform the operation in-place.
-            activation_config: Activation function configuration object.
+            activation_config: Optional configuration object to override parameters.
         """
-        super(ActivationFunction, self).__init__()
+        super().__init__()
 
         # Use activation_config if provided, otherwise create from individual args
         if activation_config is None:
@@ -57,7 +80,7 @@ class ActivationFunction(nn.Module):
         tval = activation_config.threshold
         rval = activation_config.replacement_value
         n_params = activation_config.n_params
-        urange = (
+        urange_tuple = (
             (activation_config.range[0], activation_config.range[1])
             if activation_config.range and len(activation_config.range) >= 2
             else None
@@ -66,7 +89,7 @@ class ActivationFunction(nn.Module):
         if tval and rval is None and af_name != "softplus":
             rval = tval  # Replacement value = threshold
 
-        self.activation = self._get_activation_module(af_name, fparam, tval, rval, n_params, urange, inplace)
+        self.activation = self._get_activation_module(af_name, fparam, tval, rval, n_params, urange_tuple, inplace)
 
         if isinstance(self.activation, nn.PReLU):
             self.init_parameters()
@@ -88,13 +111,30 @@ class ActivationFunction(nn.Module):
         urange: Optional[Tuple[float, float]],
         inplace: Optional[bool],
     ) -> nn.Module:
-        """Factory method to create PyTorch activation modules."""
+        """Factory method to create PyTorch activation modules.
+
+        Args:
+            af_name: Requested activation name.
+            fparam: Parameter (alpha, negative_slope, etc.).
+            tval: Threshold lambd or value.
+            rval: Replacement value.
+            n_params: Parameter count for PReLU.
+            urange: Range tuple for stochastic/bounded acts.
+            inplace: In-place flag.
+
+        Returns:
+            nn.Module: Instantiated PyTorch activation.
+
+        Raises:
+            ValueError: If the activation name is unknown.
+        """
         # Simple mapping for one-to-one activations
         inplace_val = bool(inplace)
         simple_mappings = {
             "relu": lambda: nn.ReLU(inplace=inplace_val),
             "leakyrelu": lambda: nn.LeakyReLU(
-                inplace=inplace_val, negative_slope=fparam if fparam is not None else 1e-2
+                inplace=inplace_val,
+                negative_slope=fparam if fparam is not None else 1e-2,
             ),
             "silu": lambda: nn.SiLU(inplace=inplace_val),
             "selu": lambda: nn.SELU(inplace=inplace_val),
@@ -114,7 +154,16 @@ class ActivationFunction(nn.Module):
             return simple_mappings[af_name]()
 
         # Handle capitalize-based mappings
-        caps_list = ["tanh", "tanhshrink", "sigmoid", "logsigmoid", "softsign", "mish", "hardswish", "hardsigmoid"]
+        caps_list = [
+            "tanh",
+            "tanhshrink",
+            "sigmoid",
+            "logsigmoid",
+            "softsign",
+            "mish",
+            "hardswish",
+            "hardsigmoid",
+        ]
         if af_name in caps_list:
             cls_name = af_name.capitalize() if af_name != "logsigmoid" else "LogSigmoid"
             if af_name == "tanhshrink":
@@ -151,22 +200,21 @@ class ActivationFunction(nn.Module):
             )
         raise ValueError(f"Unknown activation function: {af_name}")
 
-    def init_parameters(self):
-        """Initializes the parameters of the activation function using uniform distribution."""
+    def init_parameters(self) -> None:
+        """Initializes internal parameters using uniform distribution."""
         for param in self.parameters():
             stdv = 1.0 / math.sqrt(param.size(-1))
             param.data.uniform_(-stdv, stdv)
 
-    def forward(self, input, mask=None):
-        """
-        Applies the activation function to the input.
+    def forward(self, input: torch.Tensor, mask: Optional[torch.Tensor] = None) -> torch.Tensor:
+        """Applies the activation function to the input tensor.
 
         Args:
-            input: Input tensor.
-            mask: Optional mask (not used by default activations but kept for interface).
+            input: Unactivated input tensor.
+            mask: Optional mask (not used by default activations).
 
         Returns:
-            Output tensor.
+            torch.Tensor: Activated output tensor.
         """
         out = self.activation(input)
         if self.apply_threshold:

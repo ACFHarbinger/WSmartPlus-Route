@@ -1,17 +1,20 @@
-"""
-Base decoder classes for reducing boilerplate across decoder implementations.
+"""Base decoder classes for reducing boilerplate across decoder implementations.
 
-This module provides reusable components for decoder architectures:
-- FeedForwardSubLayer: Standard FFN sublayer used across multiple decoders
-- Future: DecoderBase class for common decoder patterns
+This module provides reusable components for decoder architectures, specifically
+focusing on standard feed-forward network (FFN) patterns.
 
-The FeedForwardSubLayer follows the standard transformer pattern:
-    Input -> FFN (up-projection) -> Activation -> FFN (down-projection) -> Output
+Attributes:
+    FeedForwardSubLayer: Shared feed-forward sublayer for decoders.
+
+Example:
+    >>> from logic.src.models.subnets.decoders.common.feed_forward_sublayer import FeedForwardSubLayer
+    >>> ff_layer = FeedForwardSubLayer(embed_dim=128, feed_forward_hidden=512)
+    >>> output = ff_layer(input_tensor)
 """
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Any, Optional
 
 import torch
 from torch import nn
@@ -21,59 +24,16 @@ from logic.src.models.subnets.modules import ActivationFunction, FeedForward
 
 
 class FeedForwardSubLayer(nn.Module):
-    """
-    Reusable feed-forward sub-layer for decoder architectures.
+    """Reusable feed-forward sub-layer for decoder architectures.
 
     Implements the standard transformer feed-forward pattern:
         FFN(x) = Activation(W1 * x + b1) * W2 + b2
 
-    Where:
-    - W1: (embed_dim, feed_forward_hidden)  # Up-projection
-    - W2: (feed_forward_hidden, embed_dim)  # Down-projection
-
     This layer is used in GAT decoders, Deep decoders, and other attention-based
     decoder architectures.
 
-    Parameters
-    ----------
-    embed_dim : int
-        Input and output embedding dimension.
-    feed_forward_hidden : int
-        Hidden dimension for the feed-forward network.
-        If 0 or negative, uses a single linear layer (embed_dim -> embed_dim).
-    activation_config : Optional[ActivationConfig], default=None
-        Activation function configuration (name, parameters, thresholds).
-        Defaults to ReLU if None.
-    bias : bool, default=True
-        Whether to use bias in linear layers.
-    **kwargs
-        Additional keyword arguments (for future extensibility).
-
-    Attributes
-    ----------
-    sub_layers : nn.Sequential
-        Sequential container with FFN layers and activation.
-
-    Examples
-    --------
-    Standard usage:
-    >>> config = ActivationConfig(name="gelu")
-    >>> ff_layer = FeedForwardSubLayer(
-    ...     embed_dim=128,
-    ...     feed_forward_hidden=512,
-    ...     activation_config=config
-    ... )
-    >>> output = ff_layer(input_tensor)  # (B, N, 128) -> (B, N, 128)
-
-    No hidden layer (direct mapping):
-    >>> ff_layer = FeedForwardSubLayer(embed_dim=128, feed_forward_hidden=0)
-    >>> output = ff_layer(input_tensor)  # Single linear layer
-
-    Notes
-    -----
-    - The mask parameter in forward() is ignored (for API compatibility)
-    - For feed_forward_hidden <= 0, creates a single linear layer
-    - Activation is only applied when feed_forward_hidden > 0
+    Attributes:
+        sub_layers (nn.Sequential): Sequential container with FFN layers and activation.
     """
 
     def __init__(
@@ -82,9 +42,17 @@ class FeedForwardSubLayer(nn.Module):
         feed_forward_hidden: int,
         activation_config: Optional[ActivationConfig] = None,
         bias: bool = True,
-        **kwargs,
-    ):
-        """Initialize the FeedForwardSubLayer."""
+        **kwargs: Any,
+    ) -> None:
+        """Initializes the FeedForwardSubLayer.
+
+        Args:
+            embed_dim: Input and output embedding dimension.
+            feed_forward_hidden: Hidden dimension for the feed-forward network.
+            activation_config: Activation function configuration.
+            bias: Whether to use bias in linear layers.
+            kwargs: Additional keyword arguments.
+        """
         super(FeedForwardSubLayer, self).__init__()
 
         # Default config if not provided
@@ -117,24 +85,13 @@ class FeedForwardSubLayer(nn.Module):
         h: torch.Tensor,
         mask: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
-        """
-        Forward pass through feed-forward sublayer.
+        """Forward pass through feed-forward sublayer.
 
-        Parameters
-        ----------
-        h : torch.Tensor
-            Input tensor of shape (batch_size, seq_len, embed_dim).
-        mask : Optional[torch.Tensor], default=None
-            Mask tensor (currently unused, kept for API compatibility).
+        Args:
+            h (torch.Tensor): Input tensor of shape (batch_size, seq_len, embed_dim).
+            mask (Optional[torch.Tensor]): Mask tensor (currently unused).
 
-        Returns
-        -------
-        torch.Tensor
-            Output tensor of shape (batch_size, seq_len, embed_dim).
-
-        Notes
-        -----
-        The mask parameter is ignored in the current implementation.
-        It's kept for compatibility with layer interfaces that expect it.
+        Returns:
+            torch.Tensor: Output tensor of shape (batch_size, seq_len, embed_dim).
         """
         return self.sub_layers(h)

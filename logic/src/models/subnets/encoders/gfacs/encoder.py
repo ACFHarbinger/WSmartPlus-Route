@@ -1,10 +1,16 @@
-"""
-GFACS Encoder: GNN-based heatmap predictor for GFlowNet-ACO.
+"""GFACS Encoder: GNN-based heatmap predictor for GFlowNet-ACO.
+
+Attributes:
+    GFACSEncoder: GNN-based encoder for GFlowNet-ACO (GFACS).
+
+Example:
+    >>> from logic.src.models.subnets.encoders.gfacs import GFACSEncoder
+    >>> encoder = GFACSEncoder(embed_dim=128, num_layers=3)
 """
 
 from __future__ import annotations
 
-from typing import Tuple, Union
+from typing import Any, Tuple, Union
 
 import torch
 import torch.nn.functional as F
@@ -15,12 +21,19 @@ from logic.src.models.common.non_autoregressive.encoder import NonAutoregressive
 
 
 class GFACSEncoder(NonAutoregressiveEncoder):
-    """
-    GNN-based encoder for GFlowNet-ACO (GFACS).
+    """GNN-based encoder for GFlowNet-ACO (GFACS).
 
     Predicts edge heatmap (log probabilities) from problem instance.
     Uses message passing to aggregate neighbor information.
     Similar to DeepACOEncoder but allows for future divergence.
+
+    Attributes:
+        num_layers (int): Number of GNN layers.
+        num_heads (int): Number of attention heads.
+        input_dim (int): Input feature dimension.
+        init_embed (nn.Linear): Initial projection layer.
+        layers (nn.ModuleList): GNN layer stack.
+        edge_predictor (nn.Sequential): Predictor for edge logits.
     """
 
     def __init__(
@@ -31,10 +44,9 @@ class GFACSEncoder(NonAutoregressiveEncoder):
         feedforward_dim: int = 512,
         dropout: float = 0.0,
         input_dim: int = 2,
-        **kwargs,
-    ):
-        """
-        Initialize GFACSEncoder.
+        **kwargs: Any,
+    ) -> None:
+        """Initializes the GFACSEncoder.
 
         Args:
             embed_dim: Embedding dimension.
@@ -43,6 +55,7 @@ class GFACSEncoder(NonAutoregressiveEncoder):
             feedforward_dim: Feed-forward hidden dimension.
             dropout: Dropout rate.
             input_dim: Input feature dimension (default 2 for 2D coordinates).
+            kwargs: Additional keyword arguments.
         """
         super().__init__(embed_dim=embed_dim, **kwargs)
         self.num_layers = num_layers
@@ -77,17 +90,19 @@ class GFACSEncoder(NonAutoregressiveEncoder):
         self,
         td: TensorDict,
         return_embeddings: bool = False,
-        **kwargs,
+        **kwargs: Any,
     ) -> Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor]]:
-        """
-        Compute edge heatmap logits.
+        """Computes edge heatmap logits.
 
         Args:
             td: TensorDict with 'locs' [batch, num_nodes, 2].
             return_embeddings: If True, also return node embeddings.
+            kwargs: Additional keyword arguments for compatibility.
 
         Returns:
-            Heatmap tensor [batch, num_nodes, num_nodes] with edge log probabilities.
+            Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor]]: Heatmap tensor
+                [batch, num_nodes, num_nodes] with edge log probabilities, and optionally
+                node embeddings.
         """
         locs = td["locs"]  # [batch, num_nodes, input_dim]
         batch_size, num_nodes, _ = locs.shape

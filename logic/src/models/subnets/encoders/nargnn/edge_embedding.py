@@ -1,4 +1,12 @@
-"""Simplified edge embedding for NARGNN."""
+"""Simplified edge embedding for NARGNN.
+
+Attributes:
+    SimplifiedEdgeEmbedding: Simplified edge embedding for NARGNN using distance matrix.
+
+Example:
+    >>> from logic.src.models.subnets.encoders.nargnn.edge_embedding import SimplifiedEdgeEmbedding
+    >>> emb = SimplifiedEdgeEmbedding(embed_dim=128)
+"""
 
 from __future__ import annotations
 
@@ -15,15 +23,31 @@ except ImportError:
 
 
 class SimplifiedEdgeEmbedding(nn.Module):
-    """Simplified edge embedding for NARGNN using distance matrix."""
+    """Simplified edge embedding for NARGNN using distance matrix.
 
-    def __init__(self, embed_dim: int, k_sparse: Optional[int] = None, linear_bias: bool = True):
-        """Initialize Class.
+    This module constructs a sparse graph from node locations and generates
+    initial edge embeddings based on Euclidean distances.
+
+    Attributes:
+        k_sparse (Optional[int]): Fixed number of nearest neighbors for sparsity.
+        edge_embed (nn.Linear): Linear projection layer for edge distances.
+    """
+
+    def __init__(
+        self,
+        embed_dim: int,
+        k_sparse: Optional[int] = None,
+        linear_bias: bool = True,
+    ) -> None:
+        """Initializes the SimplifiedEdgeEmbedding.
 
         Args:
-            embed_dim (int): Description of embed_dim.
-            k_sparse (Optional[int]): Description of k_sparse.
-            linear_bias (bool): Description of linear_bias.
+            embed_dim: Dimension of the output edge embeddings.
+            k_sparse: Fixed number of nearest neighbors. If None, it scales with graph size.
+            linear_bias: Whether to use bias in the edge embedding linear layer.
+
+        Raises:
+            ValueError: If k_sparse is neither an int nor None.
         """
         super().__init__()
         assert Batch is not None, "torch_geometric required for NARGNN"
@@ -39,7 +63,17 @@ class SimplifiedEdgeEmbedding(nn.Module):
         self.edge_embed = nn.Linear(1, embed_dim, bias=linear_bias)
 
     def forward(self, td: TensorDict, init_embeddings: torch.Tensor) -> Batch:  # type: ignore
-        """Forward pass."""
+        """Forward pass of the edge embedding module.
+
+        Constructs a k-nearest neighbor graph and projects distances to embeddings.
+
+        Args:
+            td: TensorDict containing "locs" of shape (batch, num_nodes, 2).
+            init_embeddings: Initial node embeddings of shape (batch, num_nodes, embed_dim).
+
+        Returns:
+            Batch: A PyG Batch object representing the sparse graph.
+        """
         locs = td["locs"]
         batch_size = locs.shape[0]
         dist_matrix = torch.cdist(locs, locs, p=2)

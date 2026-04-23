@@ -1,30 +1,44 @@
-"""
-Dynamic embeddings for step-dependent updates.
+"""Dynamic embeddings for step-dependent updates.
 
-Aligns with rl4co's DynamicEmbedding pattern.
+This module provides the DynamicEmbedding layer, which aligns with the rl4co
+pattern for updating attention keys and values based on time-varying state features.
+
+Attributes:
+    DynamicEmbedding: Module for projecting dynamic node features into embedding space.
+
+Example:
+    >>> from logic.src.models.subnets.embeddings.dynamic import DynamicEmbedding
+    >>> embed = DynamicEmbedding(embed_dim=128)
+    >>> d_k, d_v, d_l = embed(td)
 """
 
 from __future__ import annotations
 
-from typing import Any, Tuple
+from typing import Tuple
 
 import torch
+from tensordict import TensorDict
 from torch import nn
 
 
 class DynamicEmbedding(nn.Module):
-    """
-    Dynamic embedding that updates key/values based on state.
-    Example: Projecting 'visited' mask or other dynamic node features.
+    """Dynamic embedding that updates key/values based on current step state.
+
+    Typically used to project dynamic node features (e.g., visited masks, current
+    load, or time windows) into components that are added to the static encoder
+    context.
+
+    Attributes:
+        embed_dim (int): Dimensionality of the target embedding space.
+        project_dynamic (nn.Linear): Linear projection for dynamic features.
     """
 
-    def __init__(self, embed_dim: int, dynamic_node_dim: int = 1):
-        """
-        Initialize DynamicEmbedding.
+    def __init__(self, embed_dim: int, dynamic_node_dim: int = 1) -> None:
+        """Initializes DynamicEmbedding.
 
         Args:
             embed_dim: Embedding dimension.
-            dynamic_node_dim: Dimension of dynamic features.
+            dynamic_node_dim: Input dimension of dynamic node-level features.
         """
         super().__init__()
         self.embed_dim = embed_dim
@@ -33,17 +47,17 @@ class DynamicEmbedding(nn.Module):
         # We project to 3 * embed_dim to update gl_k, gl_v, logit_k
         self.project_dynamic = nn.Linear(dynamic_node_dim, 3 * embed_dim, bias=False)
 
-    def forward(self, td: Any) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-        """
-        Compute dynamic updates for glimpse K, V and logit K.
+    def forward(self, td: TensorDict) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        """Computes dynamic updates for attention components.
 
-        Checks for 'visited' or 'dynamic_context' in td.
+        Checks for 'dynamic_context' or 'visited' in the input state to derive
+        node-level updates for glimps keys, values, and selection keys.
 
         Args:
-            td: TensorDict.
+            td: Current state dictionary.
 
         Returns:
-            Tuple of (glimpse_key, glimpse_val, logit_key).
+            Tuple: Updated glimpse keys, glimpse values, and selection logit keys.
         """
         # Default: check for 'visited' mask as a simple dynamic feature
         # visited: [batch, num_loc]
@@ -58,7 +72,11 @@ class DynamicEmbedding(nn.Module):
             dynamic_feat = td["visited"].float().unsqueeze(-1)
 
         if dynamic_feat is None:
-            return torch.tensor(0.0), torch.tensor(0.0), torch.tensor(0.0)
+            return (
+                torch.tensor(0.0, device=td.device),
+                torch.tensor(0.0, device=td.device),
+                torch.tensor(0.0, device=td.device),
+            )
 
         # Project: [batch, num_loc, 3 * embed_dim]
         out = self.project_dynamic(dynamic_feat)

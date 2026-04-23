@@ -1,29 +1,40 @@
+"""Evaluation metrics for HGS.
+
+Provides GPU-accelerated diversity metrics and fitness evaluation components
+used to maintain population quality and exploration depth.
+
+Attributes:
+    calc_broken_pairs_distance: Diversity metric based on edge preservation.
+
+Example:
+    >>> diversity = calc_broken_pairs_distance(population)
 """
-Evaluation metrics for HGS.
-"""
+
+from __future__ import annotations
 
 import torch
 
 
 def calc_broken_pairs_distance(population: torch.Tensor) -> torch.Tensor:
-    """
-    Computes average Broken Pairs Distance for each individual in the population.
-    Distance(A, B) = 1 - (|Edges(A) inter Edges(B)| / N)
+    """Computes average Broken Pairs Distance (BPD) for each individual.
+
+    BPD measures the diversity between solutions by identifying edges in one
+    solution that are absent in another.
+    Distance(A, B) = 1 - (|Edges(A) ∩ Edges(B)| / N)
 
     Args:
-        population: (B, P, N) tensor of giant tours.
+        population: Tensor of giant tours of shape [B, P, N], where P is the
+            population size and N is the number of nodes.
 
     Returns:
-        diversity: (B, P) diversity score (higher is better/more distant).
+        torch.Tensor: Normalized diversity scores of shape [B, P].
+            Higher scores indicate greater distance from the pool.
     """
     B, P, N = population.size()
     device = population.device
 
     # 1. Construct Edge Hashes
     # Edges: (i, i+1) and (N-1, 0)
-    # Hash: min(u,v)*N + max(u,v) (assuming max node index < N? No, nodes are 1..N usually, or indices 0..N-1?)
-    # giant_tours usually contains indices.
-
     # Create cyclic view
     next_nodes = torch.roll(population, shifts=-1, dims=2)
 
@@ -31,29 +42,12 @@ def calc_broken_pairs_distance(population: torch.Tensor) -> torch.Tensor:
     u = torch.min(population, next_nodes)
     v = torch.max(population, next_nodes)
 
-    # Hash (N_max is safely larger than N, e.g. N+1)
-    # Be careful if nodes are indices (0..N-1) or IDs (1..N).
-    # If 0..N-1, then max hash approx N^2.
+    # Hash
     hashes = u * (N + 100) + v  # (B, P, N)
 
     # 2. Compute Pairwise Distances
-    # We want diversity[b, i] = mean_{j != i} (1 - intersection(i, j) / N)
-    # Doing full PxP on GPU might be heavy if P is large (e.g. 100).
-    # But for P=10-50, B=128, N=100:
-    # (B, P, 1, N) == (B, 1, P, N) -> (B, P, P, N) comparison
-    # Memory: 128 * 50 * 50 * 100 * 1 byte (bool) = 32 MB. Very Safe.
-
-    # Expand for broadcast
-    hashes.unsqueeze(2).unsqueeze(4)  # (B, P, 1, N, 1)
-    hashes.unsqueeze(1).unsqueeze(3)  # (B, 1, P, 1, N)
-
-    # Match matrix: matches[b, i, j, k, l]
-    # intersections = torch.zeros((B, P, P), device=device)
-    # Optimized:
-    # hashes: (B, P, N)
-    # (B, P, 1, N) == (B, 1, P, N) -> (B, P, P, N)
-
-    # We can do this per batch if memory is tight, but P=50 is small.
+    # expand for broadcast: match matrix memory usage is roughly B*P*P*N bytes.
+    # We use a sequential loop over P to remain memory-efficient on smaller GPUs.
     intersections = torch.zeros((B, P, P), device=device)
     for i in range(P):
         target = hashes[:, i : i + 1, :]

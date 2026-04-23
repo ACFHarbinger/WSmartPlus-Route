@@ -1,8 +1,20 @@
-"""WC specific context embedder."""
+"""WCVRP specific context embedding module.
+
+This module provides the WCVRPContextEmbedder, which handles initial state
+projections and dynamic context extraction for Waste Collection VRPs.
+
+Attributes:
+    WCVRPContextEmbedder: Context embedder for waste collection routing variants.
+
+Example:
+    >>> from logic.src.models.subnets.embeddings.context.wcvrp import WCVRPContextEmbedder
+    >>> embedder = WCVRPContextEmbedder(embed_dim=128)
+    >>> context = embedder(embeddings, state)
+"""
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Dict
 
 import torch
 from torch import nn
@@ -13,15 +25,24 @@ from .base import ContextEmbedder
 
 
 class WCVRPContextEmbedder(ContextEmbedder):
-    """Context Embedder for Waste Collection Vehicle Routing Problems (WCVRP)."""
+    """Context embedder for Waste Collection Vehicle Routing Problems (WCVRP).
 
-    def __init__(self, embed_dim: int, node_dim: int = NODE_DIM, temporal_horizon: int = 0):
-        """Initialize Class.
+    Manages initial node features including location and container waste levels,
+    and extracts dynamic step features like remaining truck capacity and current time.
+
+    Attributes:
+        init_embed (nn.Linear): Projection for non-depot customer features.
+        init_embed_depot (nn.Linear): Projection for depot location.
+        project_step_context (nn.Linear): Projection for fused step context.
+    """
+
+    def __init__(self, embed_dim: int, node_dim: int = NODE_DIM, temporal_horizon: int = 0) -> None:
+        """Initializes WCVRPContextEmbedder.
 
         Args:
-            embed_dim (int): Description of embed_dim.
-            node_dim (int): Description of node_dim.
-            temporal_horizon (int): Description of temporal_horizon.
+            embed_dim: Target embedding dimensionality.
+            node_dim: Base dimensionality of node features.
+            temporal_horizon: Size of temporal feature window (if any).
         """
         super().__init__(embed_dim, node_dim, temporal_horizon)
         input_dim = node_dim
@@ -34,15 +55,15 @@ class WCVRPContextEmbedder(ContextEmbedder):
         # Step context projection: current_node_embed + state_features
         self.project_step_context = nn.Linear(self.step_context_dim, embed_dim)
 
-    def init_node_embeddings(self, nodes: dict[str, Any], temporal_features: bool = True) -> torch.Tensor:
-        """Init node embeddings.
+    def init_node_embeddings(self, nodes: Dict[str, Any], temporal_features: bool = True) -> torch.Tensor:
+        """Initializes node embeddings from locations and waste levels.
 
         Args:
-            nodes (dict[str, Any]): Description of nodes.
-            temporal_features (bool): Description of temporal_features.
+            nodes: Input dictionary containing 'locs'/'loc', 'waste', 'depot'.
+            temporal_features: Whether to include temporal features if horizon > 0.
 
         Returns:
-            Any: Description of return value.
+            torch.Tensor: Initial node embeddings including the depot.
         """
         locs = nodes.get("locs")
         if locs is None:
@@ -65,9 +86,16 @@ class WCVRPContextEmbedder(ContextEmbedder):
                 node_features.append(nodes["temporal_features"])
             else:
                 # Pad with zeros if missing
-                node_features.append(torch.zeros(locs.size(0), locs.size(1), self.temporal_horizon, device=locs.device))
+                node_features.append(
+                    torch.zeros(
+                        locs.size(0),
+                        locs.size(1),
+                        self.temporal_horizon,
+                        device=locs.device,
+                    )
+                )
 
-        node_features = torch.cat(node_features, -1)  # type: ignore[assignment]
+        node_features_cat = torch.cat(node_features, -1)
 
         # Determine if locs already contains the depot
         depot = nodes["depot"]
@@ -85,21 +113,28 @@ class WCVRPContextEmbedder(ContextEmbedder):
 
         if is_concatenated:
             # Already has depot, just embed
-            return self.init_embed(node_features)  # type: ignore[misc]
+            return self.init_embed(node_features_cat)  # type: ignore[misc]
         else:
             # Traditional: separate depot and customers
             return torch.cat(
                 (
                     self.init_embed_depot(depot)[:, None, :],
-                    self.init_embed(node_features),  # type: ignore[misc]
+                    self.init_embed(node_features_cat),  # type: ignore[misc]
                 ),
                 1,
             )
 
     def _step_context(self, embeddings: torch.Tensor, state: Any) -> torch.Tensor:
-        """
-        Get WCVRP-specific step context.
-        Concatenates current node embedding and state features (capacity, time).
+        """Extracts current WCVRP step context.
+
+        Fuses current node embedding with remaining capacity and current time.
+
+        Args:
+            embeddings: Current node embeddings.
+            state: Current environment state.
+
+        Returns:
+            torch.Tensor: Projected step context embedding.
         """
         batch_size = embeddings.size(0)
         current_node = state.get_current_node() if hasattr(state, "get_current_node") else state.get("current_node")
@@ -109,7 +144,8 @@ class WCVRPContextEmbedder(ContextEmbedder):
 
         # 1. Current node embedding [batch, 1, embed_dim]
         current_node_embed = embeddings.gather(
-            1, current_node.unsqueeze(1).unsqueeze(-1).expand(batch_size, 1, self.embed_dim)
+            1,
+            current_node.unsqueeze(1).unsqueeze(-1).expand(batch_size, 1, self.embed_dim),
         )
 
         # 2. State features [batch, 1, WC_STEP_CONTEXT_OFFSET]
@@ -132,8 +168,11 @@ class WCVRPContextEmbedder(ContextEmbedder):
 
     @property
     def step_context_dim(self) -> int:
-        """
-        WCVRP context adds remaining capacity and time (OFFSET)
-        to the current node embedding (embed_dim).
+        """Gets the dimensionality of the fused WCVRP step context.
+
+        Aggregates node embedding dim and waste-collection specific metadata offset.
+
+        Returns:
+            int: Dimension size.
         """
         return self.embed_dim + WC_STEP_CONTEXT_OFFSET

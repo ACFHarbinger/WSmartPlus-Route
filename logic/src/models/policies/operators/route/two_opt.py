@@ -1,31 +1,38 @@
+"""2-opt local search operator.
+
+This module provides a GPU-accelerated implementation of the 2-opt heuristic,
+evaluating all possible edge-swap combinations in parallel across
+problem batches using meshgrid-based gain computation.
 """
-2-opt local search operator.
-"""
+
+from __future__ import annotations
+
+from typing import Optional
 
 import torch
 
 from logic.src.constants.routing import IMPROVEMENT_EPSILON
 
 
-def vectorized_two_opt(tours, distance_matrix, max_iterations=200, generator=None):
-    """
-    Vectorized 2-opt local search across a batch of tours using PyTorch.
+def vectorized_two_opt(
+    tours: torch.Tensor,
+    distance_matrix: torch.Tensor,
+    max_iterations: int = 200,
+    generator: Optional[torch.Generator] = None,
+) -> torch.Tensor:
+    """Vectorized 2-opt local search using parallel gain evaluation.
 
-    The 2-opt algorithm is a classic local search heuristic that iteratively improves
-    tours by reversing segments. For each pair of edges (i,i+1) and (j,j+1), it checks
-    if swapping them reduces total distance:
-
-    Original: ... -> i -> i+1 -> ... -> j -> j+1 -> ...
-    2-opt:    ... -> i -> j -> ... -> i+1 -> j+1 -> ...  (reverse middle segment)
+    Iteratively improves tours by reversing segments. For each pair of edges
+    (i, i+1) and (j, j+1), it checks if swapping them reduces total distance.
 
     Args:
-        tours: Batch of tours [B, N]
-        distance_matrix: Pairwise distances [B, N+1, N+1] or [N+1, N+1]
-        max_iterations: Maximum number of improvement iterations (default: 200)
-        generator (torch.Generator, optional): Random generator.
+        tours: Batch of node sequences of shape [B, N].
+        distance_matrix: Edge cost tensor of shape [B, N+1, N+1] or [N+1, N+1].
+        max_iterations: Maximum number of improvement cycles.
+        generator: Torch device-side RNG.
 
     Returns:
-        torch.Tensor: Improved tours [B, N]
+        torch.Tensor: Optimized tours of shape [B, N].
     """
     device = distance_matrix.device
 
@@ -72,8 +79,29 @@ def vectorized_two_opt(tours, distance_matrix, max_iterations=200, generator=Non
     return tours if is_batch else tours.squeeze(0)
 
 
-def _compute_two_opt_gains(tours, dist, I_vals, J_vals, b_idx, B, K):
-    """Computes gains for all possible 2-opt edge swaps."""
+def _compute_two_opt_gains(
+    tours: torch.Tensor,
+    dist: torch.Tensor,
+    I_vals: torch.Tensor,
+    J_vals: torch.Tensor,
+    b_idx: torch.Tensor,
+    B: int,
+    K: int,
+) -> torch.Tensor:
+    """Calculates edge weight differential for all candidate swaps.
+
+    Args:
+        tours: Batch of sequences of shape [B, N].
+        dist: Distance matrix of shape [B, N+1, N+1].
+        I_vals: Starting indices of first edge of shape [K].
+        J_vals: Ending indices of second edge of shape [K].
+        b_idx: Batch sequence index mapping of shape [B, 1].
+        B: Batch size.
+        K: Number of coordinate pairs.
+
+    Returns:
+        torch.Tensor: Gain tensor of shape [B, K].
+    """
     t_prev_i = tours[:, I_vals - 1]
     t_curr_i = tours[:, I_vals]
     t_curr_j = tours[:, J_vals]
@@ -85,8 +113,31 @@ def _compute_two_opt_gains(tours, dist, I_vals, J_vals, b_idx, B, K):
     return d_curr - d_next
 
 
-def _apply_two_opt_moves(tours, improved, I_vals, J_vals, best_idx, B, N, device):
-    """Applies best 2-opt moves using segment reversal via index mapping."""
+def _apply_two_opt_moves(
+    tours: torch.Tensor,
+    improved: torch.Tensor,
+    I_vals: torch.Tensor,
+    J_vals: torch.Tensor,
+    best_idx: torch.Tensor,
+    B: int,
+    N: int,
+    device: torch.device,
+) -> torch.Tensor:
+    """Batch reversal of segments using index mapping.
+
+    Args:
+        tours: Batch of sequences of shape [B, N].
+        improved: Boolean improvement flag of shape [B].
+        I_vals: Starting indices of first edge of shape [K].
+        J_vals: Ending indices of second edge of shape [K].
+        best_idx: Coordinates of max gain of shape [B].
+        B: Batch size.
+        N: Tour length.
+        device: Hardware identification locator.
+
+    Returns:
+        torch.Tensor: Updated tours of shape [B, N].
+    """
     target_i = I_vals[best_idx].view(B, 1)
     target_j = J_vals[best_idx].view(B, 1)
 

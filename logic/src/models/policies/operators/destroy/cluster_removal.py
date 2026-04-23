@@ -1,20 +1,38 @@
-"""cluster_removal.py module.
+"""Cluster removal operator.
 
-Attributes:
-    MODULE_VAR (Type): Description of module level variable.
-
-Example:
-    >>> import cluster_removal
+This module provides a GPU-accelerated implementation of the cluster removal
+heuristic, which identifies a spatial neighborhood around a seed node and
+removes nodes within that cluster to facilitate large-scale local search.
 """
 
-from typing import Optional
+from __future__ import annotations
+
+from typing import Optional, Tuple
 
 import torch
 
 
-def vectorized_cluster_removal(tours, dist_matrix, n_remove, generator: Optional[torch.Generator] = None):
-    """
-    Removes a cluster of spatially related nodes.
+def vectorized_cluster_removal(
+    tours: torch.Tensor,
+    dist_matrix: torch.Tensor,
+    n_remove: int,
+    generator: Optional[torch.Generator] = None,
+) -> Tuple[torch.Tensor, torch.Tensor]:
+    """Removes a cluster of spatially related nodes from the tours.
+
+    Selects a random seed node for each batch instance and removes the
+    n_remove nearest neighbors according to the distance matrix.
+
+    Args:
+        tours: Batch of node sequences of shape [B, N].
+        dist_matrix: Pairwise node distances of shape [B, Nmax, Nmax] or [Nmax, Nmax].
+        n_remove: Number of nodes to eject from each tour.
+        generator: Torch device-side RNG.
+
+    Returns:
+        Tuple[torch.Tensor, torch.Tensor]: A tuple containing:
+            - compressed_tours: Sequence after removal of shape [B, N - n_remove].
+            - removed_nodes: IDs of the ejected nodes of shape [B, n_remove].
     """
     B, N = tours.size()
     device = tours.device
@@ -37,7 +55,6 @@ def vectorized_cluster_removal(tours, dist_matrix, n_remove, generator: Optional
     removed_nodes = torch.gather(tours, 1, remove_idx)
 
     # Compress tours (remove marked nodes)
-    # Since we remove exactly n_remove nodes from each row, we can reshape safely
     new_tours = tours[mask].view(B, N - n_remove)
 
     return new_tours, removed_nodes
