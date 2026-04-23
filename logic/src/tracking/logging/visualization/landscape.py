@@ -1,7 +1,18 @@
-"""
-Loss landscape visualization tools.
+"""Loss landscape visualization tools for routing models.
 
-Functions for computing and plotting loss landscapes.
+This module provides tools for computing and visualizing the loss surface
+of neural routing models. It supports both Imitation Learning landscapes
+(negative log-likelihood) and Reinforcement Learning landscapes (greedy cost).
+It uses random plane perturbations to generate 2D and 3D surface plots.
+
+Attributes:
+    plot_loss_landscape: Primary entry point for landscape generation.
+    ImitationMetric: Adapter for imitation loss computation.
+    RLMetric: Adapter for reinforcement learning cost computation.
+
+Example:
+    >>> from logic.src.tracking.logging.visualization import landscape
+    >>> landscape.plot_loss_landscape(model, cfg, "output/landscape/")
 """
 
 import os
@@ -23,8 +34,16 @@ from logic.src.tracking.logging.visualization.helpers import MyModelWrapper, get
 
 
 def imitation_loss_fn(m, x_batch, pi_target, cost_weights=None):
-    """
-    Computes imitation loss (log likelihood of target) for loss landscape.
+    """Computes imitation loss (log likelihood of target) for loss landscape.
+
+    Args:
+        m: The model or model wrapper instance.
+        x_batch: Input batch of graph data.
+        pi_target: Ground truth action distribution or sequence.
+        cost_weights: Optional scaling factors for loss. Defaults to None.
+
+    Returns:
+        float: The scalar imitation loss value.
     """
     model_to_call = m.modules[0] if hasattr(m, "modules") else m
     if hasattr(model_to_call, "model"):
@@ -47,8 +66,15 @@ def imitation_loss_fn(m, x_batch, pi_target, cost_weights=None):
 
 
 def rl_loss_fn(m, x_batch, cost_weights=None):
-    """
-    Computes RL loss (greedy cost) for loss landscape.
+    """Computes RL loss (greedy cost) for loss landscape.
+
+    Args:
+        m: The model or model wrapper instance.
+        x_batch: Input batch of graph data.
+        cost_weights: Optional scaling factors for cost components. Defaults to None.
+
+    Returns:
+        float: The mean greedy cost across the batch.
     """
     model_to_call = m.modules[0] if hasattr(m, "modules") else m
     if hasattr(model_to_call, "model"):
@@ -71,29 +97,67 @@ def rl_loss_fn(m, x_batch, cost_weights=None):
 
 
 class ImitationMetric(Metric):
-    """Metric class for imitation loss."""
+    """Metric class for imitation loss.
+
+    Attributes:
+        x_batch: The stable batch used for perturbations.
+        pi_target: The stable target sequence.
+        cost_weights: Optional cost scaling configuration.
+    """
 
     def __init__(self, x_batch, pi_target, cost_weights=None):
+        """Initializes the imitation metric.
+
+        Args:
+            x_batch: The input batch data for the perturbation grid.
+            pi_target: The target policy sequence for the imitation loss.
+            cost_weights: Optional scaling factors for cost components. Defaults to None.
+        """
         super().__init__()
         self.x_batch = x_batch
         self.pi_target = pi_target
         self.cost_weights = cost_weights
 
     def __call__(self, model_wrapper):
-        """Computes imitation loss for the current model state."""
+        """Computes imitation loss for the current model state.
+
+        Args:
+            model_wrapper: The wrapped model to evaluate.
+
+        Returns:
+            float: The computed imitation loss.
+        """
         return imitation_loss_fn(model_wrapper, self.x_batch, self.pi_target, cost_weights=self.cost_weights)
 
 
 class RLMetric(Metric):
-    """Metric class for RL cost."""
+    """Metric class for RL cost.
+
+    Attributes:
+        x_batch: The stable batch used for perturbations.
+        cost_weights: Optional cost scaling configuration.
+    """
 
     def __init__(self, x_batch, cost_weights=None):
+        """Initializes the RL metric.
+
+        Args:
+            x_batch: The input batch data for the perturbation grid.
+            cost_weights: Optional scaling factors for cost components. Defaults to None.
+        """
         super().__init__()
         self.x_batch = x_batch
         self.cost_weights = cost_weights
 
     def __call__(self, model_wrapper):
-        """Computes RL cost for the current model state."""
+        """Computes RL cost for the current model state.
+
+        Args:
+            model_wrapper: The wrapped model to evaluate.
+
+        Returns:
+            float: The computed RL cost.
+        """
         return rl_loss_fn(model_wrapper, self.x_batch, cost_weights=self.cost_weights)
 
 
@@ -107,18 +171,20 @@ def plot_loss_landscape(
     resolution: int = 10,
     span: float = 1.0,
 ) -> None:
-    """
-    Computes and plots 2D and 3D loss landscapes for both Imitation Loss and RL Cost.
+    """Computes and plots 2D and 3D loss landscapes for Imitation Loss and RL Cost.
 
     Args:
-        model: The neural model.
-        cfg: Root Hydra config (uses ``cfg.model.temporal_horizon`` for batch generation).
-        output_dir: Directory to save plots.
-        epoch: Current epoch.
-        size: Graph size.
-        batch_size: Batch size.
-        resolution: Grid resolution.
-        span: Range of perturbation.
+        model: The neural model to perturb.
+        cfg: Root Hydra configuration.
+        output_dir: Directory where the generated images will be saved.
+        epoch: Current training epoch index. Defaults to 0.
+        size: Number of nodes in the graph. Defaults to 50.
+        batch_size: Number of instances per perturbation. Defaults to 16.
+        resolution: Grid resolution of the landscape. Defaults to 10.
+        span: Range of perturbation along the random directions. Defaults to 1.0.
+
+    Returns:
+        None
     """
     print("Computing Loss Landscape...")
     os.makedirs(output_dir, exist_ok=True)

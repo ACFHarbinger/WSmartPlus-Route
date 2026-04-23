@@ -1,7 +1,16 @@
-"""
-Custom log parsing logic for simulation outputs.
+"""Log parsing and telemetry extraction services for simulation outputs.
 
-Parses the custom GUI_DAY_LOG_START format from JSONL files.
+This module provides specialized logic for parsing the WSmart+ Digital Twin
+log format (GUI_DAY_LOG_START) from JSONL files. It handles coordinate
+caching across multi-day simulation steps and aggregates numeric metrics.
+
+Attributes:
+    DayLogEntry: Dataclass representing a single day's simulation state.
+
+Example:
+    >>> from logic.src.ui.services.log_parser import parse_log_file
+    >>> entries = parse_log_file(Path("simulation.jsonl"))
+    >>> print(f"Parsed {len(entries)} daily records.")
 """
 
 import json
@@ -12,7 +21,14 @@ from typing import Any, Dict, Iterator, List, Optional, Tuple
 
 @dataclass
 class DayLogEntry:
-    """Represents a single day's simulation log entry."""
+    """Represents a single day's simulation log entry.
+
+    Attributes:
+        policy: Identifier for the routing policy active during this day.
+        sample_id: Index of the simulation instance/sample.
+        day: The simulation day number (1-indexed).
+        data: Raw telemetry dictionary containing performance metrics and paths.
+    """
 
     policy: str
     sample_id: int
@@ -21,17 +37,16 @@ class DayLogEntry:
 
 
 def parse_day_log_line(line: str) -> Optional[DayLogEntry]:
-    """
-    Parse a single line from the simulation log.
+    """Parses a single line from the simulation log into a dataclass.
 
     Expected format:
         GUI_DAY_LOG_START:policy_name,sample_id,day,{json_payload}
 
     Args:
-        line: Raw line from the log file.
+        line: Raw line string from the simulation JSONL log file.
 
     Returns:
-        DayLogEntry if parsing succeeds, None otherwise.
+        Optional[DayLogEntry]: The parsed entry if the line is valid, else None.
     """
     line = line.strip()
     if not line.startswith("GUI_DAY_LOG_START:"):
@@ -62,14 +77,16 @@ def parse_day_log_line(line: str) -> Optional[DayLogEntry]:
 
 
 def parse_log_file(file_path: Path) -> List[DayLogEntry]:
-    """
-    Parse all valid entries from a simulation log file.
+    """Parses all valid telemetry entries from a simulation log file.
+
+    Includes a coordinate caching mechanism that backfills location metadata
+    (all_bin_coords) for days where it might be omitted for brevity.
 
     Args:
-        file_path: Path to the .jsonl log file.
+        file_path: Absolute or relative path to the .jsonl log file.
 
     Returns:
-        List of parsed DayLogEntry objects.
+        List[DayLogEntry]: A sequence of successfully parsed daily records.
     """
     entries: List[DayLogEntry] = []
     coords_cache = {}
@@ -101,17 +118,17 @@ def parse_log_file(file_path: Path) -> List[DayLogEntry]:
 
 
 def stream_log_file(file_path: Path, start_line: int = 0) -> Iterator[DayLogEntry]:
-    """
-    Stream log entries from a file, starting from a specific line.
+    """Streams log entries from a file starting at a specific line index.
 
-    Useful for tailing log files in live mode.
+    Optimized for live monitoring, this generator maintains a coordinate cache
+    to ensure interleaved telemetry remains contextually complete.
 
     Args:
         file_path: Path to the .jsonl log file.
-        start_line: Line number to start from (0-indexed).
+        start_line: Line number to start reading from (0-indexed).
 
     Yields:
-        DayLogEntry objects as they are parsed.
+        Iterator[DayLogEntry]: Sequence of daily records as they are parsed.
     """
     coords_cache = {}
     try:
@@ -139,12 +156,26 @@ def stream_log_file(file_path: Path, start_line: int = 0) -> Iterator[DayLogEntr
 
 
 def get_unique_policies(entries: List[DayLogEntry]) -> List[str]:
-    """Extract unique policy names from log entries."""
+    """Extracts a sorted list of unique policy names from telemetry.
+
+    Args:
+        entries: Master list of log entries to analyze.
+
+    Returns:
+        List[str]: Alphabetically sorted unique policy identifiers.
+    """
     return sorted(set(e.policy for e in entries))
 
 
 def get_unique_samples(entries: List[DayLogEntry]) -> List[int]:
-    """Extract unique sample IDs from log entries."""
+    """Extracts a sorted list of unique simulation sample IDs from telemetry.
+
+    Args:
+        entries: Master list of log entries to analyze.
+
+    Returns:
+        List[int]: Numerically sorted unique sample indices.
+    """
     return sorted(set(e.sample_id for e in entries))
 
 
@@ -154,17 +185,16 @@ def filter_entries(
     sample_id: Optional[int] = None,
     day: Optional[int] = None,
 ) -> List[DayLogEntry]:
-    """
-    Filter log entries by criteria.
+    """Filters log entries based on policy, sample, and day criteria.
 
     Args:
-        entries: List of log entries to filter.
-        policy: Filter by policy name (optional).
-        sample_id: Filter by sample ID (optional).
-        day: Filter by day number (optional).
+        entries: Master list of log entries to filter.
+        policy: Exact policy name to match.
+        sample_id: Exact sample ID to match.
+        day: Exact day number to match.
 
     Returns:
-        Filtered list of entries.
+        List[DayLogEntry]: The subset of entries matching all specified criteria.
     """
     result = entries
 
@@ -179,7 +209,14 @@ def filter_entries(
 
 
 def get_day_range(entries: List[DayLogEntry]) -> Tuple[int, int]:
-    """Get the min and max day numbers from entries."""
+    """Retrieves the global minimum and maximum day numbers from telemetry.
+
+    Args:
+        entries: Master list of simulation log entries.
+
+    Returns:
+        Tuple[int, int]: (min_day, max_day).
+    """
     if not entries:
         return (0, 0)
     days = [e.day for e in entries]
@@ -189,15 +226,16 @@ def get_day_range(entries: List[DayLogEntry]) -> Tuple[int, int]:
 def aggregate_metrics_by_day(
     entries: List[DayLogEntry], policy: Optional[str] = None
 ) -> Dict[int, Dict[str, List[float]]]:
-    """
-    Aggregate metrics across samples for each day.
+    """Aggregates numeric metrics across samples for each simulation day.
+
+    Useful for tracking convergence and stability across multiple runs.
 
     Args:
-        entries: List of log entries.
-        policy: Optional policy filter.
+        entries: Master list of log entries.
+        policy: Optional filter to restrict aggregation to one policy.
 
     Returns:
-        Dict mapping day -> metric_name -> list of values across samples.
+        Dict[int, Dict[str, List[float]]]: Day -> metric -> list of sample values.
     """
     filtered = filter_entries(entries, policy=policy)
     result: Dict[int, Dict[str, List[float]]] = {}

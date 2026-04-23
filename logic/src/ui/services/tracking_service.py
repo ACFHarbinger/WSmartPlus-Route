@@ -1,28 +1,19 @@
-"""WSTracker read service for the Streamlit dashboard.
+"""Read service for backend-agnostic experiment tracking.
 
-Provides cached Streamlit functions to query the WSTracker SQLite
-database so simulation and training metrics can be rendered alongside
-the existing JSON-log-based charts.
+This module provides cached Streamlit functions to query metrics and runs
+from multiple tracking backends including the native WSTracker (SQLite),
+MLflow, and ZenML. It enables unified visualization of simulation stability
+metrics and deep learning training progress.
 
-All public functions accept an optional *tracking_uri* parameter; when
-omitted the default ``assets/tracking`` directory relative to the
-project root is used.
+Attributes:
+    load_tracking_runs: Fetches runs from the native SQLite store.
+    load_mlflow_runs: Fetches runs from an MLflow tracking server.
+    load_zenml_pipeline_runs: Fetches recent ZenML pipeline executions.
 
-Typical usage
--------------
-::
-
-    from logic.src.ui.services.tracking_service import (
-        load_tracking_runs,
-        load_run_metrics,
-        load_run_params,
-        list_metric_keys,
-    )
-
-    runs = load_tracking_runs()
-    run_id = runs[0]["id"]
-    df = load_run_metrics(run_id, "gurobi/s0/profit")
-    st.line_chart(df.set_index("step")["value"])
+Example:
+    >>> from logic.src.ui.services.tracking_service import load_tracking_runs
+    >>> runs = load_tracking_runs(tracking_uri="assets/tracking")
+    >>> print(f"Found {len(runs)} active experiments.")
 """
 
 from __future__ import annotations
@@ -58,13 +49,28 @@ with contextlib.suppress(ImportError):
 
 
 def _get_tracking_uri(tracking_uri: Optional[str]) -> str:
+    """Resolves the tracking URI, falling back to the default assets path.
+
+    Args:
+        tracking_uri: Optional user-provided path or URI.
+
+    Returns:
+        str: Resolved path to the tracking directory.
+    """
     if tracking_uri:
         return tracking_uri
     return str(Path.cwd() / "assets" / "tracking")
 
 
 def _open_store(tracking_uri: Optional[str]) -> Optional[Any]:
-    """Return a :class:`TrackingStore` for *tracking_uri*, or ``None``."""
+    """Retrieves a TrackingStore instance for the specified URI.
+
+    Args:
+        tracking_uri: Path to the tracking directory.
+
+    Returns:
+        Optional[TrackingStore]: An initialized store if valid, else None.
+    """
     uri = _get_tracking_uri(tracking_uri)
     db_path = os.path.join(uri, "tracking.db")
     if not os.path.exists(db_path):
@@ -84,17 +90,14 @@ def load_tracking_runs(
     tracking_uri: Optional[str] = None,
     run_type: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
-    """Return all runs from the WSTracker database.
+    """Retrieves all experiment runs from the native WSTracker database.
 
     Args:
-        tracking_uri: Path to the tracking directory containing
-            ``tracking.db``.  Defaults to ``assets/tracking``.
-        run_type: Optional filter (e.g. ``"training"`` or
-            ``"simulation"``).
+        tracking_uri: Path containing tracking.db. Defaults to assets/tracking.
+        run_type: Optional filter (e.g., "training" or "simulation").
 
     Returns:
-        List of run dicts with keys ``id``, ``name``, ``status``,
-        ``run_type``, ``start_time``, ``end_time``.
+        List[Dict[str, Any]]: Sequence of run metadata dictionaries.
     """
     store = _open_store(tracking_uri)
     if store is None:
@@ -110,17 +113,15 @@ def load_run_metrics(
     metric_key: str,
     tracking_uri: Optional[str] = None,
 ) -> pd.DataFrame:
-    """Return the step-indexed history of *metric_key* for *run_id*.
+    """Retrieves the step-indexed history of a specific metric for a run.
 
     Args:
-        run_id: UUID of the run.
-        metric_key: Exact metric key string (e.g.
-            ``"gurobi/s0/profit"``).
+        run_id: Unique identifier for the tracking run.
+        metric_key: identifier for the metric (e.g., "gurobi/s0/profit").
         tracking_uri: Path to the tracking directory.
 
     Returns:
-        DataFrame with columns ``step``, ``value``, ``timestamp``.
-        Empty DataFrame when the run or metric is not found.
+        pd.DataFrame: History with columns [step, value, timestamp].
     """
     store = _open_store(tracking_uri)
     if store is None:
@@ -137,14 +138,14 @@ def load_run_params(
     run_id: str,
     tracking_uri: Optional[str] = None,
 ) -> Dict[str, Any]:
-    """Return the logged parameters for *run_id*.
+    """Retrieves the logged parameters for a specific experiment run.
 
     Args:
-        run_id: UUID of the run.
+        run_id: Unique identifier for the tracking run.
         tracking_uri: Path to the tracking directory.
 
     Returns:
-        Flat param dict, or an empty dict when not found.
+        Dict[str, Any]: Flat dictionary of parameters logged for the run.
     """
     store = _open_store(tracking_uri)
     if store is None:
@@ -159,14 +160,14 @@ def list_metric_keys(
     run_id: str,
     tracking_uri: Optional[str] = None,
 ) -> List[str]:
-    """Return the distinct metric keys logged for *run_id*.
+    """Retrieves the distinct metric keys logged for a specific run.
 
     Args:
-        run_id: UUID of the run.
+        run_id: Unique identifier for the tracking run.
         tracking_uri: Path to the tracking directory.
 
     Returns:
-        Sorted list of metric key strings.
+        List[str]: Sorted sequence of distinct metric key strings.
     """
     store = _open_store(tracking_uri)
     if store is None:
@@ -182,14 +183,14 @@ def load_run_tags(
     run_id: str,
     tracking_uri: Optional[str] = None,
 ) -> Dict[str, str]:
-    """Return the tags for *run_id*.
+    """Retrieves the metadata tags associated with a specific experiment run.
 
     Args:
-        run_id: UUID of the run.
+        run_id: Unique identifier for the tracking run.
         tracking_uri: Path to the tracking directory.
 
     Returns:
-        Dict of tag key/values, or an empty dict when not found.
+        Dict[str, str]: Dictionary of tag keys and values.
     """
     store = _open_store(tracking_uri)
     if store is None:
@@ -204,14 +205,14 @@ def load_run_artifacts(
     run_id: str,
     tracking_uri: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
-    """Return the logged artifacts for *run_id*.
+    """Retrieves the logged artifacts metadata for a specific experiment run.
 
     Args:
-        run_id: UUID of the run.
+        run_id: Unique identifier for the tracking run.
         tracking_uri: Path to the tracking directory.
 
     Returns:
-        List of artifact dicts (path, artifact_type, timestamp, etc.).
+        List[Dict[str, Any]]: Sequence of artifact metadata dictionaries.
     """
     store = _open_store(tracking_uri)
     if store is None:
@@ -226,14 +227,14 @@ def load_run_dataset_events(
     run_id: str,
     tracking_uri: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
-    """Return the dataset lifecycle events for *run_id*.
+    """Retrieves dataset lifecycle events associated with a specific run.
 
     Args:
-        run_id: UUID of the run.
+        run_id: Unique identifier for the tracking run.
         tracking_uri: Path to the tracking directory.
 
     Returns:
-        List of event dicts (event_type, file_path, timestamp, etc.).
+        List[Dict[str, Any]]: Sequence of dataset event dictionaries.
     """
     store = _open_store(tracking_uri)
     if store is None:
@@ -253,14 +254,14 @@ def load_mlflow_runs(
     tracking_uri: str = "mlruns",
     experiment_name: Optional[str] = None,
 ) -> Union[pd.DataFrame, List[Run]]:
-    """Return a DataFrame of MLflow runs.
+    """Retrieves a summary of experiment runs from an MLflow tracking server.
 
     Args:
-        tracking_uri: MLflow tracking server URI.
-        experiment_name: Optional experiment filter.
+        tracking_uri: MLflow tracking server URI. Defaults to "mlruns".
+        experiment_name: Optional experiment filter to narrow down results.
 
     Returns:
-        DataFrame with columns from ``mlflow.search_runs``, or empty.
+        Union[pd.DataFrame, List[Run]]: DataFrame containing run metadata.
     """
     if mlflow is None:
         return pd.DataFrame()
@@ -282,15 +283,15 @@ def load_mlflow_metric_history(
     metric_key: str,
     tracking_uri: str = "mlruns",
 ) -> pd.DataFrame:
-    """Return the step-indexed history of *metric_key* from MLflow.
+    """Retrieves the step-indexed history of a metric from MLflow.
 
     Args:
-        run_id: MLflow run ID.
-        metric_key: Metric key to fetch.
-        tracking_uri: MLflow tracking server URI.
+        run_id: Unique MLflow identifier for the run.
+        metric_key: identifier for the metric to fetch.
+        tracking_uri: MLflow tracking server URI. Defaults to "mlruns".
 
     Returns:
-        DataFrame with columns ``step``, ``value``, ``timestamp``.
+        pd.DataFrame: History with columns [step, value, timestamp].
     """
     if MlflowClient is Any:
         return pd.DataFrame(columns=["step", "value", "timestamp"])
@@ -308,14 +309,14 @@ def list_mlflow_metric_keys(
     run_id: str,
     tracking_uri: str = "mlruns",
 ) -> List[str]:
-    """Return metric keys logged for an MLflow run.
+    """Retrieves a list of all metric keys logged for an MLflow run.
 
     Args:
-        run_id: MLflow run ID.
-        tracking_uri: MLflow tracking server URI.
+        run_id: Unique MLflow identifier for the run.
+        tracking_uri: MLflow tracking server URI. Defaults to "mlruns".
 
     Returns:
-        Sorted list of metric key strings.
+        List[str]: Sorted sequence of metric key strings.
     """
     if MlflowClient is Any:
         return []
@@ -334,10 +335,10 @@ def list_mlflow_metric_keys(
 
 @st.cache_data(ttl=30)
 def load_zenml_pipeline_runs() -> List[Dict[str, Any]]:
-    """Return recent ZenML pipeline runs.
+    """Retrieves the metadata for recent ZenML pipeline executions.
 
     Returns:
-        List of dicts with pipeline run metadata (name, status, etc.).
+        List[Dict[str, Any]]: Sequence of pipeline run metadata dicts.
     """
     if ZenMLClient is Any:
         return []
@@ -363,13 +364,13 @@ def load_zenml_pipeline_runs() -> List[Dict[str, Any]]:
 
 @st.cache_data(ttl=30)
 def load_zenml_run_steps(run_id: str) -> List[Dict[str, Any]]:
-    """Return the steps of a ZenML pipeline run.
+    """Retrieves step-level granular metadata for a ZenML pipeline run.
 
     Args:
-        run_id: UUID of the ZenML pipeline run.
+        run_id: Unique ZenML identifier for the pipeline run.
 
     Returns:
-        List of step dicts (name, status, duration, etc.).
+        List[Dict[str, Any]]: Sequence of step metadata dictionaries.
     """
     if ZenMLClient is Any:
         return []

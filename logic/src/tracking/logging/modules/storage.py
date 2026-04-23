@@ -1,5 +1,21 @@
-"""
-Persistent storage utilities (JSON, Pickle) and system logging.
+"""Persistent storage and system logging utilities.
+
+This module provides tools for serializing experiment data to disk using JSON
+and Pickle formats. It includes specialized converters for NumPy types,
+thread-safe file operations with adaptive locking, and configuration for
+the system-wide Loguru logger.
+
+Attributes:
+    setup_system_logger: Configures Loguru sink and multi-module log levels.
+    sort_log: Reorders a log file by solver policy grouping.
+    log_to_json: Persists experiment result dictionaries to a JSON file.
+    log_to_json2: Alternative JSON logger with distinct recovery logic.
+    log_to_pickle: Serializes generic objects to binary pickle files.
+    update_log: Appends new results to an existing structured log.
+
+Example:
+    >>> from logic.src.tracking.logging.modules import storage
+    >>> storage.log_to_json("results.json", ["km", "kg"], {"greedy": [10, 5]})
 """
 
 import datetime
@@ -19,6 +35,15 @@ from logic.src.utils.io.files import read_json
 
 
 def setup_system_logger(log_path: str = "logs/system.log", level: str = "INFO") -> Any:
+    """Configures the Loguru system logger and filters noisy modules.
+
+    Args:
+        log_path: File path for the system log. Defaults to "logs/system.log".
+        level: Logging severity level. Defaults to "INFO".
+
+    Returns:
+        Any: The configured Loguru logger instance.
+    """
     logger.remove()
     logger.add(sys.stderr, level=level)
     logger.add(log_path, rotation="10 MB", level=level)
@@ -37,13 +62,13 @@ def setup_system_logger(log_path: str = "logs/system.log", level: str = "INFO") 
 
 
 def _convert_numpy(obj: Any) -> Any:
-    """convert numpy.
+    """Recursively converts NumPy types to native Python types for JSON serialization.
 
     Args:
-    obj (Any): Description of obj.
+        obj: The object to convert (scalar, list, or dictionary).
 
     Returns:
-        Any: Description of return value.
+        Any: The converted object with native Python primitives.
     """
     if isinstance(obj, np.ndarray):
         return obj.tolist()
@@ -59,13 +84,13 @@ def _convert_numpy(obj: Any) -> Any:
 
 
 def _sort_log(log: Dict[str, Any]) -> Dict[str, Any]:
-    """sort log.
+    """Sorts log entries so that specific policy keywords appear last.
 
     Args:
-    log (Dict[str, Any]): Description of log.
+        log: The dictionary of log results grouped by policy.
 
     Returns:
-        Any: Description of return value.
+        Dict[str, Any]: The sorted dictionary.
     """
     log = {key: value for key, value in sorted(log.items())}
     tmp_log: Dict[str, Any] = {}
@@ -80,7 +105,12 @@ def _sort_log(log: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def sort_log(logfile_path: str, lock: Optional[threading.Lock] = None) -> None:
-    """Sorts a JSON log file by grouping keys."""
+    """Sorts a JSON log file by grouping keys.
+
+    Args:
+        logfile_path: Path to the JSON file to sort in-place.
+        lock: Optional thread lock for safe file modification. Defaults to None.
+    """
     acquired = lock.acquire(timeout=udef.LOCK_TIMEOUT) if lock is not None else True
     if not acquired:
         return
@@ -102,7 +132,19 @@ def log_to_json(
     sample_id: Optional[int] = None,
     lock: Optional[threading.Lock] = None,
 ) -> Union[Dict[str, Any], List[Any]]:
-    """Write or update a JSON log file with new policy results."""
+    """Write or update a JSON log file with new policy results.
+
+    Args:
+        json_path: Path to the JSON log file.
+        keys: List of metric names to use as dictionary keys.
+        dit: The data dictionary to serialize.
+        sort_log_flag: Whether to sort policies after writing. Defaults to True.
+        sample_id: Index of the simulation sample (enables list-mode). Defaults to None.
+        lock: Optional thread lock for atomic access. Defaults to None.
+
+    Returns:
+        Union[Dict[str, Any], List[Any]]: The updated full log state.
+    """
     acquired = lock.acquire(timeout=udef.LOCK_TIMEOUT) if lock is not None else True
     if not acquired:
         return [] if sample_id is not None else {}
@@ -164,7 +206,19 @@ def log_to_json2(
     sample_id: Optional[int] = None,
     lock: Optional[threading.Lock] = None,
 ) -> Union[Dict[str, Any], List[Any]]:
-    """Write or update a JSON log file (variant with different error handling)."""
+    """Write or update a JSON log file (variant with different recovery logic).
+
+    Args:
+        json_path: Path to the JSON log file.
+        keys: List of metric names to use as dictionary keys.
+        dit: The data dictionary to serialize.
+        sort_log_flag: Whether to sort policies after writing. Defaults to True.
+        sample_id: Index of the simulation sample (enables list-mode). Defaults to None.
+        lock: Optional thread lock for atomic access. Defaults to None.
+
+    Returns:
+        Union[Dict[str, Any], List[Any]]: The updated full log state.
+    """
     acquired = lock.acquire(timeout=udef.LOCK_TIMEOUT) if lock is not None else True
     if not acquired:
         return [] if sample_id is not None else {}
@@ -220,7 +274,14 @@ def log_to_pickle(
     lock: Optional[threading.Lock] = None,
     dw_func: Optional[Callable[[str], None]] = None,
 ) -> None:
-    """Serialize a log object to a pickle file."""
+    """Serialize a log object to a pickle file.
+
+    Args:
+        pickle_path: Target path for the .pkl file.
+        log: The object to serialize.
+        lock: Optional thread lock for safe writing. Defaults to None.
+        dw_func: Optional callback function triggered after successful write.
+    """
     acquired = lock.acquire(timeout=udef.LOCK_TIMEOUT) if lock is not None else True
     if not acquired:
         return
@@ -242,7 +303,19 @@ def update_log(
     sort_log_flag: bool = True,
     lock: Optional[threading.Lock] = None,
 ) -> Union[Dict[str, Any], List[Any]]:
-    """Update existing log entries with new policy outputs."""
+    """Update existing log entries with new policy outputs.
+
+    Args:
+        json_path: Path to the JSON log file to update.
+        new_output: List of new simulation results.
+        start_id: The starting sample ID to begin updating from.
+        policies: List of policy names to update.
+        sort_log_flag: Whether to re-sort results after update. Defaults to True.
+        lock: Optional thread lock for atomic updates. Defaults to None.
+
+    Returns:
+        Union[Dict[str, Any], List[Any]]: The updated log state.
+    """
     acquired = lock.acquire(timeout=udef.LOCK_TIMEOUT) if lock is not None else True
     if not acquired:
         return {}

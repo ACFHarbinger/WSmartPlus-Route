@@ -1,5 +1,14 @@
-"""
-Interactive plots.
+"""Interactive plotting utilities using Plotly.
+
+This module provides functions for generating interactive, web-based
+visualizations of routing data and attention maps.
+
+Attributes:
+    visualize_interactive_plot: Launcher for interactive Plotly charts.
+
+Example:
+    >>> from logic.src.tracking.logging.plotting.interactive import visualize_interactive_plot
+    >>> visualize_interactive_plot(plot_target=data, title="Interactive Map")
 """
 
 from __future__ import annotations
@@ -8,11 +17,10 @@ import plotly.express as px
 
 
 def visualize_interactive_plot(**kwargs):
-    """
-    Execution function for interactive visualization using Plotly.
+    """Execution function for interactive visualization using Plotly.
 
     Args:
-        **kwargs: Keyword arguments containing 'plot_target', 'title', 'x_labels', 'y_labels', 'figsize'.
+        kwargs: Keyword arguments containing 'plot_target', 'title', 'x_labels', 'y_labels', 'figsize'.
     """
     interactive_fig = px.imshow(
         kwargs["plot_target"],

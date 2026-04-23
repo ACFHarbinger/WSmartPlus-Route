@@ -1,5 +1,22 @@
-"""
-Visualization package for WSmart-Route.
+"""Visualization and interpretability suite for WSmart-Route.
+
+This package provides a comprehensive set of tools for inspecting model
+internals, projecting embeddings, and generating loss landscapes. It serves
+as a facade for sub-modules specializing in weight trajectories, attention
+heatmaps, and TensorBoard integration.
+
+Attributes:
+    visualize_epoch: High-level entry point for visualization during training.
+    log_weight_distributions: Exports weight histograms to TensorBoard.
+    plot_weight_trajectories: PCA-based visualization of weight evolution.
+    project_node_embeddings: 3D projection of latent node features.
+    plot_attention_heatmaps: Transformer attention weight visualization.
+    plot_logit_lens: Intermediate layer logit prediction visualization.
+    plot_loss_landscape: 2D/3D loss surface generation tool.
+
+Example:
+    >>> from logic.src.tracking.logging import visualization
+    >>> visualization.visualize_epoch(model, problem, cfg, epoch=10)
 """
 
 import argparse
@@ -32,15 +49,17 @@ from . import landscape as landscape
 def visualize_epoch(
     model: Any, problem: Any, cfg: Union[Config, DictConfig], epoch: int, tb_logger: Any = None
 ) -> None:
-    """
-    Main entry point for visualization during training.
+    """Main entry point for visualization during training.
+
+    This function selectively runs different visualization routines based on
+    the configuration settings in `cfg.rl.viz_modes`.
 
     Args:
-        model: The neural model.
-        problem: The problem instance.
+        model: The neural model to visualize.
+        problem: The problem instance for environment context.
         cfg: Root Hydra configuration.
-        epoch: Current epoch number.
-        tb_logger: Optional TensorBoard logger.
+        epoch: Current training epoch number.
+        tb_logger: Optional TensorBoard SummaryWriter. Defaults to None.
     """
     rl = cfg.rl
     model_cfg = cfg.model

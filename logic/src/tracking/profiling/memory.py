@@ -1,13 +1,11 @@
-"""
-GPU and CPU memory profiling utilities.
+"""GPU and CPU memory profiling utilities.
 
 Provides point-in-time snapshots and continuous background monitoring of
 device memory, with automatic forwarding to the active WSTracker run.
 
 Attributes:
     MemorySnapshot: Immutable record of GPU/CPU memory at one instant.
-    MemoryTracker:  Background-thread monitor that records samples at a
-                    configurable interval.
+    MemoryTracker: Background-thread monitor that records periodically.
 
 Example:
     >>> from logic.src.tracking.profiling import MemorySnapshot, MemoryTracker
@@ -25,7 +23,7 @@ import contextlib
 import os
 import threading
 import time
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import psutil
 import torch
@@ -43,11 +41,11 @@ class MemorySnapshot:
         gpu_allocated_mb: Bytes currently allocated by PyTorch tensors on the
             selected CUDA device, converted to MiB.
         gpu_reserved_mb: Bytes reserved (cached) by the CUDA allocator, MiB.
-        gpu_peak_mb: Peak ``gpu_allocated_mb`` since the last
-            ``torch.cuda.reset_peak_memory_stats()`` call, MiB.
-        cpu_rss_mb: Resident Set Size of this process (requires *psutil*),
-            MiB.  Zero when *psutil* is not installed.
-        timestamp: ``time.time()`` at capture.
+        gpu_peak_mb: Peak gpu_allocated_mb since the last
+            torch.cuda.reset_peak_memory_stats() call, MiB.
+        cpu_rss_mb: Resident Set Size of this process (requires psutil),
+            MiB. Zero when psutil is not installed.
+        timestamp: time.time() at capture.
     """
 
     def __init__(
@@ -59,23 +57,15 @@ class MemorySnapshot:
         cpu_rss_mb: float = 0.0,
         timestamp: Optional[float] = None,
     ) -> None:
-        """
-        Initialize the memory snapshot.
+        """Initializes the memory snapshot.
 
         Args:
-            tag: Label used both as the snapshot identifier and as the metric
-                namespace when logging (``memory/{tag}/...``).
-            gpu_allocated_mb: Bytes currently allocated by PyTorch tensors on the
-                selected CUDA device, converted to MiB.
-            gpu_reserved_mb: Bytes reserved (cached) by the CUDA allocator, MiB.
-            gpu_peak_mb: Peak ``gpu_allocated_mb`` since the last
-                ``torch.cuda.reset_peak_memory_stats()`` call, MiB.
-            cpu_rss_mb: Resident Set Size of this process (requires *psutil*),
-                MiB.  Zero when *psutil* is not installed.
-            timestamp: ``time.time()`` at capture.
-
-        Returns:
-            None
+            tag: Label used for identification and logging.
+            gpu_allocated_mb: Bytes currently allocated by PyTorch tensors, MiB.
+            gpu_reserved_mb: Bytes reserved by the CUDA allocator, MiB.
+            gpu_peak_mb: Observed peak CUDA allocation, MiB.
+            cpu_rss_mb: Process Resident Set Size, MiB.
+            timestamp: Epoch time at capture. Defaults to time.time().
         """
         self.tag = tag
         self.gpu_allocated_mb = gpu_allocated_mb
@@ -95,21 +85,18 @@ class MemorySnapshot:
         device: Optional[torch.device] = None,
         step: int = 0,
         log_metric: bool = True,
-    ) -> "MemorySnapshot":
-        """
-        Capture the current memory state and return a :class:`MemorySnapshot`.
+    ) -> MemorySnapshot:
+        """Capture the current memory state and return a MemorySnapshot.
 
         Args:
-            tag: Label used both as the snapshot identifier and as the metric
-                namespace when logging (``memory/{tag}/...``).
-            device: CUDA device to query.  When ``None``, the current default
-                device is used.  CPU-only environments are handled gracefully.
-            step: Metric step forwarded to ``Run.log_metrics``.
-            log_metric: When ``True`` (default), call :meth:`log_to_run`
-                immediately after capturing.
+            tag: Label used for identification and logging.
+            device: CUDA device to query. When None, the current default
+                device is used. CPU-only environments are handled gracefully.
+            step: Optional metric step for logging.
+            log_metric: When True (default), logs to active run immediately.
 
         Returns:
-            A :class:`MemorySnapshot` populated with current readings.
+            MemorySnapshot: Populated with current readings.
         """
         gpu_allocated = 0.0
         gpu_reserved = 0.0
@@ -145,17 +132,14 @@ class MemorySnapshot:
     # Analysis
     # ------------------------------------------------------------------
 
-    def delta(self, baseline: "MemorySnapshot") -> Dict[str, float]:
-        """
-        Compute memory differences relative to *baseline*.
+    def delta(self, baseline: MemorySnapshot) -> Dict[str, float]:
+        """Compute memory differences relative to baseline.
 
         Args:
             baseline: The baseline memory snapshot to compare against.
 
         Returns:
-            Dict with keys ``gpu_allocated_delta_mb``,
-            ``gpu_reserved_delta_mb``, ``gpu_peak_delta_mb``,
-            ``cpu_rss_delta_mb``.
+            Dict[str, float]: Dictionary containing deltas for all fields.
         """
         return {
             "gpu_allocated_delta_mb": self.gpu_allocated_mb - baseline.gpu_allocated_mb,
@@ -169,17 +153,12 @@ class MemorySnapshot:
     # ------------------------------------------------------------------
 
     def log_to_run(self, step: int = 0) -> None:
-        """
-        Log all memory fields to the active WSTracker run.
+        """Log all memory fields to the active WSTracker run.
 
-        Metrics are stored under the namespace ``memory/{tag}/``.
-        This is a silent no-op when no run is active or any error occurs.
+        Metrics are stored under the namespace memory/{tag}/.
 
         Args:
-            step: Metric step forwarded to ``Run.log_metrics``.
-
-        Returns:
-            None
+            step: Optional metric step index.
         """
         with contextlib.suppress(Exception):
             run = get_active_run()
@@ -195,11 +174,10 @@ class MemorySnapshot:
                 )
 
     def __repr__(self) -> str:
-        """
-        Return a string representation of the memory snapshot.
+        """Returns a string representation of the snapshot.
 
         Returns:
-            str
+            str: Human-readable representation.
         """
         return (
             f"MemorySnapshot(tag={self.tag!r}, "
@@ -211,29 +189,15 @@ class MemorySnapshot:
 class MemoryTracker:
     """Continuously monitors memory usage in a daemon background thread.
 
-    Samples are collected at *interval_sec* intervals.  Use as a context
-    manager or call :meth:`start` / :meth:`stop` manually.  Call
-    :meth:`log_summary_to_run` once after stopping to forward the peak values
-    to the active WSTracker run.
-
-    Example:
-        tracker = MemoryTracker(interval_sec=0.5, tag="training")
-        with tracker:
-            train_one_epoch()
-        print(tracker.peak_gpu_mb)
-        tracker.log_summary_to_run(step=epoch)
+    Samples are collected at interval_sec intervals. Use as a context
+    manager or call start/stop manually. Call log_summary_to_run once after
+    stopping to forward the peak values to the active WSTracker run.
 
     Attributes:
         interval_sec: Sampling interval in seconds.
-        tag: Metric namespace label; forwarded to each
-            :class:`MemorySnapshot`.
-        device: CUDA device to query (``None`` = default device).
-        log_per_sample: When ``True``, each snapshot is also logged to the
-            active run as a time-series metric.  Defaults to ``False`` to
-            avoid metric spam; use :meth:`log_summary_to_run` instead.
-        _samples: List of captured memory snapshots.
-        _thread: Background thread for periodic sampling.
-        _stop_event: Event used to signal the background thread to stop.
+        tag: Metric namespace label.
+        device: CUDA device to query (None = default device).
+        log_per_sample: If True, each snapshot is logged as a metric.
     """
 
     def __init__(
@@ -243,17 +207,13 @@ class MemoryTracker:
         device: Optional[torch.device] = None,
         log_per_sample: bool = False,
     ) -> None:
-        """
-        Initialize the memory tracker.
+        """Initializes the memory tracker.
 
         Args:
-            interval_sec: Sampling interval in seconds.
-            tag: Metric namespace label; forwarded to each
-                :class:`MemorySnapshot`.
-            device: CUDA device to query (``None`` = default device).
-            log_per_sample: When ``True``, each snapshot is also logged to the
-                active run as a time-series metric.  Defaults to ``False`` to
-                avoid metric spam; use :meth:`log_summary_to_run` instead.
+            interval_sec: Sampling interval in seconds. Defaults to 1.0.
+            tag: Metric namespace label. Defaults to "background".
+            device: CUDA device to query. Defaults to None.
+            log_per_sample: If True, logs metrics per sample. Defaults to False.
         """
         self.interval_sec = interval_sec
         self.tag = tag
@@ -270,11 +230,10 @@ class MemoryTracker:
 
     @property
     def peak_gpu_mb(self) -> float:
-        """
-        Peak GPU-allocated memory observed across all samples (MiB).
+        """Peak GPU-allocated memory observed across all samples (MiB).
 
         Returns:
-            float
+            float: Maximum allocated GPU memory.
         """
         if not self._samples:
             return 0.0
@@ -282,11 +241,10 @@ class MemoryTracker:
 
     @property
     def peak_cpu_mb(self) -> float:
-        """
-        Peak CPU RSS observed across all samples (MiB).
+        """Peak CPU RSS observed across all samples (MiB).
 
         Returns:
-            float
+            float: Maximum resident set size.
         """
         if not self._samples:
             return 0.0
@@ -294,11 +252,10 @@ class MemoryTracker:
 
     @property
     def n_samples(self) -> int:
-        """
-        Number of snapshots collected since the last :meth:`start`.
+        """Number of snapshots collected since the last start.
 
         Returns:
-            int
+            int: Snapshots recorded.
         """
         return len(self._samples)
 
@@ -306,15 +263,11 @@ class MemoryTracker:
     # Lifecycle
     # ------------------------------------------------------------------
 
-    def start(self) -> "MemoryTracker":
-        """
-        Start the background monitoring thread.  Returns *self*.
-
-        Args:
-            self: The memory tracker instance.
+    def start(self) -> MemoryTracker:
+        """Start the background monitoring thread.
 
         Returns:
-            MemoryTracker: The memory tracker instance.
+            MemoryTracker: The current instance.
         """
         self._samples.clear()
         self._stop_event.clear()
@@ -322,15 +275,11 @@ class MemoryTracker:
         self._thread.start()
         return self
 
-    def stop(self) -> "MemoryTracker":
-        """
-        Signal the monitoring thread to stop and wait for it to exit.
-
-        Args:
-            self: The memory tracker instance.
+    def stop(self) -> MemoryTracker:
+        """Signal the monitoring thread to stop and wait for it to exit.
 
         Returns:
-            MemoryTracker: The memory tracker instance.
+            MemoryTracker: The current instance.
         """
         self._stop_event.set()
         if self._thread is not None:
@@ -338,15 +287,7 @@ class MemoryTracker:
         return self
 
     def _monitor(self) -> None:
-        """
-        Background thread target: continuously capture memory snapshots.
-
-        Args:
-            self: The memory tracker instance.
-
-        Returns:
-            None
-        """
+        """Monitor thread main loop for capturing snapshots."""
         while True:
             snap = MemorySnapshot.capture(
                 self.tag,
@@ -370,17 +311,12 @@ class MemoryTracker:
     # ------------------------------------------------------------------
 
     def log_summary_to_run(self, step: int = 0) -> None:
-        """
-        Log peak GPU and CPU memory and sample count to the active run.
+        """Log peak GPU and CPU memory and sample count to the active run.
 
-        Metrics are stored under ``memory/{tag}/``.
+        Metrics are stored under memory/{tag}/.
 
         Args:
-            self: The memory tracker instance.
-            step: Metric step forwarded to ``Run.log_metrics``.
-
-        Returns:
-            None
+            step: Optional metric step index.
         """
         if not self._samples:
             return
@@ -400,37 +336,27 @@ class MemoryTracker:
     # Context-manager protocol
     # ------------------------------------------------------------------
 
-    def __enter__(self) -> "MemoryTracker":
-        """
-        Enter the context manager, starting the memory tracker.
-
-        Args:
-            self: The memory tracker instance.
+    def __enter__(self) -> MemoryTracker:
+        """Context entry starting the tracker.
 
         Returns:
-            MemoryTracker: The memory tracker instance.
+            MemoryTracker: The current instance.
         """
         return self.start()
 
-    def __exit__(self, *_args: Any) -> None:
-        """
-        Exit the context manager, stopping the memory tracker.
+    def __exit__(self, *args: Any) -> None:
+        """Context exit stopping the tracker.
 
         Args:
-            self: The memory tracker instance.
-            *_args: Additional arguments.
-
-        Returns:
-            None
+            args: Exception arguments handled by contextlib.
         """
         self.stop()
 
     def __repr__(self) -> str:
-        """
-        Return a string representation of the memory tracker.
+        """Returns a string representation of the tracker.
 
         Returns:
-            str
+            str: Human-readable representation.
         """
         return (
             f"MemoryTracker(tag={self.tag!r}, n_samples={self.n_samples}, "

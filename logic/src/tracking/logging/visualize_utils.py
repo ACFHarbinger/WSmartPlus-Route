@@ -1,13 +1,20 @@
-"""
-Visualization utilities for the routing problems.
+"""Visualization utilities for the routing problems.
 
-This module provides functions for:
-- Visualizing routing solutions and graphs.
-- Plotting loss landscapes (if used).
-- Creating PCA visualizations of embeddings.
-- Interfacing with TensorBoard for visual logging.
+This module provides functions for visualizing routing solutions, graphs,
+loss landscapes, and model training metrics. It primarily acts as a
+re-export interface for the newer visualization sub-package.
 
 DEPRECATED: Use logic.src.utils.logging.visualization package instead.
+
+Attributes:
+    plot_attention_heatmaps: Generates heatmaps of policy attention weights.
+    plot_loss_landscape: Computes and visualizes the 2D loss surface.
+    project_node_embeddings: Projects high-dimensional node features to 2D.
+    log_weight_distributions: Records histograms of network parameters.
+
+Example:
+    >>> from logic.src.tracking.logging import visualize_utils
+    >>> visualize_utils.plot_attention_heatmaps(policy, "heatmaps/")
 """
 
 from logic.src.tracking.logging.visualization import (

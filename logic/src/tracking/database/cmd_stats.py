@@ -1,7 +1,21 @@
-"""stats and metrics subcommands for the tracking database CLI.
+"""Stats and metrics subcommands for the tracking database CLI.
 
-Invoked via commands.py; not intended to be run directly.
+This module provides high-level aggregation and visualization logic for the
+WSTracker database, including summary statistics, metric distribution reports,
+and console-based activity sparklines.
+
+Invoked via `commands.py`; not intended to be run directly.
+
+Attributes:
+    stats_database: Generates a comprehensive summary of the tracking store.
+    metrics_summary: Generates a detailed report for specific metric keys.
+
+Example:
+    >>> from logic.src.tracking.database.cmd_stats import stats_database
+    >>> stats_database(experiment_name="AM-VRPP-50")
 """
+
+from __future__ import annotations
 
 import os
 
@@ -14,6 +28,14 @@ from logic.src.tracking.database.sql_loader import load_sections
 
 
 def _human_bytes(n: int) -> str:
+    """Formats a byte count into a human-readable string (e.g., KB, MB).
+
+    Args:
+        n: Number of bytes.
+
+    Returns:
+        str: Human-readable size with units.
+    """
     n_f = float(n)
     for unit in ("B", "KB", "MB", "GB"):
         if abs(n_f) < 1024.0:
@@ -23,6 +45,14 @@ def _human_bytes(n: int) -> str:
 
 
 def _human_duration(seconds: float) -> str:
+    """Formats a duration in seconds into a human-readable string (s, m, h).
+
+    Args:
+        seconds: Duration in seconds.
+
+    Returns:
+        str: Human-readable time with units.
+    """
     if seconds < 60:
         return f"{seconds:.1f}s"
     if seconds < 3600:
@@ -31,6 +61,16 @@ def _human_duration(seconds: float) -> str:
 
 
 def _sparkbar(value: int, max_value: int, width: int = 20) -> str:
+    """Generates a text-based sparkline bar for terminal visualization.
+
+    Args:
+        value: Current value to represent.
+        max_value: Maximum value in the range for scaling.
+        width: Total character width of the bar. Defaults to 20.
+
+    Returns:
+        str: A string composed of unicode block characters representing the ratio.
+    """
     if max_value == 0:
         return "░" * width
     filled = round(value / max_value * width)
@@ -43,6 +83,15 @@ def _sparkbar(value: int, max_value: int, width: int = 20) -> str:
 
 
 def stats_database(experiment_name: str = "") -> None:
+    """Prints a comprehensive statistical dashboard for the tracking database.
+
+    Includes table row counts, experiment success rates, run duration
+    distributions, artifact storage summaries, and recent activity levels.
+
+    Args:
+        experiment_name: Optional filter to restrict statistics to a specific
+            experiment. Defaults to "".
+    """
     if not os.path.exists(DB_PATH):
         print("ℹ️  Tracking database not found.")
         return
@@ -147,6 +196,16 @@ def stats_database(experiment_name: str = "") -> None:
 
 
 def metrics_summary(key: str = "", experiment_name: str = "") -> None:
+    """Prints a detailed evolution summary for one or more metric keys.
+
+    If a key is provided, shows per-run distribution (min, max, mean).
+    Otherwise, lists all unique metric keys present in the database.
+
+    Args:
+        key: Specific metric key to inspect. Defaults to "".
+        experiment_name: Optional filter to restrict results to a specific
+            experiment. Defaults to "".
+    """
     if not os.path.exists(DB_PATH):
         print("ℹ️  Tracking database not found.")
         return

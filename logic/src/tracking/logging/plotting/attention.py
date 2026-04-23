@@ -1,5 +1,16 @@
-"""
-Attention map visualization.
+"""Attention map visualization utilities.
+
+This module provides tools for visualizing the attention mechanism weights of
+neural routing models. It generates heatmaps that show how query vertices
+attend to key vertices in the graph, with support for multi-head and
+multi-batch averaging.
+
+Attributes:
+    plot_attention_maps_wrapper: Primary entry point for attention visualization.
+
+Example:
+    >>> from logic.src.tracking.logging.plotting.attention import plot_attention_maps_wrapper
+    >>> plot_attention_maps_wrapper("output/", attn_dict, "am", log_plot)
 """
 
 from __future__ import annotations
@@ -27,28 +38,27 @@ def plot_attention_maps_wrapper(
     y_labels=None,
     **execution_kwargs,
 ):
-    """
-    Plot attention maps as heatmaps for a given layer, head, batch, and simulation sample.
+    """Plot attention maps as heatmaps for a given layer, head, batch, and sample.
 
     Args:
-        dir_path (str): Directory path to save the heatmap image.
-        attention_dict (dict): Dictionary where:
-                              - Keys are model names (str);
-                              - Values are lists of attention data for each sample, where each
-                                element is a dictionary containing: 'attention_weights' tensor of
-                                shape [num_layers, n_heads, batch_size, graph_size, graph_size].
-        model_name (str): Name of the model to extract attention maps for.
-        execution_function (function): Function that handles the plotting/saving logic.
-        layer_idx (int): Index of the layer to visualize.
-        sample_idx (int): Index of the simulation sample to visualize.
-        head_idx (int): Index of the head to visualize (-1 for average over all heads).
-        batch_idx (int): Index of the data batch to visualize (-1 for average over all batches).
-        x_labels (list, optional): Custom labels for x-axis vertices.
-        y_labels (list, optional): Custom labels for y-axis vertices.
-        **execution_kwargs: Additional arguments to pass to the execution function.
+        dir_path: Directory path to save the heatmap image.
+        attention_dict: Dictionary where:
+            - Keys are model names (str);
+            - Values are lists of attention data for each sample, where each
+              element is a dictionary containing: 'attention_weights' tensor of
+              shape [num_layers, n_heads, batch_size, graph_size, graph_size].
+        model_name: Name of the model to extract attention maps for.
+        execution_function: Function that handles the plotting/saving logic.
+        layer_idx: Index of the layer to visualize. Defaults to 0.
+        sample_idx: Index of the simulation sample to visualize. Defaults to 0.
+        head_idx: Index of the head to visualize (-1 for average). Defaults to 0.
+        batch_idx: Index of the data batch to visualize (-1 for average). Defaults to 0.
+        x_labels: Custom labels for x-axis vertices. Defaults to None.
+        y_labels: Custom labels for y-axis vertices. Defaults to None.
+        execution_kwargs: Additional arguments to pass to the execution function.
 
     Returns:
-        attn_map (np.ndarray): The attention map as a Numpy array.
+        np.ndarray: The attention map as a Numpy array.
     """
     assert sample_idx >= 0, f"sample_idx {sample_idx} must be a non-negative integer"
 

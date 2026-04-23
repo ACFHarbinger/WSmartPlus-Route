@@ -1,63 +1,52 @@
 """Runtime data mutation tracking for WSTracker.
 
-:class:`RuntimeDataTracker` attaches to a training run and records statistical
-snapshots of tensor datasets each time they are loaded into memory, regenerated,
-or mutated.  It captures the distribution of each tensor field (mean, std, min,
-max, shape) and logs those as run params so drift across epochs is visible in
-the experiment database.
+This module provides the :class:`RuntimeDataTracker` which attaches to a
+tracking run and records statistical snapshots of tensor datasets as they
+are loaded, regenerated, or mutated in memory. It captures distribution
+metrics (mean, std, min, max) to detect dataset drift over training epochs.
 
-This module is concerned exclusively with **in-memory variable state** — it
-watches the Python objects that hold the data, not files on disk.  For
-filesystem-level change detection (SHA-256 hashing, file events) see
-:mod:`logic.src.tracking.integrations.filesystem`.
+Attributes:
+    RuntimeDataTracker: Tracks in-memory dataset distribution mutations.
 
-Typical usage
--------------
-::
-
-    from logic.src.tracking.integrations.data import RuntimeDataTracker
-    import logic.src.tracking as wst
-
-    tracker = RuntimeDataTracker(wst.get_active_run())
-
-    # Baseline snapshot right after data is loaded into memory
-    tracker.on_load(dataset.data)
-
-    # After each epoch regeneration, snapshot the new distribution
-    new_dataset = regenerate_dataset(env, size)
-    tracker.on_regenerate(new_dataset.data, epoch=1)
-
-    # Inspect drift between the last two snapshots
-    drift = tracker.field_drift("waste", stat="mean")
+Example:
+    >>> from logic.src.tracking.integrations.data import RuntimeDataTracker
+    >>> tracker = RuntimeDataTracker(run)
+    >>> tracker.on_load(train_dataset.tensor_dict)
 """
 
 from __future__ import annotations
 
 import contextlib
 import itertools
-from typing import Any, Dict, Iterable, List, Optional, Tuple, cast
+from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple, cast
 
 import torch
+
+if TYPE_CHECKING:
+    from logic.src.tracking.core.run import Run
 
 
 class RuntimeDataTracker:
     """Tracks in-memory dataset mutations during a training or simulation run.
 
-    Records per-field tensor statistics (mean, std, min, max, shape) as run
-    params on every snapshot, making distribution shift across epochs visible
-    in the tracking database.
+    Records per-field tensor statistics as run parameters on every snapshot,
+    enabling visibility into distribution shifts across epochs. Parameters are
+    namespaced as ``data/{tag}/{field}/{stat}``.
 
-    All param keys are namespaced as ``data/{tag}/{field}/{stat}`` so multiple
-    datasets can be tracked in the same run without key collisions.
-
-    Args:
-        run: The active tracking run.  If ``None``, all methods are no-ops so
-            the class can be used unconditionally without guard clauses.
-        max_fields: Maximum number of tensor fields to snapshot per call.
-            Protects against very wide batches flooding the param table.
+    Attributes:
+        _run: The active tracking run instance.
+        _max_fields: Maximum number of fields to snapshot per call.
+        _history: Chronological list of computed statistics snapshots.
     """
 
-    def __init__(self, run: Any, max_fields: int = 32) -> None:
+    def __init__(self, run: Optional[Run], max_fields: int = 32) -> None:
+        """Initializes the data mutation tracker.
+
+        Args:
+            run: The active tracking run. If None, operations become no-ops.
+            max_fields: Maximum number of tensor fields to snapshot per call.
+                Defaults to 32.
+        """
         self._run = run
         self._max_fields = max_fields
         self._history: List[Tuple[str, Dict[str, Any]]] = []
@@ -72,17 +61,13 @@ class RuntimeDataTracker:
         tag: str,
         step: Optional[int] = None,
     ) -> None:
-        """Capture tensor statistics from *data* and log them to the run.
-
-        *data* can be a :class:`torch.Tensor`, a plain ``dict`` mapping field
-        names to tensors, or any object with a ``data`` attribute that is one
-        of the above (e.g. a ``TensorDictDataset``).
+        """Captures tensor statistics from data and logs them to the run.
 
         Args:
-            data: The in-memory dataset payload to inspect.
-            tag: Namespace prefix for param keys (e.g. ``"train/epoch_3"``).
-            step: Optional integer step to also log per-field mean as a metric
-                for trending purposes.
+            data: The in-memory dataset payload (Tensor, dict, or object with
+                .data attribute).
+            tag: Namespace prefix for parameter keys (e.g., 'val/epoch_5').
+            step: Optional step index for logging per-field mean as a metric.
         """
         if self._run is None:
             return
@@ -98,19 +83,13 @@ class RuntimeDataTracker:
         metadata: Optional[Dict[str, Any]] = None,
         log_event: bool = True,
     ) -> None:
-        """Snapshot statistics of a dataset variable right after it is loaded.
-
-        Call this immediately after the data object is constructed/loaded so
-        the initial distribution is captured as the baseline.
+        """Snapshots a dataset variable immediately after initial loading.
 
         Args:
-            data: The in-memory dataset variable (tensor, dict, or TensorDict).
-            shape: Explicit shape; inferred from *data* if omitted.
-            metadata: Extra context logged as a mutation record (e.g. problem,
-                graph_size).
-            log_event: When ``False``, skip the internal ``log_dataset_event``
-                call.  Use this when the caller already logs its own event to
-                avoid duplicates.
+            data: The in-memory dataset object.
+            shape: Explicit logical shape; inferred from data if omitted.
+            metadata: Extra context for the load event.
+            log_event: If True, registers a 'load' event in the run history.
         """
         if self._run is None:
             return
@@ -133,18 +112,14 @@ class RuntimeDataTracker:
         metadata: Optional[Dict[str, Any]] = None,
         log_event: bool = True,
     ) -> None:
-        """Record that the training dataset variable was replaced for a new epoch.
-
-        Logs a mutation event and snapshots the new variable's distribution so
-        any shift from the previous epoch is visible in the params table.
+        """Records a dataset mutation event for a new training epoch.
 
         Args:
-            data: The freshly generated in-memory dataset.
-            epoch: Current training epoch (used in the snapshot tag and step).
-            shape: Explicit shape; inferred from *data* if omitted.
-            metadata: Extra context forwarded to the mutation record.
-            log_event: When ``False``, skip the internal ``log_dataset_event``
-                call to avoid duplicates.
+            data: The freshly regenerated dataset variable.
+            epoch: Current training epoch index.
+            shape: Explicit logical shape; inferred from data if omitted.
+            metadata: Extra context for the regeneration event.
+            log_event: If True, registers a 'mutate' event in the run history.
         """
         if self._run is None:
             return
@@ -168,15 +143,14 @@ class RuntimeDataTracker:
         metadata: Optional[Dict[str, Any]] = None,
         log_event: bool = True,
     ) -> None:
-        """Record an in-memory augmentation or transform applied to the dataset variable.
+        """Records a transformation applied to the in-memory dataset.
 
         Args:
-            data: The dataset after the transform has been applied.
-            description: Short human-readable label for the transform.
-            step: Optional step value for metric logging.
-            metadata: Extra context forwarded to the mutation record.
-            log_event: When ``False``, skip the internal ``log_dataset_event``
-                call to avoid duplicates.
+            data: The dataset after the transform.
+            description: Label for the transformation (e.g., 'rotation').
+            step: Optional metric step index.
+            metadata: Extra context for the augmentation event.
+            log_event: If True, registers a 'mutate' event in the run history.
         """
         if self._run is None:
             return
@@ -200,18 +174,15 @@ class RuntimeDataTracker:
         stat: str = "mean",
         window: int = 2,
     ) -> Optional[float]:
-        """Return the absolute change in *stat* for *field* over the last *window* snapshots.
-
-        Useful for detecting distribution shift between dataset regenerations.
+        """Calculates the drift in a specific statistic over recent snapshots.
 
         Args:
-            field: Tensor field name (e.g. ``"waste"``).
-            stat: One of ``"mean"``, ``"std"``, ``"min"``, ``"max"``.
-            window: Number of recent snapshots to compare (default 2 = last vs. previous).
+            field: Tensor field name (key in TensorDict/dict).
+            stat: Statistic to compare (mean, std, min, max). Defaults to "mean".
+            window: Number of recent snapshots to look back. Defaults to 2.
 
         Returns:
-            Absolute delta, or ``None`` if there are not enough snapshots or
-            the field does not exist.
+            Optional[float]: Absolute delta, or None if insufficient history.
         """
         relevant = [s for _, s in self._history if field in s and stat in s[field]]
         if len(relevant) < window:
@@ -227,7 +198,14 @@ class RuntimeDataTracker:
     # ------------------------------------------------------------------
 
     def _extract_fields(self, data: Any) -> Dict[str, torch.Tensor]:
-        """Unwrap *data* into a flat ``{field: tensor}`` mapping."""
+        """Unwraps data into a mapping of field names to torch tensors.
+
+        Args:
+            data: The payload to extract tensors from.
+
+        Returns:
+            Dict[str, torch.Tensor]: Mapping of name to tensor.
+        """
         if hasattr(data, "data"):
             data = data.data
 
@@ -251,7 +229,14 @@ class RuntimeDataTracker:
 
     @staticmethod
     def _compute_stats(fields: Dict[str, torch.Tensor]) -> Dict[str, Dict[str, Any]]:
-        """Compute per-field descriptive statistics."""
+        """Computes descriptive statistics for a dictionary of tensors.
+
+        Args:
+            fields: Mapping of name to tensor.
+
+        Returns:
+            Dict[str, Dict[str, Any]]: Per-field statistics.
+        """
         stats: Dict[str, Dict[str, Any]] = {}
         for name, tensor in fields.items():
             t = tensor.float().detach()
@@ -276,7 +261,13 @@ class RuntimeDataTracker:
         tag: str,
         step: Optional[int],
     ) -> None:
-        """Flatten stats into run params (and optionally metrics)."""
+        """Flattens and logs statistics as run parameters and metrics.
+
+        Args:
+            stats: Computed statistics dictionary.
+            tag: Snapshot tag for namespacing.
+            step: Optional step index for metrics.
+        """
         params: Dict[str, Any] = {}
         for field, entry in stats.items():
             for stat_name, val in entry.items():
@@ -293,7 +284,14 @@ class RuntimeDataTracker:
 
     @staticmethod
     def _infer_shape(data: Any) -> Optional[tuple]:
-        """Best-effort shape inference from a variable."""
+        """Provides a best-effort shape inference for a data object.
+
+        Args:
+            data: Object to inspect.
+
+        Returns:
+            Optional[tuple]: Dimension tuple or None.
+        """
         if hasattr(data, "shape"):
             with contextlib.suppress(Exception):
                 return tuple(data.shape)

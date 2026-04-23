@@ -1,4 +1,17 @@
-"""PyTorch Lightning callback that forwards all training events to WSTracker."""
+"""PyTorch Lightning callback for WSTracker integration.
+
+This module provides the :class:`TrackingCallback` which automatically
+orchestrates experiment tracking during PyTorch Lightning training. It
+registers hyperparameters, logs metrics (training/validation/timing),
+manually tracks throughput and memory, and manages model artifacts.
+
+Attributes:
+    TrackingCallback: Lightning callback for automated run instrumentation.
+
+Example:
+    >>> from logic.src.tracking.integrations.lightning import TrackingCallback
+    >>> trainer = pl.Trainer(callbacks=[TrackingCallback(cfg)])
+"""
 
 from __future__ import annotations
 
@@ -33,24 +46,23 @@ logger = get_pylogger(__name__)
 class TrackingCallback(Callback):
     """Lightning callback that logs training metrics and artifacts to WSTracker.
 
-    Hooks into the Lightning trainer lifecycle to:
+    Hooks into the Lightning trainer lifecycle to automate experiment
+    management. It handles metrics, parameters, hardware monitoring, and
+    visualization artifact generation.
 
-    * Log model hyperparameters at training start.
-    * Log ``train/*`` metrics at the end of every training epoch.
-    * Log ``val/*`` metrics at the end of every validation epoch.
-    * Log ``time/*`` speed-monitor metrics at training end.
-    * Register the best and final model checkpoints as run artifacts.
-    * Record dataset regeneration events when dataloaders are reloaded.
-    * Optionally register gradient / activation / weight / memory hooks.
-    * Optionally track throughput.
-    * Optionally run visualisations (attention heatmaps, embeddings,
-      loss landscapes) every *N* epochs or at the end of training.
-
-    This callback is added automatically by :class:`WSTrainer` and requires
-    no user configuration.
+    Attributes:
+        _cfg: Internal reference to the tracking configuration.
+        _hook_data: Mapping of active monitoring hooks.
+        _throughput: Throttled throughput measurement instance.
+        _memory_tracker: Periodic hardware memory monitor.
     """
 
     def __init__(self, tracking_cfg: Optional["TrackingConfig"] = None) -> None:
+        """Initializes the tracking callback.
+
+        Args:
+            tracking_cfg: Configuration object for the tracker.
+        """
         super().__init__()
         self._cfg = tracking_cfg
         # Hook storage dicts keyed by category
@@ -67,6 +79,12 @@ class TrackingCallback(Callback):
         trainer: pl.Trainer,
         pl_module: pl.LightningModule,
     ) -> None:
+        """Called when fit begins. Logs parameters and initializes monitors.
+
+        Args:
+            trainer: Active Lightning trainer.
+            pl_module: Active Lightning module.
+        """
         run = get_active_run()
         if run is None:
             return
@@ -119,7 +137,15 @@ class TrackingCallback(Callback):
         batch: Any,
         batch_idx: int,
     ) -> None:
-        """Record throughput per batch."""
+        """Records throughput statistics at the end of each training batch.
+
+        Args:
+            trainer: Active Lightning trainer.
+            pl_module: Active Lightning module.
+            outputs: Batch outputs.
+            batch: Data batch.
+            batch_idx: Global batch index.
+        """
         if self._throughput is not None:
             batch_size = trainer.train_dataloader.batch_size if trainer.train_dataloader else 1  # type: ignore[union-attr]
             self._throughput.record(batch_size)
@@ -129,6 +155,12 @@ class TrackingCallback(Callback):
         trainer: pl.Trainer,
         pl_module: pl.LightningModule,
     ) -> None:
+        """Logs training metrics and hardware stats at the end of every epoch.
+
+        Args:
+            trainer: Active Lightning trainer.
+            pl_module: Active Lightning module.
+        """
         run = get_active_run()
         if run is None:
             return
@@ -159,6 +191,12 @@ class TrackingCallback(Callback):
         trainer: pl.Trainer,
         pl_module: pl.LightningModule,
     ) -> None:
+        """Logs validation metrics at the end of every validation epoch.
+
+        Args:
+            trainer: Active Lightning trainer.
+            pl_module: Active Lightning module.
+        """
         run = get_active_run()
         if run is None:
             return
@@ -175,6 +213,12 @@ class TrackingCallback(Callback):
         trainer: pl.Trainer,
         pl_module: pl.LightningModule,
     ) -> None:
+        """Finalizes the run, logs final artifacts, and detaches monitors.
+
+        Args:
+            trainer: Active Lightning trainer.
+            pl_module: Active Lightning module.
+        """
         run = get_active_run()
         if run is None:
             return
@@ -184,7 +228,7 @@ class TrackingCallback(Callback):
         if time_metrics:
             run.log_metrics(time_metrics, step=trainer.current_epoch)
 
-        # Register best and last checkpoints
+        # Register best and final model checkpoints as run artifacts.
         for cb in cast(Any, trainer).callbacks:
             if isinstance(cb, ModelCheckpoint):
                 log_checkpoint_artifact(run, cb, trainer.current_epoch)
@@ -226,7 +270,15 @@ class TrackingCallback(Callback):
         *args: Any,
         **kwargs: Any,
     ) -> None:
-        """Log gradient L2 norm and current learning rate."""
+        """Logs global gradient norm and learning rates before optimizer updates.
+
+        Args:
+            trainer: Active Lightning trainer.
+            pl_module: Active Lightning module.
+            optimizer: Active optimizer instance.
+            args: Additional positional arguments from Lightning.
+            kwargs: Additional keyword arguments from Lightning.
+        """
         run = get_active_run()
         if run is None:
             return
@@ -254,6 +306,13 @@ class TrackingCallback(Callback):
         pl_module: pl.LightningModule,
         checkpoint: Dict[str, Any],
     ) -> None:
+        """Registers a checkpoint file as a run artifact when it is written.
+
+        Args:
+            trainer: Active Lightning trainer.
+            pl_module: Active Lightning module.
+            checkpoint: Checkpoint state dictionary.
+        """
         run = get_active_run()
         if run is None:
             return
@@ -281,7 +340,12 @@ class TrackingCallback(Callback):
         trainer: pl.Trainer,
         pl_module: pl.LightningModule,
     ) -> None:
-        """Record a dataset mutation event when the dataloader is (re)loaded."""
+        """Registers a data mutation event when dataloaders are re-initialized.
+
+        Args:
+            trainer: Active Lightning trainer.
+            pl_module: Active Lightning module.
+        """
         run = get_active_run()
         if run is None:
             return

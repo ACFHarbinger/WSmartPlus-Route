@@ -1,5 +1,4 @@
-"""
-Items-per-second throughput tracking.
+"""Items-per-second throughput tracking.
 
 Provides a sliding-window throughput meter suitable for monitoring training
 step speed, simulation day rate, evaluation sample rate, and any other
@@ -33,40 +32,26 @@ class ThroughputTracker:
 
     Two throughput figures are maintained:
 
-    * **window throughput** — computed over the last *window* recorded steps
-      (useful for monitoring real-time training speed).
-    * **total throughput** — computed from the first :meth:`start` call to
-      the most recent :meth:`record` call (useful for end-of-run summaries).
-
-    Usage::
-
-        tracker = ThroughputTracker(window=50, unit="samples")
-        tracker.start()
-        for batch in dataloader:
-            with tracker.step(len(batch)):
-                loss = train_step(batch)
-            print(tracker.throughput)   # samples/sec (sliding window)
-        tracker.log_to_run(step=epoch, prefix="train")
+    * window throughput - computed over the last [window] recorded steps.
+    * total throughput - computed from the first start() call to the most
+      recent record() call.
 
     Attributes:
-        window: Maximum number of recent steps kept for the sliding-window
-            throughput calculation.  A larger window gives a smoother but
-            less responsive estimate.
-        unit: Human-readable label for items (e.g. ``"samples"``,
-            ``"steps"``, ``"days"``).  Used in metric keys and ``__repr__``.
-        _timestamps: List of (wall_time, n_items) pairs — last `window` entries kept
-        _total_items: Total number of items recorded since :meth:`start`.
+        window: Maximum number of recent steps kept for computation.
+        unit: Human-readable label for items (e.g. "samples", "steps").
+        _timestamps: List of (wall_time, n_items) pairs.
+        _total_items: Total number of items recorded since start().
         _start_time: The start time of the current timing interval.
     """
 
     def __init__(self, window: int = 100, unit: str = "items") -> None:
-        """
+        """Initializes the throughput tracker.
+
         Args:
             window: Maximum number of recent steps kept for the sliding-window
-                throughput calculation.  A larger window gives a smoother but
-                less responsive estimate.
-            unit: Human-readable label for items (e.g. ``"samples"``,
-                ``"steps"``, ``"days"``).  Used in metric keys and ``__repr__``.
+                throughput calculation. Defaults to 100.
+            unit: Human-readable label for items (e.g. "samples", "steps").
+                Used in metric keys and __repr__. Defaults to "items".
         """
         self.window = window
         self.unit = unit
@@ -80,22 +65,20 @@ class ThroughputTracker:
     # Lifecycle
     # ------------------------------------------------------------------
 
-    def start(self) -> "ThroughputTracker":
-        """
-        Record the start time for lifetime throughput calculation.
+    def start(self) -> ThroughputTracker:
+        """Record the start time for lifetime throughput calculation.
 
         Returns:
-            self
+            ThroughputTracker: The current instance.
         """
         self._start_time = time.perf_counter()
         return self
 
-    def reset(self) -> "ThroughputTracker":
-        """
-        Reset all state (timestamps, item count, start time).
+    def reset(self) -> ThroughputTracker:
+        """Reset all state (timestamps, item count, start time).
 
         Returns:
-            self
+            ThroughputTracker: The current instance.
         """
         self._timestamps.clear()
         self._total_items = 0
@@ -107,11 +90,10 @@ class ThroughputTracker:
     # ------------------------------------------------------------------
 
     def record(self, n_items: int = 1) -> None:
-        """
-        Record that *n_items* items have just been processed.
+        """Record that n_items items have just been processed.
 
         Args:
-            n_items: Number of items completed at this call.
+            n_items: Number of items completed at this call. Defaults to 1.
         """
         now = time.perf_counter()
         self._total_items += n_items
@@ -121,18 +103,16 @@ class ThroughputTracker:
 
     @contextlib.contextmanager
     def step(self, n_items: int = 1) -> Generator[None, None, None]:
-        """
-        Context manager that times a processing step and records it.
+        """Context manager that times a processing step and records it.
 
-        Records *n_items* on exit (whether or not an exception was raised).
+        Records n_items on exit (whether or not an exception was raised).
 
         Args:
-            n_items: Number of items processed inside the ``with`` block.
+            n_items: Number of items processed inside the with block.
+                Defaults to 1.
 
-        Example::
-
-            with tracker.step(batch_size):
-                loss = model(batch)
+        Yields:
+            None: Control to the block.
         """
         yield
         self.record(n_items)
@@ -143,14 +123,13 @@ class ThroughputTracker:
 
     @property
     def throughput(self) -> float:
-        """
-        Sliding-window throughput (items/sec).
+        """Sliding-window throughput (items/sec).
 
-        Computed over the last *window* recorded steps.
-        Returns ``0.0`` when fewer than two steps have been recorded.
+        Computed over the last window recorded steps.
+        Returns 0.0 when fewer than two steps have been recorded.
 
         Returns:
-            float
+            float: Windowed items per second.
         """
         if len(self._timestamps) < 2:
             return 0.0
@@ -162,14 +141,13 @@ class ThroughputTracker:
 
     @property
     def total_throughput(self) -> float:
-        """
-        Average throughput since :meth:`start` was called (items/sec).
+        """Average throughput since start() was called (items/sec).
 
-        Returns ``0.0`` when :meth:`start` has not been called or no items
-        have been recorded.
+        Returns 0.0 when start() has not been called or no items have
+        been recorded.
 
         Returns:
-            float
+            float: Lifetime items per second.
         """
         if self._start_time is None or self._total_items == 0:
             return 0.0
@@ -180,21 +158,19 @@ class ThroughputTracker:
 
     @property
     def total_items(self) -> int:
-        """
-        Total number of items recorded since :meth:`start`.
+        """Total number of items recorded since start().
 
         Returns:
-            int
+            int: Global item counter.
         """
         return self._total_items
 
     @property
     def elapsed(self) -> float:
-        """
-        Wall-clock seconds elapsed since :meth:`start` (0.0 if not started).
+        """Wall-clock seconds elapsed since start() (0.0 if not started).
 
         Returns:
-            float
+            float: Total active time.
         """
         if self._start_time is None:
             return 0.0
@@ -205,11 +181,10 @@ class ThroughputTracker:
     # ------------------------------------------------------------------
 
     def summary(self) -> Dict[str, Any]:
-        """
-        Return a dict summarising current throughput figures.
+        """Return a dict summarising current throughput figures.
 
         Returns:
-            Dict[str, Any]
+            Dict[str, Any]: Mapping of summary fields to values.
         """
         return {
             "unit": self.unit,
@@ -220,21 +195,16 @@ class ThroughputTracker:
         }
 
     def log_to_run(self, step: int = 0, prefix: str = "throughput") -> None:
-        """
-        Log sliding-window and total throughput to the active WSTracker run.
+        """Log sliding-window and total throughput to the active WSTracker run.
 
         Metrics logged:
-
-        * ``{prefix}/{unit}_per_sec`` — sliding-window throughput
-        * ``{prefix}/total_{unit}`` — lifetime item count
-        * ``{prefix}/total_throughput`` — lifetime throughput
+        * {prefix}/{unit}_per_sec - sliding-window throughput
+        * {prefix}/total_{unit} - lifetime item count
+        * {prefix}/total_throughput - lifetime throughput
 
         Args:
-            step: Metric step dimension (e.g. epoch number).
-            prefix: Metric key prefix.
-
-        Returns:
-            None
+            step: Metric step dimension (e.g. epoch number). Defaults to 0.
+            prefix: Metric key prefix. Defaults to "throughput".
         """
         with contextlib.suppress(Exception):
             run = get_active_run()
@@ -249,11 +219,10 @@ class ThroughputTracker:
                 )
 
     def __repr__(self) -> str:
-        """
-        Return a string representation of the tracker.
+        """Returns a string representation of the tracker.
 
         Returns:
-            str
+            str: Human-readable representation.
         """
         return (
             f"ThroughputTracker(unit={self.unit!r}, "

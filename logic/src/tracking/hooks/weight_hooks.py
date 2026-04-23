@@ -1,7 +1,22 @@
-"""
-Weight monitoring and analysis hooks.
+"""Weight monitoring and analysis hooks for PyTorch models.
 
-Track weight updates, detect training issues, and visualize weight distributions.
+This module provides utilities to track parameter evolution during training.
+It includes hooks to monitor weight drift, distribution statistics, update
+magnitudes from the optimizer, and hard constraints on weight norms. These
+tools are vital for detecting mode collapse and initialization pathology in
+routing models.
+
+Attributes:
+    add_weight_change_monitor_hook: Tracks parameter drift from start state.
+    add_weight_distribution_monitor: Computes moment statistics of weights.
+    add_weight_update_monitor_hook: Intercepts optimizer to track step sizes.
+    add_weight_norm_constraint_hook: Enforces hard limits on weight norms.
+
+Example:
+    >>> from logic.src.tracking.hooks.weight_hooks import add_weight_change_monitor_hook
+    >>> hook_data = add_weight_change_monitor_hook(model)
+    >>> # After training loop:
+    >>> drift = compute_weight_changes(model, hook_data)
 """
 
 from __future__ import annotations
@@ -17,23 +32,18 @@ def add_weight_change_monitor_hook(
     model: nn.Module,
     layer_names: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
-    """
-    Monitor weight changes during training to detect learning issues.
+    """Monitors weight changes during training to detect learning issues.
 
-    Stores initial weights and computes change magnitude after each update.
+    Stores a snapshot of the initial state and enables future calculation of
+    absolute and relative weight drift.
 
     Args:
-        model: PyTorch model.
-        layer_names: Specific layers to monitor. If None, monitors all.
+        model: The target PyTorch model.
+        layer_names: Optional specific parameter names to monitor. If None,
+            monitors all model parameters. Defaults to None.
 
     Returns:
-        dict: Contains 'initial_weights', 'weight_changes', and metadata.
-
-    Example:
-        >>> hook_data = add_weight_change_monitor_hook(model)
-        >>> changes = compute_weight_changes(model, hook_data)
-        >>> for name, change in changes.items():
-        ...     print(f"{name}: {change:.6f}")
+        Dict[str, Any]: Mapping containing 'initial_weights' and metadata.
     """
     initial_weights = {}
 
@@ -52,21 +62,19 @@ def compute_weight_changes(
     hook_data: Dict[str, Any],
     metric: str = "norm",
 ) -> Dict[str, float]:
-    """
-    Compute weight changes from initial state.
+    """Computes weight changes from the initial state captured in hook_data.
 
     Args:
-        model: Current model state.
-        hook_data: Data from add_weight_change_monitor_hook.
-        metric: Change metric ('norm', 'mean_abs', 'max_abs', 'relative').
+        model: The current model state.
+        hook_data: Data mapping created by add_weight_change_monitor_hook.
+        metric: Magnitude metric ('norm', 'mean_abs', 'max_abs', 'relative').
+            Defaults to "norm".
 
     Returns:
-        dict: Weight change magnitude per layer.
+        Dict[str, float]: Mapping of parameter names to change magnitudes.
 
-    Example:
-        >>> hook_data = add_weight_change_monitor_hook(model)
-        >>> optimizer.step()  # Update weights
-        >>> changes = compute_weight_changes(model, hook_data, metric='norm')
+    Raises:
+        ValueError: If an unsupported metric is specified.
     """
     initial_weights = hook_data["initial_weights"]
     changes = {}
@@ -99,22 +107,18 @@ def add_weight_distribution_monitor(
     model: nn.Module,
     layer_types: Tuple[type, ...] = (nn.Linear, nn.Conv2d),
 ) -> Dict[str, Any]:
-    """
-    Monitor weight distribution statistics over time.
+    """Monitors weight distribution statistics (mean, std, min, max, sparsity).
 
-    Useful for detecting weight initialization issues or training instabilities.
+    Useful for identifying layers with initialization pathology or that
+    become saturated during training.
 
     Args:
-        model: PyTorch model.
-        layer_types: Types of layers to monitor.
+        model: The target model.
+        layer_types: Tuple of layer classes to analyze. Defaults to
+            (nn.Linear, nn.Conv2d).
 
     Returns:
-        dict: Current weight statistics.
-
-    Example:
-        >>> stats = add_weight_distribution_monitor(model)
-        >>> for name, stat in stats['statistics'].items():
-        ...     print(f"{name}: mean={stat['mean']:.4f}, std={stat['std']:.4f}")
+        Dict[str, Any]: Mapping containing current 'statistics' per layer.
     """
     statistics = {}
 
@@ -138,40 +142,39 @@ def add_weight_update_monitor_hook(
     optimizer: torch.optim.Optimizer,
     log_interval: int = 10,
 ) -> Dict[str, Any]:
-    """
-    Monitor weight updates during training (momentum, learning rate effects).
+    """Monitors raw parameter update magnitudes by wrapping the optimizer step.
 
-    Wraps optimizer.step() to track update magnitudes.
+    This tracks the delta applied to weights by the optimizer (including
+    momentum and weight decay effects).
 
     Args:
-        optimizer: PyTorch optimizer.
-        log_interval: Log statistics every N steps.
+        optimizer: The PyTorch optimizer to instrument.
+        log_interval: Frequency of update logging (to minimize overhead).
+            Defaults to 10.
 
     Returns:
-        dict: Contains 'update_history' and 'step_count'.
-
-    Example:
-        >>> hook_data = add_weight_update_monitor_hook(optimizer, log_interval=1)
-        >>> # Training loop
-        >>> for i in range(100):
-        ...     loss.backward()
-        ...     optimizer.step()  # Updates logged automatically
-        ...     optimizer.zero_grad()
+        Dict[str, Any]: Mapping with history buffer and metadata.
     """
-    update_history = defaultdict(list)
+    update_history: Dict[str, List[float]] = defaultdict(list)
     step_count = [0]
     original_step = optimizer.step
 
-    # Pre-map parameters to names once outside the loop to avoid indexing object/Unknown
-    # We use id(param) as a stable key
+    # Pre-map parameters to names once outside the loop
     param_names = {}
-
-    # Simple mapping logic: associate id(tensor) with a readable string or index
     for i, group in enumerate(optimizer.param_groups):
         for j, param in enumerate(group["params"]):
             param_names[id(param)] = f"group{i}_param{j}"
 
     def monitored_step(*args: Any, **kwargs: Any) -> Any:
+        """Wrapped optimizer step that calculates weight deltas.
+
+        Args:
+            *args: Positional args for optimizer.step.
+            **kwargs: Keyword args for optimizer.step.
+
+        Returns:
+            Any: The result of the original optimizer.step call.
+        """
         step_count[0] += 1
         pre_weights: Dict[int, torch.Tensor] = {}
 
@@ -182,7 +185,6 @@ def add_weight_update_monitor_hook(
             for group in optimizer.param_groups:
                 for param in group["params"]:
                     if param.grad is not None:
-                        # Use id(param) instead of searching the state_dict
                         pre_weights[id(param)] = param.data.clone()
 
         result = original_step(*args, **kwargs)
@@ -192,7 +194,7 @@ def add_weight_update_monitor_hook(
                 for param in group["params"]:
                     p_id = id(param)
                     if p_id in pre_weights:
-                        # Normalize update magnitude by weight magnitude for relative change
+                        # Normalize update magnitude by weight magnitude
                         update_norm = (param.data - pre_weights[p_id]).norm().item()
                         update_history[param_names[p_id]].append(update_norm)
 
@@ -203,16 +205,16 @@ def add_weight_update_monitor_hook(
     return {
         "update_history": update_history,
         "step_count": step_count,
+        "original_step": original_step,
     }
 
 
 def restore_optimizer_step(optimizer: torch.optim.Optimizer, hook_data: Dict[str, Any]) -> None:
-    """
-    Restore original optimizer.step() function.
+    """Restores the original optimizer.step() implementation.
 
     Args:
-        optimizer: PyTorch optimizer.
-        hook_data: Data from add_weight_update_monitor_hook.
+        optimizer: The PyTorch optimizer to restore.
+        hook_data: The mapping returned by add_weight_update_monitor_hook.
     """
     if "original_step" in hook_data:
         optimizer.step = hook_data["original_step"]  # type: ignore[method-assign]
@@ -223,43 +225,43 @@ def add_weight_norm_constraint_hook(
     max_norm: float = 10.0,
     layer_names: Optional[List[str]] = None,
 ) -> List[Any]:
-    """
-    Register hooks to constrain weight norms during training.
+    """Registers hooks to enforce maximum weight norms during training.
 
-    Useful for preventing weight explosion in specific layers.
+    Directly scales parameter data if its norm exceeds the specified threshold
+    during the backward pass.
 
     Args:
-        model: PyTorch model.
-        max_norm: Maximum weight norm per layer.
-        layer_names: Specific layers to constrain. If None, constrains all.
+        model: The target model.
+        max_norm: Maximum allowed L2 weight norm per layer. Defaults to 10.0.
+        layer_names: Optional layers to restrict. If None, restricts all trainable.
+            Defaults to None.
 
     Returns:
-        list: Hook handles.
-
-    Example:
-        >>> handles = add_weight_norm_constraint_hook(model, max_norm=5.0)
-        >>> # Training automatically constrains weights
+        List[Any]: List of hook handles.
     """
-    handles = []
+    handles: List[Any] = []
 
-    def norm_constraint_hook(param: torch.nn.Parameter, max_norm: float) -> Callable:
-        """Hook to constrain parameter norm."""
+    def norm_constraint_hook(target_param: torch.nn.Parameter, norm_threshold: float) -> Callable[[torch.Tensor], None]:
+        """Creates a hook that enforces the norm constraint on a parameter.
 
-        def hook(grad: torch.Tensor) -> None:
-            """
-            Gradient hook that applies weight norm constraint.
+        Args:
+            target_param: The parameter to monitor.
+            norm_threshold: The maximum allowed L2 norm.
 
-            This hook is called during the backward pass. It ignores the gradient
-            ('grad') and directly modifies the parameter data if its norm exceeds
-            'max_norm'.
+        Returns:
+            Callable: The registered constraint hook.
+        """
+
+        def hook(_grad: torch.Tensor) -> None:
+            """Gradient hook that applies weight norm constraint in-place.
 
             Args:
-                grad: The gradient of the parameter.
+                _grad: The incoming gradient (ignored).
             """
             with torch.no_grad():
-                norm = param.data.norm()
-                if norm > max_norm:
-                    param.data *= max_norm / norm
+                norm = target_param.data.norm()
+                if norm > norm_threshold:
+                    target_param.data *= norm_threshold / norm
 
         return hook
 
@@ -275,23 +277,15 @@ def detect_weight_symmetry_breaking(
     model: nn.Module,
     threshold: float = 1e-4,
 ) -> Dict[str, bool]:
-    """
-    Detect if weights have broken symmetry from initialization.
-
-    Symmetric weights can prevent learning. This checks if diversity exists.
+    """Verifies that weights have broken symmetry from their initialization.
 
     Args:
-        model: PyTorch model.
-        threshold: Minimum weight diversity threshold.
+        model: The target model.
+        threshold: Minimum standard deviation required to consider symmetry broken.
+            Defaults to 1e-4.
 
     Returns:
-        dict: True if symmetry broken (good), False otherwise (potential issue).
-
-    Example:
-        >>> symmetry = detect_weight_symmetry_breaking(model)
-        >>> for name, broken in symmetry.items():
-        ...     if not broken:
-        ...         print(f"⚠️  {name}: Weights may be stuck in symmetric state!")
+        Dict[str, bool]: Mapping of layer names to their symmetry broken status.
     """
     symmetry_status = {}
 
@@ -311,19 +305,12 @@ def print_weight_summary(
     weight_stats: Dict[str, Dict[str, float]],
     top_k: int = 10,
 ) -> None:
-    """
-    Print comprehensive weight analysis summary.
+    """Renders a diagnostic summary of weight evolution and statistics.
 
     Args:
-        weight_changes: Weight changes from compute_weight_changes.
-        weight_stats: Weight statistics from add_weight_distribution_monitor.
-        top_k: Number of layers to display.
-
-    Example:
-        >>> hook_data = add_weight_change_monitor_hook(model)
-        >>> changes = compute_weight_changes(model, hook_data)
-        >>> stats = add_weight_distribution_monitor(model)
-        >>> print_weight_summary(changes, stats['statistics'])
+        weight_changes: Drifts computed via compute_weight_changes.
+        weight_stats: Moments recorded from add_weight_distribution_monitor.
+        top_k: Number of layers with largest drift to display. Defaults to 10.
     """
     print(f"\n{'=' * 100}")
     print(f"{'Layer Name':<40} {'Change':>10} {'Mean':>10} {'Std':>10} {'Sparsity':>10}")
@@ -349,22 +336,14 @@ def analyze_weight_updates(
     update_history: Dict[str, List[float]],
     window_size: int = 10,
 ) -> Dict[str, Dict[str, float]]:
-    """
-    Analyze weight update patterns to detect training issues.
+    """Analyzes raw update magnitudes to detect training stagnation or explosion.
 
     Args:
-        update_history: Update history from add_weight_update_monitor_hook.
-        window_size: Window for computing moving statistics.
+        update_history: Buffer of update magnitudes from the step hook.
+        window_size: Rolling window size for trend analysis. Defaults to 10.
 
     Returns:
-        dict: Analysis including trend, variance, and potential issues.
-
-    Example:
-        >>> hook_data = add_weight_update_monitor_hook(optimizer)
-        >>> analysis = analyze_weight_updates(hook_data['update_history'])
-        >>> for name, metrics in analysis.items():
-        ...     if metrics['is_stuck']:
-        ...         print(f"⚠️  {name}: Weights may be stuck!")
+        Dict[str, Dict[str, float]]: Mapping of parameter names to diagnostic flags.
     """
     analysis = {}
 
@@ -384,9 +363,9 @@ def analyze_weight_updates(
         analysis[name] = {
             "mean_update": mean_update,
             "variance": variance,
-            "is_stuck": is_stuck,
-            "is_exploding": is_exploding,
-            "is_oscillating": is_oscillating,
+            "is_stuck": float(is_stuck),
+            "is_exploding": float(is_exploding),
+            "is_oscillating": float(is_oscillating),
         }
 
     return analysis
