@@ -1,6 +1,16 @@
+"""Improvement Step Decoder for Hybrid Models.
+
+This module provides the `ImprovementStepDecoder`, which predicts the next
+neighborhood search operator to apply based on the current graph and solution
+context.
+
+Attributes:
+    ImprovementStepDecoder: Neural selector for local search moves.
+"""
+
 from __future__ import annotations
 
-from typing import Tuple, Union
+from typing import Any, Tuple, Union
 
 import torch
 from tensordict import TensorDict
@@ -11,15 +21,29 @@ from logic.src.models.common.improvement.decoder import ImprovementDecoder
 
 
 class ImprovementStepDecoder(ImprovementDecoder):
-    """
-    Decoder that selects a vectorized operator to improve the solution.
-    Output is a probability distribution over available operators.
+    """Decoder mapping graph context to operator scores.
+
+    Processes global node embeddings into a preference distribution over a fixed
+    set of vectorized local search heuristics.
+
+    Attributes:
+        output_head (nn.Sequential): MLP mapping features to operator logits.
+        context_projection (nn.Linear): Transformation for pooled graph features.
     """
 
-    def __init__(self, embed_dim: int = 128, n_operators: int = 6, hidden_dim: int = 128):
+    def __init__(self, embed_dim: int = 128, n_operators: int = 6, hidden_dim: int = 128) -> None:
+        """Initializes the improvement step decoder.
+
+        Args:
+            embed_dim: Width of input graph embeddings.
+            n_operators: Count of registered local search moves.
+            hidden_dim: MLP bottleneck dimension.
+        """
         super().__init__(embed_dim=embed_dim)
         self.output_head = nn.Sequential(
-            nn.Linear(embed_dim, hidden_dim), nn.ReLU(), nn.Linear(hidden_dim, n_operators)
+            nn.Linear(embed_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, n_operators),
         )
         self.context_projection = nn.Linear(embed_dim, embed_dim)
 
@@ -28,31 +52,32 @@ class ImprovementStepDecoder(ImprovementDecoder):
         td: TensorDict,
         embeddings: Union[torch.Tensor, Tuple[torch.Tensor, ...]],
         env: RL4COEnvBase,
-        **kwargs,
+        **kwargs: Any,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        """
-        Predict operator selection logits.
+        """Calculates operator selection logits from graph context.
 
         Args:
-            td: TensorDict containing current state/solution.
-            embeddings: Graph embeddings [Batch, Nodes, Embed].
-            env: Environment.
+            td: Environment state including current solution.
+            embeddings: Contextual node features [B, N, D].
+            env: Task dynamics.
+            **kwargs: Extra parameters.
 
         Returns:
-            Tuple of (logits, action_mask).
+            Tuple[torch.Tensor, torch.Tensor]:
+                - logits: Unnormalized operator scores [B, n_operators].
+                - mask: Boolean availability mask (currently all True).
         """
-        # Simple Global Context: Mean pooling of node embeddings
-        # Real implementation might encode current tour state more deeply
         if isinstance(embeddings, tuple):
             embeddings = embeddings[0]
 
-        graph_context = embeddings.mean(dim=1)  # [B, Embed]
+        # Extract global graph context via mean pooling
+        graph_context = embeddings.mean(dim=1)
 
-        # Project and predict
+        # Map to operator distribution
         context = self.context_projection(graph_context)
-        logits = self.output_head(context)  # [B, n_operators]
+        logits = self.output_head(context)
 
-        # For now, no mask (all operators always available)
+        # Default to all operators being feasible
         mask = torch.zeros_like(logits, dtype=torch.bool)
 
         return logits, mask

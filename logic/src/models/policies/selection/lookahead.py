@@ -1,49 +1,52 @@
-"""
-Lookahead (Predictive) Selection Strategy.
+"""Lookahead selection strategy.
+
+This module provides a predictive selection strategy that marks bins for
+collection based on when they are expected to overflow, using current fill
+levels and accumulation rates to calculate a dynamic lookahead horizon.
 """
 
-from typing import Optional
+from __future__ import annotations
+
+from typing import Any, Optional
 
 import torch
-from torch import Tensor
 
 from .base import VectorizedSelector
 
 
 class LookaheadSelector(VectorizedSelector):
-    """
-    Predictive selection looking several days ahead.
+    """Predictive selection looking several days ahead.
 
-    Selects bins that will overflow within the lookahead horizon based on
-    current fill levels and accumulation rates.
+    Selects bins that are predicted to overflow within a dynamic lookahead
+    horizon. The horizon is determined by the earliest upcoming overflow among
+    the currently full bins.
     """
 
-    def __init__(self, max_fill: float = 1.0):
-        """
-        Initialize LookaheadSelector.
+    def __init__(self, max_fill: float = 1.0) -> None:
+        """Initialize the lookahead selector.
 
         Args:
-            max_fill: Maximum fill level (overflow threshold). Default: 1.0.
+            max_fill: Maximum fill level (overflow threshold).
         """
         self.max_fill = max_fill
 
     def select(
         self,
-        fill_levels: Tensor,
-        accumulation_rates: Optional[Tensor] = None,
+        fill_levels: torch.Tensor,
+        accumulation_rates: Optional[torch.Tensor] = None,
         max_fill: Optional[float] = None,
-        **kwargs,
-    ) -> Tensor:
-        """
-        Select bins predicted to overflow within dynamic horizon.
+        **kwargs: Any,
+    ) -> torch.Tensor:
+        """Select bins predicted to overflow within dynamic horizon.
 
         Args:
-            fill_levels: Current fill levels (batch_size, num_nodes) in [0, 1].
-            accumulation_rates: Daily fill rate (batch_size, num_nodes) in [0, 1].
+            fill_levels: Current fill levels [B, N] in [0, 1].
+            accumulation_rates: Daily fill rate [B, N] in [0, 1].
             max_fill: Optional override for overflow threshold.
+            **kwargs: Extra parameters (ignored).
 
         Returns:
-            Tensor: Boolean mask (batch_size, num_nodes).
+            torch.Tensor: Boolean mask [B, N] where True indicates collection.
         """
         overflow_thresh = max_fill if max_fill is not None else self.max_fill
         if accumulation_rates is None:
@@ -61,24 +64,21 @@ class LookaheadSelector(VectorizedSelector):
             days_to_overflow = torch.ceil(overflow_thresh / rates_safe)
 
             # Mask: only consider days for initially selected bins
-            # Non-selected bins effectively have infinite days (ignored)
-            # We use a large number for infinity
             LARGE_NUM = 1e6
             next_overflow_days = torch.where(
-                initial_mandatory, days_to_overflow, torch.tensor(LARGE_NUM, device=fill_levels.device)
+                initial_mandatory,
+                days_to_overflow,
+                torch.tensor(LARGE_NUM, device=fill_levels.device),
             )
 
             # 3. Find the minimum next overflow day for each batch
-            # Shape: (batch_size,)
             horizon = next_overflow_days.min(dim=1).values
 
             # 4. Check if other bins overflow before this horizon
-            # Logic: check if (current + (horizon - 1) * rate) >= max_fill
-            # But we must ensure horizon-1 >= 1 to be meaningful (look at least 1 day ahead)
             # Effectively, check_days = max(1.0, horizon - 1.0)
             check_days = (horizon - 1.0).clamp(min=1.0)
 
-            # Broadcast check_days to (batch_size, 1) for multiplication
+            # Broadcast check_days to (B, 1) for multiplication
             check_days = check_days.unsqueeze(1)
 
             # Final check includes initial selection + new candidates

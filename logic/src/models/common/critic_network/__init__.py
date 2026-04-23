@@ -1,3 +1,23 @@
+"""Critic Network components for VRP.
+
+This package provides estimators for state-value functions, and includes
+both canonical (torch-based) and legacy (problem-based) implementations.
+
+Attributes:
+    CriticNetwork: Modern value function network.
+    LegacyCriticNetwork: Backward-compatible critic implementation.
+    create_critic_from_actor: Factory to initialize shared-backbone critics.
+
+Example:
+    >>> from logic.src.models.common.critic_network import CriticNetwork
 """
-Critic Network for RL training.
-"""
+
+from .model import LegacyCriticNetwork as LegacyCriticNetwork
+from .policy import CriticNetwork as CriticNetwork
+from .policy import create_critic_from_actor as create_critic_from_actor
+
+__all__ = [
+    "CriticNetwork",
+    "LegacyCriticNetwork",
+    "create_critic_from_actor",
+]

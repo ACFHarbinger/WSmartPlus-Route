@@ -1,5 +1,8 @@
-"""
-HGS Policy wrapper for RL4CO using vectorized implementation.
+"""HGS Policy wrapper for RL4CO.
+
+This module provides a policy wrapper for the Vectorized Hybrid Genetic Search
+(HGS) algorithm, allowing it to be used as an expert policy within the RL4CO
+framework for imitation learning or benchmarking.
 """
 
 from __future__ import annotations
@@ -12,12 +15,26 @@ from tensordict import TensorDict
 from logic.src.constants.simulation import VEHICLE_CAPACITY
 from logic.src.envs.base.base import RL4COEnvBase
 from logic.src.models.common.autoregressive.policy import AutoregressivePolicy
-from logic.src.models.policies.hybrid_genetic_search import VectorizedHGS as VectorizedHGSEngine
+from logic.src.models.policies.hybrid_genetic_search import (
+    VectorizedHGS as VectorizedHGSEngine,
+)
 
 
 class VectorizedHGS(AutoregressivePolicy):
-    """
-    HGS-based Policy wrapper using vectorized GPU-accelerated implementation.
+    """HGS-based Policy wrapper using vectorized GPU-accelerated implementation.
+
+    This policy executes the HGS meta-heuristic on a batch of instances,
+    evolving a population of solutions through crossover, local search, and
+    survival selection.
+
+    Attributes:
+        time_limit: Maximum allowed execution time in seconds.
+        population_size: Number of individuals in the genetic population.
+        n_generations: Number of evolution generations.
+        elite_size: Number of top individuals kept for the next generation.
+        max_vehicles: Limit on the number of vehicles (0 for unlimited).
+        crossover_rate: Probability of performing crossover.
+        max_iterations: Local search iteration limit within HGS.
     """
 
     def __init__(
@@ -32,9 +49,23 @@ class VectorizedHGS(AutoregressivePolicy):
         max_iterations: int = 50,
         seed: int = 42,
         device: str = "cpu",
-        **kwargs,
-    ):
-        """Initialize HGSPolicy with vectorized solver."""
+        **kwargs: Any,
+    ) -> None:
+        """Initialize the HGS policy wrapper.
+
+        Args:
+            env_name: Name of the environment.
+            time_limit: Maximum allowed execution time in seconds.
+            population_size: Number of individuals in the genetic population.
+            n_generations: Number of evolution generations.
+            elite_size: Number of top individuals kept for the next generation.
+            max_vehicles: Limit on the number of vehicles (0 for unlimited).
+            crossover_rate: Probability of performing crossover.
+            max_iterations: Local search iteration limit within HGS.
+            seed: Random seed for reproducibility.
+            device: Computation device.
+            **kwargs: Extra arguments for AutoregressivePolicy.
+        """
         super().__init__(env_name=env_name, seed=seed, device=device, **kwargs)
         self.time_limit = time_limit
         self.population_size = population_size
@@ -53,10 +84,26 @@ class VectorizedHGS(AutoregressivePolicy):
         max_steps: Optional[int] = None,
         phase: str = "train",
         return_actions: bool = True,
-        **kwargs,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
-        """
-        Solve instances in the batch using vectorized HGS.
+        """Solve instances in the batch using vectorized HGS.
+
+        Args:
+            td: Input state TensorDict.
+            env: The environment being solved.
+            strategy: Search strategy (ignored).
+            num_starts: Number of starts (ignored).
+            max_steps: Maximum steps (ignored).
+            phase: Current execution phase ('train' or 'test').
+            return_actions: Whether to include refined routes in output.
+            **kwargs: Extra parameters.
+
+        Returns:
+            Dict[str, Any]: Results dictionary containing:
+                - actions (torch.Tensor): Padded action sequences.
+                - reward (torch.Tensor): Calculated reward for the solution.
+                - cost (torch.Tensor): Raw objective value from the engine.
+                - log_likelihood (torch.Tensor): Zero vector (HGS is non-pi).
         """
         batch_size = td.batch_size[0]
         device = td.device if td.device is not None else td["locs"].device
@@ -104,7 +151,6 @@ class VectorizedHGS(AutoregressivePolicy):
         )
 
         # 4. Format Actions
-        # Vectorized linear split output reconstruction (padded)
         all_actions = []
         for b in range(batch_size):
             routes = best_routes_list[b]
@@ -114,7 +160,15 @@ class VectorizedHGS(AutoregressivePolicy):
 
         max_len = max([len(a) for a in all_actions] + [2])
         padded_actions = torch.stack(
-            [torch.cat([a, torch.zeros(max_len - len(a), device=device, dtype=torch.long)]) for a in all_actions]
+            [
+                torch.cat(
+                    [
+                        a,
+                        torch.zeros(max_len - len(a), device=device, dtype=torch.long),
+                    ]
+                )
+                for a in all_actions
+            ]
         )
 
         # Compute reward using the same cost function as the model
@@ -129,8 +183,16 @@ class VectorizedHGS(AutoregressivePolicy):
 
     @staticmethod
     def _compute_reward(td: TensorDict, env: Optional[RL4COEnvBase], actions: torch.Tensor) -> torch.Tensor:
-        """Replay actions through the environment to compute the exact same
-        reward as the neural model (via ``env.get_reward``)."""
+        """Replay actions through the environment to compute the exact same reward.
+
+        Args:
+            td: Initial state TensorDict.
+            env: The environment.
+            actions: The sequence of actions to evaluate.
+
+        Returns:
+            torch.Tensor: Evaluated reward per batch instance of shape [B].
+        """
         if env is None:
             return -torch.ones(td.batch_size[0], device=actions.device)
 

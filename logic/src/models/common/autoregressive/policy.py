@@ -1,14 +1,15 @@
-"""autoregressive_policy.py module.
+"""Autoregressive Policy module.
 
-Attributes:
-    MODULE_VAR (Type): Description of module level variable.
-
-Example:
-    >>> import autoregressive_policy
+This module provides the implementation of the AutoregressivePolicy, which
+integrates an autoregressive encoder and decoder into a unified constructive
+policy architecture.
 """
+
+from __future__ import annotations
 
 from typing import Any, Dict, Optional
 
+import torch
 from tensordict import TensorDict
 
 from logic.src.envs.base.base import RL4COEnvBase
@@ -19,11 +20,15 @@ from .encoder import AutoregressiveEncoder
 
 
 class AutoregressivePolicy(ConstructivePolicy):
-    """
-    Base class for autoregressive policies.
+    """Base class for autoregressive policies.
 
     Combines an AR encoder with an AR decoder to form a complete policy.
-    Inherits from ConstructivePolicy to leverage standardized decoding strategies.
+    Inherits from `ConstructivePolicy` to leverage standardized decoding
+    strategies and simulation utilities.
+
+    Attributes:
+        encoder: Problem state encoder.
+        decoder: Step-by-step action decoder.
     """
 
     def __init__(
@@ -34,10 +39,19 @@ class AutoregressivePolicy(ConstructivePolicy):
         embed_dim: int = 128,
         seed: int = 42,
         device: str = "cpu",
-        **kwargs,
-    ):
-        """Initialize AutoregressivePolicy."""
-        # Use placeholders for base initialization if not provided
+        **kwargs: Any,
+    ) -> None:
+        """Initialize the AutoregressivePolicy.
+
+        Args:
+            encoder: Instance of an AR encoder.
+            decoder: Instance of an AR decoder.
+            env_name: Name of the target environment.
+            embed_dim: Dimension of latent feature vectors.
+            seed: Random seed for initialization.
+            device: Operating device for tensor computation.
+            **kwargs: Additional parameters for base policy.
+        """
         super().__init__(
             encoder=encoder,
             decoder=decoder,
@@ -51,36 +65,42 @@ class AutoregressivePolicy(ConstructivePolicy):
     def forward(
         self,
         td: TensorDict,
-        env: RL4COEnvBase,
+        env: Optional[RL4COEnvBase] = None,
         strategy: str = "sampling",
         num_starts: int = 1,
-        **kwargs,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
-        """
-        Full forward pass: encode + decode.
+        """Full forward pass: problem encoding followed by solution decoding.
 
         Args:
-            td: TensorDict containing problem instance.
-            env: Environment for state transitions.
-            strategy: Decoding strategy.
-            num_starts: Number of solution starts.
+            td: TensorDict containing the problem instance metadata.
+            env: Environment object for state transitions and reward calculation.
+            strategy: Decoding strategy (e.g., 'sampling', 'greedy').
+            num_starts: Number of parallel solution completions.
+            **kwargs: Additional control arguments for encoder/decoder.
 
         Returns:
-            Dictionary containing reward, log_likelihood, and actions.
+            Dict[str, Any]: Policy outputs including:
+                - reward (torch.Tensor): Calculated reward for the full tours.
+                - log_likelihood (torch.Tensor): Log probability of chosen actions.
+                - actions (torch.Tensor): The sequence of selected node indices.
+
+        Raises:
+            ValueError: If a decoder has not been provided to the policy.
         """
-        # Encode
+        # Encode static/initial state
         embeddings = self.encoder(td, **kwargs) if self.encoder is not None else None
 
-        # Decode
+        # Decode actions sequentially
         if self.decoder is not None:
-            # Note: Many decoders in WSmart-Route implement their own loop.
-            # We assume the decoder handles the AR process.
+            # Note: Many decoders in WSmart-Route implement their own selection loop.
+            # We assume the decoder handles the entire AR process.
             log_p, actions = self.decoder(td, embeddings, env, strategy=strategy, num_starts=num_starts, **kwargs)
         else:
             raise ValueError("AutoregressivePolicy requires a decoder.")
 
-        # Calculate reward
-        reward = env.get_reward(td, actions)
+        # Calculate reward/cost for the final solution
+        reward = env.get_reward(td, actions) if env is not None else torch.zeros(td.batch_size[0], device=td.device)
 
         return {
             "reward": reward,

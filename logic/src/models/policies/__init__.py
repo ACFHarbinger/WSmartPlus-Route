@@ -1,16 +1,15 @@
-"""
-Policies module for WSmart-Route.
+"""Policies module for WSmart-Route.
 
-Contains all neural and classical policy implementations for combinatorial
-optimization. Use ``get_policy(name)`` to look up a policy class by its
-short CLI name, or import the class directly.
-
-Registries:
-- ``POLICY_REGISTRY``: Maps short names (e.g. "am", "mdam") to policy classes.
-- ``get_policy(name, **kwargs)``: Factory function for instantiation.
+This package contains all neural, classical, and heuristic policy
+implementations for combinatorial optimization. It provides a centralized
+registry and factory functions for looking up and instantiating policies
+via short CLI identifiers.
 """
+
+from __future__ import annotations
 
 import importlib
+from typing import Any, Dict, Tuple
 
 from torch import nn
 
@@ -19,15 +18,21 @@ from logic.src.models.common import (
     ImprovementPolicy,
     NonAutoregressivePolicy,
 )
-from logic.src.models.core.attention_model.deep_decoder_policy import DeepDecoderPolicy
+from logic.src.models.core.attention_model.deep_decoder_policy import (
+    DeepDecoderPolicy,
+)
 from logic.src.models.core.attention_model.policy import AttentionModelPolicy
 from logic.src.models.core.attention_model.symnco_policy import SymNCOPolicy
 from logic.src.models.core.dact.policy import DACTPolicy
 from logic.src.models.core.deepaco.policy import DeepACOPolicy
 from logic.src.models.core.gfacs.policy import GFACSPolicy
 from logic.src.models.core.glop.policy import GLOPPolicy
-from logic.src.models.core.hybrid_attention_model.hybrid_neural_heuristic_policy import NeuralHeuristicHybrid
-from logic.src.models.core.hybrid_attention_model.hybrid_two_step_policy import HybridTwoStagePolicy
+from logic.src.models.core.hybrid_attention_model.hybrid_neural_heuristic_policy import (
+    NeuralHeuristicHybrid,
+)
+from logic.src.models.core.hybrid_attention_model.hybrid_two_step_policy import (
+    HybridTwoStagePolicy,
+)
 from logic.src.models.core.mdam.policy import MDAMPolicy
 from logic.src.models.core.moe.policy import MoEPolicy
 from logic.src.models.core.n2s.policy import N2SPolicy
@@ -47,9 +52,12 @@ from .iterated_local_search import IteratedLocalSearchPolicy
 
 # Short-name registry: CLI model name -> (module_path, class_name)
 # This enables ``get_policy("am")`` without importing everything eagerly.
-_POLICY_REGISTRY_SPEC = {
+_POLICY_REGISTRY_SPEC: Dict[str, Tuple[str, str]] = {
     "am": ("logic.src.models.core.attention_model.policy", "AttentionModelPolicy"),
-    "deep_decoder": ("logic.src.models.core.attention_model.deep_decoder_policy", "DeepDecoderPolicy"),
+    "deep_decoder": (
+        "logic.src.models.core.attention_model.deep_decoder_policy",
+        "DeepDecoderPolicy",
+    ),
     "deepaco": ("logic.src.models.core.deepaco.policy", "DeepACOPolicy"),
     "gfacs": ("logic.src.models.core.gfacs.policy", "GFACSPolicy"),
     "glop": ("logic.src.models.core.glop.policy", "GLOPPolicy"),
@@ -59,26 +67,40 @@ _POLICY_REGISTRY_SPEC = {
     "n2s": ("logic.src.models.core.n2s.policy", "N2SPolicy"),
     "neuopt": ("logic.src.models.core.neuopt.policy", "NeuOptPolicy"),
     "dact": ("logic.src.models.core.dact.policy", "DACTPolicy"),
-    "pointer": ("logic.src.models.core.pointer_network.policy", "PointerNetworkPolicy"),
+    "pointer": (
+        "logic.src.models.core.pointer_network.policy",
+        "PointerNetworkPolicy",
+    ),
     "polynet": ("logic.src.models.core.polynet.policy", "PolyNetPolicy"),
-    "symnco": ("logic.src.models.core.attention_model.symnco_policy", "SymNCOPolicy"),
-    "temporal": ("logic.src.models.core.temporal_attention_model.policy", "TemporalAMPolicy"),
-    "hvpl": ("logic.src.models.policies.hybrid_volleyball_premier_league", "VectorizedHVPL"),
-    "ahvpl": ("logic.src.models.policies.augmented_hybrid_volleyball_premier_league", "VectorizedAHVPL"),
+    "symnco": (
+        "logic.src.models.core.attention_model.symnco_policy",
+        "SymNCOPolicy",
+    ),
+    "temporal": (
+        "logic.src.models.core.temporal_attention_model.policy",
+        "TemporalAMPolicy",
+    ),
+    "hvpl": (
+        "logic.src.models.policies.hybrid_volleyball_premier_league",
+        "VectorizedHVPL",
+    ),
+    "ahvpl": (
+        "logic.src.models.policies.augmented_hybrid_volleyball_premier_league",
+        "VectorizedAHVPL",
+    ),
     "hgs": ("logic.src.models.policies.hgs", "VectorizedHGS"),
     "hgs_alns": ("logic.src.models.policies.hgs_alns", "VectorizedHGSALNS"),
 }
 
 
 def get_policy_class(name: str) -> type:
-    """
-    Look up a policy class by its short CLI name.
+    """Look up a policy class by its short CLI name.
 
     Args:
         name: Short policy name (e.g. "am", "mdam", "deepaco").
 
     Returns:
-        The policy class (not instantiated).
+        type: The policy class (not instantiated).
 
     Raises:
         ValueError: If the name is not found in the registry.
@@ -90,16 +112,15 @@ def get_policy_class(name: str) -> type:
     return getattr(module, class_name)
 
 
-def get_policy(name: str, **kwargs) -> nn.Module:
-    """
-    Create a policy instance by short CLI name.
+def get_policy(name: str, **kwargs: Any) -> nn.Module:
+    """Create a policy instance by short CLI name.
 
     Args:
         name: Short policy name (e.g. "am", "mdam", "deepaco").
         **kwargs: Arguments passed to the policy constructor.
 
     Returns:
-        Instantiated policy module.
+        nn.Module: Instantiated policy module.
     """
     cls = get_policy_class(name)
     return cls(**kwargs)

@@ -1,5 +1,21 @@
-"""
-Factory pattern for neural components (encoders, decoders).
+"""Factory pattern for neural components (encoders, decoders).
+
+Attributes:
+    NeuralComponentFactory: Abstract base class for all neural component factories.
+    AttentionComponentFactory: Factory for attention-based models.
+    GCNComponentFactory: Factory for GCN-based models.
+    GACComponentFactory: Factory for Graph Attention Convolution models.
+    TGCComponentFactory: Factory for Transformer Graph Convolution models.
+    GGACComponentFactory: Factory for Gated Graph Attention Convolution models.
+    MLPComponentFactory: Factory for MLP-based models.
+    MoEComponentFactory: Factory for Mixture of Experts models.
+    NARComponentFactory: Factory for Non-Autoregressive models.
+    MDAMComponentFactory: Factory for MDAM-based models.
+    GFACSComponentFactory: Factory for GFACS-based models.
+
+Example:
+    >>> from logic.src.models.subnets.factories import AttentionComponentFactory
+    >>> factory = AttentionComponentFactory()
 """
 
 from .attention import AttentionComponentFactory

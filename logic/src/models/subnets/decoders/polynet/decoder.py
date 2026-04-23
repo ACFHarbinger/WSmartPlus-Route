@@ -1,8 +1,20 @@
-"""PolyNet Decoder."""
+"""PolyNet Decoder.
+
+This module implements the PolyNetDecoder, which autoregressively constructs
+routing solutions using a polynomial-based attention mechanism.
+
+Attributes:
+    PolyNetDecoder: Constructive decoder usingPolyNet polynomial attention.
+
+Example:
+    >>> from logic.src.models.subnets.decoders.polynet.decoder import PolyNetDecoder
+    >>> decoder = PolyNetDecoder(k=3, embed_dim=128)
+    >>> ll, actions = decoder(td, embeddings, env)
+"""
 
 from __future__ import annotations
 
-from typing import Tuple, Union
+from typing import Any, Tuple, Union
 
 import torch
 from tensordict import TensorDict
@@ -17,8 +29,23 @@ from logic.src.models.subnets.modules.polynet_attention import PolyNetAttention
 
 
 class PolyNetDecoder(nn.Module):
-    """
-    PolyNet Decoder for constructing diverse solutions.
+    """PolyNet Decoder for constructing diverse solutions.
+
+    This decoder uses polynomial attention to improve the expressivity of the
+    node selection process in combinatorial optimization problems.
+
+    Attributes:
+        k (int): Polynomial order for attention.
+        encoder_type (str): Type of encoder being used.
+        embed_dim (int): Dimensionality of node embeddings.
+        num_heads (int): Number of attention heads.
+        env_name (str): Environment name for context.
+        use_graph_context (bool): Whether to include global graph context in query.
+        context_embedding (Union[nn.Module, nn.Linear]): Layer for context extraction.
+        dynamic_embedding (DynamicEmbedding): Module for dynamic step features.
+        pointer (PolyNetAttention): Polynomial attention mechanism.
+        project_node_embeddings (nn.Linear): Projection for node-based key/values.
+        project_fixed_context (nn.Linear): Projection for global graph features.
     """
 
     def __init__(
@@ -35,8 +62,20 @@ class PolyNetDecoder(nn.Module):
         use_graph_context: bool = True,
         check_nan: bool = True,
     ) -> None:
-        """
-        Initialize PolyNet decoder.
+        """Initializes PolyNet decoder.
+
+        Args:
+            k: Polynomial order.
+            encoder_type: Type of encoder architecture.
+            embed_dim: Node embedding dimensionality.
+            poly_layer_dim: Hidden dimension for polynomial layers.
+            num_heads: Number of attention heads.
+            env_name: Name of the solver environment.
+            mask_inner: Whether to mask nodes in inner layers.
+            out_bias: Whether to use bias in the output projection.
+            linear_bias: Whether to use bias in input projections.
+            use_graph_context: Whether to add global context to the query.
+            check_nan: Whether to perform NaN checks on outputs.
         """
         super().__init__()
 
@@ -49,9 +88,9 @@ class PolyNetDecoder(nn.Module):
 
         # Context embedding
         if env_name in CONTEXT_EMBEDDING_REGISTRY:
-            self.context_embedding: Union[nn.Module, nn.Linear] = CONTEXT_EMBEDDING_REGISTRY[env_name](  # type: ignore[abstract]
+            self.context_embedding: Union[nn.Module, nn.Linear] = CONTEXT_EMBEDDING_REGISTRY[env_name](
                 embed_dim=embed_dim
-            )
+            )  # type: ignore[abstract]
         else:
             self.context_embedding = nn.Linear(embed_dim, embed_dim)
 
@@ -80,10 +119,20 @@ class PolyNetDecoder(nn.Module):
         env: RL4COEnvBase,
         strategy: str = "sampling",
         num_starts: int = 1,
-        **kwargs,
+        **kwargs: Any,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        """
-        Decode solution autoregressively.
+        """Decodes solution autoregressively.
+
+        Args:
+            td: Initial state TensorDict.
+            embeddings: Node embeddings from the encoder.
+            env: RL environment instance.
+            strategy: Selection strategy ("greedy" or "sampling").
+            num_starts: Number of parallel starts (for POMO/augmentation).
+            kwargs: Additional keyword arguments.
+
+        Returns:
+            Tuple: Total log-likelihood and action sequence.
         """
         # Precompute fixed projections
         cache = self._precompute_cache(embeddings)
@@ -123,9 +172,16 @@ class PolyNetDecoder(nn.Module):
 
     def _precompute_cache(
         self,
-        embeddings: torch.Tensor,
+        embeddings: Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor]],
     ) -> AttentionDecoderCache:
-        """Precompute fixed projections for decoding."""
+        """Precomputes fixed projections for decoding.
+
+        Args:
+            embeddings: Node embeddings or (col, row) embedding tuple.
+
+        Returns:
+            AttentionDecoderCache: Cache with projected components.
+        """
         # Handle MatNet-style embeddings (tuple)
         if isinstance(embeddings, tuple):
             col_emb, row_emb = embeddings
@@ -158,7 +214,15 @@ class PolyNetDecoder(nn.Module):
         cache: AttentionDecoderCache,
         td: TensorDict,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        """Get logits for current step."""
+        """Gets selection logits for the current decoding step.
+
+        Args:
+            cache: Precomputed attention keys and values.
+            td: Current state dictionary.
+
+        Returns:
+            Tuple: Raw logits and action mask.
+        """
         # Step context from current state
         if hasattr(self.context_embedding, "forward"):
             step_context = self.context_embedding(cache.node_embeddings, td)

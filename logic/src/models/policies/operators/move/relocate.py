@@ -1,25 +1,38 @@
+"""Relocate local search operator.
+
+This module provides a GPU-accelerated implementation of the Relocate operator,
+which improves tours by moving a node from its current position and
+re-inserting it at a more cost-effective location.
 """
-Relocate local search operator.
-"""
+
+from __future__ import annotations
+
+from typing import Optional
 
 import torch
 
 from logic.src.constants.routing import IMPROVEMENT_EPSILON
 
 
-def vectorized_relocate(tours, dist_matrix, max_iterations=200, generator=None):
-    """
-    Vectorized Relocate operator. Moves a node to a new position.
-    Removes a node from its current position and re-inserts it elsewhere if it yields an improvement.
+def vectorized_relocate(
+    tours: torch.Tensor,
+    dist_matrix: torch.Tensor,
+    max_iterations: int = 200,
+    generator: Optional[torch.Generator] = None,
+) -> torch.Tensor:
+    """Vectorized Relocate operator using parallel sampling.
+
+    Removes a sampler node 'i' and re-inserts it at position 'j' across
+    the entire batch, applying the move only if it yields a positive gain.
 
     Args:
-        tours (torch.Tensor): Current tours (B, max_len).
-        dist_matrix (torch.Tensor): Distance matrix.
-        max_iterations (int): Number of attempts.
-        generator (torch.Generator, optional): Random generator.
+        tours: Batch of node sequences of shape [B, L].
+        dist_matrix: Edge cost tensor of shape [B, N, N].
+        max_iterations: Number of random relocation pairs to evaluate.
+        generator: Torch device-side RNG.
 
     Returns:
-        torch.Tensor: Updated tours.
+        torch.Tensor: Optimized tours of shape [B, L].
     """
     device = tours.device
     B, max_len = tours.shape
@@ -52,8 +65,27 @@ def vectorized_relocate(tours, dist_matrix, max_iterations=200, generator=None):
     return tours
 
 
-def _compute_relocate_gain(tours, dist, node_i, i, j, b_idx):
-    """Computes improvement gain for relocating node V_i after node V_j."""
+def _compute_relocate_gain(
+    tours: torch.Tensor,
+    dist: torch.Tensor,
+    node_i: torch.Tensor,
+    i: torch.Tensor,
+    j: torch.Tensor,
+    b_idx: torch.Tensor,
+) -> torch.Tensor:
+    """Calculates improvement gain for relocating node V_i after node V_j.
+
+    Args:
+        tours: Batch of sequences of shape [B, L].
+        dist: Batch of distance matrices of shape [B, N, N].
+        node_i: Column vector of node IDs being moved of shape [B, 1].
+        i: Current positions of nodes to move of shape [B, 1].
+        j: Target insertion positions of shape [B, 1].
+        b_idx: Batch indices for gathering of shape [B, 1].
+
+    Returns:
+        torch.Tensor: Calculated cost improvement per sample.
+    """
     prev_i = torch.gather(tours, 1, i - 1)
     next_i = torch.gather(tours, 1, i + 1)
     node_j = torch.gather(tours, 1, j)
@@ -66,8 +98,27 @@ def _compute_relocate_gain(tours, dist, node_i, i, j, b_idx):
     return -(d_remove + d_insert)
 
 
-def _apply_relocate_move(tours, improved, i, j, max_len, device):
-    """Updates tour by moving node at i to position after j."""
+def _apply_relocate_move(
+    tours: torch.Tensor,
+    improved: torch.Tensor,
+    i: torch.Tensor,
+    j: torch.Tensor,
+    max_len: int,
+    device: torch.device,
+) -> torch.Tensor:
+    """Updates tour segment order using conditional index shifting.
+
+    Args:
+        tours: Input tour sequences of shape [B, L].
+        improved: Activation mask for improving moves of shape [B, 1].
+        i: IDs of moving nodes.
+        j: Targeted insertion positions.
+        max_len: Sequence length L.
+        device: Hardware identification locator.
+
+    Returns:
+        torch.Tensor: Physically updated sequence batch.
+    """
     B = tours.shape[0]
     seq_b = torch.arange(max_len, device=device).view(1, max_len).expand(B, max_len)
     idx_map = seq_b.clone()

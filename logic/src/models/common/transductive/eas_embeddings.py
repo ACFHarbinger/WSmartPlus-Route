@@ -1,11 +1,18 @@
-"""eas_embeddings.py module.
+"""EAS Embedding-only variant module.
+
+This module provides the `EASEmb` class, which is a specialized version of EAS
+that restricts test-time adaptation exclusively to the initial graph embeddings.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    EASEmb: EAS variant focusing on latent representation optimization.
 
 Example:
-    >>> import eas_embeddings
+    >>> from logic.src.models.common.transductive.eas_embeddings import EASEmb
+    >>> search = EASEmb(model, n_search_steps=30)
+    >>> results = search(td, env)
 """
+
+from __future__ import annotations
 
 from typing import Any, Dict, Optional
 
@@ -15,8 +22,13 @@ from .eas import EAS
 
 
 class EASEmb(EAS):
-    """
-    EAS variant that only optimizes instance-specific embeddings (latents).
+    """EAS variant focusing on latent embedding optimization.
+
+    Restricts transductive refinement to parameters containing "init_embedding",
+    making it a lightweight alternative to full Active Search.
+
+    Attributes:
+        model (nn.Module): The base policy instance.
     """
 
     def __init__(
@@ -25,14 +37,14 @@ class EASEmb(EAS):
         optimizer_kwargs: Optional[Dict[str, Any]] = None,
         n_search_steps: int = 20,
         **kwargs: Any,
-    ):
-        """Initialize Class.
+    ) -> None:
+        """Initializes the Embedding-focused EAS model.
 
         Args:
-            model (nn.Module): Description of model.
-            optimizer_kwargs (Optional[Dict[str, Any]]): Description of optimizer_kwargs.
-            n_search_steps (int): Description of n_search_steps.
-            kwargs (Any): Description of kwargs.
+            model: The base neural strategy to refine.
+            optimizer_kwargs: Configuration for the Adams optimizer.
+            n_search_steps: Total refinement iterations at test-time.
+            **kwargs: Additional parameters for the EAS base class.
         """
         super().__init__(
             model=model,

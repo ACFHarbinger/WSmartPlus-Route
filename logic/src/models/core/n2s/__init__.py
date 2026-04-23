@@ -1,10 +1,17 @@
-"""__init__.py module.
+"""Neural Neighborhood Search (N2S).
+
+This package implements the N2S architecture for iterative solution refinement.
+It provides a specialized encoder with neighborhood masking and a pairwise
+decoder for selecting local moves.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    N2S: Unified training and inference wrapper for neighborhood search.
+    N2SPolicy: Policy coordinating N2S encoder and decoder.
+    N2SEncoder: Sparse Transformer encoder with spatial neighborhood masking.
+    N2SDecoder: Pairwise action decoder for move selection.
 
 Example:
-    >>> import __init__
+    >>> from logic.src.models.core.n2s import N2S
 """
 
 from .decoder import N2SDecoder as N2SDecoder

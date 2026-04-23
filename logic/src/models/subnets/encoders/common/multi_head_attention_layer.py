@@ -1,8 +1,19 @@
-"""Base Multi-Head Attention Layer for Encoder Architectures."""
+"""Base Multi-Head Attention Layer for Encoder Architectures.
+
+Attributes:
+    MultiHeadAttentionLayerBase: Base Multi-Head Attention Layer for Encoder Architectures.
+
+Example:
+    >>> import torch
+    >>> from logic.src.models.subnets.encoders.common.multi_head_attention_layer import MultiHeadAttentionLayerBase
+    >>> layer = MultiHeadAttentionLayerBase(n_heads=8, embed_dim=128, feed_forward_hidden=512)
+    >>> x = torch.randn(1, 10, 128)
+    >>> out = layer(x)
+"""
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Any, Optional
 
 import torch
 from torch import nn
@@ -16,8 +27,7 @@ from .feed_forward_sublayer import EncoderFeedForwardSubLayer
 
 
 class MultiHeadAttentionLayerBase(nn.Module):
-    """
-    Base Multi-Head Attention Layer for Encoder Architectures.
+    """Base Multi-Head Attention Layer for Encoder Architectures.
 
     Implements the standard transformer encoder layer pattern:
     1. Multi-Head Attention + Residual Connection
@@ -34,47 +44,13 @@ class MultiHeadAttentionLayerBase(nn.Module):
     Subclasses can override the feed-forward component to use specialized
     variants (e.g., MoEFeedForward, ConvolutionalFFN).
 
-    Parameters
-    ----------
-    n_heads : int
-        Number of attention heads.
-    embed_dim : int
-        Embedding dimension (must be divisible by n_heads).
-    feed_forward_hidden : int
-        Hidden dimension for feed-forward network.
-    norm_config : Optional[NormalizationConfig], default=None
-        Normalization configuration. If None, uses default (batch norm).
-    activation_config : Optional[ActivationConfig], default=None
-        Activation function configuration. If None, uses default (ReLU).
-    connection_type : str, default="skip"
-        Type of connection: "skip" (residual), "dense", or "hyper".
-    expansion_rate : int, default=4
-        Expansion factor for hyper-connections (only used when connection_type="hyper").
-    **kwargs
-        Additional keyword arguments (for future extensibility).
-
-    Attributes
-    ----------
-    att : nn.Module
-        Multi-head attention module wrapped with connection.
-    norm1 : Normalization
-        First normalization layer (after attention).
-    ff : nn.Module
-        Feed-forward module wrapped with connection.
-    norm2 : Normalization
-        Second normalization layer (after feed-forward).
-
-    Examples
-    --------
-    >>> from logic.src.configs.models import NormalizationConfig, ActivationConfig
-    >>> layer = MultiHeadAttentionLayerBase(
-    ...     n_heads=8,
-    ...     embed_dim=128,
-    ...     feed_forward_hidden=512,
-    ...     norm_config=NormalizationConfig(norm_type='layer'),
-    ...     activation_config=ActivationConfig(name='gelu')
-    ... )
-    >>> output = layer(input_tensor, mask=attention_mask)
+    Attributes:
+        att (nn.Module): Multi-head attention module wrapped with connection.
+        norm1 (Normalization): First normalization layer (after attention).
+        ff (nn.Module): Feed-forward module wrapped with connection.
+        norm2 (Normalization): Second normalization layer (after feed-forward).
+        norm_config (NormalizationConfig): Normalization configuration.
+        activation_config (ActivationConfig): Activation function configuration.
     """
 
     def __init__(
@@ -86,9 +62,20 @@ class MultiHeadAttentionLayerBase(nn.Module):
         activation_config: Optional[ActivationConfig] = None,
         connection_type: str = "skip",
         expansion_rate: int = 4,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
-        """Initialize the MultiHeadAttentionLayerBase."""
+        """Initialize the MultiHeadAttentionLayerBase.
+
+        Args:
+            n_heads (int): Number of attention heads.
+            embed_dim (int): Embedding dimension (must be divisible by n_heads).
+            feed_forward_hidden (int): Hidden dimension for feed-forward network.
+            norm_config (Optional[NormalizationConfig]): Normalization configuration. Defaults to None.
+            activation_config (Optional[ActivationConfig]): Activation configuration. Defaults to None.
+            connection_type (str): Type of connection: "skip", "dense", or "hyper". Defaults to "skip".
+            expansion_rate (int): Expansion factor for hyper-connections. Defaults to 4.
+            kwargs: Additional keyword arguments.
+        """
         super(MultiHeadAttentionLayerBase, self).__init__()
 
         # Use default configs if none provided
@@ -143,29 +130,20 @@ class MultiHeadAttentionLayerBase(nn.Module):
         connection_type: str,
         expansion_rate: int,
     ) -> nn.Module:
-        """
-        Create the feed-forward component.
+        """Create the feed-forward component.
 
         Subclasses can override this to use specialized feed-forward variants
         (e.g., MoEFeedForward, ConvolutionalFFN).
 
-        Parameters
-        ----------
-        embed_dim : int
-            Embedding dimension.
-        feed_forward_hidden : int
-            Hidden dimension for feed-forward network.
-        activation_config : ActivationConfig
-            Activation function configuration.
-        connection_type : str
-            Type of connection wrapper.
-        expansion_rate : int
-            Expansion factor for hyper-connections.
+        Args:
+            embed_dim (int): Embedding dimension.
+            feed_forward_hidden (int): Hidden dimension for feed-forward network.
+            activation_config (ActivationConfig): Activation function configuration.
+            connection_type (str): Type of connection wrapper.
+            expansion_rate (int): Expansion factor for hyper-connections.
 
-        Returns
-        -------
-        nn.Module
-            Feed-forward module wrapped with connection.
+        Returns:
+            nn.Module: Feed-forward module wrapped with connection.
         """
         return get_connection_module(
             module=EncoderFeedForwardSubLayer(
@@ -179,21 +157,16 @@ class MultiHeadAttentionLayerBase(nn.Module):
         )
 
     def forward(self, h: torch.Tensor, mask: Optional[torch.Tensor] = None) -> torch.Tensor:
-        """
-        Forward pass through the attention layer.
+        """Forward pass through the attention layer.
 
-        Parameters
-        ----------
-        h : torch.Tensor
-            Input tensor of shape (batch, seq_len, embed_dim) or (batch, seq_len, embed_dim, n)
-            for hyper-connections.
-        mask : Optional[torch.Tensor], default=None
-            Attention mask of shape (batch, seq_len) or (batch, seq_len, seq_len).
+        Args:
+            h (torch.Tensor): Input tensor of shape (batch, seq_len, embed_dim)
+                or (batch, seq_len, embed_dim, n) for hyper-connections.
+            mask (Optional[torch.Tensor]): Attention mask of shape (batch, seq_len)
+                or (batch, seq_len, seq_len). Defaults to None.
 
-        Returns
-        -------
-        torch.Tensor
-            Output tensor with the same shape as input.
+        Returns:
+            torch.Tensor: Output tensor with the same shape as input.
         """
         # 1. Multi-Head Attention
         h = self.att(h, mask=mask)
@@ -210,24 +183,18 @@ class MultiHeadAttentionLayerBase(nn.Module):
         return h
 
     def _apply_norm(self, h: torch.Tensor, norm_layer: nn.Module) -> torch.Tensor:
-        """
-        Apply normalization, handling both 3D and 4D tensors.
+        """Apply normalization, handling both 3D and 4D tensors.
 
         For hyper-connections, the input is 4D: (batch, seq_len, embed_dim, n).
         We need to permute to (batch, seq_len, n, embed_dim) for normalization,
         then permute back.
 
-        Parameters
-        ----------
-        h : torch.Tensor
-            Input tensor (3D or 4D).
-        norm_layer : nn.Module
-            Normalization layer to apply.
+        Args:
+            h (torch.Tensor): Input tensor (3D or 4D).
+            norm_layer (nn.Module): Normalization layer to apply.
 
-        Returns
-        -------
-        torch.Tensor
-            Normalized tensor with the same shape as input.
+        Returns:
+            torch.Tensor: Normalized tensor with the same shape as input.
         """
         if h.dim() == 4:  # Hyper-connection: (batch, seq_len, embed_dim, n)
             # Permute to (batch, seq_len, n, embed_dim) for Norm(embed_dim)

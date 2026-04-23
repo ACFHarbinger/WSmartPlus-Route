@@ -1,10 +1,14 @@
-"""__init__.py module.
+"""Temporal Attention Model (TAM) components.
+
+This package provides the implementation of the Temporal Attention Model,
+which extends graph attention with recurrent forecasting for dynamic routing.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    TemporalAttentionModel: Base AM variant with history-aware node encoding.
+    TemporalAMPolicy: RL4CO-compatible wrapper with proactive state estimation.
 
 Example:
-    >>> import __init__
+    >>> from logic.src.models.core.temporal_attention_model import TemporalAttentionModel
 """
 
 from .model import TemporalAttentionModel as TemporalAttentionModel

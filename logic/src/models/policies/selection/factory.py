@@ -1,8 +1,12 @@
-"""
-Factory functions for creating vectorized selectors.
+"""Selection strategy factory.
+
+This module provides factory functions to create vectorized bin selection
+strategies from configuration objects or by explicit name.
 """
 
-from typing import Any, Optional, cast
+from __future__ import annotations
+
+from typing import Any, Dict, Optional, cast
 
 from logic.src.interfaces import ITraversable
 
@@ -16,9 +20,14 @@ from .revenue import RevenueSelector
 from .service_level import ServiceLevelSelector
 
 
-def create_selector_from_config(cfg) -> Optional[VectorizedSelector]:
-    """
-    Create a vectorized selector from a MandatorySelectionConfig or dict.
+def create_selector_from_config(cfg: Any) -> Optional[VectorizedSelector]:
+    """Create a vectorized selector from a MandatorySelectionConfig or dict.
+
+    Args:
+        cfg: Configuration object containing 'strategy' and 'params'.
+
+    Returns:
+        Optional[VectorizedSelector]: The instantiated selector or None.
     """
     if cfg is None:
         return None
@@ -40,16 +49,30 @@ def create_selector_from_config(cfg) -> Optional[VectorizedSelector]:
 
 
 def _get_strategy(cfg: object) -> Optional[str]:
-    """Extract strategy name from config."""
+    """Extract strategy name from config.
+
+    Args:
+        cfg: The configuration object.
+
+    Returns:
+        Optional[str]: Strategy name if found, else None.
+    """
     if hasattr(cfg, "strategy"):
-        return cfg.strategy
+        return str(cfg.strategy)
     if isinstance(cfg, ITraversable):
-        return cfg.get("strategy")
+        return cast(Optional[str], cfg.get("strategy"))
     return None
 
 
-def _get_params(cfg: object) -> dict:
-    """Extract parameters from config, excluding strategy."""
+def _get_params(cfg: object) -> Dict[str, Any]:
+    """Extract parameters from config, excluding strategy.
+
+    Args:
+        cfg: The configuration object.
+
+    Returns:
+        Dict[str, Any]: Dictionary of strategy parameters.
+    """
     if hasattr(cfg, "__dict__"):
         return {k: v for k, v in vars(cfg).items() if k != "strategy" and v is not None}
     if isinstance(cfg, ITraversable):
@@ -57,8 +80,15 @@ def _get_params(cfg: object) -> dict:
     return {}
 
 
-def _create_combined_selector(params: dict) -> Optional[VectorizedSelector]:
-    """Helper to create a CombinedSelector."""
+def _create_combined_selector(params: Dict[str, Any]) -> Optional[VectorizedSelector]:
+    """Helper to create a CombinedSelector.
+
+    Args:
+        params: Combined selector parameters.
+
+    Returns:
+        Optional[VectorizedSelector]: Instantiated CombinedSelector or None.
+    """
     combined_configs = params.get("combined_strategies", [])
     if not combined_configs:
         return None
@@ -72,8 +102,15 @@ def _create_combined_selector(params: dict) -> Optional[VectorizedSelector]:
     return CombinedSelector(selectors, logic=params.get("logic", "or"))
 
 
-def _create_manager_selector(params: dict) -> VectorizedSelector:
-    """Helper to create a ManagerSelector."""
+def _create_manager_selector(params: Dict[str, Any]) -> VectorizedSelector:
+    """Helper to create a ManagerSelector.
+
+    Args:
+        params: Neural manager parameters.
+
+    Returns:
+        VectorizedSelector: Instantiated ManagerSelector.
+    """
     manager_config = {
         "hidden_dim": params.get("hidden_dim", 128),
         "lstm_hidden": params.get("lstm_hidden", 64),
@@ -90,8 +127,19 @@ def _create_manager_selector(params: dict) -> VectorizedSelector:
     return selector
 
 
-def _get_strategy_params(strategy: str, params: dict) -> dict:
-    """Map strategy name to its specific parameters."""
+def _get_strategy_params(strategy: str, params: Dict[str, Any]) -> Dict[str, Any]:
+    """Map strategy name to its specific parameters.
+
+    Args:
+        strategy: name of the strategy.
+        params: raw parameter dictionary.
+
+    Returns:
+        Dict[str, Any]: mapped parameters for the selector constructor.
+
+    Raises:
+        ValueError: if strategy is unknown.
+    """
     mappings = {
         "last_minute": {"threshold": params.get("threshold", 0.7)},
         "regular": {"frequency": params.get("frequency", 3)},
@@ -111,19 +159,17 @@ def _get_strategy_params(strategy: str, params: dict) -> dict:
     return mappings[strategy]
 
 
-# Factory function for easy instantiation
-def get_vectorized_selector(name: str, **kwargs) -> VectorizedSelector:
-    """
-    Create a vectorized selector by name.
+def get_vectorized_selector(name: str, **kwargs: Any) -> VectorizedSelector:
+    """Create a vectorized selector by name.
 
     Args:
         name: Selector name. Options:
-            - 'last_minute': Threshold-based reactive selection
-            - 'regular': Periodic collection on scheduled days
-            - 'lookahead': Predictive overflow-based selection
-            - 'revenue': Revenue-based selection
-            - 'service_level': Statistical overflow prediction
-            - 'manager': Neural network-based selection (MandatoryManager)
+            - 'last_minute': Threshold-based reactive selection.
+            - 'regular': Periodic collection on scheduled days.
+            - 'lookahead': Predictive overflow-based selection.
+            - 'revenue': Revenue-based selection.
+            - 'service_level': Statistical overflow prediction.
+            - 'manager': Neural network-based selection (MandatoryManager).
         **kwargs: Parameters passed to the selector constructor.
 
     Returns:

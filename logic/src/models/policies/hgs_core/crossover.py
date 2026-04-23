@@ -1,6 +1,16 @@
+"""Genetic Crossover Operators for HGS.
+
+Provides GPU-accelerated implementations of evolutionary recombination operators
+used to generate new offspring solutions from a parent population.
+
+Attributes:
+    vectorized_ordered_crossover: Ordered Crossover (OX1) for permutation tours.
+
+Example:
+    >>> offspring = vectorized_ordered_crossover(p1, p2)
 """
-Genetic Crossover Operators for HGS.
-"""
+
+from __future__ import annotations
 
 from typing import Any, Optional
 
@@ -13,20 +23,23 @@ def vectorized_ordered_crossover(
     device: Optional[Any] = None,
     generator: Optional[torch.Generator] = None,
 ) -> torch.Tensor:
-    """
-    Vectorized Ordered Crossover (OX1) with shared cuts across batch.
+    """Vectorized Ordered Crossover (OX1) with shared cuts across batch.
+
+    Generates offspring by extracting a continuous segment from the first parent
+    and filling the remaining positions with elements from the second parent
+    while preserving their relative ordering.
 
     Args:
-        parent1: (B, N)
-        parent2: (B, N)
-        device (Optional[Any]): Torch device. If None, uses parent1.device.
-        generator (Optional[torch.Generator]): Torch random number generator.
+        parent1: First parent solutions of shape [B, N].
+        parent2: Second parent solutions of shape [B, N].
+        device: Computing device. If None, uses device of parent1.
+        generator: Optional Torch RNG for reproducible cut points.
 
     Returns:
-        offspring: (B, N)
+        torch.Tensor: Generated offspring solutions of shape [B, N].
     """
     B, N = parent1.size()
-    device = parent1.device
+    device = device or parent1.device
 
     # 1. Generate shared cut points
     idx1, idx2 = torch.randint(0, N, (2,), device=device, generator=generator).tolist()
@@ -60,9 +73,7 @@ def vectorized_ordered_crossover(
 
     # Efficient exclusion check:
     # (B, N, 1) == (B, 1, num_seg) -> (B, N, num_seg) -> sum/any -> (B, N) mask
-    # This uses B*N*num_seg memory. For N=100, B=128, this is ~1.2M elements (bool). Cheap.
-
-    exists_in_seg = (p2_rolled.unsqueeze(2) == segment.unsqueeze(1)).any(dim=2)  # (B, N)
+    exists_in_seg = (p2_rolled.unsqueeze(2) == segment.unsqueeze(1)).any(dim=2)
 
     # We want elements where ~exists_in_seg
     # Handle each batch element separately to be robust to duplicates

@@ -1,16 +1,14 @@
-"""nonautoregressive_policy.py module.
+"""Non-autoregressive Policy module.
 
-Attributes:
-    MODULE_VAR (Type): Description of module level variable.
-
-Example:
-    >>> import nonautoregressive_policy
+This module provides the `NonAutoregressivePolicy` base class, which decouples
+global graph feature prediction (heatmap generation) from solution
+construction (decoding from heatmaps).
 """
 
 from __future__ import annotations
 
 from abc import ABC
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Tuple
 
 import torch
 from tensordict import TensorDict
@@ -23,11 +21,17 @@ from .encoder import NonAutoregressiveEncoder
 
 
 class NonAutoregressivePolicy(nn.Module, ABC):
-    """
-    Base class for non-autoregressive policies.
+    """Base class for non-autoregressive policies.
 
-    Combines a NAR encoder (heatmap prediction) with a NAR decoder
-    (solution construction) to form a complete policy.
+    NAR policies predict graph feature matrices (heatmaps) in a single step using
+    an encoder, then utilize a decoder to construct a valid tour from these
+    features using algorithms such as greedy search, sampling, or ACO.
+
+    Attributes:
+        encoder: Global heatmap predictor.
+        decoder: Solution constructor.
+        env_name: Name of the target environment.
+        embed_dim: Feature vector dimensionality.
     """
 
     def __init__(
@@ -36,9 +40,17 @@ class NonAutoregressivePolicy(nn.Module, ABC):
         decoder: Optional[NonAutoregressiveDecoder] = None,
         env_name: Optional[str] = None,
         embed_dim: int = 128,
-        **kwargs,
-    ):
-        """Initialize NonAutoregressivePolicy."""
+        **kwargs: Any,
+    ) -> None:
+        """Initialize the NonAutoregressivePolicy.
+
+        Args:
+            encoder: Encoder instance for predicting edge/node logits.
+            decoder: Decoder instance for creating routes from heatmaps.
+            env_name: Name of the environment.
+            embed_dim: Internal feature dimensionality.
+            **kwargs: Additional parameters for the package.
+        """
         super().__init__()
         self.encoder = encoder
         self.decoder = decoder
@@ -48,26 +60,26 @@ class NonAutoregressivePolicy(nn.Module, ABC):
     def forward(
         self,
         td: TensorDict,
-        env: RL4COEnvBase,
+        env: Optional[RL4COEnvBase] = None,
         strategy: str = "sampling",
         num_starts: int = 1,
-        **kwargs,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
-        """
-        Full forward pass: encode heatmap + decode solution.
+        """Perform a full forward pass: heatmap prediction followed by decoding.
 
         Args:
-            td: TensorDict containing problem instance.
-            env: Environment for state transitions and reward calculation.
-            num_starts: Number of solution constructions (for stochastic decoders).
-            **kwargs: Additional arguments for encoder/decoder.
+            td: TensorDict containing the problem instance.
+            env: Environment object for transition logic and reward calculation.
+            strategy: Decoding strategy (e.g., 'sampling', 'greedy').
+            num_starts: Number of parallel solution attempts.
+            **kwargs: Additional control arguments for encoder/decoder.
 
         Returns:
-            Dictionary containing:
-                - reward: Final reward/cost [batch] or [batch, num_starts]
-                - log_likelihood: Log probability of solution [batch]
-                - actions: Solution sequence [batch, seq_len]
-                - heatmap: Predicted heatmap from encoder
+            Dict[str, Any]: Results dictionary containing:
+                - reward (torch.Tensor): Calculated reward/cost for the solution.
+                - log_likelihood (torch.Tensor): Log prob of chosen actions.
+                - actions (torch.Tensor): Selected node indices.
+                - heatmap (torch.Tensor): The predicted graph features used.
         """
         # Encode: predict heatmap
         encoder_out = self.encoder(td, **kwargs) if self.encoder is not None else None
@@ -75,7 +87,7 @@ class NonAutoregressivePolicy(nn.Module, ABC):
 
         # Decode: construct solution(s) from heatmap
         if self.decoder is not None and heatmap is not None:
-            out = self.decoder(td, heatmap, env, num_starts=num_starts, **kwargs)
+            out = self.decoder(td, heatmap, env, strategy=strategy, num_starts=num_starts, **kwargs)
         else:
             # Fallback for subclasses that override forward entirely
             out = {}
@@ -83,8 +95,16 @@ class NonAutoregressivePolicy(nn.Module, ABC):
         out["heatmap"] = heatmap
         return out
 
-    def set_strategy(self, strategy: str, **kwargs):
-        """Set decoding strategy (compatibility with evaluation pipeline)."""
+    def set_strategy(self, strategy: str, **kwargs: Any) -> None:
+        """Set the decoding strategy for subsequent inference calls.
+
+        Useful for aligning with evaluation pipelines that vary decoding
+        parameters (e.g., temperature, beam width).
+
+        Args:
+            strategy: Strategy identifier string.
+            **kwargs: Configuration parameters for the strategy.
+        """
         self._strategy = strategy
         for k, v in kwargs.items():
             setattr(self, f"_{k}", v)
@@ -96,21 +116,30 @@ class NonAutoregressivePolicy(nn.Module, ABC):
         env: RL4COEnvBase,
         heatmap: torch.Tensor,
         actions: Optional[torch.Tensor] = None,
-        **decoding_kwargs,
-    ):
-        """
-        Common decoding logic for NAR models.
+        **decoding_kwargs: Any,
+    ) -> Tuple[torch.Tensor, torch.Tensor, TensorDict, RL4COEnvBase]:
+        """Provide a standardized construction loop for NAR models using heatmaps.
+
+        This utility manages strategy instantiation, pre/post-decoding hooks,
+        and the iterative selection loop driven by the pre-computed heatmap.
 
         Args:
-            strategy: Decoding strategy ('sampling', 'greedy', etc.)
-            td: Initial TensorDict
-            env: Environment
-            heatmap: Predicted heatmap from encoder
-            actions: Pre-specified actions for evaluation
-            **decoding_kwargs: Additional arguments for decoding
+            strategy: Decoding strategy ('sampling', 'greedy', etc.).
+            td: Initial state TensorDict.
+            env: Environment instance.
+            heatmap: Global feature matrix produced by the encoder.
+            actions: Optional pre-defined actions for evaluation.
+            **decoding_kwargs: Parameters for the decoding strategy.
 
         Returns:
-            Tuple of (logprobs, actions, td, env)
+            Tuple[torch.Tensor, torch.Tensor, TensorDict, RL4COEnvBase]:
+                - logprobs: Cumulative log probabilities.
+                - actions: Final solution action sequence.
+                - td: Resulting environment state TensorDict.
+                - env: Environment object post-construction.
+
+        Raises:
+            ValueError: If a decoder has not been defined for the policy.
         """
         if actions is not None:
             strategy = "evaluate"
@@ -157,14 +186,18 @@ class NonAutoregressivePolicy(nn.Module, ABC):
             td.update(env.step(td)["next"])
             step += 1
 
-        actions = torch.stack(actions_list, dim=1)
+        actions_result = torch.stack(actions_list, dim=1)
         logprobs = torch.stack(log_probs_list, dim=1)
 
         # Post-decoding hook
-        logprobs, actions, td, env = strategy_obj.post_decoder_hook(td, env, logprobs, actions)
-        return logprobs, actions, td, env
+        logprobs, actions_result, td, env = strategy_obj.post_decoder_hook(td, env, logprobs, actions_result)
+        return logprobs, actions_result, td, env
 
-    def eval(self):
-        """Set model to evaluation mode."""
+    def eval(self) -> NonAutoregressivePolicy:
+        """Set the model to evaluation mode.
+
+        Returns:
+            NonAutoregressivePolicy: Self, in evaluation mode.
+        """
         super().eval()
         return self

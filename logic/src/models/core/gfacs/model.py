@@ -1,7 +1,17 @@
-"""
-GFACS Model.
+"""GFACS Model for probabilistic routing.
 
-GFlowNet Ant Colony System with Trajectory Balance loss.
+This module implements `GFACS` (GFlowNet Ant Colony System), which treats tour
+construction as a flow network (Ye et al. 2024). It optimizes using Trajectory
+Balance (TB) loss by matching forward flows with backward flows under uniform
+action priors.
+
+Attributes:
+    GFACS: Primary training wrapper for GFlowNet-based Ant Colony System.
+
+Example:
+    >>> from logic.src.models.core.gfacs.model import GFACS
+    >>> model = GFACS(env=my_env)
+    >>> out = model(td, phase="train")
 """
 
 from __future__ import annotations
@@ -21,28 +31,23 @@ from .policy import GFACSPolicy
 
 
 class GFACS(nn.Module):
-    """
-    Implements GFACS (GFlowNet Ant Colony System).
+    """GFlowNet Ant Colony System (GFACS).
 
-    Reference: https://arxiv.org/abs/2403.07041
+    Learns a generative policy for routing problems using Trajectory Balance.
+    The model integrates ant-based exploration with GFlowNet's ability
+    to sample solutions proportional to their rewards.
 
-    GFACS uses Trajectory Balance (TB) loss for training, which requires
-    computing forward and backward probabilities for each trajectory.
-
-    Args:
-        env: Environment to use for the algorithm.
-        policy: Policy to use for the algorithm. If None, creates default GFACSPolicy.
-        baseline: Baseline type (currently unused, kept for compatibility).
-        train_with_local_search: Whether to train with local search.
-        policy_kwargs: Keyword arguments for policy.
-        baseline_kwargs: Keyword arguments for baseline (currently unused).
-        alpha_min: Minimum value for alpha coefficient.
-        alpha_max: Maximum value for alpha coefficient.
-        alpha_flat_epochs: Number of epochs to keep alpha constant.
-        beta_min: Minimum value for beta coefficient.
-        beta_max: Maximum value for beta coefficient.
-        beta_flat_epochs: Number of epochs to keep beta constant.
-        **kwargs: Additional keyword arguments.
+    Attributes:
+        env (RL4COEnvBase): Targeted optimization environment.
+        policy (GFACSPolicy): Neural flow model.
+        train_with_local_search (bool): If True, incorporates LS-refined rewards.
+        alpha_min (float): Initial weight for local search in loss.
+        alpha_max (float): maximum weight for local search in loss.
+        alpha_flat_epochs (int): Epochs before alpha scheduling begins.
+        beta_min (float): Initial reward-to-likelihood scaling.
+        beta_max (float): Maximum reward-to-likelihood scaling.
+        beta_flat_epochs (int): Epochs before beta scheduling begins.
+        current_epoch (int): Counter for hyperparameter scheduling.
     """
 
     def __init__(
@@ -59,30 +64,28 @@ class GFACS(nn.Module):
         beta_min: float = 1.0,
         beta_max: float = 1.0,
         beta_flat_epochs: int = 5,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
-        """Initialize Class.
+        """Initializes the GFACS model.
 
         Args:
-            env (RL4COEnvBase): Description of env.
-            policy (Optional[GFACSPolicy]): Description of policy.
-            baseline (str): Description of baseline.
-            train_with_local_search (bool): Description of train_with_local_search.
-            policy_kwargs (Optional[Dict[str, Any]]): Description of policy_kwargs.
-            baseline_kwargs (Optional[Dict[str, Any]]): Description of baseline_kwargs.
-            alpha_min (float): Description of alpha_min.
-            alpha_max (float): Description of alpha_max.
-            alpha_flat_epochs (int): Description of alpha_flat_epochs.
-            beta_min (float): Description of beta_min.
-            beta_max (float): Description of beta_max.
-            beta_flat_epochs (int): Description of beta_flat_epochs.
-            kwargs (Any): Description of kwargs.
+            env: target RL4CO environment.
+            policy: Optional pre-defined policy instance.
+            baseline: baseline strategy (unused).
+            train_with_local_search: Whether to use LS rewards for training.
+            policy_kwargs: params for automated policy creation.
+            baseline_kwargs: params for baseline setup.
+            alpha_min: starting alpha schedule.
+            alpha_max: ending alpha schedule.
+            alpha_flat_epochs: initial plateau for alpha.
+            beta_min: starting beta schedule.
+            beta_max: ending beta schedule.
+            beta_flat_epochs: initial plateau for beta.
+            **kwargs: Unused extra parameters.
         """
         super().__init__()
 
         policy_kwargs = policy_kwargs or {}
-        baseline_kwargs = baseline_kwargs or {}
-
         if policy is None:
             policy = GFACSPolicy(
                 env_name=env.name,
@@ -94,7 +97,6 @@ class GFACS(nn.Module):
         self.policy = policy
         self.train_with_local_search = train_with_local_search
 
-        # TB loss hyperparameters
         self.alpha_min = alpha_min
         self.alpha_max = alpha_max
         self.alpha_flat_epochs = alpha_flat_epochs
@@ -105,15 +107,29 @@ class GFACS(nn.Module):
         self.current_epoch = 0
 
     def forward(
-        self, td: TensorDict, env: Optional[RL4COEnvBase] = None, phase: str = "train", **kwargs
+        self,
+        td: TensorDict,
+        env: Optional[RL4COEnvBase] = None,
+        phase: str = "train",
+        **kwargs: Any,
     ) -> Dict[str, Any]:
-        """Forward pass during training/evaluation."""
+        """Samples trajectories using the GFlowNet policy.
+
+        Args:
+            td: Environment state.
+            env: Optional env override.
+            phase: Current execution phase.
+            **kwargs: Extra parameters for the policy.
+
+        Returns:
+            Dict[str, Any]: Policy results including actions and rewards.
+        """
         env = env or self.env
         return self.policy(td, env, phase=phase, **kwargs)
 
     @property
     def alpha(self) -> float:
-        """Linearly increasing alpha from alpha_min to alpha_max."""
+        """Scheduled weight for local-search reward inclusion."""
         if not hasattr(self, "trainer") or self.trainer is None or not hasattr(self.trainer, "max_epochs"):
             return self.alpha_min
         return self.alpha_min + (self.alpha_max - self.alpha_min) * min(
@@ -123,7 +139,7 @@ class GFACS(nn.Module):
 
     @property
     def beta(self) -> float:
-        """Logarithmically increasing beta from beta_min to beta_max."""
+        """Scheduled exponent for reward-to-flow mapping."""
         if not hasattr(self, "trainer") or self.trainer is None or not hasattr(self.trainer, "max_epochs"):
             return self.beta_min
         return self.beta_min + (self.beta_max - self.beta_min) * min(
@@ -139,22 +155,21 @@ class GFACS(nn.Module):
         reward: Optional[torch.Tensor] = None,
         log_likelihood: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
-        """
-        Calculate loss for GFACS algorithm using Trajectory Balance.
+        """Computes Trajectory Balance loss (TB).
 
         Args:
-            td: TensorDict containing the current state of the environment.
-            batch: Batch of data. This is used to get the extra loss terms.
-            policy_out: Output of the policy network.
-            reward: Reward tensor. If None, it is taken from `policy_out`.
-            log_likelihood: Log-likelihood tensor. If None, it is taken from `policy_out`.
+            td: Problem state.
+            batch: Data batch.
+            policy_out: Results from dynamic rollout.
+            reward: Optional reward override.
+            log_likelihood: Optional likelihood override.
 
         Returns:
-            Trajectory balance loss.
+            torch.Tensor: mean squared TB error.
         """
-        reward = policy_out["reward"]
-        n_ants = reward.size(1)  # type: ignore
-        advantage = reward - reward.mean(dim=1, keepdim=True)  # type: ignore
+        reward_val = policy_out["reward"]
+        n_ants = reward_val.size(1)
+        advantage = reward_val - reward_val.mean(dim=1, keepdim=True)
 
         if self.train_with_local_search:
             ls_reward = policy_out["ls_reward"]
@@ -164,14 +179,13 @@ class GFACS(nn.Module):
             weighted_advantage = advantage
             ls_advantage = torch.zeros_like(advantage)
 
-        # On-policy loss
+        # TB condition: Log(Z) + Forward_Likelihood == Reward + Backward_Prior
         forward_flow = policy_out["log_likelihood"] + policy_out["logZ"].repeat(1, n_ants)
         backward_flow = (
             self.calculate_log_pb_uniform(policy_out["actions"], n_ants) + weighted_advantage.detach() * self.beta
         )
         tb_loss = torch.pow(forward_flow - backward_flow, 2).mean()
 
-        # Off-policy loss
         if self.train_with_local_search:
             ls_forward_flow = policy_out["ls_log_likelihood"] + policy_out["ls_logZ"].repeat(1, n_ants)
             ls_backward_flow = (
@@ -183,21 +197,19 @@ class GFACS(nn.Module):
         return tb_loss
 
     def calculate_log_pb_uniform(self, actions: torch.Tensor, n_ants: int) -> torch.Tensor:
-        """
-        Calculate log probability of actions under uniform backward policy.
+        """Calculates uniform backward probability for the trajectory.
 
         Args:
-            actions: Action tensor.
-            n_ants: Number of ants.
+            actions: sampled node indices [B*Ants, N].
+            n_ants: population size.
 
         Returns:
-            Log probability tensor.
+            torch.Tensor: Log prior of generating the path in reverse.
         """
         if self.env.name == "tsp":
-            return torch.tensor(math.log(1 / 2 * actions.size(1)))
+            return torch.tensor(math.log(1 / (2 * actions.size(1))))
         elif self.env.name == "cvrp":
             _a1 = actions.detach().cpu().numpy()
-            # shape: (batch, max_tour_length)
             n_nodes = np.count_nonzero(_a1, axis=1)
             _a2 = _a1[:, 1:] - _a1[:, :-1]
             n_routes = np.count_nonzero(_a2, axis=1) - n_nodes

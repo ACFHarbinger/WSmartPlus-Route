@@ -1,10 +1,14 @@
-"""__init__.py module.
+"""DeepACO Neural Ant Colony Optimization components.
+
+This package provides the implementation of DeepACO (Ye et al. 2023), which
+couples GNN-based heatmap prediction with probabilistic ant construction.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    DeepACO: Primary training wrapper for neural ACO.
+    DeepACOPolicy: The encoder-decoder policy for ant construction.
 
 Example:
-    >>> import __init__
+    >>> from logic.src.models.core.deepaco import DeepACO
 """
 
 from .model import DeepACO as DeepACO

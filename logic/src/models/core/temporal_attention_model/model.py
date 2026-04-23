@@ -1,17 +1,20 @@
+"""Temporal Attention Model (TAM) core module.
+
+This module provides the implementation of the Temporal Attention Model,
+an extension of the base Attention Model designed for dynamic environments like
+stochastic waste collection. It integrates a recurrent fill-level predictor
+to incorporate historical trends into the routing construction process.
+
+Attributes:
+    TemporalAttentionModel: AM variant with proactive temporal features.
+
+Example:
+    >>> from logic.src.models.core.temporal_attention_model.model import TemporalAttentionModel
+    >>> model = TemporalAttentionModel(embed_dim=128, predictor_type="gru")
+    >>> out = model(td, env)
 """
-Temporal Attention Model for multi-day waste collection routing.
 
-Extends the base AttentionModel with a GRU-based fill level predictor that uses
-historical waste data to anticipate future bin fill levels. This enables proactive
-collection decisions in stochastic waste scenarios (SCWCVRP, SWCVRP).
-
-Architecture:
-    Base AttentionModel + FillPredictor -> TemporalEmbedding -> CombineLayer
-
-The temporal features are fused with static node embeddings before encoding,
-allowing the attention mechanism to consider predicted future fill levels
-when constructing routes.
-"""
+from __future__ import annotations
 
 from typing import Any, Dict, Optional, Tuple
 
@@ -22,16 +25,24 @@ from logic.src.configs.models.activation_function import ActivationConfig
 from logic.src.configs.models.normalization import NormalizationConfig
 from logic.src.models.core.attention_model import AttentionModel
 from logic.src.models.subnets.factories import NeuralComponentFactory
-from logic.src.models.subnets.helpers.gru_fill_predictor import GatedRecurrentUnitFillPredictor
-from logic.src.models.subnets.helpers.lstm_fill_predictor import LongShortTermMemoryFillPredictor
 from logic.src.models.subnets.modules import ActivationFunction
+from logic.src.models.subnets.other.gru_fill_predictor import GatedRecurrentUnitFillPredictor
+from logic.src.models.subnets.other.lstm_fill_predictor import LongShortTermMemoryFillPredictor
 
 
 class TemporalAttentionModel(AttentionModel):
-    """
-    Attention Model extended with temporal features (waste history).
+    """Attention Model with temporal bin feature prediction.
 
-    Integrates a fill level predictor and processes historical waste data.
+    TAM improves upon standard AM by leveraging a recurrent sub-network (GRU or LSTM)
+    to predict future node states (e.g., bin fill levels) from history. These
+    predictions are fused with spatial embeddings before the encoding stage.
+
+    Attributes:
+        fill_predictor (nn.Module): Recurrent network for time-series forecasting.
+        temporal_horizon (int): Number of historical steps used for prediction.
+        temporal_embed (nn.Module): Linear projection for predicted features.
+        combine_embeddings (nn.Module): MLP for fusing spatial and temporal latents.
+        predict_future (bool): Global toggle for enabling prediction logic.
     """
 
     def __init__(
@@ -65,10 +76,20 @@ class TemporalAttentionModel(AttentionModel):
         hyper_expansion: int = 4,
         decoder_type: str = "attention",
         predictor_type: str = "gru",
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
-        """
-        Initialize the Temporal Attention Model.
+        """Initializes the Temporal Attention Model.
+
+        Args:
+            embed_dim: Node latent feature size.
+            hidden_dim: Subnet hidden size.
+            problem: Reference to the problem domain.
+            component_factory: Subnet instantiation factory.
+            dropout_rate: Probability for dropout layers.
+            temporal_horizon: Window size for historical waste data.
+            predictor_layers: Depth of the RNN predictor.
+            predictor_type: Type of RNN cell ('gru', 'lstm').
+            **kwargs: Additional parameters passed to AttentionModel.
         """
         super().__init__(
             embed_dim=embed_dim,
@@ -91,7 +112,7 @@ class TemporalAttentionModel(AttentionModel):
             checkpoint_encoder=checkpoint_encoder,
             shrink_size=shrink_size,
             pomo_size=pomo_size,
-            temporal_horizon=0,  # Explicitly set to 0 for initial context
+            temporal_horizon=0,  # Base model horizon is 0; TAM uses fill_predictor
             spatial_bias=spatial_bias,
             spatial_bias_scale=spatial_bias_scale,
             entropy_weight=entropy_weight,
@@ -102,10 +123,9 @@ class TemporalAttentionModel(AttentionModel):
             **kwargs,
         )
 
-        if activation_config is None:
-            activation_config = ActivationConfig()
-
+        activation_config = activation_config or ActivationConfig()
         self.temporal_horizon = temporal_horizon
+
         if predictor_type == "lstm":
             self.fill_predictor = LongShortTermMemoryFillPredictor(
                 input_dim=1,
@@ -139,81 +159,87 @@ class TemporalAttentionModel(AttentionModel):
         )
 
     def _get_initial_embeddings(self, input: Dict[str, torch.Tensor]) -> Tuple[torch.Tensor, Optional[Any]]:
-        """
-        Get initial embeddings for nodes, incorporating predicted future fill levels.
+        """Processes static and temporal features into fused initial embeddings.
+
+        Identifies 'fill_history' in the input, predicts next-day fill levels,
+        and combines these latents with the spatial projections.
 
         Args:
-            input (dict): Input data containing node features and history.
+            input: Key-tensor mapping of instance data including node history.
 
         Returns:
-            torch.Tensor: Combined embeddings (static + temporal).
+            Tuple[torch.Tensor, Optional[Any]]:
+                - embeddings (torch.Tensor): Fused feature vectors [batch, nodes, dim].
+                - init_context (Optional[Any]): Initial state context (None here).
         """
-        # Get the base embeddings from context embedder (without temporal features)
+        # 1. Base spatial/constant feature projection
         base_embeddings = self.context_embedder.init_node_embeddings(input)
 
-        if "fill_history" not in list(input.keys()) or not self.predict_future:
+        if "fill_history" not in input or not self.predict_future:
             return base_embeddings, None
 
+        # 2. Extract and reshape history: [batch, graph, horizon, 1]
         fill_history = input["fill_history"]
         batch_size, graph_size, _ = fill_history.size()
-        fill_history = fill_history.view(batch_size * graph_size, self.temporal_horizon, 1)
+        reshaped_history = fill_history.view(batch_size * graph_size, self.temporal_horizon, 1)
 
-        predicted_fills = self.fill_predictor(fill_history)
+        # 3. Predict next step fill Level
+        predicted_fills = self.fill_predictor(reshaped_history)
         predicted_fills = predicted_fills.view(batch_size, graph_size, 1)
 
-        # For depot node, set predicted fill to 0
+        # 4. Handle depot separately (no fill prediction)
         if self.is_vrpp or self.is_wc:
             depot_fill = torch.zeros((batch_size, 1, 1), device=predicted_fills.device)
             predicted_fills = torch.cat((depot_fill, predicted_fills), dim=1)
 
+        # 5. Fuse spatial and temporal latents
         fill_embeddings = self.temporal_embed(predicted_fills)
         combined_embeddings = self.combine_embeddings(torch.cat((base_embeddings, fill_embeddings), dim=-1))
         return combined_embeddings, None
 
-    def forward(  # type: ignore[override]
+    def forward(
         self,
-        input,
-        cost_weights=None,
-        return_pi=False,
-        pad=False,
-        mask=None,
-        expert_pi=None,
-        **kwargs,
-    ):
-        """
-        Forward pass of the Temporal Attention Model.
-
-        Handles temporal feature prediction and updates if needed.
+        input: Dict[str, torch.Tensor],
+        env: Optional[Any] = None,
+        strategy: Optional[str] = None,
+        return_pi: bool = False,
+        pad: bool = False,
+        mask: Optional[torch.Tensor] = None,
+        expert_pi: Optional[torch.Tensor] = None,
+        **kwargs: Any,
+    ) -> Dict[str, Any]:
+        """Constructs solutions while proactively anticipating future state.
 
         Args:
-            input (dict): The input data dictionary.
-            cost_weights (torch.Tensor, optional): Weights for different cost components. Defaults to None.
-            return_pi (bool, optional): Whether to return the action sequence. Defaults to False.
-            pad (bool, optional): Whether to pad the solution sequence. Defaults to False.
-            mask (torch.Tensor, optional): Mask for valid actions. Defaults to None.
-            expert_pi (torch.Tensor, optional): Expert policy. Defaults to None.
-            **kwargs: Arbitrary keyword arguments.
+            input: Instance data dictionary.
+            env: Environment object (passed as cost_weights in legacy calls).
+            strategy: selection strategy choice.
+            return_pi: whether to include action log-likelihoods.
+            pad: sequence padding flag.
+            mask: optional action validity mask.
+            expert_pi: target solution for imitation.
+            **kwargs: Extra parameters.
 
         Returns:
-            tuple: (cost, log_likelihood, cost_dict, pi, entropy)
+            Dict[str, Any]: Result container (see AttentionModel.forward).
         """
-        if "fill_history" not in list(input.keys()) and self.predict_future:
+        # Ensure fill_history exists for temporal problems
+        if "fill_history" not in input and self.predict_future:
             locs_key = "locs" if "locs" in input else "loc"
             batch_size = input[locs_key].size(0)
             graph_size = input[locs_key].size(1)
-
-            # For VRP-like problems, adjust for depot (excluded from graph size)
-            if self.is_vrpp or self.is_wc:
-                pass  # graph_size is already correct (num customers)
 
             fill_history = torch.zeros(
                 (batch_size, graph_size, self.temporal_horizon),
                 device=input[locs_key].device,
             )
             input["fill_history"] = fill_history
+
+        # cost_weights legacy mapping
         return super().forward(
             input,
-            env=cost_weights,
+            env=env,
+            strategy=strategy,
             return_pi=return_pi,
             pad=pad,
             mask=mask,
@@ -221,33 +247,31 @@ class TemporalAttentionModel(AttentionModel):
             **kwargs,
         )
 
-    def update_fill_history(self, fill_history, new_fills):
-        """
-        Update the fill history with new fill levels (rolling window).
+    def update_fill_history(self, fill_history: torch.Tensor, new_fills: torch.Tensor) -> torch.Tensor:
+        """Appends new observations to the rolling historical window.
 
         Args:
-            fill_history (torch.Tensor): Current fill history.
-            new_fills (torch.Tensor): New fill levels to append.
+            fill_history: Current window [batch, graph, horizon].
+            new_fills: Latest observed fill levels [batch, graph].
 
         Returns:
-            torch.Tensor: Updated fill history.
+            torch.Tensor: Updated rolling window.
         """
         updated_history = fill_history.clone()
         updated_history[:, :, :-1] = fill_history[:, :, 1:]
         updated_history[:, :, -1] = new_fills
         return updated_history
 
-    def compute_simulator_day(self, input, graph):
-        """
-        Compute one simulation day, updating fill history if present.
+    def compute_simulator_day(self, input: Dict[str, Any], graph: Any) -> Dict[str, Any]:
+        """Executes one simulation day and updates bin memory.
 
         Args:
-            input (dict): Input data.
-            graph (object): The graph object.
+            input: Day-specific simulation data.
+            graph: The spatial infrastructure graph.
 
         Returns:
-            dict: Simulation results.
+            Dict[str, Any]: Daily routing accomplishments.
         """
-        if "fill_history" in list(input.keys()) and "current_fill" in list(input.keys()):
+        if "fill_history" in input and "current_fill" in input:
             input["fill_history"] = self.update_fill_history(input["fill_history"], input["current_fill"])
         return super().compute_simulator_day(input, graph)  # type: ignore[misc]

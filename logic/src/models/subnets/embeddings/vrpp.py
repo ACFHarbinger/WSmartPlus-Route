@@ -1,5 +1,15 @@
-"""
-VRPP Embedding module.
+"""VRPP Embedding module.
+
+This module provides the VRPPInitEmbedding layer, which encodes locations
+and waste levels for Vehicle Routing Problems with Profits.
+
+Attributes:
+    VRPPInitEmbedding: Initial feature encoder for VRPP instances.
+
+Example:
+    >>> from logic.src.models.subnets.embeddings.vrpp import VRPPInitEmbedding
+    >>> embed = VRPPInitEmbedding(embed_dim=128)
+    >>> h = embed(td)
 """
 
 from __future__ import annotations
@@ -10,14 +20,21 @@ from torch import nn
 
 
 class VRPPInitEmbedding(nn.Module):
-    """Initial embedding for VRPP problems."""
+    """Initial embedding for VRPP problems.
 
-    def __init__(self, embed_dim: int = 128):
-        """
-        Initialize VRPPInitEmbedding.
+    Projects static node features (coordinates and container waste quantities)
+    into a high-dimensional embedding space.
+
+    Attributes:
+        node_embed (nn.Linear): Linear projection for customer node features.
+        depot_embed (nn.Linear): Specialized linear projection for depot location.
+    """
+
+    def __init__(self, embed_dim: int = 128) -> None:
+        """Initializes VRPPInitEmbedding.
 
         Args:
-            embed_dim: Embedding dimension.
+            embed_dim: Internal embedding dimensionality.
         """
         super().__init__()
         # Node features: x, y, waste
@@ -26,14 +43,13 @@ class VRPPInitEmbedding(nn.Module):
         self.depot_embed = nn.Linear(2, embed_dim)
 
     def forward(self, td: TensorDict) -> torch.Tensor:
-        """
-        Embed VRPP instance.
+        """Encodes VRPP instance features into initial node embeddings.
 
         Args:
-            td: TensorDict with keys: locs, depot, waste
+            td: TensorDict containing instance metadata ('locs', 'depot', 'waste').
 
         Returns:
-            Node embeddings [batch, num_nodes, embed_dim]
+            torch.Tensor: Initial node embeddings of shape (batch, num_nodes, dim).
         """
         locs = td["locs"]  # [batch, num_nodes, 2]
         waste = td.get("waste")

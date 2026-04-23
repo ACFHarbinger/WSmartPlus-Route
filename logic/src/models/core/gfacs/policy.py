@@ -1,8 +1,17 @@
-"""
-GFACS Policy: GFlowNet Ant Colony System.
+"""GFACS Policy: GFlowNet Ant Colony System.
 
-Combines GFACSEncoder (heatmap prediction) with ACODecoder for construction.
-Adds learnable partition function (logZ) for Trajectory Balance loss training.
+This module implements the `GFACSPolicy`, which integrates a GFlowNet-style
+learnable partition function (`logZ`) into the DeepACO framework. This enabling
+Trajectory Balance loss training while maintaining the construction benefits
+of Ant Colony System.
+
+Attributes:
+    GFACSPolicy: Neural GFlowNet policy with ACO path construction.
+
+Example:
+    >>> from logic.src.models.core.gfacs.policy import GFACSPolicy
+    >>> policy = GFACSPolicy(env_name="tsp")
+    >>> out = policy(td, my_env)
 """
 
 from __future__ import annotations
@@ -20,11 +29,16 @@ from logic.src.models.subnets.encoders.gfacs.encoder import GFACSEncoder
 
 
 class GFACSPolicy(DeepACOPolicy):
-    """
-    GFACS Policy.
+    """GFACS (GFlowNet Ant Colony System) Policy.
 
-    Extends DeepACOPolicy with a learnable logZ parameter for GFlowNet training
-    (Trajectory Balance Loss).
+    Extends `DeepACOPolicy` by injecting a learnable scalar `logZ` representing
+    the log partition function of the flow network. This parameter is essential
+    for satisfying the Trajectory Balance condition during training.
+
+    Attributes:
+        logZ (nn.Parameter): Learnable scalar for the global flow normalization.
+        encoder (GFACSEncoder): GNN-based problem encoder.
+        decoder (ACODecoder): Probabilistic path construction module.
     """
 
     def __init__(
@@ -41,25 +55,24 @@ class GFACSPolicy(DeepACOPolicy):
         rho: float = 0.1,
         use_local_search: bool = True,
         env_name: Optional[str] = None,
-        **kwargs,
-    ):
-        """
-        Initialize GFACSPolicy.
+        **kwargs: Any,
+    ) -> None:
+        """Initializes the GFACSPolicy.
 
         Args:
-            encoder: GFACSEncoder instance.
-            decoder: ACODecoder instance.
-            embed_dim: Embedding dimension.
-            num_encoder_layers: Number of GNN layers.
-            num_heads: Number of attention heads.
-            n_ants: Number of ants in ACO.
-            n_iterations: Number of ACO iterations.
-            alpha: Pheromone importance.
-            beta: Heuristic importance.
-            rho: Pheromone evaporation rate.
-            use_local_search: Whether to use local search in ACO.
-            env_name: Environment name.
-            **kwargs: Additional arguments.
+            encoder: problem-specific encoder.
+            decoder: constructive decoder.
+            embed_dim: internal feature width.
+            num_encoder_layers: depth of the GNN blocks.
+            num_heads: attention count for the encoder.
+            n_ants: population size for ACO construction.
+            n_iterations: count of ACO refinement passes.
+            alpha: relative importance of pheromone trails.
+            beta: relative importance of heuristic visibility.
+            rho: evaporation coefficient for trail updates.
+            use_local_search: whether to apply 2-opt/swap after construction.
+            env_name: targeting optimization task.
+            **kwargs: Extra parameters for sub-modules.
         """
         if encoder is None:
             encoder = GFACSEncoder(
@@ -85,8 +98,7 @@ class GFACSPolicy(DeepACOPolicy):
             **kwargs,
         )
 
-        # Learnable log partition function for Trajectory Balance loss
-        # Initialize to 0.0 or a small random value
+        # GFlowNet partition scale parameter
         self.logZ = nn.Parameter(torch.tensor(0.0))
 
     def forward(  # type: ignore[override]
@@ -94,25 +106,26 @@ class GFACSPolicy(DeepACOPolicy):
         td: TensorDict,
         env: RL4COEnvBase,
         num_starts: int = 1,
-        **kwargs,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
-        """
-        Forward pass for GFACS.
+        """Performs constructive sampling with flow normalization.
+
+        Args:
+            td: problem state.
+            env: environment dynamics.
+            num_starts: construction entry points (multi-start).
+            **kwargs: execution flags (e.g., 'return_all').
 
         Returns:
-            Dict containing:
-                - reward: Rewards for constructed solutions.
-                - log_likelihood: Log probabilities of solutions.
-                - actions: Constructed solutions.
-                - heatmap: Predicted edge heatmap.
-                - logZ: Learnable partition function value (scalar).
+            Dict[str, Any]: map with 'actions', 'reward', 'log_likelihood', and 'logZ'.
         """
-        # GFACS requires all ants for Trajectory Balance loss
+        # Ensure all ants are processed for TB loss integrity
         if "return_all" not in kwargs:
             kwargs["return_all"] = True
 
         out = super().forward(td, env, num_starts=num_starts, **kwargs)
-        # Add logZ to output for loss calculation (e.g. in Trajectory Balance Loss)
+
+        # Inject global flow constant into result dictionary
         out["logZ"] = self.logZ
         if "ls_actions" in out:
             out["ls_logZ"] = self.logZ

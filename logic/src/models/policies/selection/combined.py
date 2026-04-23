@@ -1,27 +1,34 @@
-"""
-Combined Selection Strategy.
+"""Combined selection strategy.
+
+This module provides a mechanism to combine multiple bin selection strategies
+using logical operators (AND/OR).
 """
 
+from __future__ import annotations
+
+from typing import Any, List
+
 import torch
-from torch import Tensor
 
 from .base import VectorizedSelector
 
 
 class CombinedSelector(VectorizedSelector):
-    """
-    Combines multiple selection strategies with logical OR.
+    """Combines multiple selection strategies with Boolean logic.
 
-    A bin is selected if ANY of the constituent selectors select it.
+    A bin is selected if the logical combination (AND/OR) of all constituent
+    selectors results in a True value.
     """
 
-    def __init__(self, selectors: list[VectorizedSelector], logic: str = "or"):
-        """
-        Initialize CombinedSelector.
+    def __init__(self, selectors: List[VectorizedSelector], logic: str = "or") -> None:
+        """Initialize the combined selector.
 
         Args:
-            selectors: List of VectorizedSelector instances to combine.
-            logic: logical operator to combine selectors ('or' or 'and'). Default: 'or'.
+            selectors: instances of VectorizedSelector to combine.
+            logic: logical operator to combine masks ('or' or 'and').
+
+        Raises:
+            ValueError: if logic is not 'or' or 'and'.
         """
         self.selectors = selectors
         self.logic = logic.lower()
@@ -30,18 +37,17 @@ class CombinedSelector(VectorizedSelector):
 
     def select(
         self,
-        fill_levels: Tensor,
-        **kwargs,
-    ) -> Tensor:
-        """
-        Select bins chosen by any constituent selector.
+        fill_levels: torch.Tensor,
+        **kwargs: Any,
+    ) -> torch.Tensor:
+        """Select bins chosen by constituent selectors according to logic.
 
         Args:
-            fill_levels: Current fill levels (batch_size, num_nodes).
-            **kwargs: Passed to all constituent selectors.
+            fill_levels: Current fill levels [B, N].
+            **kwargs: parameters passed to all constituent selectors.
 
         Returns:
-            Tensor: Boolean mask (batch_size, num_nodes).
+            torch.Tensor: Boolean mask [B, N] of selected bins.
         """
         batch_size, num_nodes = fill_levels.shape
         device = fill_levels.device

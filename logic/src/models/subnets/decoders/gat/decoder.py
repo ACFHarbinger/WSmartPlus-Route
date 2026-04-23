@@ -1,9 +1,21 @@
-"""Deep GAT Decoder module."""
+"""Deep GAT Decoder module.
+
+This module implements a deep constructive decoder based on Graph Attention
+Networks (GAT). It performs autoregressive node selection for routing problems.
+
+Attributes:
+    DeepGATDecoder: High-level GAT-based constructive decoder.
+
+Example:
+    >>> from logic.src.models.subnets.decoders.gat.decoder import DeepGATDecoder
+    >>> decoder = DeepGATDecoder(embed_dim=128, hidden_dim=512, n_heads=8, n_layers=3)
+    >>> log_p, pi, cost, _ = decoder(input_tensor, embeddings)
+"""
 
 from __future__ import annotations
 
 import math
-from typing import Any, Optional, cast
+from typing import Any, Dict, Optional, Tuple, cast
 
 import torch
 from torch import nn
@@ -15,8 +27,24 @@ from logic.src.models.subnets.decoders.gat.graph_decoder import GraphAttentionDe
 
 
 class DeepGATDecoder(nn.Module):
-    """
-    Deep Decoder module independent of the model architecture.
+    """Deep Decoder module independent of the model architecture.
+
+    This decoder uses multiple layers of graph attention to refine step context
+    and compute probabilities over the next nodes to visit.
+
+    Attributes:
+        embed_dim (int): Input and output embedding dimension.
+        n_heads (int): Number of attention heads.
+        aggregation_graph (str): Graph embedding aggregation: "avg", "sum", or "max".
+        mask_graph (bool): Whether to mask edges during attention.
+        mask_logits (bool): Whether to apply masking to output logits.
+        tanh_clipping (float): Clipping value for logits.
+        seed (int): Random seed for selection.
+        generator (torch.Generator): Random number generator for reproducible decoding.
+        temp (float): Softmax temperature.
+        decoder (GraphAttentionDecoder): Inner GAT decoder layers.
+        project_fixed_context (nn.Linear): Linear projection for graph embedding.
+        project_step_context (nn.Linear): Linear projection for step-specific context.
     """
 
     def __init__(
@@ -34,9 +62,26 @@ class DeepGATDecoder(nn.Module):
         tanh_clipping: float = 10.0,
         seed: int = 42,
         temp: float = 1.0,
-        **kwargs,
-    ):
-        """Initialize DeepGATDecoder."""
+        **kwargs: Any,
+    ) -> None:
+        """Initializes DeepGATDecoder.
+
+        Args:
+            embed_dim: Dimensionality of node embeddings.
+            hidden_dim: Hidden dimension for FFN layers.
+            n_heads: Number of attention heads.
+            n_layers: Number of GAT layers.
+            norm_config: Configuration for normalization layers.
+            activation_config: Configuration for activation functions.
+            dropout_rate: Dropout probability.
+            aggregation_graph: Aggregation method for graph embedding.
+            mask_graph: Whether to use edge/graph masks.
+            mask_logits: Whether to mask previously visited nodes.
+            tanh_clipping: Logit clipping constant.
+            seed: Random seed for action selection.
+            temp: Softmax temperature.
+            kwargs: Additional keyword arguments.
+        """
         super().__init__()
         self.embed_dim = embed_dim
         self.n_heads = n_heads
@@ -67,20 +112,38 @@ class DeepGATDecoder(nn.Module):
 
     @property
     def device(self) -> torch.device:
-        """Get device of the model."""
+        """Gets the device of the model.
+
+        Returns:
+            torch.device: Model device.
+        """
         return next(self.parameters()).device
 
     def forward(
         self,
-        input: torch.Tensor,
+        input: torch.Tensor | Dict[str, torch.Tensor],
         embeddings: torch.Tensor,
         fixed_context: Optional[torch.Tensor] = None,
         init_context: Optional[torch.Tensor] = None,
         env: Optional[Any] = None,
         expert_pi: Optional[torch.Tensor] = None,
         **kwargs: Any,
-    ):
-        """Standard Module forward wrapper."""
+    ) -> Tuple[torch.Tensor, torch.Tensor, Optional[torch.Tensor], None]:
+        """Standard Module forward wrapper.
+
+        Args:
+            input: Input features or state dictionary.
+            embeddings: Contextual embeddings from encoder.
+            fixed_context: Precomputed fixed context (optional).
+            init_context: Initial step context (optional).
+            env: Environment instance (optional).
+            expert_pi: Expert actions for imitation (optional).
+            kwargs: Additional keyword arguments.
+
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor, Optional[torch.Tensor], None]: A tuple
+                containing (log_probabilities, sequences, cost, mask).
+        """
         return self._inner(
             input,
             embeddings,
@@ -93,15 +156,32 @@ class DeepGATDecoder(nn.Module):
 
     def _inner(
         self,
-        nodes: torch.Tensor,
+        nodes: torch.Tensor | Dict[str, torch.Tensor],
         embeddings: torch.Tensor,
         fixed_context: Optional[torch.Tensor] = None,
         init_context: Optional[torch.Tensor] = None,
         env: Optional[Any] = None,
         expert_pi: Optional[torch.Tensor] = None,
         **kwargs: Any,
-    ):
-        """Constructive decoding loop."""
+    ) -> Tuple[torch.Tensor, torch.Tensor, Optional[torch.Tensor], None]:
+        """Constructive decoding loop.
+
+        Args:
+            nodes: Input node features.
+            embeddings: Contextual embeddings from encoder.
+            fixed_context: Precomputed fixed context.
+            init_context: Initial step context.
+            env: Environment instance.
+            expert_pi: Expert actions.
+            kwargs: Additional keyword arguments.
+
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor, Optional[torch.Tensor], None]: Log-p,
+                sequences, cost, and dummy value.
+
+        Raises:
+            AttributeError: If self.problem is not set.
+        """
         outputs = []
         sequences = []
 
@@ -123,7 +203,7 @@ class DeepGATDecoder(nn.Module):
         try:
             if isinstance(nodes, torch.Tensor):
                 graph_size = nodes.shape[1]
-            elif hasattr(nodes, "__getitem__") and "locs" in nodes:
+            elif isinstance(nodes, dict) and "locs" in nodes:
                 graph_size = nodes["locs"].shape[1]
             else:
                 graph_size = 100
@@ -157,8 +237,25 @@ class DeepGATDecoder(nn.Module):
 
         return _log_p, pi, cost, None
 
-    def _select_node(self, probs, mask, strategy="greedy"):
-        """Selection logic."""
+    def _select_node(
+        self,
+        probs: torch.Tensor,
+        mask: torch.Tensor,
+        strategy: str = "greedy",
+    ) -> torch.Tensor:
+        """Action selection logic.
+
+        Args:
+            probs: Probability distribution over nodes.
+            mask: Valid action mask.
+            strategy: Selection strategy.
+
+        Returns:
+            torch.Tensor: Selected node indices.
+
+        Raises:
+            ValueError: If strategy is unknown.
+        """
         if strategy == "greedy":
             _, selected = probs.max(1)
         elif strategy == "sampling":
@@ -167,24 +264,40 @@ class DeepGATDecoder(nn.Module):
             raise ValueError(f"Unknown strategy: {strategy}")
         return selected
 
-    def __getstate__(self):
-        """Prepare state for pickling (handle non-picklable Generator)."""
+    def __getstate__(self) -> Dict[str, Any]:
+        """Prepare state for pickling (handle non-picklable Generator).
+
+        Returns:
+            Dict[str, Any]: State dictionary.
+        """
         state = self.__dict__.copy()
         state["generator_state"] = self.generator.get_state()
         state["generator_device"] = str(self.generator.device)
         del state["generator"]
         return state
 
-    def __setstate__(self, state):
-        """Restore state after unpickling."""
+    def __setstate__(self, state: Dict[str, Any]) -> None:
+        """Restore state after unpickling.
+
+        Args:
+            state: State dictionary.
+        """
         gen_state = state.pop("generator_state")
         gen_device = state.pop("generator_device")
         self.__dict__.update(state)
         self.generator = torch.Generator(device=gen_device)
         self.generator.set_state(gen_state)
 
-    def _precompute(self, embeddings, num_steps=1):
-        """Precompute fixed context for decoding."""
+    def _precompute(self, embeddings: torch.Tensor, num_steps: int = 1) -> AttentionDecoderCache:
+        """Precompute fixed context for decoding.
+
+        Args:
+            embeddings: Contextual embeddings from encoder.
+            num_steps: Unused.
+
+        Returns:
+            AttentionDecoderCache: Cache with fixed context and embeddings.
+        """
         if self.aggregation_graph == "avg":
             graph_embed = embeddings.mean(1)
         elif self.aggregation_graph == "sum":
@@ -201,11 +314,28 @@ class DeepGATDecoder(nn.Module):
             graph_context=fixed_context,
         )
 
-    def _get_log_p(self, fixed, state, normalize=True):
-        """Evaluate log probabilities for all nodes at once."""
+    def _get_log_p(
+        self,
+        fixed: AttentionDecoderCache,
+        state: Any,
+        normalize: bool = True,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Evaluate log probabilities for all nodes at once.
+
+        Args:
+            fixed: Attention cache with fixed context.
+            state: Current environment state.
+            normalize: Whether to apply log-softmax.
+
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor]: Log probabilities and valid mask.
+        """
         step_context = self._get_parallel_step_context(fixed.node_embeddings, state)
 
-        query = fixed.context_node_projected + self.project_step_context(step_context)
+        # fixed.context_node_projected might not be present if it's generic cache
+        # If it's AttentionDecoderCache from our common.cache, check its properties
+        # It seems it used graph_context in __init__
+        query = fixed.graph_context + self.project_step_context(step_context)
 
         # Pass raw embeddings to decoder
         mha_K = fixed.node_embeddings
@@ -218,8 +348,24 @@ class DeepGATDecoder(nn.Module):
             log_p = torch.log_softmax(log_p / self.temp, dim=-1)
         return log_p, mask
 
-    def _one_to_many_logits(self, query, mha_K, mask, graph_mask):
-        """Interact with GATDecoder layers directly to refine query."""
+    def _one_to_many_logits(
+        self,
+        query: torch.Tensor,
+        mha_K: torch.Tensor,
+        mask: torch.Tensor,
+        graph_mask: Optional[torch.Tensor] = None,
+    ) -> torch.Tensor:
+        """Interact with GATDecoder layers directly to refine query.
+
+        Args:
+            query: Current query tensor.
+            mha_K: Key tensor (node embeddings).
+            mask: Valid node mask.
+            graph_mask: Edge mask (optional).
+
+        Returns:
+            torch.Tensor: Logits for next node selection.
+        """
         q = query
         for layer in self.decoder.layers:
             q = layer(q, mha_K, mask)
@@ -227,7 +373,7 @@ class DeepGATDecoder(nn.Module):
         # Compute proper pointer attention logits: (B, 1, Nodes)
         logits = torch.matmul(q, mha_K.transpose(-2, -1)) / math.sqrt(self.embed_dim)
 
-        if self.mask_logits and self.mask_graph:
+        if self.mask_logits and self.mask_graph and graph_mask is not None:
             logits[graph_mask] = -math.inf
 
         if self.tanh_clipping > 0:
@@ -241,8 +387,19 @@ class DeepGATDecoder(nn.Module):
 
         return logits
 
-    def _get_parallel_step_context(self, embeddings, state):
-        """Get step context for all batches in parallel."""
+    def _get_parallel_step_context(self, embeddings: torch.Tensor, state: Any) -> torch.Tensor:
+        """Get step context for all batches in parallel.
+
+        Args:
+            embeddings: Node embeddings.
+            state: Current environment state.
+
+        Returns:
+            torch.Tensor: Step context tensor.
+
+        Raises:
+            NotImplementedError: If num_steps > 1.
+        """
         current_node = state.get_current_node()
         batch_size, num_steps = current_node.size()
 

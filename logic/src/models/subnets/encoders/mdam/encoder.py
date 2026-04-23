@@ -1,8 +1,16 @@
-"""MDAM Graph Attention Encoder."""
+"""MDAM Graph Attention Encoder.
+
+Attributes:
+    MDAMGraphAttentionEncoder: Multi-Decoder Attention Model Graph Attention Encoder.
+
+Example:
+    >>> from logic.src.models.subnets.encoders.mdam import MDAMGraphAttentionEncoder
+    >>> encoder = MDAMGraphAttentionEncoder(num_heads=8, embed_dim=128, num_layers=3)
+"""
 
 from __future__ import annotations
 
-from typing import Optional, Tuple
+from typing import Any, Optional, Tuple
 
 import torch
 from tensordict import TensorDict
@@ -17,8 +25,15 @@ from .mdam_attention_layer import MultiHeadAttentionLayer
 
 
 class MDAMGraphAttentionEncoder(AutoregressiveEncoder):
-    """
-    MDAM Graph Attention Encoder.
+    """MDAM Graph Attention Encoder.
+
+    Attributes:
+        init_embed (Optional[nn.Linear]): Initial projection layer.
+        layers (nn.Sequential): Stack of standard attention layers.
+        attention_layer (MultiHeadAttentionMDAM): Last attention layer returning attn/V.
+        norm1 (Normalization): First normalization layer.
+        projection (SkipConnection): Feed-forward projection sublayer.
+        norm2 (Normalization): Second normalization layer.
     """
 
     def __init__(
@@ -30,8 +45,15 @@ class MDAMGraphAttentionEncoder(AutoregressiveEncoder):
         normalization: str = "batch",
         feed_forward_hidden: int = 512,
     ) -> None:
-        """
-        Initialize MDAM encoder.
+        """Initializes the MDAMGraphAttentionEncoder.
+
+        Args:
+            num_heads: Number of attention heads.
+            embed_dim: Embedding dimension.
+            num_layers: Number of encoder layers.
+            node_dim: Input feature dimension.
+            normalization: Type of normalization ("batch", "layer", "instance").
+            feed_forward_hidden: Hidden dimension for feed-forward layers.
         """
         super().__init__()
 
@@ -76,10 +98,24 @@ class MDAMGraphAttentionEncoder(AutoregressiveEncoder):
         td: TensorDict,
         x: Optional[torch.Tensor] = None,
         mask: Optional[torch.Tensor] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
-        """
-        Encode node features.
+        """Encodes node features.
+
+        Args:
+            td: TensorDict containing observation data.
+            x: Input node features of shape (batch, num_nodes, node_dim).
+            mask: Optional attention mask (currently unsupported).
+            kwargs: Additional keyword arguments.
+
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+                Included node embeddings, graph embedding, attention weights,
+                attention values, and intermediate node embeddings.
+
+        Raises:
+            ValueError: If input `x` is missing.
+            AssertionError: If `mask` is provided.
         """
         assert mask is None, "Mask not yet supported in MDAM encoder"
 
@@ -114,8 +150,16 @@ class MDAMGraphAttentionEncoder(AutoregressiveEncoder):
         h_old: torch.Tensor,
         mask: torch.Tensor,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        """
-        Re-compute embeddings with masked attention.
+        """Re-computes embeddings with masked attention.
+
+        Args:
+            attn: Previous attention weights of shape (num_heads, batch, n, n).
+            V: Previous attention values of shape (num_heads, batch, n, val_dim).
+            h_old: Previous node embeddings before final attention layer.
+            mask: Adjacency/mask tensor.
+
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor]: New node embeddings and graph embedding.
         """
         num_heads, batch_size, graph_size, feat_size = V.size()
 

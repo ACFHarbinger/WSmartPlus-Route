@@ -1,8 +1,9 @@
-"""
-Iterated Local Search (ILS) Policy.
+"""Iterated Local Search (ILS) Policy.
 
-A metaheuristic expert policy that combines local search with perturbation
-to escape local minima. Useful for imitation learning and as a strong baseline.
+This module implements the ILS meta-heuristic, which enhances local search
+by introducing controlled perturbations. This mechanism allows the search
+to escape local optima while maintaining significant high-quality structural
+features of the solution.
 """
 
 from __future__ import annotations
@@ -28,41 +29,49 @@ from .shared.linear import vectorized_linear_split
 
 
 class IteratedLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
-    """
-    Iterated Local Search (ILS) expert policy.
+    """Iterated Local Search (ILS) solver for VRP.
 
-    Combines local search with perturbation to escape local minima.
-    The algorithm:
-    1. Apply local search until local optimum
-    2. Perturb the solution (double-bridge or segment shuffle)
-    3. Apply local search again
-    4. Accept new solution if improving
-    5. Repeat for n_restarts
+    Orchestrates a robust optimization loop:
+    1. Base Local Search (converge to local optimum).
+    2. Perturbation (jump to different search region).
+    3. Refinement (local search on perturbed state).
+    4. Acceptance (Greedy or stochastic update).
+
+    Attributes:
+        ls_operator: Targeted LS method or probability map.
+        perturbation_type: Method used for jumps.
+        n_restarts: Total number of ILS cycles.
+        ls_iterations: Intensity of internal local search steps.
+        perturbation_strength: Ratio of tour affected by structural edits.
+        default_op_probs: Static weights for operator sampling.
+        default_perturb_probs: Static weights for mode sampling.
+        op_map: Mapping from string identifiers to functions.
     """
 
     def __init__(
         self,
         env_name: str,
-        ls_operator: Union[str, dict[str, float]] = "two_opt",
-        perturbation_type: Union[str, dict[str, float]] = "double_bridge",
+        ls_operator: Union[str, Dict[str, float]] = "two_opt",
+        perturbation_type: Union[str, Dict[str, float]] = "double_bridge",
         n_restarts: int = 5,
         ls_iterations: int = 50,
         perturbation_strength: float = 0.2,
         seed: int = 42,
         device: str = "cpu",
-        **kwargs,
-    ):
-        """
-        Initialize IteratedLocalSearchPolicy.
+        **kwargs: Any,
+    ) -> None:
+        """Initialize the ILS policy.
 
         Args:
-            env_name: Name of the environment.
-            ls_operator: Local search operator or dict of {name: prob}.
-            perturbation_type: Perturbation method or dict of {mode: prob}.
-            n_restarts: Number of ILS restarts (perturbation cycles).
-            ls_iterations: Iterations for local search within each phase.
-            perturbation_strength: Fraction of tour to perturb (for shuffle/swap).
-            **kwargs: Additional arguments for AutoregressivePolicy.
+            env_name: Problem environment identifier.
+            ls_operator: Refinement strategy ('random' or specific name).
+            perturbation_type: Jump strategy ('random' or specific name).
+            n_restarts: Number of optimization cycles.
+            ls_iterations: Loop limit for neighborhood search.
+            perturbation_strength: Ratio of tour affected by structural changes.
+            seed: RNG constant.
+            device: Hardware target.
+            **kwargs: Additional hyperparameters.
         """
         super().__init__(env_name=env_name, seed=seed, device=device, **kwargs)
         self.ls_operator = ls_operator
@@ -99,16 +108,17 @@ class IteratedLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
         }
 
     def _perturb(self, tours: torch.Tensor, device: torch.device, mode: str) -> torch.Tensor:
-        """
-        Apply perturbation to a batch of tours.
+        """Apply a jumping operator to the current solution.
+
+        Supports double-bridge (TP-style), sequence shuffles, and random swaps.
 
         Args:
-            tours: Batch of tours [B, N].
-            device: Torch device.
-            mode: Perturbation mode.
+            tours: Candidate giant tours of shape [B, N].
+            device: Hardware locator.
+            mode: One of 'double_bridge', 'shuffle', or 'random_swap'.
 
         Returns:
-            Perturbed tours [B, N].
+            torch.Tensor: Perturbed tours of shape [B, N].
         """
         B, N = tours.shape
         result = tours.clone()
@@ -118,15 +128,12 @@ class IteratedLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
             # Remove padding (zeros at end)
             actual_n = int((tours[b] != 0).sum().item())
             # If the tour has a trailing zero that isn't padding (depot at end)
-            if 0 < actual_n < N and t_list[actual_n - 1] == 0:
-                pass  # already counted
-            elif actual_n == N:
+            if 0 < actual_n < N and t_list[actual_n - 1] == 0 or actual_n == N:
                 pass
 
             n = len(t_list)
 
             if mode == "double_bridge":
-                # Double-bridge move: break tour into 4 segments and reconnect
                 if n < 8:
                     continue
                 positions = sorted(self.rng.sample(range(1, n - 1), 3))
@@ -157,7 +164,15 @@ class IteratedLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
         return result
 
     def _compute_costs(self, tours: torch.Tensor, dist_matrix: torch.Tensor) -> torch.Tensor:
-        """Compute tour costs for a batch."""
+        """Calculate total Euclidean cost for a batch of tours.
+
+        Args:
+            tours: Node sequences of shape [B, N].
+            dist_matrix: Problem distances of shape [B, N, N].
+
+        Returns:
+            torch.Tensor: Summation of edge costs of shape [B].
+        """
         B = tours.shape[0]
         device = tours.device
         batch_ids = torch.arange(B, device=device).view(B, 1)
@@ -173,18 +188,33 @@ class IteratedLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
         self,
         td: TensorDict,
         env: Optional[RL4COEnvBase] = None,
-        strategy: str = "greedy",  # Ignored
+        strategy: str = "greedy",
         num_starts: int = 1,
         max_steps: Optional[int] = None,
         phase: str = "train",
         return_actions: bool = True,
-        **kwargs,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
-        """
-        Refine solutions using ILS.
+        """Run the complete ILS refinement procedure.
+
+        Args:
+            td: Input problem state bundle.
+            env: Relevant environment instance.
+            strategy: Search strategy (ignored).
+            num_starts: Number of restarts (ignored).
+            max_steps: Limit on sequence length (ignored).
+            phase: Current execution phase ('train', 'val', or 'test').
+            return_actions: Whether to include action history.
+            **kwargs: Optional 'initial_solution' override.
+
+        Returns:
+            Dict[str, Any]: Optimized results dictionary containing:
+                - actions (torch.Tensor): Best discovered routes.
+                - reward (torch.Tensor): Multi-objective objective value.
+                - cost (torch.Tensor): Raw objective value from edge summation.
+                - log_likelihood (torch.Tensor): Zero vector (ILS is non-pi).
         """
         batch_size = td.batch_size[0]
-        device = td.device
 
         # 1. Extract environment data
         locs = td["locs"]
@@ -223,8 +253,8 @@ class IteratedLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
 
         # 3. Prepare sampling distributions
         op_probs_dict = None
-        ops_sorted: list[str] = []
-        op_weights: list[float] = []
+        ops_sorted: List[str] = []
+        op_weights: List[float] = []
 
         if isinstance(self.ls_operator, str) and self.ls_operator == "random":
             op_probs_dict = self.default_op_probs
@@ -236,8 +266,8 @@ class IteratedLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
             op_weights = [op_probs_dict.get(op, 0.0) for op in ops_sorted]
 
         p_probs_dict = None
-        p_modes_sorted: list[str] = []
-        p_weights: list[float] = []
+        p_modes_sorted: List[str] = []
+        p_weights: List[float] = []
 
         if isinstance(self.perturbation_type, str) and self.perturbation_type == "random":
             p_probs_dict = self.default_perturb_probs
@@ -249,6 +279,7 @@ class IteratedLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
             p_weights = [p_probs_dict.get(m, 0.0) for m in p_modes_sorted]
 
         # 4. Initial local search
+        ls_func = None
         if op_probs_dict:
             initial_op = self.rng.choices(ops_sorted, weights=op_weights)[0]
             ls_func = self.op_map.get(initial_op, vectorized_two_opt)
@@ -257,7 +288,10 @@ class IteratedLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
             ls_func = self.op_map.get(op_name, vectorized_two_opt)
 
         current_routes = ls_func(
-            current_routes, dist_matrix, max_iterations=self.ls_iterations, generator=self.generator
+            current_routes,
+            dist_matrix,
+            max_iterations=self.ls_iterations,
+            generator=self.generator,
         )
         best_routes = current_routes.clone()
         best_costs = self._compute_costs(best_routes, dist_matrix)
@@ -281,7 +315,12 @@ class IteratedLocalSearchPolicy(ImprovementPolicy, PolicyVizMixin):
                 iter_ls_func = ls_func if ls_func is not None else vectorized_two_opt
 
             # Local search on perturbed solution
-            refined = iter_ls_func(perturbed, dist_matrix, max_iterations=self.ls_iterations, generator=self.generator)
+            refined = iter_ls_func(
+                perturbed,
+                dist_matrix,
+                max_iterations=self.ls_iterations,
+                generator=self.generator,
+            )
             refined_costs = self._compute_costs(refined, dist_matrix)
 
             # Accept if improving

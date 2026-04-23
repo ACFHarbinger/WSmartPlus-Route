@@ -1,14 +1,20 @@
-"""improvement_decoder.py module.
+"""Improvement Decoder base module.
+
+This module provides the abstract base class for decoders that predict
+local search moves or optimization operators to refine an existing solution.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    ImprovementDecoder: Abstract base class for all improvement decoders.
 
 Example:
-    >>> import improvement_decoder
+    >>> from logic.src.models.common.improvement.decoder import ImprovementDecoder
+    >>> # subclass and implement forward...
 """
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from typing import Tuple, Union
+from typing import Any, Tuple, Union
 
 import torch
 from tensordict import TensorDict
@@ -18,20 +24,33 @@ from logic.src.envs.base.base import RL4COEnvBase
 
 
 class ImprovementDecoder(nn.Module, ABC):
-    """
-    Base class for improvement decoders.
+    """Base class for improvement decoders.
 
-    Improvement decoders predict moves or operators to apply to the current solution.
+    Improvement decoders analyze the current solution state and predicted
+    graph features to decide on the next refinement move (e.g., node swap,
+    re-insertion).
+
+    Attributes:
+        embed_dim (int): Dimensionality of the latent representation.
     """
 
-    def __init__(self, embed_dim: int = 128, **kwargs):
-        """Initialize ImprovementDecoder."""
+    def __init__(self, embed_dim: int = 128, **kwargs: Any) -> None:
+        """Initializes the ImprovementDecoder.
+
+        Args:
+            embed_dim: Internal dimensionality for decoding features.
+            **kwargs: Additional parameters for the parent Module.
+        """
         super().__init__()
         self.embed_dim = embed_dim
 
     @property
     def device(self) -> torch.device:
-        """Get device of the model."""
+        """Retrieves the device on which the model's parameters are stored.
+
+        Returns:
+            torch.device: The computing device ('cpu' or 'cuda').
+        """
         return next(self.parameters()).device
 
     @abstractmethod
@@ -40,17 +59,19 @@ class ImprovementDecoder(nn.Module, ABC):
         td: TensorDict,
         embeddings: Union[torch.Tensor, Tuple[torch.Tensor, ...]],
         env: RL4COEnvBase,
-        **kwargs,
+        **kwargs: Any,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        """
-        Predict improvement moves.
+        """Predicts improvement moves for the current solution.
 
         Args:
-            td: TensorDict containing current state.
-            embeddings: Encoded state and solution.
-            env: Environment for state transitions.
+            td: TensorDict containing the problem state and current solution.
+            embeddings: Encoded representations of the graph and solution.
+            env: Environment object for transition logic and reward calculation.
+            **kwargs: Additional parameters for move selection.
 
         Returns:
-            Tuple of (log_likelihood, actions/moves).
+            Tuple[torch.Tensor, torch.Tensor]:
+                - log_p: Log-likelihood of the selected moves.
+                - actions: Selected refinement operators or node indices.
         """
         raise NotImplementedError

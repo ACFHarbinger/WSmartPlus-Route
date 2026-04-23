@@ -1,32 +1,51 @@
-"""
-Vectorized HGS-ALNS Hybrid Policy for RL.
+"""Vectorized HGS-ALNS Hybrid Policy for RL.
+
+This module implements a deep fusion of Hybrid Genetic Search (HGS) and
+Adaptive Large Neighborhood Search (ALNS). In this hybrid architecture,
+the HGS evolutionary loop provides global search coverage, while the
+ALNS engine serves as a high-intensity 'Education' phase for offspring
+refinement.
 """
 
 from __future__ import annotations
 
 import random
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import torch
 from tensordict import TensorDict
 
 from logic.src.constants.simulation import VEHICLE_CAPACITY
 from logic.src.envs.base.base import RL4COEnvBase
-from logic.src.models.policies.adaptive_large_neighborhood_search import VectorizedALNS
-from logic.src.models.policies.hgs import VectorizedHGS as VectorizedHGSPolicy
-from logic.src.models.policies.hybrid_genetic_search import VectorizedHGS as VectorizedHGSEngine
+from logic.src.models.policies.adaptive_large_neighborhood_search import (
+    VectorizedALNS,
+)
+from logic.src.models.policies.hgs import (
+    VectorizedHGS as VectorizedHGSPolicy,
+)
+from logic.src.models.policies.hybrid_genetic_search import (
+    VectorizedHGS as VectorizedHGSEngine,
+)
 
 
 class VectorizedHGSALNSEngine(VectorizedHGSEngine):
-    """
-    HGS Engine that uses ALNS for the Education phase.
+    """HGS Engine with ALNS-based Education.
+
+    Overrides the default HGS local search 'Education' phase with a full ALNS
+    pass, providing deeper intensification of offspring solution quality.
+
+    Attributes:
+        alns_education_iterations: Iterations for the ALNS sub-pass.
+        alns_start_temp: Initial temperature for ALNS simulated annealing.
+        alns_cooling_rate: Cooling schedule factor.
+        alns_engine: Internal refinement module.
     """
 
     def __init__(
         self,
         dist_matrix: torch.Tensor,
         wastes: torch.Tensor,
-        vehicle_capacity: Any,
+        vehicle_capacity: Union[float, torch.Tensor],
         time_limit: float = 1.0,
         device: str = "cpu",
         rng: Optional[random.Random] = None,
@@ -34,7 +53,21 @@ class VectorizedHGSALNSEngine(VectorizedHGSEngine):
         alns_education_iterations: int = 50,
         alns_start_temp: float = 0.5,
         alns_cooling_rate: float = 0.9995,
-    ):
+    ) -> None:
+        """Initialize the HGS-ALNS hybrid engine.
+
+        Args:
+            dist_matrix: Problem distances of shape [B, N, N].
+            wastes: Node demands of shape [B, N].
+            vehicle_capacity: Scalar or per-route capacity.
+            time_limit: Global timeout per generation.
+            device: Hardware identifier.
+            rng: Python Random instance.
+            generator: Torch device-side RNG.
+            alns_education_iterations: Refinement intensity.
+            alns_start_temp: ALNS heat metadata.
+            alns_cooling_rate: ALNS annealing metadata.
+        """
         super().__init__(
             dist_matrix=dist_matrix,
             wastes=wastes,
@@ -56,16 +89,29 @@ class VectorizedHGSALNSEngine(VectorizedHGSEngine):
         )
 
     def educate(
-        self, routes_list: list[list[int]], split_costs: torch.Tensor, max_vehicles: int = 0
+        self,
+        routes_list: List[List[int]],
+        split_costs: torch.Tensor,
+        max_vehicles: int = 0,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        """
-        Education Phase using Vectorized ALNS.
+        """Education Phase utilizing a full Vectorized ALNS pass.
+
+        Converts linear-split routes into giant tours, applies complex ALNS
+        destruction/repair moves, and reconstructs the improved solution.
+
+        Args:
+            routes_list: Current node sequences from split.
+            split_costs: Baseline costs of shape [B].
+            max_vehicles: Fleet constraint.
+
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor]: A tuple containing:
+                - improved_routes_tensor: Refined node sequences of shape [B, max_L].
+                - improved_costs: Updated fitness values after ALNS refinement of shape [B].
         """
         B = len(routes_list)
-        N = self.dist_matrix.shape[1] - 1  # Total customers
+        N = self.dist_matrix.shape[1] - 1
 
-        # 1. Convert initial routes (from linear split) to giant tour format for ALNS
-        # ALNS expects giant tours of size N.
         initial_solutions = torch.zeros((B, N), dtype=torch.long, device=self.device)
         for b in range(B):
             r = routes_list[b]
@@ -73,14 +119,14 @@ class VectorizedHGSALNSEngine(VectorizedHGSEngine):
             if nodes.size(0) > N:
                 nodes = nodes[:N]
             elif nodes.size(0) < N:
-                # Pad if necessary (unlikely given linear split on full tour)
-                nodes = torch.cat([nodes, torch.zeros(N - nodes.size(0), device=self.device, dtype=torch.long)])
+                nodes = torch.cat(
+                    [
+                        nodes,
+                        torch.zeros(N - nodes.size(0), device=self.device, dtype=torch.long),
+                    ]
+                )
             initial_solutions[b] = nodes
 
-        # 2. Run Vectorized ALNS
-        # ALNS.solve returns (best_routes_list, costs)
-        # Note: VectorizedALNS.solve is primarily for independent instances, but here
-        # we treat the genetic offspring as instances.
         improved_routes_list, improved_costs = self.alns_engine.solve(
             initial_solutions=initial_solutions,
             n_iterations=self.alns_education_iterations,
@@ -89,7 +135,6 @@ class VectorizedHGSALNSEngine(VectorizedHGSEngine):
             cooling_rate=self.alns_cooling_rate,
         )
 
-        # 3. Format as padded routes tensor (required by HGS loop)
         max_l = max(len(r) for r in improved_routes_list)
         improved_routes_tensor = torch.zeros((B, max_l), dtype=torch.long, device=self.device)
         for b in range(B):
@@ -100,8 +145,15 @@ class VectorizedHGSALNSEngine(VectorizedHGSEngine):
 
 
 class VectorizedHGSALNS(VectorizedHGSPolicy):
-    """
-    Vectorized HGS-ALNS Policy wrapper for RL4CO.
+    """Vectorized HGS-ALNS Policy wrapper for the RL4CO ecosystem.
+
+    Integrates the high-intensity HGS-ALNS engine into the standard neural
+    policy forward pass, enabling expert-level optimization for VRP instances.
+
+    Attributes:
+        alns_education_iterations: Internal refinement epochs.
+        alns_start_temp: Initial bias for ALNS search.
+        alns_cooling_rate: Intensity of search narrowing.
     """
 
     def __init__(
@@ -118,8 +170,25 @@ class VectorizedHGSALNS(VectorizedHGSPolicy):
         alns_cooling_rate: float = 0.9995,
         seed: int = 42,
         device: str = "cpu",
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
+        """Initialize the RL policy wrapper.
+
+        Args:
+            env_name: Problem environment identifier.
+            time_limit: Global time budget in seconds.
+            population_size: HGS pool size.
+            n_generations: Max evolutionary cycles.
+            elite_size: Number of top individuals kept for the next generation.
+            crossover_rate: Probability of recombination per child.
+            max_vehicles: Fleet size limit for discretization.
+            alns_education_iterations: Refinement intensity (ALNS sub-iterations).
+            alns_start_temp: ALNS initial temperature.
+            alns_cooling_rate: SA temperature decay factor.
+            seed: Random initialization constant.
+            device: Computation device.
+            **kwargs: Additional hyperparameters.
+        """
         super().__init__(
             env_name=env_name,
             time_limit=time_limit,
@@ -145,10 +214,26 @@ class VectorizedHGSALNS(VectorizedHGSPolicy):
         max_steps: Optional[int] = None,
         phase: str = "train",
         return_actions: bool = True,
-        **kwargs,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
-        """
-        Solve instances in the batch using vectorized HGS-ALNS.
+        """Resolve instances using the vectorized HGS-ALNS engine.
+
+        Args:
+            td: Input problem state TensorDict.
+            env: Relevant environment instance.
+            strategy: Construction strategy (ignored).
+            num_starts: Sampling starts (ignored).
+            max_steps: Sequence limit (ignored).
+            phase: Current execution phase ('train', 'val', or 'test').
+            return_actions: Whether to include refined routes in output.
+            **kwargs: Additional runtime parameters.
+
+        Returns:
+            Dict[str, Any]: Results dictionary containing:
+                - actions (torch.Tensor): Padded action sequences.
+                - reward (torch.Tensor): Calculated reward for the solution.
+                - cost (torch.Tensor): Raw objective value from the engine.
+                - log_likelihood (torch.Tensor): Zero vector (hybrid is non-pi).
         """
         batch_size = td.batch_size[0]
         device = td.device if td.device is not None else td["locs"].device
@@ -206,10 +291,17 @@ class VectorizedHGSALNS(VectorizedHGSPolicy):
 
         max_len = max([len(a) for a in all_actions] + [2])
         padded_actions = torch.stack(
-            [torch.cat([a, torch.zeros(max_len - len(a), device=device, dtype=torch.long)]) for a in all_actions]
+            [
+                torch.cat(
+                    [
+                        a,
+                        torch.zeros(max_len - len(a), device=device, dtype=torch.long),
+                    ]
+                )
+                for a in all_actions
+            ]
         )
 
-        # Compute reward using the same cost function as the model
         reward = VectorizedHGSPolicy._compute_reward(td, env, padded_actions)
 
         return {

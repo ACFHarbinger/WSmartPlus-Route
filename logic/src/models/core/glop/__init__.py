@@ -1,10 +1,15 @@
-"""__init__.py module.
+"""GLOP: Global-Local Optimization Policy.
+
+This package implements the GLOP architecture for large-scale routing. It
+decomposes the problem into neural global partitioning and heuristic local
+construction.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    GLOP: Unified training wrapper.
+    GLOPPolicy: Hierarchical node partitioning policy.
 
 Example:
-    >>> import __init__
+    >>> from logic.src.models.core.glop import GLOP
 """
 
 from .model import GLOP as GLOP

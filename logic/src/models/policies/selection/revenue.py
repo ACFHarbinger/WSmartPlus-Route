@@ -1,19 +1,25 @@
-"""
-Revenue Selection Strategy.
+"""Revenue selection strategy.
+
+This module provides a revenue-based selection strategy that marks bins for
+collection only when the expected profit from their waste exceeds a specified
+monetary threshold.
 """
 
-from typing import Optional
+from __future__ import annotations
 
-from torch import Tensor
+from typing import Any, Optional
+
+import torch
 
 from .base import VectorizedSelector
 
 
 class RevenueSelector(VectorizedSelector):
-    """
-    Revenue-based selection strategy.
+    """Revenue-based selection strategy.
 
-    Selects bins where expected collection revenue exceeds a threshold.
+    Selects bins where the expected collection revenue exceeds a threshold.
+    Revenue is calculated as the product of fill level, bin capacity, and
+    revenue per kilogram.
     """
 
     def __init__(
@@ -21,9 +27,8 @@ class RevenueSelector(VectorizedSelector):
         revenue_kg: float = 1.0,
         bin_capacity: float = 1.0,
         threshold: float = 0.0,
-    ):
-        """
-        Initialize RevenueSelector.
+    ) -> None:
+        """Initialize the revenue selector.
 
         Args:
             revenue_kg: Revenue per kg of collected waste.
@@ -36,23 +41,23 @@ class RevenueSelector(VectorizedSelector):
 
     def select(
         self,
-        fill_levels: Tensor,
+        fill_levels: torch.Tensor,
         revenue_kg: Optional[float] = None,
         bin_capacity: Optional[float] = None,
         threshold: Optional[float] = None,
-        **kwargs,
-    ) -> Tensor:
-        """
-        Select bins where expected revenue exceeds threshold.
+        **kwargs: Any,
+    ) -> torch.Tensor:
+        """Select bins where expected revenue exceeds threshold.
 
         Args:
-            fill_levels: Current fill levels (batch_size, num_nodes) in [0, 1].
+            fill_levels: Current fill levels [B, N] in [0, 1].
             revenue_kg: Optional override for revenue per kg.
             bin_capacity: Optional override for bin capacity.
             threshold: Optional override for revenue threshold.
+            **kwargs: Extra parameters (ignored).
 
         Returns:
-            Tensor: Boolean mask (batch_size, num_nodes).
+            torch.Tensor: Boolean mask [B, N] where True indicates collection.
         """
         rev = revenue_kg if revenue_kg is not None else self.revenue_kg
         cap = bin_capacity if bin_capacity is not None else self.bin_capacity

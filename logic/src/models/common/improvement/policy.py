@@ -1,10 +1,8 @@
-"""improvement_policy.py module.
+"""Improvement Policy module.
 
-Attributes:
-    MODULE_VAR (Type): Description of module level variable.
-
-Example:
-    >>> import improvement_policy
+This module provides the implementation of the `ImprovementPolicy`, which
+recursively applies local search moves or refinement actions to improve
+an initial solution.
 """
 
 from __future__ import annotations
@@ -25,11 +23,21 @@ from .encoder import ImprovementEncoder
 
 
 class ImprovementPolicy(nn.Module, ABC):
-    """
-    Base class for improvement policies.
+    """Base class for improvement policies.
 
-    Improvement policies take an instance + a solution as input and output a specific
-    operator that changes the current solution to a new one.
+    Improvement policies take an instance and an existing solution as input,
+    calculating embeddings for both, and then iteratively predicting and
+    applying moves to minimize the cost (or maximize reward).
+
+    Attributes:
+        encoder: Encodes problem+solution state.
+        decoder: Predicts improvement operations.
+        env_name: Name of the refinement environment.
+        embed_dim: Dimensionality of feature vectors.
+        seed: Seed for reproducibility of stochastic actions.
+        device: Computing device.
+        generator: Seeded generator for sampling.
+        rng: Standard library random generator.
     """
 
     def __init__(
@@ -40,9 +48,19 @@ class ImprovementPolicy(nn.Module, ABC):
         embed_dim: int = 128,
         seed: int = 42,
         device: str = "cpu",
-        **kwargs,
-    ):
-        """Initialize ImprovementPolicy."""
+        **kwargs: Any,
+    ) -> None:
+        """Initialize the ImprovementPolicy.
+
+        Args:
+            encoder: Encoder instance for the current state.
+            decoder: Decoder instance for predicting refinement moves.
+            env_name: Environment identifier.
+            embed_dim: Internal latent feature dimensionality.
+            seed: Initial random seed.
+            device: Computing device ('cpu', 'cuda').
+            **kwargs: Additional parameters for base policy.
+        """
         super().__init__()
         self.encoder = encoder
         self.decoder = decoder
@@ -53,16 +71,24 @@ class ImprovementPolicy(nn.Module, ABC):
         self.generator = torch.Generator(device=device).manual_seed(seed)
         self.rng = random.Random(seed) if seed is not None else random.Random()
 
-    def __getstate__(self):
-        """Prepare state for pickling (handle non-picklable Generator)."""
+    def __getstate__(self) -> Dict[str, Any]:
+        """Prepare state for serialization handling non-picklable components.
+
+        Returns:
+            Dict[str, Any]: Policy state dictionary.
+        """
         state = self.__dict__.copy()
         state["generator_state"] = self.generator.get_state()
         state["generator_device"] = str(self.generator.device)
         del state["generator"]
         return state
 
-    def __setstate__(self, state):
-        """Restore state after unpickling."""
+    def __setstate__(self, state: Dict[str, Any]) -> None:
+        """Restore state from a serialized dictionary.
+
+        Args:
+            state: Serialized policy attributes.
+        """
         gen_state = state.pop("generator_state")
         gen_device = state.pop("generator_device")
         self.__dict__.update(state)
@@ -78,22 +104,32 @@ class ImprovementPolicy(nn.Module, ABC):
         max_steps: Optional[int] = None,
         phase: str = "train",
         return_actions: bool = True,
-        **kwargs,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
-        """
-        Forward pass of the policy using an iterative improvement loop.
+        """Iteratively apply refinement moves to the current solution.
+
+        The policy performs a fixed or dynamic number of improvement steps,
+        collecting the log-likelihood of each decision and updating the solution
+        in the provided or default environment.
 
         Args:
-            td: TensorDict containing the environment state and current solution.
-            env: Environment to use for decoding.
-            strategy: Decoding strategy (greedy, sampling, etc.).
-            num_starts: Number of solution starts.
-            max_steps: Maximum number of improvement steps.
-            phase: Phase of the algorithm (train, val, test).
-            return_actions: Whether to return the actions.
+            td: TensorDict containing instance features and current tour.
+            env: Environment object (defaults to `env_name`-based lookup).
+            strategy: Move selection strategy (e.g., 'greedy', 'sampling').
+            num_starts: Number of parallel search attempts from local minima.
+            max_steps: Termination step count for the improvement loop.
+            phase: Current execution phase (train/val/test).
+            return_actions: Whether to return the sequence of moves.
+            **kwargs: Additional control arguments for encoder/decoder.
 
         Returns:
-            out: Dictionary containing the reward, log likelihood, and optionally actions.
+            Dict[str, Any]: Results including:
+                - reward (torch.Tensor): Final reward for the improved solution.
+                - log_likelihood (torch.Tensor): Cumulative log probability of moves.
+                - actions (torch.Tensor, optional): The sequence of applied moves.
+
+        Raises:
+            ValueError: If either the encoder or decoder is not initialized.
         """
         if env is None:
             # Try to get from name or default to base

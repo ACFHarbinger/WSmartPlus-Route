@@ -1,15 +1,16 @@
-"""decoder.py module.
+"""N2S Decoder implementation.
+
+This module implements the `N2SDecoder`, which selects node pairs for local
+neighborhood moves based on the learned node embeddings and spatial
+constraints.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
-
-Example:
-    >>> import decoder
+    N2SDecoder: Pairwise action decoder for iterative neighborhood search.
 """
 
 from __future__ import annotations
 
-from typing import Tuple
+from typing import Any, Dict, Tuple
 
 import torch
 import torch.nn.functional as F
@@ -21,41 +22,68 @@ from logic.src.models.common.improvement.decoder import ImprovementDecoder
 
 
 class N2SDecoder(ImprovementDecoder):
-    """
-    N2S Decoder: Predicts moves within node neighborhoods.
+    """N2S Decoder for selecting neighborhood moves.
+
+    Uses a pairwise attention mechanism to evaluate all valid node combinations
+    within a batch, selecting the move that most likely leads to a solution
+    improvement.
+
+    Attributes:
+        project_q (nn.Linear): Transformation for query nodes.
+        project_k (nn.Linear): Transformation for key nodes.
+        scale (float): Attention normalization factor.
+        seed (int): RNG seed for sampling.
+        generator (torch.Generator): Local random search generator.
     """
 
-    def __init__(self, embed_dim: int = 128, seed: int = 42, **kwargs):
-        """Initialize Class.
+    def __init__(
+        self,
+        embed_dim: int = 128,
+        seed: int = 42,
+        **kwargs: Any,
+    ) -> None:
+        """Initializes the N2S decoder.
 
         Args:
-            embed_dim (int): Description of embed_dim.
-            seed (int): Description of seed.
-            kwargs (Any): Description of kwargs.
+            embed_dim: width of the latent features.
+            seed: RNG seed for reproducible sampling.
+            **kwargs: Extra parameters like 'device'.
         """
         super().__init__(embed_dim=embed_dim)
         self.project_q = nn.Linear(embed_dim, embed_dim)
         self.project_k = nn.Linear(embed_dim, embed_dim)
         self.scale = embed_dim**-0.5
         self.seed = seed
-        self.init_device = kwargs.get("device", "cpu")
-        self.generator = torch.Generator(device=self.init_device).manual_seed(self.seed)
+        init_device = kwargs.get("device", "cpu")
+        self.generator = torch.Generator(device=init_device).manual_seed(self.seed)
 
     @property
     def device(self) -> torch.device:
-        """Get device of the model."""
+        """Determines the current hardware placement of parameters.
+
+        Returns:
+            torch.device: The active device (CPU/CUDA).
+        """
         return next(self.parameters()).device
 
-    def __getstate__(self):
-        """Prepare state for pickling (handle non-picklable Generator)."""
+    def __getstate__(self) -> Dict[str, Any]:
+        """Serializes the state, handling non-picklable components.
+
+        Returns:
+            Dict[str, Any]: Attribute map with generator state recorded.
+        """
         state = self.__dict__.copy()
         state["generator_state"] = self.generator.get_state()
         state["generator_device"] = str(self.generator.device)
         del state["generator"]
         return state
 
-    def __setstate__(self, state):
-        """Restore state after unpickling."""
+    def __setstate__(self, state: Dict[str, Any]) -> None:
+        """Restores policy state including the RNG generator.
+
+        Args:
+            state: Serialized dictionary of attributes.
+        """
         gen_state = state.pop("generator_state")
         gen_device = state.pop("generator_device")
         self.__dict__.update(state)
@@ -67,10 +95,20 @@ class N2SDecoder(ImprovementDecoder):
         td: TensorDict,
         embeddings: torch.Tensor | Tuple[torch.Tensor, ...],
         env: RL4COEnvBase,
-        **kwargs,
+        **kwargs: Any,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        """
-        Predict move (idx1, idx2).
+        """Predicts an improvement move (node pair i, j).
+
+        Args:
+            td: problem state container.
+            embeddings: encoded node features [B, N, D].
+            env: targeted environment logic.
+            **kwargs: Execution flags including 'strategy' ('greedy' or 'sample').
+
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor]:
+                - log_p: log-likelihood of the selected move [B].
+                - actions: pair of node indices [B, 2].
         """
         h = embeddings[0] if isinstance(embeddings, tuple) else embeddings
         bs, n, _ = h.shape
@@ -81,7 +119,7 @@ class N2SDecoder(ImprovementDecoder):
         # scores: [bs, n, n]
         scores = torch.matmul(q, k.transpose(1, 2)) * self.scale
 
-        # Mask invalid moves
+        # Mask identity moves (i == j)
         mask = torch.eye(n, device=h.device).bool().unsqueeze(0).expand(bs, -1, -1)
         scores.masked_fill_(mask, float("-inf"))
 

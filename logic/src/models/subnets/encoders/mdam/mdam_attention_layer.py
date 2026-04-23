@@ -1,4 +1,12 @@
-"""Attention layer for MDAM Encoder."""
+"""Attention layer for MDAM Encoder.
+
+Attributes:
+    MultiHeadAttentionLayer: Single transformer layer with MHA + FFN for MDAM encoder.
+
+Example:
+    >>> from logic.src.models.subnets.encoders.mdam.mdam_attention_layer import MultiHeadAttentionLayer
+    >>> layer = MultiHeadAttentionLayer(embed_dim=128, num_heads=8)
+"""
 
 from __future__ import annotations
 
@@ -8,8 +16,7 @@ from logic.src.models.subnets.encoders.common import MultiHeadAttentionLayerBase
 
 
 class MultiHeadAttentionLayer(MultiHeadAttentionLayerBase):
-    """
-    Single transformer layer with MHA + FFN for MDAM encoder.
+    """Single transformer layer with MHA + FFN for MDAM encoder.
 
     Inherits from MultiHeadAttentionLayerBase, which provides the standard
     transformer encoder layer pattern. This is a simplified version that:
@@ -17,16 +24,12 @@ class MultiHeadAttentionLayer(MultiHeadAttentionLayerBase):
     - Uses simple skip connections (no hyper-connections)
     - Uses configurable normalization type
 
-    Parameters
-    ----------
-    embed_dim : int
-        Embedding dimension.
-    num_heads : int
-        Number of attention heads.
-    feed_forward_hidden : int, default=512
-        Hidden dimension for FFN.
-    normalization : str, default="batch"
-        Type of normalization ('batch', 'layer', 'instance').
+    Attributes:
+        n_heads (int): Number of attention heads.
+        embed_dim (int): Embedding dimension.
+        feed_forward_hidden (int): Hidden dimension for feed-forward layers.
+        norm_config (NormalizationConfig): Normalization configuration.
+        activation_config (ActivationConfig): Activation function configuration.
     """
 
     def __init__(
@@ -36,8 +39,7 @@ class MultiHeadAttentionLayer(MultiHeadAttentionLayerBase):
         feed_forward_hidden: int = 512,
         normalization: str = "batch",
     ) -> None:
-        """
-        Initialize attention layer.
+        """Initializes the MultiHeadAttentionLayer.
 
         Args:
             embed_dim: Embedding dimension.

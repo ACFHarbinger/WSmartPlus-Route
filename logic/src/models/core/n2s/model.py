@@ -1,10 +1,21 @@
-"""
-Neural Neighborhood Search (N2S) Model.
+"""Neural Neighborhood Search (N2S) Model.
+
+This module provides the `N2S` wrapper (Li et al. 2021), which uses neural
+networks to guide neighborhood search for combinatorial optimization. It
+specializes in learning to select promising local moves to improve solutions.
+
+Attributes:
+    N2S: Primary Training and inference wrapper for Neural Neighborhood Search.
+
+Example:
+    >>> from logic.src.models.core.n2s.model import N2S
+    >>> model = N2S(embed_dim=128, k_neighbors=20)
+    >>> out = model(td, env)
 """
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any, Dict, Optional
 
 from torch import nn
 
@@ -14,8 +25,15 @@ from .policy import N2SPolicy
 
 
 class N2S(nn.Module):
-    """
-    N2S Model: Neural Neighborhood Search for combinatorial optimization.
+    """N2S Model wrapper for neural local search.
+
+    Orchestrates the `N2SPolicy` to iteratively improve solutions. The model
+    identifies candidate neighbors and selects the most promising one to
+    apply as a local move.
+
+    Attributes:
+        policy (N2SPolicy): The underlying neural neighborhood search policy.
+        env (Optional[RL4COEnvBase]): Environment managing problem dynamics.
     """
 
     def __init__(
@@ -25,17 +43,17 @@ class N2S(nn.Module):
         embed_dim: int = 128,
         num_heads: int = 8,
         k_neighbors: int = 20,
-        **policy_kwargs,
-    ):
-        """Initialize Class.
+        **policy_kwargs: Any,
+    ) -> None:
+        """Initializes the N2S model.
 
         Args:
-            env (Optional[RL4COEnvBase]): Description of env.
-            policy (Optional[N2SPolicy]): Description of policy.
-            embed_dim (int): Description of embed_dim.
-            num_heads (int): Description of num_heads.
-            k_neighbors (int): Description of k_neighbors.
-            policy_kwargs (Any): Description of policy_kwargs.
+            env: Targeted optimization environment.
+            policy: Optional pre-defined policy instance.
+            embed_dim: Dimension of latent feature vectors.
+            num_heads: Parallel attention head count for policy subnets.
+            k_neighbors: Size of the local candidate pool for moves.
+            **policy_kwargs: Extra parameters passed to N2SPolicy.
         """
         super().__init__()
         if policy is None:
@@ -53,8 +71,18 @@ class N2S(nn.Module):
         td: Any,
         env: Optional[RL4COEnvBase] = None,
         strategy: str = "greedy",
-        **kwargs,
-    ):
-        """Forward pass of the model."""
+        **kwargs: Any,
+    ) -> Dict[str, Any]:
+        """Executes the improvement pass.
+
+        Args:
+            td: Environment state container.
+            env: Optional environment override.
+            strategy: Move selection tactic ('greedy' or 'sampling').
+            **kwargs: Extra parameters for policy execution.
+
+        Returns:
+            Dict[str, Any]: Improvement results containing actions and weights.
+        """
         env = env or self.env
         return self.policy(td, env, strategy=strategy, **kwargs)

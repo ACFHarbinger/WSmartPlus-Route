@@ -1,15 +1,14 @@
-"""ant_colony_system.py module.
+"""Vectorized Ant Colony Optimization (ACO) Policy.
 
-Attributes:
-    MODULE_VAR (Type): Description of module level variable.
-
-Example:
-    >>> import ant_colony_system
+This module implements a high-performance, GPU-accelerated Ant Colony
+System (ACS). It processes multiple problem instances and multiple ants per
+instance in parallel using tensor operations, drastically reducing the
+computational overhead of pheromone updates and local updates.
 """
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import torch
 from tensordict import TensorDict
@@ -20,11 +19,21 @@ from logic.src.tracking.viz_mixin import PolicyVizMixin
 
 
 class VectorizedACOPolicy(AutoregressivePolicy, PolicyVizMixin):
-    """
-    Vectorized Ant Colony Optimization (ACO) Policy.
+    """Vectorized ACS Policy for Combinatorial Optimization.
 
-    Implements a tensor-based ACO that processes multiple batch instances
-    and multiple ants per instance in parallel on the GPU.
+    Maintains a global pheromone matrix (tau) per batch and utilizes heuristic
+    information (eta) to guide ants through a stochastic decision process.
+    Supports ACS-specific elitism and weight-based pheromone updates.
+
+    Attributes:
+        n_ants: Number of parallel agents per batch instance.
+        n_iterations: Number of pheromone update cycles.
+        alpha: Pheromone influence coefficient.
+        beta: Heuristic/distance influence coefficient.
+        decay: Pheromone evaporation rate.
+        elitism: Number of top ants contributing to global updates.
+        q0: ACS exploitation probability (vs exploration).
+        min_pheromone: Floor value for pheromone trails to prevent stagnation.
     """
 
     def __init__(
@@ -32,31 +41,31 @@ class VectorizedACOPolicy(AutoregressivePolicy, PolicyVizMixin):
         env_name: str,
         n_ants: int = 20,
         n_iterations: int = 50,
-        alpha: float = 1.0,  # Pheromone importance
-        beta: float = 2.0,  # Heuristic importance
-        decay: float = 0.1,  # Pheromone evaporation rate (rho)
-        elitism: int = 1,  # Number of best ants to use for pheromone update
-        q0: float = 0.9,  # Probability of exploiting best edge (ACS)
+        alpha: float = 1.0,
+        beta: float = 2.0,
+        decay: float = 0.1,
+        elitism: int = 1,
+        q0: float = 0.9,
         min_pheromone: float = 0.01,
         seed: int = 42,
         device: str = "cpu",
-        **kwargs,
-    ):
-        """Initialize Class.
+        **kwargs: Any,
+    ) -> None:
+        """Initialize the ACO policy.
 
         Args:
-            env_name (str): Description of env_name.
-            n_ants (int): Description of n_ants.
-            n_iterations (int): Description of n_iterations.
-            alpha (float): Description of alpha.
-            beta (float): Description of beta.
-            decay (float): Description of decay.
-            elitism (int): Description of elitism.
-            q0 (float): Description of q0.
-            min_pheromone (float): Description of min_pheromone.
-            seed (int): Description of seed.
-            device (str): Description of device.
-            kwargs (Any): Description of kwargs.
+            env_name: Identifier for the problem environment.
+            n_ants: Number of concurrent ants per instance.
+            n_iterations: Convergence loop limit.
+            alpha: Importance of pheromone trails.
+            beta: Importance of visibility (inverse distance).
+            decay: Rate of trail evaporation.
+            elitism: Count of best ants for trail reinforcement.
+            q0: Parameter controlling exploration/exploitation tradeoff.
+            min_pheromone: Lower bound on trail intensity.
+            seed: RNG constant.
+            device: Target device.
+            **kwargs: Additional hyperparameters.
         """
         super().__init__(env_name=env_name, seed=seed, device=device, **kwargs)
         self.n_ants = n_ants
@@ -70,9 +79,12 @@ class VectorizedACOPolicy(AutoregressivePolicy, PolicyVizMixin):
         self.min_pheromone = min_pheromone
 
     def __getstate__(self) -> Dict[str, Any]:
-        """Return state for pickling."""
+        """Prepare state for serialization, extracting generator state.
+
+        Returns:
+            Dict[str, Any]: Attribute map safe for pickling.
+        """
         state = self.__dict__.copy()
-        # Handle torch.Generator which is not picklable
         if "generator" in state:
             gen = state["generator"]
             state["generator_state"] = gen.get_state()
@@ -81,37 +93,57 @@ class VectorizedACOPolicy(AutoregressivePolicy, PolicyVizMixin):
         return state
 
     def __setstate__(self, state: Dict[str, Any]) -> None:
-        """Restore state after pickling."""
+        """Restore state and initialize RNG from serialized data.
+
+        Args:
+            state: Serialized dictionary of attributes.
+        """
         if "generator_state" in state:
             gen_state = state.pop("generator_state")
             gen_device = state.pop("generator_device")
-            # Create a new generator on the same device
             gen = torch.Generator(device=gen_device)
             gen.set_state(gen_state)
             state["generator"] = gen
         self.__dict__.update(state)
 
     def _get_heuristic(self, dist_matrix: torch.Tensor) -> torch.Tensor:
-        """Compute heuristic information (eta = 1 / distance)."""
-        # Avoid division by zero
+        """Compute inverse distance heuristic.
+
+        Args:
+            dist_matrix: Pairwise node distances of shape [B, N, N].
+
+        Returns:
+            torch.Tensor: Heuristic visibility information (eta) of shape [B, N, N].
+        """
         dist_safe = dist_matrix + 1e-6
         return 1.0 / dist_safe
 
     def forward(
         self,
         td: TensorDict,
-        env: RL4COEnvBase,
-        strategy: str = "sampling",  # Unused
+        env: Optional[RL4COEnvBase] = None,
+        strategy: str = "sampling",
         num_starts: int = 1,
-        **kwargs,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
-        """
-        Run vectorized ACO.
+        """Execute the parallel ACO search.
+
+        Constructs solutions for all ants, updates pheromones based on iteration
+        quality, and tracks the global best solution across the batch.
+
+        Args:
+            td: Problem instance data.
+            env: Target environment for constraints.
+            strategy: Selection strategy (not used for meta-heuristics).
+            num_starts: Number of independent starts (ACO handles this via ants).
+            **kwargs: Runtime parameters.
+
+        Returns:
+            Dict[str, Any]: Best actions, rewards, and associated costs.
         """
         batch_size = td.batch_size[0]
-        device = td.device
+        device = td.device if td.device is not None else td["locs"].device
 
-        # 1. Setup Data
         locs = td["locs"]
         if locs.dim() == 3 and locs.shape[-1] == 2:
             diff = locs.unsqueeze(2) - locs.unsqueeze(1)
@@ -121,35 +153,24 @@ class VectorizedACOPolicy(AutoregressivePolicy, PolicyVizMixin):
 
         num_nodes = dist_matrix.shape[1]
 
-        # Heuristic (eta)
         eta = self._get_heuristic(dist_matrix)
-
-        # Initialize Pheromone (tau)
         tau = torch.ones_like(dist_matrix) * self.min_pheromone
 
-        # Best solution tracking
         best_tours = torch.zeros((batch_size, num_nodes), dtype=torch.long, device=device)
         best_costs = torch.full((batch_size,), float("inf"), device=device)
 
-        # 2. Main ACO Loop
         for _aco_iter in range(self.n_iterations):
-            # Construct solutions for all ants: [B, n_ants, N]
             iter_ant_tours, _ = self._construct_solutions(dist_matrix, tau, eta, env)
-
-            # Calculate costs: [B, n_ants]
             costs = self._evaluate_batch(iter_ant_tours, dist_matrix)
 
-            # Update best found so far
             min_costs, min_idx = costs.min(dim=1)
             improved = min_costs < best_costs
             best_costs[improved] = min_costs[improved]
 
-            # Indexing to get best tours: [B, N]
             best_ants_indices = min_idx.view(batch_size, 1, 1).expand(-1, 1, num_nodes)
             best_tours_iter = iter_ant_tours.gather(1, best_ants_indices).squeeze(1)
             best_tours[improved] = best_tours_iter[improved]
 
-            # Update Pheromones
             tau = self._update_pheromones(tau, iter_ant_tours, costs)
 
             self._viz_record(
@@ -160,38 +181,52 @@ class VectorizedACOPolicy(AutoregressivePolicy, PolicyVizMixin):
                 tau_max=float(tau.max().item()),
             )
 
-        # Return result
         return {
             "actions": best_tours,
             "reward": -best_costs,
             "cost": best_costs,
+            "log_likelihood": torch.zeros(batch_size, device=device),
         }
 
     def _construct_solutions(
-        self, dist_matrix: torch.Tensor, tau: torch.Tensor, eta: torch.Tensor, env: Optional[RL4COEnvBase]
+        self,
+        dist_matrix: torch.Tensor,
+        tau: torch.Tensor,
+        eta: torch.Tensor,
+        env: Optional[RL4COEnvBase],
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        """
-        Construct routes for all ants in parallel.
+        """Parallel path construction for all ants.
+
+        Utilizes multinomial sampling guided by (tau^alpha * eta^beta) with masking
+        for previously visited nodes.
+
+        Args:
+            dist_matrix: Distance tensor of shape [B, N, N].
+            tau: Pheromone matrix of shape [B, N, N].
+            eta: Heuristic matrix of shape [B, N, N].
+            env: Environment for masking/validations.
+
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor]: A tuple containing:
+                - final_ant_tours: Node sequences of shape [B, K, N].
+                - log_probs_sum: Tour probabilities of shape [B, K].
         """
         batch_size, num_nodes, _ = dist_matrix.shape
         n_ants = self.n_ants
         device = dist_matrix.device
 
-        # Expand for ants: [B, K, N, N]
+        # [B, K, N, N]
         tau_k = tau.unsqueeze(1).expand(-1, n_ants, -1, -1)
         eta_k = eta.unsqueeze(1).expand(-1, n_ants, -1, -1)
 
-        # Start at node 0 (depot)
         current_node = torch.zeros((batch_size, n_ants), dtype=torch.long, device=device)
         visited = torch.zeros((batch_size, n_ants, num_nodes), dtype=torch.bool, device=device)
         visited.scatter_(2, current_node.unsqueeze(2), 1)
 
-        tours_accumulator: list[torch.Tensor] = [current_node]
+        tours_accumulator: List[torch.Tensor] = [current_node]
         log_probs_sum = torch.zeros((batch_size, n_ants), device=device)
 
-        # Step through nodes
         for _ in range(num_nodes - 1):
-            # Get tau and eta for current edges
             gather_idx = current_node.view(batch_size, n_ants, 1, 1).expand(-1, -1, 1, num_nodes)
             tau_step = tau_k.gather(2, gather_idx).squeeze(2)
             eta_step = eta_k.gather(2, gather_idx).squeeze(2)
@@ -199,7 +234,6 @@ class VectorizedACOPolicy(AutoregressivePolicy, PolicyVizMixin):
             scores = (tau_step**self.alpha) * (eta_step**self.beta)
             scores.masked_fill_(visited, 0)
 
-            # Selection
             probs = scores / (scores.sum(dim=-1, keepdim=True) + 1e-10)
 
             rand_val = torch.rand((batch_size, n_ants), generator=self.generator, device=device)
@@ -212,12 +246,10 @@ class VectorizedACOPolicy(AutoregressivePolicy, PolicyVizMixin):
 
             next_node = torch.where(greedy_mask, greedy_action, sample_action)
 
-            # Update state
             current_node = next_node
             visited.scatter_(2, current_node.unsqueeze(2), 1)
             tours_accumulator.append(current_node)
 
-            # Track log probs
             selected_probs = probs.gather(2, next_node.unsqueeze(2)).squeeze(2)
             log_probs_sum += torch.log(selected_probs + 1e-10)
 
@@ -225,7 +257,15 @@ class VectorizedACOPolicy(AutoregressivePolicy, PolicyVizMixin):
         return final_ant_tours, log_probs_sum
 
     def _evaluate_batch(self, ant_tours: torch.Tensor, dist_matrix: torch.Tensor) -> torch.Tensor:
-        """Calculate lengths of all ant tours."""
+        """Compute total lengths for all constructed ant tours.
+
+        Args:
+            ant_tours: Node sequences of shape [B, K, N].
+            dist_matrix: Distances of shape [B, N, N].
+
+        Returns:
+            torch.Tensor: Absolute tour lengths of shape [B, K].
+        """
         batch_size, n_ants, num_nodes = ant_tours.shape
 
         from_node = ant_tours
@@ -241,7 +281,16 @@ class VectorizedACOPolicy(AutoregressivePolicy, PolicyVizMixin):
         return dists.sum(dim=2)
 
     def _update_pheromones(self, tau: torch.Tensor, ant_tours: torch.Tensor, costs: torch.Tensor) -> torch.Tensor:
-        """Update pheromone matrix."""
+        """Perform pheromone evaporation and global update from the best ants.
+
+        Args:
+            tau: Current pheromone matrix of shape [B, N, N].
+            ant_tours: Iteration tours of shape [B, K, N].
+            costs: Iteration costs of shape [B, K].
+
+        Returns:
+            torch.Tensor: Evaporated and updated pheromone matrix.
+        """
         tau = (1 - self.decay) * tau
         batch_size, n_ants, num_nodes = ant_tours.shape
 

@@ -1,6 +1,11 @@
-"""
-Neural-Heuristic Hybrid Policy.
-Uses a neural model for construction and a heuristic for refinement.
+"""Neural Heuristic Hybrid: Constructive-Refinement Policy.
+
+This module implements a hybrid execution flow where a neural network generates
+an initial solution (constructive phase), and a classic meta-heuristic
+(refinement phase) iterates upon it to reach local optimality.
+
+Attributes:
+    NeuralHeuristicHybrid: Unified policy for construction and refinement.
 """
 
 from __future__ import annotations
@@ -18,17 +23,27 @@ if TYPE_CHECKING:
 
 
 class NeuralHeuristicHybrid(AutoregressivePolicy):
-    """
-    Hybrid policy combining neural construction and heuristic refinement.
+    """Hybrid policy combining deep learning construction and OR-based refinement.
+
+    Attributes:
+        neural_policy (AutoregressivePolicy): The model used for Stage 1.
+        heuristic_policy (Union[VectorizedALNS, VectorizedHGS]): Classic solver
+            used for Stage 2 refinement.
     """
 
     def __init__(
         self,
         neural_policy: AutoregressivePolicy,
         heuristic_policy: Union[VectorizedALNS, VectorizedHGS],
-        **kwargs,
-    ):
-        """Initialize NeuralHeuristicHybrid."""
+        **kwargs: Any,
+    ) -> None:
+        """Initializes the hybrid policy.
+
+        Args:
+            neural_policy: Pre-trained constructive model.
+            heuristic_policy: Vectorized meta-heuristic instance.
+            **kwargs: Extra parameters for base policy.
+        """
         super().__init__(env_name=neural_policy.env_name, **kwargs)
         self.neural_policy = neural_policy
         self.heuristic_policy = heuristic_policy
@@ -39,24 +54,25 @@ class NeuralHeuristicHybrid(AutoregressivePolicy):
         env: RL4COEnvBase,
         strategy: str = "greedy",
         num_starts: int = 1,
-        **kwargs,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
+        """Solves problem instances using the hybrid execution flow.
+
+        Args:
+            td: problem state.
+            env: dynamics and rewards.
+            strategy: constructive decoding mode.
+            num_starts: multi-start count for construction.
+            **kwargs: extra parameters passed to both components.
+
+        Returns:
+            Dict[str, Any]: Refinement results including 'actions' and 'reward'.
         """
-        Solve instances using neural construction followed by heuristic refinement.
-        """
-        # 1. Neural Construction
+        # Phase 1: Contextual Neural Construction
         neural_out = self.neural_policy(td, env, strategy=strategy, **kwargs)
 
-        # 2. Heuristic Refinement
-        # Note: Classical solvers currently don't take initial solutions in the current wrappers
-        # but we could update them to do so.
-        # ALNSSolver.solve(initial_solution=...) exists.
-
-        # For now, we'll just run the heuristic.
-        # If we wanted true refinement, we'd pass neural_out["actions"] to the heuristic.
-
-        # Update: Let's assume the heuristic wrapper can take an initial solution in kwargs.
+        # Phase 2: Heuristic Refinement
+        # The heuristic solver starts from the neural-generated sequences
         heuristic_out = self.heuristic_policy(td, env, initial_solution=neural_out["actions"], **kwargs)
 
-        # 3. Return the best of both (usually the heuristic improved result)
         return heuristic_out

@@ -1,17 +1,18 @@
-"""
-Vectorized Lin-Kernighan-Helsgaun (LKH-3) Operator.
+"""Vectorized Lin-Kernighan-Helsgaun (LKH-3) Operator.
 
 This module provides a GPU-accelerated implementation of the sophisticated LKH-3
 local search algorithm. LKH combines powerful k-opt moves with alpha-nearness
 candidate sets and lexicographic optimization for VRP problems.
 
 Key features:
-- Alpha-measure edge pruning based on MST
-- Candidate set restriction for efficiency
-- Sequential 2-opt and 3-opt moves
-- Double bridge kicks for perturbation
-- Lexicographic optimization (penalty, cost)
+- Alpha-measure edge pruning based on MST.
+- Candidate set restriction for efficiency.
+- Sequential 2-opt and 3-opt moves.
+- Double bridge kicks for perturbation.
+- Lexicographic optimization (penalty, cost).
 """
+
+from __future__ import annotations
 
 from typing import List, Optional, Tuple
 
@@ -31,27 +32,24 @@ def vectorized_lkh(
     perturbation_interval: int = 10,
     generator: Optional[torch.Generator] = None,
 ) -> torch.Tensor:
-    """
-    Vectorized Lin-Kernighan-Helsgaun local search across a batch of tours using PyTorch.
+    """Vectorized LKH local search across a batch of tours.
 
-    LKH is one of the most sophisticated local search algorithms for TSP/VRP, combining:
-    1. Alpha-nearness for edge pruning (based on MST)
-    2. Sequential k-opt moves (2-opt and 3-opt)
-    3. Double bridge perturbations for escaping local optima
-    4. Lexicographic optimization: minimize (penalty, cost)
+    LKH is one of the most sophisticated local search algorithms for TSP/VRP,
+    combining alpha-nearness pruning with sequential k-opt moves.
 
     Args:
-        tours: Batch of tours [B, N]
-        distance_matrix: Pairwise distances [B, N+1, N+1] or [N+1, N+1]
-        capacities: Vehicle capacities [B] or scalar
-        wastes: Node wastes [B, N+1] or [N+1]
-        max_iterations: Number of ILS iterations
-        max_candidates: Number of candidate edges per node (default: 5)
-        use_3opt: Whether to use 3-opt extensions
-        perturbation_interval: Apply kicks every N iterations
-        generator: Random generator for reproducibility
+        tours: Batch of node sequences of shape [B, N].
+        distance_matrix: Pairwise distances of shape [B, N+1, N+1] or [N+1, N+1].
+        capacities: Vehicle capacities per instance of shape [B] or scalar.
+        wastes: Individual node demands of shape [B, N+1] or [N+1].
+        max_iterations: Iteration limit for the ILS loop.
+        max_candidates: Number of pruned edges per node (candidate set size).
+        use_3opt: Whether to extend search to 3-opt neighborhoods.
+        perturbation_interval: Frequency of double-bridge kicks.
+        generator: Torch device-side RNG.
+
     Returns:
-        torch.Tensor: Improved tours [B, N]
+        torch.Tensor: Optimized tours of shape [B, N].
     """
     device = distance_matrix.device
 
@@ -112,7 +110,19 @@ def _run_local_search(
     candidates: List[List[int]],
     use_3opt: bool,
 ) -> torch.Tensor:
-    """Performs the local search phase for a single tour instance."""
+    """Internal loop for iterating until local convergence.
+
+    Args:
+        tour: Node sequence of shape [N].
+        dist: Distance matrix of shape [N+1, N+1].
+        waste: Node demands of shape [N+1].
+        capacity: Vehicle capacity scalar.
+        candidates: Alpha-nearness neighbor lists for each node.
+        use_3opt: Whether to evaluate 3-opt moves.
+
+    Returns:
+        torch.Tensor: Locally optimized tour of shape [N].
+    """
     local_improved = True
     while local_improved:
         local_improved = False
@@ -121,7 +131,16 @@ def _run_local_search(
 
         for i in range(nodes_count):
             improved, tour, curr_p, curr_c = _try_moves_for_node(
-                tour, i, nodes_count, dist, waste, capacity, candidates, use_3opt, curr_p, curr_c
+                tour,
+                i,
+                nodes_count,
+                dist,
+                waste,
+                capacity,
+                candidates,
+                use_3opt,
+                curr_p,
+                curr_c,
             )
             if improved:
                 local_improved = True
@@ -129,20 +148,51 @@ def _run_local_search(
     return tour
 
 
-def _try_moves_for_node(tour, i, nodes_count, dist, waste, capacity, candidates, use_3opt, curr_p, curr_c):
-    """Tries 2-opt and optionally 3-opt moves starting from position i."""
-    t1, t2 = tour[i].item(), tour[i + 1].item()
+def _try_moves_for_node(
+    tour: torch.Tensor,
+    i: int,
+    nodes_count: int,
+    dist: torch.Tensor,
+    waste: Optional[torch.Tensor],
+    capacity: Optional[torch.Tensor],
+    candidates: List[List[int]],
+    use_3opt: bool,
+    curr_p: float,
+    curr_c: float,
+) -> Tuple[bool, torch.Tensor, float, float]:
+    """Tries combinations of 2-opt and 3-opt moves for a header node.
+
+    Args:
+        tour: Current sequence under evaluation.
+        i: Node position index under evaluation.
+        nodes_count: Total sequence length.
+        dist: Pairwise cost matrix.
+        waste: Node demands for capacity calculation.
+        capacity: Fleet capacity limit.
+        candidates: Near-set neighbor lists.
+        use_3opt: Whether to enable 3-opt neighborhood exploration.
+        curr_p: Current tour penalty score.
+        curr_c: Current tour distance cost.
+
+    Returns:
+        Tuple[bool, torch.Tensor, float, float]: A tuple containing:
+            - improved: Whether any move was accepted.
+            - tour: The updated (or original) tour.
+            - new_p: Resulting penalty.
+            - new_c: Resulting cost.
+    """
+    t1, t2 = int(tour[i].item()), int(tour[i + 1].item())
     for t3 in candidates[t2]:
         if t3 == t1:
             continue
         t3_pos = (tour == t3).nonzero(as_tuple=True)[0]
         if len(t3_pos) == 0:
             continue
-        j = t3_pos[0].item()
+        j = int(t3_pos[0].item())
         if j <= i + 1 or j >= nodes_count:
             continue
 
-        t4 = tour[j + 1].item()
+        t4 = int(tour[j + 1].item())
         # 1. Try 2-opt
         if (dist[t1, t2] + dist[t3, t4]) - (dist[t1, t3] + dist[t2, t4]) > IMPROVEMENT_EPSILON:
             new_tour = _apply_2opt(tour, i, j)
@@ -153,7 +203,7 @@ def _try_moves_for_node(tour, i, nodes_count, dist, waste, capacity, candidates,
         # 2. Try 3-opt
         if use_3opt:
             for k in range(j + 2, min(j + 20, nodes_count)):
-                t5, t6 = tour[k].item(), tour[k + 1].item()
+                t5, t6 = int(tour[k].item()), int(tour[k + 1].item())
                 if (dist[t1, t2] + dist[t3, t4] + dist[t5, t6]) - (
                     dist[t1, t3] + dist[t2, t5] + dist[t4, t6]
                 ) > IMPROVEMENT_EPSILON:
@@ -165,25 +215,41 @@ def _try_moves_for_node(tour, i, nodes_count, dist, waste, capacity, candidates,
 
 
 def _compute_alpha_measures(distance_matrix: torch.Tensor, device: torch.device) -> torch.Tensor:
-    """Compute alpha measures for edge pruning based on MST."""
+    """Estimates edge reliability using alpha-measure heuristics.
+
+    Args:
+        distance_matrix: Edge weights of shape [N, N].
+        device: Hardware identification locator.
+
+    Returns:
+        torch.Tensor: Alpha measures of shape [N, N].
+    """
     n = distance_matrix.size(0)
     alpha = distance_matrix.clone()
     k = min(5, n - 1)
     _, indices = torch.topk(distance_matrix, k, dim=1, largest=False)
     for i in range(n):
         for j in indices[i]:
-            if j != i:
-                alpha[i, j] = 0.0
+            if int(j) != i:
+                alpha[i, int(j)] = 0.0
     return alpha
 
 
 def _get_candidate_sets(alpha_measures: torch.Tensor, max_candidates: int) -> List[List[int]]:
-    """Generate candidate sets based on alpha measures."""
+    """Restricts neighborhood search space to high-alpha edges.
+
+    Args:
+        alpha_measures: Pre-computed alpha scores of shape [N, N].
+        max_candidates: Maximum neighbor count per node.
+
+    Returns:
+        List[List[int]]: Per-node candidate neighbor index lists.
+    """
     n = alpha_measures.size(0)
     candidates = []
     for i in range(n):
         sorted_indices = torch.argsort(alpha_measures[i])
-        valid = [int(idx.item()) for idx in sorted_indices if idx != i]
+        valid = [int(idx.item()) for idx in sorted_indices if int(idx) != i]
         candidates.append(valid[:max_candidates])
     return candidates
 
@@ -194,11 +260,22 @@ def _compute_score(
     wastes: Optional[torch.Tensor],
     capacity: Optional[torch.Tensor],
 ) -> Tuple[float, float]:
-    """Compute (penalty, cost) for lexicographic comparison."""
+    """Lexicographic (Penalty, Cost) evaluator.
+
+    Args:
+        tour: Sequence of nodes of shape [L].
+        distance_matrix: Pairwise weights of shape [N, N].
+        wastes: Node demands of shape [N].
+        capacity: Vehicle capacity limit.
+
+    Returns:
+        Tuple[float, float]: A tuple containing:
+            - penalty: Calculated capacity violation penalty.
+            - cost: Calculated tour distance cost.
+    """
     n = len(tour) - 1
     cost = 0.0
     for i in range(n):
-        # Cast indices to int to resolve bad-index errors
         u, v = int(tour[i].item()), int(tour[i + 1].item())
         cost += float(distance_matrix[u, v].item())
 
@@ -207,7 +284,6 @@ def _compute_score(
         current_load = 0.0
         cap_val = float(capacity.item())
         for node in tour:
-            # Explicitly cast to int to satisfy Pyrefly
             node_idx = int(node.item())
             if node_idx == 0:
                 current_load = 0.0
@@ -219,21 +295,50 @@ def _compute_score(
 
 
 def _is_better(p1: float, c1: float, p2: float, c2: float) -> bool:
-    """Lexicographic comparison: (p1, c1) < (p2, c2)?"""
+    """True if (p1, c1) is superior to (p2, c2) in lexicographic order.
+
+    Args:
+        p1: First tour penalty score.
+        c1: First tour distance cost.
+        p2: Second tour penalty score.
+        c2: Second tour distance cost.
+
+    Returns:
+        bool: True if the first solution dominates the second.
+    """
     if abs(p1 - p2) > 1e-6:
         return p1 < p2
     return c1 < c2 - 1e-6
 
 
 def _apply_2opt(tour: torch.Tensor, i: int, j: int) -> torch.Tensor:
-    """Apply 2-opt move: reverse segment [i+1, j]."""
+    """Segment reversal for 2-opt moves.
+
+    Args:
+        tour: Sequence under transformation.
+        i: First edge break position.
+        j: Second edge break position.
+
+    Returns:
+        torch.Tensor: The tour after segment reversal.
+    """
     new_tour = tour.clone()
     new_tour[i + 1 : j + 1] = torch.flip(new_tour[i + 1 : j + 1], dims=[0])
     return new_tour
 
 
 def _apply_3opt(tour: torch.Tensor, i: int, j: int, k: int) -> torch.Tensor:
-    """Apply 3-opt move: reverse segments [i+1, j] and [j+1, k]."""
+    """Triple segment recombination for 3-opt moves.
+
+    Args:
+        tour: Sequence under transformation.
+        i: First edge break position.
+        j: Second edge break position.
+        k: Third edge break position.
+
+    Returns:
+        torch.Tensor: The tour after triple segment recombination.
+    """
     new_tour = tour.clone()
     new_tour[i + 1 : j + 1] = torch.flip(new_tour[i + 1 : j + 1], dims=[0])
     new_tour[j + 1 : k + 1] = torch.flip(new_tour[j + 1 : k + 1], dims=[0])
@@ -241,7 +346,15 @@ def _apply_3opt(tour: torch.Tensor, i: int, j: int, k: int) -> torch.Tensor:
 
 
 def _double_bridge_kick(tour: torch.Tensor, generator: Optional[torch.Generator] = None) -> torch.Tensor:
-    """Apply double bridge perturbation (4-opt move)."""
+    """4-opt perturbation (Double Bridge Kick).
+
+    Args:
+        tour: Node sequence to perturb.
+        generator: Torch device-side RNG.
+
+    Returns:
+        torch.Tensor: The perturbed tour.
+    """
     n = len(tour) - 1
     if n < 8:
         return tour

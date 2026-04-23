@@ -1,5 +1,16 @@
-"""
-DeepACO Model: REINFORCE wrapper for training.
+"""DeepACO Model for ant-based neural optimization.
+
+This module provides the `DeepACO` wrapper (Ye et al. 2023), which combines
+Ant Colony Optimization (ACO) with neural heuristic learning. It uses a
+REINFORCE-based training scheme to optimize a neural pheromone generator.
+
+Attributes:
+    DeepACO: Primary training wrapper for neural ACO policies.
+
+Example:
+    >>> from logic.src.models.core.deepaco.model import DeepACO
+    >>> model = DeepACO(n_ants=20, alpha=1.0, beta=2.0)
+    >>> out = model(td, env)
 """
 
 from __future__ import annotations
@@ -15,11 +26,15 @@ from .policy import DeepACOPolicy
 
 
 class DeepACO(nn.Module):
-    """
-    DeepACO Model.
+    """DeepACO training wrapper for REINFORCE.
 
-    REINFORCE-based training wrapper for DeepACOPolicy.
-    Supports baseline subtraction for variance reduction.
+    Assembles the `DeepACOPolicy` and implements the REINFORCE algorithm with
+    flexible baseline subtraction to stabilize the pheromone generator training.
+
+    Attributes:
+        policy (DeepACOPolicy): The underlying ACO-neural hybrid policy.
+        baseline_type (str): RL baseline strategy ('rollout', 'exponential').
+        _baseline_val (Optional[Any]): Rolling state for exponential baseline.
     """
 
     def __init__(
@@ -35,23 +50,23 @@ class DeepACO(nn.Module):
         use_local_search: bool = True,
         baseline: str = "rollout",
         env_name: Optional[str] = None,
-        **kwargs,
-    ):
-        """
-        Initialize DeepACO model.
+        **kwargs: Any,
+    ) -> None:
+        """Initializes the DeepACO model.
 
         Args:
-            embed_dim: Embedding dimension.
-            num_encoder_layers: Number of encoder layers.
-            num_heads: Number of attention heads.
-            n_ants: Number of ants.
-            n_iterations: ACO iterations.
-            alpha: Pheromone weight.
-            beta: Heuristic weight.
-            rho: Evaporation rate.
-            use_local_search: Apply 2-opt.
-            baseline: Baseline type ("rollout", "exponential", "none").
-            env_name: Environment name.
+            embed_dim: Embedding vector size.
+            num_encoder_layers: Number of transformer encoder blocks.
+            num_heads: Attention head count.
+            n_ants: Population size (number of ants) per iteration.
+            n_iterations: Number of ACO pheromone update cycles.
+            alpha: relative weight of pheromone in edge selection.
+            beta: relative weight of learned heuristic in edge selection.
+            rho: Pheromone evaporation rate.
+            use_local_search: Whether to apply 2-opt refinement to ant paths.
+            baseline: Baseline calculation method.
+            env_name: Targeted problem environment name.
+            **kwargs: Extra arguments for policy instantiation.
         """
         super().__init__()
         self.policy = DeepACOPolicy(
@@ -68,30 +83,30 @@ class DeepACO(nn.Module):
             **kwargs,
         )
         self.baseline_type = baseline
-        self._baseline_val = None
+        self._baseline_val: Optional[Any] = None
 
     def forward(
         self,
         td: TensorDict,
         env: RL4COEnvBase,
-        **kwargs,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
-        """
-        Forward pass for training.
+        """Calculates construction output and computes REINFORCE loss.
 
         Args:
-            td: TensorDict with problem instance.
-            env: Environment.
+            td: Problem state container.
+            env: Environment managing dynamics and rewards.
+            **kwargs: Additional parameters for construction.
 
         Returns:
-            Dictionary with loss, reward, etc.
+            Dict[str, Any]: Policy outputs including rewards, actions, and `loss`.
         """
         out = self.policy(td, env, **kwargs)
 
         reward = out["reward"]
         log_likelihood = out["log_likelihood"]
 
-        # Compute baseline
+        # 1. Update/compute baseline for variant reduction
         if self.baseline_type == "exponential":
             if self._baseline_val is None:
                 self._baseline_val = reward.mean().detach()
@@ -99,12 +114,11 @@ class DeepACO(nn.Module):
                 self._baseline_val = 0.8 * self._baseline_val + 0.2 * reward.mean().detach()
             baseline = self._baseline_val
         elif self.baseline_type == "rollout":
-            # Use batch mean as baseline
             baseline = reward.mean()
         else:
             baseline = 0.0
 
-        # REINFORCE loss
+        # 2. Compute Advantage and REINFORCE loss
         advantage = reward - baseline
         loss = -(advantage.detach() * log_likelihood).mean()
 
@@ -112,11 +126,20 @@ class DeepACO(nn.Module):
         out["baseline"] = baseline
         return out
 
-    def set_strategy(self, strategy: str, **kwargs):
-        """Set strategy for evaluation."""
+    def set_strategy(self, strategy: str, **kwargs: Any) -> None:
+        """Configures constructive decoding strategy.
+
+        Args:
+            strategy: Mode identifier (e.g., 'ac_search', 'sampling').
+            **kwargs: Extra parameters for the specific strategy.
+        """
         self.policy.set_strategy(strategy, **kwargs)
 
-    def eval(self):
-        """Set to evaluation mode."""
+    def eval(self) -> DeepACO:
+        """Switches the model to evaluation mode.
+
+        Returns:
+            DeepACO: The model instance in eval state.
+        """
         super().eval()
         return self

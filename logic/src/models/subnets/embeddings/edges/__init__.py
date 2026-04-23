@@ -1,6 +1,20 @@
+"""Edge embedding modules for graph-based encoders.
+
+This package provides edge embedding layers that project pairwise node
+relationships (e.g., distances, relative positions) into the latent space.
+
+Attributes:
+    EDGE_EMBEDDING_REGISTRY (Dict[str, Any]): Mapping of environment names
+        to their respective edge embedding classes.
+
+Example:
+    >>> from logic.src.models.subnets.embeddings.edges import get_edge_embedding
+    >>> embedder = get_edge_embedding("vrpp", embed_dim=128)
 """
-Edge embedding modules for graph-based encoders.
-"""
+
+from __future__ import annotations
+
+from typing import Any, Dict
 
 from torch import nn
 
@@ -10,7 +24,7 @@ from .none import NoEdgeEmbedding
 from .tsp import TSPEdgeEmbedding
 from .wcvrp import WCVRPEdgeEmbedding
 
-EDGE_EMBEDDING_REGISTRY = {
+EDGE_EMBEDDING_REGISTRY: Dict[str, Any] = {
     "vrpp": TSPEdgeEmbedding,
     "cvrpp": CVRPPEdgeEmbedding,
     "wcvrp": WCVRPEdgeEmbedding,
@@ -25,18 +39,20 @@ EDGE_EMBEDDING_REGISTRY = {
 def get_edge_embedding(
     env_name: str,
     embed_dim: int = 128,
-    **kwargs,
+    **kwargs: Any,
 ) -> nn.Module:
-    """
-    Get problem-specific edge embedding module.
+    """Gets problem-specific edge embedding module.
 
     Args:
         env_name: Environment/problem name.
         embed_dim: Edge embedding dimension.
-        **kwargs: Additional arguments passed to the embedding constructor.
+        kwargs: Additional arguments passed to the embedding constructor.
 
     Returns:
-        Initialized edge embedding module.
+        nn.Module: Initialized edge embedding module.
+
+    Raises:
+        ValueError: If the environment name is not registered.
     """
     if env_name not in EDGE_EMBEDDING_REGISTRY:
         raise ValueError(
@@ -45,7 +61,7 @@ def get_edge_embedding(
     return EDGE_EMBEDDING_REGISTRY[env_name](embed_dim=embed_dim, **kwargs)
 
 
-__all__ = [
+__all__: list[str] = [
     "EdgeEmbedding",
     "CVRPPEdgeEmbedding",
     "NoEdgeEmbedding",

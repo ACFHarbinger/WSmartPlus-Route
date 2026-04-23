@@ -1,7 +1,18 @@
-"""
-Multi-Head Flash Attention module.
+"""Multi-Head Flash Attention module.
 
-Uses PyTorch's scaled_dot_product_attention (SDPA) for efficiency.
+This module provides the MultiHeadFlashAttention layer, which leverages PyTorch's
+hardware-optimized `scaled_dot_product_attention` (SDPA) for high-performance
+computation on supported hardware (e.g., NVIDIA Ampere GPUs).
+
+Attributes:
+    MultiHeadFlashAttention: High-performance multi-head attention using SDPA.
+
+Example:
+    >>> import torch
+    >>> from logic.src.models.subnets.modules.flash_attention import MultiHeadFlashAttention
+    >>> mha = MultiHeadFlashAttention(n_heads=8, input_dim=128, embed_dim=128)
+    >>> q = torch.randn(1, 10, 128)
+    >>> out = mha(q)
 """
 
 from __future__ import annotations
@@ -19,8 +30,26 @@ except ImportError:
 
 
 class MultiHeadFlashAttention(nn.Module):
-    """
-    Multi-Head Attention using PyTorch's SDPA (Flash Attention).
+    """Multi-Head Attention using PyTorch's SDPA (Flash Attention).
+
+    Efficient implementation of multi-head attention leveraging optimized kernels.
+    Includes a manual fallback paths for debugging or when explicit weight
+    inspection is required.
+
+    Attributes:
+        n_heads (int): Number of attention heads.
+        input_dim (int): Input feature dimensionality.
+        embed_dim (int): Output embedding dimensionality.
+        head_dim (int): Dimensionality of each attention head.
+        store_attn_weights (bool): Whether to explicitly calculate and store weights.
+        attention_dropout (float): Dropout probability for attention weights.
+        W_query (nn.Linear): Linear transformation for query mapping.
+        W_key (nn.Linear): Linear transformation for key mapping.
+        W_val (nn.Linear): Linear transformation for value mapping.
+        W_out (nn.Linear): Linear transformation for output consolidation.
+        last_attn (Tuple[Optional[torch.Tensor], Optional[torch.Tensor]]): Cached
+            last attention weights and mask.
+        sdpa_fn (Optional[Callable]): Reference to the SDPA kernel function.
     """
 
     last_attn: Tuple[Optional[torch.Tensor], Optional[torch.Tensor]]
@@ -37,14 +66,18 @@ class MultiHeadFlashAttention(nn.Module):
         store_attn_weights: bool = False,
         sdpa_fn: Optional[Callable] = None,
     ) -> None:
-        """
+        """Initializes MultiHeadFlashAttention.
+
         Args:
-            n_heads: Number of attention heads.
-            input_dim: Input feature dimension.
-            embed_dim: Output embedding dimension.
-            bias: Use bias in projections.
-            attention_dropout: Dropout probability.
-            store_attn_weights: If True, falls back to manual attention to store weights.
+            n_heads: Number of parallel attention heads.
+            input_dim: Feature dimensionality of the input sequence.
+            embed_dim: Total dimensionality of the output representation.
+            val_dim: Custom dimension for values (for compatibility).
+            key_dim: Custom dimension for keys (for compatibility).
+            bias: Whether to add a bias term in the projection layers.
+            attention_dropout: Dropout rate applied to attention weights.
+            store_attn_weights: Whether to use the slow manual path to store weights.
+            sdpa_fn: Custom replacement for the SDPA function.
         """
         super().__init__()
 
@@ -66,12 +99,9 @@ class MultiHeadFlashAttention(nn.Module):
         self.last_attn = (None, None)
 
         self.sdpa_fn = sdpa_fn if sdpa_fn is not None else scaled_dot_product_attention
-        if self.sdpa_fn is None and not store_attn_weights:
-            # Warning or silent fallback? Silent for now.
-            pass
 
     def init_parameters(self) -> None:
-        """Initializes the parameters using Xavier uniform initialization."""
+        """Initializes the linear layer weights using Xavier uniform distribution."""
         for param in self.parameters():
             if param.dim() > 1:
                 nn.init.xavier_uniform_(param)
@@ -82,11 +112,17 @@ class MultiHeadFlashAttention(nn.Module):
         h: Optional[torch.Tensor] = None,
         mask: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
-        """
+        """Computes multi-head attention using hardware-optimized memory paths.
+
         Args:
-            q: Queries [batch, n_query, input_dim]
-            h: Keys/Values [batch, graph_size, input_dim]. If None, self-attention.
-            mask: Attention mask [batch, n_query, graph_size]. True = masked out.
+            q: Queries tensor of shape (batch, n_query, input_dim).
+            h: Key/Value keys tensor of shape (batch, graph_size, input_dim).
+                Defaults to `q` (self-attention) if None.
+            mask: Boolean attention mask (batch, n_query, graph_size).
+                True indicates a masked position.
+
+        Returns:
+            torch.Tensor: Attended context vectors of shape (batch, n_query, embed_dim).
         """
         if h is None:
             h = q
@@ -114,22 +150,34 @@ class MultiHeadFlashAttention(nn.Module):
         else:
             sdpa_mask = ~input_mask if input_mask is not None else None
 
-            out = self.sdpa_fn(Q, K, V, attn_mask=sdpa_mask, dropout_p=self.attention_dropout if self.training else 0.0)
+            out = self.sdpa_fn(
+                Q,
+                K,
+                V,
+                attn_mask=sdpa_mask,
+                dropout_p=self.attention_dropout if self.training else 0.0,
+            )
 
             out = out.transpose(1, 2).contiguous().view(batch_size, n_query, self.embed_dim)
             return self.W_out(out)
 
-    def _manual_attention(self, Q, K, V, mask):
-        """manual attention.
+    def _manual_attention(
+        self,
+        Q: torch.Tensor,
+        K: torch.Tensor,
+        V: torch.Tensor,
+        mask: Optional[torch.Tensor],
+    ) -> torch.Tensor:
+        """Fallback manual attention implementation for weight inspection.
 
         Args:
-            Q (Any): Description of Q.
-            K (Any): Description of K.
-            V (Any): Description of V.
-            mask (Any): Description of mask.
+            Q: Query projections.
+            K: Key projections.
+            V: Value projections.
+            mask: Optional tensor mask.
 
         Returns:
-            Any: Description of return value.
+            torch.Tensor: Computed attention output.
         """
         scale = 1.0 / math.sqrt(self.head_dim)
         scores = torch.matmul(Q, K.transpose(-2, -1)) * scale
@@ -138,7 +186,10 @@ class MultiHeadFlashAttention(nn.Module):
             scores = scores.masked_fill(mask, float("-inf"))
 
         attn_weights = torch.softmax(scores, dim=-1)
-        self.last_attn = (attn_weights.detach(), mask.detach() if mask is not None else None)
+        self.last_attn = (
+            attn_weights.detach(),
+            mask.detach() if mask is not None else None,
+        )
 
         if self.attention_dropout > 0.0 and self.training:
             attn_weights = torch.nn.functional.dropout(attn_weights, p=self.attention_dropout)

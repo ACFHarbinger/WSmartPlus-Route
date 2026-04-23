@@ -1,10 +1,14 @@
-"""__init__.py module.
+"""GFACS: GFlowNet Ant Colony System.
+
+This package implements the GFACS architecture for neural routing. It
+combines ACO construction with GFlowNet Trajectory Balance training.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    GFACS: Unified training wrapper.
+    GFACSPolicy: Neural GFlowNet with ACO construction.
 
 Example:
-    >>> import __init__
+    >>> from logic.src.models.core.gfacs import GFACS
 """
 
 from .model import GFACS as GFACS

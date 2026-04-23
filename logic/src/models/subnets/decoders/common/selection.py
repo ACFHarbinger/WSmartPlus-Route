@@ -1,14 +1,16 @@
-"""
-Node selection utilities for autoregressive decoders.
+"""Node selection utilities for autoregressive decoders.
 
 This module provides unified action selection logic used across multiple
-decoder implementations (GlimpseDecoder, PointerDecoder, PolyNetDecoder, MDAMDecoder).
+decoder implementations to consolidate redundant greedy and sampling logic.
 
-Consolidates duplicated greedy/sampling selection code from:
-- logic/src/models/subnets/decoders/glimpse/decoder.py (_select_node)
-- logic/src/models/subnets/decoders/ptr/decoder.py (decode)
-- logic/src/models/subnets/decoders/polynet/decoder.py (forward)
-- logic/src/models/subnets/decoders/mdam/cache.py (_decode_probs)
+Attributes:
+    select_action: Select action using greedy or sampling strategy.
+    select_action_log_prob: Select action from log-probability distribution.
+
+Example:
+    >>> from logic.src.models.subnets.decoders.common.selection import select_action
+    >>> probs = torch.tensor([[0.1, 0.7, 0.2]])
+    >>> action = select_action(probs, strategy="greedy")
 """
 
 from __future__ import annotations
@@ -26,70 +28,21 @@ def select_action(
     strategy: str = "greedy",
     generator: Optional[torch.Generator] = None,
 ) -> torch.Tensor:
-    """
-    Select action from probability distribution using greedy or sampling strategy.
+    """Select action from probability distribution using greedy or sampling strategy.
 
     This function is used in autoregressive decoders to select the next node
     to visit based on the attention-derived probability distribution over nodes.
 
-    Parameters
-    ----------
-    probs : torch.Tensor
-        Probability distribution over actions/nodes.
-        Shape: (batch_size, num_nodes) or (batch_size, num_actions)
-        Should be a valid probability distribution (non-negative, sums to ~1.0).
-    mask : Optional[torch.Tensor], default=None
-        Boolean mask indicating valid actions (True = valid, False = invalid).
-        Shape: (batch_size, num_nodes) or broadcastable to probs shape.
-        If provided, invalid actions are masked out and probabilities are renormalized.
-    strategy : str, default="greedy"
-        Selection strategy:
-        - "greedy": Select action with highest probability (argmax)
-        - "sampling": Sample action from probability distribution (multinomial)
-    generator : Optional[torch.Generator], default=None
-        Generator for sampling. If provided, used for sampling.
+    Args:
+        probs (torch.Tensor): Probability distribution over actions/nodes.
+            Shape: (batch_size, num_nodes) or (batch_size, num_actions).
+        mask (Optional[torch.Tensor]): Boolean mask indicating valid actions.
+            Shape: (batch_size, num_nodes). True = valid, False = invalid.
+        strategy (str): Selection strategy: "greedy" or "sampling".
+        generator (Optional[torch.Generator]): Generator for reproducible sampling.
 
-    Returns
-    -------
-    torch.Tensor
-        Selected action indices.
-        Shape: (batch_size,)
-        Values are integers in range [0, num_nodes-1].
-
-    Examples
-    --------
-    Greedy selection:
-    >>> probs = torch.tensor([[0.1, 0.7, 0.2], [0.3, 0.3, 0.4]])  # (B=2, N=3)
-    >>> selected = select_action(probs, strategy="greedy")
-    >>> print(selected)  # tensor([1, 2]) - argmax per batch
-
-    Sampling with mask:
-    >>> probs = torch.tensor([[0.5, 0.3, 0.2]])  # (B=1, N=3)
-    >>> mask = torch.tensor([[True, False, True]])  # Node 1 is invalid
-    >>> selected = select_action(probs, mask=mask, strategy="sampling")
-    >>> print(selected)  # tensor([0] or [2]) - samples only from valid actions
-
-    Greedy with mask:
-    >>> probs = torch.tensor([[0.1, 0.7, 0.2]])  # (B=1, N=3)
-    >>> mask = torch.tensor([[True, False, True]])  # Node 1 is invalid
-    >>> selected = select_action(probs, mask=mask, strategy="greedy")
-    >>> print(selected)  # tensor([2]) - highest probability among valid actions
-
-    Notes
-    -----
-    - When mask is provided, probabilities are:
-      1. Zeroed out for invalid actions (mask == False)
-      2. Renormalized to sum to 1.0 over valid actions
-    - For greedy selection, ties are broken arbitrarily (first occurrence)
-    - For sampling, small epsilon (1e-8) is added to prevent sampling failures
-    - This function assumes probs are already non-negative (e.g., from softmax/exp)
-
-    See Also
-    --------
-    - Used in GlimpseDecoder._select_node()
-    - Used in PointerDecoder.decode()
-    - Used in PolyNetDecoder.forward()
-    - Used in MDAMDecoder (via mdam/cache.py _decode_probs)
+    Returns:
+        torch.Tensor: Selected action indices of shape (batch_size,).
     """
     # Apply mask if provided
     if mask is not None:
@@ -114,38 +67,19 @@ def select_action_log_prob(
     mask: Optional[torch.Tensor] = None,
     strategy: str = "greedy",
 ) -> torch.Tensor:
-    """
-    Select action from log-probability distribution.
+    """Select action from log-probability distribution.
 
     Convenience wrapper around select_action() that accepts log-probabilities
     instead of probabilities. Useful when working with log-softmax outputs.
 
-    Parameters
-    ----------
-    log_probs : torch.Tensor
-        Log-probability distribution over actions.
-        Shape: (batch_size, num_nodes)
-    mask : Optional[torch.Tensor], default=None
-        Boolean mask indicating valid actions.
-    strategy : str, default="greedy"
-        Selection strategy: "greedy" or "sampling".
+    Args:
+        log_probs (torch.Tensor): Log-probability distribution over actions.
+            Shape: (batch_size, num_nodes).
+        mask (Optional[torch.Tensor]): Boolean mask indicating valid actions.
+        strategy (str): Selection strategy: "greedy" or "sampling".
 
-    Returns
-    -------
-    torch.Tensor
-        Selected action indices.
-        Shape: (batch_size,)
-
-    Examples
-    --------
-    >>> log_probs = torch.log_softmax(logits, dim=-1)  # (B, N)
-    >>> selected = select_action_log_prob(log_probs, strategy="greedy")
-
-    Notes
-    -----
-    This function converts log-probabilities to probabilities (exp) before
-    calling select_action(). For numerical stability, log-probabilities
-    should be computed using log_softmax, not log(softmax).
+    Returns:
+        torch.Tensor: Selected action indices of shape (batch_size,).
     """
     # Convert log-probabilities to probabilities
     probs = log_probs.exp()

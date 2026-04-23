@@ -1,6 +1,18 @@
+"""MDAM Path module.
+
+This module provides the MDAMPath class, representing a single decoding path
+within the Multi-Decoder Attention Model architecture.
+
+Attributes:
+    MDAMPath: Single constructive decoding path component for MDAM.
+
+Example:
+    >>> from logic.src.models.subnets.decoders.mdam.path import MDAMPath
+    >>> path = MDAMPath(embed_dim=128, env_name="vrpp", num_heads=8)
+    >>> fixed_cache = path.precompute(h_embed)
 """
-MDAM Path module.
-"""
+
+from __future__ import annotations
 
 from typing import Optional, Tuple
 
@@ -14,9 +26,22 @@ from logic.src.models.subnets.embeddings import CONTEXT_EMBEDDING_REGISTRY
 
 
 class MDAMPath(nn.Module):
-    """
-    Single decoding path for MDAM.
-    Encapsulates path-specific parameters and computation.
+    """Single decoding path for MDAM.
+
+    Encapsulates path-specific parameters and computation, including context
+    embeddings, projections, and attention logic.
+
+    Attributes:
+        embed_dim (int): Dimensionality of node embeddings.
+        num_heads (int): Number of attention heads.
+        tanh_clipping (float): Scale for logit clipping.
+        mask_inner (bool): Whether to mask inner attention.
+        mask_logits (bool): Whether to mask output logits.
+        context_embedding (nn.Module): Dynamics-specific context embedding layer.
+        project_node_embeddings (nn.Linear): Linear projection for K/V/Q components.
+        project_fixed_context (nn.Linear): Fixed graph context projection.
+        project_step_context (nn.Linear): Dynamic step context projection.
+        project_out (nn.Linear): Final output projection after attention.
     """
 
     def __init__(
@@ -28,15 +53,15 @@ class MDAMPath(nn.Module):
         mask_inner: bool = True,
         mask_logits: bool = True,
     ) -> None:
-        """Initialize Class.
+        """Initializes the MDAMPath.
 
         Args:
-            embed_dim (int): Description of embed_dim.
-            env_name (str): Description of env_name.
-            num_heads (int): Description of num_heads.
-            tanh_clipping (float): Description of tanh_clipping.
-            mask_inner (bool): Description of mask_inner.
-            mask_logits (bool): Description of mask_logits.
+            embed_dim: Node embedding dimensionality.
+            env_name: Environment registered name for context retrieval.
+            num_heads: Number of attention heads.
+            tanh_clipping: Scaling factor for tanh clipping.
+            mask_inner: Flag for inner attention masking.
+            mask_logits: Flag for output logit masking.
         """
         super().__init__()
         self.embed_dim = embed_dim
@@ -62,7 +87,15 @@ class MDAMPath(nn.Module):
         h_embed: torch.Tensor,
         num_steps: int = 1,
     ) -> AttentionDecoderCache:
-        """Precompute fixed projections for this path."""
+        """Precomputes fixed projections for this path.
+
+        Args:
+            h_embed: Node embeddings of shape (batch, nodes, dim).
+            num_steps: Initial number of expansion steps for heads.
+
+        Returns:
+            AttentionDecoderCache: Cache containing projected components.
+        """
         graph_embed = h_embed.mean(dim=1)
 
         # Fixed context projection
@@ -85,7 +118,15 @@ class MDAMPath(nn.Module):
         v: torch.Tensor,
         num_steps: Optional[int] = None,
     ) -> torch.Tensor:
-        """Reshape for multi-head attention."""
+        """Reshapes and expands tensors into multi-head format.
+
+        Args:
+            v: Input tensor components of shape (batch, 1, graph_size, dim).
+            num_steps: Number of decoding steps to expand for.
+
+        Returns:
+            torch.Tensor: Reshaped tensor of shape (heads, batch, steps, nodes, head_dim).
+        """
         # v: (batch, 1, graph_size, 3*embed_dim) or similar
         # target: (n_heads, batch, num_steps, graph_size, head_dim)
 
@@ -111,21 +152,18 @@ class MDAMPath(nn.Module):
         fixed: AttentionDecoderCache,
         td: TensorDict,
         dynamic_embed: Tuple[torch.Tensor, torch.Tensor, torch.Tensor],
-        path_index: int,  # Needed for compute_mdam_logits signature?
-        # Actually compute_mdam_logits takes path_index but mostly for identification?
-        # Wait, compute_mdam_logits uses path_index?
-        # Let's check compute_mdam_logits again.
+        path_index: int,
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
-        """Get logprobs.
+        """Computes action log probabilities for the current path state.
 
         Args:
-            fixed (AttentionDecoderCache): Description of fixed.
-            td (TensorDict): Description of td.
-            dynamic_embed (Tuple[torch.Tensor, torch.Tensor, torch.Tensor]): Description of dynamic_embed.
-            path_index (int): Description of path_index.
+            fixed: Precomputed keys and values.
+            td: Current state dictionary.
+            dynamic_embed: Dynamic embeddings for current step.
+            path_index: Index of the current decoder path.
 
         Returns:
-            Any: Description of return value.
+            Tuple: Log probabilities and action mask.
         """
         # Step context
         if hasattr(self.context_embedding, "forward"):
@@ -136,7 +174,7 @@ class MDAMPath(nn.Module):
         if step_context.dim() == 2:
             step_context = step_context.unsqueeze(1)
 
-        glimpse_q = fixed.graph_context + step_context
+        glimpse_q = fixed.graph_context + step_context if fixed.graph_context is not None else step_context
 
         try:
             glimpse_key_dyn, glimpse_val_dyn, logit_key_dyn = dynamic_embed

@@ -1,7 +1,12 @@
-"""
-PolyNet Policy.
+r"""PolyNet Policy: Multi-Strategy Autoregressive Policy.
 
-Multi-strategy policy combining encoder with PolyNet decoder.
+This module provides `PolyNetPolicy`, which conditions a standard transformer
+encoder-decoder architecture on a strategy index $k \in \{1, \dots, K\}$. This
+allows the model to represent a population of distinct routing heuristics within
+a single weight set.
+
+Attributes:
+    PolyNetPolicy: Strategy-conditioned constructive policy.
 """
 
 from __future__ import annotations
@@ -19,15 +24,22 @@ from logic.src.models.subnets.encoders.gat.encoder import GraphAttentionEncoder
 
 
 class PolyNetPolicy(AutoregressivePolicy):
-    """
-    PolyNet Policy for learning K diverse solution strategies.
+    """PolyNet Policy for population-based search.
 
-    Combines AttentionModel or MatNet encoder with PolyNet decoder.
-    Uses static binary vectors to condition attention and learn diverse strategies.
+    Utilizes static binary vectors injected into the attention mechanism to
+    branch the decoding path. This creates $K$ specialized "experts" that share
+    the same encoder but develop unique searching behaviors.
 
-    Reference:
-        Hottung et al. "PolyNet: Learning Diverse Solution Strategies for
-        Neural Combinatorial Optimization" (2024)
+    Attributes:
+        k (int): Number of learnable behavior branches.
+        embed_dim (int): feature width.
+        temperature (float): softmax temperature.
+        tanh_clipping (float): logit clipping range.
+        mask_logits (bool): toggle invalid action masking.
+        init_embedding (nn.Module): Problem-specific initial projector.
+        train_strategy (str): Training construction mode.
+        val_strategy (str): Validation construction mode.
+        test_strategy (str): Testing construction mode.
     """
 
     def __init__(
@@ -47,29 +59,28 @@ class PolyNetPolicy(AutoregressivePolicy):
         train_strategy: str = "sampling",
         val_strategy: str = "sampling",
         test_strategy: str = "sampling",
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
-        """
-        Initialize PolyNet policy.
+        """Initializes the PolyNet policy.
 
         Args:
-            k: Number of strategies to learn.
-            encoder: Pre-built encoder or None to create default.
-            encoder_type: Type of encoder ("AM" or "MatNet").
-            embed_dim: Embedding dimension.
-            num_encoder_layers: Number of encoder layers.
-            num_heads: Number of attention heads.
-            normalization: Normalization type.
-            feedforward_hidden: Feed-forward hidden dimension.
-            env_name: Environment name.
-            temperature: Temperature for softmax.
-            tanh_clipping: Tanh clipping value.
-            mask_logits: Whether to mask logits.
-            train_strategy: Decoding strategy during training.
-            val_strategy: Decoding strategy during validation.
-            test_strategy: Decoding strategy during testing.
+            k: number of distinct behavior strategies.
+            encoder: Backbone graph processor.
+            encoder_type: identity of the architecture ('AM', 'MatNet').
+            embed_dim: total latent feature width.
+            num_encoder_layers: depth of the attention stack.
+            num_heads: attention heads count.
+            normalization: module scaling type.
+            feedforward_hidden: MLP expansion width.
+            env_name: target task identifier.
+            temperature: Softmax scaling.
+            tanh_clipping: value range for logit squashing.
+            mask_logits: toggle for valid action enforcement.
+            train_strategy: default search mode for training.
+            val_strategy: default search mode for validation.
+            test_strategy: default search mode for testing.
+            **kwargs: extra params for PolyNetDecoder.
         """
-        # Create encoder if not provided
         if encoder is None:
             encoder = GraphAttentionEncoder(
                 n_heads=num_heads,
@@ -79,7 +90,6 @@ class PolyNetPolicy(AutoregressivePolicy):
                 feed_forward_hidden=feedforward_hidden,
             )
 
-        # Create decoder
         decoder = PolyNetDecoder(
             k=k,
             encoder_type=encoder_type,
@@ -91,8 +101,8 @@ class PolyNetPolicy(AutoregressivePolicy):
 
         super().__init__(
             env_name=env_name,
-            encoder=encoder,  # type: ignore[arg-type]
-            decoder=decoder,  # type: ignore[arg-type]
+            encoder=encoder,
+            decoder=decoder,
         )
 
         self.k = k
@@ -101,10 +111,8 @@ class PolyNetPolicy(AutoregressivePolicy):
         self.tanh_clipping = tanh_clipping
         self.mask_logits = mask_logits
 
-        # Initialize with problem-specific embeddings
         self.init_embedding = get_init_embedding(env_name, embed_dim)
 
-        # Store strategies
         self.train_strategy = train_strategy
         self.val_strategy = val_strategy
         self.test_strategy = test_strategy
@@ -116,33 +124,33 @@ class PolyNetPolicy(AutoregressivePolicy):
         phase: str = "train",
         return_actions: bool = True,
         num_starts: int = 1,
-        **kwargs,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
-        """
-        Forward pass through policy.
+        """Performs strategy-conditioned constructive search.
 
         Args:
-            td: TensorDict containing problem state.
-            env: Environment for state transitions.
-            phase: Current phase ('train', 'val', 'test').
-            return_actions: Whether to return actions.
-            num_starts: Number of starting points.
+            td: current state container.
+            env: environment dynamics (uses standard if None).
+            phase: pipeline state ('train', 'val', 'test').
+            return_actions: toggle for explicit action sequence in output.
+            num_starts: number of parallel strategy constructors.
+            **kwargs: extra decoding configurations.
 
         Returns:
-            Dictionary with reward, log_likelihood, and actions.
+            Dict[str, Any]: results mapping rewards, log_probs, and actions.
         """
-        # Get initial embeddings
+        # 1. Project raw inputs (e.g. coordinates to latent vectors)
         embedding = self.init_embedding(td)
 
-        # Encode
+        # 2. Contextualize nodes via Graph Attention
         embeddings = self.encoder(embedding)  # type: ignore[attr-defined, misc]
 
-        # Determine strategy
+        # 3. Strategy strategy selection
         strategy = kwargs.pop("strategy", None)
         if strategy is None:
             strategy = getattr(self, f"{phase}_strategy")
 
-        # Decode
+        # 4. Strategy-conditioned recurrent construction
         log_likelihood, actions = self.decoder(  # type: ignore[attr-defined, misc]
             td,
             embeddings,
@@ -152,7 +160,11 @@ class PolyNetPolicy(AutoregressivePolicy):
             **kwargs,
         )
 
-        # Calculate reward
+        # 5. Reward extraction
+        from logic.src.envs import get_env
+
+        if env is None:
+            env = get_env(self.env_name)  # type: ignore[arg-type]
         reward = env.get_reward(td, actions)  # type: ignore[attr-defined, union-attr]
 
         return {

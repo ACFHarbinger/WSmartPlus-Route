@@ -1,10 +1,12 @@
-"""__init__.py module.
+"""HyperNetwork for Adaptive Reward Weighting.
+
+This package implements a metadata-driven approach to adjust the relative
+importance of multiple objectives (e.g., overflows vs distance) in the
+reward function, adapting to temporal changes and fleet performance.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
-
-Example:
-    >>> import __init__
+    HyperNetwork: Neural generator for adaptive weighting scalars.
+    HyperNetworkOptimizer: Manager for hypernetwork training and inference.
 """
 
 from .hypernetwork import HyperNetwork as HyperNetwork

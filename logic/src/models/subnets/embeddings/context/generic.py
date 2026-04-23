@@ -1,15 +1,20 @@
-"""generic.py module.
+"""Generic context embedding module.
+
+This module provides the GenericContextEmbedder, which serves as a fallback
+for routing problems that do not require specialized state feature extraction.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    GenericContextEmbedder: Basic context embedder using linear projections.
 
 Example:
-    >>> import generic
+    >>> from logic.src.models.subnets.embeddings.context.generic import GenericContextEmbedder
+    >>> embedder = GenericContextEmbedder(embed_dim=128)
+    >>> initial_h = embedder(nodes)
 """
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Dict
 
 import torch
 from torch import nn
@@ -20,18 +25,24 @@ from .base import ContextEmbedder
 
 
 class GenericContextEmbedder(ContextEmbedder):
-    """
-    Generic context embedder for problems without specific implementations.
-    Embeds depot (2D) and nodes (node_dim) simply.
+    """Generic context embedder for baseline routing problems.
+
+    Provides simple linear projections for depot and node locations, and
+    uses the current node embedding as the dynamic step context.
+
+    Attributes:
+        init_embed (nn.Linear): Projection for non-depot node features.
+        init_embed_depot (nn.Linear): Specialized projection for depot location.
+        project_step_context (nn.Module): Projection layer for dynamic step context.
     """
 
-    def __init__(self, embed_dim: int, node_dim: int = NODE_DIM, temporal_horizon: int = 0):
-        """Initialize Class.
+    def __init__(self, embed_dim: int, node_dim: int = NODE_DIM, temporal_horizon: int = 0) -> None:
+        """Initializes GenericContextEmbedder.
 
         Args:
-            embed_dim (int): Description of embed_dim.
-            node_dim (int): Description of node_dim.
-            temporal_horizon (int): Description of temporal_horizon.
+            embed_dim: Internal embedding dimensionality.
+            node_dim: Input node feature dimension.
+            temporal_horizon: Ignored in generic implementation.
         """
         super().__init__(embed_dim, node_dim, temporal_horizon)
         self.init_embed = nn.Linear(node_dim, embed_dim)
@@ -43,14 +54,14 @@ class GenericContextEmbedder(ContextEmbedder):
             nn.Identity() if self.step_context_dim == embed_dim else nn.Linear(self.step_context_dim, embed_dim)
         )
 
-    def init_node_embeddings(self, nodes: dict[str, Any]) -> torch.Tensor:
-        """Init node embeddings.
+    def init_node_embeddings(self, nodes: Dict[str, Any]) -> torch.Tensor:
+        """Projects raw problem instance locations into embedding space.
 
         Args:
-            nodes (dict[str, Any]): Description of nodes.
+            nodes: Instance dictionary containing 'depot' and 'loc'/'locs'.
 
         Returns:
-            Any: Description of return value.
+            torch.Tensor: Combined node embeddings (depot + others).
         """
         # Fallback to 'loc' or 'locs'
         locs_key = "locs" if "locs" in nodes else "loc"
@@ -65,8 +76,14 @@ class GenericContextEmbedder(ContextEmbedder):
         )
 
     def _step_context(self, embeddings: torch.Tensor, state: Any) -> torch.Tensor:
-        """
-        Default step context: return gathered current node embedding.
+        """Extracts current node embedding as the step context.
+
+        Args:
+            embeddings: Current node embeddings.
+            state: Environment state object.
+
+        Returns:
+            torch.Tensor: Projected current node embedding.
         """
         batch_size = embeddings.size(0)
         current_node = state.get_current_node()
@@ -75,14 +92,17 @@ class GenericContextEmbedder(ContextEmbedder):
 
         # Gather current node embedding: [batch, 1, embed_dim]
         step_context = embeddings.gather(
-            1, current_node.unsqueeze(1).unsqueeze(-1).expand(batch_size, 1, self.embed_dim)
+            1,
+            current_node.unsqueeze(1).unsqueeze(-1).expand(batch_size, 1, self.embed_dim),
         )
 
         return self.project_step_context(step_context)
 
     @property
     def step_context_dim(self) -> int:
-        """
-        Generic context just returns the current node embedding.
+        """Returns the dimensionality of the generic current-node context.
+
+        Returns:
+            int: Size of the embedding dimension.
         """
         return self.embed_dim

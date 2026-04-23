@@ -1,12 +1,17 @@
-"""
-PolyNet Model.
+"""PolyNet Model: Learning Diverse Solution Strategies.
 
-REINFORCE-based training with Poppy loss for diverse solution strategies.
+This module provides the `PolyNet` wrapper, which learns a set of $K$ diverse
+routing strategies using binary vector conditioning. It implements the "Poppy"
+loss, which uses the instance-wide mean reward as a competitive baseline to
+encourage strategy specialization.
+
+Attributes:
+    PolyNet: Diversity-focused training wrapper with Poppy loss.
 """
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, cast
+from typing import Any, Dict, Optional, Union, cast
 
 import torch
 from tensordict import TensorDict
@@ -19,18 +24,18 @@ from .policy import PolyNetPolicy
 
 
 class PolyNet(nn.Module):
-    """
-    PolyNet Model with REINFORCE + Poppy Loss.
+    """PolyNet Model for population-based RL.
 
-    Learns K diverse solution strategies using binary vector conditioning
-    and Poppy loss for training. Uses shared baseline only.
+    Encourages a single model to exhibit multiple distinct behaviors by
+    conditioning on a strategy index. Training utilizes the Poppy loss to
+    maximize the collective performance of the population.
 
-    Reference:
-        Hottung et al. "PolyNet: Learning Diverse Solution Strategies for
-        Neural Combinatorial Optimization" (2024)
-
-        Grinsztajn et al. "Population-Based Reinforcement Learning for
-        Combinatorial Optimization" (ICLR 2022) - Poppy loss
+    Attributes:
+        env (RL4COEnvBase): Environment for states and rewards.
+        k (int): Number of distinct strategies to learn.
+        val_num_solutions (int): Candidate count for strategy selection during val.
+        num_augment (int): Data augmentation factor.
+        policy (PolyNetPolicy): The underlying strategy-conditioned policy.
     """
 
     def __init__(
@@ -42,30 +47,28 @@ class PolyNet(nn.Module):
         encoder_type: str = "AM",
         policy_kwargs: Optional[Dict[str, Any]] = None,
         num_augment: int = 8,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
-        """
-        Initialize PolyNet model.
+        """Initializes the PolyNet model.
 
         Args:
-            env: Environment for training.
-            policy: Pre-built policy or None to create default.
-            k: Number of strategies to learn.
-            val_num_solutions: Number of solutions during validation.
-            encoder_type: Encoder type ("AM" or "MatNet").
-            policy_kwargs: Arguments for policy construction.
-            num_augment: Number of data augmentations.
+            env: Targeted problem environment.
+            policy: Pre-instantiated PolyNet policy.
+            k: Population size of strategies.
+            val_num_solutions: Parallel construction budget for validation.
+            encoder_type: Backbone architecture ('AM', 'MatNet').
+            policy_kwargs: Dictionary for default policy setup.
+            num_augment: Count of transformations for data augmentation.
+            **kwargs: Extra parameters.
         """
         super().__init__()
 
         policy_kwargs = policy_kwargs or {}
-
         self.env = env
         self.k = k
         self.val_num_solutions = val_num_solutions
         self.num_augment = num_augment
 
-        # Create policy if not provided
         if policy is None:
             self.policy = PolyNetPolicy(
                 k=k,
@@ -81,18 +84,18 @@ class PolyNet(nn.Module):
         td: TensorDict,
         env: Optional[RL4COEnvBase] = None,
         phase: str = "train",
-        **kwargs,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
-        """
-        Forward pass through policy.
+        """Routes execution to the strategy-conditioned policy.
 
         Args:
-            td: Problem instance TensorDict.
-            env: Environment (uses self.env if None).
-            phase: Training phase.
+            td: problem state container.
+            env: Environment reference.
+            phase: Current mode ('train', 'val').
+            **kwargs: Extra parameters.
 
         Returns:
-            Policy output dictionary.
+            Dict[str, Any]: Results containing rewards and log probabilities.
         """
         if env is None:
             env = self.env
@@ -104,28 +107,23 @@ class PolyNet(nn.Module):
         batch_idx: int,
         phase: str,
     ) -> Dict[str, Any]:
-        """
-        Shared step for training/validation/testing.
+        """Performs a unified execution step for various pipeline phases.
 
         Args:
             batch: Batch of problem instances.
-            batch_idx: Batch index.
-            phase: Current phase.
+            batch_idx: Global index of the batch.
+            phase: pipeline state ('train', 'val', 'test').
 
         Returns:
-            Dictionary with loss and metrics.
+            Dict[str, Any]: Metrics and outputs from the step.
         """
         td = self.env.reset(batch)
-
-        # Get number of solutions based on phase
         num_solutions = self.k if phase == "train" else self.val_num_solutions
 
-        # Apply augmentation if training
+        # Augmentation logic: expand batch via symmetric transformations
         if phase == "train" and self.num_augment > 1:
-            # Repeat for augmentation
-            td = cast(TensorDict, self.env.reset(batch)).repeat_interleave(self.num_augment, dim=0)  #
+            td = cast(TensorDict, self.env.reset(batch)).repeat_interleave(self.num_augment, dim=0)
 
-        # Forward pass
         out = self.policy(
             td=td,
             env=self.env,
@@ -134,7 +132,6 @@ class PolyNet(nn.Module):
             num_starts=num_solutions,
         )
 
-        # Compute loss
         if phase == "train":
             out = self.calculate_loss(td, batch, out)
 
@@ -148,41 +145,38 @@ class PolyNet(nn.Module):
         reward: Optional[torch.Tensor] = None,
         log_likelihood: Optional[torch.Tensor] = None,
     ) -> Dict[str, Any]:
-        """
-        Calculate Poppy loss for diverse solution learning.
+        """Computes the PolyNet Poppy loss.
 
-        Poppy loss uses the mean reward across solutions as baseline,
-        encouraging exploration of diverse strategies.
+        Poppy loss defines the advantage relative to the mean performance of the
+        entire strategy population for a given instance, forcing each strategy
+        to find better local optima than the global average.
 
         Args:
-            td: Problem instance.
-            batch: Batch data.
-            policy_out: Output from policy forward pass.
-            reward: Override reward (uses policy_out if None).
-            log_likelihood: Override log_likelihood (uses policy_out if None).
+            td: Problem instance container.
+            batch: Data batch (meta-information).
+            policy_out: Result map from the policy forward pass.
+            reward: Optional override for the multi-path reward tensor.
+            log_likelihood: Optional override for the path log-probabilities.
 
         Returns:
-            Updated policy_out with loss components.
+            Dict[str, Any]: result updated with 'loss' and 'max_reward'.
         """
         reward = reward if reward is not None else policy_out["reward"]
         log_likelihood = log_likelihood if log_likelihood is not None else policy_out["log_likelihood"]
 
-        # Reshape for multi-solution: (batch * k) -> (batch, k)
+        # Ensure multi-path shape: [Batch, K]
         if reward.dim() == 1:
             from logic.src.utils.decoding import unbatchify
 
             reward = unbatchify(reward, self.k)
             log_likelihood = unbatchify(log_likelihood, self.k)
 
-        # Poppy loss: use mean reward as shared baseline
-        # advantage = r_i - mean(r_j for all j)
+        # Shared instance-wise baseline (mean of population)
         baseline = reward.mean(dim=-1, keepdim=True)
         advantage = reward - baseline
 
-        # REINFORCE loss
+        # Scalar loss for the population
         loss = -(advantage * log_likelihood).mean()
-
-        # Track best reward
         max_reward = reward.max(dim=-1).values.mean()
 
         policy_out.update(
@@ -192,25 +186,23 @@ class PolyNet(nn.Module):
                 "baseline": baseline.mean(),
             }
         )
-
         return policy_out
 
     def rollout(
         self,
         dataset: Any,
         batch_size: int = 64,
-        device: str = "cpu",
+        device: Union[str, torch.device] = "cpu",
     ) -> torch.Tensor:
-        """
-        Rollout policy on dataset.
+        """Evaluates the strategy population across a full dataset.
 
         Args:
-            dataset: Dataset to evaluate.
-            batch_size: Batch size for evaluation.
-            device: Device to run on.
+            dataset: input instances.
+            batch_size: inference width.
+            device: hardware target.
 
         Returns:
-            Tensor of rewards.
+            torch.Tensor: Best reward per instance [DatasetLength].
         """
         self.eval()
         self.to(device)

@@ -1,5 +1,16 @@
-"""
-DeepACO Policy: Combines encoder and decoder for end-to-end inference.
+"""DeepACO Policy for non-autoregressive construction.
+
+This module provides the `DeepACOPolicy`, which utilizes a Graph Neural Network
+to predict an edge heatmap (representation of pheromones/heuristics) and an
+Ant Colony Optimization algorithm to sample solutions from this heatmap.
+
+Attributes:
+    DeepACOPolicy: Hybrid policy combining GNN heatmaps with ACO search.
+
+Example:
+    >>> from logic.src.models.core.deepaco.policy import DeepACOPolicy
+    >>> policy = DeepACOPolicy(embed_dim=128, n_ants=20)
+    >>> out = policy(td, env)
 """
 
 from __future__ import annotations
@@ -20,11 +31,15 @@ from logic.src.models.subnets.encoders.deepaco.encoder import DeepACOEncoder
 
 
 class DeepACOPolicy(NonAutoregressivePolicy):
-    """
-    DeepACO Policy.
+    """DeepACO inference policy.
 
-    Combines DeepACOEncoder (heatmap prediction) with ACODecoder
-    (ant colony solution construction) for end-to-end inference.
+    Orchestrates the two-stage execution:
+    1. Edge prediction via GNN to generate a probability heatmap.
+    2. Solution construction via parallel ACO ants using the predicted heatmap.
+
+    Attributes:
+        encoder (DeepACOEncoder): GNN that outputs edge weights.
+        decoder (ACODecoder): ACO implementation for path construction and refinement.
     """
 
     def __init__(
@@ -41,25 +56,24 @@ class DeepACOPolicy(NonAutoregressivePolicy):
         rho: float = 0.1,
         use_local_search: bool = True,
         env_name: Optional[str] = None,
-        **kwargs,
-    ):
-        """
-        Initialize DeepACOPolicy.
+        **kwargs: Any,
+    ) -> None:
+        """Initializes the DeepACOPolicy.
 
         Args:
-            encoder: DeepACOEncoder instance.
-            decoder: ACODecoder instance.
-            embed_dim: Embedding dimension.
-            num_encoder_layers: Number of GNN layers.
-            num_heads: Number of attention heads.
-            n_ants: Number of ants in ACO.
-            n_iterations: Number of ACO iterations.
-            alpha: Pheromone importance.
-            beta: Heuristic importance.
-            rho: Pheromone evaporation rate.
-            use_local_search: Whether to use local search in ACO.
-            env_name: Environment name.
-            **kwargs: Additional arguments.
+            encoder: Pre-instantiated GNN encoder. Defaults to DeepACOEncoder.
+            decoder: Pre-instantiated ACO decoder. Defaults to ACODecoder.
+            embed_dim: Internal feature dimensionality.
+            num_encoder_layers: depth of the GNN.
+            num_heads: Attention heads for the GNN layers.
+            n_ants: Ant population size.
+            n_iterations: ACO search cycles.
+            alpha: relative importance of pheromones.
+            beta: relative importance of learned heuristic edges.
+            rho: pheromone decay rate.
+            use_local_search: Whether to enable k-opt refinement.
+            env_name: Optional target environment name.
+            **kwargs: Extra parameters for base initialization.
         """
         if encoder is None:
             encoder = DeepACOEncoder(
@@ -85,29 +99,33 @@ class DeepACOPolicy(NonAutoregressivePolicy):
             **kwargs,
         )
 
-    def forward(  # type: ignore[override]
+    def forward(
         self,
         td: TensorDict,
         env: RL4COEnvBase,
         num_starts: int = 1,
-        **kwargs,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
-        """Forward.
+        """Executes heatmap prediction followed by ACO solution search.
 
         Args:
-            td (TensorDict): Description of td.
-            env (RL4COEnvBase): Description of env.
-            num_starts (int): Description of num_starts.
-            kwargs (Any): Description of kwargs.
+            td: Environment state container.
+            env: Environment managing rewards and 2-opt dynamics.
+            num_starts: Parallel ACO ensemble size.
+            **kwargs: Additional parameters for encoder/decoder.
 
         Returns:
-            Any: Description of return value.
+            Dict[str, Any]: Output dictionary containing:
+                - reward (torch.Tensor): best reward found by ants.
+                - actions (torch.Tensor): best tour found.
+                - log_likelihood (torch.Tensor): log-prob of construction.
+                - heatmap (torch.Tensor): the predicted edge weights.
         """
-        # Encode: predict heatmap
+        # stage 1: GNN Edge weight (heatmap) prediction
         encoder = cast(NonAutoregressiveEncoder, self.encoder)
         heatmap = encoder(td, **kwargs)
 
-        # Decode: construct solution(s) from heatmap using ACO
+        # stage 2: solution sampling via ACO
         decoder = cast(ACODecoder, self.decoder)
         out = decoder.construct(td, heatmap, env, num_starts=num_starts, **kwargs)
 

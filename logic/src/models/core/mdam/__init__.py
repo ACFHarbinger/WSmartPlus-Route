@@ -1,10 +1,15 @@
-"""__init__.py module.
+"""MDAM: Multi-Decoder Attention Model.
+
+This package provides MDAM for diverse solution generation. It uses a shared
+encoder and multiple parallel decoders to branch out during construction.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    MDAM: Diverse training wrapper with competitive baseline.
+    MDAMPolicy: Multi-path construction policy.
+    mdam_rollout: Best-of-all rollout logic for baseline calculation.
 
 Example:
-    >>> import __init__
+    >>> from logic.src.models.core.mdam import MDAM
 """
 
 from .model import MDAM as MDAM

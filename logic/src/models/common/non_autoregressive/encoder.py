@@ -1,15 +1,21 @@
-"""nonautoregressive_encoder.py module.
+"""Non-autoregressive Encoder base module.
+
+This module provides the abstract base class for encoders used in
+non-autoregressive (NAR) models. These models predict a global heatmap
+(e.g., edge probabilities) in a single pass over the problem instance.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    NonAutoregressiveEncoder: Abstract base class for NAR encoders.
 
 Example:
-    >>> import nonautoregressive_encoder
+    >>> from logic.src.models.common.non_autoregressive.encoder import NonAutoregressiveEncoder
+    >>> # subclass and implement forward...
 """
 
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from typing import Any, Tuple, Union
 
 import torch
 from tensordict import TensorDict
@@ -17,15 +23,23 @@ from torch import nn
 
 
 class NonAutoregressiveEncoder(nn.Module, ABC):
-    """
-    Base class for non-autoregressive encoders.
+    """Base class for non-autoregressive encoders.
 
     NAR encoders take a problem instance and produce heatmaps
-    (log probabilities over edges or nodes) in a single forward pass.
+    (log probabilities over edges or nodes) in a single forward pass,
+    instead of sequentially constructing embeddings.
+
+    Attributes:
+        embed_dim (int): Dimensionality of the produced heatmaps/embeddings.
     """
 
-    def __init__(self, embed_dim: int = 128, **kwargs):
-        """Initialize NonAutoregressiveEncoder."""
+    def __init__(self, embed_dim: int = 128, **kwargs: Any) -> None:
+        """Initializes the NonAutoregressiveEncoder.
+
+        Args:
+            embed_dim: Internal dimensionality for feature representations.
+            **kwargs: Additional parameters passed to the parent Module.
+        """
         super().__init__()
         self.embed_dim = embed_dim
 
@@ -33,16 +47,17 @@ class NonAutoregressiveEncoder(nn.Module, ABC):
     def forward(
         self,
         td: TensorDict,
-        **kwargs,
-    ) -> torch.Tensor | tuple[torch.Tensor, ...]:
-        """
-        Compute heatmap logits for the problem instance.
+        **kwargs: Any,
+    ) -> Union[torch.Tensor, Tuple[torch.Tensor, ...]]:
+        """Computes heatmap logits for the given problem instance.
 
         Args:
-            td: TensorDict containing problem instance (locs, wastes, etc.)
+            td: TensorDict containing instance metadata (e.g., coordinates).
+            **kwargs: Additional control arguments for heatmap generation.
 
         Returns:
-            Heatmap tensor of shape [batch, num_nodes, num_nodes] for edge-based,
-            or [batch, num_nodes] for node-based.
+            Union[torch.Tensor, Tuple[torch.Tensor, ...]]:
+                Heatmap tensor of shape [batch, num_nodes, num_nodes] for
+                edge-based models, or [batch, num_nodes] for node-based models.
         """
         raise NotImplementedError

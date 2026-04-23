@@ -1,10 +1,14 @@
-"""__init__.py module.
+"""MatNet (Matrix-based Neural Network) components.
+
+This package provides the implementation of MatNet (Kwon et al. 2021), optimized
+for combinatorial optimization problems with matrix-form inputs.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    MatNet: The REINFORCE training wrapper.
+    MatNetPolicy: The matrix-aware encoder-decoder policy.
 
 Example:
-    >>> import __init__
+    >>> from logic.src.models.core.matnet import MatNet
 """
 
 from .model import MatNet as MatNet

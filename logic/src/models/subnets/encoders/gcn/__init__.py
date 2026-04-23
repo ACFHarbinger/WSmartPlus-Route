@@ -1,10 +1,11 @@
 """__init__.py module.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    GraphConvolutionEncoder: Graph Convolution Encoder.
 
 Example:
-    >>> import __init__
+    >>> from logic.src.models.subnets.encoders.gcn import GraphConvolutionEncoder
+    >>> encoder = GraphConvolutionEncoder(n_layers=3, embed_dim=128)
 """
 
 from .encoder import GraphConvolutionEncoder

@@ -1,10 +1,11 @@
 """__init__.py module.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    PointerEncoder: Pointer Network Encoder.
 
 Example:
-    >>> import __init__
+    >>> from logic.src.models.subnets.encoders.ptr import PointerEncoder
+    >>> encoder = PointerEncoder(n_layers=3, embed_dim=128)
 """
 
 from .encoder import PointerEncoder

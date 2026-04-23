@@ -1,16 +1,22 @@
-"""__init__.py module.
+"""Attention Model-based routing components.
+
+This package implements the Attention Model (AM) and its variants for
+solving combinatorial optimization problems through constructive search.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    AttentionModel: The base encoder-decoder implementation.
+    AttentionModelPolicy: RL4CO-compatible wrapper for training.
+    DeepDecoderPolicy: Version with a multi-layer attention decoder.
+    SymNCOPolicy: Invariant policy with a projection head.
 
 Example:
-    >>> import __init__
+    >>> from logic.src.models.core.attention_model import AttentionModel
 """
 
-from .deep_decoder_policy import DeepDecoderPolicy
-from .model import AttentionModel
-from .policy import AttentionModelPolicy
-from .symnco_policy import SymNCOPolicy
+from .deep_decoder_policy import DeepDecoderPolicy as DeepDecoderPolicy
+from .model import AttentionModel as AttentionModel
+from .policy import AttentionModelPolicy as AttentionModelPolicy
+from .symnco_policy import SymNCOPolicy as SymNCOPolicy
 
 __all__ = [
     "AttentionModel",

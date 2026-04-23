@@ -1,8 +1,20 @@
-"""
-MDAM Multi-Path Decoder implementation.
+"""MDAM Multi-Path Decoder implementation.
+
+This module provides the multi-decoder architecture for MDAM, which constructs
+diverse solutions by running multiple parallel decoder paths.
+
+Attributes:
+    MDAMDecoder: Parallel multi-path decoder for diverse routing solutions.
+
+Example:
+    >>> from logic.src.models.subnets.decoders.mdam.decoder import MDAMDecoder
+    >>> decoder = MDAMDecoder(embed_dim=128, num_paths=5)
+    >>> reward, ll, kl, pi = decoder(td, embeddings, env)
 """
 
-from typing import Any, Tuple, Union, cast
+from __future__ import annotations
+
+from typing import Any, Optional, Tuple, Union, cast
 
 import torch
 from tensordict import TensorDict
@@ -15,8 +27,7 @@ from logic.src.models.subnets.embeddings.dynamic import DynamicEmbedding
 
 
 class MDAMDecoder(nn.Module):
-    """
-    MDAM Multi-Path Decoder.
+    """MDAM Multi-Path Decoder.
 
     Constructs diverse solutions by running multiple decoder paths in parallel.
     Each path has its own context embedding and projection layers.
@@ -25,6 +36,22 @@ class MDAMDecoder(nn.Module):
     Reference:
         Xin et al. "Multi-Decoder Attention Model with Embedding Glimpse for
         Solving Vehicle Routing Problems" (AAAI 2021)
+
+    Attributes:
+        embed_dim (int): Dimensionality of embeddings.
+        num_heads (int): Number of attention heads.
+        num_paths (int): Number of parallel paths.
+        env_name (str): Environment name for context.
+        mask_inner (bool): Masking flag for inner attention.
+        mask_logits (bool): Masking flag for output logits.
+        eg_step_gap (int): Encoder glimpse update frequency.
+        tanh_clipping (float): Scale for tanh clipping.
+        train_strategy (str): Default strategy for training.
+        val_strategy (str): Default strategy for validation.
+        test_strategy (str): Default strategy for testing.
+        dynamic_embedding (DynamicEmbedding): Embedding for dynamic context.
+        W_placeholder (nn.Parameter): Initial step context parameters.
+        paths (nn.ModuleList): Parallel MDAMPath instances.
     """
 
     paths: nn.ModuleList
@@ -44,8 +71,7 @@ class MDAMDecoder(nn.Module):
         val_strategy: str = "greedy",
         test_strategy: str = "greedy",
     ) -> None:
-        """
-        Initialize MDAM decoder.
+        """Initializes MDAM decoder.
 
         Args:
             embed_dim: Embedding dimension.
@@ -102,11 +128,20 @@ class MDAMDecoder(nn.Module):
         td: TensorDict,
         embeddings: Union[torch.Tensor, Tuple[torch.Tensor, ...]],
         env: RL4COEnvBase,
-        strategy: str = "greedy",
-        **kwargs,
+        strategy: Optional[str] = "greedy",
+        **kwargs: Any,
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
-        """
-        MDAM Multi-path decoding.
+        """MDAM Multi-path decoding.
+
+        Args:
+            td: Initial state dictionary.
+            embeddings: Encoder embeddings (tuple for MDAM).
+            env: Environment instance for stepping.
+            strategy: Decoding strategy (e.g., "greedy").
+            kwargs: Additional arguments, expects 'encoder'.
+
+        Returns:
+            Tuple: Batch rewards, log probabilities, KL divergence, and path actions.
         """
         # Unpack MDAM specific embeddings
         h, _, attn, V, h_old = cast(
@@ -136,7 +171,7 @@ class MDAMDecoder(nn.Module):
                 h_old.clone(),
                 encoder,
                 path_idx,
-                strategy,
+                strategy,  # type: ignore[arg-type]
             )
             reward_list.append(reward)
             ll_list.append(ll)
@@ -156,7 +191,15 @@ class MDAMDecoder(nn.Module):
         td: TensorDict,
         h: torch.Tensor,
     ) -> torch.Tensor:
-        """Compute KL divergence between path logprobs at first step."""
+        """Computes KL divergence between path logprobs at first step.
+
+        Args:
+            td: Current state dictionary.
+            h: Node embeddings.
+
+        Returns:
+            torch.Tensor: Mean pairwise divergence between all paths.
+        """
         if self.num_paths <= 1:
             return torch.tensor(0.0, device=h.device)
 
@@ -200,7 +243,22 @@ class MDAMDecoder(nn.Module):
         path_idx: int,
         strategy: str,
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-        """Decode a single path."""
+        """Decodes a single path sequence.
+
+        Args:
+            td: State dictionary for the path.
+            h: Node embeddings.
+            env: RL environment.
+            attn: Pre-update attention scores.
+            V: Pre-update values.
+            h_old: Pre-update hidden states.
+            encoder: MDAM encoder instance for updates.
+            path_idx: Index of the decoder path.
+            strategy: Selection strategy name.
+
+        Returns:
+            Tuple: Final reward, total log-likelihood, and action sequence.
+        """
         outputs = []
         actions = []
 
@@ -247,7 +305,15 @@ class MDAMDecoder(nn.Module):
         log_probs: torch.Tensor,
         actions: torch.Tensor,
     ) -> torch.Tensor:
-        """Compute log-likelihood of action sequence."""
+        """Computes log-likelihood of action sequence.
+
+        Args:
+            log_probs: Sequence log probabilities of shape (batch, seq, nodes).
+            actions: Chosen action sequence.
+
+        Returns:
+            torch.Tensor: Summed log-likelihood per batch element.
+        """
         # log_probs: (batch, seq_len, num_nodes)
         # actions: (batch, seq_len)
         ll = log_probs.gather(-1, actions.unsqueeze(-1)).squeeze(-1)

@@ -1,7 +1,11 @@
-"""
-NARGNN Policy.
+"""NARGNN Policy: Non-Autoregressive GNN Policy.
 
-Non-autoregressive GNN-based policy for combinatorial optimization.
+This module provides `NARGNNPolicy`, which predicts an edge-wise heatmap using a
+deep GNN and then applies a non-autoregressive decoder (e.g., greedy or beam
+search) to extract solution sequences.
+
+Attributes:
+    NARGNNPolicy: Heatmap-based construction policy.
 """
 
 from __future__ import annotations
@@ -13,48 +17,31 @@ from torch import nn
 
 from logic.src.envs import get_env
 from logic.src.envs.base.base import RL4COEnvBase
-from logic.src.models.common.non_autoregressive.decoder import NonAutoregressiveDecoder
-from logic.src.models.common.non_autoregressive.encoder import NonAutoregressiveEncoder
-from logic.src.models.common.non_autoregressive.policy import NonAutoregressivePolicy
+from logic.src.models.common.non_autoregressive.decoder import (
+    NonAutoregressiveDecoder,
+)
+from logic.src.models.common.non_autoregressive.encoder import (
+    NonAutoregressiveEncoder,
+)
+from logic.src.models.common.non_autoregressive.policy import (
+    NonAutoregressivePolicy,
+)
 from logic.src.models.subnets.decoders.nar import SimpleNARDecoder
 from logic.src.models.subnets.encoders.nargnn import NARGNNEncoder
 
 
 class NARGNNPolicy(NonAutoregressivePolicy):
-    """
-    Base Non-autoregressive policy for NCO construction methods.
+    """Base Non-autoregressive policy for NCO.
 
-    Creates a heatmap of NxN for N nodes (i.e., heuristic) that models
-    the probability to go from one node to another for all nodes.
+    Produces a heatmap of size [N, N] for N nodes, where each entry represents
+    the predicted probability of an edge being part of the optimal solution.
 
-    The policy performs the following steps:
-        1. Encode the environment initial state into node embeddings
-        2. Decode (non-autoregressively) to construct the solution
-
-    Warning:
-        The effectiveness of the non-autoregressive approach can vary
-        significantly across different problem types and configurations.
-        It may require careful tuning of the model architecture and
-        decoding strategy to achieve competitive results.
-
-    Args:
-        encoder: Encoder module. Can be passed by sub-classes.
-        decoder: Decoder module. Defaults to non-autoregressive decoder.
-        embed_dim: Dimension of the embeddings.
-        env_name: Name of the environment used to initialize embeddings.
-        init_embedding: Model to use for the initial embedding. If None, use default.
-        edge_embedding: Model to use for the edge embedding. If None, use default.
-        graph_network: Model to use for the graph network. If None, use default.
-        heatmap_generator: Model to use for the heatmap generator. If None, use default.
-        num_layers_heatmap_generator: Number of layers in the heatmap generator.
-        num_layers_graph_encoder: Number of layers in the graph encoder.
-        act_fn: Activation function to use in the encoder.
-        agg_fn: Aggregation function to use in the encoder.
-        linear_bias: Whether to use bias in the encoder.
-        train_strategy: Type of decoding during training.
-        val_strategy: Type of decoding during validation.
-        test_strategy: Type of decoding during testing.
-        **constructive_policy_kw: Additional keyword arguments.
+    Attributes:
+        train_strategy (str): Decoding mode for training.
+        val_strategy (str): Decoding mode for validation.
+        test_strategy (str): Decoding mode for testing.
+        encoder (NARGNNEncoder): Deep GNN for edge-prob encoding.
+        decoder (NonAutoregressiveDecoder): Builder that converts heatmaps to routes.
     """
 
     def __init__(
@@ -75,32 +62,31 @@ class NARGNNPolicy(NonAutoregressivePolicy):
         train_strategy: str = "sampling",
         val_strategy: str = "greedy",
         test_strategy: str = "greedy",
-        **constructive_policy_kw,
+        **constructive_policy_kw: Any,
     ) -> None:
-        """
-        Initialize NARGNNPolicy.
+        """Initializes the NARGNNPolicy.
 
         Args:
-           encoder: Encoder instance (optional).
-           decoder: Decoder instance (optional).
-           embed_dim: Embedding dimension.
-           env_name: Environment name.
-           init_embedding: Initial embedding module.
-           edge_embedding: Edge embedding module.
-           graph_network: Graph network module.
-           heatmap_generator: Heatmap generator module.
-           num_layers_heatmap_generator: Layers in heatmap generator.
-           num_layers_graph_encoder: Layers in graph encoder.
-           act_fn: Activation function.
-           agg_fn: Aggregation function.
-           linear_bias: Use bias in linear layers.
-           train_strategy: Strategy for training.
-           val_strategy: Strategy for validation.
-           test_strategy: Strategy for testing.
-           **constructive_policy_kw: Args for NonAutoregressivePolicy.
+            encoder: instance of the GNN heatmap predictor.
+            decoder: instance of the NAR sequence builder.
+            embed_dim: size of latent node/edge features.
+            env_name: task identifier.
+            init_embedding: projection module for raw nodes.
+            edge_embedding: projection module for raw edges.
+            graph_network: core GNN message-passing module.
+            heatmap_generator: final MLP that predicts edge scores.
+            num_layers_heatmap_generator: depth of the output MLP.
+            num_layers_graph_encoder: depth of the GNN stack.
+            act_fn: activation function for GNN layers.
+            agg_fn: neighbor pooling strategy ('mean', 'sum').
+            linear_bias: toggle bias in linear projections.
+            train_strategy: selection mode during learning.
+            val_strategy: selection mode during validation.
+            test_strategy: selection mode during testing.
+            **constructive_policy_kw: extra params for the base NAR policy.
         """
         if encoder is None:
-            # NARGNNEncoder doesn't inherit from NonAutoregressiveEncoder but has compatible interface
+            # NARGNNEncoder implements functional interface of NonAutoregressiveEncoder
             encoder = NARGNNEncoder(  # type: ignore[assignment]
                 embed_dim=embed_dim,
                 env_name=env_name,
@@ -118,7 +104,6 @@ class NARGNNPolicy(NonAutoregressivePolicy):
         if decoder is None:
             decoder = SimpleNARDecoder()
 
-        # Pass to constructive policy
         super().__init__(
             encoder=encoder,
             decoder=decoder,
@@ -136,24 +121,37 @@ class NARGNNPolicy(NonAutoregressivePolicy):
         env: Optional[RL4COEnvBase] = None,
         num_starts: int = 1,
         phase: str = "test",
-        **kwargs,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
+        """Calculates heatmaps and extracts solution sequences.
+
+        Args:
+            td: problem state container.
+            env: problem dynamics.
+            num_starts: parallel starts for multi-path sampling.
+            phase: Current mode ('train', 'val', 'test').
+            **kwargs: extra params for decoding and strategy selection.
+
+        Returns:
+            Dict[str, Any]: Result map including:
+                - actions: node sequences [B, num_starts, SeqLen].
+                - reward: Tensor of environment rewards.
+                - log_likelihood: Cumulative path probabilities.
+                - heatmap: Raw edge inclusion scores [B, N, N].
+                - node_embed: final contextual node features.
         """
-        Forward pass: encode heatmap + decode solution.
-        """
-        # Encode: predict heatmap
+        # 1. Edge-wise probability heatmap prediction
         heatmap, node_embed = self.encoder(td)  # type: ignore[misc]
 
-        # Strategy selection
+        # 2. Strategy selection based on phase
         strategy = kwargs.get("strategy")
         if strategy is None:
             strategy = getattr(self, f"{phase}_strategy", "greedy")
 
-        # Instantiate environment if needed
         if env is None:
             env = get_env(self.env_name)  # type: ignore[arg-type]
 
-        # Use common_decoding
+        # 3. Constructive search using non-autoregressive decoding
         logprobs, actions, td, env = self.common_decoding(
             strategy=strategy,  # type: ignore[arg-type]
             td=td,
@@ -163,9 +161,7 @@ class NARGNNPolicy(NonAutoregressivePolicy):
             **kwargs,
         )
 
-        # Constructed outputs
-        # Narrow env type to RL4COEnvBase (guaranteed by common_decoding)
-        # Post-decoding result preparation
+        # 4. Result preparation
         from logic.src.utils.decoding import get_log_likelihood
 
         out = {

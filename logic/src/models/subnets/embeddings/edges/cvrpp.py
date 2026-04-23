@@ -1,11 +1,18 @@
-"""cvrpp.py module.
+"""CVRPP Edge embedding module.
+
+This module provides the CVRPPEdgeEmbedding layer, which constructs graph
+representations for Capacitated VRPs, preserving critical depot connectivity.
 
 Attributes:
-    MODULE_VAR (Type): Description of module level variable.
+    CVRPPEdgeEmbedding: Edge encoder with guaranteed depot-to-customer links.
 
 Example:
-    >>> import cvrpp
+    >>> from logic.src.models.subnets.embeddings.edges.cvrpp import CVRPPEdgeEmbedding
+    >>> embedder = CVRPPEdgeEmbedding(embed_dim=128)
+    >>> pyg_batch = embedder(td, init_embeddings)
 """
+
+from __future__ import annotations
 
 from typing import List
 
@@ -19,26 +26,29 @@ from .base import EdgeEmbedding
 
 
 class CVRPPEdgeEmbedding(EdgeEmbedding):
-    """
-    Edge embedding for capacitated VRP problems.
+    """Edge embedding for capacitated VRP problems.
 
-    Like TSPEdgeEmbedding but ensures all nodes maintain edges to/from
-    the depot (node 0), since depot connectivity is critical for VRP feasibility.
+    Extends the base EdgeEmbedding logic to ensure all customer nodes maintain
+    direct edges to and from the depot (node 0), even when graph sparsification
+    is applied. Depot connectivity is critical for routing feasibility.
+
+    Attributes:
+        node_dim (int): Dimensionality of raw edge features.
     """
 
     def _cost_matrix_to_graph(
         self,
         batch_cost_matrix: torch.Tensor,
         init_embeddings: torch.Tensor,
-    ):
-        """cost matrix to graph.
+    ) -> Batch:
+        """Converts batched cost matrices to a graph with forced depot connections.
 
         Args:
-            batch_cost_matrix (torch.Tensor): Description of batch_cost_matrix.
-            init_embeddings (torch.Tensor): Description of init_embeddings.
+            batch_cost_matrix: (batch, n, n) distance/cost matrices.
+            init_embeddings: (batch, n, embed_dim) node feature embeddings.
 
         Returns:
-            Any: Description of return value.
+            Batch: PyG Batch object containing the augmented sparse graph.
         """
         k_sparse = self._get_k_sparse(batch_cost_matrix.shape[-1])
         graph_data: List[BaseData] = []
@@ -47,7 +57,7 @@ class CVRPPEdgeEmbedding(EdgeEmbedding):
             n = cost_matrix.shape[0]
 
             if self.sparsify:
-                # Sparsify customer-to-customer edges (exclude depot)
+                # Sparsify customer-to-customer edges (exclude depot at index 0)
                 edge_index, edge_attr = sparsify_graph(cost_matrix[1:, 1:], k_sparse, self_loop=False)
                 edge_index = edge_index + 1  # Shift indices to account for removed depot
 
