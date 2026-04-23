@@ -23,7 +23,7 @@
 
 ### API
 
-````{py:class} N2SPolicy(embed_dim: int = 128, num_heads: int = 8, k_neighbors: int = 20, **kwargs)
+````{py:class} N2SPolicy(embed_dim: int = 128, num_heads: int = 8, k_neighbors: int = 20, **kwargs: typing.Any)
 :canonical: src.models.core.n2s.policy.N2SPolicy
 
 Bases: {py:obj}`logic.src.models.common.improvement.policy.ImprovementPolicy`

@@ -23,7 +23,7 @@
 
 ### API
 
-````{py:class} GATMultiHeadAttentionLayer(n_heads: int, embed_dim: int, feed_forward_hidden: int, norm_config: typing.Optional[logic.src.configs.models.normalization.NormalizationConfig] = None, activation_config: typing.Optional[logic.src.configs.models.activation_function.ActivationConfig] = None, connection_type: str = 'skip', expansion_rate: int = 4, **kwargs)
+````{py:class} GATMultiHeadAttentionLayer(n_heads: int, embed_dim: int, feed_forward_hidden: int, norm_config: typing.Optional[logic.src.configs.models.normalization.NormalizationConfig] = None, activation_config: typing.Optional[logic.src.configs.models.activation_function.ActivationConfig] = None, connection_type: str = 'skip', expansion_rate: int = 4, **kwargs: typing.Any)
 :canonical: src.models.subnets.encoders.gat.gat_multi_head_attention_layer.GATMultiHeadAttentionLayer
 
 Bases: {py:obj}`logic.src.models.subnets.encoders.common.MultiHeadAttentionLayerBase`

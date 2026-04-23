@@ -491,7 +491,9 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.policies.selection.last_minute">
 <span id="src-models-policies-selection-last-minute"></span><h1><a class="reference internal" href="#module-src.models.policies.selection.last_minute" title="src.models.policies.selection.last_minute"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies.selection.last_minute</span></code></a><a class="headerlink" href="#module-src.models.policies.selection.last_minute" title="Link to this heading">#</a></h1>
-<p>Last Minute Selection Strategy.</p>
+<p>Last-minute selection strategy.</p>
+<p>This module provides a threshold-based reactive selection strategy that marks
+bins for collection only when their fill levels exceed a specified limit.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -499,7 +501,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.selection.last_minute.LastMinuteSelector" title="src.models.policies.selection.last_minute.LastMinuteSelector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LastMinuteSelector</span></code></a></p></td>
-<td><p>Threshold-based reactive selection.</p></td>
+<td><p>Threshold-based reactive selection strategy.</p></td>
 </tr>
 </tbody>
 </table>
@@ -511,22 +513,24 @@ document.write(`
 <dt class="sig sig-object py" id="src.models.policies.selection.last_minute.LastMinuteSelector">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.policies.selection.last_minute.</span></span><span class="sig-name descname"><span class="pre">LastMinuteSelector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.7</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.selection.last_minute.LastMinuteSelector" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.models.policies.selection.base.html#src.models.policies.selection.base.VectorizedSelector" title="src.models.policies.selection.base.VectorizedSelector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.models.policies.selection.base.VectorizedSelector</span></code></a></p>
-<p>Threshold-based reactive selection.</p>
-<p>Selects bins where current fill level exceeds the threshold.
-Simple but reactive - only collects when bins are nearly full.</p>
+<p>Threshold-based reactive selection strategy.</p>
+<p>Selects bins where the current fill level exceeds a predefined threshold.
+This strategy is simple but reactive, only triggering collection when bins
+are nearly full.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize LastMinuteSelector.</p>
+<p>Initialize the last-minute selector.</p>
 <p>Args:
-threshold: Fill level threshold in [0, 1]. Default: 0.7 (70%).</p>
+threshold: Fill level threshold in [0, 1].</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.policies.selection.last_minute.LastMinuteSelector.select">
-<span class="sig-name descname"><span class="pre">select</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fill_levels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.selection.last_minute.LastMinuteSelector.select" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">select</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fill_levels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.selection.last_minute.LastMinuteSelector.select" title="Link to this definition">#</a></dt>
 <dd><p>Select bins exceeding the fill threshold.</p>
 <p>Args:
-fill_levels: Current fill levels (batch_size, num_nodes) in [0, 1].
-threshold: Optional override for the fill threshold.</p>
+fill_levels: Current fill levels [B, N] in [0, 1].
+threshold: Optional override for the predefined fill threshold.
+**kwargs: Extra parameters (ignored).</p>
 <p>Returns:
-Tensor: Boolean mask (batch_size, num_nodes).</p>
+torch.Tensor: Boolean mask [B, N] where True indicates collection.</p>
 </dd></dl>
 
 </dd></dl>

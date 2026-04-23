@@ -50,35 +50,35 @@
 ```
 ````
 
-````{py:function} _prepare_shaw_inputs(tours, distance_matrix, wastes, time_windows)
+````{py:function} _prepare_shaw_inputs(tours: torch.Tensor, distance_matrix: torch.Tensor, wastes: typing.Optional[torch.Tensor], time_windows: typing.Optional[torch.Tensor]) -> typing.Tuple[torch.Tensor, torch.Tensor, typing.Optional[torch.Tensor], typing.Optional[torch.Tensor], bool]
 :canonical: src.models.policies.operators.destroy.shaw_removal._prepare_shaw_inputs
 
 ```{autodoc2-docstring} src.models.policies.operators.destroy.shaw_removal._prepare_shaw_inputs
 ```
 ````
 
-````{py:function} _select_seed_nodes(B, valid_mask, valid_counts, removed_mask, removed_list, removed_count, device, generator)
+````{py:function} _select_seed_nodes(B: int, valid_mask: torch.Tensor, valid_counts: torch.Tensor, removed_mask: torch.Tensor, removed_list: torch.Tensor, removed_count: torch.Tensor, device: torch.device, generator: typing.Optional[torch.Generator]) -> None
 :canonical: src.models.policies.operators.destroy.shaw_removal._select_seed_nodes
 
 ```{autodoc2-docstring} src.models.policies.operators.destroy.shaw_removal._select_seed_nodes
 ```
 ````
 
-````{py:function} _calculate_relatedness_batch(B, N, tours, distance_matrix, wastes, time_windows, removed_mask, removed_count, valid_counts, max_dist, max_waste, max_time, phi, psi, chi, device)
+````{py:function} _calculate_relatedness_batch(B: int, N: int, tours: torch.Tensor, distance_matrix: torch.Tensor, wastes: typing.Optional[torch.Tensor], time_windows: typing.Optional[torch.Tensor], removed_mask: torch.Tensor, removed_count: torch.Tensor, valid_counts: torch.Tensor, max_dist: float, max_waste: float, max_time: float, phi: float, psi: float, chi: float, device: torch.device) -> torch.Tensor
 :canonical: src.models.policies.operators.destroy.shaw_removal._calculate_relatedness_batch
 
 ```{autodoc2-docstring} src.models.policies.operators.destroy.shaw_removal._calculate_relatedness_batch
 ```
 ````
 
-````{py:function} _select_next_removal_batch(B, n_remove, randomization_factor, relatedness_scores, removed_mask, removed_list, removed_count, valid_mask, valid_counts, device, generator)
+````{py:function} _select_next_removal_batch(B: int, n_remove: int, randomization_factor: float, relatedness_scores: torch.Tensor, removed_mask: torch.Tensor, removed_list: torch.Tensor, removed_count: torch.Tensor, valid_mask: torch.Tensor, valid_counts: torch.Tensor, device: torch.device, generator: typing.Optional[torch.Generator]) -> None
 :canonical: src.models.policies.operators.destroy.shaw_removal._select_next_removal_batch
 
 ```{autodoc2-docstring} src.models.policies.operators.destroy.shaw_removal._select_next_removal_batch
 ```
 ````
 
-````{py:function} _init_shaw_params(tours, distance_matrix, wastes, time_windows)
+````{py:function} _init_shaw_params(tours: torch.Tensor, distance_matrix: torch.Tensor, wastes: typing.Optional[torch.Tensor], time_windows: typing.Optional[torch.Tensor]) -> typing.Tuple[torch.Tensor, typing.Optional[torch.Tensor], typing.Optional[torch.Tensor], float, float, float]
 :canonical: src.models.policies.operators.destroy.shaw_removal._init_shaw_params
 
 ```{autodoc2-docstring} src.models.policies.operators.destroy.shaw_removal._init_shaw_params

@@ -492,6 +492,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.decoders.gat.graph_decoder">
 <span id="src-models-subnets-decoders-gat-graph-decoder"></span><h1><a class="reference internal" href="#module-src.models.subnets.decoders.gat.graph_decoder" title="src.models.subnets.decoders.gat.graph_decoder"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.decoders.gat.graph_decoder</span></code></a><a class="headerlink" href="#module-src.models.subnets.decoders.gat.graph_decoder" title="Link to this heading">#</a></h1>
 <p>Graph Attention Decoder module.</p>
+<p>This module provides the multi-layer graph attention mechanism used by the GAT decoder
+to refine queries against node embeddings.</p>
+<p>Attributes:
+GraphAttentionDecoder: Multi-layer attention mechanism for decoding.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.decoders.gat.graph_decoder import GraphAttentionDecoder
+&gt;&gt;&gt; decoder = GraphAttentionDecoder(n_heads=8, embed_dim=128, n_layers=3)
+&gt;&gt;&gt; out = decoder(query, node_embeddings)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -499,8 +507,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.subnets.decoders.gat.graph_decoder.GraphAttentionDecoder" title="src.models.subnets.decoders.gat.graph_decoder.GraphAttentionDecoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphAttentionDecoder</span></code></a></p></td>
-<td><p>Decoder composed of stacked MultiHeadAttentionLayers.
-Projects the final output to logits/probabilities.</p></td>
+<td><p>Decoder composed of stacked MultiHeadAttentionLayers.</p></td>
 </tr>
 </tbody>
 </table>
@@ -510,22 +517,36 @@ Projects the final output to logits/probabilities.</p></td>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.subnets.decoders.gat.graph_decoder.GraphAttentionDecoder">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.decoders.gat.graph_decoder.</span></span><span class="sig-name descname"><span class="pre">GraphAttentionDecoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feed_forward_hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">512</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.models.normalization.NormalizationConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.models.activation_function.ActivationConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.decoders.gat.graph_decoder.GraphAttentionDecoder" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.decoders.gat.graph_decoder.</span></span><span class="sig-name descname"><span class="pre">GraphAttentionDecoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feed_forward_hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">512</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.models.normalization.NormalizationConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.models.activation_function.ActivationConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.decoders.gat.graph_decoder.GraphAttentionDecoder" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
-<p>Decoder composed of stacked MultiHeadAttentionLayers.
-Projects the final output to logits/probabilities.</p>
+<p>Decoder composed of stacked MultiHeadAttentionLayers.</p>
+<p>This module projects the refined query through multiple attention layers
+to compute selection probabilities.</p>
+<p>Attributes:
+layers (nn.ModuleList): Stacked MultiHeadAttentionLayer instances.
+projection (nn.Linear): Final projection layer to compute logits.
+dropout (nn.Dropout): Dropout layer for regularization.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the GraphAttentionDecoder.</p>
+<p>Args:
+n_heads: Number of attention heads.
+embed_dim: Embedding dimension.
+n_layers: Number of attention layers.
+feed_forward_hidden: Hidden dimension for FFN.
+norm_config: Normalization configuration.
+activation_config: Activation configuration.
+dropout_rate: Dropout rate.
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.decoders.gat.graph_decoder.GraphAttentionDecoder.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.decoders.gat.graph_decoder.GraphAttentionDecoder.forward" title="Link to this definition">#</a></dt>
-<dd><p>Forward pass.</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.decoders.gat.graph_decoder.GraphAttentionDecoder.forward" title="Link to this definition">#</a></dt>
+<dd><p>Forward pass through the attention layers.</p>
 <p>Args:
-q: Query embeddings.
+q: Query embeddings of shape (batch, …, embed_dim).
 h: Node embeddings (keys/values). If None, uses q (self-attention).
-mask: Attention mask.</p>
+mask: Attention mask indicating valid nodes.</p>
 <p>Returns:
-Softmax probabilities over the sequence.</p>
+torch.Tensor: Softmax probabilities over the sequence.</p>
 </dd></dl>
 
 </dd></dl>

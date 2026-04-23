@@ -491,11 +491,17 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.core.dact.encoder">
 <span id="src-models-core-dact-encoder"></span><h1><a class="reference internal" href="#module-src.models.core.dact.encoder" title="src.models.core.dact.encoder"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.core.dact.encoder</span></code></a><a class="headerlink" href="#module-src.models.core.dact.encoder" title="Link to this heading">#</a></h1>
-<p>encoder.py module.</p>
+<p>DACT Encoder implementation.</p>
+<p>This module provides the <code class="docutils literal notranslate"><span class="pre">DACTEncoder</span></code>, which implements the “Dual Aspect”
+encoding strategy. It processes the problem instance from two collaborative
+perspectives: the spatial location of nodes (node aspect) and their relative
+ordering in the current tour (solution aspect).</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+DACTEncoder: Neural encoder for collaborative node-position modelling.</p>
 <p>Example:
-&gt;&gt;&gt; import encoder</p>
+&gt;&gt;&gt; from logic.src.models.core.dact.encoder import DACTEncoder
+&gt;&gt;&gt; encoder = DACTEncoder(embed_dim=128)
+&gt;&gt;&gt; h = encoder(td)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -503,7 +509,7 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.core.dact.encoder.DACTEncoder" title="src.models.core.dact.encoder.DACTEncoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DACTEncoder</span></code></a></p></td>
-<td><p>DACT Encoder: Combines node features (spatial) and solution features (positional).</p></td>
+<td><p>DACT Dual Aspect Collaborative Encoder.</p></td>
 </tr>
 </tbody>
 </table>
@@ -513,24 +519,36 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.core.dact.encoder.DACTEncoder">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.dact.encoder.</span></span><span class="sig-name descname"><span class="pre">DACTEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'CPE'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.dact.encoder.DACTEncoder" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.dact.encoder.</span></span><span class="sig-name descname"><span class="pre">DACTEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'CPE'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.dact.encoder.DACTEncoder" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.models.common.improvement.encoder.ImprovementEncoder</span></code></p>
-<p>DACT Encoder: Combines node features (spatial) and solution features (positional).</p>
-<p>The “Dual Aspect” involves:</p>
-<ol class="arabic simple">
-<li><p>Node Aspect: How nodes are located (Graph Convolution/Attention)</p></li>
-<li><p>Solution Aspect: Where nodes are in the current tour (Positional Encoding)</p></li>
-</ol>
+<p>DACT Dual Aspect Collaborative Encoder.</p>
+<p>Combines static node features with dynamic solution-dependent features
+using a Transformer backbone. The solution aspect uses normalized
+positional indices to represent the current tour order.</p>
+<p>Attributes:
+node_init (nn.Linear): Initial projection for spatial coordinates.
+pos_embedding (nn.Module): Positional encoding for tour sequence.
+layers (nn.ModuleList): Collaborative Transformer stacking.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize DACTEncoder.</p>
+<p>Initializes the DACT encoder.</p>
+<p>Args:
+embed_dim: Internal feature dimension.
+num_layers: count of transformation blocks.
+num_heads: count of attention heads per layer.
+pos_type: Identifier for the positional embedding scheme (e.g., ‘CPE’).
+**kwargs: Extra parameters.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.dact.encoder.DACTEncoder.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.core.dact.encoder.DACTEncoder.forward" title="Link to this definition">#</a></dt>
-<dd><p>Encode problem instance and current solution.</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.core.dact.encoder.DACTEncoder.forward" title="Link to this definition">#</a></dt>
+<dd><p>Encodes spatial nodes and their current tour positions.</p>
 <p>Args:
-td: TensorDict with ‘locs’ (customers), ‘depot’, and ‘solution’ (tour).</p>
+td: state container with:
+- ‘locs’: [B, N, 2] coordinates.
+- ‘depot’: [B, 1, 2] or [B, 2] origin.
+- ‘solution’: [B, N+1] node indices representing the tour.
+**kwargs: unused.</p>
 <p>Returns:
-Embeddings [batch, num_nodes, embed_dim].</p>
+torch.Tensor: Refined node embeddings [B, N+1, embed_dim].</p>
 </dd></dl>
 
 </dd></dl>

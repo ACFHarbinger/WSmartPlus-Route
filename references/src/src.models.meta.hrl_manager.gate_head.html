@@ -491,11 +491,11 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.meta.hrl_manager.gate_head">
 <span id="src-models-meta-hrl-manager-gate-head"></span><h1><a class="reference internal" href="#module-src.models.meta.hrl_manager.gate_head" title="src.models.meta.hrl_manager.gate_head"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.meta.hrl_manager.gate_head</span></code></a><a class="headerlink" href="#module-src.models.meta.hrl_manager.gate_head" title="Link to this heading">#</a></h1>
-<p>gate_head.py module.</p>
+<p>Gate Head for Route Dispatch Decisions.</p>
+<p>This module provides the <code class="docutils literal notranslate"><span class="pre">GateHead</span></code>, which determines whether to initiate
+a routing cycle based on global occupancy and predicted urgency.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
-<p>Example:
-&gt;&gt;&gt; import gate_head</p>
+GateHead: MLP-based binary categorical decision head.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -503,7 +503,7 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.meta.hrl_manager.gate_head.GateHead" title="src.models.meta.hrl_manager.gate_head.GateHead"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GateHead</span></code></a></p></td>
-<td><p>Head for routing decision (gate).</p></td>
+<td><p>MLP head for fleet dispatch gating.</p></td>
 </tr>
 </tbody>
 </table>
@@ -515,20 +515,24 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <dt class="sig sig-object py" id="src.models.meta.hrl_manager.gate_head.GateHead">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.meta.hrl_manager.gate_head.</span></span><span class="sig-name descname"><span class="pre">GateHead</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.meta.hrl_manager.gate_head.GateHead" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
-<p>Head for routing decision (gate).</p>
+<p>MLP head for fleet dispatch gating.</p>
+<p>Produces categorical logits for the binary decision: dispatching vs skipping
+the routing cycle for the current period.</p>
+<p>Attributes:
+net (nn.Sequential): MLP layers (Linear -&gt; ReLU -&gt; Linear).</p>
 <p class="rubric">Initialization</p>
-<p>Initialize Class.</p>
+<p>Initializes the gate head.</p>
 <p>Args:
-input_dim (int): Description of input_dim.
-hidden_dim (int): Description of hidden_dim.</p>
+input_dim: size of pooled global features.
+hidden_dim: width of the intermediate layer.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.meta.hrl_manager.gate_head.GateHead.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.meta.hrl_manager.gate_head.GateHead.forward" title="Link to this definition">#</a></dt>
-<dd><p>Forward.</p>
+<dd><p>Predicts dispatch logits.</p>
 <p>Args:
-x (torch.Tensor): Description of x.</p>
+x: global state representation [B, D].</p>
 <p>Returns:
-Any: Description of return value.</p>
+torch.Tensor: logits for [Skip, Dispatch] [B, 2].</p>
 </dd></dl>
 
 </dd></dl>

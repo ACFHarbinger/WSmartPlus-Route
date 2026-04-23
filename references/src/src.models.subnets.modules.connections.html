@@ -491,6 +491,15 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.modules.connections">
 <span id="src-models-subnets-modules-connections"></span><h1><a class="reference internal" href="#module-src.models.subnets.modules.connections" title="src.models.subnets.modules.connections"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.modules.connections</span></code></a><a class="headerlink" href="#module-src.models.subnets.modules.connections" title="Link to this heading">#</a></h1>
 <p>Connection factory for various neural network architectures.</p>
+<p>This module provides the get_connection_module utility, which wraps existing
+layers in residual (skip) or state-dependent hyper-connections.</p>
+<p>Attributes:
+get_connection_module: Factory for instantiating connection wrappers.</p>
+<p>Example:
+&gt;&gt;&gt; from torch import nn
+&gt;&gt;&gt; from logic.src.models.subnets.modules.connections import get_connection_module
+&gt;&gt;&gt; module = nn.Linear(128, 128)
+&gt;&gt;&gt; skip = get_connection_module(module, 128, connection_type=”skip”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -498,7 +507,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.subnets.modules.connections.Connections" title="src.models.subnets.modules.connections.Connections"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Connections</span></code></a></p></td>
-<td><p>Factory for creating connection modules.</p></td>
+<td><p>Factory module for creating connection wrappers.</p></td>
 </tr>
 </tbody>
 </table>
@@ -521,22 +530,30 @@ document.write(`
 <dt class="sig sig-object py" id="src.models.subnets.modules.connections.Connections">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.modules.connections.</span></span><span class="sig-name descname"><span class="pre">Connections</span></span><a class="headerlink" href="#src.models.subnets.modules.connections.Connections" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
-<p>Factory for creating connection modules.</p>
+<p>Factory module for creating connection wrappers.</p>
+<p>Note: This class primarily group connection-related logic and usually
+instantiations happen through the functional <code class="docutils literal notranslate"><span class="pre">get_connection_module</span></code>.</p>
+<p>Attributes:
+None: This module serves as a pure factory logic container.</p>
 <p class="rubric">Initialization</p>
-<p>Initializes the connections factory.</p>
+<p>Initializes the connections factory module.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.subnets.modules.connections.get_connection_module">
-<span class="sig-prename descclassname"><span class="pre">src.models.subnets.modules.connections.</span></span><span class="sig-name descname"><span class="pre">get_connection_module</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'skip'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.connections.get_connection_module" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.models.subnets.modules.connections.</span></span><span class="sig-name descname"><span class="pre">get_connection_module</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'skip'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.nn.Module</span></span></span><a class="headerlink" href="#src.models.subnets.modules.connections.get_connection_module" title="Link to this definition">#</a></dt>
 <dd><p>Returns a connection module for the given type.</p>
+<p>Wraps a base module in a residual or hyper-connection interface.</p>
 <p>Args:
-module: The sub-module to wrap.
-embed_dim: Embedding dimension.
-connection_type: Type of connection (‘skip’, ‘static_hyper’, ‘dynamic_hyper’).
-**kwargs: Additional arguments for the connection module.</p>
+module: The sub-module to wrap (e.g., Attention, FeedForward).
+embed_dim: Sequence feature dimensionality.
+connection_type: Pattern to use. Options are ‘skip’ (residual),
+‘static_hyper’, or ‘dynamic_hyper’. Defaults to ‘skip’.
+kwargs: Additional arguments for the chosen connection module.</p>
 <p>Returns:
-The connection module.</p>
+nn.Module: The wrapped connection module.</p>
+<p>Raises:
+ValueError: If the connection type is not recognized.</p>
 </dd></dl>
 
 </section>

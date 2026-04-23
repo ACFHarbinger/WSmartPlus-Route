@@ -491,7 +491,10 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.policies.selection.revenue">
 <span id="src-models-policies-selection-revenue"></span><h1><a class="reference internal" href="#module-src.models.policies.selection.revenue" title="src.models.policies.selection.revenue"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies.selection.revenue</span></code></a><a class="headerlink" href="#module-src.models.policies.selection.revenue" title="Link to this heading">#</a></h1>
-<p>Revenue Selection Strategy.</p>
+<p>Revenue selection strategy.</p>
+<p>This module provides a revenue-based selection strategy that marks bins for
+collection only when the expected profit from their waste exceeds a specified
+monetary threshold.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -512,24 +515,27 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.policies.selection.revenue.</span></span><span class="sig-name descname"><span class="pre">RevenueSelector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">revenue_kg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin_capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.selection.revenue.RevenueSelector" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.models.policies.selection.base.html#src.models.policies.selection.base.VectorizedSelector" title="src.models.policies.selection.base.VectorizedSelector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.models.policies.selection.base.VectorizedSelector</span></code></a></p>
 <p>Revenue-based selection strategy.</p>
-<p>Selects bins where expected collection revenue exceeds a threshold.</p>
+<p>Selects bins where the expected collection revenue exceeds a threshold.
+Revenue is calculated as the product of fill level, bin capacity, and
+revenue per kilogram.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize RevenueSelector.</p>
+<p>Initialize the revenue selector.</p>
 <p>Args:
 revenue_kg: Revenue per kg of collected waste.
 bin_capacity: Capacity of each bin in kg.
 threshold: Minimum revenue threshold for selection.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.policies.selection.revenue.RevenueSelector.select">
-<span class="sig-name descname"><span class="pre">select</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fill_levels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue_kg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin_capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.selection.revenue.RevenueSelector.select" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">select</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fill_levels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revenue_kg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin_capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.selection.revenue.RevenueSelector.select" title="Link to this definition">#</a></dt>
 <dd><p>Select bins where expected revenue exceeds threshold.</p>
 <p>Args:
-fill_levels: Current fill levels (batch_size, num_nodes) in [0, 1].
+fill_levels: Current fill levels [B, N] in [0, 1].
 revenue_kg: Optional override for revenue per kg.
 bin_capacity: Optional override for bin capacity.
-threshold: Optional override for revenue threshold.</p>
+threshold: Optional override for revenue threshold.
+**kwargs: Extra parameters (ignored).</p>
 <p>Returns:
-Tensor: Boolean mask (batch_size, num_nodes).</p>
+torch.Tensor: Boolean mask [B, N] where True indicates collection.</p>
 </dd></dl>
 
 </dd></dl>

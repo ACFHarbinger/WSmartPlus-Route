@@ -490,7 +490,23 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.common">
 <span id="src-models-common"></span><h1><a class="reference internal" href="#module-src.models.common" title="src.models.common"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.common</span></code></a><a class="headerlink" href="#module-src.models.common" title="Link to this heading">#</a></h1>
-<p>Common policy base classes and templates.</p>
+<p>Common neural policy templates and base components.</p>
+<p>This package provides abstract base classes and modular components for building
+DRL policies, including support for autoregressive decoding, iterative
+improvement, and transductive search.</p>
+<p>Attributes:
+ConstructivePolicy: Base for models that build solutions step-by-step.
+AutoregressiveDecoder: Shared logic for sequential token generation.
+AutoregressiveEncoder: Neural feature extraction for routing states.
+ImprovementPolicy: Template for models that refine existing solutions.
+NonAutoregressivePolicy: Parallel output generation (e.g., heatmaps).
+TransductiveModel: Base for models with online optimization components.
+TimeTrackingPolicy: Timing wrapper for performance profiling.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.common import ConstructivePolicy
+&gt;&gt;&gt; class MyNewModel(ConstructivePolicy):
+…     def pre_forward(self, td, env):
+…         return self.encoder(td)</p>
 <section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

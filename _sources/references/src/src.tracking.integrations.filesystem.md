@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} FilesystemTracker(run: logic.src.tracking.core.run.Run)
+`````{py:class} FilesystemTracker(run: typing.Optional[logic.src.tracking.core.run.Run])
 :canonical: src.tracking.integrations.filesystem.FilesystemTracker
 
 ```{autodoc2-docstring} src.tracking.integrations.filesystem.FilesystemTracker
@@ -35,58 +35,51 @@
 ```{autodoc2-docstring} src.tracking.integrations.filesystem.FilesystemTracker.__init__
 ```
 
-````{py:method} track_load(file_path: str, shape: typing.Optional[tuple] = None, metadata: typing.Optional[typing.Dict[str, typing.Any]] = None) -> None
-:canonical: src.tracking.integrations.filesystem.FilesystemTracker.track_load
+````{py:method} on_load(path: str, metadata: typing.Optional[typing.Dict[str, typing.Any]] = None) -> str
+:canonical: src.tracking.integrations.filesystem.FilesystemTracker.on_load
 
-```{autodoc2-docstring} src.tracking.integrations.filesystem.FilesystemTracker.track_load
+```{autodoc2-docstring} src.tracking.integrations.filesystem.FilesystemTracker.on_load
 ```
 
 ````
 
-````{py:method} track_generate(file_path: typing.Optional[str], shape: tuple, problem: str, graph_size: int, metadata: typing.Optional[typing.Dict[str, typing.Any]] = None) -> None
-:canonical: src.tracking.integrations.filesystem.FilesystemTracker.track_generate
+````{py:method} on_save(path: str, prev_hash: typing.Optional[str] = None, metadata: typing.Optional[typing.Dict[str, typing.Any]] = None) -> str
+:canonical: src.tracking.integrations.filesystem.FilesystemTracker.on_save
 
-```{autodoc2-docstring} src.tracking.integrations.filesystem.FilesystemTracker.track_generate
+```{autodoc2-docstring} src.tracking.integrations.filesystem.FilesystemTracker.on_save
 ```
 
 ````
 
-````{py:method} track_mutation(description: str, shape: typing.Optional[tuple] = None, metadata: typing.Optional[typing.Dict[str, typing.Any]] = None) -> None
-:canonical: src.tracking.integrations.filesystem.FilesystemTracker.track_mutation
+````{py:method} on_stat(path: str) -> typing.Dict[str, typing.Any]
+:canonical: src.tracking.integrations.filesystem.FilesystemTracker.on_stat
 
-```{autodoc2-docstring} src.tracking.integrations.filesystem.FilesystemTracker.track_mutation
+```{autodoc2-docstring} src.tracking.integrations.filesystem.FilesystemTracker.on_stat
 ```
 
 ````
 
-````{py:method} track_save(file_path: str, shape: typing.Optional[tuple] = None, metadata: typing.Optional[typing.Dict[str, typing.Any]] = None) -> None
-:canonical: src.tracking.integrations.filesystem.FilesystemTracker.track_save
+````{py:method} clear_cache() -> None
+:canonical: src.tracking.integrations.filesystem.FilesystemTracker.clear_cache
 
-```{autodoc2-docstring} src.tracking.integrations.filesystem.FilesystemTracker.track_save
+```{autodoc2-docstring} src.tracking.integrations.filesystem.FilesystemTracker.clear_cache
 ```
 
 ````
 
-````{py:method} watch(file_path: str) -> None
-:canonical: src.tracking.integrations.filesystem.FilesystemTracker.watch
+````{py:method} _hash_file(path: str) -> str
+:canonical: src.tracking.integrations.filesystem.FilesystemTracker._hash_file
 
-```{autodoc2-docstring} src.tracking.integrations.filesystem.FilesystemTracker.watch
+```{autodoc2-docstring} src.tracking.integrations.filesystem.FilesystemTracker._hash_file
 ```
 
 ````
 
-````{py:method} check_changes(paths: typing.Optional[typing.List[str]] = None) -> typing.List[str]
-:canonical: src.tracking.integrations.filesystem.FilesystemTracker.check_changes
+````{py:method} _get_stats(path: str) -> typing.Tuple[int, float]
+:canonical: src.tracking.integrations.filesystem.FilesystemTracker._get_stats
+:staticmethod:
 
-```{autodoc2-docstring} src.tracking.integrations.filesystem.FilesystemTracker.check_changes
-```
-
-````
-
-````{py:method} scan_directory(directory: str) -> None
-:canonical: src.tracking.integrations.filesystem.FilesystemTracker.scan_directory
-
-```{autodoc2-docstring} src.tracking.integrations.filesystem.FilesystemTracker.scan_directory
+```{autodoc2-docstring} src.tracking.integrations.filesystem.FilesystemTracker._get_stats
 ```
 
 ````

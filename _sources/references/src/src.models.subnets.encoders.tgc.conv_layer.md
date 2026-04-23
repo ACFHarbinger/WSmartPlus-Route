@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} GraphConvolutionLayer(embed_dim, feed_forward_hidden, agg, normalization, epsilon_alpha, learn_affine, track_stats, mbeta, lr_k, n_groups, activation, af_param, threshold, replacement_value, n_params, uniform_range)
+`````{py:class} GraphConvolutionLayer(embed_dim: int, feed_forward_hidden: int, agg: str, normalization: str, epsilon_alpha: float, learn_affine: bool, track_stats: bool, mbeta: float, lr_k: float, n_groups: int, activation: str, af_param: float, threshold: float, replacement_value: float, n_params: int, uniform_range: typing.List[float])
 :canonical: src.models.subnets.encoders.tgc.conv_layer.GraphConvolutionLayer
 
 Bases: {py:obj}`torch.nn.Module`
@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.subnets.encoders.tgc.conv_layer.GraphConvolutionLayer.__init__
 ```
 
-````{py:method} forward(h, mask)
+````{py:method} forward(h: torch.Tensor, mask: torch.Tensor) -> torch.Tensor
 :canonical: src.models.subnets.encoders.tgc.conv_layer.GraphConvolutionLayer.forward
 
 ```{autodoc2-docstring} src.models.subnets.encoders.tgc.conv_layer.GraphConvolutionLayer.forward

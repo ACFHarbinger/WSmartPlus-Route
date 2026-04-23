@@ -488,7 +488,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.embeddings.state.cvrpp">
 <span id="src-models-subnets-embeddings-state-cvrpp"></span><h1><a class="reference internal" href="#module-src.models.subnets.embeddings.state.cvrpp" title="src.models.subnets.embeddings.state.cvrpp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.embeddings.state.cvrpp</span></code></a><a class="headerlink" href="#module-src.models.subnets.embeddings.state.cvrpp" title="Link to this heading">#</a></h1>
-<p>CVRPP specific context embeddings.</p>
+<p>CVRPP specific context embedding module.</p>
+<p>This module provides the CVRPPState component, which builds on VRPPState
+to provide context for Capacitated VRPs with Profits.</p>
+<p>Attributes:
+CVRPPState: State encoder for Capacitated VRPPs.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.embeddings.state.cvrpp import CVRPPState
+&gt;&gt;&gt; state_embedder = CVRPPState(embed_dim=128)
+&gt;&gt;&gt; context = state_embedder(embeddings, td)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -509,10 +517,14 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.embeddings.state.cvrpp.</span></span><span class="sig-name descname"><span class="pre">CVRPPState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.embeddings.state.cvrpp.CVRPPState" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.models.subnets.embeddings.state.vrpp.html#src.models.subnets.embeddings.state.vrpp.VRPPState" title="src.models.subnets.embeddings.state.vrpp.VRPPState"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.models.subnets.embeddings.state.vrpp.VRPPState</span></code></a></p>
 <p>Context embedding for CVRPP.</p>
+<p>Inherits from VRPPState as the fundamental state features (capacity/remaining
+length) are shared between these problem types.</p>
+<p>Attributes:
+embed_dim (int): Dimensionality of the projected state context.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize Class.</p>
+<p>Initializes VRPPState.</p>
 <p>Args:
-embed_dim (int): Description of embed_dim.</p>
+embed_dim: Resulting embedding dimensionality.</p>
 </dd></dl>
 
 </section>

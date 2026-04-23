@@ -503,8 +503,16 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.ui.services.log_parser">
 <span id="src-ui-services-log-parser"></span><h1><a class="reference internal" href="#module-src.ui.services.log_parser" title="src.ui.services.log_parser"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.services.log_parser</span></code></a><a class="headerlink" href="#module-src.ui.services.log_parser" title="Link to this heading">#</a></h1>
-<p>Custom log parsing logic for simulation outputs.</p>
-<p>Parses the custom GUI_DAY_LOG_START format from JSONL files.</p>
+<p>Log parsing and telemetry extraction services for simulation outputs.</p>
+<p>This module provides specialized logic for parsing the WSmart+ Digital Twin
+log format (GUI_DAY_LOG_START) from JSONL files. It handles coordinate
+caching across multi-day simulation steps and aggregates numeric metrics.</p>
+<p>Attributes:
+DayLogEntry: Dataclass representing a single day’s simulation state.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.ui.services.log_parser import parse_log_file
+&gt;&gt;&gt; entries = parse_log_file(Path(“simulation.jsonl”))
+&gt;&gt;&gt; print(f”Parsed {len(entries)} daily records.”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -523,28 +531,28 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.services.log_parser.parse_day_log_line" title="src.ui.services.log_parser.parse_day_log_line"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_day_log_line</span></code></a></p></td>
-<td><p>Parse a single line from the simulation log.</p></td>
+<td><p>Parses a single line from the simulation log into a dataclass.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.services.log_parser.parse_log_file" title="src.ui.services.log_parser.parse_log_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_log_file</span></code></a></p></td>
-<td><p>Parse all valid entries from a simulation log file.</p></td>
+<td><p>Parses all valid telemetry entries from a simulation log file.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.services.log_parser.stream_log_file" title="src.ui.services.log_parser.stream_log_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stream_log_file</span></code></a></p></td>
-<td><p>Stream log entries from a file, starting from a specific line.</p></td>
+<td><p>Streams log entries from a file starting at a specific line index.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.services.log_parser.get_unique_policies" title="src.ui.services.log_parser.get_unique_policies"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_unique_policies</span></code></a></p></td>
-<td><p>Extract unique policy names from log entries.</p></td>
+<td><p>Extracts a sorted list of unique policy names from telemetry.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.services.log_parser.get_unique_samples" title="src.ui.services.log_parser.get_unique_samples"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_unique_samples</span></code></a></p></td>
-<td><p>Extract unique sample IDs from log entries.</p></td>
+<td><p>Extracts a sorted list of unique simulation sample IDs from telemetry.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.services.log_parser.filter_entries" title="src.ui.services.log_parser.filter_entries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter_entries</span></code></a></p></td>
-<td><p>Filter log entries by criteria.</p></td>
+<td><p>Filters log entries based on policy, sample, and day criteria.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.services.log_parser.get_day_range" title="src.ui.services.log_parser.get_day_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_day_range</span></code></a></p></td>
-<td><p>Get the min and max day numbers from entries.</p></td>
+<td><p>Retrieves the global minimum and maximum day numbers from telemetry.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.services.log_parser.aggregate_metrics_by_day" title="src.ui.services.log_parser.aggregate_metrics_by_day"><code class="xref py py-obj docutils literal notranslate"><span class="pre">aggregate_metrics_by_day</span></code></a></p></td>
-<td><p>Aggregate metrics across samples for each day.</p></td>
+<td><p>Aggregates numeric metrics across samples for each simulation day.</p></td>
 </tr>
 </tbody>
 </table>
@@ -556,6 +564,11 @@ document.write(`
 <dt class="sig sig-object py" id="src.ui.services.log_parser.DayLogEntry">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.ui.services.log_parser.</span></span><span class="sig-name descname"><span class="pre">DayLogEntry</span></span><a class="headerlink" href="#src.ui.services.log_parser.DayLogEntry" title="Link to this definition">#</a></dt>
 <dd><p>Represents a single day’s simulation log entry.</p>
+<p>Attributes:
+policy: Identifier for the routing policy active during this day.
+sample_id: Index of the simulation instance/sample.
+day: The simulation day number (1-indexed).
+data: Raw telemetry dictionary containing performance metrics and paths.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.ui.services.log_parser.DayLogEntry.policy">
 <span class="sig-name descname"><span class="pre">policy</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.ui.services.log_parser.DayLogEntry.policy" title="Link to this definition">#</a></dt>
@@ -585,77 +598,93 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.log_parser.parse_day_log_line">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.log_parser.</span></span><span class="sig-name descname"><span class="pre">parse_day_log_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.ui.services.log_parser.DayLogEntry" title="src.ui.services.log_parser.DayLogEntry"><span class="pre">src.ui.services.log_parser.DayLogEntry</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.services.log_parser.parse_day_log_line" title="Link to this definition">#</a></dt>
-<dd><p>Parse a single line from the simulation log.</p>
+<dd><p>Parses a single line from the simulation log into a dataclass.</p>
 <p>Expected format:
 GUI_DAY_LOG_START:policy_name,sample_id,day,{json_payload}</p>
 <p>Args:
-line: Raw line from the log file.</p>
+line: Raw line string from the simulation JSONL log file.</p>
 <p>Returns:
-DayLogEntry if parsing succeeds, None otherwise.</p>
+Optional[DayLogEntry]: The parsed entry if the line is valid, else None.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.log_parser.parse_log_file">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.log_parser.</span></span><span class="sig-name descname"><span class="pre">parse_log_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.ui.services.log_parser.DayLogEntry" title="src.ui.services.log_parser.DayLogEntry"><span class="pre">src.ui.services.log_parser.DayLogEntry</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.services.log_parser.parse_log_file" title="Link to this definition">#</a></dt>
-<dd><p>Parse all valid entries from a simulation log file.</p>
+<dd><p>Parses all valid telemetry entries from a simulation log file.</p>
+<p>Includes a coordinate caching mechanism that backfills location metadata
+(all_bin_coords) for days where it might be omitted for brevity.</p>
 <p>Args:
-file_path: Path to the .jsonl log file.</p>
+file_path: Absolute or relative path to the .jsonl log file.</p>
 <p>Returns:
-List of parsed DayLogEntry objects.</p>
+List[DayLogEntry]: A sequence of successfully parsed daily records.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.log_parser.stream_log_file">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.log_parser.</span></span><span class="sig-name descname"><span class="pre">stream_log_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_line</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterator</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.ui.services.log_parser.DayLogEntry" title="src.ui.services.log_parser.DayLogEntry"><span class="pre">src.ui.services.log_parser.DayLogEntry</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.services.log_parser.stream_log_file" title="Link to this definition">#</a></dt>
-<dd><p>Stream log entries from a file, starting from a specific line.</p>
-<p>Useful for tailing log files in live mode.</p>
+<dd><p>Streams log entries from a file starting at a specific line index.</p>
+<p>Optimized for live monitoring, this generator maintains a coordinate cache
+to ensure interleaved telemetry remains contextually complete.</p>
 <p>Args:
 file_path: Path to the .jsonl log file.
-start_line: Line number to start from (0-indexed).</p>
+start_line: Line number to start reading from (0-indexed).</p>
 <p>Yields:
-DayLogEntry objects as they are parsed.</p>
+Iterator[DayLogEntry]: Sequence of daily records as they are parsed.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.log_parser.get_unique_policies">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.log_parser.</span></span><span class="sig-name descname"><span class="pre">get_unique_policies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.ui.services.log_parser.DayLogEntry" title="src.ui.services.log_parser.DayLogEntry"><span class="pre">src.ui.services.log_parser.DayLogEntry</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.services.log_parser.get_unique_policies" title="Link to this definition">#</a></dt>
-<dd><p>Extract unique policy names from log entries.</p>
+<dd><p>Extracts a sorted list of unique policy names from telemetry.</p>
+<p>Args:
+entries: Master list of log entries to analyze.</p>
+<p>Returns:
+List[str]: Alphabetically sorted unique policy identifiers.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.log_parser.get_unique_samples">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.log_parser.</span></span><span class="sig-name descname"><span class="pre">get_unique_samples</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.ui.services.log_parser.DayLogEntry" title="src.ui.services.log_parser.DayLogEntry"><span class="pre">src.ui.services.log_parser.DayLogEntry</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.services.log_parser.get_unique_samples" title="Link to this definition">#</a></dt>
-<dd><p>Extract unique sample IDs from log entries.</p>
+<dd><p>Extracts a sorted list of unique simulation sample IDs from telemetry.</p>
+<p>Args:
+entries: Master list of log entries to analyze.</p>
+<p>Returns:
+List[int]: Numerically sorted unique sample indices.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.log_parser.filter_entries">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.log_parser.</span></span><span class="sig-name descname"><span class="pre">filter_entries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.ui.services.log_parser.DayLogEntry" title="src.ui.services.log_parser.DayLogEntry"><span class="pre">src.ui.services.log_parser.DayLogEntry</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.ui.services.log_parser.DayLogEntry" title="src.ui.services.log_parser.DayLogEntry"><span class="pre">src.ui.services.log_parser.DayLogEntry</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.services.log_parser.filter_entries" title="Link to this definition">#</a></dt>
-<dd><p>Filter log entries by criteria.</p>
+<dd><p>Filters log entries based on policy, sample, and day criteria.</p>
 <p>Args:
-entries: List of log entries to filter.
-policy: Filter by policy name (optional).
-sample_id: Filter by sample ID (optional).
-day: Filter by day number (optional).</p>
+entries: Master list of log entries to filter.
+policy: Exact policy name to match.
+sample_id: Exact sample ID to match.
+day: Exact day number to match.</p>
 <p>Returns:
-Filtered list of entries.</p>
+List[DayLogEntry]: The subset of entries matching all specified criteria.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.log_parser.get_day_range">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.log_parser.</span></span><span class="sig-name descname"><span class="pre">get_day_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.ui.services.log_parser.DayLogEntry" title="src.ui.services.log_parser.DayLogEntry"><span class="pre">src.ui.services.log_parser.DayLogEntry</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.services.log_parser.get_day_range" title="Link to this definition">#</a></dt>
-<dd><p>Get the min and max day numbers from entries.</p>
+<dd><p>Retrieves the global minimum and maximum day numbers from telemetry.</p>
+<p>Args:
+entries: Master list of simulation log entries.</p>
+<p>Returns:
+Tuple[int, int]: (min_day, max_day).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.log_parser.aggregate_metrics_by_day">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.log_parser.</span></span><span class="sig-name descname"><span class="pre">aggregate_metrics_by_day</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.ui.services.log_parser.DayLogEntry" title="src.ui.services.log_parser.DayLogEntry"><span class="pre">src.ui.services.log_parser.DayLogEntry</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.services.log_parser.aggregate_metrics_by_day" title="Link to this definition">#</a></dt>
-<dd><p>Aggregate metrics across samples for each day.</p>
+<dd><p>Aggregates numeric metrics across samples for each simulation day.</p>
+<p>Useful for tracking convergence and stability across multiple runs.</p>
 <p>Args:
-entries: List of log entries.
-policy: Optional policy filter.</p>
+entries: Master list of log entries.
+policy: Optional filter to restrict aggregation to one policy.</p>
 <p>Returns:
-Dict mapping day -&gt; metric_name -&gt; list of values across samples.</p>
+Dict[int, Dict[str, List[float]]]: Day -&gt; metric -&gt; list of sample values.</p>
 </dd></dl>
 
 </section>

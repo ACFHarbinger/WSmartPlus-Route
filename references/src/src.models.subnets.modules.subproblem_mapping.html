@@ -496,6 +496,15 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.modules.subproblem_mapping">
 <span id="src-models-subnets-modules-subproblem-mapping"></span><h1><a class="reference internal" href="#module-src.models.subnets.modules.subproblem_mapping" title="src.models.subnets.modules.subproblem_mapping"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.modules.subproblem_mapping</span></code></a><a class="headerlink" href="#module-src.models.subnets.modules.subproblem_mapping" title="Link to this heading">#</a></h1>
 <p>GLOP Subproblem Mapping.</p>
+<p>This module provides the SubproblemMapping dataclass, which tracks the relationship
+between local subproblem node indices and their global counterparts in the
+original large-scale problem.</p>
+<p>Attributes:
+SubproblemMapping: Data structure for tracking subproblem indices and coordinates.</p>
+<p>Example:
+&gt;&gt;&gt; import torch
+&gt;&gt;&gt; from logic.src.models.subnets.modules.subproblem_mapping import SubproblemMapping
+&gt;&gt;&gt; mapping = SubproblemMapping(0, 0, torch.randn(5, 2), torch.arange(5), 0)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -503,7 +512,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.subnets.modules.subproblem_mapping.SubproblemMapping" title="src.models.subnets.modules.subproblem_mapping.SubproblemMapping"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SubproblemMapping</span></code></a></p></td>
-<td><p>Mapping from subproblem to original problem indices.</p></td>
+<td><p>Mapping from local subproblem space to global problem space.</p></td>
 </tr>
 </tbody>
 </table>
@@ -514,7 +523,15 @@ document.write(`
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.subnets.modules.subproblem_mapping.SubproblemMapping">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.modules.subproblem_mapping.</span></span><span class="sig-name descname"><span class="pre">SubproblemMapping</span></span><a class="headerlink" href="#src.models.subnets.modules.subproblem_mapping.SubproblemMapping" title="Link to this definition">#</a></dt>
-<dd><p>Mapping from subproblem to original problem indices.</p>
+<dd><p>Mapping from local subproblem space to global problem space.</p>
+<p>A container used during subproblem-based decomposition (e.g., in GLOP) to
+maintain traceability between partitioned clusters and the parent environment.</p>
+<p>Attributes:
+batch_idx (int): Global index of the specific instance in the current batch.
+sample_idx (int): Local index if multiple paths (beams) per instance exist.
+subprob_coordinates (torch.Tensor): Coordinates of the nodes in this subproblem.
+original_indices (torch.Tensor): Mapping of local node IDs to global scene IDs.
+route_idx (int): The identifier of the route being refined within the instance.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.models.subnets.modules.subproblem_mapping.SubproblemMapping.batch_idx">
 <span class="sig-name descname"><span class="pre">batch_idx</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.models.subnets.modules.subproblem_mapping.SubproblemMapping.batch_idx" title="Link to this definition">#</a></dt>

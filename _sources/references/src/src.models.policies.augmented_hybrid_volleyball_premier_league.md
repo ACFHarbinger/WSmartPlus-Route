@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} VectorizedAHVPL(env_name: str, n_teams: int = 10, max_iterations: int = 20, sub_rate: float = 0.2, time_limit: float = 60.0, aco_iterations: int = 1, alns_iterations: int = 50, crossover_rate: float = 0.7, elite_size: int = 5, device: str = 'cuda', generator: typing.Optional[torch.Generator] = None, rng: typing.Optional[random.Random] = None, **kwargs)
+`````{py:class} VectorizedAHVPL(env_name: str, n_teams: int = 10, max_iterations: int = 20, sub_rate: float = 0.2, time_limit: float = 60.0, aco_iterations: int = 1, alns_iterations: int = 50, crossover_rate: float = 0.7, elite_size: int = 5, device: str = 'cuda', generator: typing.Optional[torch.Generator] = None, rng: typing.Optional[random.Random] = None, **kwargs: typing.Any)
 :canonical: src.models.policies.augmented_hybrid_volleyball_premier_league.VectorizedAHVPL
 
 Bases: {py:obj}`logic.src.models.policies.hybrid_volleyball_premier_league.VectorizedHVPL`
@@ -53,7 +53,7 @@ Bases: {py:obj}`logic.src.models.policies.hybrid_volleyball_premier_league.Vecto
 
 ````
 
-````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.base.RL4COEnvBase] = None, strategy: str = 'greedy', num_starts: int = 1, max_steps: typing.Optional[int] = None, phase: str = 'train', return_actions: bool = True, **kwargs) -> typing.Dict[str, typing.Any]
+````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.base.RL4COEnvBase] = None, strategy: str = 'greedy', num_starts: int = 1, max_steps: typing.Optional[int] = None, phase: str = 'train', return_actions: bool = True, **kwargs: typing.Any) -> typing.Dict[str, typing.Any]
 :canonical: src.models.policies.augmented_hybrid_volleyball_premier_league.VectorizedAHVPL.forward
 
 ```{autodoc2-docstring} src.models.policies.augmented_hybrid_volleyball_premier_league.VectorizedAHVPL.forward
@@ -69,7 +69,7 @@ Bases: {py:obj}`logic.src.models.policies.hybrid_volleyball_premier_league.Vecto
 
 ````
 
-````{py:method} _routes_to_giant_tours(routes_list, batch_size, n_teams, N, backup_giant)
+````{py:method} _routes_to_giant_tours(routes_list: typing.Union[typing.List[typing.List[int]], typing.List[torch.Tensor]], batch_size: int, n_teams: int, N: int, backup_giant: torch.Tensor) -> torch.Tensor
 :canonical: src.models.policies.augmented_hybrid_volleyball_premier_league.VectorizedAHVPL._routes_to_giant_tours
 
 ```{autodoc2-docstring} src.models.policies.augmented_hybrid_volleyball_premier_league.VectorizedAHVPL._routes_to_giant_tours

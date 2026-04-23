@@ -482,29 +482,26 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.modules">
 <span id="src-models-subnets-modules"></span><h1><a class="reference internal" href="#module-src.models.subnets.modules" title="src.models.subnets.modules"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.modules</span></code></a><a class="headerlink" href="#module-src.models.subnets.modules" title="Link to this heading">#</a></h1>
 <p>Neural network modules and building blocks.</p>
-<p>This package contains reusable layers and sub-networks used to build complex VRP models.</p>
-<p>Attention Mechanisms:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">MultiHeadAttention</span></code>: Standard MHA.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">MultiHeadFlashAttention</span></code>: FlashAttention-based MHA (renamed to <code class="docutils literal notranslate"><span class="pre">flash_attention.py</span></code>).</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">MultiHeadCrossAttention</span></code>: Cross-attention between two sequences.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">MixedScoreMHA</span></code> (MatNet): Attention with mixed scoring functions.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">MultiHeadAttentionMDAM</span></code>: MDAM-specific attention.</p></li>
-</ul>
-<p>Graph Convolutions:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">GraphConvolution</span></code>: Basic GCN.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">GatedGraphConvolution</span></code>: Gated GCN (Residual).</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">EfficientGraphConvolution</span></code>: Memory-efficient GCN.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">MessagePassingLayer</span></code>: General message passing (MPNN).</p></li>
-</ul>
-<p>Common Components:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">Normalization</span></code>: Unified interface for Batch/Layer/Instance norm.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">FeedForward</span></code>: MLP blocks.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">SkipConnection</span></code>: Residual connections.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">ActivationFunction</span></code>: Configurable activations.</p></li>
-</ul>
+<p>This package contains reusable layers and sub-networks used to build complex
+VRP models, including attention mechanisms, graph convolutions, and custom
+normalization layers.</p>
+<p>Attributes:
+ActivationFunction: Configurable activation factory.
+MultiHeadAttention: Foundation for neural routing encoders.
+MultiHeadCrossAttention: Cross-modal attention mechanism.
+MultiHeadFlashAttention: Memory-efficient attention implementation.
+GraphConvolution: Standard spatial aggregation layers.
+GatedGraphConvolution: Gated edge-weighted aggregation.
+EfficientGraphConvolution: Optimized multi-head graph layer.
+FeedForward: Standard positional-wise transformation.
+MPNNEncoder: Message Passing Neural Network sequence encoder.
+Normalization: Unified wrapper for Layer/Instance/Batch normalization.
+SkipConnection: Residual and hyper-network wrappers.
+DynamicHyperConnection: Adaptive state-dependent skip mechanism.
+StaticHyperConnection: Fixed weight-sharing skip mechanism.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.modules import MultiHeadAttention
+&gt;&gt;&gt; mha = MultiHeadAttention(embed_dim=128, n_heads=8)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.subnets.modules.graph_convolution.GraphConvolution.__init__
 ```
 
-````{py:method} init_parameters()
+````{py:method} init_parameters() -> None
 :canonical: src.models.subnets.modules.graph_convolution.GraphConvolution.init_parameters
 
 ```{autodoc2-docstring} src.models.subnets.modules.graph_convolution.GraphConvolution.init_parameters
@@ -45,7 +45,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} forward(h, mask)
+````{py:method} forward(h: torch.Tensor, mask: torch.Tensor) -> torch.Tensor
 :canonical: src.models.subnets.modules.graph_convolution.GraphConvolution.forward
 
 ```{autodoc2-docstring} src.models.subnets.modules.graph_convolution.GraphConvolution.forward
@@ -53,7 +53,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} single_graph_forward(h, adj)
+````{py:method} single_graph_forward(h: torch.Tensor, adj: torch.Tensor) -> torch.Tensor
 :canonical: src.models.subnets.modules.graph_convolution.GraphConvolution.single_graph_forward
 
 ```{autodoc2-docstring} src.models.subnets.modules.graph_convolution.GraphConvolution.single_graph_forward

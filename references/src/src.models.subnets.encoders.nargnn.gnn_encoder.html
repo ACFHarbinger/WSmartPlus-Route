@@ -492,6 +492,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.encoders.nargnn.gnn_encoder">
 <span id="src-models-subnets-encoders-nargnn-gnn-encoder"></span><h1><a class="reference internal" href="#module-src.models.subnets.encoders.nargnn.gnn_encoder" title="src.models.subnets.encoders.nargnn.gnn_encoder"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.encoders.nargnn.gnn_encoder</span></code></a><a class="headerlink" href="#module-src.models.subnets.encoders.nargnn.gnn_encoder" title="Link to this heading">#</a></h1>
 <p>Simplified GNN Encoder for NARGNN.</p>
+<p>Attributes:
+SimplifiedGNNEncoder: Simplified GNN encoder for NARGNN.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.encoders.nargnn.gnn_encoder import SimplifiedGNNEncoder
+&gt;&gt;&gt; enc = SimplifiedGNNEncoder(num_layers=3, embed_dim=128)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -512,17 +517,30 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.encoders.nargnn.gnn_encoder.</span></span><span class="sig-name descname"><span class="pre">SimplifiedGNNEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">act_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'silu'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agg_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mean'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.encoders.nargnn.gnn_encoder.SimplifiedGNNEncoder" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
 <p>Simplified GNN encoder for NARGNN.</p>
+<p>This encoder stack consists of multiple GNN layers that process node and
+edge features through message passing.</p>
+<p>Attributes:
+act_fn (Callable): Activation function.
+layers (nn.ModuleList): Stack of GNN layers.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize Class.</p>
+<p>Initializes the SimplifiedGNNEncoder.</p>
 <p>Args:
-num_layers (int): Description of num_layers.
-embed_dim (int): Description of embed_dim.
-act_fn (str): Description of act_fn.
-agg_fn (str): Description of agg_fn.</p>
+num_layers: Number of GNN layers in the encoder stack.
+embed_dim: Dimension of node and edge embeddings.
+act_fn: Name of the activation function in torch.nn.functional.
+agg_fn: Aggregation function for message passing.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.encoders.nargnn.gnn_encoder.SimplifiedGNNEncoder.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_attr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.subnets.encoders.nargnn.gnn_encoder.SimplifiedGNNEncoder.forward" title="Link to this definition">#</a></dt>
-<dd><p>Forward pass.</p>
+<dd><p>Forward pass of the GNN encoder stack.</p>
+<p>Args:
+x: Node embeddings of shape (num_nodes, embed_dim).
+edge_index: Graph connectivity in COO format.
+edge_attr: Edge features of shape (num_edges, embed_dim).</p>
+<p>Returns:
+Tuple containing:
+- x (torch.Tensor): Final node embeddings.
+- edge_attr (torch.Tensor): Final edge features.</p>
 </dd></dl>
 
 </dd></dl>

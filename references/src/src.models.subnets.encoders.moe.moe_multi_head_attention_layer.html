@@ -492,6 +492,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.encoders.moe.moe_multi_head_attention_layer">
 <span id="src-models-subnets-encoders-moe-moe-multi-head-attention-layer"></span><h1><a class="reference internal" href="#module-src.models.subnets.encoders.moe.moe_multi_head_attention_layer" title="src.models.subnets.encoders.moe.moe_multi_head_attention_layer"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.encoders.moe.moe_multi_head_attention_layer</span></code></a><a class="headerlink" href="#module-src.models.subnets.encoders.moe.moe_multi_head_attention_layer" title="Link to this heading">#</a></h1>
 <p>MoE Multi-Head Attention Layer.</p>
+<p>Attributes:
+MoEMultiHeadAttentionLayer: Single layer of the MoE Graph Attention Encoder.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.encoders.moe.moe_multi_head_attention_layer import MoEMultiHeadAttentionLayer
+&gt;&gt;&gt; layer = MoEMultiHeadAttentionLayer(n_heads=8, embed_dim=128, feed_forward_hidden=512, …)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -509,76 +514,59 @@ document.write(`
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.subnets.encoders.moe.moe_multi_head_attention_layer.MoEMultiHeadAttentionLayer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.encoders.moe.moe_multi_head_attention_layer.</span></span><span class="sig-name descname"><span class="pre">MoEMultiHeadAttentionLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_heads</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feed_forward_hidden</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon_alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learn_affine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_stats</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mbeta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr_k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_groups</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">af_param</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replacement_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uniform_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'skip'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expansion_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_experts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noisy_gating</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.encoders.moe.moe_multi_head_attention_layer.MoEMultiHeadAttentionLayer" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.encoders.moe.moe_multi_head_attention_layer.</span></span><span class="sig-name descname"><span class="pre">MoEMultiHeadAttentionLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feed_forward_hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon_alpha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learn_affine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_stats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mbeta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr_k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_groups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">af_param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replacement_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uniform_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'skip'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expansion_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_experts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noisy_gating</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.encoders.moe.moe_multi_head_attention_layer.MoEMultiHeadAttentionLayer" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.models.subnets.encoders.common.MultiHeadAttentionLayerBase</span></code></p>
 <p>Single layer of the MoE Graph Attention Encoder.</p>
 <p>Inherits from MultiHeadAttentionLayerBase but overrides the feed-forward
 component to use Mixture-of-Experts (MoE) routing instead of standard FFN.</p>
 <p>The MoE variant allows the model to specialize different experts for different
 input patterns, potentially improving capacity and expressiveness.</p>
-<p class="rubric" id="id1">Parameters</p>
-<p>n_heads : int
-Number of attention heads.
-embed_dim : int
-Embedding dimension.
-feed_forward_hidden : int
-Hidden dimension for each expert’s feed-forward network.
-normalization : str
-Normalization type.
-epsilon_alpha : float
-Epsilon for normalization stability.
-learn_affine : bool
-Whether to learn affine parameters in normalization.
-track_stats : bool
-Whether to track running stats in batch norm.
-mbeta : float
-Momentum for batch norm running stats.
-lr_k : float
-Local response normalization parameter.
-n_groups : int
-Number of groups for group normalization.
-activation : str
-Activation function name.
-af_param : float
-Activation function parameter.
-threshold : float
-Activation threshold.
-replacement_value : float
-Activation replacement value.
-n_params : int
-Number of activation parameters.
-uniform_range : list
-Uniform range for activation.
-connection_type : str, default=”skip”
-Connection type: “skip”, “dense”, or “hyper”.
-expansion_rate : int, default=4
-Expansion factor for hyper-connections.
-num_experts : int, default=4
-Number of expert networks in MoE.
-k : int, default=2
-Number of experts to activate per input (top-k routing).
-noisy_gating : bool, default=True
-Whether to use noisy gating for exploration.</p>
+<p>Attributes:
+num_experts (int): Number of expert networks in MoE.
+k (int): Number of experts to activate per input (top-k routing).
+noisy_gating (bool): Whether to use noisy gating for exploration.
+activation (str): Activation function name.
+af_param (float): Activation function parameter.
+threshold (float): Activation threshold.
+replacement_value (float): Activation replacement value.
+n_params (int): Number of activation parameters.
+uniform_range (List[float]): Uniform range for activation.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize the MoEMultiHeadAttentionLayer.</p>
+<p>Initializes the MoEMultiHeadAttentionLayer.</p>
+<p>Args:
+n_heads: Number of attention heads.
+embed_dim: Embedding dimension.
+feed_forward_hidden: Hidden dimension for each expert’s feed-forward network.
+normalization: Normalization type.
+epsilon_alpha: Epsilon for normalization stability.
+learn_affine: Whether to learn affine parameters in normalization.
+track_stats: Whether to track running stats in batch norm.
+mbeta: Momentum for batch norm running stats.
+lr_k: Local response normalization parameter.
+n_groups: Number of groups for group normalization.
+activation: Activation function name.
+af_param: Activation function parameter.
+threshold: Activation threshold.
+replacement_value: Activation replacement value.
+n_params: Number of activation parameters.
+uniform_range: Uniform range for activation.
+connection_type: Connection type (“skip”, “dense”, or “hyper”).
+expansion_rate: Expansion factor for hyper-connections.
+num_experts: Number of expert networks in MoE.
+k: Number of experts to activate per input (top-k routing).
+noisy_gating: Whether to use noisy gating for exploration.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.encoders.moe.moe_multi_head_attention_layer.MoEMultiHeadAttentionLayer._create_feed_forward">
 <span class="sig-name descname"><span class="pre">_create_feed_forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feed_forward_hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.models.activation_function.ActivationConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expansion_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.nn.Module</span></span></span><a class="headerlink" href="#src.models.subnets.encoders.moe.moe_multi_head_attention_layer.MoEMultiHeadAttentionLayer._create_feed_forward" title="Link to this definition">#</a></dt>
 <dd><p>Override to use MoEFeedForward instead of standard feed-forward.</p>
-<p class="rubric" id="id2">Parameters</p>
-<p>embed_dim : int
-Embedding dimension.
-feed_forward_hidden : int
-Hidden dimension for each expert.
-activation_config : ActivationConfig
-Activation function configuration (already stored in self).
-connection_type : str
-Connection type wrapper.
-expansion_rate : int
-Expansion factor for hyper-connections.</p>
-<p class="rubric" id="returns">Returns</p>
-<p>nn.Module
-MoEFeedForward module wrapped with connection.</p>
+<p>Args:
+embed_dim: Embedding dimension.
+feed_forward_hidden: Hidden dimension for each expert.
+activation_config: Activation function configuration (already stored in self).
+connection_type: Connection type wrapper.
+expansion_rate: Expansion factor for hyper-connections.</p>
+<p>Returns:
+nn.Module: MoEFeedForward module wrapped with connection.</p>
 </dd></dl>
 
 </dd></dl>

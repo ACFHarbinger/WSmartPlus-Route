@@ -492,6 +492,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.encoders.nargnn.edge_embedding">
 <span id="src-models-subnets-encoders-nargnn-edge-embedding"></span><h1><a class="reference internal" href="#module-src.models.subnets.encoders.nargnn.edge_embedding" title="src.models.subnets.encoders.nargnn.edge_embedding"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.encoders.nargnn.edge_embedding</span></code></a><a class="headerlink" href="#module-src.models.subnets.encoders.nargnn.edge_embedding" title="Link to this heading">#</a></h1>
 <p>Simplified edge embedding for NARGNN.</p>
+<p>Attributes:
+SimplifiedEdgeEmbedding: Simplified edge embedding for NARGNN using distance matrix.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.encoders.nargnn.edge_embedding import SimplifiedEdgeEmbedding
+&gt;&gt;&gt; emb = SimplifiedEdgeEmbedding(embed_dim=128)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -512,16 +517,29 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.encoders.nargnn.edge_embedding.</span></span><span class="sig-name descname"><span class="pre">SimplifiedEdgeEmbedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_sparse</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linear_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.encoders.nargnn.edge_embedding.SimplifiedEdgeEmbedding" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
 <p>Simplified edge embedding for NARGNN using distance matrix.</p>
+<p>This module constructs a sparse graph from node locations and generates
+initial edge embeddings based on Euclidean distances.</p>
+<p>Attributes:
+k_sparse (Optional[int]): Fixed number of nearest neighbors for sparsity.
+edge_embed (nn.Linear): Linear projection layer for edge distances.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize Class.</p>
+<p>Initializes the SimplifiedEdgeEmbedding.</p>
 <p>Args:
-embed_dim (int): Description of embed_dim.
-k_sparse (Optional[int]): Description of k_sparse.
-linear_bias (bool): Description of linear_bias.</p>
+embed_dim: Dimension of the output edge embeddings.
+k_sparse: Fixed number of nearest neighbors. If None, it scales with graph size.
+linear_bias: Whether to use bias in the edge embedding linear layer.</p>
+<p>Raises:
+ValueError: If k_sparse is neither an int nor None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.encoders.nargnn.edge_embedding.SimplifiedEdgeEmbedding.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch_geometric.data.Batch</span></span></span><a class="headerlink" href="#src.models.subnets.encoders.nargnn.edge_embedding.SimplifiedEdgeEmbedding.forward" title="Link to this definition">#</a></dt>
-<dd><p>Forward pass.</p>
+<dd><p>Forward pass of the edge embedding module.</p>
+<p>Constructs a k-nearest neighbor graph and projects distances to embeddings.</p>
+<p>Args:
+td: TensorDict containing “locs” of shape (batch, num_nodes, 2).
+init_embeddings: Initial node embeddings of shape (batch, num_nodes, embed_dim).</p>
+<p>Returns:
+Batch: A PyG Batch object representing the sparse graph.</p>
 </dd></dl>
 
 </dd></dl>

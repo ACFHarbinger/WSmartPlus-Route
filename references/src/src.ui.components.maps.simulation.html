@@ -495,6 +495,16 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.ui.components.maps.simulation">
 <span id="src-ui-components-maps-simulation"></span><h1><a class="reference internal" href="#module-src.ui.components.maps.simulation" title="src.ui.components.maps.simulation"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.components.maps.simulation</span></code></a><a class="headerlink" href="#module-src.ui.components.maps.simulation" title="Link to this heading">#</a></h1>
 <p>Folium map renderer for simulation tours.</p>
+<p>This module provides the primary Digital Twin visualization for simulation
+playback. It renders depots, bin markers with dynamic fill-level
+visualization, and multi-trip route polylines with support for various
+distance calculation strategies.</p>
+<p>Example:
+m = create_simulation_map(tour_points, bin_states)</p>
+<p>Attributes:
+BIN_POPUP_TEMPLATE: Jinja2 template for bin detail popups.
+DEPOT_POPUP_TEMPLATE: Jinja2 template for depot detail popups.
+create_simulation_map: Main simulation map orchestrator.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -505,7 +515,7 @@ document.write(`
 <td><p>Add a single bin marker to the map with appropriate styling.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.components.maps.simulation.create_simulation_map" title="src.ui.components.maps.simulation.create_simulation_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_simulation_map</span></code></a></p></td>
-<td><p>Create a Folium map visualizing a simulation tour.</p></td>
+<td><p>Creates a Folium map visualizing a detailed simulation tour.</p></td>
 </tr>
 </tbody>
 </table>
@@ -575,15 +585,21 @@ dataset_id: Optional dataset-level ID for backward-compatible mandatory matching
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.components.maps.simulation.create_simulation_map">
 <span class="sig-prename descclassname"><span class="pre">src.ui.components.maps.simulation.</span></span><span class="sig-name descname"><span class="pre">create_simulation_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin_states</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">served_indices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_bin_coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collected</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vehicle_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_route</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zoom_start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'hsd'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">folium.Map</span></span></span><a class="headerlink" href="#src.ui.components.maps.simulation.create_simulation_map" title="Link to this definition">#</a></dt>
-<dd><p>Create a Folium map visualizing a simulation tour.</p>
+<dd><p>Creates a Folium map visualizing a detailed simulation tour.</p>
 <p>Args:
 tour: List of tour points with id, type, lat, lng, popup.
-Bins use IDs 0..N-1, Depot uses ID -1.
 bin_states: Optional list of bin fill levels (0-100).
-served_indices: Optional list of indices that were served.
-mandatory: Optional list of 0-indexed bin IDs.
-all_bin_coords: Optional list of coordinate dicts for ALL bins.
-collected: Optional list of per-bin collected amounts (kg).</p>
+served_indices: Optional list of bin IDs that were served.
+mandatory: Optional list of 0-indexed bin IDs selected for collection.
+all_bin_coords: Optional coordinates for ALL bins in the environment.
+collected: Optional kg amounts collected per bin.
+vehicle_id: Logical vehicle index for color selection.
+show_route: Whether to render polyline segments.
+zoom_start: Initial map zoom level.
+distance_matrix: Optional custom distance matrix for leg labeling.
+dist_strategy: Key for distance calculation (e.g., ‘hsd’, ‘gdsc’).</p>
+<p>Returns:
+folium.Map: Resulting interactive Leaflet map.</p>
 </dd></dl>
 
 </section>

@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} GATFeedForwardSubLayer(embed_dim: int, feed_forward_hidden: int, activation_config: typing.Optional[logic.src.configs.models.activation_function.ActivationConfig] = None, bias: bool = True, **kwargs)
+`````{py:class} GATFeedForwardSubLayer(embed_dim: int, feed_forward_hidden: int, activation_config: typing.Optional[logic.src.configs.models.activation_function.ActivationConfig] = None, bias: bool = True, **kwargs: typing.Any)
 :canonical: src.models.subnets.encoders.gat.gat_feed_forward_sublayer.GATFeedForwardSubLayer
 
 Bases: {py:obj}`torch.nn.Module`

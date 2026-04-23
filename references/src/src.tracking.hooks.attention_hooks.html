@@ -488,7 +488,17 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.hooks.attention_hooks">
 <span id="src-tracking-hooks-attention-hooks"></span><h1><a class="reference internal" href="#module-src.tracking.hooks.attention_hooks" title="src.tracking.hooks.attention_hooks"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.hooks.attention_hooks</span></code></a><a class="headerlink" href="#module-src.tracking.hooks.attention_hooks" title="Link to this heading">#</a></h1>
-<p>Attention hooks and capturing utilities.</p>
+<p>Attention capturing and monitoring hooks for Multi-Head Attention layers.</p>
+<p>This module provides specialized hooks to intercept and record attention weights
+and masks from the model’s attention heads. It is particularly useful for
+visualizing routing decisions and path importance in attention-based solvers.</p>
+<p>Attributes:
+add_attention_hooks: Utility to register attention monitoring hooks.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.tracking.hooks.attention_hooks import add_attention_hooks
+&gt;&gt;&gt; hook_data = add_attention_hooks(model)
+&gt;&gt;&gt; _ = model(x)
+&gt;&gt;&gt; weights = hook_data[‘weights’]</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -496,7 +506,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.hooks.attention_hooks.add_attention_hooks" title="src.tracking.hooks.attention_hooks.add_attention_hooks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_attention_hooks</span></code></a></p></td>
-<td><p>Registers forward hooks on Multi-Head Attention layers to capture weights and masks.</p></td>
+<td><p>Registers forward hooks on Multi-Head Attention layers to capture weights.</p></td>
 </tr>
 </tbody>
 </table>
@@ -507,11 +517,13 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.hooks.attention_hooks.add_attention_hooks">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.hooks.attention_hooks.</span></span><span class="sig-name descname"><span class="pre">add_attention_hooks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.hooks.attention_hooks.add_attention_hooks" title="Link to this definition">#</a></dt>
-<dd><p>Registers forward hooks on Multi-Head Attention layers to capture weights and masks.</p>
+<dd><p>Registers forward hooks on Multi-Head Attention layers to capture weights.</p>
+<p>This function traverses the model’s layers and attaches hooks to sub-modules
+specifically containing attention mechanisms.</p>
 <p>Args:
-model_module: The model to hook.</p>
+model_module: The model or module to instrument.</p>
 <p>Returns:
-dict: Dictionary containing lists of ‘weights’, ‘masks’, and ‘handles’.</p>
+Dict[str, Any]: Mapping containing ‘weights’, ‘masks’, and ‘handles’.</p>
 </dd></dl>
 
 </section>

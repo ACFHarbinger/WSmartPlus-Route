@@ -490,7 +490,18 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.ui.services.benchmark_loader">
 <span id="src-ui-services-benchmark-loader"></span><h1><a class="reference internal" href="#module-src.ui.services.benchmark_loader" title="src.ui.services.benchmark_loader"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.services.benchmark_loader</span></code></a><a class="headerlink" href="#module-src.ui.services.benchmark_loader" title="Link to this heading">#</a></h1>
-<p>Data loading service for benchmark results.</p>
+<p>Data loading and aggregation services for benchmark results.</p>
+<p>This module provides specialized logic for parsing high-performance
+benchmarking logs (JSONL) and transforming them into analysis-ready
+DataFrames. It supports performance metrics, latency tracking, and
+throughput comparisons across hardware levels.</p>
+<p>Attributes:
+load_benchmark_data: Parses the main benchmark log file into a DataFrame.
+get_unique_benchmarks: Extracts sorted list of benchmark identifiers.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.ui.services.benchmark_loader import load_benchmark_data
+&gt;&gt;&gt; df = load_benchmark_data()
+&gt;&gt;&gt; print(f”Loaded {len(df)} benchmark entries.”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -498,13 +509,13 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.services.benchmark_loader.get_benchmark_log_path" title="src.ui.services.benchmark_loader.get_benchmark_log_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_benchmark_log_path</span></code></a></p></td>
-<td><p>Get the path to the benchmark log file.</p></td>
+<td><p>Retrieves the absolute path to the benchmark log file.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.services.benchmark_loader.load_benchmark_data" title="src.ui.services.benchmark_loader.load_benchmark_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_benchmark_data</span></code></a></p></td>
-<td><p>Load benchmark results from JSONL file.</p></td>
+<td><p>Parses benchmark results from the JSONL log file into a DataFrame.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.services.benchmark_loader.get_unique_benchmarks" title="src.ui.services.benchmark_loader.get_unique_benchmarks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_unique_benchmarks</span></code></a></p></td>
-<td><p>Get unique benchmark names from the data.</p></td>
+<td><p>Extracts a sorted list of unique benchmark identifiers from the data.</p></td>
 </tr>
 </tbody>
 </table>
@@ -515,21 +526,29 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.benchmark_loader.get_benchmark_log_path">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.benchmark_loader.</span></span><span class="sig-name descname"><span class="pre">get_benchmark_log_path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pathlib.Path</span></span></span><a class="headerlink" href="#src.ui.services.benchmark_loader.get_benchmark_log_path" title="Link to this definition">#</a></dt>
-<dd><p>Get the path to the benchmark log file.</p>
+<dd><p>Retrieves the absolute path to the benchmark log file.</p>
+<p>Returns:
+Path: The filesystem path to benchmarks.jsonl.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.benchmark_loader.load_benchmark_data">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.benchmark_loader.</span></span><span class="sig-name descname"><span class="pre">load_benchmark_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.ui.services.benchmark_loader.load_benchmark_data" title="Link to this definition">#</a></dt>
-<dd><p>Load benchmark results from JSONL file.</p>
+<dd><p>Parses benchmark results from the JSONL log file into a DataFrame.</p>
+<p>Filters specifically for ‘performance_benchmark’ records and flattens
+associated metrics and metadata for easier analysis.</p>
 <p>Returns:
-DataFrame with flattened benchmark entries.</p>
+pd.DataFrame: A DataFrame sorted by timestamp (descending).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.benchmark_loader.get_unique_benchmarks">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.benchmark_loader.</span></span><span class="sig-name descname"><span class="pre">get_unique_benchmarks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.services.benchmark_loader.get_unique_benchmarks" title="Link to this definition">#</a></dt>
-<dd><p>Get unique benchmark names from the data.</p>
+<dd><p>Extracts a sorted list of unique benchmark identifiers from the data.</p>
+<p>Args:
+df: The benchmark results DataFrame.</p>
+<p>Returns:
+List[str]: Unique benchmark names found in the ‘benchmark’ column.</p>
 </dd></dl>
 
 </section>

@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} DeepACO(embed_dim: int = 128, num_encoder_layers: int = 3, num_heads: int = 8, n_ants: int = 20, n_iterations: int = 1, alpha: float = 1.0, beta: float = 2.0, rho: float = 0.1, use_local_search: bool = True, baseline: str = 'rollout', env_name: typing.Optional[str] = None, **kwargs)
+`````{py:class} DeepACO(embed_dim: int = 128, num_encoder_layers: int = 3, num_heads: int = 8, n_ants: int = 20, n_iterations: int = 1, alpha: float = 1.0, beta: float = 2.0, rho: float = 0.1, use_local_search: bool = True, baseline: str = 'rollout', env_name: typing.Optional[str] = None, **kwargs: typing.Any)
 :canonical: src.models.core.deepaco.model.DeepACO
 
 Bases: {py:obj}`torch.nn.Module`
@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.core.deepaco.model.DeepACO.__init__
 ```
 
-````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.base.RL4COEnvBase, **kwargs) -> typing.Dict[str, typing.Any]
+````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.base.RL4COEnvBase, **kwargs: typing.Any) -> typing.Dict[str, typing.Any]
 :canonical: src.models.core.deepaco.model.DeepACO.forward
 
 ```{autodoc2-docstring} src.models.core.deepaco.model.DeepACO.forward
@@ -45,7 +45,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} set_strategy(strategy: str, **kwargs)
+````{py:method} set_strategy(strategy: str, **kwargs: typing.Any) -> None
 :canonical: src.models.core.deepaco.model.DeepACO.set_strategy
 
 ```{autodoc2-docstring} src.models.core.deepaco.model.DeepACO.set_strategy
@@ -53,7 +53,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} eval()
+````{py:method} eval() -> src.models.core.deepaco.model.DeepACO
 :canonical: src.models.core.deepaco.model.DeepACO.eval
 
 ```{autodoc2-docstring} src.models.core.deepaco.model.DeepACO.eval

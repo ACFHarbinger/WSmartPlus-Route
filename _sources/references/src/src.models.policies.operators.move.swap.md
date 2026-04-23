@@ -31,21 +31,21 @@
 
 ### API
 
-````{py:function} vectorized_swap(tours, dist_matrix, max_iterations=200, generator=None)
+````{py:function} vectorized_swap(tours: torch.Tensor, dist_matrix: torch.Tensor, max_iterations: int = 200, generator: typing.Optional[torch.Generator] = None) -> torch.Tensor
 :canonical: src.models.policies.operators.move.swap.vectorized_swap
 
 ```{autodoc2-docstring} src.models.policies.operators.move.swap.vectorized_swap
 ```
 ````
 
-````{py:function} _compute_swap_gain(tours, dist, node_i, node_j, i, j, b_idx)
+````{py:function} _compute_swap_gain(tours: torch.Tensor, dist: torch.Tensor, node_i: torch.Tensor, node_j: torch.Tensor, i: torch.Tensor, j: torch.Tensor, b_idx: torch.Tensor) -> torch.Tensor
 :canonical: src.models.policies.operators.move.swap._compute_swap_gain
 
 ```{autodoc2-docstring} src.models.policies.operators.move.swap._compute_swap_gain
 ```
 ````
 
-````{py:function} _apply_swap_moves(tours, improved, i, j)
+````{py:function} _apply_swap_moves(tours: torch.Tensor, improved: torch.Tensor, i: torch.Tensor, j: torch.Tensor) -> torch.Tensor
 :canonical: src.models.policies.operators.move.swap._apply_swap_moves
 
 ```{autodoc2-docstring} src.models.policies.operators.move.swap._apply_swap_moves

@@ -495,7 +495,21 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.logging.modules.storage">
 <span id="src-tracking-logging-modules-storage"></span><h1><a class="reference internal" href="#module-src.tracking.logging.modules.storage" title="src.tracking.logging.modules.storage"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging.modules.storage</span></code></a><a class="headerlink" href="#module-src.tracking.logging.modules.storage" title="Link to this heading">#</a></h1>
-<p>Persistent storage utilities (JSON, Pickle) and system logging.</p>
+<p>Persistent storage and system logging utilities.</p>
+<p>This module provides tools for serializing experiment data to disk using JSON
+and Pickle formats. It includes specialized converters for NumPy types,
+thread-safe file operations with adaptive locking, and configuration for
+the system-wide Loguru logger.</p>
+<p>Attributes:
+setup_system_logger: Configures Loguru sink and multi-module log levels.
+sort_log: Reorders a log file by solver policy grouping.
+log_to_json: Persists experiment result dictionaries to a JSON file.
+log_to_json2: Alternative JSON logger with distinct recovery logic.
+log_to_pickle: Serializes generic objects to binary pickle files.
+update_log: Appends new results to an existing structured log.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.tracking.logging.modules import storage
+&gt;&gt;&gt; storage.log_to_json(“results.json”, [“km”, “kg”], {“greedy”: [10, 5]})</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -503,13 +517,13 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.logging.modules.storage.setup_system_logger" title="src.tracking.logging.modules.storage.setup_system_logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_system_logger</span></code></a></p></td>
-<td></td>
+<td><p>Configures the Loguru system logger and filters noisy modules.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.logging.modules.storage._convert_numpy" title="src.tracking.logging.modules.storage._convert_numpy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_convert_numpy</span></code></a></p></td>
-<td><p>convert numpy.</p></td>
+<td><p>Recursively converts NumPy types to native Python types for JSON serialization.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.logging.modules.storage._sort_log" title="src.tracking.logging.modules.storage._sort_log"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_sort_log</span></code></a></p></td>
-<td><p>sort log.</p></td>
+<td><p>Sorts log entries so that specific policy keywords appear last.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.logging.modules.storage.sort_log" title="src.tracking.logging.modules.storage.sort_log"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sort_log</span></code></a></p></td>
 <td><p>Sorts a JSON log file by grouping keys.</p></td>
@@ -518,7 +532,7 @@ document.write(`
 <td><p>Write or update a JSON log file with new policy results.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.logging.modules.storage.log_to_json2" title="src.tracking.logging.modules.storage.log_to_json2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_to_json2</span></code></a></p></td>
-<td><p>Write or update a JSON log file (variant with different error handling).</p></td>
+<td><p>Write or update a JSON log file (variant with different recovery logic).</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.logging.modules.storage.log_to_pickle" title="src.tracking.logging.modules.storage.log_to_pickle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_to_pickle</span></code></a></p></td>
 <td><p>Serialize a log object to a pickle file.</p></td>
@@ -535,56 +549,97 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.logging.modules.storage.setup_system_logger">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.logging.modules.storage.</span></span><span class="sig-name descname"><span class="pre">setup_system_logger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'logs/system.log'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'INFO'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.tracking.logging.modules.storage.setup_system_logger" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Configures the Loguru system logger and filters noisy modules.</p>
+<p>Args:
+log_path: File path for the system log. Defaults to “logs/system.log”.
+level: Logging severity level. Defaults to “INFO”.</p>
+<p>Returns:
+Any: The configured Loguru logger instance.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.logging.modules.storage._convert_numpy">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.logging.modules.storage.</span></span><span class="sig-name descname"><span class="pre">_convert_numpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.tracking.logging.modules.storage._convert_numpy" title="Link to this definition">#</a></dt>
-<dd><p>convert numpy.</p>
+<dd><p>Recursively converts NumPy types to native Python types for JSON serialization.</p>
 <p>Args:
-obj (Any): Description of obj.</p>
+obj: The object to convert (scalar, list, or dictionary).</p>
 <p>Returns:
-Any: Description of return value.</p>
+Any: The converted object with native Python primitives.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.logging.modules.storage._sort_log">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.logging.modules.storage.</span></span><span class="sig-name descname"><span class="pre">_sort_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.logging.modules.storage._sort_log" title="Link to this definition">#</a></dt>
-<dd><p>sort log.</p>
+<dd><p>Sorts log entries so that specific policy keywords appear last.</p>
 <p>Args:
-log (Dict[str, Any]): Description of log.</p>
+log: The dictionary of log results grouped by policy.</p>
 <p>Returns:
-Any: Description of return value.</p>
+Dict[str, Any]: The sorted dictionary.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.logging.modules.storage.sort_log">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.logging.modules.storage.</span></span><span class="sig-name descname"><span class="pre">sort_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logfile_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lock</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">threading.Lock</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.logging.modules.storage.sort_log" title="Link to this definition">#</a></dt>
 <dd><p>Sorts a JSON log file by grouping keys.</p>
+<p>Args:
+logfile_path: Path to the JSON file to sort in-place.
+lock: Optional thread lock for safe file modification. Defaults to None.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.logging.modules.storage.log_to_json">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.logging.modules.storage.</span></span><span class="sig-name descname"><span class="pre">log_to_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">json_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_log_flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lock</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">threading.Lock</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.logging.modules.storage.log_to_json" title="Link to this definition">#</a></dt>
 <dd><p>Write or update a JSON log file with new policy results.</p>
+<p>Args:
+json_path: Path to the JSON log file.
+keys: List of metric names to use as dictionary keys.
+dit: The data dictionary to serialize.
+sort_log_flag: Whether to sort policies after writing. Defaults to True.
+sample_id: Index of the simulation sample (enables list-mode). Defaults to None.
+lock: Optional thread lock for atomic access. Defaults to None.</p>
+<p>Returns:
+Union[Dict[str, Any], List[Any]]: The updated full log state.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.logging.modules.storage.log_to_json2">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.logging.modules.storage.</span></span><span class="sig-name descname"><span class="pre">log_to_json2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">json_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_log_flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lock</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">threading.Lock</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.logging.modules.storage.log_to_json2" title="Link to this definition">#</a></dt>
-<dd><p>Write or update a JSON log file (variant with different error handling).</p>
+<dd><p>Write or update a JSON log file (variant with different recovery logic).</p>
+<p>Args:
+json_path: Path to the JSON log file.
+keys: List of metric names to use as dictionary keys.
+dit: The data dictionary to serialize.
+sort_log_flag: Whether to sort policies after writing. Defaults to True.
+sample_id: Index of the simulation sample (enables list-mode). Defaults to None.
+lock: Optional thread lock for atomic access. Defaults to None.</p>
+<p>Returns:
+Union[Dict[str, Any], List[Any]]: The updated full log state.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.logging.modules.storage.log_to_pickle">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.logging.modules.storage.</span></span><span class="sig-name descname"><span class="pre">log_to_pickle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pickle_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lock</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">threading.Lock</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dw_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.logging.modules.storage.log_to_pickle" title="Link to this definition">#</a></dt>
 <dd><p>Serialize a log object to a pickle file.</p>
+<p>Args:
+pickle_path: Target path for the .pkl file.
+log: The object to serialize.
+lock: Optional thread lock for safe writing. Defaults to None.
+dw_func: Optional callback function triggered after successful write.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.logging.modules.storage.update_log">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.logging.modules.storage.</span></span><span class="sig-name descname"><span class="pre">update_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">json_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policies</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_log_flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lock</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">threading.Lock</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.logging.modules.storage.update_log" title="Link to this definition">#</a></dt>
 <dd><p>Update existing log entries with new policy outputs.</p>
+<p>Args:
+json_path: Path to the JSON log file to update.
+new_output: List of new simulation results.
+start_id: The starting sample ID to begin updating from.
+policies: List of policy names to update.
+sort_log_flag: Whether to re-sort results after update. Defaults to True.
+lock: Optional thread lock for atomic updates. Defaults to None.</p>
+<p>Returns:
+Union[Dict[str, Any], List[Any]]: The updated log state.</p>
 </dd></dl>
 
 </section>

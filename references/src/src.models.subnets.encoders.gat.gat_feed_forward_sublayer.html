@@ -492,6 +492,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.encoders.gat.gat_feed_forward_sublayer">
 <span id="src-models-subnets-encoders-gat-gat-feed-forward-sublayer"></span><h1><a class="reference internal" href="#module-src.models.subnets.encoders.gat.gat_feed_forward_sublayer" title="src.models.subnets.encoders.gat.gat_feed_forward_sublayer"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.encoders.gat.gat_feed_forward_sublayer</span></code></a><a class="headerlink" href="#module-src.models.subnets.encoders.gat.gat_feed_forward_sublayer" title="Link to this heading">#</a></h1>
 <p>Feed-Forward Sub-Layer for GAT Encoder.</p>
+<p>Attributes:
+GATFeedForwardSubLayer: Feed-Forward Sub-Layer for GAT Encoder.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.encoders.gat.gat_feed_forward_sublayer import GATFeedForwardSubLayer
+&gt;&gt;&gt; layer = GATFeedForwardSubLayer(embed_dim=128, feed_forward_hidden=512)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -499,8 +504,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.subnets.encoders.gat.gat_feed_forward_sublayer.GATFeedForwardSubLayer" title="src.models.subnets.encoders.gat.gat_feed_forward_sublayer.GATFeedForwardSubLayer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GATFeedForwardSubLayer</span></code></a></p></td>
-<td><p>Feed-Forward Sub-Layer for GAT Encoder.
-Contains:</p></td>
+<td><p>Feed-Forward Sub-Layer for GAT Encoder.</p></td>
 </tr>
 </tbody>
 </table>
@@ -510,21 +514,32 @@ Contains:</p></td>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.subnets.encoders.gat.gat_feed_forward_sublayer.GATFeedForwardSubLayer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.encoders.gat.gat_feed_forward_sublayer.</span></span><span class="sig-name descname"><span class="pre">GATFeedForwardSubLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feed_forward_hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.models.activation_function.ActivationConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.encoders.gat.gat_feed_forward_sublayer.GATFeedForwardSubLayer" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.encoders.gat.gat_feed_forward_sublayer.</span></span><span class="sig-name descname"><span class="pre">GATFeedForwardSubLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feed_forward_hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.models.activation_function.ActivationConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.encoders.gat.gat_feed_forward_sublayer.GATFeedForwardSubLayer" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
-<p>Feed-Forward Sub-Layer for GAT Encoder.
-Contains:</p>
-<ul class="simple">
-<li><p>FeedForward (expansion)</p></li>
-<li><p>Activation</p></li>
-<li><p>FeedForward (projection)</p></li>
-</ul>
+<p>Feed-Forward Sub-Layer for GAT Encoder.</p>
+<p>Processes embeddings through a expansion layer, an activation function,
+and a final projection layer.</p>
+<p>Attributes:
+sub_layers (nn.Module): Sequential container for sub-layers (FFN expansion,
+activation, FFN projection) or a single FeedForward layer for identity.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the GATFeedForwardSubLayer.</p>
+<p>Args:
+embed_dim: Embedding dimension.
+feed_forward_hidden: Hidden dimension for feed-forward layers.
+If 0, creates a single identity linear projection.
+activation_config: Activation function configuration.
+bias: Whether to use bias in linear layers.
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.encoders.gat.gat_feed_forward_sublayer.GATFeedForwardSubLayer.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.encoders.gat.gat_feed_forward_sublayer.GATFeedForwardSubLayer.forward" title="Link to this definition">#</a></dt>
-<dd><p>Forward pass.</p>
+<dd><p>Forward pass of the GAT feed-forward sub-layer.</p>
+<p>Args:
+h: Input tensor of shape (batch, nodes, embed_dim).
+mask: Optional mask tensor (unused).</p>
+<p>Returns:
+torch.Tensor: Output tensor with the same shape as input.</p>
 </dd></dl>
 
 </dd></dl>

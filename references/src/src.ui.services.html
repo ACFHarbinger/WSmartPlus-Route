@@ -481,7 +481,17 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.ui.services">
 <span id="src-ui-services"></span><h1><a class="reference internal" href="#module-src.ui.services" title="src.ui.services"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.services</span></code></a><a class="headerlink" href="#module-src.ui.services" title="Link to this heading">#</a></h1>
-<p>Business logic and data access services.</p>
+<p>Data access and business logic services for the Streamlit dashboard.</p>
+<p>This package provides a centralized interface for loading, parsing, and
+analyzing simulation telemetry and training logs.</p>
+<p>Attributes:
+data_loader: Core utilities for filesystem and database access.
+log_parser: Specialized logic for parsing simulation JSONL logs.
+simulation_analytics: Statistical computation services.
+tracking_service: Backend-agnostic experiment tracking.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.ui.services import data_loader
+&gt;&gt;&gt; root = data_loader.get_project_root()</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

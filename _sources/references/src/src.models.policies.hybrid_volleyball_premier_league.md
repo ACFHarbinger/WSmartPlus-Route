@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} VectorizedHVPL(env_name: str, n_teams: int = 10, max_iterations: int = 20, sub_rate: float = 0.2, time_limit: float = 60.0, aco_iterations: int = 1, alns_iterations: int = 100, device: str = 'cuda', generator: typing.Optional[torch.Generator] = None, rng: typing.Optional[random.Random] = None, **kwargs)
+`````{py:class} VectorizedHVPL(env_name: str, n_teams: int = 10, max_iterations: int = 20, sub_rate: float = 0.2, time_limit: float = 60.0, aco_iterations: int = 1, alns_iterations: int = 100, device: str = 'cuda', generator: typing.Optional[torch.Generator] = None, rng: typing.Optional[random.Random] = None, **kwargs: typing.Any)
 :canonical: src.models.policies.hybrid_volleyball_premier_league.VectorizedHVPL
 
 Bases: {py:obj}`logic.src.models.common.autoregressive.policy.AutoregressivePolicy`
@@ -53,7 +53,7 @@ Bases: {py:obj}`logic.src.models.common.autoregressive.policy.AutoregressivePoli
 
 ````
 
-````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.base.RL4COEnvBase] = None, strategy: str = 'greedy', num_starts: int = 1, max_steps: typing.Optional[int] = None, phase: str = 'train', return_actions: bool = True, **kwargs) -> typing.Dict[str, typing.Any]
+````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.base.RL4COEnvBase] = None, strategy: str = 'greedy', num_starts: int = 1, max_steps: typing.Optional[int] = None, phase: str = 'train', return_actions: bool = True, **kwargs: typing.Any) -> typing.Dict[str, typing.Any]
 :canonical: src.models.policies.hybrid_volleyball_premier_league.VectorizedHVPL.forward
 
 ```{autodoc2-docstring} src.models.policies.hybrid_volleyball_premier_league.VectorizedHVPL.forward
@@ -77,7 +77,7 @@ Bases: {py:obj}`logic.src.models.common.autoregressive.policy.AutoregressivePoli
 
 ````
 
-````{py:method} _global_competition(instance_costs: torch.Tensor, coached_routes_list: typing.List[typing.List[int]], best_tours: torch.Tensor, best_costs: torch.Tensor, num_nodes: int) -> torch.Tensor
+````{py:method} _global_competition(instance_costs: torch.Tensor, mentored_routes_list: typing.Union[typing.List[typing.List[int]], typing.List[torch.Tensor]], best_tours: torch.Tensor, best_costs: torch.Tensor, num_nodes: int) -> torch.Tensor
 :canonical: src.models.policies.hybrid_volleyball_premier_league.VectorizedHVPL._global_competition
 
 ```{autodoc2-docstring} src.models.policies.hybrid_volleyball_premier_league.VectorizedHVPL._global_competition

@@ -45,7 +45,7 @@
 
 ````
 
-`````{py:class} GLOPPolicy(env_name: str = 'cvrp', n_samples: int = 10, temperature: float = 1.0, embed_dim: int = 64, subprob_solver: src.models.core.glop.policy.SubProblemSolverType | str = 'greedy', subprob_batch_size: int = 2000, **encoder_kwargs)
+`````{py:class} GLOPPolicy(env_name: str = 'cvrp', n_samples: int = 10, temperature: float = 1.0, embed_dim: int = 64, subprob_solver: typing.Union[src.models.core.glop.policy.SubProblemSolverType, str] = 'greedy', subprob_batch_size: int = 2000, **encoder_kwargs: typing.Any)
 :canonical: src.models.core.glop.policy.GLOPPolicy
 
 Bases: {py:obj}`logic.src.models.common.non_autoregressive.policy.NonAutoregressivePolicy`
@@ -59,7 +59,7 @@ Bases: {py:obj}`logic.src.models.common.non_autoregressive.policy.NonAutoregress
 ```{autodoc2-docstring} src.models.core.glop.policy.GLOPPolicy.__init__
 ```
 
-````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.base.RL4COEnvBase] = None, phase: typing.Literal[train, val, test] = 'test', calc_reward: bool = True, return_actions: bool = False, return_entropy: bool = False, strategy: typing.Optional[str] = None, **decoding_kwargs) -> typing.Dict[str, typing.Any]
+````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.base.RL4COEnvBase] = None, phase: typing.Literal[train, val, test] = 'test', calc_reward: bool = True, return_actions: bool = False, return_entropy: bool = False, strategy: typing.Optional[str] = None, **decoding_kwargs: typing.Any) -> typing.Dict[str, typing.Any]
 :canonical: src.models.core.glop.policy.GLOPPolicy.forward
 
 ```{autodoc2-docstring} src.models.core.glop.policy.GLOPPolicy.forward

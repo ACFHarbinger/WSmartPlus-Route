@@ -504,14 +504,15 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.ui.pages.experiment_tracker">
 <span id="src-ui-pages-experiment-tracker"></span><h1><a class="reference internal" href="#module-src.ui.pages.experiment_tracker" title="src.ui.pages.experiment_tracker"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.pages.experiment_tracker</span></code></a><a class="headerlink" href="#module-src.ui.pages.experiment_tracker" title="Link to this heading">#</a></h1>
 <p>Experiment Tracker mode for the Streamlit dashboard.</p>
-<p>Provides a unified view of all tracked experiments from three sources:</p>
-<ol class="arabic simple">
-<li><p><strong>WSTracker</strong> (SQLite) — native experiment database</p></li>
-<li><p><strong>MLflow</strong> (optional) — remote/local tracking server</p></li>
-<li><p><strong>ZenML</strong> (optional) — pipeline orchestration runs &amp; step statuses</p></li>
-</ol>
-<p>Sections: Run Table, Run Detail, Metric Explorer, Run Comparison,
-MLflow Explorer, ZenML Pipeline Runs, Artifacts.</p>
+<p>This module provides a unified interface for auditing experiments across
+multiple backends. It integrates high-fidelity telemetry from the native
+WSTracker (SQLite) with optional remote tracking from MLflow and pipeline
+lineage from ZenML.</p>
+<p>Example:
+render_experiment_tracker()</p>
+<p>Attributes:
+HOVER_TEMPLATE: Jinja2 template for interactive Plotly tooltips.
+render_experiment_tracker: Main entry point for the tracking dashboard.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -519,34 +520,34 @@ MLflow Explorer, ZenML Pipeline Runs, Artifacts.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.experiment_tracker._render_run_table" title="src.ui.pages.experiment_tracker._render_run_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_run_table</span></code></a></p></td>
-<td><p>Render a filterable table of WSTracker runs; return selected run_id.</p></td>
+<td><p>Renders a filterable table of WSTracker experiment runs.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.experiment_tracker._render_run_detail" title="src.ui.pages.experiment_tracker._render_run_detail"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_run_detail</span></code></a></p></td>
-<td><p>Display params and tags for a single WSTracker run.</p></td>
+<td><p>Displays comprehensive configuration and metadata for a single run.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.experiment_tracker._render_params_table" title="src.ui.pages.experiment_tracker._render_params_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_params_table</span></code></a></p></td>
-<td><p>Helper to render a clean parameters table.</p></td>
+<td><p>Renders a standardized tabular view for experiment hyperparameters.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.experiment_tracker._render_metric_explorer" title="src.ui.pages.experiment_tracker._render_metric_explorer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_metric_explorer</span></code></a></p></td>
-<td><p>Interactive metric explorer for a single WSTracker run.</p></td>
+<td><p>Renders an interactive multi-metric time-series plotter.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.experiment_tracker._render_run_comparison" title="src.ui.pages.experiment_tracker._render_run_comparison"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_run_comparison</span></code></a></p></td>
-<td><p>Compare WSTracker metrics across 2+ selected runs.</p></td>
+<td><p>Renders a performance comparison interface for multiple experiment runs.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.experiment_tracker._render_artifacts" title="src.ui.pages.experiment_tracker._render_artifacts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_artifacts</span></code></a></p></td>
-<td><p>Display logged artifacts for a WSTracker run.</p></td>
+<td><p>Renders a register of logged files and artifacts for a tracker run.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.experiment_tracker._render_dataset_events" title="src.ui.pages.experiment_tracker._render_dataset_events"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_dataset_events</span></code></a></p></td>
-<td><p>Display dataset lifecycle events for a WSTracker run.</p></td>
+<td><p>Renders the data lineage and dataset lifecycle event timeline.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.experiment_tracker._fmt_size" title="src.ui.pages.experiment_tracker._fmt_size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_fmt_size</span></code></a></p></td>
-<td><p>Format byte count into a human-readable string.</p></td>
+<td><p>Formats a raw byte count into a human-readable storage string.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.experiment_tracker._render_tracker_sidebar" title="src.ui.pages.experiment_tracker._render_tracker_sidebar"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_tracker_sidebar</span></code></a></p></td>
-<td><p>Render sidebar controls for the experiment tracker.</p></td>
+<td><p>Renders specialized sidebar controls for the tracking dashboard.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.experiment_tracker.render_experiment_tracker" title="src.ui.pages.experiment_tracker.render_experiment_tracker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render_experiment_tracker</span></code></a></p></td>
-<td><p>Render the Experiment Tracker mode.</p></td>
+<td><p>Orchestrates and renders the multi-backend Experiment Tracker page.</p></td>
 </tr>
 </tbody>
 </table>
@@ -604,37 +605,56 @@ MLflow Explorer, ZenML Pipeline Runs, Artifacts.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.experiment_tracker._render_run_table">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.experiment_tracker.</span></span><span class="sig-name descname"><span class="pre">_render_run_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">runs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_type_filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.pages.experiment_tracker._render_run_table" title="Link to this definition">#</a></dt>
-<dd><p>Render a filterable table of WSTracker runs; return selected run_id.</p>
+<dd><p>Renders a filterable table of WSTracker experiment runs.</p>
+<p>Args:
+runs: List of run record dictionaries from the tracking service.
+run_type_filter: Optional string to filter by (e.g., ‘train’, ‘sim’).</p>
+<p>Returns:
+Optional[str]: The UUID of the selected run for detailed inspection.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.experiment_tracker._render_run_detail">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.experiment_tracker.</span></span><span class="sig-name descname"><span class="pre">_render_run_detail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.experiment_tracker._render_run_detail" title="Link to this definition">#</a></dt>
-<dd><p>Display params and tags for a single WSTracker run.</p>
+<dd><p>Displays comprehensive configuration and metadata for a single run.</p>
+<p>Renders searchable tags, global hyperparameters, and hierarchical
+per-policy parameter sets for WSmart-Route experiment parity.</p>
+<p>Args:
+run_id: UUID of the WSTracker run to inspect.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.experiment_tracker._render_params_table">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.experiment_tracker.</span></span><span class="sig-name descname"><span class="pre">_render_params_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.experiment_tracker._render_params_table" title="Link to this definition">#</a></dt>
-<dd><p>Helper to render a clean parameters table.</p>
+<dd><p>Renders a standardized tabular view for experiment hyperparameters.</p>
+<p>Args:
+params: Mapping of parameter names to values.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.experiment_tracker._render_metric_explorer">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.experiment_tracker.</span></span><span class="sig-name descname"><span class="pre">_render_metric_explorer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.experiment_tracker._render_metric_explorer" title="Link to this definition">#</a></dt>
-<dd><p>Interactive metric explorer for a single WSTracker run.</p>
+<dd><p>Renders an interactive multi-metric time-series plotter.</p>
+<p>Args:
+run_id: UUID of the WSTracker run to inspect.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.experiment_tracker._render_run_comparison">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.experiment_tracker.</span></span><span class="sig-name descname"><span class="pre">_render_run_comparison</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">runs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.experiment_tracker._render_run_comparison" title="Link to this definition">#</a></dt>
-<dd><p>Compare WSTracker metrics across 2+ selected runs.</p>
+<dd><p>Renders a performance comparison interface for multiple experiment runs.</p>
+<p>Supports synchronized step-based overlays for shared metrics across
+different model architectures or routing policies.</p>
+<p>Args:
+runs: List of candidate run records for comparison.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.experiment_tracker._render_artifacts">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.experiment_tracker.</span></span><span class="sig-name descname"><span class="pre">_render_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.experiment_tracker._render_artifacts" title="Link to this definition">#</a></dt>
-<dd><p>Display logged artifacts for a WSTracker run.</p>
+<dd><p>Renders a register of logged files and artifacts for a tracker run.</p>
+<p>Args:
+run_id: UUID of the WSTracker run to inspect.</p>
 </dd></dl>
 
 <dl class="py data">
@@ -646,25 +666,39 @@ MLflow Explorer, ZenML Pipeline Runs, Artifacts.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.experiment_tracker._render_dataset_events">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.experiment_tracker.</span></span><span class="sig-name descname"><span class="pre">_render_dataset_events</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.experiment_tracker._render_dataset_events" title="Link to this definition">#</a></dt>
-<dd><p>Display dataset lifecycle events for a WSTracker run.</p>
+<dd><p>Renders the data lineage and dataset lifecycle event timeline.</p>
+<p>Visualizes mutations, augmentations, and hash changes to ensure DRL
+experiment reproducibility and detect data leakage.</p>
+<p>Args:
+run_id: UUID of the WSTracker run to inspect.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.experiment_tracker._fmt_size">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.experiment_tracker.</span></span><span class="sig-name descname"><span class="pre">_fmt_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size_bytes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.ui.pages.experiment_tracker._fmt_size" title="Link to this definition">#</a></dt>
-<dd><p>Format byte count into a human-readable string.</p>
+<dd><p>Formats a raw byte count into a human-readable storage string.</p>
+<p>Args:
+size_bytes: Numeric byte count or unparsed object.</p>
+<p>Returns:
+str: Formatted string (e.g., ‘14.2 MB’) or ‘—’ if invalid.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.experiment_tracker._render_tracker_sidebar">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.experiment_tracker.</span></span><span class="sig-name descname"><span class="pre">_render_tracker_sidebar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_types</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.pages.experiment_tracker._render_tracker_sidebar" title="Link to this definition">#</a></dt>
-<dd><p>Render sidebar controls for the experiment tracker.</p>
+<dd><p>Renders specialized sidebar controls for the tracking dashboard.</p>
+<p>Args:
+run_types: Discovered run categories from the active database.</p>
+<p>Returns:
+Dict[str, Any]: Mapping of current backend configurations and filters.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.experiment_tracker.render_experiment_tracker">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.experiment_tracker.</span></span><span class="sig-name descname"><span class="pre">render_experiment_tracker</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.experiment_tracker.render_experiment_tracker" title="Link to this definition">#</a></dt>
-<dd><p>Render the Experiment Tracker mode.</p>
+<dd><p>Orchestrates and renders the multi-backend Experiment Tracker page.</p>
+<p>Manages layout switching between native SQL tracking, MLflow, and
+ZenML integration.</p>
 </dd></dl>
 
 </section>

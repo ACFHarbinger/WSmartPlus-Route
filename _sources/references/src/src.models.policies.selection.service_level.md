@@ -37,7 +37,7 @@ Bases: {py:obj}`src.models.policies.selection.base.VectorizedSelector`
 ```{autodoc2-docstring} src.models.policies.selection.service_level.ServiceLevelSelector.__init__
 ```
 
-````{py:method} select(fill_levels: torch.Tensor, accumulation_rates: typing.Optional[torch.Tensor] = None, std_deviations: typing.Optional[torch.Tensor] = None, confidence_factor: typing.Optional[float] = None, max_fill: typing.Optional[float] = None, **kwargs) -> torch.Tensor
+````{py:method} select(fill_levels: torch.Tensor, accumulation_rates: typing.Optional[torch.Tensor] = None, std_deviations: typing.Optional[torch.Tensor] = None, confidence_factor: typing.Optional[float] = None, max_fill: typing.Optional[float] = None, **kwargs: typing.Any) -> torch.Tensor
 :canonical: src.models.policies.selection.service_level.ServiceLevelSelector.select
 
 ```{autodoc2-docstring} src.models.policies.selection.service_level.ServiceLevelSelector.select

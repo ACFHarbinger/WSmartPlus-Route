@@ -42,6 +42,7 @@ src.models.subnets.embeddings.state.env
 
 ````{py:data} STATE_EMBEDDING_REGISTRY
 :canonical: src.models.subnets.embeddings.state.STATE_EMBEDDING_REGISTRY
+:type: typing.Dict[str, typing.Any]
 :value: >
    None
 
@@ -52,8 +53,9 @@ src.models.subnets.embeddings.state.env
 
 ````{py:data} __all__
 :canonical: src.models.subnets.embeddings.state.__all__
+:type: list[str]
 :value: >
-   ['EnvState', 'VRPPState', 'WCVRPState', 'CVRPPState', 'SWCVRPState']
+   ['EnvState', 'VRPPState', 'WCVRPState', 'CVRPPState', 'SWCVRPState', 'STATE_EMBEDDING_REGISTRY']
 
 ```{autodoc2-docstring} src.models.subnets.embeddings.state.__all__
 ```

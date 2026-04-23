@@ -492,6 +492,12 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.encoders.mlp.mlp_layer">
 <span id="src-models-subnets-encoders-mlp-mlp-layer"></span><h1><a class="reference internal" href="#module-src.models.subnets.encoders.mlp.mlp_layer" title="src.models.subnets.encoders.mlp.mlp_layer"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.encoders.mlp.mlp_layer</span></code></a><a class="headerlink" href="#module-src.models.subnets.encoders.mlp.mlp_layer" title="Link to this heading">#</a></h1>
 <p>MLP layer implementation.</p>
+<p>Attributes:
+MLPLayer: Simple MLP layer with configurable activation and normalization.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.encoders.mlp.mlp_layer import MLPLayer
+&gt;&gt;&gt; from logic.src.configs.models.normalization import NormalizationConfig
+&gt;&gt;&gt; layer = MLPLayer(hidden_dim=128, norm_config=NormalizationConfig())</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -513,32 +519,25 @@ document.write(`
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
 <p>Simple MLP layer with configurable activation and normalization.</p>
 <p>This layer performs: Linear → Normalization → Activation → Residual Connection.</p>
-<p class="rubric" id="id1">Parameters</p>
-<p>hidden_dim : int
-Hidden dimension size for the linear transformation.
-norm_config : NormalizationConfig
-Configuration for normalization layer.
-activation_config : Optional[ActivationConfig], default=None
-Configuration for activation function. If None, uses ReLU.</p>
+<p>Attributes:
+hidden_dim (int): Hidden dimension size for the linear transformation.
+U (nn.Linear): Linear transformation layer.
+norm (Normalization): Normalization layer.
+activation (ActivationFunction): Activation function module.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize the MLP Layer.</p>
-<p class="rubric" id="id2">Parameters</p>
-<p>hidden_dim : int
-Hidden dimension size.
-norm_config : NormalizationConfig
-Normalization configuration.
-activation_config : Optional[ActivationConfig], default=None
-Activation function configuration. Defaults to ReLU if None.</p>
+<p>Initializes the MLPLayer.</p>
+<p>Args:
+hidden_dim: Hidden dimension size.
+norm_config: Normalization configuration.
+activation_config: Activation function configuration. Defaults to ReLU if None.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.encoders.mlp.mlp_layer.MLPLayer.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.encoders.mlp.mlp_layer.MLPLayer.forward" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.encoders.mlp.mlp_layer.MLPLayer.forward" title="Link to this definition">#</a></dt>
 <dd><p>Forward pass through the MLP layer.</p>
-<p class="rubric" id="id3">Parameters</p>
-<p>x : torch.Tensor
-Input tensor of shape (batch_size, num_nodes, hidden_dim).</p>
-<p class="rubric" id="returns">Returns</p>
-<p>torch.Tensor
-Output tensor of shape (batch_size, num_nodes, hidden_dim).</p>
+<p>Args:
+x: Input tensor of shape (batch_size, num_nodes, hidden_dim).</p>
+<p>Returns:
+torch.Tensor: Output tensor of shape (batch_size, num_nodes, hidden_dim).</p>
 </dd></dl>
 
 </dd></dl>

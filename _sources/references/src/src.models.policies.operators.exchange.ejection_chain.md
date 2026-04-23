@@ -53,21 +53,21 @@
 ```
 ````
 
-````{py:function} _get_routes_with_loads(tour, waste, N) -> typing.List[typing.Tuple[int, int, typing.List[int], float]]
+````{py:function} _get_routes_with_loads(tour: torch.Tensor, waste: torch.Tensor, N: int) -> typing.List[typing.Tuple[int, int, typing.List[int], float]]
 :canonical: src.models.policies.operators.exchange.ejection_chain._get_routes_with_loads
 
 ```{autodoc2-docstring} src.models.policies.operators.exchange.ejection_chain._get_routes_with_loads
 ```
 ````
 
-````{py:function} _attempt_route_elimination(tour, route_data, dist, waste, capacity, max_depth, depot_positions)
+````{py:function} _attempt_route_elimination(tour: torch.Tensor, route_data: typing.Tuple[int, int, typing.List[int], float], dist: torch.Tensor, waste: torch.Tensor, capacity: torch.Tensor, max_depth: int, depot_positions: typing.List[int]) -> typing.Tuple[bool, torch.Tensor]
 :canonical: src.models.policies.operators.exchange.ejection_chain._attempt_route_elimination
 
 ```{autodoc2-docstring} src.models.policies.operators.exchange.ejection_chain._attempt_route_elimination
 ```
 ````
 
-````{py:function} _find_best_insertion_in_route(tour, node, start, end, dist) -> int
+````{py:function} _find_best_insertion_in_route(tour: torch.Tensor, node: int, start: int, end: int, dist: torch.Tensor) -> int
 :canonical: src.models.policies.operators.exchange.ejection_chain._find_best_insertion_in_route
 
 ```{autodoc2-docstring} src.models.policies.operators.exchange.ejection_chain._find_best_insertion_in_route

@@ -491,10 +491,10 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.policies.operators.exchange.or_opt">
 <span id="src-models-policies-operators-exchange-or-opt"></span><h1><a class="reference internal" href="#module-src.models.policies.operators.exchange.or_opt" title="src.models.policies.operators.exchange.or_opt"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies.operators.exchange.or_opt</span></code></a><a class="headerlink" href="#module-src.models.policies.operators.exchange.or_opt" title="Link to this heading">#</a></h1>
-<p>Or-opt local search operator (vectorized).</p>
-<p>The Or-opt operator relocates chains of 1-3 consecutive nodes to better positions,
-either within the same route or to different routes. This is particularly effective
-for geographically clustered customers.</p>
+<p>Or-opt local search operator.</p>
+<p>This module provides a GPU-accelerated implementation of the Or-opt operator,
+which improves tours by relocating clusters of consecutive nodes (typically 1-3)
+to more efficient positions across routes.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -502,16 +502,16 @@ for geographically clustered customers.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.operators.exchange.or_opt.vectorized_or_opt" title="src.models.policies.operators.exchange.or_opt.vectorized_or_opt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vectorized_or_opt</span></code></a></p></td>
-<td><p>Vectorized Or-opt local search across a batch of tours using PyTorch.</p></td>
+<td><p>Vectorized Or-opt local search using parallel chain evaluation.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.models.policies.operators.exchange.or_opt._compute_removal_info" title="src.models.policies.operators.exchange.or_opt._compute_removal_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_compute_removal_info</span></code></a></p></td>
-<td><p>Computes removal gain and chain wastes.</p></td>
+<td><p>Calculates removal gain and sequence demand weights.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.operators.exchange.or_opt._find_best_insertions" title="src.models.policies.operators.exchange.or_opt._find_best_insertions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_find_best_insertions</span></code></a></p></td>
-<td><p>Finds best insertion positions for all chains in batch.</p></td>
+<td><p>Exhaustively searches for the best insertion point per chain.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.models.policies.operators.exchange.or_opt._apply_or_opt_moves" title="src.models.policies.operators.exchange.or_opt._apply_or_opt_moves"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_apply_or_opt_moves</span></code></a></p></td>
-<td><p>Applies the best Or-opt moves found to the batch of tours.</p></td>
+<td><p>Updates node order by physically cat-ing segments.</p></td>
 </tr>
 </tbody>
 </table>
@@ -521,66 +521,84 @@ for geographically clustered customers.</p>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.exchange.or_opt.vectorized_or_opt">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.exchange.or_opt.</span></span><span class="sig-name descname"><span class="pre">vectorized_or_opt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chain_lengths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(1,</span> <span class="pre">2,</span> <span class="pre">3)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Generator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.exchange.or_opt.vectorized_or_opt" title="Link to this definition">#</a></dt>
-<dd><p>Vectorized Or-opt local search across a batch of tours using PyTorch.</p>
-<p>The Or-opt operator tries to relocate chains of consecutive nodes (typically
-1, 2, or 3 nodes) to better positions in the tour. This is a generalization
-of node relocation that considers longer sequences.</p>
-<p>For a chain of k nodes starting at position i:
-Original: … -&gt; a -&gt; [c1 -&gt; c2 -&gt; … -&gt; ck] -&gt; b -&gt; …
-Or-opt:   … -&gt; a -&gt; b -&gt; … -&gt; x -&gt; [c1 -&gt; c2 -&gt; … -&gt; ck] -&gt; y -&gt; …</p>
-<p>The algorithm evaluates:</p>
-<ol class="arabic simple">
-<li><p>Removal gain = d(a,c1) + d(ck,b) - d(a,b)</p></li>
-<li><p>Insertion cost = d(x,c1) + d(ck,y) - d(x,y)</p></li>
-<li><p>Delta = insertion_cost - removal_gain</p></li>
-</ol>
-<p>This implementation processes batches in parallel for GPU acceleration.</p>
-<p>Algorithm:</p>
-<ol class="arabic simple">
-<li><p>For each chain length k in [1, 2, 3]:
-a. For all valid chain positions in parallel:
-- Compute removal gain
-- For all insertion positions:
-- Compute insertion cost and delta
-b. Select best improvement for each tour
-c. Apply moves where delta &lt; 0</p></li>
-<li><p>Repeat until no improvement or max_iterations</p></li>
-</ol>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.exchange.or_opt.</span></span><span class="sig-name descname"><span class="pre">vectorized_or_opt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chain_lengths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(1,</span> <span class="pre">2,</span> <span class="pre">3)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Generator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.exchange.or_opt.vectorized_or_opt" title="Link to this definition">#</a></dt>
+<dd><p>Vectorized Or-opt local search using parallel chain evaluation.</p>
+<p>Systematically evaluates the relocation of node sequences of length ‘k’
+to every possible insertion point in the tour, utilizing GPU parallelism
+to find the global best move per tour per iteration.</p>
 <p>Args:
-tours: Batch of tours [B, N] where B=batch size, N=tour length
-distance_matrix: Pairwise distances [B, N+1, N+1] or [N+1, N+1] (shared)
-capacities: Vehicle capacities [B] or scalar (optional, for capacity checks)
-wastes: Node wastes [B, N+1] or [N+1] (optional, for capacity checks)
-chain_lengths: Tuple of chain lengths to try (default: (1, 2, 3))
-max_iterations: Maximum number of improvement iterations (default: 100)
-generator (Optional[torch.Generator]): PyTorch generator for random number generation.</p>
+tours: Batch of node sequences of shape [B, N].
+distance_matrix: Edge cost tensor of shape [B, N+1, N+1] or [N+1, N+1].
+capacities: Vehicle limits per instance of shape [B] or scalar.
+wastes: Node demand metadata of shape [B, N+1] or [N+1].
+chain_lengths: Collection of cluster sizes to attempt.
+max_iterations: Iteration limit for monotonic improvement.
+generator: Torch device-side RNG (for future randomness).</p>
 <p>Returns:
-torch.Tensor: Improved tours [B, N] with same shape as input</p>
-<p>Note:
-- Tours should include depot as node 0
-- Capacity constraints are checked if capacities and wastes provided
-- Works with both batched and shared distance matrices
-- Stops early if no improvement found
-- Chain lengths &gt; N/2 are automatically skipped</p>
+torch.Tensor: Optimized tours of shape [B, N].</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.exchange.or_opt._compute_removal_info">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.exchange.or_opt.</span></span><span class="sig-name descname"><span class="pre">_compute_removal_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chain_starts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chain_len</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_capacity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_chains</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.exchange.or_opt._compute_removal_info" title="Link to this definition">#</a></dt>
-<dd><p>Computes removal gain and chain wastes.</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.exchange.or_opt.</span></span><span class="sig-name descname"><span class="pre">_compute_removal_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chain_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chain_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_mat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_indices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_chains</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.operators.exchange.or_opt._compute_removal_info" title="Link to this definition">#</a></dt>
+<dd><p>Calculates removal gain and sequence demand weights.</p>
+<p>Args:
+tours: Batch of node sequences of shape [B, N].
+chain_starts: Matrix of prospective cluster start positions of shape [B, K].
+chain_len: Number of nodes in the moving cluster.
+dist_mat: Global distance matrix of shape [B, N+1, N+1].
+wastes: Demand metadata of shape [B, N+1] or None.
+has_capacity: Boolean threshold flag.
+batch_indices: Unit batch index column vector of shape [B, 1].
+B: Determined batch size.
+n_chains: Count of evaluation chains.
+N: Full sequence length.</p>
+<p>Returns:
+Tuple[torch.Tensor, Optional[torch.Tensor]]: A tuple containing:
+- removal_gain: Cost differential from removing the cluster.
+- chain_wastes: Aggregate demand for each identified moving cluster.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.exchange.or_opt._find_best_insertions">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.exchange.or_opt.</span></span><span class="sig-name descname"><span class="pre">_find_best_insertions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_chains</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chain_len</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chain_starts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tours</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rem_gain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chain_wastes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">caps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_cap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.exchange.or_opt._find_best_insertions" title="Link to this definition">#</a></dt>
-<dd><p>Finds best insertion positions for all chains in batch.</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.exchange.or_opt.</span></span><span class="sig-name descname"><span class="pre">_find_best_insertions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">B</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_chains</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chain_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chain_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_mat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rem_gain</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chain_wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">caps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_cap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.device</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.operators.exchange.or_opt._find_best_insertions" title="Link to this definition">#</a></dt>
+<dd><p>Exhaustively searches for the best insertion point per chain.</p>
+<p>Args:
+B: Batch instances count.
+n_chains: Number of parallel clusters being evaluated.
+N: Full sequence length.
+chain_len: Relocation cluster size.
+chain_starts: Coordinate indices for each prospective cluster.
+tours: Global node sequences of shape [B, N].
+dist_mat: Distance weights of shape [B, N+1, N+1].
+rem_gain: Calculated savings from removing clusters.
+chain_wastes: Precalculated cluster demands.
+caps: Fleet capacity limits of shape [B].
+has_cap: Boolean feasibility flag.
+b_idx: Batch index column vector.
+device: Hardware identification locator.</p>
+<p>Returns:
+Tuple[torch.Tensor, torch.Tensor]: A tuple containing:
+- best_delta: Minimum cost differential found for each prospective move.
+- best_insert_pos: Optimized insertion coordinate per cluster.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.exchange.or_opt._apply_or_opt_moves">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.exchange.or_opt.</span></span><span class="sig-name descname"><span class="pre">_apply_or_opt_moves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">improved</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">best_chain_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">best_insert_pos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chain_starts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chain_len</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.exchange.or_opt._apply_or_opt_moves" title="Link to this definition">#</a></dt>
-<dd><p>Applies the best Or-opt moves found to the batch of tours.</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.exchange.or_opt.</span></span><span class="sig-name descname"><span class="pre">_apply_or_opt_moves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">improved</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">best_chain_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">best_insert_pos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chain_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chain_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.device</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.exchange.or_opt._apply_or_opt_moves" title="Link to this definition">#</a></dt>
+<dd><p>Updates node order by physically cat-ing segments.</p>
+<p>Args:
+tours: Target sequences of shape [B, N].
+improved: Binary boolean activation mask of shape [B].
+best_chain_idx: Index IDs of winning clusters of shape [B].
+best_insert_pos: Coordinate targets for winners of shape [B, K].
+chain_starts: Global pool of starting positions.
+chain_len: Cluster size.
+B: Batch size.
+N: Sequence length.
+device: Hardware identification locator.</p>
+<p>Returns:
+torch.Tensor: Updated sequence batch.</p>
 </dd></dl>
 
 </section>

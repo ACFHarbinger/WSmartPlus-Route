@@ -489,6 +489,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.decoders.mdam.attention">
 <span id="src-models-subnets-decoders-mdam-attention"></span><h1><a class="reference internal" href="#module-src.models.subnets.decoders.mdam.attention" title="src.models.subnets.decoders.mdam.attention"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.decoders.mdam.attention</span></code></a><a class="headerlink" href="#module-src.models.subnets.decoders.mdam.attention" title="Link to this heading">#</a></h1>
 <p>Attention computation for MDAM.</p>
+<p>This module provides the core attention implementation for the Multi-Decoder
+Attention Model (MDAM), including compatibility computation, glimpse mechanism,
+and logit generation.</p>
+<p>Attributes:
+compute_mdam_logits: Function to compute attention-based selection probabilities.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.decoders.mdam.attention import compute_mdam_logits
+&gt;&gt;&gt; log_p, glimpse = compute_mdam_logits(query, glimpse_K, glimpse_V, logit_K, …)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -496,7 +504,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.subnets.decoders.mdam.attention.compute_mdam_logits" title="src.models.subnets.decoders.mdam.attention.compute_mdam_logits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_mdam_logits</span></code></a></p></td>
-<td><p>Compute attention-based logits.</p></td>
+<td><p>Computes attention-based selection logits and updated query glimpse.</p></td>
 </tr>
 </tbody>
 </table>
@@ -507,7 +515,20 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.subnets.decoders.mdam.attention.compute_mdam_logits">
 <span class="sig-prename descclassname"><span class="pre">src.models.subnets.decoders.mdam.attention.</span></span><span class="sig-name descname"><span class="pre">compute_mdam_logits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">glimpse_K</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">glimpse_V</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logit_K</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tanh_clipping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_inner</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_logits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.subnets.decoders.mdam.attention.compute_mdam_logits" title="Link to this definition">#</a></dt>
-<dd><p>Compute attention-based logits.</p>
+<dd><p>Computes attention-based selection logits and updated query glimpse.</p>
+<p>Args:
+query: Transformed step context query of shape (batch, steps, dim).
+glimpse_K: Key embeddings for compatibility calculation.
+glimpse_V: Value embeddings for glimpse aggregation.
+logit_K: Key embeddings for final selection logit calculation.
+mask: Valid node mask of shape (batch, nodes).
+num_heads: Number of parallel attention heads.
+project_out: Post-attention linear projection layer.
+tanh_clipping: Factor for logit value clipping.
+mask_inner: Whether to apply mask during internal compatibility check.
+mask_logits: Whether to apply mask to the final produced logits.</p>
+<p>Returns:
+Tuple: Log probabilities (batch, steps, nodes) and final query glimpse.</p>
 </dd></dl>
 
 </section>

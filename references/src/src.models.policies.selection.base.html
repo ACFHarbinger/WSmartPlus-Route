@@ -492,7 +492,10 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.policies.selection.base">
 <span id="src-models-policies-selection-base"></span><h1><a class="reference internal" href="#module-src.models.policies.selection.base" title="src.models.policies.selection.base"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies.selection.base</span></code></a><a class="headerlink" href="#module-src.models.policies.selection.base" title="Link to this heading">#</a></h1>
-<p>Base module for vectorized selection strategies.</p>
+<p>Base selector module.</p>
+<p>This module defines the abstract interface for vectorized bin selection
+strategies, including an instrumentation mechanism for automatic telemetry
+recording across all subclasses.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -513,23 +516,27 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.policies.selection.base.</span></span><span class="sig-name descname"><span class="pre">VectorizedSelector</span></span><a class="headerlink" href="#src.models.policies.selection.base.VectorizedSelector" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.tracking.viz_mixin.PolicyVizMixin</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
 <p>Abstract base class for vectorized bin selection strategies.</p>
+<p>This class serves as the foundation for all selection heuristics that
+determine which bins should be collected based on their current fill levels
+and other environmental features.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.policies.selection.base.VectorizedSelector.__init_subclass__">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__init_subclass__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.policies.selection.base.VectorizedSelector.__init_subclass__" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__init_subclass__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.policies.selection.base.VectorizedSelector.__init_subclass__" title="Link to this definition">#</a></dt>
 <dd><p>Auto-wrap <code class="docutils literal notranslate"><span class="pre">select</span></code> in every concrete subclass to record telemetry.</p>
+<p>Args:
+**kwargs: Class creation arguments passed to super.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.policies.selection.base.VectorizedSelector.select">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">select</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fill_levels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.selection.base.VectorizedSelector.select" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">select</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fill_levels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.selection.base.VectorizedSelector.select" title="Link to this definition">#</a></dt>
 <dd><p>Select bins that must be collected.</p>
 <p>Args:
-fill_levels: Current fill levels (batch_size, num_nodes).
-Values in [0, 1] where 1.0 = 100% full.
-**kwargs: Strategy-specific parameters.</p>
+fill_levels: Current fill levels [B, N] in [0, 1].
+**kwargs: Strategy-specific parameters (e.g., threshold, current_day).</p>
 <p>Returns:
-Tensor: Boolean mask (batch_size, num_nodes) where True = must collect.
-Note: Index 0 is the depot and should always be False.</p>
+torch.Tensor: Boolean mask [B, N] where True indicates collection.
+Note: Index 0 (depot) should always be False.</p>
 </dd></dl>
 
 </dd></dl>

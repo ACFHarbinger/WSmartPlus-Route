@@ -493,11 +493,10 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.common.transductive.base">
 <span id="src-models-common-transductive-base"></span><h1><a class="reference internal" href="#module-src.models.common.transductive.base" title="src.models.common.transductive.base"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.common.transductive.base</span></code></a><a class="headerlink" href="#module-src.models.common.transductive.base" title="Link to this heading">#</a></h1>
-<p>transductive_base.py module.</p>
-<p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
-<p>Example:
-&gt;&gt;&gt; import transductive_base</p>
+<p>Transductive (Test-time Adaptation) model base module.</p>
+<p>This module provides the abstract foundation for transductive methods, such as
+Active Search and EAS, which perform instance-specific weight adaptation or
+stochastic search during the inference phase to refine solution quality.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -505,7 +504,7 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.common.transductive.base.TransductiveModel" title="src.models.common.transductive.base.TransductiveModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TransductiveModel</span></code></a></p></td>
-<td><p>Base class for transductive methods.</p></td>
+<td><p>Base class for transductive search methods.</p></td>
 </tr>
 </tbody>
 </table>
@@ -517,36 +516,62 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <dt class="sig sig-object py" id="src.models.common.transductive.base.TransductiveModel">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.common.transductive.base.</span></span><span class="sig-name descname"><span class="pre">TransductiveModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_search_steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.common.transductive.base.TransductiveModel" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
-<p>Base class for transductive methods.</p>
-<p>Transductive models perform search or adaptation at inference time.
-Common examples include Active Search (Bello et al.), EAS (Hottung et al.),
-and other instance-specific fine-tuning methods.</p>
+<p>Base class for transductive search methods.</p>
+<p>Transductive models perform weight optimization or stochastic search at
+inference time for each problem instance. This allows the model to escape
+local minima of the pre-trained policy by adapting to the specific features
+of the current instance.</p>
+<p>Attributes:
+model: The underlying constructive or improvement policy.
+optimizer_kwargs: Parameters for the search optimizer.
+n_search_steps: Number of optimization iterations per instance.
+kwargs: Additional model configuration parameters.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize TransductiveModel.</p>
+<p>Initialize the TransductiveModel.</p>
+<p>Args:
+model: The base neural policy to be adapted.
+optimizer_kwargs: Keyword arguments for the Adam optimizer (e.g., ‘lr’).
+n_search_steps: Number of search/adaptation steps to perform.
+**kwargs: Additional parameters stored in <code class="docutils literal notranslate"><span class="pre">self.kwargs</span></code>.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.common.transductive.base.TransductiveModel._setup_optimizer">
 <span class="sig-name descname"><span class="pre">_setup_optimizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.optim.Optimizer</span></span></span><a class="headerlink" href="#src.models.common.transductive.base.TransductiveModel._setup_optimizer" title="Link to this definition">#</a></dt>
-<dd><p>Initialize the optimizer for the search phase.</p>
+<dd><p>Initialize the optimizer used for the test-time search phase.</p>
+<p>Args:
+params: Iterable of parameters to optimize.</p>
+<p>Returns:
+torch.optim.Optimizer: An initialized Adam optimizer.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.common.transductive.base.TransductiveModel._get_search_params">
 <span class="sig-name descname"><span class="pre">_get_search_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.models.common.transductive.base.TransductiveModel._get_search_params" title="Link to this definition">#</a></dt>
-<dd><p>Define which parameters to optimize during search.
-Default is all model parameters. Subclasses can override.</p>
+<dd><p>Define the subset of parameters to optimize during the search.</p>
+<p>Subclasses (like EAS) can override this to optimize only specific
+adapter layers or embeddings rather than the full model.</p>
+<p>Returns:
+Any: An iterable of torch.nn.Parameter objects.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.common.transductive.base.TransductiveModel.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'greedy'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.common.transductive.base.TransductiveModel.forward" title="Link to this definition">#</a></dt>
-<dd><p>Execute search or adaptation on the given instances.</p>
+<dd><p>Execute the transductive search loop on the provided instances.</p>
+<p>Clones the original model state, performs the specified number of
+optimization steps using sampling-based REINFORCE, and restores the
+original state before returning the best found solution.</p>
 <p>Args:
-td: TensorDict containing problem instance(s).
-env: Optional environment for transition logic.
-strategy: Final decoding strategy.
-**kwargs: Additional arguments for the model.</p>
+td: TensorDict containing problem instance metadata.
+env: Environment object for transitions and reward calculation.
+strategy: Final decoding strategy to apply (after search).
+**kwargs: Additional control arguments for the policy pass.</p>
 <p>Returns:
-Dictionary containing final results (reward, actions, etc.).</p>
+Dict[str, Any]: Best results found during search including:
+- reward (torch.Tensor): Highest reward achieved.
+- actions (torch.Tensor): Corresponding action sequence.
+- search_history (List[Dict]): Logging of the search metrics.</p>
+<p>Raises:
+ValueError: If the model forward pass does not return rewards or probs.</p>
 </dd></dl>
 
 </dd></dl>

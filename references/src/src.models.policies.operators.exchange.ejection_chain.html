@@ -492,10 +492,10 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.policies.operators.exchange.ejection_chain">
 <span id="src-models-policies-operators-exchange-ejection-chain"></span><h1><a class="reference internal" href="#module-src.models.policies.operators.exchange.ejection_chain" title="src.models.policies.operators.exchange.ejection_chain"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies.operators.exchange.ejection_chain</span></code></a><a class="headerlink" href="#module-src.models.policies.operators.exchange.ejection_chain" title="Link to this heading">#</a></h1>
-<p>Ejection chain operator (vectorized).</p>
-<p>Ejection chain is a complex operator for fleet minimization that attempts to
-empty a route by ejecting its customers into other routes, potentially triggering
-a cascade of displacements.</p>
+<p>Ejection chain operator.</p>
+<p>This module provides a GPU-accelerated implementation of the Ejection chain
+operator, a sophisticated fleet minimization heuristic that attempts to
+empty a route by ejecting its customers into other routes.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -503,19 +503,19 @@ a cascade of displacements.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.operators.exchange.ejection_chain.vectorized_ejection_chain" title="src.models.policies.operators.exchange.ejection_chain.vectorized_ejection_chain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vectorized_ejection_chain</span></code></a></p></td>
-<td><p>Vectorized ejection chain operator for fleet minimization using PyTorch.</p></td>
+<td><p>Vectorized ejection chain operator for fleet minimization.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.models.policies.operators.exchange.ejection_chain._try_insert_with_ejection_chain" title="src.models.policies.operators.exchange.ejection_chain._try_insert_with_ejection_chain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_try_insert_with_ejection_chain</span></code></a></p></td>
-<td><p>Try to insert node, potentially triggering ejection chain.</p></td>
+<td><p>Attempts node insertion, exploring chain displacements if capacity-limited.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.operators.exchange.ejection_chain._get_routes_with_loads" title="src.models.policies.operators.exchange.ejection_chain._get_routes_with_loads"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_routes_with_loads</span></code></a></p></td>
-<td><p>Identifies routes and calculates their respective loads.</p></td>
+<td><p>Calculates loading metrics for all routes in the current tour.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.models.policies.operators.exchange.ejection_chain._attempt_route_elimination" title="src.models.policies.operators.exchange.ejection_chain._attempt_route_elimination"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_attempt_route_elimination</span></code></a></p></td>
-<td><p>Attempts to eliminate a single route by ejecting its nodes.</p></td>
+<td><p>Attempts to empty an entire route into the remaining fleet.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.operators.exchange.ejection_chain._find_best_insertion_in_route" title="src.models.policies.operators.exchange.ejection_chain._find_best_insertion_in_route"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_find_best_insertion_in_route</span></code></a></p></td>
-<td><p>Finds position in route with minimum insertion cost.</p></td>
+<td><p>Uses greedy cost evaluation to find the optimal insertion index.</p></td>
 </tr>
 </tbody>
 </table>
@@ -526,99 +526,84 @@ a cascade of displacements.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.exchange.ejection_chain.vectorized_ejection_chain">
 <span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.exchange.ejection_chain.</span></span><span class="sig-name descname"><span class="pre">vectorized_ejection_chain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_route_reduction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Generator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.exchange.ejection_chain.vectorized_ejection_chain" title="Link to this definition">#</a></dt>
-<dd><p>Vectorized ejection chain operator for fleet minimization using PyTorch.</p>
-<p>Ejection chain is a sophisticated operator that attempts to eliminate routes
-by ejecting all their customers into other routes. When direct insertion is
-not possible due to capacity constraints, it triggers a chain of displacements:</p>
-<ul class="simple">
-<li><p>Eject a customer from the target route</p></li>
-<li><p>Insert the new customer in its place</p></li>
-<li><p>Recursively find a place for the ejected customer</p></li>
-</ul>
-<p>This creates a chain of ejections that can span multiple routes, making it
-possible to consolidate routes that couldn’t be merged otherwise.</p>
-<p>Algorithm (per batch instance):</p>
-<ol class="arabic simple">
-<li><p>Identify routes to empty (smallest/least utilized first)</p></li>
-<li><p>For each customer in target route:
-a. Try direct insertion into other routes
-b. If no capacity, try ejection chain:
-- Select a route to receive customer
-- Eject a customer from that route to make space
-- Recursively insert ejected customer (depth-limited)
-c. Track all moves for potential rollback</p></li>
-<li><p>If all customers successfully placed, route is eliminated</p></li>
-<li><p>Otherwise, rollback all moves and try next route</p></li>
-</ol>
+<dd><p>Vectorized ejection chain operator for fleet minimization.</p>
+<p>Identifies under-utilized routes and attempts to eliminate them by
+redistributing their nodes into other routes. If direct insertion
+is blocked by capacity, it triggers a chain of displacements.</p>
 <p>Args:
-tours: Batch of tours [B, N] where B=batch size, N=tour length
-Note: Tours should use depot (0) as route separator
-distance_matrix: Pairwise distances [B, N+1, N+1] or [N+1, N+1] (shared)
-capacities: Vehicle capacities [B] or scalar (optional, for capacity checks)
-wastes: Node wastes [B, N+1] or [N+1] (required for ejection chain)
-max_depth: Maximum recursion depth for ejection chain (default: 5)
-Higher values find more solutions but slower
-target_route_reduction: Number of routes to try eliminating (default: None = all)
-generator (Optional[torch.Generator]): PyTorch generator for random number generation.</p>
+tours: Batch of node sequences of shape [B, N].
+distance_matrix: Edge cost tensor of shape [B, N+1, N+1] or [N+1, N+1].
+capacities: Vehicle capacity per instance of shape [B] or scalar.
+wastes: Node demand metadata of shape [B, N+1] or [N+1].
+max_depth: Recursion limit for the ejection sequence.
+target_route_reduction: Limit for how many routes to attempt to empty.
+generator: Torch device-side RNG.</p>
 <p>Returns:
-torch.Tensor: Modified tours [B, N] with potentially fewer routes</p>
-<p>Note:
-- Tours must have multiple routes (depot separators) to be effective
-- Requires wastes tensor for capacity checking
-- This is a fleet minimization operator, not a cost minimization operator
-- Complexity: O(N² × max_depth) per route elimination attempt
-- Success rate depends on load distribution across routes
-- Routes with lowest utilization are targeted first</p>
-<p>Algorithm Details:
-The ejection chain uses depth-limited search with backtracking:
-1. Build ejection tree with candidate moves
-2. Evaluate feasibility at each node (capacity check)
-3. Backtrack when dead-end reached
-4. Accept solution when all nodes placed</p>
-<p>Example:
-&gt;&gt;&gt; tours = torch.tensor([[0, 1, 2, 0, 3, 4, 0]])  # Two routes
-&gt;&gt;&gt; dist = torch.rand(5, 5)
-&gt;&gt;&gt; wastes = torch.tensor([0, 1, 1, 1, 1])
-&gt;&gt;&gt; capacities = torch.tensor([3.0])
-&gt;&gt;&gt; improved = vectorized_ejection_chain(tours, dist, capacities, wastes)
-# May consolidate into single route: [0, 1, 2, 3, 4, 0]</p>
+torch.Tensor: Modified tours of shape [B, N].</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.exchange.ejection_chain._try_insert_with_ejection_chain">
 <span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.exchange.ejection_chain.</span></span><span class="sig-name descname"><span class="pre">_try_insert_with_ejection_chain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ejection_log</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depot_positions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.models.policies.operators.exchange.ejection_chain._try_insert_with_ejection_chain" title="Link to this definition">#</a></dt>
-<dd><p>Try to insert node, potentially triggering ejection chain.</p>
+<dd><p>Attempts node insertion, exploring chain displacements if capacity-limited.</p>
 <p>Args:
-tour: Current tour tensor
-node: Node to insert
-source_start: Start position of source route
-source_end: End position of source route
-dist: Distance matrix for this instance
-waste: waste tensor for this instance
-capacity: Capacity for this instance
-max_depth: Maximum ejection depth
-ejection_log: Log of ejections for rollback
-depot_positions: List of depot positions in tour</p>
+tour: Individual sequence metadata of shape [N].
+node: Customer index to insert.
+source_start: Start index of the source route.
+source_end: End index of the source route.
+dist: Instance distance matrix of shape [N+1, N+1].
+waste: Node demand metadata of shape [N+1].
+capacity: Vehicle capacity limit.
+max_depth: Remaining recursion depth.
+ejection_log: List tracker for successful movements.
+depot_positions: Index positions of all depots in sequence.</p>
 <p>Returns:
-bool: True if insertion successful</p>
+bool: True if insertion was successful.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.exchange.ejection_chain._get_routes_with_loads">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.exchange.ejection_chain.</span></span><span class="sig-name descname"><span class="pre">_get_routes_with_loads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.operators.exchange.ejection_chain._get_routes_with_loads" title="Link to this definition">#</a></dt>
-<dd><p>Identifies routes and calculates their respective loads.</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.exchange.ejection_chain.</span></span><span class="sig-name descname"><span class="pre">_get_routes_with_loads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.operators.exchange.ejection_chain._get_routes_with_loads" title="Link to this definition">#</a></dt>
+<dd><p>Calculates loading metrics for all routes in the current tour.</p>
+<p>Args:
+tour: Sequence metadata of shape [N].
+waste: Instance demand metadata of shape [N+1].
+N: System problem size (nodes).</p>
+<p>Returns:
+List[Tuple[int, int, List[int], float]]: Detailed per-route metrics:
+(start_idx, end_idx, list_of_nodes, total_load).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.exchange.ejection_chain._attempt_route_elimination">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.exchange.ejection_chain.</span></span><span class="sig-name descname"><span class="pre">_attempt_route_elimination</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_depth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depot_positions</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.exchange.ejection_chain._attempt_route_elimination" title="Link to this definition">#</a></dt>
-<dd><p>Attempts to eliminate a single route by ejecting its nodes.</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.exchange.ejection_chain.</span></span><span class="sig-name descname"><span class="pre">_attempt_route_elimination</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depot_positions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.operators.exchange.ejection_chain._attempt_route_elimination" title="Link to this definition">#</a></dt>
+<dd><p>Attempts to empty an entire route into the remaining fleet.</p>
+<p>Args:
+tour: Source sequence metadata of shape [N].
+route_data: Metadata for the target route to eliminate.
+dist: Pairwise weights of shape [N+1, N+1].
+waste: Node demands of shape [N+1].
+capacity: Fleet limits.
+max_depth: Recursion limit for chain search.
+depot_positions: Depot marker locations in the tour.</p>
+<p>Returns:
+Tuple[bool, torch.Tensor]: A tuple containing:
+- success: True if the route was successfully cleared.
+- modified_tour: The resulting updated tour sequence.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.exchange.ejection_chain._find_best_insertion_in_route">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.exchange.ejection_chain.</span></span><span class="sig-name descname"><span class="pre">_find_best_insertion_in_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.models.policies.operators.exchange.ejection_chain._find_best_insertion_in_route" title="Link to this definition">#</a></dt>
-<dd><p>Finds position in route with minimum insertion cost.</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.exchange.ejection_chain.</span></span><span class="sig-name descname"><span class="pre">_find_best_insertion_in_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.models.policies.operators.exchange.ejection_chain._find_best_insertion_in_route" title="Link to this definition">#</a></dt>
+<dd><p>Uses greedy cost evaluation to find the optimal insertion index.</p>
+<p>Args:
+tour: Sequence metadata of shape [N].
+node: Node to evaluate for insertion.
+start: Route region start.
+end: Route region end.
+dist: Pairwise distance weights.</p>
+<p>Returns:
+int: Index position providing the lowest cost insertion.</p>
 </dd></dl>
 
 </section>

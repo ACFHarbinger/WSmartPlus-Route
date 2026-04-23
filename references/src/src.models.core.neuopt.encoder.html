@@ -491,11 +491,12 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.core.neuopt.encoder">
 <span id="src-models-core-neuopt-encoder"></span><h1><a class="reference internal" href="#module-src.models.core.neuopt.encoder" title="src.models.core.neuopt.encoder"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.core.neuopt.encoder</span></code></a><a class="headerlink" href="#module-src.models.core.neuopt.encoder" title="Link to this heading">#</a></h1>
-<p>encoder.py module.</p>
+<p>NeuOpt Encoder implementation.</p>
+<p>This module provides the <code class="docutils literal notranslate"><span class="pre">NeuOptEncoder</span></code>, a deep Transformer-based architecture
+designed to encode the spatial and topological state of a combinatorial problem
+for iterative optimization.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
-<p>Example:
-&gt;&gt;&gt; import encoder</p>
+NeuOptEncoder: Transformer encoder for global problem state representation.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -503,7 +504,7 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.core.neuopt.encoder.NeuOptEncoder" title="src.models.core.neuopt.encoder.NeuOptEncoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NeuOptEncoder</span></code></a></p></td>
-<td><p>NeuOpt Encoder: Transformer-based state encoding.</p></td>
+<td><p>NeuOpt Encoder for global solution state representation.</p></td>
 </tr>
 </tbody>
 </table>
@@ -513,20 +514,32 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.core.neuopt.encoder.NeuOptEncoder">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.neuopt.encoder.</span></span><span class="sig-name descname"><span class="pre">NeuOptEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.neuopt.encoder.NeuOptEncoder" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.neuopt.encoder.</span></span><span class="sig-name descname"><span class="pre">NeuOptEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.neuopt.encoder.NeuOptEncoder" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.models.common.improvement.encoder.ImprovementEncoder</span></code></p>
-<p>NeuOpt Encoder: Transformer-based state encoding.</p>
+<p>NeuOpt Encoder for global solution state representation.</p>
+<p>Iteratively refines node embeddings using a stack of self-attention layers
+to capture long-range dependencies and spatial relationships within the
+routing problem.</p>
+<p>Attributes:
+num_layers (int): depth of the Transformer stack.
+init_proj (nn.Linear): Linear projection for raw coordinates.
+layers (nn.ModuleList): list of self-attention and feed-forward blocks.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize NeuOptEncoder.</p>
+<p>Initializes the NeuOpt encoder.</p>
 <p>Args:
-embed_dim: Embedding dimension.
-num_heads: Number of attention heads.
-num_layers: Number of transformer layers.
-**kwargs: Unused arguments.</p>
+embed_dim: dimensionality of the feature space.
+num_heads: count of parallel attention heads.
+num_layers: number of stacked Transformer blocks.
+**kwargs: Unused parameters.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.neuopt.encoder.NeuOptEncoder.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.core.neuopt.encoder.NeuOptEncoder.forward" title="Link to this definition">#</a></dt>
-<dd><p>Encode graph state.</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.core.neuopt.encoder.NeuOptEncoder.forward" title="Link to this definition">#</a></dt>
+<dd><p>Encodes the problem instance into high-dimensional node features.</p>
+<p>Args:
+td: state container with environment data (‘locs’, ‘depot’).
+**kwargs: Unused.</p>
+<p>Returns:
+torch.Tensor: Encoded node embeddings [B, N, embed_dim].</p>
 </dd></dl>
 
 </dd></dl>

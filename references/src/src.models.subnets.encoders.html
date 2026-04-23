@@ -490,6 +490,27 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.encoders">
 <span id="src-models-subnets-encoders"></span><h1><a class="reference internal" href="#module-src.models.subnets.encoders" title="src.models.subnets.encoders"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.encoders</span></code></a><a class="headerlink" href="#module-src.models.subnets.encoders" title="Link to this heading">#</a></h1>
 <p>Encoder Subnetworks.</p>
+<p>Attributes:
+TransformerEncoderBase: Abstract base class for transformer-style graph encoders.
+EncoderFeedForwardSubLayer: Reusable Feed-Forward Sub-Layer.
+MultiHeadAttentionLayerBase: Base class for multi-head attention layers.
+DeepACOEncoder: DeepACO-style graph encoder.
+GraphAttConvEncoder: Graph Attention Convolution Encoder.
+GraphAttentionEncoder: Standard Graph Attention Encoder.
+GraphConvolutionEncoder: Gated Graph Convolution Encoder.
+GFACSEncoder: GFlowNet-ACO Heatmap Predictor Encoder.
+GatedGraphAttConvEncoder: Gated Graph Attention Convolution Encoder.
+MatNetEncoder: Matrix Encoding Network Encoder.
+MDAMGraphAttentionEncoder: Multi-Decoder Attention Model Encoder.
+MLPEncoder: Multilayer Perceptron Encoder.
+MoEGraphAttentionEncoder: Mixture-of-Experts Graph Attention Encoder.
+NARGNNEncoder: Non-Autoregressive Graph Neural Network Encoder.
+NARGNNNodeEncoder: Node-only NARGNN Encoder.
+PointerEncoder: Pointer Network Encoder.
+TransGraphConvEncoder: Transformer-based Graph Convolution Encoder.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.encoders import MLPEncoder
+&gt;&gt;&gt; encoder = MLPEncoder(embed_dim=128, n_layers=3)</p>
 <section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

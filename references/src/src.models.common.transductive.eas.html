@@ -491,11 +491,16 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.common.transductive.eas">
 <span id="src-models-common-transductive-eas"></span><h1><a class="reference internal" href="#module-src.models.common.transductive.eas" title="src.models.common.transductive.eas"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.common.transductive.eas</span></code></a><a class="headerlink" href="#module-src.models.common.transductive.eas" title="Link to this heading">#</a></h1>
-<p>eas.py module.</p>
+<p>Efficient Active Search (EAS) implementation.</p>
+<p>This module implements EAS (Hottung et al. 2022), a parameter-efficient
+transductive inference method that optimizes only a small subset of
+model parameters (e.g., initial embeddings) during test-time refinement.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+EAS: Transductive model that optimizes selective parameter subsets.</p>
 <p>Example:
-&gt;&gt;&gt; import eas</p>
+&gt;&gt;&gt; from logic.src.models.common.transductive.eas import EAS
+&gt;&gt;&gt; search = EAS(policy, search_param_names=[“init_embedding”])
+&gt;&gt;&gt; results = search(td, env)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -516,20 +521,29 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.common.transductive.eas.</span></span><span class="sig-name descname"><span class="pre">EAS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_search_steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_param_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.common.transductive.eas.EAS" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.models.common.transductive.base.html#src.models.common.transductive.base.TransductiveModel" title="src.models.common.transductive.base.TransductiveModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.models.common.transductive.base.TransductiveModel</span></code></a></p>
 <p>Efficient Active Search (Hottung et al. 2022).</p>
-<p>Optimizes only specific parameters (e.g., embeddings or specific layers)
-at test time to be more efficient than full Active Search.</p>
+<p>EAS improves upon full Active Search by restricting optimization to specific
+components of the network (like the initial node embeddings), reducing
+computational overhead while maintaining search efficacy.</p>
+<p>Attributes:
+search_param_names (List[str]): Substrings used to identify parameters
+for optimization via name matching.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize Class.</p>
+<p>Initializes the EAS transductive model.</p>
 <p>Args:
-model (nn.Module): Description of model.
-optimizer_kwargs (Optional[Dict[str, Any]]): Description of optimizer_kwargs.
-n_search_steps (int): Description of n_search_steps.
-search_param_names (Optional[List[str]]): Description of search_param_names.
-kwargs (Any): Description of kwargs.</p>
+model: The base neural strategy to refine.
+optimizer_kwargs: Setup parameters for the refinement optimizer.
+n_search_steps: Iteration count for test-time adaptation.
+search_param_names: Identifier tokens for parameters to adapt.
+Defaults to [“init_embedding”, “init_proj”].
+**kwargs: Configuration properties for the underlying TransductiveModel.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.common.transductive.eas.EAS._get_search_params">
 <span class="sig-name descname"><span class="pre">_get_search_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.models.common.transductive.eas.EAS._get_search_params" title="Link to this definition">#</a></dt>
-<dd><p>Identify parameters by name for optimization.</p>
+<dd><p>Identifies parameters by name for selective optimization.</p>
+<p>Filters the model’s named parameters, including only those whose names
+match the specified <code class="docutils literal notranslate"><span class="pre">search_param_names</span></code>.</p>
+<p>Returns:
+Any: A list of tensors to be updated during the search process.</p>
 </dd></dl>
 
 </dd></dl>

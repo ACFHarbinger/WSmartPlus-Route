@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.subnets.modules.gated_graph_convolution.GatedGraphConvolution.__init__
 ```
 
-````{py:method} reset_parameters()
+````{py:method} reset_parameters() -> None
 :canonical: src.models.subnets.modules.gated_graph_convolution.GatedGraphConvolution.reset_parameters
 
 ```{autodoc2-docstring} src.models.subnets.modules.gated_graph_convolution.GatedGraphConvolution.reset_parameters
@@ -45,7 +45,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} forward(h, e, mask)
+````{py:method} forward(h: torch.Tensor, e: torch.Tensor, mask: torch.Tensor) -> typing.Tuple[torch.Tensor, torch.Tensor]
 :canonical: src.models.subnets.modules.gated_graph_convolution.GatedGraphConvolution.forward
 
 ```{autodoc2-docstring} src.models.subnets.modules.gated_graph_convolution.GatedGraphConvolution.forward
@@ -53,7 +53,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} aggregate(Vh, mask, gates)
+````{py:method} aggregate(Vh: torch.Tensor, mask: torch.Tensor, gates: torch.Tensor) -> torch.Tensor
 :canonical: src.models.subnets.modules.gated_graph_convolution.GatedGraphConvolution.aggregate
 
 ```{autodoc2-docstring} src.models.subnets.modules.gated_graph_convolution.GatedGraphConvolution.aggregate

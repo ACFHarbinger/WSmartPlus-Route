@@ -495,7 +495,15 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.ui.components.charts">
 <span id="src-ui-components-charts"></span><h1><a class="reference internal" href="#module-src.ui.components.charts" title="src.ui.components.charts"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.components.charts</span></code></a><a class="headerlink" href="#module-src.ui.components.charts" title="Link to this heading">#</a></h1>
 <p>Plotly chart generators for the dashboard.</p>
-<p>Provides reusable chart components for training and simulation visualization.</p>
+<p>This module provides reusable visualization components for cross-mode
+performance auditing. It supports sparklines, multi-axis training curves,
+radar/spider policy comparisons, and geospatial heatmaps.</p>
+<p>Example:
+spark_html = create_sparkline_svg([0.1, 0.4, 0.2, 0.7])</p>
+<p>Attributes:
+apply_moving_average: Utility to smooth noisy telemetry data.
+create_sparkline_svg: Lightweight SVG generator for inline KPIs.
+create_training_loss_chart: Multi-run comparison with dual Y-axes.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -503,25 +511,25 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.components.charts.apply_moving_average" title="src.ui.components.charts.apply_moving_average"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_moving_average</span></code></a></p></td>
-<td><p>Apply moving average smoothing to a series.</p></td>
+<td><p>Applies moving average smoothing to a numeric series.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.components.charts.create_sparkline_svg" title="src.ui.components.charts.create_sparkline_svg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_sparkline_svg</span></code></a></p></td>
-<td><p>Create a lightweight inline SVG sparkline.</p></td>
+<td><p>Creates a lightweight inline SVG sparkline for KPI cards.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.components.charts.create_training_loss_chart" title="src.ui.components.charts.create_training_loss_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_training_loss_chart</span></code></a></p></td>
-<td><p>Create a multi-run comparison chart with optional dual Y-axes.</p></td>
+<td><p>Creates a multi-run comparison chart with optional dual Y-axes.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.components.charts.create_simulation_metrics_chart" title="src.ui.components.charts.create_simulation_metrics_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_simulation_metrics_chart</span></code></a></p></td>
-<td><p>Create a chart for simulation metrics over time.</p></td>
+<td><p>Creates a line chart for simulation metrics over time with bands.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.components.charts.create_radar_chart" title="src.ui.components.charts.create_radar_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_radar_chart</span></code></a></p></td>
-<td><p>Create a radar/spider chart comparing metrics across policies.</p></td>
+<td><p>Creates a radar/spider chart comparing policies across N dimensions.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.components.charts.create_stacked_bar_chart" title="src.ui.components.charts.create_stacked_bar_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_stacked_bar_chart</span></code></a></p></td>
-<td><p>Create a stacked bar chart with multiple data series.</p></td>
+<td><p>Creates a stacked bar chart for categorical multi-series data.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.components.charts.create_heatmap_chart" title="src.ui.components.charts.create_heatmap_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_heatmap_chart</span></code></a></p></td>
-<td><p>Create a Plotly heatmap from a numeric DataFrame.</p></td>
+<td><p>Creates an interactive Plotly heatmap from a numeric DataFrame.</p></td>
 </tr>
 </tbody>
 </table>
@@ -532,13 +540,18 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.components.charts.apply_moving_average">
 <span class="sig-prename descclassname"><span class="pre">src.ui.components.charts.</span></span><span class="sig-name descname"><span class="pre">apply_moving_average</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.Series</span></span></span><a class="headerlink" href="#src.ui.components.charts.apply_moving_average" title="Link to this definition">#</a></dt>
-<dd><p>Apply moving average smoothing to a series.</p>
+<dd><p>Applies moving average smoothing to a numeric series.</p>
+<p>Args:
+data: Input telemetry series.
+window: Sliding window size.</p>
+<p>Returns:
+pd.Series: Smoothed data series.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.components.charts.create_sparkline_svg">
 <span class="sig-prename descclassname"><span class="pre">src.ui.components.charts.</span></span><span class="sig-name descname"><span class="pre">create_sparkline_svg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'rgba(255,255,255,0.8)'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.ui.components.charts.create_sparkline_svg" title="Link to this definition">#</a></dt>
-<dd><p>Create a lightweight inline SVG sparkline.</p>
+<dd><p>Creates a lightweight inline SVG sparkline for KPI cards.</p>
 <p>Args:
 values: Data points for the sparkline.
 width: SVG width in pixels.
@@ -551,7 +564,7 @@ SVG string suitable for embedding in HTML.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.components.charts.create_training_loss_chart">
 <span class="sig-prename descclassname"><span class="pre">src.ui.components.charts.</span></span><span class="sig-name descname"><span class="pre">create_training_loss_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">runs_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric_y1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'train_loss'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric_y2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'val_cost'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'epoch'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoothing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">plotly.graph_objects.Figure</span></span></span><a class="headerlink" href="#src.ui.components.charts.create_training_loss_chart" title="Link to this definition">#</a></dt>
-<dd><p>Create a multi-run comparison chart with optional dual Y-axes.</p>
+<dd><p>Creates a multi-run comparison chart with optional dual Y-axes.</p>
 <p>Args:
 runs_data: Dict mapping run name to DataFrame.
 metric_y1: Primary metric for left Y-axis.
@@ -565,7 +578,7 @@ Plotly Figure object.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.components.charts.create_simulation_metrics_chart">
 <span class="sig-prename descclassname"><span class="pre">src.ui.components.charts.</span></span><span class="sig-name descname"><span class="pre">create_simulation_metrics_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'day'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_std</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">plotly.graph_objects.Figure</span></span></span><a class="headerlink" href="#src.ui.components.charts.create_simulation_metrics_chart" title="Link to this definition">#</a></dt>
-<dd><p>Create a chart for simulation metrics over time.</p>
+<dd><p>Creates a line chart for simulation metrics over time with bands.</p>
 <p>Args:
 df: DataFrame with day and metric columns.
 metrics: List of metric names to plot.
@@ -578,7 +591,7 @@ Plotly Figure object.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.components.charts.create_radar_chart">
 <span class="sig-prename descclassname"><span class="pre">src.ui.components.charts.</span></span><span class="sig-name descname"><span class="pre">create_radar_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">policy_metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">plotly.graph_objects.Figure</span></span></span><a class="headerlink" href="#src.ui.components.charts.create_radar_chart" title="Link to this definition">#</a></dt>
-<dd><p>Create a radar/spider chart comparing metrics across policies.</p>
+<dd><p>Creates a radar/spider chart comparing policies across N dimensions.</p>
 <p>Each metric is normalized to 0-1 scale for fair comparison.</p>
 <p>Args:
 policy_metrics: Dict mapping policy name -&gt; {metric: value}.
@@ -590,7 +603,7 @@ Plotly Figure object.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.components.charts.create_stacked_bar_chart">
 <span class="sig-prename descclassname"><span class="pre">src.ui.components.charts.</span></span><span class="sig-name descname"><span class="pre">create_stacked_bar_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">categories</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">series</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">plotly.graph_objects.Figure</span></span></span><a class="headerlink" href="#src.ui.components.charts.create_stacked_bar_chart" title="Link to this definition">#</a></dt>
-<dd><p>Create a stacked bar chart with multiple data series.</p>
+<dd><p>Creates a stacked bar chart for categorical multi-series data.</p>
 <p>Args:
 categories: X-axis category labels.
 series: Dict mapping series name -&gt; list of values (same length as categories).
@@ -605,7 +618,7 @@ Plotly Figure object.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.components.charts.create_heatmap_chart">
 <span class="sig-prename descclassname"><span class="pre">src.ui.components.charts.</span></span><span class="sig-name descname"><span class="pre">create_heatmap_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Heatmap'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">plotly.graph_objects.Figure</span></span></span><a class="headerlink" href="#src.ui.components.charts.create_heatmap_chart" title="Link to this definition">#</a></dt>
-<dd><p>Create a Plotly heatmap from a numeric DataFrame.</p>
+<dd><p>Creates an interactive Plotly heatmap from a numeric DataFrame.</p>
 <p>Args:
 df: DataFrame with numeric values. Rows are Y-axis, columns are X-axis.
 title: Chart title.</p>

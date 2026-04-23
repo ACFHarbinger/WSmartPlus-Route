@@ -467,7 +467,6 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typical-usage">Typical usage</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
@@ -496,32 +495,16 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.integrations.data_lineage">
 <span id="src-tracking-integrations-data-lineage"></span><h1><a class="reference internal" href="#module-src.tracking.integrations.data_lineage" title="src.tracking.integrations.data_lineage"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.integrations.data_lineage</span></code></a><a class="headerlink" href="#module-src.tracking.integrations.data_lineage" title="Link to this heading">#</a></h1>
-<section id="typical-usage">
-<h2>Typical usage<a class="headerlink" href="#typical-usage" title="Link to this heading">#</a></h2>
-<p>The callback is created once per <code class="docutils literal notranslate"><span class="pre">(policy,</span> <span class="pre">sample)</span></code> pair and wired
-into :class:<code class="docutils literal notranslate"><span class="pre">~logic.src.pipeline.simulations.states.running.RunningState</span></code>::</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>cb = DataLineageCallback(pol_name, sample_id, log_freq=5)
-cb.on_simulation_start(sim_context)
-
-for day in range(1, total_days + 1):
-    day_ctx = run_day(day_ctx)
-    cb.on_step_end(day_ctx, day)
-</pre></div>
-</div>
-</section>
 <p>Data-lineage tracking callback for simulation runs.</p>
-<p>Hooks into the day-by-day simulation loop to record two complementary
-streams of information into the centralised WSTracker:</p>
-<ol class="arabic simple">
-<li><p><strong>Scalar KPIs per day</strong> — logged via :class:<code class="docutils literal notranslate"><span class="pre">SimulationRunTracker</span></code> so
-every per-day metric (<code class="docutils literal notranslate"><span class="pre">profit</span></code>, <code class="docutils literal notranslate"><span class="pre">kg</span></code>, <code class="docutils literal notranslate"><span class="pre">km</span></code>, etc.) is queryable
-as a time-series in the tracking database.</p></li>
-<li><p><strong>Bin fill distribution snapshots</strong> — logged via
-:class:<code class="docutils literal notranslate"><span class="pre">RuntimeDataTracker</span></code> so the statistical shape of the fill
-levels (mean, std, min, max) is recorded at configurable intervals,
-making distribution drift across the simulation visible in the
-experiment database.</p></li>
-</ol>
+<p>This module provides the :class:<code class="docutils literal notranslate"><span class="pre">DataLineageCallback</span></code> which hooks into the
+simulation loop to record per-day KPI scalars and periodic snapshots of
+bin fill level distributions. It ensures full traceability of data evolution
+throughout multi-day simulation episodes.</p>
+<p>Attributes:
+DataLineageCallback: Step-level data lineage and KPI tracker for simulations.</p>
+<p>Example:
+&gt;&gt;&gt; cb = DataLineageCallback(policy_name=”HNA”, sample_id=0, log_freq=5)
+&gt;&gt;&gt; cb.on_simulation_start(sim_context)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -540,11 +523,10 @@ experiment database.</p></li>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.integrations.data_lineage._log_cumulative_bins" title="src.tracking.integrations.data_lineage._log_cumulative_bins"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_log_cumulative_bins</span></code></a></p></td>
-<td><p>Log cumulative bins scalar state as time-series metrics.</p></td>
+<td><p>Logs cumulative bin state scalars (km, kg, profit) as time-series metrics.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.integrations.data_lineage._bins_to_tensor_dict" title="src.tracking.integrations.data_lineage._bins_to_tensor_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_bins_to_tensor_dict</span></code></a></p></td>
-<td><p>Convert key :class:<code class="docutils literal notranslate"><span class="pre">~logic.src.pipeline.simulations.bins.base.Bins</span></code>
-numpy arrays to a <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">tensor}</span></code> dict for <code class="docutils literal notranslate"><span class="pre">RuntimeDataTracker</span></code>.</p></td>
+<td><p>Converts bin numpy arrays to a tensor dictionary for tracking.</p></td>
 </tr>
 </tbody>
 </table>
@@ -556,41 +538,38 @@ numpy arrays to a <code class="docutils literal notranslate"><span class="pre">{
 <dt class="sig sig-object py" id="src.tracking.integrations.data_lineage.DataLineageCallback">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.tracking.integrations.data_lineage.</span></span><span class="sig-name descname"><span class="pre">DataLineageCallback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">policy_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_freq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.integrations.data_lineage.DataLineageCallback" title="Link to this definition">#</a></dt>
 <dd><p>Step-level data lineage and KPI tracker for a simulation run.</p>
-<p>Records two complementary streams per <code class="docutils literal notranslate"><span class="pre">(policy,</span> <span class="pre">sample_id)</span></code> pair:</p>
-<ul class="simple">
-<li><p><strong>Per-day KPIs</strong> (every step) — profit, km, kg, overflows, etc. —
-forwarded to :class:<code class="docutils literal notranslate"><span class="pre">SimulationRunTracker</span></code> as time-series metrics
-so they can be trended and compared across runs.</p></li>
-<li><p><strong>Bin fill distribution snapshots</strong> (every <em>log_freq</em> steps) —
-captured via :class:<code class="docutils literal notranslate"><span class="pre">RuntimeDataTracker</span></code>; records mean/std/min/max
-of fill levels so distribution drift is visible in the DB.</p></li>
-</ul>
-<p>Args:
-policy_name: Policy name used for metric key namespacing.
-sample_id: Sample/seed index used for metric key namespacing.
-log_freq: Take a fill-distribution snapshot every <em>log_freq</em> days
-(default <code class="docutils literal notranslate"><span class="pre">1</span></code> = every day).  Raise to <code class="docutils literal notranslate"><span class="pre">5</span></code> or <code class="docutils literal notranslate"><span class="pre">10</span></code> for
-long simulations to reduce write pressure.</p>
+<p>Records two complementary streams per policy/sample pair: per-day KPIs
+(profit, distance, etc.) and throttled bin fill distribution snapshots
+for drift analysis.</p>
+<p>Attributes:
+_policy_name: Name of the policy being evaluated.
+_sample_id: Unique index for the current simulation sample.
+_log_freq: Frequency (in days) for distribution snapshots.
+_step_count: Internal counter of simulation steps.
+_data_tracker: Instance of RuntimeDataTracker for distribution logging.
+_sim_tracker: Instance of SimulationRunTracker for KPI logging.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the data lineage callback.</p>
+<p>Args:
+policy_name: Name of the policy for namespacing metrics.
+sample_id: Sample index for namespacing metrics.
+log_freq: Frequency of distribution snapshots in simulation days.
+Defaults to 1.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.integrations.data_lineage.DataLineageCallback.on_simulation_start">
 <span class="sig-name descname"><span class="pre">on_simulation_start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.integrations.data_lineage.DataLineageCallback.on_simulation_start" title="Link to this definition">#</a></dt>
-<dd><p>Snapshot the initial bin fill distribution and attach trackers.</p>
-<p>Should be called <strong>once</strong> before the day loop begins, after the
-simulation context has been fully initialised (bins loaded).</p>
+<dd><p>Initializes trackers and snapshots the baseline bin distribution.</p>
 <p>Args:
-context: :class:<code class="docutils literal notranslate"><span class="pre">~logic.src.pipeline.simulations.states.base.context.SimulationContext</span></code>
-— <code class="docutils literal notranslate"><span class="pre">context.bins</span></code> is accessed to snapshot fill levels.</p>
+context: The simulation context containing initialized bins.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.integrations.data_lineage.DataLineageCallback.on_step_end">
 <span class="sig-name descname"><span class="pre">on_step_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">day_context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.integrations.data_lineage.DataLineageCallback.on_step_end" title="Link to this definition">#</a></dt>
-<dd><p>Log per-day KPIs and (throttled) fill-distribution snapshots.</p>
+<dd><p>Logs daily KPIs and throttled distribution snapshots.</p>
 <p>Args:
-day_context: :class:<code class="docutils literal notranslate"><span class="pre">~logic.src.pipeline.simulations.day_context.SimulationDayContext</span></code>
-— <code class="docutils literal notranslate"><span class="pre">daily_log</span></code> dict and <code class="docutils literal notranslate"><span class="pre">bins</span></code> are read from here.
-day: Current simulation day index (used as metric step).</p>
+day_context: Context for the current simulation day.
+day: Current simulation day index.</p>
 </dd></dl>
 
 </dd></dl>
@@ -598,32 +577,21 @@ day: Current simulation day index (used as metric step).</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.integrations.data_lineage._log_cumulative_bins">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.integrations.data_lineage.</span></span><span class="sig-name descname"><span class="pre">_log_cumulative_bins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim_tracker</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.tracking.integrations.simulation.SimulationRunTracker</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.integrations.data_lineage._log_cumulative_bins" title="Link to this definition">#</a></dt>
-<dd><p>Log cumulative bins scalar state as time-series metrics.</p>
-<p>These values are not present in <code class="docutils literal notranslate"><span class="pre">daily_log</span></code> because they are accumulated
-on the bins object rather than recorded per-day.  Logging the cumulative
-series at each step lets consumers derive per-day deltas by differencing.</p>
-<p>Scalars logged (all namespaced under <code class="docutils literal notranslate"><span class="pre">{policy}/s{sample}/cumul/</span></code>):</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">km</span></code>        — total distance travelled so far (<code class="docutils literal notranslate"><span class="pre">bins.travel</span></code>)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">kg</span></code>        — total waste collected (<code class="docutils literal notranslate"><span class="pre">bins.collected</span></code> sum)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">kg_lost</span></code>   — total waste lost to overflow (<code class="docutils literal notranslate"><span class="pre">bins.lost</span></code> sum)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">overflows</span></code> — total overflow events (<code class="docutils literal notranslate"><span class="pre">bins.inoverflow</span></code> sum)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">profit</span></code>    — cumulative net profit (<code class="docutils literal notranslate"><span class="pre">bins.profit</span></code>)</p></li>
-</ul>
+<dd><p>Logs cumulative bin state scalars (km, kg, profit) as time-series metrics.</p>
+<p>Args:
+sim_tracker: The active simulation KPI tracker.
+bins: The bins object containing cumulative state.
+day: Current simulation day.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.integrations.data_lineage._bins_to_tensor_dict">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.integrations.data_lineage.</span></span><span class="sig-name descname"><span class="pre">_bins_to_tensor_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.integrations.data_lineage._bins_to_tensor_dict" title="Link to this definition">#</a></dt>
-<dd><p>Convert key :class:<code class="docutils literal notranslate"><span class="pre">~logic.src.pipeline.simulations.bins.base.Bins</span></code>
-numpy arrays to a <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">tensor}</span></code> dict for <code class="docutils literal notranslate"><span class="pre">RuntimeDataTracker</span></code>.</p>
-<p>The four arrays tracked are:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">fill</span></code> — observed fill level per bin (<code class="docutils literal notranslate"><span class="pre">bins.c</span></code>), 0–100 %</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">real_fill</span></code> — ground-truth fill level (<code class="docutils literal notranslate"><span class="pre">bins.real_c</span></code>), 0–100 %</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">lost</span></code> — cumulative waste lost to overflow per bin</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">inoverflow</span></code> — cumulative overflow events per bin</p></li>
-</ul>
+<dd><p>Converts bin numpy arrays to a tensor dictionary for tracking.</p>
+<p>Args:
+bins: The bins object to extract data from.</p>
+<p>Returns:
+Dict[str, torch.Tensor]: Mapping of field names to torch tensors.</p>
 </dd></dl>
 
 </section>
@@ -675,7 +643,6 @@ numpy arrays to a <code class="docutils literal notranslate"><span class="pre">{
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typical-usage">Typical usage</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>

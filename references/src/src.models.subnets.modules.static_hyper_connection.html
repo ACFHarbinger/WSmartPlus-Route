@@ -492,6 +492,18 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.modules.static_hyper_connection">
 <span id="src-models-subnets-modules-static-hyper-connection"></span><h1><a class="reference internal" href="#module-src.models.subnets.modules.static_hyper_connection" title="src.models.subnets.modules.static_hyper_connection"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.modules.static_hyper_connection</span></code></a><a class="headerlink" href="#module-src.models.subnets.modules.static_hyper_connection" title="Link to this heading">#</a></h1>
 <p>Static Hyper-Network connections.</p>
+<p>This module provides the StaticHyperConnection layer, which uses fixed weight
+expansion to mix information across multiple parallel streams.</p>
+<p>Attributes:
+StaticHyperConnection: Hyper-connection layer with fixed weight expansion.</p>
+<p>Example:
+&gt;&gt;&gt; import torch
+&gt;&gt;&gt; from torch import nn
+&gt;&gt;&gt; from logic.src.models.subnets.modules.static_hyper_connection import StaticHyperConnection
+&gt;&gt;&gt; module = nn.Linear(128, 128)
+&gt;&gt;&gt; model = StaticHyperConnection(module, hyper_dim=128, expansion_rate=4)
+&gt;&gt;&gt; h = torch.randn(1, 10, 128, 4)
+&gt;&gt;&gt; out = model(h)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -512,16 +524,31 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.modules.static_hyper_connection.</span></span><span class="sig-name descname"><span class="pre">StaticHyperConnection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyper_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expansion_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.static_hyper_connection.StaticHyperConnection" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
 <p>Hyper-connection with static width/depth expansion.</p>
+<p>Implements a simplified multi-stream information mixer where transformation
+weights are fixed learnable parameters instead of dynamic context-dependent
+predictions.</p>
+<p>Attributes:
+module (nn.Module): The transformation sub-module (e.g., Attention, MLP).
+n (int): Width/depth expansion rate (number of parallel streams).
+width_mixer (nn.Parameter): Static weights for mixing existing streams.
+input_mixer (nn.Parameter): Static weights for collapsing streams.
+depth_mixer (nn.Parameter): Static weights for broadcasting sub-layer output.</p>
 <p class="rubric">Initialization</p>
-<p>Initializes the static hyper-connection.</p>
+<p>Initializes StaticHyperConnection.</p>
 <p>Args:
 module: The neural network module to wrap.
-hyper_dim: Hyper-network dimension.
-expansion_rate: Width/depth expansion rate.</p>
+hyper_dim: Hyper-network dimension (base embedding size).
+expansion_rate: Number of parallel information streams.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.static_hyper_connection.StaticHyperConnection.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">H</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.static_hyper_connection.StaticHyperConnection.forward" title="Link to this definition">#</a></dt>
-<dd><p>Forward pass for static hyper connection.</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">H</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.modules.static_hyper_connection.StaticHyperConnection.forward" title="Link to this definition">#</a></dt>
+<dd><p>Applies static mixing to input streams.</p>
+<p>Args:
+H: Stream tensor of shape (batch, seq, dim, n).
+args: Positional arguments for the wrapped <code class="docutils literal notranslate"><span class="pre">module</span></code>.
+kwargs: Keyword arguments for the wrapped <code class="docutils literal notranslate"><span class="pre">module</span></code>.</p>
+<p>Returns:
+torch.Tensor: Updated stream tensor of shape (batch, seq, dim, n).</p>
 </dd></dl>
 
 </dd></dl>

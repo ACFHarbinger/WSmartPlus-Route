@@ -481,7 +481,14 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.decoders.deepaco">
 <span id="src-models-subnets-decoders-deepaco"></span><h1><a class="reference internal" href="#module-src.models.subnets.decoders.deepaco" title="src.models.subnets.decoders.deepaco"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.decoders.deepaco</span></code></a><a class="headerlink" href="#module-src.models.subnets.decoders.deepaco" title="Link to this heading">#</a></h1>
-<p>ACO Decoder facade.</p>
+<p>DeepACO Decoder: Ant colony solution construction from heatmaps.</p>
+<p>This module provides the ACO-based decoder which uses pheromone-guided construction
+directed by GNN-predicted heatmaps.</p>
+<p>Attributes:
+ACODecoder: Ant Colony Optimization decoder for solution construction.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.decoders.deepaco import ACODecoder
+&gt;&gt;&gt; decoder = ACODecoder(n_ants=20, alpha=1.0, beta=2.0)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

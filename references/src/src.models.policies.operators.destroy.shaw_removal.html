@@ -493,10 +493,10 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.policies.operators.destroy.shaw_removal">
 <span id="src-models-policies-operators-destroy-shaw-removal"></span><h1><a class="reference internal" href="#module-src.models.policies.operators.destroy.shaw_removal" title="src.models.policies.operators.destroy.shaw_removal"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies.operators.destroy.shaw_removal</span></code></a><a class="headerlink" href="#module-src.models.policies.operators.destroy.shaw_removal" title="Link to this heading">#</a></h1>
-<p>Shaw removal (relatedness-based) operator (vectorized).</p>
-<p>The Shaw removal heuristic removes nodes that are similar (related) to a seed node
-based on distance, time windows, and waste. This creates clusters of related nodes
-that can be efficiently rearranged during repair.</p>
+<p>Shaw removal operator.</p>
+<p>This module provides a GPU-accelerated implementation of the Shaw removal
+heuristic (relatedness-based), which ejects nodes from the tour that are
+similar based on distance, demand, and time windows.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -531,75 +531,110 @@ that can be efficiently rearranged during repair.</p>
 <dt class="sig sig-object py" id="src.models.policies.operators.destroy.shaw_removal.vectorized_shaw_removal">
 <span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.destroy.shaw_removal.</span></span><span class="sig-name descname"><span class="pre">vectorized_shaw_removal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_remove</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_windows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">9.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">randomization_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Generator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.operators.destroy.shaw_removal.vectorized_shaw_removal" title="Link to this definition">#</a></dt>
 <dd><p>Vectorized Shaw removal across a batch of tours using PyTorch.</p>
-<p>Shaw removal computes relatedness between nodes based on multiple criteria:</p>
-<ul class="simple">
-<li><p>Distance: phi * d(i,j) / max_dist</p></li>
-<li><p>Time windows: chi * |T_i - T_j| / max_time</p></li>
-<li><p>Waste: psi * |q_i - q_j| / max_waste</p></li>
-</ul>
-<p>Nodes with low relatedness scores (high similarity) to already-removed nodes
-are selected for removal, creating clusters of related nodes.</p>
-<p>Algorithm:</p>
-<ol class="arabic simple">
-<li><p>Select random seed node for each tour in batch</p></li>
-<li><p>While removed &lt; n_remove:
-a. Compute relatedness of all remaining nodes to removed set
-b. Rank by relatedness (lower = more related)
-c. Select using randomized power law: idx = (uniform^p) * len(candidates)
-d. Add to removed set</p></li>
-<li><p>Return tours with selected nodes marked for removal</p></li>
-</ol>
+<p>Shaw removal computes relatedness between nodes based on distance,
+time windows, and waste. Nodes with high similarity to the removed
+set are prioritized for subsequent removal to create clean clusters.</p>
 <p>Args:
-tours: Batch of tours [B, N] where B=batch size, N=tour length
-distance_matrix: Pairwise distances [B, N+1, N+1] or [N+1, N+1] (shared)
-n_remove: Number of nodes to remove from each tour
-wastes: Node wastes [B, N+1] or [N+1] (optional, for waste relatedness)
-time_windows: Time windows [B, N+1, 2] or [N+1, 2] (optional, [earliest, latest])
-phi: Weight for distance component (default: 9.0)
-chi: Weight for time window component (default: 3.0)
-psi: Weight for waste component (default: 2.0)
-randomization_factor: Power for randomized selection (default: 2.0)
-Higher values = more randomness
-generator (Optional[torch.Generator]): PyTorch generator for random number generation.</p>
+tours: Batch of sequences of shape [B, N].
+distance_matrix: Edge weights of shape [B, N+1, N+1] or [N+1, N+1].
+n_remove: Number of nodes to remove per tour.
+wastes: Node demands of shape [B, N+1] or [N+1].
+time_windows: Windows metadata of shape [B, N+1, 2] or [N+1, 2].
+phi: Weight for distance relatedness.
+chi: Weight for time window relatedness.
+psi: Weight for waste relatedness.
+randomization_factor: Power for randomized selection (p-value).
+generator: Torch device-side RNG.</p>
 <p>Returns:
-Tuple[torch.Tensor, torch.Tensor]:
-- Modified tours [B, N] with removed nodes replaced by padding (-1)
-- Removed nodes [B, n_remove] indices of removed nodes</p>
-<p>Note:
-- Tours should include depot as node 0
-- Removed nodes are marked as -1 in returned tours
-- Works with both batched and shared distance/waste matrices
-- Time windows are optional; if not provided, chi is ignored</p>
+Tuple[torch.Tensor, torch.Tensor]: A tuple containing:
+- modified_tours: Batch of tours with removed nodes marked (shape [B, N]).
+- removed_nodes: IDs of the removed nodes per instance (shape [B, n_remove]).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.destroy.shaw_removal._prepare_shaw_inputs">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.destroy.shaw_removal.</span></span><span class="sig-name descname"><span class="pre">_prepare_shaw_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_windows</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.destroy.shaw_removal._prepare_shaw_inputs" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.destroy.shaw_removal.</span></span><span class="sig-name descname"><span class="pre">_prepare_shaw_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_windows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.operators.destroy.shaw_removal._prepare_shaw_inputs" title="Link to this definition">#</a></dt>
 <dd><p>Ensures all inputs are batched tensors.</p>
+<p>Args:
+tours: Input tour sequences.
+distance_matrix: Global distance metadata.
+wastes: Optional demand metadata.
+time_windows: Optional temporal metadata.</p>
+<p>Returns:
+Tuple[torch.Tensor, torch.Tensor, Optional[torch.Tensor], Optional[torch.Tensor], bool]:
+Batched tours, distance_matrix, wastes, time_windows, and a batch flag.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.destroy.shaw_removal._select_seed_nodes">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.destroy.shaw_removal.</span></span><span class="sig-name descname"><span class="pre">_select_seed_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valid_mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valid_counts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_count</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.destroy.shaw_removal._select_seed_nodes" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.destroy.shaw_removal.</span></span><span class="sig-name descname"><span class="pre">_select_seed_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">B</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valid_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valid_counts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Generator</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.policies.operators.destroy.shaw_removal._select_seed_nodes" title="Link to this definition">#</a></dt>
 <dd><p>Selects a random seed node for each tour.</p>
+<p>Args:
+B: Batch instances count.
+valid_mask: Boolean mask of non-depot nodes.
+valid_counts: Total valid nodes per tour.
+removed_mask: Target boolean tracker for removals.
+removed_list: Ordered list of removed node IDs.
+removed_count: Running total of removals per instance.
+device: Hardware identification locator.
+generator: PyTorch random number generator.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.destroy.shaw_removal._calculate_relatedness_batch">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.destroy.shaw_removal.</span></span><span class="sig-name descname"><span class="pre">_calculate_relatedness_batch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tours</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_windows</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_count</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valid_counts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_waste</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.destroy.shaw_removal._calculate_relatedness_batch" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.destroy.shaw_removal.</span></span><span class="sig-name descname"><span class="pre">_calculate_relatedness_batch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">B</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_windows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valid_counts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_dist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_waste</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.device</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.destroy.shaw_removal._calculate_relatedness_batch" title="Link to this definition">#</a></dt>
 <dd><p>Calculates relatedness scores for all nodes against removed nodes.</p>
+<p>Args:
+B: Batch instances count.
+N: Full sequence length.
+tours: Current sequences of shape [B, N].
+distance_matrix: Distance metadata of shape [B, N+1, N+1].
+wastes: Optional demand metadata.
+time_windows: Optional temporal metadata.
+removed_mask: Tracker for already removed nodes.
+removed_count: Count of nodes already removed per instance.
+valid_counts: Number of non-depot nodes per instance.
+max_dist: Maximum pairwise distance (for normalization).
+max_waste: Maximum node demand.
+max_time: Maximum earliest temporal window.
+phi: Distance similarity weight.
+psi: Waste similarity weight.
+chi: Temporal similarity weight.
+device: Hardware identification locator.</p>
+<p>Returns:
+torch.Tensor: Computed relatedness score tensor of shape [B, N].</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.destroy.shaw_removal._select_next_removal_batch">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.destroy.shaw_removal.</span></span><span class="sig-name descname"><span class="pre">_select_next_removal_batch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_remove</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">randomization_factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relatedness_scores</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_count</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valid_mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valid_counts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.destroy.shaw_removal._select_next_removal_batch" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.destroy.shaw_removal.</span></span><span class="sig-name descname"><span class="pre">_select_next_removal_batch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">B</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_remove</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">randomization_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relatedness_scores</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valid_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valid_counts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Generator</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.policies.operators.destroy.shaw_removal._select_next_removal_batch" title="Link to this definition">#</a></dt>
 <dd><p>Selects the next node to remove using randomized power law.</p>
+<p>Args:
+B: Batch instances count.
+n_remove: Target number of removals.
+randomization_factor: Selection stochasticity (p-value).
+relatedness_scores: Precomputed similarity tensor of shape [B, N].
+removed_mask: Boolean tracker for exclusions.
+removed_list: Ordered list of removals IDs.
+removed_count: Running total of removals.
+valid_mask: Boolean identifier for non-depot nodes.
+valid_counts: Total count of valid nodes per sequence.
+device: Hardware identification locator.
+generator: PyTorch random number generator.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.destroy.shaw_removal._init_shaw_params">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.destroy.shaw_removal.</span></span><span class="sig-name descname"><span class="pre">_init_shaw_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_windows</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.destroy.shaw_removal._init_shaw_params" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.destroy.shaw_removal.</span></span><span class="sig-name descname"><span class="pre">_init_shaw_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_windows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.operators.destroy.shaw_removal._init_shaw_params" title="Link to this definition">#</a></dt>
 <dd><p>Initialize max values for normalization.</p>
+<p>Args:
+tours: Current sequences of shape [B, N].
+distance_matrix: Global distance weights.
+wastes: Optional demand metadata.
+time_windows: Optional temporal metadata.</p>
+<p>Returns:
+Tuple[torch.Tensor, Optional[torch.Tensor], Optional[torch.Tensor], float, float, float]:
+Processed distance_matrix, wastes, time_windows, max_dist, max_waste, and max_time.</p>
 </dd></dl>
 
 </section>

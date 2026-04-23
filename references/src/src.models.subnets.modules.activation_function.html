@@ -493,6 +493,17 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.modules.activation_function">
 <span id="src-models-subnets-modules-activation-function"></span><h1><a class="reference internal" href="#module-src.models.subnets.modules.activation_function" title="src.models.subnets.modules.activation_function"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.modules.activation_function</span></code></a><a class="headerlink" href="#module-src.models.subnets.modules.activation_function" title="Link to this heading">#</a></h1>
+<p>Activation Function module.</p>
+<p>This module provides the ActivationFunction wrapper, which simplifies the
+instantiation of various PyTorch nonlinearities through a unified interface.</p>
+<p>Attributes:
+ActivationFunction: Configurable activation layer factory.</p>
+<p>Example:
+&gt;&gt;&gt; import torch
+&gt;&gt;&gt; from logic.src.models.subnets.modules.activation_function import ActivationFunction
+&gt;&gt;&gt; act = ActivationFunction(af_name=”relu”)
+&gt;&gt;&gt; x = torch.randn(1, 10)
+&gt;&gt;&gt; out = act(x)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -514,39 +525,57 @@ document.write(`
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
 <p>Wrapper for various activation functions in PyTorch.</p>
 <p>Provides a unified interface to instantiate different activation functions
-by name, with support for parameters like threshold, negative slope, etc.</p>
+by name, with support for parameters like threshold, negative slope, and
+learnable parameters.</p>
+<p>Attributes:
+activation (nn.Module): The underlying PyTorch activation module.
+tval (float): Stored threshold value for manual clipping.
+rval (float): Stored replacement value for manual clipping.
+apply_threshold (bool): Whether manual threshold clipping is active.</p>
 <p class="rubric">Initialization</p>
-<p>Initializes the activation function.</p>
+<p>Initializes ActivationFunction.</p>
 <p>Args:
 af_name: Name of the activation function (e.g., ‘relu’, ‘leakyrelu’).
-fparam: Float parameter for activations (e.g., alpha for ELU, negative_slope for LeakyReLU).
-tval: Threshold value (used in Softshrink, Hardshrink, etc.).
-rval: Replacement value (used in global replacement logic if needed).
-n_params: Number of parameters for PReLU.
-urange: Uniform range for RReLU (lower, upper).
+fparam: Primary float parameter (e.g., negative_slope, alpha).
+tval: Threshold value for shrinking or thresholding.
+rval: Replacement value for threshold-clipping.
+n_params: Parameter count for multi-channel activations (e.g., PReLU).
+urange: Optional range for Hardtanh or RReLU.
 inplace: Whether to perform the operation in-place.
-activation_config: Activation function configuration object.</p>
+activation_config: Optional configuration object to override parameters.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.activation_function.ActivationFunction._get_activation_module">
 <span class="sig-name descname"><span class="pre">_get_activation_module</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">af_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fparam</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">urange</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.nn.Module</span></span></span><a class="headerlink" href="#src.models.subnets.modules.activation_function.ActivationFunction._get_activation_module" title="Link to this definition">#</a></dt>
 <dd><p>Factory method to create PyTorch activation modules.</p>
+<p>Args:
+af_name: Requested activation name.
+fparam: Parameter (alpha, negative_slope, etc.).
+tval: Threshold lambd or value.
+rval: Replacement value.
+n_params: Parameter count for PReLU.
+urange: Range tuple for stochastic/bounded acts.
+inplace: In-place flag.</p>
+<p>Returns:
+nn.Module: Instantiated PyTorch activation.</p>
+<p>Raises:
+ValueError: If the activation name is unknown.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.activation_function.ActivationFunction.init_parameters">
-<span class="sig-name descname"><span class="pre">init_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.activation_function.ActivationFunction.init_parameters" title="Link to this definition">#</a></dt>
-<dd><p>Initializes the parameters of the activation function using uniform distribution.</p>
+<span class="sig-name descname"><span class="pre">init_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.subnets.modules.activation_function.ActivationFunction.init_parameters" title="Link to this definition">#</a></dt>
+<dd><p>Initializes internal parameters using uniform distribution.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.activation_function.ActivationFunction.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.activation_function.ActivationFunction.forward" title="Link to this definition">#</a></dt>
-<dd><p>Applies the activation function to the input.</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.modules.activation_function.ActivationFunction.forward" title="Link to this definition">#</a></dt>
+<dd><p>Applies the activation function to the input tensor.</p>
 <p>Args:
-input: Input tensor.
-mask: Optional mask (not used by default activations but kept for interface).</p>
+input: Unactivated input tensor.
+mask: Optional mask (not used by default activations).</p>
 <p>Returns:
-Output tensor.</p>
+torch.Tensor: Activated output tensor.</p>
 </dd></dl>
 
 </dd></dl>

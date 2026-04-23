@@ -493,7 +493,18 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.modules.normalization">
 <span id="src-models-subnets-modules-normalization"></span><h1><a class="reference internal" href="#module-src.models.subnets.modules.normalization" title="src.models.subnets.modules.normalization"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.modules.normalization</span></code></a><a class="headerlink" href="#module-src.models.subnets.modules.normalization" title="Link to this heading">#</a></h1>
-<p>Normalization layers (Batch, Layer, Instance).</p>
+<p>Normalization layers (Batch, Layer, Instance, Group).</p>
+<p>This module provides the Normalization wrapper, which unifies various PyTorch
+normalization strategies into a single interface compatible with the project’s
+configuration system.</p>
+<p>Attributes:
+Normalization: Unified wrapper for various normalization layers.</p>
+<p>Example:
+&gt;&gt;&gt; import torch
+&gt;&gt;&gt; from logic.src.models.subnets.modules.normalization import Normalization
+&gt;&gt;&gt; norm = Normalization(128, norm_name=”layer”)
+&gt;&gt;&gt; x = torch.randn(1, 10, 128)
+&gt;&gt;&gt; x_norm = norm(x)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -501,7 +512,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.subnets.modules.normalization.Normalization" title="src.models.subnets.modules.normalization.Normalization"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Normalization</span></code></a></p></td>
-<td><p>Wrapper for various Normalization layers (Batch, Layer, Instance).</p></td>
+<td><p>Wrapper for various Normalization layers.</p></td>
 </tr>
 </tbody>
 </table>
@@ -513,20 +524,27 @@ document.write(`
 <dt class="sig sig-object py" id="src.models.subnets.modules.normalization.Normalization">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.modules.normalization.</span></span><span class="sig-name descname"><span class="pre">Normalization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps_alpha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learn_affine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_stats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mbval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_groups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.models.normalization.NormalizationConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.normalization.Normalization" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
-<p>Wrapper for various Normalization layers (Batch, Layer, Instance).</p>
+<p>Wrapper for various Normalization layers.</p>
+<p>Supports Batch, Layer, Instance, Group, and Local Response Normalization.
+It automatically routes inputs to the appropriate underlying PyTorch module
+and handles tensor reshaping for compatibility with graph and sequence data.</p>
+<p>Attributes:
+normalizer (nn.Module): The underlying PyTorch normalization layer.</p>
 <p class="rubric">Initialization</p>
-<p>Initializes the normalization layer.</p>
+<p>Initializes Normalization.</p>
 <p>Args:
-embed_dim: Embedding dimension.
-norm_name: Type of normalization (‘batch’, ‘layer’, ‘instance’, ‘group’, ‘local_response’).
-eps_alpha: Epsilon value for numerical stability.
-learn_affine: If True, learn affine parameters (weight and bias).
-track_stats: If True, track running statistics for BatchNorm/InstanceNorm.
-mbval: Momentum for running statistics or beta for LocalResponseNorm.
+embed_dim: dimensionality of the input feature space.
+norm_name: Normalization strategy (‘batch’, ‘layer’, ‘instance’,
+‘group’, ‘local_response’).
+eps_alpha: Numerical stability epsilon (or alpha for LRNorm).
+learn_affine: Whether to learn gain and bias parameters.
+track_stats: Whether to track running mean/variance (for BN/IN).
+mbval: Momentum for stats or beta for LRNorm.
 n_groups: Number of groups for GroupNorm.
-kval: k value for LocalResponseNorm.
-bias: If True, add bias for LayerNorm.
-norm_config: Normalization configuration object.</p>
+kval: Constant k for LocalResponseNorm.
+bias: Whether to add a bias term in LayerNorm.
+norm_config: Pre-populated configuration object. Overrides other args if
+provided.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.models.subnets.modules.normalization.Normalization.normalizer">
 <span class="sig-name descname"><span class="pre">normalizer</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.nn.Module</span></em><a class="headerlink" href="#src.models.subnets.modules.normalization.Normalization.normalizer" title="Link to this definition">#</a></dt>
@@ -536,18 +554,20 @@ norm_config: Normalization configuration object.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.normalization.Normalization.init_parameters">
 <span class="sig-name descname"><span class="pre">init_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.subnets.modules.normalization.Normalization.init_parameters" title="Link to this definition">#</a></dt>
-<dd><p>Initializes the affine parameters if applicable.</p>
+<dd><p>Initializes the affine parameters (weights) using uniform distribution.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.normalization.Normalization.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.modules.normalization.Normalization.forward" title="Link to this definition">#</a></dt>
-<dd><p>Applies the normalization to the input.</p>
+<dd><p>Normalizes the input tensor.</p>
+<p>Handles reshaping for 1D normalization layers (Batch, Instance, Group)
+automatically to support various sequence/graph shapes.</p>
 <p>Args:
-input: Input tensor.
-mask: Optional mask (currently not used by normalization layers).</p>
+input: Tensor to normalize of shape (…, embed_dim).
+mask: Optional mask (currently ignored by standard norm layers).</p>
 <p>Returns:
-Normalized tensor.</p>
+torch.Tensor: Normalized tensor with same shape as input.</p>
 </dd></dl>
 
 </dd></dl>

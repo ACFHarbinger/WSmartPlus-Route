@@ -23,3 +23,30 @@ src.models.subnets.decoders.glimpse
 src.models.subnets.decoders.nar
 src.models.subnets.decoders.common
 ```
+
+## Package Contents
+
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`__all__ <src.models.subnets.decoders.__all__>`
+  - ```{autodoc2-docstring} src.models.subnets.decoders.__all__
+    :summary:
+    ```
+````
+
+### API
+
+````{py:data} __all__
+:canonical: src.models.subnets.decoders.__all__
+:type: list[str]
+:value: >
+   ['FeedForwardSubLayer', 'ACODecoder', 'DeepGATDecoder', 'GraphAttentionDecoder', 'GlimpseDecoder', '...
+
+```{autodoc2-docstring} src.models.subnets.decoders.__all__
+```
+
+````

@@ -491,7 +491,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.embeddings.matnet">
 <span id="src-models-subnets-embeddings-matnet"></span><h1><a class="reference internal" href="#module-src.models.subnets.embeddings.matnet" title="src.models.subnets.embeddings.matnet"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.embeddings.matnet</span></code></a><a class="headerlink" href="#module-src.models.subnets.embeddings.matnet" title="Link to this heading">#</a></h1>
-<p>MatNet Embedding.</p>
+<p>MatNet Embedding module.</p>
+<p>This module implements the MatNet initial embedding, which encodes row and column
+statistics from cost matrices into high-dimensional space.</p>
+<p>Attributes:
+MatNetInitEmbedding: Encoder for matrix-based inputs (e.g., cross-matrix metrics).</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.embeddings.matnet import MatNetInitEmbedding
+&gt;&gt;&gt; embed = MatNetInitEmbedding(embed_dim=128)
+&gt;&gt;&gt; row_emb, col_emb = embed(cost_matrix)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -499,9 +507,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.subnets.embeddings.matnet.MatNetInitEmbedding" title="src.models.subnets.embeddings.matnet.MatNetInitEmbedding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MatNetInitEmbedding</span></code></a></p></td>
-<td><p>Initial embedding layer for MatNet.
-Projects row and column statistics (mean, min, etc.) of the cost matrix.
-Reference: MatNet: Matrix Encoding Network for Combinatorial Optimization (Kwon et al., 2021)</p></td>
+<td><p>Initial embedding layer for MatNet.</p></td>
 </tr>
 </tbody>
 </table>
@@ -513,22 +519,29 @@ Reference: MatNet: Matrix Encoding Network for Combinatorial Optimization (Kwon 
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.matnet.MatNetInitEmbedding">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.embeddings.matnet.</span></span><span class="sig-name descname"><span class="pre">MatNetInitEmbedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'instance'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.embeddings.matnet.MatNetInitEmbedding" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
-<p>Initial embedding layer for MatNet.
-Projects row and column statistics (mean, min, etc.) of the cost matrix.
-Reference: MatNet: Matrix Encoding Network for Combinatorial Optimization (Kwon et al., 2021)</p>
+<p>Initial embedding layer for MatNet.</p>
+<p>Projects row and column statistics (mean, min) of the input cost matrix
+to generate dual embeddings for bipartite graphs or matrix-based CO problems.</p>
+<p>Reference:
+Kwon et al. “MatNet: Matrix Encoding Network for Combinatorial
+Optimization” (NeurIPS 2021)</p>
+<p>Attributes:
+row_stats_proj (nn.Linear): Linear projection for row-level statistics.
+col_stats_proj (nn.Linear): Linear projection for column-level statistics.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize MatNetInitEmbedding.</p>
+<p>Initializes MatNetInitEmbedding.</p>
 <p>Args:
-embed_dim: Embedding dimension.
-normalization: Normalization type.</p>
+embed_dim: Target embedding dimensionality for rows and columns.
+normalization: Type of normalization to apply (default: “instance”).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.matnet.MatNetInitEmbedding.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.embeddings.matnet.MatNetInitEmbedding.forward" title="Link to this definition">#</a></dt>
-<dd><p>Args:
-matrix: [batch, row_size, col_size]
-Returns:
-row_emb: [batch, row_size, embed_dim]
-col_emb: [batch, col_size, embed_dim]</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.subnets.embeddings.matnet.MatNetInitEmbedding.forward" title="Link to this definition">#</a></dt>
+<dd><p>Encodes matrix statistics into row and column embeddings.</p>
+<p>Args:
+matrix: Input cost/distance matrix of shape (batch, row_size, col_size).</p>
+<p>Returns:
+Tuple: Row embeddings (batch, row_size, dim) and column
+embeddings (batch, col_size, dim).</p>
 </dd></dl>
 
 </dd></dl>

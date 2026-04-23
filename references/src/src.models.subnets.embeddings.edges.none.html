@@ -491,11 +491,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.embeddings.edges.none">
 <span id="src-models-subnets-embeddings-edges-none"></span><h1><a class="reference internal" href="#module-src.models.subnets.embeddings.edges.none" title="src.models.subnets.embeddings.edges.none"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.embeddings.edges.none</span></code></a><a class="headerlink" href="#module-src.models.subnets.embeddings.edges.none" title="Link to this heading">#</a></h1>
-<p>none.py module.</p>
+<p>Null edge embedding module.</p>
+<p>This module provides the NoEdgeEmbedding layer, which constructs fully-connected
+graphs with zero-valued edge attributes for problems where edge features are ignored.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+NoEdgeEmbedding: Placeholder edge encoder for non-graph tasks.</p>
 <p>Example:
-&gt;&gt;&gt; import none</p>
+&gt;&gt;&gt; from logic.src.models.subnets.embeddings.edges.none import NoEdgeEmbedding
+&gt;&gt;&gt; embedder = NoEdgeEmbedding(embed_dim=128)
+&gt;&gt;&gt; pyg_batch = embedder(td, init_embeddings)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -513,26 +517,30 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.edges.none.NoEdgeEmbedding">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.embeddings.edges.none.</span></span><span class="sig-name descname"><span class="pre">NoEdgeEmbedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">self_loop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.embeddings.edges.none.NoEdgeEmbedding" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.embeddings.edges.none.</span></span><span class="sig-name descname"><span class="pre">NoEdgeEmbedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">self_loop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.embeddings.edges.none.NoEdgeEmbedding" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
 <p>Dummy edge embedding for problems that don’t use edge features.</p>
-<p>Creates a fully-connected graph with zero-valued edge embeddings.
-Useful for problems where only node features matter (e.g., scheduling).</p>
+<p>Creates a fully-connected graph structure with zero-valued edge embeddings.
+Useful for architectural consistency in models that expect graph-structured
+inputs even when edges carry no information.</p>
+<p>Attributes:
+embed_dim (int): Dimensionality of the output zero-embeddings.
+self_loop (bool): Whether to include self-loops in the graph.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize NoEdgeEmbedding.</p>
+<p>Initializes NoEdgeEmbedding.</p>
 <p>Args:
-embed_dim: Embedding dimension.
-self_loop: Whether to include self-loops.
-**kwargs: Unused arguments.</p>
+embed_dim: Resulting edge feature dimension.
+self_loop: Whether to include self-loops in the generated graph.
+kwargs: Unused arguments captured for registry compatibility.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.edges.none.NoEdgeEmbedding.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.embeddings.edges.none.NoEdgeEmbedding.forward" title="Link to this definition">#</a></dt>
-<dd><p>Generate dummy edge embeddings.</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch_geometric.data.Batch</span></span></span><a class="headerlink" href="#src.models.subnets.embeddings.edges.none.NoEdgeEmbedding.forward" title="Link to this definition">#</a></dt>
+<dd><p>Generates zero-valued edge embeddings for a fully-connected graph.</p>
 <p>Args:
-td: TensorDict.
-init_embeddings: Node embeddings.</p>
+td: Current problem instance data.
+init_embeddings: Static node embeddings of shape (batch, nodes, dim).</p>
 <p>Returns:
-Batch with dummy edge attributes.</p>
+Batch: PyG Batch object with zeroed edge_attr.</p>
 </dd></dl>
 
 </dd></dl>

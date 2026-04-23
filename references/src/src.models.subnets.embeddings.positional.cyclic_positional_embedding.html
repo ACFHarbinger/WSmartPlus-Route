@@ -491,7 +491,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.embeddings.positional.cyclic_positional_embedding">
 <span id="src-models-subnets-embeddings-positional-cyclic-positional-embedding"></span><h1><a class="reference internal" href="#module-src.models.subnets.embeddings.positional.cyclic_positional_embedding" title="src.models.subnets.embeddings.positional.cyclic_positional_embedding"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.embeddings.positional.cyclic_positional_embedding</span></code></a><a class="headerlink" href="#module-src.models.subnets.embeddings.positional.cyclic_positional_embedding" title="Link to this heading">#</a></h1>
-<p>Cyclic positional encoding.</p>
+<p>Cyclic positional encoding module.</p>
+<p>This module provides the CyclicPositionalEmbedding layer, which encodes relative
+order using coordinates on a unit circle (Ma et al., 2021).</p>
+<p>Attributes:
+CyclicPositionalEmbedding: Circular coordinate positional encoder.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.embeddings.positional.cyclic_positional_embedding import CyclicPositionalEmbedding
+&gt;&gt;&gt; pe = CyclicPositionalEmbedding(embed_dim=128)
+&gt;&gt;&gt; x = pe(x, positions)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -512,20 +520,27 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.embeddings.positional.cyclic_positional_embedding.</span></span><span class="sig-name descname"><span class="pre">CyclicPositionalEmbedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean_pooling</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.embeddings.positional.cyclic_positional_embedding.CyclicPositionalEmbedding" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
 <p>Cyclic positional encoding (Ma et al. 2021).</p>
+<p>Projects normalized positions [0, 1] onto a unit circle (cosine and sine)
+and then maps them into the latent space to provide a translation-invariant
+order signal.</p>
+<p>Attributes:
+embed_dim (int): Dimensionality of the output embeddings.
+mean_pooling (bool): Whether to subtract the mean across the sequence length.
+linear (nn.Linear): Transformation layer from 2D cyclic coords to embed_dim.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize CyclicPositionalEmbedding.</p>
+<p>Initializes CyclicPositionalEmbedding.</p>
 <p>Args:
-embed_dim: Embedding dimension.
-mean_pooling: Whether to use mean pooling.</p>
+embed_dim: Internal embedding dimensionality.
+mean_pooling: If True, centers the generated encodings.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.positional.cyclic_positional_embedding.CyclicPositionalEmbedding.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.embeddings.positional.cyclic_positional_embedding.CyclicPositionalEmbedding.forward" title="Link to this definition">#</a></dt>
-<dd><p>Apply cyclic positional encoding.</p>
+<dd><p>Applies cyclic positional encoding to the input sequence.</p>
 <p>Args:
-x: Input tensor (batch, seq_len, embed_dim)
-positions: Normalized positions in [0, 1] (batch, seq_len)</p>
+x: Input tensor of shape (batch, seq_len, embed_dim).
+positions: Normalized sequence positions in [0, 1] (batch, seq_len).</p>
 <p>Returns:
-Tensor with cyclic positional encoding</p>
+torch.Tensor: Input tensor with cyclic order information added.</p>
 </dd></dl>
 
 </dd></dl>

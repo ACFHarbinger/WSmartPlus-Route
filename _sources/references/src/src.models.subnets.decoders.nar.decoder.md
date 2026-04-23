@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} SimpleNARDecoder(**kwargs)
+`````{py:class} SimpleNARDecoder(**kwargs: typing.Any)
 :canonical: src.models.subnets.decoders.nar.decoder.SimpleNARDecoder
 
 Bases: {py:obj}`logic.src.models.common.non_autoregressive.decoder.NonAutoregressiveDecoder`
@@ -37,7 +37,7 @@ Bases: {py:obj}`logic.src.models.common.non_autoregressive.decoder.NonAutoregres
 ```{autodoc2-docstring} src.models.subnets.decoders.nar.decoder.SimpleNARDecoder.__init__
 ```
 
-````{py:method} forward(td: tensordict.TensorDict, heatmap: torch.Tensor, env: logic.src.envs.base.base.RL4COEnvBase, **kwargs) -> tuple[torch.Tensor, torch.Tensor]
+````{py:method} forward(td: tensordict.TensorDict, heatmap: torch.Tensor, env: logic.src.envs.base.base.RL4COEnvBase, **kwargs: typing.Any) -> typing.Tuple[torch.Tensor, torch.Tensor]
 :canonical: src.models.subnets.decoders.nar.decoder.SimpleNARDecoder.forward
 
 ```{autodoc2-docstring} src.models.subnets.decoders.nar.decoder.SimpleNARDecoder.forward

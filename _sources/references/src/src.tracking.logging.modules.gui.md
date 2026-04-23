@@ -99,7 +99,7 @@
 ```
 ````
 
-````{py:function} _get_lat_lon(row: pandas.Series) -> tuple
+````{py:function} _get_lat_lon(row: pandas.Series) -> typing.Tuple[typing.Optional[float], typing.Optional[float]]
 :canonical: src.tracking.logging.modules.gui._get_lat_lon
 
 ```{autodoc2-docstring} src.tracking.logging.modules.gui._get_lat_lon

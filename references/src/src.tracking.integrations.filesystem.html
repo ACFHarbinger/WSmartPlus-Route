@@ -471,13 +471,12 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.integrations.filesystem.FilesystemTracker"><code class="docutils literal notranslate"><span class="pre">FilesystemTracker</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.integrations.filesystem.FilesystemTracker.track_load"><code class="docutils literal notranslate"><span class="pre">FilesystemTracker.track_load()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.integrations.filesystem.FilesystemTracker.track_generate"><code class="docutils literal notranslate"><span class="pre">FilesystemTracker.track_generate()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.integrations.filesystem.FilesystemTracker.track_mutation"><code class="docutils literal notranslate"><span class="pre">FilesystemTracker.track_mutation()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.integrations.filesystem.FilesystemTracker.track_save"><code class="docutils literal notranslate"><span class="pre">FilesystemTracker.track_save()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.integrations.filesystem.FilesystemTracker.watch"><code class="docutils literal notranslate"><span class="pre">FilesystemTracker.watch()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.integrations.filesystem.FilesystemTracker.check_changes"><code class="docutils literal notranslate"><span class="pre">FilesystemTracker.check_changes()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.integrations.filesystem.FilesystemTracker.scan_directory"><code class="docutils literal notranslate"><span class="pre">FilesystemTracker.scan_directory()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.integrations.filesystem.FilesystemTracker.on_load"><code class="docutils literal notranslate"><span class="pre">FilesystemTracker.on_load()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.integrations.filesystem.FilesystemTracker.on_save"><code class="docutils literal notranslate"><span class="pre">FilesystemTracker.on_save()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.integrations.filesystem.FilesystemTracker.on_stat"><code class="docutils literal notranslate"><span class="pre">FilesystemTracker.on_stat()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.integrations.filesystem.FilesystemTracker.clear_cache"><code class="docutils literal notranslate"><span class="pre">FilesystemTracker.clear_cache()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.integrations.filesystem.FilesystemTracker._hash_file"><code class="docutils literal notranslate"><span class="pre">FilesystemTracker._hash_file()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.integrations.filesystem.FilesystemTracker._get_stats"><code class="docutils literal notranslate"><span class="pre">FilesystemTracker._get_stats()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -497,10 +496,17 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.integrations.filesystem">
 <span id="src-tracking-integrations-filesystem"></span><h1><a class="reference internal" href="#module-src.tracking.integrations.filesystem" title="src.tracking.integrations.filesystem"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.integrations.filesystem</span></code></a><a class="headerlink" href="#module-src.tracking.integrations.filesystem" title="Link to this heading">#</a></h1>
-<p>Filesystem-level data file tracking for WSTracker.</p>
-<p>:class:<code class="docutils literal notranslate"><span class="pre">FilesystemTracker</span></code> wraps an active :class:<code class="docutils literal notranslate"><span class="pre">~logic.src.tracking.core.run.Run</span></code>
-and provides a higher-level API for recording the full lifecycle of dataset
-files on disk: generation, loading, saving, and SHA-256-based change detection.</p>
+<p>Filesystem-level change tracking for WSTracker.</p>
+<p>This module provides the :class:<code class="docutils literal notranslate"><span class="pre">FilesystemTracker</span></code> which coordinates with a
+tracking run to record file-level dataset events. It implements SHA-256
+content hashing and OS-level stat collection (size, timestamps) to maintain
+data lineage across training and evaluation runs.</p>
+<p>Attributes:
+FilesystemTracker: Tracks filesystem-level data events and lineage.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.tracking.integrations.filesystem import FilesystemTracker
+&gt;&gt;&gt; tracker = FilesystemTracker(run)
+&gt;&gt;&gt; tracker.on_load(“data/vrp_50_test.pkl”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -508,7 +514,7 @@ files on disk: generation, loading, saving, and SHA-256-based change detection.<
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.integrations.filesystem.FilesystemTracker" title="src.tracking.integrations.filesystem.FilesystemTracker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FilesystemTracker</span></code></a></p></td>
-<td><p>Tracks data file changes and dataset mutations within a single run.</p></td>
+<td><p>Tracks filesystem-level data events and content lineage.</p></td>
 </tr>
 </tbody>
 </table>
@@ -518,82 +524,74 @@ files on disk: generation, loading, saving, and SHA-256-based change detection.<
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.tracking.integrations.filesystem.FilesystemTracker">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.tracking.integrations.filesystem.</span></span><span class="sig-name descname"><span class="pre">FilesystemTracker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.tracking.core.run.Run</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.integrations.filesystem.FilesystemTracker" title="Link to this definition">#</a></dt>
-<dd><p>Tracks data file changes and dataset mutations within a single run.</p>
-<p>Maintains a hash registry for registered files and can detect on-disk
-modifications by comparing the current SHA-256 against the stored value.</p>
-<p>Args:
-run: The active tracking run to associate events with.</p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.tracking.integrations.filesystem.</span></span><span class="sig-name descname"><span class="pre">FilesystemTracker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.tracking.core.run.Run</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.integrations.filesystem.FilesystemTracker" title="Link to this definition">#</a></dt>
+<dd><p>Tracks filesystem-level data events and content lineage.</p>
+<p>Monitors file loading and saving events, capturing SHA-256 hashes and
+metadata to ensure the integrity and traceability of localized datasets.</p>
+<p>Attributes:
+_run: The active tracking run instance.
+_hash_cache: In-memory cache to avoid redundant hashing of large files.</p>
 <p class="rubric">Initialization</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="src.tracking.integrations.filesystem.FilesystemTracker.track_load">
-<span class="sig-name descname"><span class="pre">track_load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.integrations.filesystem.FilesystemTracker.track_load" title="Link to this definition">#</a></dt>
-<dd><p>Record a data file <strong>load</strong> event and register the file for monitoring.</p>
+<p>Initializes the filesystem mutation tracker.</p>
 <p>Args:
-file_path: Path to the loaded dataset file.
-shape: Shape of the loaded dataset.
-metadata: Extra context (e.g. problem type, graph size).</p>
-</dd></dl>
-
+run: The active tracking run. If None, operations become no-ops.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="src.tracking.integrations.filesystem.FilesystemTracker.track_generate">
-<span class="sig-name descname"><span class="pre">track_generate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.integrations.filesystem.FilesystemTracker.track_generate" title="Link to this definition">#</a></dt>
-<dd><p>Record a data <strong>generation</strong> event.</p>
+<dt class="sig sig-object py" id="src.tracking.integrations.filesystem.FilesystemTracker.on_load">
+<span class="sig-name descname"><span class="pre">on_load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.tracking.integrations.filesystem.FilesystemTracker.on_load" title="Link to this definition">#</a></dt>
+<dd><p>Records a ‘load’ event for a specific file.</p>
 <p>Args:
-file_path: Output path of the generated file (may be <code class="docutils literal notranslate"><span class="pre">None</span></code> for
-in-memory generation).
-shape: Shape of the generated dataset.
-problem: Problem type string (e.g. <code class="docutils literal notranslate"><span class="pre">'vrpp'</span></code>).
-graph_size: Number of nodes.
-metadata: Extra context dict.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.tracking.integrations.filesystem.FilesystemTracker.track_mutation">
-<span class="sig-name descname"><span class="pre">track_mutation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.integrations.filesystem.FilesystemTracker.track_mutation" title="Link to this definition">#</a></dt>
-<dd><p>Record an <strong>in-memory mutation</strong> event (e.g. epoch dataset regeneration).</p>
-<p>Args:
-description: Human-readable description of the mutation.
-shape: Shape of the mutated dataset.
-metadata: Extra context dict.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.tracking.integrations.filesystem.FilesystemTracker.track_save">
-<span class="sig-name descname"><span class="pre">track_save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.integrations.filesystem.FilesystemTracker.track_save" title="Link to this definition">#</a></dt>
-<dd><p>Record a dataset <strong>save</strong> event and update the hash registry.</p>
-<p>Args:
-file_path: Path to the written file.
-shape: Shape of the written data.
-metadata: Extra context dict.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.tracking.integrations.filesystem.FilesystemTracker.watch">
-<span class="sig-name descname"><span class="pre">watch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.integrations.filesystem.FilesystemTracker.watch" title="Link to this definition">#</a></dt>
-<dd><p>Register <em>file_path</em> for future change detection without logging.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.tracking.integrations.filesystem.FilesystemTracker.check_changes">
-<span class="sig-name descname"><span class="pre">check_changes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.integrations.filesystem.FilesystemTracker.check_changes" title="Link to this definition">#</a></dt>
-<dd><p>Scan watched files (or <em>paths</em>) for on-disk hash changes.</p>
-<p>Any file whose hash differs from the registered value is logged as a
-<code class="docutils literal notranslate"><span class="pre">hash_change</span></code> event, and the registry is updated.</p>
-<p>Args:
-paths: Specific paths to check.  If <code class="docutils literal notranslate"><span class="pre">None</span></code>, all watched files
-are checked.</p>
+path: Local filesystem path to the dataset file.
+metadata: Extra contextual information (e.g., source_url, tags).</p>
 <p>Returns:
-List of file paths that changed.</p>
+str: The SHA-256 hash of the loaded file.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="src.tracking.integrations.filesystem.FilesystemTracker.scan_directory">
-<span class="sig-name descname"><span class="pre">scan_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.integrations.filesystem.FilesystemTracker.scan_directory" title="Link to this definition">#</a></dt>
-<dd><p>Register all files in <em>directory</em> for future change detection.</p>
-<p>Files already in the registry are updated; new files are added.</p>
+<dt class="sig sig-object py" id="src.tracking.integrations.filesystem.FilesystemTracker.on_save">
+<span class="sig-name descname"><span class="pre">on_save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prev_hash</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.tracking.integrations.filesystem.FilesystemTracker.on_save" title="Link to this definition">#</a></dt>
+<dd><p>Records a ‘save’ or ‘mutate’ event for a file.</p>
 <p>Args:
-directory: Path to a directory to scan recursively.</p>
+path: Local filesystem path where the data was written.
+prev_hash: Previous known SHA-256 hash for lineage tracking.
+metadata: Extra context for the save event.</p>
+<p>Returns:
+str: The SHA-256 hash of the saved file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.integrations.filesystem.FilesystemTracker.on_stat">
+<span class="sig-name descname"><span class="pre">on_stat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.integrations.filesystem.FilesystemTracker.on_stat" title="Link to this definition">#</a></dt>
+<dd><p>Provides high-level metadata statistics for a file without logging an event.</p>
+<p>Args:
+path: Local filesystem path.</p>
+<p>Returns:
+Dict[str, Any]: Dictionary containing ‘hash’ and ‘size_bytes’.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.integrations.filesystem.FilesystemTracker.clear_cache">
+<span class="sig-name descname"><span class="pre">clear_cache</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.integrations.filesystem.FilesystemTracker.clear_cache" title="Link to this definition">#</a></dt>
+<dd><p>Clears the internal hash cache to force re-computation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.integrations.filesystem.FilesystemTracker._hash_file">
+<span class="sig-name descname"><span class="pre">_hash_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.tracking.integrations.filesystem.FilesystemTracker._hash_file" title="Link to this definition">#</a></dt>
+<dd><p>Computes the SHA-256 hash of a file with internal caching.</p>
+<p>Args:
+path: Absolute or relative path to the file.</p>
+<p>Returns:
+str: Hexadecimal SHA-256 string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.tracking.integrations.filesystem.FilesystemTracker._get_stats">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_get_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.integrations.filesystem.FilesystemTracker._get_stats" title="Link to this definition">#</a></dt>
+<dd><p>Retrieves size and modification time for a file.</p>
+<p>Args:
+path: Path to the file.</p>
+<p>Returns:
+Tuple[int, float]: (size_bytes, mtime).</p>
 </dd></dl>
 
 </dd></dl>
@@ -651,13 +649,12 @@ directory: Path to a directory to scan recursively.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.integrations.filesystem.FilesystemTracker"><code class="docutils literal notranslate"><span class="pre">FilesystemTracker</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.integrations.filesystem.FilesystemTracker.track_load"><code class="docutils literal notranslate"><span class="pre">FilesystemTracker.track_load()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.integrations.filesystem.FilesystemTracker.track_generate"><code class="docutils literal notranslate"><span class="pre">FilesystemTracker.track_generate()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.integrations.filesystem.FilesystemTracker.track_mutation"><code class="docutils literal notranslate"><span class="pre">FilesystemTracker.track_mutation()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.integrations.filesystem.FilesystemTracker.track_save"><code class="docutils literal notranslate"><span class="pre">FilesystemTracker.track_save()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.integrations.filesystem.FilesystemTracker.watch"><code class="docutils literal notranslate"><span class="pre">FilesystemTracker.watch()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.integrations.filesystem.FilesystemTracker.check_changes"><code class="docutils literal notranslate"><span class="pre">FilesystemTracker.check_changes()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.integrations.filesystem.FilesystemTracker.scan_directory"><code class="docutils literal notranslate"><span class="pre">FilesystemTracker.scan_directory()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.integrations.filesystem.FilesystemTracker.on_load"><code class="docutils literal notranslate"><span class="pre">FilesystemTracker.on_load()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.integrations.filesystem.FilesystemTracker.on_save"><code class="docutils literal notranslate"><span class="pre">FilesystemTracker.on_save()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.integrations.filesystem.FilesystemTracker.on_stat"><code class="docutils literal notranslate"><span class="pre">FilesystemTracker.on_stat()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.integrations.filesystem.FilesystemTracker.clear_cache"><code class="docutils literal notranslate"><span class="pre">FilesystemTracker.clear_cache()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.integrations.filesystem.FilesystemTracker._hash_file"><code class="docutils literal notranslate"><span class="pre">FilesystemTracker._hash_file()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.integrations.filesystem.FilesystemTracker._get_stats"><code class="docutils literal notranslate"><span class="pre">FilesystemTracker._get_stats()</span></code></a></li>
 </ul>
 </li>
 </ul>

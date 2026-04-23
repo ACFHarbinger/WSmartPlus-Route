@@ -34,6 +34,7 @@ src.models.subnets.decoders.polynet.decoder
 
 ````{py:data} __all__
 :canonical: src.models.subnets.decoders.polynet.__all__
+:type: list[str]
 :value: >
    ['PolyNetDecoder']
 

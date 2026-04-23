@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.subnets.embeddings.dynamic.DynamicEmbedding.__init__
 ```
 
-````{py:method} forward(td: typing.Any) -> typing.Tuple[torch.Tensor, torch.Tensor, torch.Tensor]
+````{py:method} forward(td: tensordict.TensorDict) -> typing.Tuple[torch.Tensor, torch.Tensor, torch.Tensor]
 :canonical: src.models.subnets.embeddings.dynamic.DynamicEmbedding.forward
 
 ```{autodoc2-docstring} src.models.subnets.embeddings.dynamic.DynamicEmbedding.forward

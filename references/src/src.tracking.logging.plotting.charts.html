@@ -495,7 +495,16 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.logging.plotting.charts">
 <span id="src-tracking-logging-plotting-charts"></span><h1><a class="reference internal" href="#module-src.tracking.logging.plotting.charts" title="src.tracking.logging.plotting.charts"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging.plotting.charts</span></code></a><a class="headerlink" href="#module-src.tracking.logging.plotting.charts" title="Link to this heading">#</a></h1>
-<p>Line chart plotting utilities.</p>
+<p>Line chart plotting utilities for tracking metrics.</p>
+<p>This module provides high-level functions for generating 2D line charts,
+scatter plots, and Pareto front visualizations. It wraps matplotlib to
+provide consistent styling, axis scaling, and automatic annotation of
+significant data points across different routing policies.</p>
+<p>Attributes:
+plot_linechart: The primary entry point for generating metric charts.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.tracking.logging.plotting.charts import plot_linechart
+&gt;&gt;&gt; plot_linechart(“metrics.png”, np.array([[1, 2], [3, 4]]), plt.plot, [“greedy”])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -559,42 +568,68 @@ list or None: Pareto dominants if pareto_front is True, else None.</p>
 <dt class="sig sig-object py" id="src.tracking.logging.plotting.charts._plot_2d_graph">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.logging.plotting.charts.</span></span><span class="sig-name descname"><span class="pre">_plot_2d_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plot_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph_log</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">markers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.logging.plotting.charts._plot_2d_graph" title="Link to this definition">#</a></dt>
 <dd><p>Helper to plot 2D graph log data.</p>
+<p>Args:
+plot_func: The plotting function to use.
+graph_log: The data array to plot.
+markers: Optional list of markers for each point.</p>
+<p>Returns:
+Dict[int, List[Tuple[float, float]]]: Points indexed by bin (always 0 for 2D).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.logging.plotting.charts._annotate_plot">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.logging.plotting.charts.</span></span><span class="sig-name descname"><span class="pre">_annotate_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph_log</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.logging.plotting.charts._annotate_plot" title="Link to this definition">#</a></dt>
 <dd><p>Helper to annotate plot points.</p>
+<p>Args:
+graph_log: The data log containing points to annotate.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.logging.plotting.charts._set_plot_attributes">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.logging.plotting.charts.</span></span><span class="sig-name descname"><span class="pre">_set_plot_attributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policies</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.logging.plotting.charts._set_plot_attributes" title="Link to this definition">#</a></dt>
 <dd><p>Helper to set plot scales, labels and legend.</p>
+<p>Args:
+scale: Axis scale (‘linear’ or ‘log’).
+x_label: Text for the X-axis label.
+y_label: Text for the Y-axis label.
+policies: List of policy names for the legend.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.logging.plotting.charts._save_plot">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.logging.plotting.charts.</span></span><span class="sig-name descname"><span class="pre">_save_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dest</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.logging.plotting.charts._save_plot" title="Link to this definition">#</a></dt>
 <dd><p>Helper to save plot with appropriate parameters.</p>
+<p>Args:
+output_dest: File path where the plot will be saved.
+x_values: Optional custom X values; if present, bbox_inches is not used.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.logging.plotting.charts._add_scatter_marker">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.logging.plotting.charts.</span></span><span class="sig-name descname"><span class="pre">_add_scatter_marker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.logging.plotting.charts._add_scatter_marker" title="Link to this definition">#</a></dt>
 <dd><p>Helper to add a specific scatter marker to the plot.</p>
+<p>Args:
+xy: The (x, y) coordinates for the marker.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.logging.plotting.charts._plot_pareto_front">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.logging.plotting.charts.</span></span><span class="sig-name descname"><span class="pre">_plot_pareto_front</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dominance_ls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id_nbins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.logging.plotting.charts._plot_pareto_front" title="Link to this definition">#</a></dt>
 <dd><p>Helper to calculate and plot Pareto front for a set of points.</p>
+<p>Args:
+points: List of (x, y) coordinates.
+dominance_ls: Dominance flags for each point (1 if dominant).
+id_nbins: Identifier for the bin/group of points.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.logging.plotting.charts._calculate_dominance">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.logging.plotting.charts.</span></span><span class="sig-name descname"><span class="pre">_calculate_dominance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.logging.plotting.charts._calculate_dominance" title="Link to this definition">#</a></dt>
 <dd><p>Calculate Pareto dominance for a list of points (min x, max y).</p>
+<p>Args:
+points: List of (x, y) coordinates to evaluate.</p>
+<p>Returns:
+List[int]: List of binary flags where 1 indicates a non-dominated point.</p>
 </dd></dl>
 
 </section>

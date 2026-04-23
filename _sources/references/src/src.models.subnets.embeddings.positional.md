@@ -49,7 +49,7 @@ src.models.subnets.embeddings.positional.cyclic_positional_embedding
 
 ### API
 
-````{py:function} pos_init_embedding(pos_name: str, embed_dim: int, **kwargs) -> torch.nn.Module
+````{py:function} pos_init_embedding(pos_name: str, embed_dim: int, **kwargs: typing.Any) -> torch.nn.Module
 :canonical: src.models.subnets.embeddings.positional.pos_init_embedding
 
 ```{autodoc2-docstring} src.models.subnets.embeddings.positional.pos_init_embedding
@@ -58,6 +58,7 @@ src.models.subnets.embeddings.positional.cyclic_positional_embedding
 
 ````{py:data} POSITIONAL_EMBEDDING_REGISTRY
 :canonical: src.models.subnets.embeddings.positional.POSITIONAL_EMBEDDING_REGISTRY
+:type: typing.Dict[str, typing.Any]
 :value: >
    None
 
@@ -68,8 +69,9 @@ src.models.subnets.embeddings.positional.cyclic_positional_embedding
 
 ````{py:data} __all__
 :canonical: src.models.subnets.embeddings.positional.__all__
+:type: list[str]
 :value: >
-   ['AbsolutePositionalEmbedding', 'CyclicPositionalEmbedding', 'pos_init_embedding']
+   ['AbsolutePositionalEmbedding', 'CyclicPositionalEmbedding', 'pos_init_embedding', 'POSITIONAL_EMBED...
 
 ```{autodoc2-docstring} src.models.subnets.embeddings.positional.__all__
 ```

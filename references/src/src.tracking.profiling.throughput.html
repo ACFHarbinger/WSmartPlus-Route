@@ -537,43 +537,29 @@ ThroughputTracker: Sliding-window and lifetime throughput tracker.</p>
 <dd><p>Tracks items-per-second throughput over a configurable sliding window.</p>
 <p>Two throughput figures are maintained:</p>
 <ul class="simple">
-<li><p><strong>window throughput</strong> — computed over the last <em>window</em> recorded steps
-(useful for monitoring real-time training speed).</p></li>
-<li><p><strong>total throughput</strong> — computed from the first :meth:<code class="docutils literal notranslate"><span class="pre">start</span></code> call to
-the most recent :meth:<code class="docutils literal notranslate"><span class="pre">record</span></code> call (useful for end-of-run summaries).</p></li>
+<li><p>window throughput - computed over the last [window] recorded steps.</p></li>
+<li><p>total throughput - computed from the first start() call to the most
+recent record() call.</p></li>
 </ul>
-<p>Usage::</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>tracker = ThroughputTracker(window=50, unit=&quot;samples&quot;)
-tracker.start()
-for batch in dataloader:
-    with tracker.step(len(batch)):
-        loss = train_step(batch)
-    print(tracker.throughput)   # samples/sec (sliding window)
-tracker.log_to_run(step=epoch, prefix=&quot;train&quot;)
-</pre></div>
-</div>
 <p>Attributes:
-window: Maximum number of recent steps kept for the sliding-window
-throughput calculation.  A larger window gives a smoother but
-less responsive estimate.
-unit: Human-readable label for items (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;samples&quot;</span></code>,
-<code class="docutils literal notranslate"><span class="pre">&quot;steps&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;days&quot;</span></code>).  Used in metric keys and <code class="docutils literal notranslate"><span class="pre">__repr__</span></code>.
-_timestamps: List of (wall_time, n_items) pairs — last <code class="docutils literal notranslate"><span class="pre">window</span></code> entries kept
-_total_items: Total number of items recorded since :meth:<code class="docutils literal notranslate"><span class="pre">start</span></code>.
+window: Maximum number of recent steps kept for computation.
+unit: Human-readable label for items (e.g. “samples”, “steps”).
+_timestamps: List of (wall_time, n_items) pairs.
+_total_items: Total number of items recorded since start().
 _start_time: The start time of the current timing interval.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the throughput tracker.</p>
 <p>Args:
 window: Maximum number of recent steps kept for the sliding-window
-throughput calculation.  A larger window gives a smoother but
-less responsive estimate.
-unit: Human-readable label for items (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;samples&quot;</span></code>,
-<code class="docutils literal notranslate"><span class="pre">&quot;steps&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;days&quot;</span></code>).  Used in metric keys and <code class="docutils literal notranslate"><span class="pre">__repr__</span></code>.</p>
+throughput calculation. Defaults to 100.
+unit: Human-readable label for items (e.g. “samples”, “steps”).
+Used in metric keys and <strong>repr</strong>. Defaults to “items”.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.throughput.ThroughputTracker.start">
 <span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.profiling.throughput.ThroughputTracker" title="src.tracking.profiling.throughput.ThroughputTracker"><span class="pre">src.tracking.profiling.throughput.ThroughputTracker</span></a></span></span><a class="headerlink" href="#src.tracking.profiling.throughput.ThroughputTracker.start" title="Link to this definition">#</a></dt>
 <dd><p>Record the start time for lifetime throughput calculation.</p>
 <p>Returns:
-self</p>
+ThroughputTracker: The current instance.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -581,65 +567,63 @@ self</p>
 <span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.profiling.throughput.ThroughputTracker" title="src.tracking.profiling.throughput.ThroughputTracker"><span class="pre">src.tracking.profiling.throughput.ThroughputTracker</span></a></span></span><a class="headerlink" href="#src.tracking.profiling.throughput.ThroughputTracker.reset" title="Link to this definition">#</a></dt>
 <dd><p>Reset all state (timestamps, item count, start time).</p>
 <p>Returns:
-self</p>
+ThroughputTracker: The current instance.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.throughput.ThroughputTracker.record">
 <span class="sig-name descname"><span class="pre">record</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.profiling.throughput.ThroughputTracker.record" title="Link to this definition">#</a></dt>
-<dd><p>Record that <em>n_items</em> items have just been processed.</p>
+<dd><p>Record that n_items items have just been processed.</p>
 <p>Args:
-n_items: Number of items completed at this call.</p>
+n_items: Number of items completed at this call. Defaults to 1.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.throughput.ThroughputTracker.step">
 <span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Generator</span><span class="p"><span class="pre">[</span></span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.profiling.throughput.ThroughputTracker.step" title="Link to this definition">#</a></dt>
 <dd><p>Context manager that times a processing step and records it.</p>
-<p>Records <em>n_items</em> on exit (whether or not an exception was raised).</p>
+<p>Records n_items on exit (whether or not an exception was raised).</p>
 <p>Args:
-n_items: Number of items processed inside the <code class="docutils literal notranslate"><span class="pre">with</span></code> block.</p>
-<p>Example::</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>with tracker.step(batch_size):
-    loss = model(batch)
-</pre></div>
-</div>
+n_items: Number of items processed inside the with block.
+Defaults to 1.</p>
+<p>Yields:
+None: Control to the block.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.tracking.profiling.throughput.ThroughputTracker.throughput">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">throughput</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.tracking.profiling.throughput.ThroughputTracker.throughput" title="Link to this definition">#</a></dt>
 <dd><p>Sliding-window throughput (items/sec).</p>
-<p>Computed over the last <em>window</em> recorded steps.
-Returns <code class="docutils literal notranslate"><span class="pre">0.0</span></code> when fewer than two steps have been recorded.</p>
+<p>Computed over the last window recorded steps.
+Returns 0.0 when fewer than two steps have been recorded.</p>
 <p>Returns:
-float</p>
+float: Windowed items per second.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.tracking.profiling.throughput.ThroughputTracker.total_throughput">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">total_throughput</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.tracking.profiling.throughput.ThroughputTracker.total_throughput" title="Link to this definition">#</a></dt>
-<dd><p>Average throughput since :meth:<code class="docutils literal notranslate"><span class="pre">start</span></code> was called (items/sec).</p>
-<p>Returns <code class="docutils literal notranslate"><span class="pre">0.0</span></code> when :meth:<code class="docutils literal notranslate"><span class="pre">start</span></code> has not been called or no items
-have been recorded.</p>
+<dd><p>Average throughput since start() was called (items/sec).</p>
+<p>Returns 0.0 when start() has not been called or no items have
+been recorded.</p>
 <p>Returns:
-float</p>
+float: Lifetime items per second.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.tracking.profiling.throughput.ThroughputTracker.total_items">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">total_items</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.tracking.profiling.throughput.ThroughputTracker.total_items" title="Link to this definition">#</a></dt>
-<dd><p>Total number of items recorded since :meth:<code class="docutils literal notranslate"><span class="pre">start</span></code>.</p>
+<dd><p>Total number of items recorded since start().</p>
 <p>Returns:
-int</p>
+int: Global item counter.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.tracking.profiling.throughput.ThroughputTracker.elapsed">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">elapsed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.tracking.profiling.throughput.ThroughputTracker.elapsed" title="Link to this definition">#</a></dt>
-<dd><p>Wall-clock seconds elapsed since :meth:<code class="docutils literal notranslate"><span class="pre">start</span></code> (0.0 if not started).</p>
+<dd><p>Wall-clock seconds elapsed since start() (0.0 if not started).</p>
 <p>Returns:
-float</p>
+float: Total active time.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -647,7 +631,7 @@ float</p>
 <span class="sig-name descname"><span class="pre">summary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.profiling.throughput.ThroughputTracker.summary" title="Link to this definition">#</a></dt>
 <dd><p>Return a dict summarising current throughput figures.</p>
 <p>Returns:
-Dict[str, Any]</p>
+Dict[str, Any]: Mapping of summary fields to values.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -656,23 +640,21 @@ Dict[str, Any]</p>
 <dd><p>Log sliding-window and total throughput to the active WSTracker run.</p>
 <p>Metrics logged:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">{prefix}/{unit}_per_sec</span></code> — sliding-window throughput</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">{prefix}/total_{unit}</span></code> — lifetime item count</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">{prefix}/total_throughput</span></code> — lifetime throughput</p></li>
+<li><p>{prefix}/{unit}_per_sec - sliding-window throughput</p></li>
+<li><p>{prefix}/total_{unit} - lifetime item count</p></li>
+<li><p>{prefix}/total_throughput - lifetime throughput</p></li>
 </ul>
 <p>Args:
-step: Metric step dimension (e.g. epoch number).
-prefix: Metric key prefix.</p>
-<p>Returns:
-None</p>
+step: Metric step dimension (e.g. epoch number). Defaults to 0.
+prefix: Metric key prefix. Defaults to “throughput”.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.throughput.ThroughputTracker.__repr__">
 <span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.tracking.profiling.throughput.ThroughputTracker.__repr__" title="Link to this definition">#</a></dt>
-<dd><p>Return a string representation of the tracker.</p>
+<dd><p>Returns a string representation of the tracker.</p>
 <p>Returns:
-str</p>
+str: Human-readable representation.</p>
 </dd></dl>
 
 </dd></dl>

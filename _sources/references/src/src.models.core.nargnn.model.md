@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} NARGNN(embed_dim: int = 64, env_name: str = 'tsp', num_layers_heatmap_generator: int = 5, num_layers_graph_encoder: int = 15, baseline: typing.Optional[str] = 'rollout', **kwargs)
+`````{py:class} NARGNN(embed_dim: int = 64, env_name: str = 'tsp', num_layers_heatmap_generator: int = 5, num_layers_graph_encoder: int = 15, baseline: typing.Optional[str] = 'rollout', **kwargs: typing.Any)
 :canonical: src.models.core.nargnn.model.NARGNN
 
 Bases: {py:obj}`torch.nn.Module`
@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.core.nargnn.model.NARGNN.__init__
 ```
 
-````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.base.RL4COEnvBase] = None, **kwargs) -> typing.Dict[str, typing.Any]
+````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.base.RL4COEnvBase] = None, **kwargs: typing.Any) -> typing.Dict[str, typing.Any]
 :canonical: src.models.core.nargnn.model.NARGNN.forward
 
 ```{autodoc2-docstring} src.models.core.nargnn.model.NARGNN.forward
@@ -45,7 +45,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} set_strategy(strategy: str, **kwargs)
+````{py:method} set_strategy(strategy: str, **kwargs: typing.Any) -> None
 :canonical: src.models.core.nargnn.model.NARGNN.set_strategy
 
 ```{autodoc2-docstring} src.models.core.nargnn.model.NARGNN.set_strategy

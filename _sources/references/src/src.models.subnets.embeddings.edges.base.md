@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} EdgeEmbedding(embed_dim: int, linear_bias: bool = True, sparsify: bool = True, k_sparse: int | collections.abc.Callable[[int], int] | None = None)
+`````{py:class} EdgeEmbedding(embed_dim: int, linear_bias: bool = True, sparsify: bool = True, k_sparse: typing.Optional[typing.Union[int, collections.abc.Callable[[int], int]]] = None)
 :canonical: src.models.subnets.embeddings.edges.base.EdgeEmbedding
 
 Bases: {py:obj}`torch.nn.Module`
@@ -48,7 +48,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} forward(td, init_embeddings: torch.Tensor)
+````{py:method} forward(td: typing.Any, init_embeddings: torch.Tensor) -> torch_geometric.data.Batch
 :canonical: src.models.subnets.embeddings.edges.base.EdgeEmbedding.forward
 
 ```{autodoc2-docstring} src.models.subnets.embeddings.edges.base.EdgeEmbedding.forward
@@ -56,7 +56,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} _cost_matrix_to_graph(batch_cost_matrix: torch.Tensor, init_embeddings: torch.Tensor)
+````{py:method} _cost_matrix_to_graph(batch_cost_matrix: torch.Tensor, init_embeddings: torch.Tensor) -> torch_geometric.data.Batch
 :canonical: src.models.subnets.embeddings.edges.base.EdgeEmbedding._cost_matrix_to_graph
 
 ```{autodoc2-docstring} src.models.subnets.embeddings.edges.base.EdgeEmbedding._cost_matrix_to_graph

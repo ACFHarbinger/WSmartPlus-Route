@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} MoE(input_size, output_size, num_neurons=None, experts=None, hidden_act='ReLU', out_bias=True, num_experts=4, k=2, noisy_gating=True, **kwargs)
+`````{py:class} MoE(input_size: int, output_size: int, num_neurons: typing.Optional[list] = None, experts: typing.Optional[torch.nn.ModuleList | list] = None, hidden_act: str = 'ReLU', out_bias: bool = True, num_experts: int = 4, k: int = 2, noisy_gating: bool = True, **kwargs: typing.Any)
 :canonical: src.models.subnets.modules.moe_layer.MoE
 
 Bases: {py:obj}`torch.nn.Module`
@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.subnets.modules.moe_layer.MoE.__init__
 ```
 
-````{py:method} cv_squared(x)
+````{py:method} cv_squared(x: torch.Tensor) -> torch.Tensor
 :canonical: src.models.subnets.modules.moe_layer.MoE.cv_squared
 
 ```{autodoc2-docstring} src.models.subnets.modules.moe_layer.MoE.cv_squared
@@ -45,7 +45,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} _gates_to_load(gates)
+````{py:method} _gates_to_load(gates: torch.Tensor) -> torch.Tensor
 :canonical: src.models.subnets.modules.moe_layer.MoE._gates_to_load
 
 ```{autodoc2-docstring} src.models.subnets.modules.moe_layer.MoE._gates_to_load
@@ -53,7 +53,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} _prob_in_top_k(clean_values, noisy_values, noise_stddev, noisy_top_values)
+````{py:method} _prob_in_top_k(clean_values: torch.Tensor, noisy_values: torch.Tensor, noise_stddev: torch.Tensor, noisy_top_values: torch.Tensor) -> torch.Tensor
 :canonical: src.models.subnets.modules.moe_layer.MoE._prob_in_top_k
 
 ```{autodoc2-docstring} src.models.subnets.modules.moe_layer.MoE._prob_in_top_k
@@ -61,7 +61,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} noisy_top_k_gating(x, train, noise_epsilon=0.01)
+````{py:method} noisy_top_k_gating(x: torch.Tensor, train: bool, noise_epsilon: float = 0.01) -> typing.Tuple[torch.Tensor, torch.Tensor]
 :canonical: src.models.subnets.modules.moe_layer.MoE.noisy_top_k_gating
 
 ```{autodoc2-docstring} src.models.subnets.modules.moe_layer.MoE.noisy_top_k_gating
@@ -69,7 +69,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} forward(x, loss_coef=0.0)
+````{py:method} forward(x: torch.Tensor, loss_coef: float = 0.0) -> torch.Tensor
 :canonical: src.models.subnets.modules.moe_layer.MoE.forward
 
 ```{autodoc2-docstring} src.models.subnets.modules.moe_layer.MoE.forward

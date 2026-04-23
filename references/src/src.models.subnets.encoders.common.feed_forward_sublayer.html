@@ -492,6 +492,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.encoders.common.feed_forward_sublayer">
 <span id="src-models-subnets-encoders-common-feed-forward-sublayer"></span><h1><a class="reference internal" href="#module-src.models.subnets.encoders.common.feed_forward_sublayer" title="src.models.subnets.encoders.common.feed_forward_sublayer"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.encoders.common.feed_forward_sublayer</span></code></a><a class="headerlink" href="#module-src.models.subnets.encoders.common.feed_forward_sublayer" title="Link to this heading">#</a></h1>
 <p>Feed-Forward Sub-Layer for Encoder Architectures.</p>
+<p>Attributes:
+EncoderFeedForwardSubLayer: Reusable Feed-Forward Sub-Layer for Encoder Architectures.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.encoders.common.feed_forward_sublayer import EncoderFeedForwardSubLayer
+&gt;&gt;&gt; layer = EncoderFeedForwardSubLayer(embed_dim=128, feed_forward_hidden=512)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -509,7 +514,7 @@ document.write(`
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.subnets.encoders.common.feed_forward_sublayer.EncoderFeedForwardSubLayer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.encoders.common.feed_forward_sublayer.</span></span><span class="sig-name descname"><span class="pre">EncoderFeedForwardSubLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feed_forward_hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.models.activation_function.ActivationConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.encoders.common.feed_forward_sublayer.EncoderFeedForwardSubLayer" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.encoders.common.feed_forward_sublayer.</span></span><span class="sig-name descname"><span class="pre">EncoderFeedForwardSubLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feed_forward_hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.models.activation_function.ActivationConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.encoders.common.feed_forward_sublayer.EncoderFeedForwardSubLayer" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
 <p>Reusable Feed-Forward Sub-Layer for Encoder Architectures.</p>
 <p>Implements the standard transformer feed-forward pattern:</p>
@@ -518,53 +523,29 @@ document.write(`
 <li><p>Non-linear activation function</p></li>
 <li><p>Linear projection: feed_forward_hidden → embed_dim</p></li>
 </ol>
-<p>This component is used across multiple encoder types (GAT, GGAC, MoE, etc.)
-to provide consistent feed-forward transformation with configurable activation.</p>
-<p class="rubric" id="id1">Parameters</p>
-<p>embed_dim : int
-Embedding dimension (input and output size).
-feed_forward_hidden : int
-Hidden dimension for the feed-forward network.
-If 0, creates an identity mapping (embed_dim → embed_dim).
-activation_config : Optional[ActivationConfig], default=None
-Configuration for activation function. If None, uses default (ReLU).
-bias : bool, default=True
-Whether to include bias terms in linear layers.
-**kwargs
-Additional keyword arguments (for future extensibility).</p>
-<p class="rubric" id="id2">Attributes</p>
-<p>sub_layers : nn.Sequential or nn.Module
-The feed-forward network layers.</p>
-<p class="rubric" id="id3">Examples</p>
-<blockquote>
-<div><blockquote>
-<div><blockquote>
-<div><p>from logic.src.configs.models.activation_function import ActivationConfig
-ff_layer = EncoderFeedForwardSubLayer(
-…     embed_dim=128,
-…     feed_forward_hidden=512,
-…     activation_config=ActivationConfig(name=’gelu’)
-… )
-output = ff_layer(input_tensor)  # (batch, seq, 128) → (batch, seq, 128)</p>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
+<p>This component is used across multiple encoder types to provide consistent
+feed-forward transformation with configurable activation.</p>
+<p>Attributes:
+sub_layers (nn.Sequential): Sequential module containing the FFN layers.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize the EncoderFeedForwardSubLayer.</p>
+<p>Initializes the EncoderFeedForwardSubLayer.</p>
+<p>Args:
+embed_dim: Embedding dimension (input and output size).
+feed_forward_hidden: Hidden dimension for the feed-forward network.
+If 0, creates an identity mapping (embed_dim → embed_dim).
+activation_config: Activation configuration.
+bias: Whether to include bias terms in linear layers.
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.encoders.common.feed_forward_sublayer.EncoderFeedForwardSubLayer.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.encoders.common.feed_forward_sublayer.EncoderFeedForwardSubLayer.forward" title="Link to this definition">#</a></dt>
 <dd><p>Forward pass through the feed-forward network.</p>
-<p class="rubric" id="id4">Parameters</p>
-<p>h : torch.Tensor
-Input tensor of shape (batch, seq_len, embed_dim) or (batch, seq_len, embed_dim, n)
-for hyper-connections.
-mask : Optional[torch.Tensor], default=None
-Optional mask tensor (not used in standard FFN, but kept for API compatibility
-with graph convolution variants).</p>
-<p class="rubric" id="returns">Returns</p>
-<p>torch.Tensor
-Output tensor with the same shape as input.</p>
+<p>Args:
+h: Input tensor of shape (batch, seq_len, embed_dim)
+or (batch, seq_len, embed_dim, n) for hyper-connections.
+mask: Optional mask tensor (unused, kept for signature compatibility).</p>
+<p>Returns:
+torch.Tensor: Output tensor with the same shape as input.</p>
 </dd></dl>
 
 </dd></dl>

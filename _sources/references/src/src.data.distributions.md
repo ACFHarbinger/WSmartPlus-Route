@@ -13,11 +13,13 @@
 :titlesonly:
 :maxdepth: 1
 
+src.data.distributions.statistical_bernoulli_gamma_mixture
 src.data.distributions.base
 src.data.distributions.spatial_gaussian_mixture
 src.data.distributions.statistical_beta
 src.data.distributions.spatial_cluster
 src.data.distributions.spatial_mix_multi
+src.data.distributions.statistical_compound_poisson_gamma
 src.data.distributions.spatial_distance
 src.data.distributions.spatial_mixed
 src.data.distributions.statistical_uniform
@@ -61,7 +63,7 @@ src.data.distributions.statistical_empirical
 ````{py:data} __all__
 :canonical: src.data.distributions.__all__
 :value: >
-   ['BaseDistribution', 'Cluster', 'Mixed', 'Gaussian_Mixture', 'Gamma', 'Empirical', 'MixDistribution'...
+   ['BaseDistribution', 'Cluster', 'Mixed', 'GaussianMixture', 'Gamma', 'Empirical', 'MixDistribution',...
 
 ```{autodoc2-docstring} src.data.distributions.__all__
 ```

@@ -489,7 +489,21 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.integrations">
 <span id="src-tracking-integrations"></span><h1><a class="reference internal" href="#module-src.tracking.integrations" title="src.tracking.integrations"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.integrations</span></code></a><a class="headerlink" href="#module-src.tracking.integrations" title="Link to this heading">#</a></h1>
-<p>Pipeline integration helpers for WSTracker.</p>
+<p>Pipeline integration helpers for the WSTracker ecosystem.</p>
+<p>This package provides high-level trackers for various stages of the machine
+learning pipeline, including in-memory data mutation tracking, filesystem
+lineage, PyTorch Lightning callbacks, and simulation-specific instrumentation.</p>
+<p>Attributes:
+TrackingCallback: PyTorch Lightning callback for run instrumentation.
+SimulationRunTracker: Specialized tracker for multi-day simulation episodes.
+get_sim_tracker: Retrieves the process-global simulation tracker instance.
+RuntimeDataTracker: Tracks in-memory dataset distribution mutations.
+FilesystemTracker: Tracks filesystem-level data events and lineage.
+ZenMLBridge: Integration bridge for ZenML pipeline tracking.</p>
+<p>Example:
+&gt;&gt;&gt; import logic.src.tracking.integrations as integrations
+&gt;&gt;&gt; data_tracker = integrations.RuntimeDataTracker(run)
+&gt;&gt;&gt; fs_tracker = integrations.FilesystemTracker(run)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

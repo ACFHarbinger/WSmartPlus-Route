@@ -500,6 +500,17 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.core.tracker">
 <span id="src-tracking-core-tracker"></span><h1><a class="reference internal" href="#module-src.tracking.core.tracker" title="src.tracking.core.tracker"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.core.tracker</span></code></a><a class="headerlink" href="#module-src.tracking.core.tracker" title="Link to this heading">#</a></h1>
 <p>Central experiment tracker — the main entry-point of WSTracker.</p>
+<p>This module provides the central coordination for tracking experiments. It
+manages the instantiation of the tracking store and orchestrates the
+creation and retrieval of tracked runs.</p>
+<p>Attributes:
+Tracker: Central coordinator for experiment tracking.
+get_tracker: Utility for singleton-style access to the active tracker.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.tracking.core.tracker import Tracker
+&gt;&gt;&gt; tracker = Tracker(tracking_uri=”./mlruns”)
+&gt;&gt;&gt; with tracker.start_run(“Optimization-v1”) as run:
+…     run.log_param(“optimizer”, “adam”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -507,7 +518,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.core.tracker.Tracker" title="src.tracking.core.tracker.Tracker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Tracker</span></code></a></p></td>
-<td><p>Centralized MLFlow-style experiment tracker for WSmart-Route.</p></td>
+<td><p>Centralized experiment tracker for WSmart-Route.</p></td>
 </tr>
 </tbody>
 </table>
@@ -518,7 +529,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.core.tracker.get_tracker" title="src.tracking.core.tracker.get_tracker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_tracker</span></code></a></p></td>
-<td><p>Return the process-global :class:<code class="docutils literal notranslate"><span class="pre">Tracker</span></code> instance, or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></td>
+<td><p>Returns the process-global Tracker instance.</p></td>
 </tr>
 </tbody>
 </table>
@@ -546,75 +557,95 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.core.tracker.get_tracker">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.core.tracker.</span></span><span class="sig-name descname"><span class="pre">get_tracker</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.tracking.core.tracker.Tracker" title="src.tracking.core.tracker.Tracker"><span class="pre">Tracker</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.core.tracker.get_tracker" title="Link to this definition">#</a></dt>
-<dd><p>Return the process-global :class:<code class="docutils literal notranslate"><span class="pre">Tracker</span></code> instance, or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+<dd><p>Returns the process-global Tracker instance.</p>
+<p>Usually initialized by the training entry point via the wst.init() factory.</p>
+<p>Returns:
+Optional[Tracker]: The current process-global tracker instance, or
+None if not yet initialized.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="src.tracking.core.tracker.Tracker">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.tracking.core.tracker.</span></span><span class="sig-name descname"><span class="pre">Tracker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tracking_uri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">200</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.core.tracker.Tracker" title="Link to this definition">#</a></dt>
-<dd><p>Centralized MLFlow-style experiment tracker for WSmart-Route.</p>
-<p>A single :class:<code class="docutils literal notranslate"><span class="pre">Tracker</span></code> instance manages the SQLite database and
-coordinates the creation of :class:<code class="docutils literal notranslate"><span class="pre">~logic.src.tracking.core.run.Run</span></code>
-objects.  One tracker is typically shared across the lifetime of a
-training session or simulation batch.</p>
-<p>Args:
-tracking_uri: Directory that will hold <code class="docutils literal notranslate"><span class="pre">tracking.db</span></code> and the
-<code class="docutils literal notranslate"><span class="pre">artifacts/</span></code> sub-tree.
-buffer_size: Number of metric points to buffer per run before
-flushing to SQLite.</p>
+<dd><p>Centralized experiment tracker for WSmart-Route.</p>
+<p>A single Tracker instance manages the SQLite database connectivity and
+coordinates the creation of Run objects. It acts as the primary
+administration layer for experiments and runs, ensuring that artifacts
+and metrics are logically grouped.</p>
+<p>Attributes:
+tracking_uri: Directory holding ‘tracking.db’ and the ‘artifacts/’ tree.
+buffer_size: Default metric buffer size for runs created by this tracker.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes a new experiment tracker.</p>
+<p>Args:
+tracking_uri: Directory that will hold the tracking database and
+the artifact storage sub-tree.
+buffer_size: Number of metric points to buffer per run before
+flushing to SQLite. Defaults to 200.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.tracker.Tracker.start_run">
 <span class="sig-name descname"><span class="pre">start_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'generic'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.tracking.core.run.html#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><span class="pre">src.tracking.core.run.Run</span></a></span></span><a class="headerlink" href="#src.tracking.core.tracker.Tracker.start_run" title="Link to this definition">#</a></dt>
-<dd><p>Create a new run and return it as a context manager.</p>
-<p>Example::</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>with tracker.start_run(&quot;AM-VRPP-50&quot;, run_type=&quot;training&quot;) as run:
-    run.log_params({&quot;lr&quot;: 1e-4})
-    trainer.fit(model)
-</pre></div>
-</div>
+<dd><p>Creates a new run record and returns an active run instance.</p>
+<p>The returned run object is intended to be used as a context manager to
+ensure status is correctly updated on completion or failure.</p>
 <p>Args:
-experiment_name: Name of the parent experiment (created if absent).
-run_name: Optional human-readable run label.
-run_type: Semantic type: <code class="docutils literal notranslate"><span class="pre">'training'</span></code>, <code class="docutils literal notranslate"><span class="pre">'simulation'</span></code>,
-<code class="docutils literal notranslate"><span class="pre">'evaluation'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'data_gen'</span></code>.
-tags: Key/value metadata to attach immediately.
-description: Free-text experiment description (first call only).</p>
+experiment_name: Name of the parent experiment. Created if it
+does not exist.
+run_name: Optional human-readable label for the run.
+run_type: Category identifier (e.g., ‘training’, ‘simulation’,
+‘evaluation’, ‘data_gen’).
+tags: Initial metadata tags to attach to the run.
+description: Detailed text for the experiment. Only applied if
+creating a new experiment.</p>
 <p>Returns:
-A :class:<code class="docutils literal notranslate"><span class="pre">~logic.src.tracking.core.run.Run</span></code> instance.</p>
+Run: A fresh tracking run instance.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.tracker.Tracker.attach_run">
 <span class="sig-name descname"><span class="pre">attach_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.tracking.core.run.html#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><span class="pre">src.tracking.core.run.Run</span></a></span></span><a class="headerlink" href="#src.tracking.core.tracker.Tracker.attach_run" title="Link to this definition">#</a></dt>
-<dd><p>Attach to an <em>existing</em> run and register it as the active run.</p>
-<p>Useful in worker sub-processes that share the same database but need
-to write under the parent process’s run context.</p>
+<dd><p>Attaches to an existing run ID and registers it as active.</p>
+<p>Specifically useful for distributed workers or sub-processes that need
+to log back into a run initiated by a parent process. This restores
+the artifact directory context from the database.</p>
 <p>Args:
-run_id: UUID of the run created by the parent process.</p>
+run_id: Unique UUID string identifying the target run.</p>
 <p>Returns:
-A :class:<code class="docutils literal notranslate"><span class="pre">~logic.src.tracking.core.run.Run</span></code> that writes to
-the existing database record.</p>
+Run: A tracking run instance re-attached to the existing database record.</p>
 <p>Raises:
-ValueError: If <em>run_id</em> does not exist in the store.</p>
+ValueError: If the provided run_id cannot be found in the store.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.tracker.Tracker.list_experiments">
 <span class="sig-name descname"><span class="pre">list_experiments</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.core.tracker.Tracker.list_experiments" title="Link to this definition">#</a></dt>
-<dd><p>Return all experiments ordered by creation time (newest first).</p>
+<dd><p>Retrieves a list of all experiments managed by this tracker.</p>
+<p>Returns:
+List[Dict[str, Any]]: Experiment records ordered by creation date.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.tracker.Tracker.list_runs">
 <span class="sig-name descname"><span class="pre">list_runs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.core.tracker.Tracker.list_runs" title="Link to this definition">#</a></dt>
-<dd><p>Return runs, optionally filtered by experiment, type, or status.</p>
+<dd><p>Retrieves a filtered list of runs across all experiments.</p>
+<p>Args:
+experiment_name: Optional filter to restrict results to a specific
+experiment name.
+run_type: Optional filter by run category (e.g., ‘training’).
+status: Optional filter by terminal status (e.g., ‘completed’).</p>
+<p>Returns:
+List[Dict[str, Any]]: Matching run records ordered by start time.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.tracker.Tracker.get_run">
 <span class="sig-name descname"><span class="pre">get_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.core.tracker.Tracker.get_run" title="Link to this definition">#</a></dt>
-<dd><p>Return the raw run record dict, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if not found.</p>
+<dd><p>Retrieves the record for a specific run.</p>
+<p>Args:
+run_id: Unique UUID string identifying the run.</p>
+<p>Returns:
+Optional[Dict[str, Any]]: The run record dictionary containing
+metadata and artifact locations, or None if not found.</p>
 </dd></dl>
 
 </dd></dl>

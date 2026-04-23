@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} NeuralHeuristicHybrid(neural_policy: logic.src.models.common.autoregressive.policy.AutoregressivePolicy, heuristic_policy: typing.Union[logic.src.models.policies.alns.VectorizedALNS, logic.src.models.policies.hgs.VectorizedHGS], **kwargs)
+`````{py:class} NeuralHeuristicHybrid(neural_policy: logic.src.models.common.autoregressive.policy.AutoregressivePolicy, heuristic_policy: typing.Union[logic.src.models.policies.alns.VectorizedALNS, logic.src.models.policies.hgs.VectorizedHGS], **kwargs: typing.Any)
 :canonical: src.models.core.hybrid_attention_model.hybrid_neural_heuristic_policy.NeuralHeuristicHybrid
 
 Bases: {py:obj}`logic.src.models.common.autoregressive.policy.AutoregressivePolicy`
@@ -37,7 +37,7 @@ Bases: {py:obj}`logic.src.models.common.autoregressive.policy.AutoregressivePoli
 ```{autodoc2-docstring} src.models.core.hybrid_attention_model.hybrid_neural_heuristic_policy.NeuralHeuristicHybrid.__init__
 ```
 
-````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.base.RL4COEnvBase, strategy: str = 'greedy', num_starts: int = 1, **kwargs) -> typing.Dict[str, typing.Any]
+````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.base.RL4COEnvBase, strategy: str = 'greedy', num_starts: int = 1, **kwargs: typing.Any) -> typing.Dict[str, typing.Any]
 :canonical: src.models.core.hybrid_attention_model.hybrid_neural_heuristic_policy.NeuralHeuristicHybrid.forward
 
 ```{autodoc2-docstring} src.models.core.hybrid_attention_model.hybrid_neural_heuristic_policy.NeuralHeuristicHybrid.forward

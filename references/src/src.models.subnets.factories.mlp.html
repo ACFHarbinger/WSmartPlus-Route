@@ -493,6 +493,12 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.factories.mlp">
 <span id="src-models-subnets-factories-mlp"></span><h1><a class="reference internal" href="#module-src.models.subnets.factories.mlp" title="src.models.subnets.factories.mlp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.factories.mlp</span></code></a><a class="headerlink" href="#module-src.models.subnets.factories.mlp" title="Link to this heading">#</a></h1>
 <p>MLP component factory.</p>
+<p>Attributes:
+MLPComponentFactory: Factory for creating Multi-Layer Perceptron Encoders and corresponding decoders.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.factories.mlp import MLPComponentFactory
+&gt;&gt;&gt; factory = MLPComponentFactory()
+&gt;&gt;&gt; encoder = factory.create_encoder(embed_dim=128, n_layers=3)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -513,16 +519,27 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.factories.mlp.</span></span><span class="sig-name descname"><span class="pre">MLPComponentFactory</span></span><a class="headerlink" href="#src.models.subnets.factories.mlp.MLPComponentFactory" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.models.subnets.factories.base.html#src.models.subnets.factories.base.NeuralComponentFactory" title="src.models.subnets.factories.base.NeuralComponentFactory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.models.subnets.factories.base.NeuralComponentFactory</span></code></a></p>
 <p>Factory for MLP-based Models.</p>
+<p>Attributes:
+None: Factory class does not maintain state.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.factories.mlp.MLPComponentFactory.create_encoder">
 <span class="sig-name descname"><span class="pre">create_encoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.nn.Module</span></span></span><a class="headerlink" href="#src.models.subnets.factories.mlp.MLPComponentFactory.create_encoder" title="Link to this definition">#</a></dt>
 <dd><p>Create MLP Encoder.</p>
+<p>Args:
+kwargs: Architecture-specific configuration passed to MLPEncoder.</p>
+<p>Returns:
+nn.Module: The instantiated MLPEncoder.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.factories.mlp.MLPComponentFactory.create_decoder">
 <span class="sig-name descname"><span class="pre">create_decoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">decoder_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'attention'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.nn.Module</span></span></span><a class="headerlink" href="#src.models.subnets.factories.mlp.MLPComponentFactory.create_decoder" title="Link to this definition">#</a></dt>
 <dd><p>Create decoder based on decoder_type.</p>
+<p>Args:
+decoder_type (str): Type of decoder instance to create. Defaults to ‘attention’.
+kwargs: Architecture-specific configuration passed to the decoder.</p>
+<p>Returns:
+nn.Module: The instantiated decoder module.</p>
 </dd></dl>
 
 </dd></dl>

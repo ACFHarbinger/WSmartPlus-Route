@@ -492,6 +492,19 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.modules.mpnn_encoder">
 <span id="src-models-subnets-modules-mpnn-encoder"></span><h1><a class="reference internal" href="#module-src.models.subnets.modules.mpnn_encoder" title="src.models.subnets.modules.mpnn_encoder"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.modules.mpnn_encoder</span></code></a><a class="headerlink" href="#module-src.models.subnets.modules.mpnn_encoder" title="Link to this heading">#</a></h1>
 <p>MPNN Encoder stack.</p>
+<p>This module provides the MPNNEncoder, which implements a deep graph encoder
+composed of multiple message-passing layers. It projects initial node and edge
+features into a unified hidden space before iteratively updating them.</p>
+<p>Attributes:
+MPNNEncoder: Stack of message passing layers for graph encoding.</p>
+<p>Example:
+&gt;&gt;&gt; import torch
+&gt;&gt;&gt; from logic.src.models.subnets.modules.mpnn_encoder import MPNNEncoder
+&gt;&gt;&gt; encoder = MPNNEncoder(num_layers=3, node_dim=12, edge_dim=2)
+&gt;&gt;&gt; x = torch.randn(10, 12)
+&gt;&gt;&gt; edge_index = torch.tensor([[0, 1], [1, 0]], dtype=torch.long)
+&gt;&gt;&gt; edge_attr = torch.randn(2, 2)
+&gt;&gt;&gt; x_enc, e_enc = encoder(x, edge_index, edge_attr)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -499,7 +512,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.subnets.modules.mpnn_encoder.MPNNEncoder" title="src.models.subnets.modules.mpnn_encoder.MPNNEncoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MPNNEncoder</span></code></a></p></td>
-<td><p>Encoder stack using MessagePassingLayer.</p></td>
+<td><p>Deep graph encoder using sequentially stacked MessagePassingLayers.</p></td>
 </tr>
 </tbody>
 </table>
@@ -511,13 +524,35 @@ document.write(`
 <dt class="sig sig-object py" id="src.models.subnets.modules.mpnn_encoder.MPNNEncoder">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.modules.mpnn_encoder.</span></span><span class="sig-name descname"><span class="pre">MPNNEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'add'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'batch'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.mpnn_encoder.MPNNEncoder" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
-<p>Encoder stack using MessagePassingLayer.</p>
+<p>Deep graph encoder using sequentially stacked MessagePassingLayers.</p>
+<p>This module handles the initial dimensionality projection of node and edge attributes
+and manages the iterative information flow through multiple graph convolution steps,
+incorporating residual connections at each stage.</p>
+<p>Attributes:
+input_proj (nn.Module): Linear layer to unify node feature dimensions.
+edge_proj (nn.Module): Linear layer to unify edge feature dimensions.
+layers (nn.ModuleList): Sequential collection of message passing updates.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize MPNNEncoder.</p>
+<p>Initializes MPNNEncoder.</p>
+<p>Args:
+num_layers: Total number of message passing blocks to stack.
+node_dim: Input dimensionality of raw node features.
+edge_dim: Input dimensionality of raw edge features.
+hidden_dim: Target dimensionality for all hidden representations.
+aggr: Neighborhood aggregation scheme (‘add’, ‘mean’, ‘max’).
+norm: Normalization strategy to apply within layers (‘batch’, ‘layer’).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.mpnn_encoder.MPNNEncoder.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_attr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.subnets.modules.mpnn_encoder.MPNNEncoder.forward" title="Link to this definition">#</a></dt>
-<dd><p>Forward pass.</p>
+<dd><p>Encodes graph features through iterative message passing.</p>
+<p>Args:
+x: Node feature tensor of shape (num_nodes, node_dim).
+edge_index: Graph adjacency spectral matching (2, num_edges).
+edge_attr: Edge feature tensor of shape (num_edges, edge_dim).</p>
+<p>Returns:
+Tuple[torch.Tensor, torch.Tensor]: A tuple containing:
+- Encoded node features of shape (num_nodes, hidden_dim).
+- Encoded edge features of shape (num_edges, hidden_dim).</p>
 </dd></dl>
 
 </dd></dl>

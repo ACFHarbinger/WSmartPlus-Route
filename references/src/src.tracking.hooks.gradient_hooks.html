@@ -493,9 +493,19 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.hooks.gradient_hooks">
 <span id="src-tracking-hooks-gradient-hooks"></span><h1><a class="reference internal" href="#module-src.tracking.hooks.gradient_hooks" title="src.tracking.hooks.gradient_hooks"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.hooks.gradient_hooks</span></code></a><a class="headerlink" href="#module-src.tracking.hooks.gradient_hooks" title="Link to this heading">#</a></h1>
-<p>Gradient monitoring and diagnostic hooks.</p>
-<p>Useful for debugging vanishing/exploding gradients, monitoring gradient flow,
-and identifying problematic layers during training.</p>
+<p>Gradient monitoring and diagnostic hooks for PyTorch models.</p>
+<p>This module provides specialized backward hooks to inspect and influence the
+backpropagation process. It includes utilities for detecting exploding or
+vanishing gradients, automated clipping, NaN/Inf detection, and statistical
+analysis of gradient flow across layers.</p>
+<p>Attributes:
+add_gradient_monitoring_hooks: Utility to register diagnostic stats hooks.
+add_gradient_clipping_hook: Utility for per-layer gradient norm clipping.
+add_gradient_nan_detector_hook: Utility to trap numerical instability.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.tracking.hooks.gradient_hooks import add_gradient_nan_detector_hook
+&gt;&gt;&gt; handles = add_gradient_nan_detector_hook(model, raise_on_nan=True)
+&gt;&gt;&gt; loss.backward()  # Raises ValueError if NaNs are found</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -503,22 +513,22 @@ and identifying problematic layers during training.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.hooks.gradient_hooks.add_gradient_monitoring_hooks" title="src.tracking.hooks.gradient_hooks.add_gradient_monitoring_hooks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_gradient_monitoring_hooks</span></code></a></p></td>
-<td><p>Register backward hooks to monitor gradient statistics across layers.</p></td>
+<td><p>Registers backward hooks to monitor gradient statistics across layers.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.hooks.gradient_hooks.add_gradient_clipping_hook" title="src.tracking.hooks.gradient_hooks.add_gradient_clipping_hook"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_gradient_clipping_hook</span></code></a></p></td>
-<td><p>Register hooks to clip gradients per-layer during backward pass.</p></td>
+<td><p>Registers hooks to clip gradients per-layer during backward pass.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.hooks.gradient_hooks.add_gradient_accumulation_hook" title="src.tracking.hooks.gradient_hooks.add_gradient_accumulation_hook"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_gradient_accumulation_hook</span></code></a></p></td>
-<td><p>Register hooks to track gradient accumulation statistics.</p></td>
+<td><p>Registers hooks to track gradient accumulation statistics.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.hooks.gradient_hooks.add_gradient_nan_detector_hook" title="src.tracking.hooks.gradient_hooks.add_gradient_nan_detector_hook"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_gradient_nan_detector_hook</span></code></a></p></td>
-<td><p>Register hooks to detect NaN/Inf gradients and optionally raise errors.</p></td>
+<td><p>Registers hooks to trap NaN/Inf values during backpropagation.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.hooks.gradient_hooks.remove_all_hooks" title="src.tracking.hooks.gradient_hooks.remove_all_hooks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_all_hooks</span></code></a></p></td>
-<td><p>Remove all registered hooks from a hook data dictionary.</p></td>
+<td><p>Removes all registered hooks represented in the hook data mapping.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.hooks.gradient_hooks.print_gradient_statistics" title="src.tracking.hooks.gradient_hooks.print_gradient_statistics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_gradient_statistics</span></code></a></p></td>
-<td><p>Print formatted gradient statistics.</p></td>
+<td><p>Prints a formatted summary of gradient magnitudes for analysis.</p></td>
 </tr>
 </tbody>
 </table>
@@ -529,98 +539,76 @@ and identifying problematic layers during training.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.hooks.gradient_hooks.add_gradient_monitoring_hooks">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.hooks.gradient_hooks.</span></span><span class="sig-name descname"><span class="pre">add_gradient_monitoring_hooks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gradient_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.hooks.gradient_hooks.add_gradient_monitoring_hooks" title="Link to this definition">#</a></dt>
-<dd><p>Register backward hooks to monitor gradient statistics across layers.</p>
+<dd><p>Registers backward hooks to monitor gradient statistics across layers.</p>
 <p>Detects vanishing/exploding gradients and provides layer-wise statistics.</p>
 <p>Args:
 model: PyTorch model to monitor.
-layer_names: Specific layer names to monitor. If None, monitors all parameters.
+layer_names: Specific layer names to monitor. If None, monitors all.
+Defaults to None.
 gradient_threshold: Threshold for detecting exploding gradients.
-verbose: Print warnings for abnormal gradients.</p>
+Defaults to 10.0.
+verbose: If True, prints warnings for abnormal gradients to stdout.
+Defaults to True.</p>
 <p>Returns:
-dict: Contains ‘gradients’ (list of gradient stats) and ‘handles’ (hook handles).</p>
-<p>Example:
-&gt;&gt;&gt; hook_data = add_gradient_monitoring_hooks(model)
-&gt;&gt;&gt; # Train for one step
-&gt;&gt;&gt; loss.backward()
-&gt;&gt;&gt; # Check gradient stats
-&gt;&gt;&gt; for stat in hook_data[‘gradients’]:
-…     print(f”{stat[‘name’]}: mean={stat[‘mean’]:.6f}, max={stat[‘max’]:.6f}”)</p>
+Dict[str, Any]: Mapping containing ‘gradients’ (stats) and ‘handles’.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.hooks.gradient_hooks.add_gradient_clipping_hook">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.hooks.gradient_hooks.</span></span><span class="sig-name descname"><span class="pre">add_gradient_clipping_hook</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_norm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.hooks.gradient_hooks.add_gradient_clipping_hook" title="Link to this definition">#</a></dt>
-<dd><p>Register hooks to clip gradients per-layer during backward pass.</p>
+<dd><p>Registers hooks to clip gradients per-layer during backward pass.</p>
 <p>Useful as an alternative to global gradient clipping when specific layers
-have gradient issues.</p>
+have gradient instability.</p>
 <p>Args:
-model: PyTorch model.
-max_norm: Maximum gradient norm per layer.
-layer_names: Specific layers to clip. If None, clips all.</p>
+model: The target model.
+max_norm: Maximum gradient norm allowed per layer. Defaults to 1.0.
+layer_names: Specific layers to clip. If None, clips all trainable.
+Defaults to None.</p>
 <p>Returns:
-list: Hook handles.</p>
-<p>Example:
-&gt;&gt;&gt; handles = add_gradient_clipping_hook(model, max_norm=1.0)
-&gt;&gt;&gt; loss.backward()  # Gradients automatically clipped</p>
+List[Any]: List of hook handles for later removal.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.hooks.gradient_hooks.add_gradient_accumulation_hook">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.hooks.gradient_hooks.</span></span><span class="sig-name descname"><span class="pre">add_gradient_accumulation_hook</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accumulation_steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.hooks.gradient_hooks.add_gradient_accumulation_hook" title="Link to this definition">#</a></dt>
-<dd><p>Register hooks to track gradient accumulation statistics.</p>
+<dd><p>Registers hooks to track gradient accumulation statistics.</p>
 <p>Useful when using gradient accumulation to understand how gradients
-evolve across micro-batches.</p>
+evolve and stabilize across multiple micro-batches.</p>
 <p>Args:
-model: PyTorch model.
-accumulation_steps: Number of accumulation steps to track.</p>
+model: The target model.
+accumulation_steps: Maximum history length of accumulation steps.
+Defaults to 4.</p>
 <p>Returns:
-dict: Contains accumulated gradient stats and handles.</p>
-<p>Example:
-&gt;&gt;&gt; hook_data = add_gradient_accumulation_hook(model, accumulation_steps=4)
-&gt;&gt;&gt; for _ in range(4):
-…     loss = compute_loss()
-…     loss.backward()  # Accumulate gradients
-&gt;&gt;&gt; # Check accumulated gradient stats
-&gt;&gt;&gt; print(hook_data[‘accumulated_norms’])</p>
+Dict[str, Any]: Mapping with ‘accumulated_norms’ and ‘handles’.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.hooks.gradient_hooks.add_gradient_nan_detector_hook">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.hooks.gradient_hooks.</span></span><span class="sig-name descname"><span class="pre">add_gradient_nan_detector_hook</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_on_nan</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.hooks.gradient_hooks.add_gradient_nan_detector_hook" title="Link to this definition">#</a></dt>
-<dd><p>Register hooks to detect NaN/Inf gradients and optionally raise errors.</p>
-<p>Critical for catching numerical instabilities early in training.</p>
+<dd><p>Registers hooks to trap NaN/Inf values during backpropagation.</p>
 <p>Args:
-model: PyTorch model.
-raise_on_nan: If True, raises ValueError when NaN detected.</p>
+model: The target model.
+raise_on_nan: If True, raises ValueError immediately on detection.
+Defaults to True.</p>
 <p>Returns:
-list: Hook handles.</p>
-<p>Example:
-&gt;&gt;&gt; handles = add_gradient_nan_detector_hook(model, raise_on_nan=True)
-&gt;&gt;&gt; loss.backward()  # Raises error if NaN gradients occur</p>
+List[Any]: List of hook handles.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.hooks.gradient_hooks.remove_all_hooks">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.hooks.gradient_hooks.</span></span><span class="sig-name descname"><span class="pre">remove_all_hooks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hook_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.hooks.gradient_hooks.remove_all_hooks" title="Link to this definition">#</a></dt>
-<dd><p>Remove all registered hooks from a hook data dictionary.</p>
+<dd><p>Removes all registered hooks represented in the hook data mapping.</p>
 <p>Args:
-hook_data: Dictionary returned by hook registration functions.</p>
-<p>Example:
-&gt;&gt;&gt; hook_data = add_gradient_monitoring_hooks(model)
-&gt;&gt;&gt; remove_all_hooks(hook_data)  # Clean up</p>
+hook_data: Mapping returned by registration functions.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.hooks.gradient_hooks.print_gradient_statistics">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.hooks.gradient_hooks.</span></span><span class="sig-name descname"><span class="pre">print_gradient_statistics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gradient_stats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.hooks.gradient_hooks.print_gradient_statistics" title="Link to this definition">#</a></dt>
-<dd><p>Print formatted gradient statistics.</p>
+<dd><p>Prints a formatted summary of gradient magnitudes for analysis.</p>
 <p>Args:
-gradient_stats: List of gradient statistics from monitoring hooks.
-top_k: Number of top layers to display (by gradient magnitude).</p>
-<p>Example:
-&gt;&gt;&gt; hook_data = add_gradient_monitoring_hooks(model)
-&gt;&gt;&gt; loss.backward()
-&gt;&gt;&gt; print_gradient_statistics(hook_data[‘gradients’], top_k=5)</p>
+gradient_stats: Captured stats from monitoring hooks.
+top_k: Number of layers with largest norm to display. Defaults to 10.</p>
 </dd></dl>
 
 </section>

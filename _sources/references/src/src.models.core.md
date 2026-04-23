@@ -30,3 +30,29 @@ src.models.core.glop
 src.models.core.dr_alns
 src.models.core.nargnn
 ```
+
+## Package Contents
+
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`__all__ <src.models.core.__all__>`
+  - ```{autodoc2-docstring} src.models.core.__all__
+    :summary:
+    ```
+````
+
+### API
+
+````{py:data} __all__
+:canonical: src.models.core.__all__
+:value: >
+   ['AttentionModel', 'MatNet']
+
+```{autodoc2-docstring} src.models.core.__all__
+```
+
+````

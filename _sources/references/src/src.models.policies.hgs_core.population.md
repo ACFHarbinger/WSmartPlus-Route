@@ -35,7 +35,7 @@
 ```{autodoc2-docstring} src.models.policies.hgs_core.population.VectorizedPopulation.__init__
 ```
 
-````{py:method} __getstate__()
+````{py:method} __getstate__() -> typing.Dict[str, typing.Any]
 :canonical: src.models.policies.hgs_core.population.VectorizedPopulation.__getstate__
 
 ```{autodoc2-docstring} src.models.policies.hgs_core.population.VectorizedPopulation.__getstate__
@@ -43,7 +43,7 @@
 
 ````
 
-````{py:method} __setstate__(state)
+````{py:method} __setstate__(state: typing.Dict[str, typing.Any]) -> None
 :canonical: src.models.policies.hgs_core.population.VectorizedPopulation.__setstate__
 
 ```{autodoc2-docstring} src.models.policies.hgs_core.population.VectorizedPopulation.__setstate__
@@ -51,7 +51,7 @@
 
 ````
 
-````{py:method} initialize(initial_pop: torch.Tensor, initial_costs: torch.Tensor, nb_elite: int)
+````{py:method} initialize(initial_pop: torch.Tensor, initial_costs: torch.Tensor, nb_elite: int) -> None
 :canonical: src.models.policies.hgs_core.population.VectorizedPopulation.initialize
 
 ```{autodoc2-docstring} src.models.policies.hgs_core.population.VectorizedPopulation.initialize
@@ -59,7 +59,7 @@
 
 ````
 
-````{py:method} add_individuals(candidates: torch.Tensor, costs: torch.Tensor, nb_elite: int)
+````{py:method} add_individuals(candidates: torch.Tensor, costs: torch.Tensor, nb_elite: int) -> None
 :canonical: src.models.policies.hgs_core.population.VectorizedPopulation.add_individuals
 
 ```{autodoc2-docstring} src.models.policies.hgs_core.population.VectorizedPopulation.add_individuals
@@ -67,7 +67,7 @@
 
 ````
 
-````{py:method} compute_biased_fitness(nb_elite: int)
+````{py:method} compute_biased_fitness(nb_elite: int) -> None
 :canonical: src.models.policies.hgs_core.population.VectorizedPopulation.compute_biased_fitness
 
 ```{autodoc2-docstring} src.models.policies.hgs_core.population.VectorizedPopulation.compute_biased_fitness

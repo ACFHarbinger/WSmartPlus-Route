@@ -494,10 +494,10 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.policies.operators.exchange.cross_exchange">
 <span id="src-models-policies-operators-exchange-cross-exchange"></span><h1><a class="reference internal" href="#module-src.models.policies.operators.exchange.cross_exchange" title="src.models.policies.operators.exchange.cross_exchange"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies.operators.exchange.cross_exchange</span></code></a><a class="headerlink" href="#module-src.models.policies.operators.exchange.cross_exchange" title="Link to this heading">#</a></h1>
-<p>Cross-exchange (segment swap) operator (vectorized).</p>
-<p>The cross-exchange operator swaps segments of arbitrary length between two different
-routes, preserving the internal order of nodes within each segment. This is also
-known as λ-interchange when segment lengths vary from 0 to λ.</p>
+<p>Cross-exchange (segment swap) operator.</p>
+<p>This module provides a GPU-accelerated implementation of the Cross-exchange
+operator, which improves tours by swapping segments of arbitrary length
+between two different routes while preserving internal node order.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -505,25 +505,25 @@ known as λ-interchange when segment lengths vary from 0 to λ.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.operators.exchange.cross_exchange.vectorized_cross_exchange" title="src.models.policies.operators.exchange.cross_exchange.vectorized_cross_exchange"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vectorized_cross_exchange</span></code></a></p></td>
-<td><p>Vectorized cross-exchange local search across a batch of tours using PyTorch.</p></td>
+<td><p>Vectorized cross-exchange local search across a batch of tours.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.models.policies.operators.exchange.cross_exchange._perform_cross_exchange_iteration" title="src.models.policies.operators.exchange.cross_exchange._perform_cross_exchange_iteration"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_perform_cross_exchange_iteration</span></code></a></p></td>
-<td><p>Performs one iteration of cross-exchange over all segment length combinations.</p></td>
+<td><p>Evaluates all segment length combinations for a single iteration.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.operators.exchange.cross_exchange._get_routes_from_tour" title="src.models.policies.operators.exchange.cross_exchange._get_routes_from_tour"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_routes_from_tour</span></code></a></p></td>
-<td><p>Identifies distinct routes by depot visits.</p></td>
+<td><p>Segments a full tour into individual [start, end] route pairs.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.models.policies.operators.exchange.cross_exchange._find_best_move_for_segments" title="src.models.policies.operators.exchange.cross_exchange._find_best_move_for_segments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_find_best_move_for_segments</span></code></a></p></td>
-<td><p>Finds best cross-exchange move for given segment lengths.</p></td>
+<td><p>Iteratively searches for improving inter-route segment swaps.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.operators.exchange.cross_exchange._check_cross_capacity" title="src.models.policies.operators.exchange.cross_exchange._check_cross_capacity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_check_cross_capacity</span></code></a></p></td>
-<td><p>Checks feasibility of swapping segments between two routes.</p></td>
+<td><p>Enforces vehicle volume limits after proposed segment exchange.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.models.policies.operators.exchange.cross_exchange._compute_cross_delta" title="src.models.policies.operators.exchange.cross_exchange._compute_cross_delta"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_compute_cross_delta</span></code></a></p></td>
-<td><p>Computes cost change for cross-exchange.</p></td>
+<td><p>Calculates network cost differential for segment swap.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.operators.exchange.cross_exchange._apply_cross_exchange_move" title="src.models.policies.operators.exchange.cross_exchange._apply_cross_exchange_move"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_apply_cross_exchange_move</span></code></a></p></td>
-<td><p>Applies the cross-exchange move to the tour.</p></td>
+<td><p>Physically updates the tour tensor by swapping indexed segments.</p></td>
 </tr>
 </tbody>
 </table>
@@ -534,84 +534,120 @@ known as λ-interchange when segment lengths vary from 0 to λ.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.exchange.cross_exchange.vectorized_cross_exchange">
 <span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.exchange.cross_exchange.</span></span><span class="sig-name descname"><span class="pre">vectorized_cross_exchange</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_segment_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Generator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.exchange.cross_exchange.vectorized_cross_exchange" title="Link to this definition">#</a></dt>
-<dd><p>Vectorized cross-exchange local search across a batch of tours using PyTorch.</p>
-<p>Cross-exchange swaps segments of customers between two routes while preserving
-the internal order of each segment. For segments A and B from routes R1 and R2:</p>
-<p>Before:
-R1: … -&gt; a -&gt; [seg_A] -&gt; b -&gt; …
-R2: … -&gt; c -&gt; [seg_B] -&gt; d -&gt; …</p>
-<p>After:
-R1: … -&gt; a -&gt; [seg_B] -&gt; b -&gt; …
-R2: … -&gt; c -&gt; [seg_A] -&gt; d -&gt; …</p>
-<p>The delta cost is computed as:
-Delta = (d(a, seg_B[0]) + d(seg_B[-1], b) - d(a, seg_A[0]) - d(seg_A[-1], b))
-+ (d(c, seg_A[0]) + d(seg_A[-1], d) - d(c, seg_B[0]) - d(seg_B[-1], d))</p>
-<p>This is a powerful operator for VRP, especially when routes have imbalanced loads
-or when customers can be better served by different vehicles.</p>
-<p>Algorithm:</p>
-<ol class="arabic simple">
-<li><p>For each pair of segment lengths (len_A, len_B) up to max_segment_len:
-a. For all valid segment pairs across all route pairs:
-- Check capacity feasibility
-- Compute cost delta
-b. Select best improvement for each tour in batch
-c. Apply exchanges where delta &lt; 0</p></li>
-<li><p>Repeat until no improvement or max_iterations</p></li>
-</ol>
+<dd><p>Vectorized cross-exchange local search across a batch of tours.</p>
+<p>Swaps segments between two routes to improve fleet-level efficiency.
+Supports both batched and shared distance matrices and enforces
+capacity constraints if provided.</p>
 <p>Args:
-tours: Batch of tours [B, N] where B=batch size, N=tour length
-Note: Single-route tours will not be modified (cross-exchange requires 2+ routes)
-distance_matrix: Pairwise distances [B, N+1, N+1] or [N+1, N+1] (shared)
-capacities: Vehicle capacities [B] or scalar (optional, for capacity checks)
-wastes: Node wastes [B, N+1] or [N+1] (optional, for capacity checks)
-max_segment_len: Maximum segment length to consider (default: 3)
-max_iterations: Maximum number of improvement iterations (default: 50)
-generator (Optional[torch.Generator]): PyTorch generator for random number generation.</p>
+tours: Batch of node sequences of shape [B, N].
+distance_matrix: Edge cost tensor of shape [B, N+1, N+1] or [N+1, N+1].
+capacities: Vehicle capacity per instance of shape [B] or scalar.
+wastes: Node demand metadata of shape [B, N+1] or [N+1].
+max_segment_len: Limit for the size of swapped segments.
+max_iterations: Maximum number of improvement cycles.
+generator: Torch device-side RNG.</p>
 <p>Returns:
-torch.Tensor: Improved tours [B, N] with same shape as input</p>
-<p>Note:
-- Tours should include depot as node 0
-- For single-route problems, this operator has no effect
-- Capacity constraints are checked if capacities and wastes provided
-- Works with both batched and shared distance matrices
-- Segment lengths of 0 are allowed (one-sided moves)
-- Complexity: O(N^4 * max_segment_len^2) per iteration</p>
+torch.Tensor: Optimized tours of shape [B, N].</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.exchange.cross_exchange._perform_cross_exchange_iteration">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.exchange.cross_exchange.</span></span><span class="sig-name descname"><span class="pre">_perform_cross_exchange_iteration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tours</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_segment_len</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_capacity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.models.policies.operators.exchange.cross_exchange._perform_cross_exchange_iteration" title="Link to this definition">#</a></dt>
-<dd><p>Performs one iteration of cross-exchange over all segment length combinations.</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.exchange.cross_exchange.</span></span><span class="sig-name descname"><span class="pre">_perform_cross_exchange_iteration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">B</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_segment_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.device</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.models.policies.operators.exchange.cross_exchange._perform_cross_exchange_iteration" title="Link to this definition">#</a></dt>
+<dd><p>Evaluates all segment length combinations for a single iteration.</p>
+<p>Args:
+B: Batch size.
+tours: Current batch of tour sequences of shape [B, N].
+max_segment_len: Maximum length of segments to consider swapping.
+distance_matrix: Parent distance matrix of shape [B, N+1, N+1].
+wastes: Node demand metadata of shape [B, N+1].
+capacities: Vehicle capacities of shape [B].
+has_capacity: Boolean flag enabling/disabling capacity checks.
+device: Hardware identification locator.</p>
+<p>Returns:
+bool: True if at least one improving swap was found and applied.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.exchange.cross_exchange._get_routes_from_tour">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.exchange.cross_exchange.</span></span><span class="sig-name descname"><span class="pre">_get_routes_from_tour</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.exchange.cross_exchange._get_routes_from_tour" title="Link to this definition">#</a></dt>
-<dd><p>Identifies distinct routes by depot visits.</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.exchange.cross_exchange.</span></span><span class="sig-name descname"><span class="pre">_get_routes_from_tour</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.operators.exchange.cross_exchange._get_routes_from_tour" title="Link to this definition">#</a></dt>
+<dd><p>Segments a full tour into individual [start, end] route pairs.</p>
+<p>Args:
+tour: Full sequence of shaped [N].</p>
+<p>Returns:
+List[Tuple[int, int]]: Logical route boundaries (inclusive indices).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.exchange.cross_exchange._find_best_move_for_segments">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.exchange.cross_exchange.</span></span><span class="sig-name descname"><span class="pre">_find_best_move_for_segments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">b_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tour</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">routes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seg_a_len</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seg_b_len</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_capacity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.exchange.cross_exchange._find_best_move_for_segments" title="Link to this definition">#</a></dt>
-<dd><p>Finds best cross-exchange move for given segment lengths.</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.exchange.cross_exchange.</span></span><span class="sig-name descname"><span class="pre">_find_best_move_for_segments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">b_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">routes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seg_a_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seg_b_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.device</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.operators.exchange.cross_exchange._find_best_move_for_segments" title="Link to this definition">#</a></dt>
+<dd><p>Iteratively searches for improving inter-route segment swaps.</p>
+<p>Args:
+b_idx: Batch index being processed.
+tour: Individual tour sequence under optimization of shape [N].
+routes: List of identified route indices.
+seg_a_len: Length of segment to extract from first route.
+seg_b_len: Length of segment to extract from second route.
+distance_matrix: Instance distance matrix of shape [B, N+1, N+1].
+wastes: Demand metadata of shape [B, N+1].
+capacities: Fleet volume limits of shape [B].
+has_capacity: Boolean toggle for volume feasibility.
+device: Execution hardware locator.</p>
+<p>Returns:
+Tuple[torch.Tensor, Optional[tuple]]: A tuple containing:
+- best_delta: Maximum cost reduction found.
+- best_move: Move parameters (route IDs, start positions, lengths) or None.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.exchange.cross_exchange._check_cross_capacity">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.exchange.cross_exchange.</span></span><span class="sig-name descname"><span class="pre">_check_cross_capacity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tour</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">len_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s_b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">len_b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_a_s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_a_e</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_b_s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_b_e</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacities</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.exchange.cross_exchange._check_cross_capacity" title="Link to this definition">#</a></dt>
-<dd><p>Checks feasibility of swapping segments between two routes.</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.exchange.cross_exchange.</span></span><span class="sig-name descname"><span class="pre">_check_cross_capacity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s_a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">len_a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s_b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">len_b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_a_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_a_e</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_b_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_b_e</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.models.policies.operators.exchange.cross_exchange._check_cross_capacity" title="Link to this definition">#</a></dt>
+<dd><p>Enforces vehicle volume limits after proposed segment exchange.</p>
+<p>Args:
+b: Current batch index.
+tour: Tour sequence being checked of shape [N].
+s_a: Start position of segment A.
+len_a: Length of segment A.
+s_b: Start position of segment B.
+len_b: Length of segment B.
+r_a_s: First route start.
+r_a_e: First route end.
+r_b_s: Second route start.
+r_b_e: Second route end.
+wastes: Global demand metadata of shape [B, N+1].
+capacities: Fleet limits of shape [B].</p>
+<p>Returns:
+bool: True if the resulting routes remain within capacity limits.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.exchange.cross_exchange._compute_cross_delta">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.exchange.cross_exchange.</span></span><span class="sig-name descname"><span class="pre">_compute_cross_delta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tour</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">len_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s_b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">len_b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_a_s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_a_e</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_b_s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_b_e</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_mat</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.exchange.cross_exchange._compute_cross_delta" title="Link to this definition">#</a></dt>
-<dd><p>Computes cost change for cross-exchange.</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.exchange.cross_exchange.</span></span><span class="sig-name descname"><span class="pre">_compute_cross_delta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s_a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">len_a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s_b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">len_b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_a_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_a_e</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_b_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_b_e</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_mat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.exchange.cross_exchange._compute_cross_delta" title="Link to this definition">#</a></dt>
+<dd><p>Calculates network cost differential for segment swap.</p>
+<p>Args:
+b: Batch index.
+tour: Sequence metadata of shape [N].
+s_a: Start of segment A.
+len_a: Length of segment A.
+s_b: Start of segment B.
+len_b: Length of segment B.
+r_a_s: First route start index.
+r_a_e: First route end index.
+r_b_s: Second route start index.
+r_b_e: Second route end index.
+dist_mat: Instance distance matrix of shape [B, N+1, N+1].</p>
+<p>Returns:
+torch.Tensor: Evaluated cost improvement (negative delta means improvement).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.exchange.cross_exchange._apply_cross_exchange_move">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.exchange.cross_exchange.</span></span><span class="sig-name descname"><span class="pre">_apply_cross_exchange_move</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">move</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.exchange.cross_exchange._apply_cross_exchange_move" title="Link to this definition">#</a></dt>
-<dd><p>Applies the cross-exchange move to the tour.</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.exchange.cross_exchange.</span></span><span class="sig-name descname"><span class="pre">_apply_cross_exchange_move</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">move</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.exchange.cross_exchange._apply_cross_exchange_move" title="Link to this definition">#</a></dt>
+<dd><p>Physically updates the tour tensor by swapping indexed segments.</p>
+<p>Args:
+tour: Source sequence tensor of shape [N].
+move: Logical parameters (route_a, start_a, len_a, route_b, start_b, len_b).</p>
+<p>Returns:
+torch.Tensor: The updated sequence.</p>
 </dd></dl>
 
 </section>

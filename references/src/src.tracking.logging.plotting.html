@@ -489,7 +489,22 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.logging.plotting">
 <span id="src-tracking-logging-plotting"></span><h1><a class="reference internal" href="#module-src.tracking.logging.plotting" title="src.tracking.logging.plotting"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging.plotting</span></code></a><a class="headerlink" href="#module-src.tracking.logging.plotting" title="Link to this heading">#</a></h1>
-<p>Plotting package.</p>
+<p>Metric and route visualization package.</p>
+<p>This package provides high-level plotting utilities for monitoring training
+progress and visualizing routing solutions. It includes tools for 2D line
+charts, interactive heatmaps, neural attention maps, and geographic/cartesian
+route rendering.</p>
+<p>Attributes:
+plot_linechart: Main entry point for static metric charts.
+draw_graph: Coordinate-free graph visualization.
+plot_tsp: Renders single-vehicle tours.
+plot_vehicle_routes: Renders multi-vehicle VRP solutions.
+discrete_cmap: Utility for vehicle-indexed coloring.
+plot_attention_maps_wrapper: Heatmap generator for transformer attention.
+visualize_interactive_plot: Launcher for Plotly-based visualizations.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.tracking.logging import plotting
+&gt;&gt;&gt; plotting.plot_tsp(xy, tour, ax)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

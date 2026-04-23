@@ -488,11 +488,11 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.core.neuopt.policy">
 <span id="src-models-core-neuopt-policy"></span><h1><a class="reference internal" href="#module-src.models.core.neuopt.policy" title="src.models.core.neuopt.policy"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.core.neuopt.policy</span></code></a><a class="headerlink" href="#module-src.models.core.neuopt.policy" title="Link to this heading">#</a></h1>
-<p>policy.py module.</p>
+<p>Neural Optimizer (NeuOpt) Policy.</p>
+<p>This module implements the <code class="docutils literal notranslate"><span class="pre">NeuOptPolicy</span></code>, which integrates the NeuOpt-specific
+Transformer encoder and pairwise decoder for iterative solution improvement.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
-<p>Example:
-&gt;&gt;&gt; import policy</p>
+NeuOptPolicy: Policy for guided iterative search in combinatorial spaces.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -500,7 +500,7 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.core.neuopt.policy.NeuOptPolicy" title="src.models.core.neuopt.policy.NeuOptPolicy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NeuOptPolicy</span></code></a></p></td>
-<td><p>NeuOpt Policy: Iterative guided search.</p></td>
+<td><p>NeuOpt Policy for iterative improvement.</p></td>
 </tr>
 </tbody>
 </table>
@@ -510,16 +510,22 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.core.neuopt.policy.NeuOptPolicy">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.neuopt.policy.</span></span><span class="sig-name descname"><span class="pre">NeuOptPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.neuopt.policy.NeuOptPolicy" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.neuopt.policy.</span></span><span class="sig-name descname"><span class="pre">NeuOptPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.neuopt.policy.NeuOptPolicy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.models.common.improvement.policy.ImprovementPolicy</span></code></p>
-<p>NeuOpt Policy: Iterative guided search.</p>
+<p>NeuOpt Policy for iterative improvement.</p>
+<p>Leverages a deep Transformer encoder to capture global problem context
+and a move-selection decoder to identify the most beneficial local
+refinements.</p>
+<p>Attributes:
+encoder (NeuOptEncoder): Deep Transformer encoder for state representation.
+decoder (NeuOptDecoder): Pairwise move selection decoder.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize Class.</p>
+<p>Initializes the NeuOpt policy.</p>
 <p>Args:
-embed_dim (int): Description of embed_dim.
-num_heads (int): Description of num_heads.
-num_layers (int): Description of num_layers.
-kwargs (Any): Description of kwargs.</p>
+embed_dim: dimensionality of the latent representation.
+num_heads: Parallel attention head count.
+num_layers: Depth of the Transformer encoder stacks.
+**kwargs: Extra parameters passed to the improvement base.</p>
 </dd></dl>
 
 </section>

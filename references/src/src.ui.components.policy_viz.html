@@ -500,28 +500,16 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.ui.components.policy_viz">
 <span id="src-ui-components-policy-viz"></span><h1><a class="reference internal" href="#module-src.ui.components.policy_viz" title="src.ui.components.policy_viz"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.components.policy_viz</span></code></a><a class="headerlink" href="#module-src.ui.components.policy_viz" title="Link to this heading">#</a></h1>
 <p>Policy Visualization Dispatcher.</p>
-<p>Single entry-point Streamlit component that renders the telemetry
-captured by :class:<code class="docutils literal notranslate"><span class="pre">~logic.src.models.policies.viz_mixin.PolicyVizMixin</span></code>
-for any registered policy type.</p>
-<p>Usage::</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from logic.src.ui.components.policy_viz import render_policy_viz
-
-# After running a policy that carries PolicyVizMixin:
-render_policy_viz(policy.get_viz_data())
-</pre></div>
-</div>
-<p>The dispatcher inspects the keys present in <em>viz_data</em> and automatically
-routes to the correct sub-renderer:</p>
-<p>======================  ===========================================
-Key signature           Renderer
-======================  ===========================================
-<code class="docutils literal notranslate"><span class="pre">d_idx</span></code> present       :func:<code class="docutils literal notranslate"><span class="pre">_render_alns</span></code>  (ALNS)
-<code class="docutils literal notranslate"><span class="pre">generation</span></code> present  :func:<code class="docutils literal notranslate"><span class="pre">_render_hgs</span></code>   (HGS)
-<code class="docutils literal notranslate"><span class="pre">tau_mean</span></code> present    :func:<code class="docutils literal notranslate"><span class="pre">_render_aco</span></code>   (ACO)
-<code class="docutils literal notranslate"><span class="pre">perturb_mode</span></code> present:func:<code class="docutils literal notranslate"><span class="pre">_render_ils</span></code>   (ILS)
-<code class="docutils literal notranslate"><span class="pre">n_selected</span></code> present  :func:<code class="docutils literal notranslate"><span class="pre">_render_selector</span></code> (any selector)
-fallback                :func:<code class="docutils literal notranslate"><span class="pre">_render_rls</span></code>   (RLS / generic)
-======================  ===========================================</p>
+<p>This module provides a unified UI entry-point for rendering telemetry
+captured by :class:<code class="docutils literal notranslate"><span class="pre">~logic.src.models.policies.viz_mixin.PolicyVizMixin</span></code>.
+It automatically dispatches to algorithm-specific renderers based on
+detected data signatures.</p>
+<p>Example:
+render_policy_viz(policy.get_viz_data())</p>
+<p>Attributes:
+render_policy_viz: Main dispatcher for policy telemetry.
+_ema: Utility for exponential moving average smoothing.
+_ALNS_OP_NAMES: Human-readable mapping for ALNS operators.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -532,28 +520,28 @@ fallback                :func:<code class="docutils literal notranslate"><span c
 <td><p>Render policy telemetry captured by :class:<code class="docutils literal notranslate"><span class="pre">PolicyVizMixin</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.components.policy_viz._ema" title="src.ui.components.policy_viz._ema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_ema</span></code></a></p></td>
-<td><p>Apply exponential moving average smoothing.</p></td>
+<td><p>Applies exponential moving average smoothing to a list of values.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.components.policy_viz._bar_counts" title="src.ui.components.policy_viz._bar_counts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_bar_counts</span></code></a></p></td>
-<td></td>
+<td><p>Computes categorical frequency counts for bar chart plotting.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.components.policy_viz._render_alns" title="src.ui.components.policy_viz._render_alns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_alns</span></code></a></p></td>
-<td></td>
+<td><p>Renders comprehensive ALNS iteration telemetry.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.components.policy_viz._render_hgs" title="src.ui.components.policy_viz._render_hgs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_hgs</span></code></a></p></td>
-<td></td>
+<td><p>Renders HGS population fitness and stagnation telemetry.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.components.policy_viz._render_aco" title="src.ui.components.policy_viz._render_aco"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_aco</span></code></a></p></td>
-<td></td>
+<td><p>Renders ACO pheromone dynamics and convergence trajectories.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.components.policy_viz._render_ils" title="src.ui.components.policy_viz._render_ils"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_ils</span></code></a></p></td>
-<td></td>
+<td><p>Renders ILS restart history and perturbation usage patterns.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.components.policy_viz._render_selector" title="src.ui.components.policy_viz._render_selector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_selector</span></code></a></p></td>
-<td></td>
+<td><p>Renders bin selection strategy call telemetry.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.components.policy_viz._render_rls" title="src.ui.components.policy_viz._render_rls"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_rls</span></code></a></p></td>
-<td></td>
+<td><p>Renders generic policy iteration telemetry as multi-metric curves.</p></td>
 </tr>
 </tbody>
 </table>
@@ -591,13 +579,23 @@ time-series (1 = no smoothing).</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.components.policy_viz._ema">
 <span class="sig-prename descclassname"><span class="pre">src.ui.components.policy_viz.</span></span><span class="sig-name descname"><span class="pre">_ema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.components.policy_viz._ema" title="Link to this definition">#</a></dt>
-<dd><p>Apply exponential moving average smoothing.</p>
+<dd><p>Applies exponential moving average smoothing to a list of values.</p>
+<p>Args:
+values: Raw telemetry list.
+window: Smoothing window size.</p>
+<p>Returns:
+List[float]: Smoothed value list.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.components.policy_viz._bar_counts">
 <span class="sig-prename descclassname"><span class="pre">src.ui.components.policy_viz.</span></span><span class="sig-name descname"><span class="pre">_bar_counts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.components.policy_viz._bar_counts" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Computes categorical frequency counts for bar chart plotting.</p>
+<p>Args:
+values: List of categorical identifiers.</p>
+<p>Returns:
+Dict[Any, int]: Mapping of category to frequency.</p>
+</dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="src.ui.components.policy_viz._ALNS_OP_NAMES">
@@ -608,17 +606,32 @@ time-series (1 = no smoothing).</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.components.policy_viz._render_alns">
 <span class="sig-prename descclassname"><span class="pre">src.ui.components.policy_viz.</span></span><span class="sig-name descname"><span class="pre">_render_alns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smooth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.components.policy_viz._render_alns" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Renders comprehensive ALNS iteration telemetry.</p>
+<p>Args:
+data: ALNS-specific telemetry dictionary.
+height: Chart height in pixels.
+smooth: EMA smoothing window.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.components.policy_viz._render_hgs">
 <span class="sig-prename descclassname"><span class="pre">src.ui.components.policy_viz.</span></span><span class="sig-name descname"><span class="pre">_render_hgs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smooth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.components.policy_viz._render_hgs" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Renders HGS population fitness and stagnation telemetry.</p>
+<p>Args:
+data: HGS-specific telemetry dictionary.
+height: Chart height in pixels.
+smooth: EMA smoothing window.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.components.policy_viz._render_aco">
 <span class="sig-prename descclassname"><span class="pre">src.ui.components.policy_viz.</span></span><span class="sig-name descname"><span class="pre">_render_aco</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smooth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.components.policy_viz._render_aco" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Renders ACO pheromone dynamics and convergence trajectories.</p>
+<p>Args:
+data: ACO-specific telemetry dictionary.
+height: Chart height in pixels.
+smooth: EMA smoothing window.</p>
+</dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="src.ui.components.policy_viz._PERTURB_COLORS">
@@ -629,17 +642,31 @@ time-series (1 = no smoothing).</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.components.policy_viz._render_ils">
 <span class="sig-prename descclassname"><span class="pre">src.ui.components.policy_viz.</span></span><span class="sig-name descname"><span class="pre">_render_ils</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smooth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.components.policy_viz._render_ils" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Renders ILS restart history and perturbation usage patterns.</p>
+<p>Args:
+data: ILS-specific telemetry dictionary.
+height: Chart height in pixels.
+smooth: EMA smoothing window.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.components.policy_viz._render_selector">
 <span class="sig-prename descclassname"><span class="pre">src.ui.components.policy_viz.</span></span><span class="sig-name descname"><span class="pre">_render_selector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.components.policy_viz._render_selector" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Renders bin selection strategy call telemetry.</p>
+<p>Args:
+data: Selector-specific telemetry dictionary.
+height: Chart height in pixels.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.components.policy_viz._render_rls">
 <span class="sig-prename descclassname"><span class="pre">src.ui.components.policy_viz.</span></span><span class="sig-name descname"><span class="pre">_render_rls</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smooth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.components.policy_viz._render_rls" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Renders generic policy iteration telemetry as multi-metric curves.</p>
+<p>Args:
+data: Generic telemetry dictionary.
+height: Chart height in pixels.
+smooth: EMA smoothing window.</p>
+</dd></dl>
 
 </section>
 </section>

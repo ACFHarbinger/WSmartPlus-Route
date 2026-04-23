@@ -488,9 +488,10 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.policies.operators.destroy.string_removal">
 <span id="src-models-policies-operators-destroy-string-removal"></span><h1><a class="reference internal" href="#module-src.models.policies.operators.destroy.string_removal" title="src.models.policies.operators.destroy.string_removal"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies.operators.destroy.string_removal</span></code></a><a class="headerlink" href="#module-src.models.policies.operators.destroy.string_removal" title="Link to this heading">#</a></h1>
-<p>String removal operator (vectorized).</p>
-<p>String removal (SISR - Slack Induction by String Removal) removes contiguous
-sequences of nodes to create large spatial gaps that can be efficiently rearranged.</p>
+<p>String removal operator.</p>
+<p>This module provides a GPU-accelerated implementation of the Slack Induction by
+String Removal (SISR) heuristic, which minimizes routing costs by removing
+contiguous sequences (strings) of nodes to create large spatial gaps.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -511,33 +512,18 @@ sequences of nodes to create large spatial gaps that can be efficiently rearrang
 <span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.destroy.string_removal.</span></span><span class="sig-name descname"><span class="pre">vectorized_string_removal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_remove</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_string_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">avg_string_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Generator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.operators.destroy.string_removal.vectorized_string_removal" title="Link to this definition">#</a></dt>
 <dd><p>Vectorized string removal across a batch of tours using PyTorch.</p>
 <p>String removal removes contiguous sequences (strings) of nodes from routes.
-The key insight is that removing adjacent customers creates a large contiguous
-“hole” in the route, providing more flexibility for reinsertion compared to
-random removal.</p>
-<p>Algorithm:</p>
-<ol class="arabic simple">
-<li><p>While removed &lt; n_remove:
-a. Select random seed node from tour
-b. Determine string length using geometric distribution
-c. Remove string starting at seed (up to max_string_len)
-d. Mark removed nodes</p></li>
-<li><p>Return tours with removed nodes marked as -1</p></li>
-</ol>
+The length of each string follows a geometric-like distribution controlled
+by avg_string_len and capped by max_string_len.</p>
 <p>Args:
-tours: Batch of tours [B, N] where B=batch size, N=tour length
-n_remove: Number of nodes to remove from each tour
-max_string_len: Maximum length of a string to remove (default: 4)
-avg_string_len: Average string length for geometric distribution (default: 3.0)
-generator (Optional[torch.Generator]): PyTorch generator for random number generation.</p>
+tours: Batch of node sequences of shape [B, N].
+n_remove: Number of nodes to remove from each tour.
+max_string_len: Maximum length of a removed string.
+avg_string_len: Average string length for geometric distribution.
+generator: Torch device-side RNG.</p>
 <p>Returns:
-Tuple[torch.Tensor, torch.Tensor]:
-- Modified tours [B, N] with removed nodes replaced by padding (-1)
-- Removed nodes [B, n_remove] indices of removed nodes</p>
-<p>Note:
-- Tours should include depot as node 0 (depot not removed)
-- Removed nodes are marked as -1 in returned tours
-- String length follows geometric-like distribution: P(L=k) ~ (1-1/avg)^(k-1)
-- Stops early if not enough nodes available</p>
+Tuple[torch.Tensor, torch.Tensor]: A tuple containing:
+- modified_tours: Sequence with removed nodes marked as -1 (shape [B, N]).
+- removed_nodes_indices: Index positions of the removed nodes per instance (shape [B, n_remove]).</p>
 </dd></dl>
 
 </section>

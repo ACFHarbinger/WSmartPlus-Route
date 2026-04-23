@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} FeedForwardSubLayer(embed_dim: int, feed_forward_hidden: int, activation_config: typing.Optional[logic.src.configs.models.activation_function.ActivationConfig] = None, bias: bool = True, **kwargs)
+`````{py:class} FeedForwardSubLayer(embed_dim: int, feed_forward_hidden: int, activation_config: typing.Optional[logic.src.configs.models.activation_function.ActivationConfig] = None, bias: bool = True, **kwargs: typing.Any)
 :canonical: src.models.subnets.decoders.common.feed_forward_sublayer.FeedForwardSubLayer
 
 Bases: {py:obj}`torch.nn.Module`

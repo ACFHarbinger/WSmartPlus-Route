@@ -491,7 +491,9 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.policies.selection.regular">
 <span id="src-models-policies-selection-regular"></span><h1><a class="reference internal" href="#module-src.models.policies.selection.regular" title="src.models.policies.selection.regular"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies.selection.regular</span></code></a><a class="headerlink" href="#module-src.models.policies.selection.regular" title="Link to this heading">#</a></h1>
-<p>Regular (Periodic) Selection Strategy.</p>
+<p>Regular selection strategy.</p>
+<p>This module provides a periodic collection strategy that marks all bins for
+collection on scheduled days based on a fixed frequency interval.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -512,21 +514,24 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.policies.selection.regular.</span></span><span class="sig-name descname"><span class="pre">RegularSelector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.selection.regular.RegularSelector" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.models.policies.selection.base.html#src.models.policies.selection.base.VectorizedSelector" title="src.models.policies.selection.base.VectorizedSelector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.models.policies.selection.base.VectorizedSelector</span></code></a></p>
 <p>Periodic collection strategy.</p>
-<p>Selects all bins on scheduled collection days based on a fixed frequency.</p>
+<p>Selects all bins on scheduled collection days based on a fixed frequency.
+If it is a collection day for a specific batch, all active bins in that
+batch are marked as mandatory.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize RegularSelector.</p>
+<p>Initialize the regular selector.</p>
 <p>Args:
-frequency: Collection interval in days. Default: 3 (collect every 3rd day).</p>
+frequency: Collection interval in days (e.g., 3 means collect every 3rd day).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.policies.selection.regular.RegularSelector.select">
-<span class="sig-name descname"><span class="pre">select</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fill_levels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.selection.regular.RegularSelector.select" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">select</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fill_levels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.selection.regular.RegularSelector.select" title="Link to this definition">#</a></dt>
 <dd><p>Select all bins if today is a scheduled collection day.</p>
 <p>Args:
-fill_levels: Current fill levels (batch_size, num_nodes).
-current_day: Current simulation day (batch_size,) or scalar.
-frequency: Optional override for collection frequency.</p>
+fill_levels: Current fill levels [B, N].
+current_day: Current simulation day [B] or scalar.
+frequency: Optional override for collection frequency.
+**kwargs: Extra parameters (ignored).</p>
 <p>Returns:
-Tensor: Boolean mask (batch_size, num_nodes).</p>
+torch.Tensor: Boolean mask [B, N] where True indicates collection.</p>
 </dd></dl>
 
 </dd></dl>

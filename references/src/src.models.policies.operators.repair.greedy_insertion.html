@@ -490,7 +490,10 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.policies.operators.repair.greedy_insertion">
 <span id="src-models-policies-operators-repair-greedy-insertion"></span><h1><a class="reference internal" href="#module-src.models.policies.operators.repair.greedy_insertion" title="src.models.policies.operators.repair.greedy_insertion"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies.operators.repair.greedy_insertion</span></code></a><a class="headerlink" href="#module-src.models.policies.operators.repair.greedy_insertion" title="Link to this heading">#</a></h1>
-<p>Greedy insertion repair operator (vectorized).</p>
+<p>Greedy insertion repair operator.</p>
+<p>This module provides a GPU-accelerated implementation of the greedy insertion
+repair heuristic, which sequentially reinserts nodes into the position that
+results in the minimum cost increase.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -498,8 +501,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.operators.repair.greedy_insertion.vectorized_greedy_insertion" title="src.models.policies.operators.repair.greedy_insertion.vectorized_greedy_insertion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vectorized_greedy_insertion</span></code></a></p></td>
-<td><p>Vectorized greedy insertion.
-Sequentially inserts each node from removed_nodes into the best position in tours.</p></td>
+<td><p>Vectorized greedy insertion.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.models.policies.operators.repair.greedy_insertion._compute_greedy_insertion_costs" title="src.models.policies.operators.repair.greedy_insertion._compute_greedy_insertion_costs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_compute_greedy_insertion_costs</span></code></a></p></td>
 <td><p>Computes insertion costs for a single node at all positions in the tour.</p></td>
@@ -516,29 +518,42 @@ Sequentially inserts each node from removed_nodes into the best position in tour
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.repair.greedy_insertion.vectorized_greedy_insertion">
 <span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.repair.greedy_insertion.</span></span><span class="sig-name descname"><span class="pre">vectorized_greedy_insertion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Generator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.repair.greedy_insertion.vectorized_greedy_insertion" title="Link to this definition">#</a></dt>
-<dd><p>Vectorized greedy insertion.
-Sequentially inserts each node from removed_nodes into the best position in tours.</p>
+<dd><p>Vectorized greedy insertion.</p>
+<p>Sequentially inserts each node from removed_nodes into the best position
+in tours based on the delta cost.</p>
 <p>Args:
-tours: (B, N_curr)
-removed_nodes: (B, N_rem)
-dist_matrix: (B, N_all, N_all)
-wastes: (N_all) or (B, N_all)
-capacity: float
-generator (Optional[torch.Generator]): PyTorch generator for random number generation.</p>
+tours: Batch of current sequences of shape [B, N_curr].
+removed_nodes: Batch of nodes to insert of shape [B, N_rem].
+dist_matrix: Edge cost tensor of shape [B, N, N].
+wastes: Node demands of shape [B, N] or [N].
+capacity: Vehicle capacity limit.
+generator: Torch device-side RNG.</p>
 <p>Returns:
-tours: (B, N_curr + N_rem)</p>
+torch.Tensor: Repaired tours of shape [B, N_curr + N_rem].</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.repair.greedy_insertion._compute_greedy_insertion_costs">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.repair.greedy_insertion.</span></span><span class="sig-name descname"><span class="pre">_compute_greedy_insertion_costs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.repair.greedy_insertion._compute_greedy_insertion_costs" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.repair.greedy_insertion.</span></span><span class="sig-name descname"><span class="pre">_compute_greedy_insertion_costs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.repair.greedy_insertion._compute_greedy_insertion_costs" title="Link to this definition">#</a></dt>
 <dd><p>Computes insertion costs for a single node at all positions in the tour.</p>
+<p>Args:
+tours: Sequences of shape [B, N].
+node: Node to insert of shape [B, 1].
+dist: Distance matrix of shape [B, Nmax, Nmax].</p>
+<p>Returns:
+torch.Tensor: Delta cost tensor of shape [B, N].</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.repair.greedy_insertion._apply_insertion">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.repair.greedy_insertion.</span></span><span class="sig-name descname"><span class="pre">_apply_insertion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.repair.greedy_insertion._apply_insertion" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.repair.greedy_insertion.</span></span><span class="sig-name descname"><span class="pre">_apply_insertion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.repair.greedy_insertion._apply_insertion" title="Link to this definition">#</a></dt>
 <dd><p>Inserts a node into the tour at the specified position.</p>
+<p>Args:
+tours: Batch sequences of shape [B, N].
+node: Node to insert of shape [B, 1].
+pos: Insertion index of shape [B, 1].</p>
+<p>Returns:
+torch.Tensor: Updated sequences of shape [B, N+1].</p>
 </dd></dl>
 
 </section>

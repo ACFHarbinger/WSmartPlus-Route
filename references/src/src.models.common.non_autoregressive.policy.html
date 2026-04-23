@@ -494,11 +494,10 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.common.non_autoregressive.policy">
 <span id="src-models-common-non-autoregressive-policy"></span><h1><a class="reference internal" href="#module-src.models.common.non_autoregressive.policy" title="src.models.common.non_autoregressive.policy"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.common.non_autoregressive.policy</span></code></a><a class="headerlink" href="#module-src.models.common.non_autoregressive.policy" title="Link to this heading">#</a></h1>
-<p>nonautoregressive_policy.py module.</p>
-<p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
-<p>Example:
-&gt;&gt;&gt; import nonautoregressive_policy</p>
+<p>Non-autoregressive Policy module.</p>
+<p>This module provides the <code class="docutils literal notranslate"><span class="pre">NonAutoregressivePolicy</span></code> base class, which decouples
+global graph feature prediction (heatmap generation) from solution
+construction (decoding from heatmaps).</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -516,55 +515,83 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.common.non_autoregressive.policy.NonAutoregressivePolicy">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.common.non_autoregressive.policy.</span></span><span class="sig-name descname"><span class="pre">NonAutoregressivePolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">encoder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.models.common.non_autoregressive.encoder.html#src.models.common.non_autoregressive.encoder.NonAutoregressiveEncoder" title="src.models.common.non_autoregressive.encoder.NonAutoregressiveEncoder"><span class="pre">src.models.common.non_autoregressive.encoder.NonAutoregressiveEncoder</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decoder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.models.common.non_autoregressive.decoder.html#src.models.common.non_autoregressive.decoder.NonAutoregressiveDecoder" title="src.models.common.non_autoregressive.decoder.NonAutoregressiveDecoder"><span class="pre">src.models.common.non_autoregressive.decoder.NonAutoregressiveDecoder</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.common.non_autoregressive.policy.NonAutoregressivePolicy" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.common.non_autoregressive.policy.</span></span><span class="sig-name descname"><span class="pre">NonAutoregressivePolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">encoder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.models.common.non_autoregressive.encoder.html#src.models.common.non_autoregressive.encoder.NonAutoregressiveEncoder" title="src.models.common.non_autoregressive.encoder.NonAutoregressiveEncoder"><span class="pre">src.models.common.non_autoregressive.encoder.NonAutoregressiveEncoder</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decoder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.models.common.non_autoregressive.decoder.html#src.models.common.non_autoregressive.decoder.NonAutoregressiveDecoder" title="src.models.common.non_autoregressive.decoder.NonAutoregressiveDecoder"><span class="pre">src.models.common.non_autoregressive.decoder.NonAutoregressiveDecoder</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.common.non_autoregressive.policy.NonAutoregressivePolicy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
 <p>Base class for non-autoregressive policies.</p>
-<p>Combines a NAR encoder (heatmap prediction) with a NAR decoder
-(solution construction) to form a complete policy.</p>
+<p>NAR policies predict graph feature matrices (heatmaps) in a single step using
+an encoder, then utilize a decoder to construct a valid tour from these
+features using algorithms such as greedy search, sampling, or ACO.</p>
+<p>Attributes:
+encoder: Global heatmap predictor.
+decoder: Solution constructor.
+env_name: Name of the target environment.
+embed_dim: Feature vector dimensionality.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize NonAutoregressivePolicy.</p>
+<p>Initialize the NonAutoregressivePolicy.</p>
+<p>Args:
+encoder: Encoder instance for predicting edge/node logits.
+decoder: Decoder instance for creating routes from heatmaps.
+env_name: Name of the environment.
+embed_dim: Internal feature dimensionality.
+**kwargs: Additional parameters for the package.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.common.non_autoregressive.policy.NonAutoregressivePolicy.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sampling'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.common.non_autoregressive.policy.NonAutoregressivePolicy.forward" title="Link to this definition">#</a></dt>
-<dd><p>Full forward pass: encode heatmap + decode solution.</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sampling'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.common.non_autoregressive.policy.NonAutoregressivePolicy.forward" title="Link to this definition">#</a></dt>
+<dd><p>Perform a full forward pass: heatmap prediction followed by decoding.</p>
 <p>Args:
-td: TensorDict containing problem instance.
-env: Environment for state transitions and reward calculation.
-num_starts: Number of solution constructions (for stochastic decoders).
-**kwargs: Additional arguments for encoder/decoder.</p>
+td: TensorDict containing the problem instance.
+env: Environment object for transition logic and reward calculation.
+strategy: Decoding strategy (e.g., ‘sampling’, ‘greedy’).
+num_starts: Number of parallel solution attempts.
+**kwargs: Additional control arguments for encoder/decoder.</p>
 <p>Returns:
-Dictionary containing:
-- reward: Final reward/cost [batch] or [batch, num_starts]
-- log_likelihood: Log probability of solution [batch]
-- actions: Solution sequence [batch, seq_len]
-- heatmap: Predicted heatmap from encoder</p>
+Dict[str, Any]: Results dictionary containing:
+- reward (torch.Tensor): Calculated reward/cost for the solution.
+- log_likelihood (torch.Tensor): Log prob of chosen actions.
+- actions (torch.Tensor): Selected node indices.
+- heatmap (torch.Tensor): The predicted graph features used.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.common.non_autoregressive.policy.NonAutoregressivePolicy.set_strategy">
-<span class="sig-name descname"><span class="pre">set_strategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.common.non_autoregressive.policy.NonAutoregressivePolicy.set_strategy" title="Link to this definition">#</a></dt>
-<dd><p>Set decoding strategy (compatibility with evaluation pipeline).</p>
+<span class="sig-name descname"><span class="pre">set_strategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.common.non_autoregressive.policy.NonAutoregressivePolicy.set_strategy" title="Link to this definition">#</a></dt>
+<dd><p>Set the decoding strategy for subsequent inference calls.</p>
+<p>Useful for aligning with evaluation pipelines that vary decoding
+parameters (e.g., temperature, beam width).</p>
+<p>Args:
+strategy: Strategy identifier string.
+**kwargs: Configuration parameters for the strategy.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.common.non_autoregressive.policy.NonAutoregressivePolicy.common_decoding">
-<span class="sig-name descname"><span class="pre">common_decoding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heatmap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">decoding_kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.common.non_autoregressive.policy.NonAutoregressivePolicy.common_decoding" title="Link to this definition">#</a></dt>
-<dd><p>Common decoding logic for NAR models.</p>
+<span class="sig-name descname"><span class="pre">common_decoding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heatmap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">decoding_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tensordict.TensorDict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.common.non_autoregressive.policy.NonAutoregressivePolicy.common_decoding" title="Link to this definition">#</a></dt>
+<dd><p>Provide a standardized construction loop for NAR models using heatmaps.</p>
+<p>This utility manages strategy instantiation, pre/post-decoding hooks,
+and the iterative selection loop driven by the pre-computed heatmap.</p>
 <p>Args:
-strategy: Decoding strategy (‘sampling’, ‘greedy’, etc.)
-td: Initial TensorDict
-env: Environment
-heatmap: Predicted heatmap from encoder
-actions: Pre-specified actions for evaluation
-**decoding_kwargs: Additional arguments for decoding</p>
+strategy: Decoding strategy (‘sampling’, ‘greedy’, etc.).
+td: Initial state TensorDict.
+env: Environment instance.
+heatmap: Global feature matrix produced by the encoder.
+actions: Optional pre-defined actions for evaluation.
+**decoding_kwargs: Parameters for the decoding strategy.</p>
 <p>Returns:
-Tuple of (logprobs, actions, td, env)</p>
+Tuple[torch.Tensor, torch.Tensor, TensorDict, RL4COEnvBase]:
+- logprobs: Cumulative log probabilities.
+- actions: Final solution action sequence.
+- td: Resulting environment state TensorDict.
+- env: Environment object post-construction.</p>
+<p>Raises:
+ValueError: If a decoder has not been defined for the policy.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.common.non_autoregressive.policy.NonAutoregressivePolicy.eval">
-<span class="sig-name descname"><span class="pre">eval</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.common.non_autoregressive.policy.NonAutoregressivePolicy.eval" title="Link to this definition">#</a></dt>
-<dd><p>Set model to evaluation mode.</p>
+<span class="sig-name descname"><span class="pre">eval</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.models.common.non_autoregressive.policy.NonAutoregressivePolicy" title="src.models.common.non_autoregressive.policy.NonAutoregressivePolicy"><span class="pre">src.models.common.non_autoregressive.policy.NonAutoregressivePolicy</span></a></span></span><a class="headerlink" href="#src.models.common.non_autoregressive.policy.NonAutoregressivePolicy.eval" title="Link to this definition">#</a></dt>
+<dd><p>Set the model to evaluation mode.</p>
+<p>Returns:
+NonAutoregressivePolicy: Self, in evaluation mode.</p>
 </dd></dl>
 
 </dd></dl>

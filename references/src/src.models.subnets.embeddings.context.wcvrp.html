@@ -493,7 +493,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.embeddings.context.wcvrp">
 <span id="src-models-subnets-embeddings-context-wcvrp"></span><h1><a class="reference internal" href="#module-src.models.subnets.embeddings.context.wcvrp" title="src.models.subnets.embeddings.context.wcvrp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.embeddings.context.wcvrp</span></code></a><a class="headerlink" href="#module-src.models.subnets.embeddings.context.wcvrp" title="Link to this heading">#</a></h1>
-<p>WC specific context embedder.</p>
+<p>WCVRP specific context embedding module.</p>
+<p>This module provides the WCVRPContextEmbedder, which handles initial state
+projections and dynamic context extraction for Waste Collection VRPs.</p>
+<p>Attributes:
+WCVRPContextEmbedder: Context embedder for waste collection routing variants.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.embeddings.context.wcvrp import WCVRPContextEmbedder
+&gt;&gt;&gt; embedder = WCVRPContextEmbedder(embed_dim=128)
+&gt;&gt;&gt; context = embedder(embeddings, state)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -501,7 +509,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.subnets.embeddings.context.wcvrp.WCVRPContextEmbedder" title="src.models.subnets.embeddings.context.wcvrp.WCVRPContextEmbedder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WCVRPContextEmbedder</span></code></a></p></td>
-<td><p>Context Embedder for Waste Collection Vehicle Routing Problems (WCVRP).</p></td>
+<td><p>Context embedder for Waste Collection Vehicle Routing Problems (WCVRP).</p></td>
 </tr>
 </tbody>
 </table>
@@ -513,36 +521,49 @@ document.write(`
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.context.wcvrp.WCVRPContextEmbedder">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.embeddings.context.wcvrp.</span></span><span class="sig-name descname"><span class="pre">WCVRPContextEmbedder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">NODE_DIM</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temporal_horizon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.embeddings.context.wcvrp.WCVRPContextEmbedder" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.models.subnets.embeddings.context.base.html#src.models.subnets.embeddings.context.base.ContextEmbedder" title="src.models.subnets.embeddings.context.base.ContextEmbedder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.models.subnets.embeddings.context.base.ContextEmbedder</span></code></a></p>
-<p>Context Embedder for Waste Collection Vehicle Routing Problems (WCVRP).</p>
+<p>Context embedder for Waste Collection Vehicle Routing Problems (WCVRP).</p>
+<p>Manages initial node features including location and container waste levels,
+and extracts dynamic step features like remaining truck capacity and current time.</p>
+<p>Attributes:
+init_embed (nn.Linear): Projection for non-depot customer features.
+init_embed_depot (nn.Linear): Projection for depot location.
+project_step_context (nn.Linear): Projection for fused step context.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize Class.</p>
+<p>Initializes WCVRPContextEmbedder.</p>
 <p>Args:
-embed_dim (int): Description of embed_dim.
-node_dim (int): Description of node_dim.
-temporal_horizon (int): Description of temporal_horizon.</p>
+embed_dim: Target embedding dimensionality.
+node_dim: Base dimensionality of node features.
+temporal_horizon: Size of temporal feature window (if any).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.context.wcvrp.WCVRPContextEmbedder.init_node_embeddings">
-<span class="sig-name descname"><span class="pre">init_node_embeddings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temporal_features</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.embeddings.context.wcvrp.WCVRPContextEmbedder.init_node_embeddings" title="Link to this definition">#</a></dt>
-<dd><p>Init node embeddings.</p>
+<span class="sig-name descname"><span class="pre">init_node_embeddings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temporal_features</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.embeddings.context.wcvrp.WCVRPContextEmbedder.init_node_embeddings" title="Link to this definition">#</a></dt>
+<dd><p>Initializes node embeddings from locations and waste levels.</p>
 <p>Args:
-nodes (dict[str, Any]): Description of nodes.
-temporal_features (bool): Description of temporal_features.</p>
+nodes: Input dictionary containing ‘locs’/’loc’, ‘waste’, ‘depot’.
+temporal_features: Whether to include temporal features if horizon &gt; 0.</p>
 <p>Returns:
-Any: Description of return value.</p>
+torch.Tensor: Initial node embeddings including the depot.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.context.wcvrp.WCVRPContextEmbedder._step_context">
 <span class="sig-name descname"><span class="pre">_step_context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.embeddings.context.wcvrp.WCVRPContextEmbedder._step_context" title="Link to this definition">#</a></dt>
-<dd><p>Get WCVRP-specific step context.
-Concatenates current node embedding and state features (capacity, time).</p>
+<dd><p>Extracts current WCVRP step context.</p>
+<p>Fuses current node embedding with remaining capacity and current time.</p>
+<p>Args:
+embeddings: Current node embeddings.
+state: Current environment state.</p>
+<p>Returns:
+torch.Tensor: Projected step context embedding.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.context.wcvrp.WCVRPContextEmbedder.step_context_dim">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">step_context_dim</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.models.subnets.embeddings.context.wcvrp.WCVRPContextEmbedder.step_context_dim" title="Link to this definition">#</a></dt>
-<dd><p>WCVRP context adds remaining capacity and time (OFFSET)
-to the current node embedding (embed_dim).</p>
+<dd><p>Gets the dimensionality of the fused WCVRP step context.</p>
+<p>Aggregates node embedding dim and waste-collection specific metadata offset.</p>
+<p>Returns:
+int: Dimension size.</p>
 </dd></dl>
 
 </dd></dl>

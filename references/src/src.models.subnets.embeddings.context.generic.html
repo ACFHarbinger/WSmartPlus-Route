@@ -493,11 +493,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.embeddings.context.generic">
 <span id="src-models-subnets-embeddings-context-generic"></span><h1><a class="reference internal" href="#module-src.models.subnets.embeddings.context.generic" title="src.models.subnets.embeddings.context.generic"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.embeddings.context.generic</span></code></a><a class="headerlink" href="#module-src.models.subnets.embeddings.context.generic" title="Link to this heading">#</a></h1>
-<p>generic.py module.</p>
+<p>Generic context embedding module.</p>
+<p>This module provides the GenericContextEmbedder, which serves as a fallback
+for routing problems that do not require specialized state feature extraction.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+GenericContextEmbedder: Basic context embedder using linear projections.</p>
 <p>Example:
-&gt;&gt;&gt; import generic</p>
+&gt;&gt;&gt; from logic.src.models.subnets.embeddings.context.generic import GenericContextEmbedder
+&gt;&gt;&gt; embedder = GenericContextEmbedder(embed_dim=128)
+&gt;&gt;&gt; initial_h = embedder(nodes)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -505,8 +509,7 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.subnets.embeddings.context.generic.GenericContextEmbedder" title="src.models.subnets.embeddings.context.generic.GenericContextEmbedder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GenericContextEmbedder</span></code></a></p></td>
-<td><p>Generic context embedder for problems without specific implementations.
-Embeds depot (2D) and nodes (node_dim) simply.</p></td>
+<td><p>Generic context embedder for baseline routing problems.</p></td>
 </tr>
 </tbody>
 </table>
@@ -518,34 +521,46 @@ Embeds depot (2D) and nodes (node_dim) simply.</p></td>
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.context.generic.GenericContextEmbedder">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.embeddings.context.generic.</span></span><span class="sig-name descname"><span class="pre">GenericContextEmbedder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">NODE_DIM</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temporal_horizon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.embeddings.context.generic.GenericContextEmbedder" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.models.subnets.embeddings.context.base.html#src.models.subnets.embeddings.context.base.ContextEmbedder" title="src.models.subnets.embeddings.context.base.ContextEmbedder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.models.subnets.embeddings.context.base.ContextEmbedder</span></code></a></p>
-<p>Generic context embedder for problems without specific implementations.
-Embeds depot (2D) and nodes (node_dim) simply.</p>
+<p>Generic context embedder for baseline routing problems.</p>
+<p>Provides simple linear projections for depot and node locations, and
+uses the current node embedding as the dynamic step context.</p>
+<p>Attributes:
+init_embed (nn.Linear): Projection for non-depot node features.
+init_embed_depot (nn.Linear): Specialized projection for depot location.
+project_step_context (nn.Module): Projection layer for dynamic step context.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize Class.</p>
+<p>Initializes GenericContextEmbedder.</p>
 <p>Args:
-embed_dim (int): Description of embed_dim.
-node_dim (int): Description of node_dim.
-temporal_horizon (int): Description of temporal_horizon.</p>
+embed_dim: Internal embedding dimensionality.
+node_dim: Input node feature dimension.
+temporal_horizon: Ignored in generic implementation.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.context.generic.GenericContextEmbedder.init_node_embeddings">
-<span class="sig-name descname"><span class="pre">init_node_embeddings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.embeddings.context.generic.GenericContextEmbedder.init_node_embeddings" title="Link to this definition">#</a></dt>
-<dd><p>Init node embeddings.</p>
+<span class="sig-name descname"><span class="pre">init_node_embeddings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.embeddings.context.generic.GenericContextEmbedder.init_node_embeddings" title="Link to this definition">#</a></dt>
+<dd><p>Projects raw problem instance locations into embedding space.</p>
 <p>Args:
-nodes (dict[str, Any]): Description of nodes.</p>
+nodes: Instance dictionary containing ‘depot’ and ‘loc’/’locs’.</p>
 <p>Returns:
-Any: Description of return value.</p>
+torch.Tensor: Combined node embeddings (depot + others).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.context.generic.GenericContextEmbedder._step_context">
 <span class="sig-name descname"><span class="pre">_step_context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.embeddings.context.generic.GenericContextEmbedder._step_context" title="Link to this definition">#</a></dt>
-<dd><p>Default step context: return gathered current node embedding.</p>
+<dd><p>Extracts current node embedding as the step context.</p>
+<p>Args:
+embeddings: Current node embeddings.
+state: Environment state object.</p>
+<p>Returns:
+torch.Tensor: Projected current node embedding.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.context.generic.GenericContextEmbedder.step_context_dim">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">step_context_dim</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.models.subnets.embeddings.context.generic.GenericContextEmbedder.step_context_dim" title="Link to this definition">#</a></dt>
-<dd><p>Generic context just returns the current node embedding.</p>
+<dd><p>Returns the dimensionality of the generic current-node context.</p>
+<p>Returns:
+int: Size of the embedding dimension.</p>
 </dd></dl>
 
 </dd></dl>

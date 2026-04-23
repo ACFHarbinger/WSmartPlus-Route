@@ -493,67 +493,56 @@ document.write(`
 <p>Provides lightweight, WSTracker-integrated tools for measuring execution time,
 memory usage, and throughput at multiple granularities:</p>
 <ul class="simple">
-<li><p>:class:<code class="docutils literal notranslate"><span class="pre">ExecutionProfiler</span></code> / :func:<code class="docutils literal notranslate"><span class="pre">start_global_profiling</span></code> /
-:func:<code class="docutils literal notranslate"><span class="pre">stop_global_profiling</span></code> — <code class="docutils literal notranslate"><span class="pre">sys.setprofile</span></code> hook that records every
-project function call to a buffered CSV.</p></li>
-<li><p>:class:<code class="docutils literal notranslate"><span class="pre">BlockTimer</span></code> / :func:<code class="docutils literal notranslate"><span class="pre">profile_block</span></code> — context-manager timer for
-named code sections.</p></li>
-<li><p>:class:<code class="docutils literal notranslate"><span class="pre">MultiStepTimer</span></code> — multi-phase timer that tracks sequential stages.</p></li>
-<li><p>:func:<code class="docutils literal notranslate"><span class="pre">profile_function</span></code> — decorator that times every call to a function.</p></li>
-<li><p>:class:<code class="docutils literal notranslate"><span class="pre">MemorySnapshot</span></code> — point-in-time GPU/CPU memory snapshot.</p></li>
-<li><p>:class:<code class="docutils literal notranslate"><span class="pre">MemoryTracker</span></code> — background-thread memory monitor.</p></li>
-<li><p>:class:<code class="docutils literal notranslate"><span class="pre">ThroughputTracker</span></code> — sliding-window items-per-second meter.</p></li>
-<li><p>:class:<code class="docutils literal notranslate"><span class="pre">ProfilingReport</span></code> — reads and analyses an :class:<code class="docutils literal notranslate"><span class="pre">ExecutionProfiler</span></code>
-CSV to produce top-function and per-module breakdowns.</p></li>
+<li><p>ExecutionProfiler / start_global_profiling / stop_global_profiling: sys.setprofile
+hook that records every project function call to a buffered CSV.</p></li>
+<li><p>BlockTimer / profile_block: context-manager timer for named code sections.</p></li>
+<li><p>MultiStepTimer: multi-phase timer that tracks sequential stages.</p></li>
+<li><p>profile_function: decorator that times every call to a function.</p></li>
+<li><p>MemorySnapshot: point-in-time GPU/CPU memory snapshot.</p></li>
+<li><p>MemoryTracker: background-thread memory monitor.</p></li>
+<li><p>ThroughputTracker: sliding-window items-per-second meter.</p></li>
+<li><p>ProfilingReport: reads and analyses an ExecutionProfiler CSV to produce
+top-function and per-module breakdowns.</p></li>
 </ul>
 <p>All classes auto-forward results to the active WSTracker run via
-<code class="docutils literal notranslate"><span class="pre">contextlib.suppress</span></code>-guarded calls — they are safe no-ops when no run is
+contextlib.suppress-guarded calls — they are safe no-ops when no run is
 active or optional dependencies are missing.</p>
 <p>Attributes:
-memory: Memory profiling utilities.
-profiler: Execution profiler utilities.
-report: Report generation utilities.
-timer: Timer utilities.
-throughput: Throughput tracking utilities.</p>
-<p>Example usage::</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from logic.src.tracking.profiling import (
-    profile_block,
-    profile_function,
-    MemorySnapshot,
-    MemoryTracker,
-    ThroughputTracker,
-    start_global_profiling,
-    stop_global_profiling,
-)
-
-# Time a single block
-with profile_block(&quot;data_loading&quot;, step=epoch):
-    dataset = load_data()
-
-# Decorate a function
-@profile_function(prefix=&quot;sim&quot;)
-def run_policy(obs):
-    return policy(obs)
-
-# Track memory during training
-with MemoryTracker(interval_sec=0.5, tag=&quot;train&quot;) as mem:
-    train_one_epoch()
-mem.log_summary_to_run(step=epoch)
-
-# Measure throughput
-tracker = ThroughputTracker(window=50, unit=&quot;samples&quot;)
-tracker.start()
-for batch in dataloader:
-    with tracker.step(len(batch)):
-        loss = model(batch)
-tracker.log_to_run(step=epoch, prefix=&quot;train&quot;)
-
-# Full execution profiling
-start_global_profiling()
-run_experiment()
-stop_global_profiling()   # auto-logs CSV as artifact
-</pre></div>
-</div>
+ExecutionProfiler: sys.setprofile-based execution profiler.
+start_global_profiling: Function to start global execution profiling.
+stop_global_profiling: Function to stop global execution profiling.
+BlockTimer: Context-manager timer for code blocks.
+MultiStepTimer: Timer for multi-phase processes.
+profile_block: Helper function for block profiling.
+profile_function: Decorator for function profiling.
+MemorySnapshot: Record of memory usage at a specific time.
+MemoryTracker: Background monitor for memory usage.
+ThroughputTracker: Sliding-window throughput meter.
+ProfilingReport: Analyzer for execution profiler logs.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.tracking.profiling import (
+…     profile_block,
+…     profile_function,
+…     MemoryTracker,
+…     ThroughputTracker,
+… )
+&gt;&gt;&gt; # Time a single block
+&gt;&gt;&gt; with profile_block(“data_loading”, step=1):
+…     dataset = load_data()
+&gt;&gt;&gt; # Decorate a function
+&gt;&gt;&gt; &#64;profile_function(prefix=”sim”)
+… def run_policy(obs):
+…     return policy(obs)
+&gt;&gt;&gt; # Track memory during training
+&gt;&gt;&gt; with MemoryTracker(interval_sec=0.5, tag=”train”) as mem:
+…     train_one_epoch()
+&gt;&gt;&gt; mem.log_summary_to_run(step=1)
+&gt;&gt;&gt; # Measure throughput
+&gt;&gt;&gt; tracker = ThroughputTracker(unit=”samples”).start()
+&gt;&gt;&gt; for batch in dataloader:
+…     with tracker.step(len(batch)):
+…         loss = train_step(batch)
+&gt;&gt;&gt; tracker.log_to_run(step=1, prefix=”train”)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

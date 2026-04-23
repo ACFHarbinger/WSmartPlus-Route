@@ -488,11 +488,16 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.common.transductive.eas_layers">
 <span id="src-models-common-transductive-eas-layers"></span><h1><a class="reference internal" href="#module-src.models.common.transductive.eas_layers" title="src.models.common.transductive.eas_layers"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.common.transductive.eas_layers</span></code></a><a class="headerlink" href="#module-src.models.common.transductive.eas_layers" title="Link to this heading">#</a></h1>
-<p>eas_layers.py module.</p>
+<p>EAS Layer-specific variant module.</p>
+<p>This module provides the <code class="docutils literal notranslate"><span class="pre">EASLay</span></code> class, which is a version of EAS that
+refines the model by optimizing only specific structural layers (e.g., terminal
+projections or late-stage graph layers).</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+EASLay: EAS variant targeting specific architectural layers.</p>
 <p>Example:
-&gt;&gt;&gt; import eas_layers</p>
+&gt;&gt;&gt; from logic.src.models.common.transductive.eas_layers import EASLay
+&gt;&gt;&gt; search = EASLay(model, n_search_steps=25)
+&gt;&gt;&gt; results = search(td, env)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -500,7 +505,7 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.common.transductive.eas_layers.EASLay" title="src.models.common.transductive.eas_layers.EASLay"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EASLay</span></code></a></p></td>
-<td><p>EAS variant that optimizes specific layers (e.g., the last few layers or added layers).</p></td>
+<td><p>EAS variant targeting specific architectural layers.</p></td>
 </tr>
 </tbody>
 </table>
@@ -512,14 +517,19 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <dt class="sig sig-object py" id="src.models.common.transductive.eas_layers.EASLay">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.common.transductive.eas_layers.</span></span><span class="sig-name descname"><span class="pre">EASLay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_search_steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.common.transductive.eas_layers.EASLay" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.models.common.transductive.eas.html#src.models.common.transductive.eas.EAS" title="src.models.common.transductive.eas.EAS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.models.common.transductive.eas.EAS</span></code></a></p>
-<p>EAS variant that optimizes specific layers (e.g., the last few layers or added layers).</p>
+<p>EAS variant targeting specific architectural layers.</p>
+<p>Refines the policy by adapting parameters within designated layers
+(typically the projection head or final attention blocks) identified
+by substring matching.</p>
+<p>Attributes:
+model (nn.Module): The logic policy instance being adapted.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize Class.</p>
+<p>Initializes the Layer-targeted EAS model.</p>
 <p>Args:
-model (nn.Module): Description of model.
-optimizer_kwargs (Optional[Dict[str, Any]]): Description of optimizer_kwargs.
-n_search_steps (int): Description of n_search_steps.
-kwargs (Any): Description of kwargs.</p>
+model: The base neural strategy to refine.
+optimizer_kwargs: Configuration for the Adams optimizer.
+n_search_steps: Total refinement iterations at test-time.
+**kwargs: Additional parameters for the EAS base class.</p>
 </dd></dl>
 
 </section>

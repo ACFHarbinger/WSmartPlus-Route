@@ -494,9 +494,20 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.ui.services.simulation_analytics">
 <span id="src-ui-services-simulation-analytics"></span><h1><a class="reference internal" href="#module-src.ui.services.simulation_analytics" title="src.ui.services.simulation_analytics"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.services.simulation_analytics</span></code></a><a class="headerlink" href="#module-src.ui.services.simulation_analytics" title="Link to this heading">#</a></h1>
-<p>Simulation analytics functions for the dashboard.</p>
-<p>Extracted from <code class="docutils literal notranslate"><span class="pre">data_loader.py</span></code> to keep module sizes under 400 LoC.
-Functions are re-exported from <code class="docutils literal notranslate"><span class="pre">data_loader.py</span></code> for backward compatibility.</p>
+<p>Simulation analytics and statistical computation services.</p>
+<p>This module provides specialized logic for computing aggregate performance
+metrics across multi-day simulation runs. It supports cumulative totals,
+day-over-day delta calculation, and descriptive statistics (mean, std,
+min, max) for all primary performance indicators.</p>
+<p>Attributes:
+compute_cumulative_stats: Computes totals across all days.
+compute_day_deltas: Computes change from previous day.
+compute_summary_statistics: Computes mean, std, etc. per metric.
+get_metric_history: Returns historical mean values.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.ui.services.simulation_analytics import compute_cumulative_stats
+&gt;&gt;&gt; totals = compute_cumulative_stats(log_entries, policy=”greedy”)
+&gt;&gt;&gt; print(f”Total distance: {totals[‘Total Distance (km)’]:.2f} km”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -504,19 +515,19 @@ Functions are re-exported from <code class="docutils literal notranslate"><span 
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.services.simulation_analytics._filter_entries" title="src.ui.services.simulation_analytics._filter_entries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_filter_entries</span></code></a></p></td>
-<td><p>Filter entries by policy and/or sample_id.</p></td>
+<td><p>Internal helper to filter entries by policy and sample ID.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.services.simulation_analytics.compute_cumulative_stats" title="src.ui.services.simulation_analytics.compute_cumulative_stats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_cumulative_stats</span></code></a></p></td>
-<td><p>Compute cumulative totals across all days for a policy/sample.</p></td>
+<td><p>Computes cumulative totals across all days for a policy and sample.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.services.simulation_analytics.compute_day_deltas" title="src.ui.services.simulation_analytics.compute_day_deltas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_day_deltas</span></code></a></p></td>
-<td><p>Compute metric deltas between current day and previous day.</p></td>
+<td><p>Computes metric deltas between the current day and the previous day.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.services.simulation_analytics.compute_summary_statistics" title="src.ui.services.simulation_analytics.compute_summary_statistics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_summary_statistics</span></code></a></p></td>
-<td><p>Compute descriptive statistics (mean, std, min, max, total) per metric across all days.</p></td>
+<td><p>Computes aggregate descriptive statistics across all simulation days.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.services.simulation_analytics.get_metric_history" title="src.ui.services.simulation_analytics.get_metric_history"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_metric_history</span></code></a></p></td>
-<td><p>Get the last N days of mean values for a metric (for sparklines).</p></td>
+<td><p>Gets the last N days of mean values for a metric (used for sparklines).</p></td>
 </tr>
 </tbody>
 </table>
@@ -544,57 +555,63 @@ Functions are re-exported from <code class="docutils literal notranslate"><span 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.simulation_analytics._filter_entries">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.simulation_analytics.</span></span><span class="sig-name descname"><span class="pre">_filter_entries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.ui.services.log_parser.DayLogEntry</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.ui.services.log_parser.DayLogEntry</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.services.simulation_analytics._filter_entries" title="Link to this definition">#</a></dt>
-<dd><p>Filter entries by policy and/or sample_id.</p>
+<dd><p>Internal helper to filter entries by policy and sample ID.</p>
+<p>Args:
+entries: Master list of log entries.
+policy: Optional filter for policy identifier.
+sample_id: Optional filter for simulation sample index.</p>
+<p>Returns:
+List[DayLogEntry]: The filtered subset of entries.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.simulation_analytics.compute_cumulative_stats">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.simulation_analytics.</span></span><span class="sig-name descname"><span class="pre">compute_cumulative_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.ui.services.log_parser.DayLogEntry</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.services.simulation_analytics.compute_cumulative_stats" title="Link to this definition">#</a></dt>
-<dd><p>Compute cumulative totals across all days for a policy/sample.</p>
+<dd><p>Computes cumulative totals across all days for a policy and sample.</p>
 <p>Args:
-entries: All log entries.
-policy: Optional policy filter.
-sample_id: Optional sample filter.</p>
+entries: Master list of log entries.
+policy: Optional filter for policy identifier.
+sample_id: Optional filter for simulation sample index.</p>
 <p>Returns:
-Dict with total_profit, total_km, total_kg, total_overflows, total_cost, avg_efficiency.</p>
+Dict[str, float]: Mapping of ‘Total <Metric>’ to its cumulative value.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.simulation_analytics.compute_day_deltas">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.simulation_analytics.</span></span><span class="sig-name descname"><span class="pre">compute_day_deltas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.ui.services.log_parser.DayLogEntry</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.services.simulation_analytics.compute_day_deltas" title="Link to this definition">#</a></dt>
-<dd><p>Compute metric deltas between current day and previous day.</p>
+<dd><p>Computes metric deltas between the current day and the previous day.</p>
 <p>Args:
-entries: All log entries.
-current_day: The day to compute deltas for.
-policy: Optional policy filter.
-sample_id: Optional sample filter.</p>
+entries: Master list of log entries.
+current_day: The simulation day for which to compute deltas.
+policy: Optional filter for policy identifier.
+sample_id: Optional filter for simulation sample index.</p>
 <p>Returns:
-Dict of metric_name -&gt; delta (current - previous), or None if no previous.</p>
+Dict[str, Optional[float]]: Metric names mapped to their day-over-day change.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.simulation_analytics.compute_summary_statistics">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.simulation_analytics.</span></span><span class="sig-name descname"><span class="pre">compute_summary_statistics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.ui.services.log_parser.DayLogEntry</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.services.simulation_analytics.compute_summary_statistics" title="Link to this definition">#</a></dt>
-<dd><p>Compute descriptive statistics (mean, std, min, max, total) per metric across all days.</p>
+<dd><p>Computes aggregate descriptive statistics across all simulation days.</p>
 <p>Args:
-entries: All log entries.
-policy: Optional policy filter.</p>
+entries: Master list of log entries.
+policy: Optional filter for policy identifier.</p>
 <p>Returns:
-Dict of metric_name -&gt; {mean, std, min, max, total}.</p>
+Dict[str, Dict[str, float]]: Metric names mapped to {mean, std, min, max, total}.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.simulation_analytics.get_metric_history">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.simulation_analytics.</span></span><span class="sig-name descname"><span class="pre">get_metric_history</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.ui.services.log_parser.DayLogEntry</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_n_days</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">7</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.services.simulation_analytics.get_metric_history" title="Link to this definition">#</a></dt>
-<dd><p>Get the last N days of mean values for a metric (for sparklines).</p>
+<dd><p>Gets the last N days of mean values for a metric (used for sparklines).</p>
 <p>Args:
-entries: All log entries.
-metric: The metric name.
-policy: Optional policy filter.
-sample_id: Optional sample filter.
-last_n_days: Number of recent days to include.</p>
+entries: Master list of log entries.
+metric: The specific metric identifier to track.
+policy: Optional filter for policy identifier.
+sample_id: Optional filter for simulation sample index.
+last_n_days: Number of historical days to retrieve. Defaults to 7.</p>
 <p>Returns:
-List of mean values ordered by day (oldest first).</p>
+List[float]: Sequence of daily mean values (oldest first).</p>
 </dd></dl>
 
 </section>

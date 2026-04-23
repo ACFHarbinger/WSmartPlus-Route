@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} TemporalAMPolicy(env_name: str, embed_dim: int = 128, hidden_dim: int = 512, temporal_horizon: int = 5, predictor_layers: int = 2, predictor_type: str = 'gru', **kwargs)
+`````{py:class} TemporalAMPolicy(env_name: str, embed_dim: int = 128, hidden_dim: int = 512, temporal_horizon: int = 5, predictor_layers: int = 2, predictor_type: str = 'gru', **kwargs: typing.Any)
 :canonical: src.models.core.temporal_attention_model.policy.TemporalAMPolicy
 
 Bases: {py:obj}`logic.src.models.core.attention_model.policy.AttentionModelPolicy`
@@ -39,7 +39,7 @@ Bases: {py:obj}`logic.src.models.core.attention_model.policy.AttentionModelPolic
 
 ````{py:attribute} fill_predictor
 :canonical: src.models.core.temporal_attention_model.policy.TemporalAMPolicy.fill_predictor
-:type: typing.Union[logic.src.models.subnets.helpers.lstm_fill_predictor.LongShortTermMemoryFillPredictor, logic.src.models.subnets.helpers.gru_fill_predictor.GatedRecurrentUnitFillPredictor]
+:type: typing.Union[logic.src.models.subnets.other.lstm_fill_predictor.LongShortTermMemoryFillPredictor, logic.src.models.subnets.other.gru_fill_predictor.GatedRecurrentUnitFillPredictor]
 :value: >
    None
 
@@ -70,7 +70,7 @@ Bases: {py:obj}`logic.src.models.core.attention_model.policy.AttentionModelPolic
 
 ````
 
-````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.base.RL4COEnvBase, strategy: str = 'sampling', num_starts: int = 1, actions: typing.Optional[torch.Tensor] = None, **kwargs) -> dict
+````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.base.RL4COEnvBase, strategy: str = 'sampling', num_starts: int = 1, actions: typing.Optional[torch.Tensor] = None, **kwargs: typing.Any) -> typing.Dict[str, typing.Any]
 :canonical: src.models.core.temporal_attention_model.policy.TemporalAMPolicy.forward
 
 ```{autodoc2-docstring} src.models.core.temporal_attention_model.policy.TemporalAMPolicy.forward

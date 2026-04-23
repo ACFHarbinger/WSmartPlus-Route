@@ -37,6 +37,7 @@ src.configs.policies.hvpl
 src.configs.policies.kgls
 src.configs.policies.mp_sa
 src.configs.policies.hmm_gd_hh
+src.configs.policies.calm
 src.configs.policies.es_mpl
 src.configs.policies.jsa
 src.configs.policies.gp_hh

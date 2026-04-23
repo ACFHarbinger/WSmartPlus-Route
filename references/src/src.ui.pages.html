@@ -490,7 +490,21 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.ui.pages">
 <span id="src-ui-pages"></span><h1><a class="reference internal" href="#module-src.ui.pages" title="src.ui.pages"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.pages</span></code></a><a class="headerlink" href="#module-src.ui.pages" title="Link to this heading">#</a></h1>
-<p>Dashboard components for the Streamlit UI.</p>
+<p>Streamlit dashboard page entry points.</p>
+<p>This package exports the main rendering functions for each dashboard mode,
+allowing for dynamic layout switching in the core app orchestrator.</p>
+<p>Example:
+from logic.src.ui.pages import render_algorithms
+render_algorithms()</p>
+<p>Attributes:
+render_training_monitor: Real-time DRL training metrics.
+render_simulation_visualizer: Interactive tour/bin visualization.
+render_simulation_summary: KPI and KPI comparison dashboard.
+render_benchmark_analysis: Cross-hardware solver analysis.
+render_data_explorer: Interactive dataset profiling.
+render_experiment_tracker: Multi-backend run auditing.
+render_hpo_tracker: Optuna study visualization.
+render_algorithms: Global registry discovery interface.</p>
 <section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

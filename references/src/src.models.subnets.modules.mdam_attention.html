@@ -493,8 +493,18 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.modules.mdam_attention">
 <span id="src-models-subnets-modules-mdam-attention"></span><h1><a class="reference internal" href="#module-src.models.subnets.modules.mdam_attention" title="src.models.subnets.modules.mdam_attention"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.modules.mdam_attention</span></code></a><a class="headerlink" href="#module-src.models.subnets.modules.mdam_attention" title="Link to this heading">#</a></h1>
 <p>MDAM Multi-Head Attention module.</p>
-<p>This module implements the MDAM-specific MHA that can optionally return
-intermediate attention weights and value matrices for encoder-decoder coupling.</p>
+<p>This module provides the MultiHeadAttentionMDAM layer, which implements the
+specialized multi-head attention mechanism used in the Multi-Decoder Attention
+Model (MDAM). It supports returning intermediate tensors required for dynamic
+embedding updates during decoding.</p>
+<p>Attributes:
+MultiHeadAttentionMDAM: MDAM-specific attention mechanism with coupling support.</p>
+<p>Example:
+&gt;&gt;&gt; import torch
+&gt;&gt;&gt; from logic.src.models.subnets.modules.mdam_attention import MultiHeadAttentionMDAM
+&gt;&gt;&gt; model = MultiHeadAttentionMDAM(embed_dim=128, n_heads=8)
+&gt;&gt;&gt; q = torch.randn(1, 4, 128)
+&gt;&gt;&gt; out = model(q)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -502,7 +512,7 @@ intermediate attention weights and value matrices for encoder-decoder coupling.<
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.subnets.modules.mdam_attention.MultiHeadAttentionMDAM" title="src.models.subnets.modules.mdam_attention.MultiHeadAttentionMDAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MultiHeadAttentionMDAM</span></code></a></p></td>
-<td><p>Multi-Head Attention for MDAM with optional return of attention weights and values.</p></td>
+<td><p>Multi-Head Attention for MDAM with optional routing feedback.</p></td>
 </tr>
 </tbody>
 </table>
@@ -514,44 +524,56 @@ intermediate attention weights and value matrices for encoder-decoder coupling.<
 <dt class="sig sig-object py" id="src.models.subnets.modules.mdam_attention.MultiHeadAttentionMDAM">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.modules.mdam_attention.</span></span><span class="sig-name descname"><span class="pre">MultiHeadAttentionMDAM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_one</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.mdam_attention.MultiHeadAttentionMDAM" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
-<p>Multi-Head Attention for MDAM with optional return of attention weights and values.</p>
-<p>Unlike standard MHA, this module can return intermediate attention weights (attn)
-and value matrices (V) when <code class="docutils literal notranslate"><span class="pre">last_one=True</span></code>. These are used by the MDAM encoder’s
-<code class="docutils literal notranslate"><span class="pre">change()</span></code> method to dynamically update embeddings during decoding.</p>
+<p>Multi-Head Attention for MDAM with optional routing feedback.</p>
+<p>Unlike standard MHA, this specialized module can return intermediate attention
+weights and value matrices. These are leveraged by the MDAM encoder to
+perform “dynamic re-encoding” where embeddings are updated based on the
+decoder’s attention patterns.</p>
 <p>Reference:
-Xin et al. “Multi-Decoder Attention Model with Embedding Glimpse for
-Solving Vehicle Routing Problems” (AAAI 2021)</p>
+Xin, L., et al. (2021). Multi-Decoder Attention Model with Embedding
+Glimpse for Solving Vehicle Routing Problems. AAAI Conference on
+Artificial Intelligence.</p>
+<p>Attributes:
+embed_dim (int): Total dimensionality of the input/output embeddings.
+n_heads (int): Number of parallel attention heads.
+num_heads (int): Alias for <code class="docutils literal notranslate"><span class="pre">n_heads</span></code> for backward compatibility.
+val_dim (int): Dimensionality of values per head (full <code class="docutils literal notranslate"><span class="pre">embed_dim</span></code> for MDAM).
+norm_factor (float): Scaling factor for scores (1 / sqrt(embed_dim)).
+W_query (nn.Parameter): Learnable query projection weights for each head.
+W_key (nn.Parameter): Learnable key projection weights for each head.
+W_val (nn.Parameter): Learnable value projection weights for each head.
+W_out (nn.Parameter): Learnable output projection weights for consolidation.
+last_one (bool): Whether to return intermediate attention tensors.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize MDAM Multi-Head Attention.</p>
+<p>Initializes MultiHeadAttentionMDAM.</p>
 <p>Args:
-embed_dim: Total embedding dimension.
-n_heads: Number of attention heads.
-last_one: If True, forward returns (out, attn, V) instead of just out.
-Used for the last encoder layer to enable dynamic re-encoding.</p>
+embed_dim: Feature dimensionality of input embeddings.
+n_heads: Number of parallel attention heads.
+last_one: If True, <code class="docutils literal notranslate"><span class="pre">forward</span></code> returns (output, attention, values).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.mdam_attention.MultiHeadAttentionMDAM._init_parameters">
 <span class="sig-name descname"><span class="pre">_init_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.subnets.modules.mdam_attention.MultiHeadAttentionMDAM._init_parameters" title="Link to this definition">#</a></dt>
-<dd><p>Initialize parameters with uniform distribution.</p>
+<dd><p>Initializes weights using a uniform distribution.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.mdam_attention.MultiHeadAttentionMDAM.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.subnets.modules.mdam_attention.MultiHeadAttentionMDAM.forward" title="Link to this definition">#</a></dt>
-<dd><p>Compute multi-head attention.</p>
+<dd><p>Computes the MDAM multi-head attention update.</p>
 <p>Args:
-q: Query tensor of shape (batch_size, n_query, embed_dim).
-h: Key/Value tensor of shape (batch_size, graph_size, embed_dim).
-If None, computes self-attention (h = q).
-mask: Attention mask of shape (batch_size, n_query, graph_size).
-True values indicate positions to mask out.</p>
+q: Query sequence tensor of shape (batch, n_query, dim).
+h: Key/Value sequence tensor of shape (batch, n_graph, dim).
+If None, defaults to self-attention on <code class="docutils literal notranslate"><span class="pre">q</span></code>.
+mask: Boolean attention mask (batch, n_query, n_graph).
+True indicates blocked positions.</p>
 <p>Returns:
-If last_one=False:
-Output tensor of shape (batch_size, n_query, embed_dim).
-If last_one=True:
-Tuple of (output, attn, V) where:
-- output: (batch_size, n_query, embed_dim)
-- attn: (n_heads, batch_size, n_query, graph_size)
-- V: (n_heads, batch_size, graph_size, embed_dim)</p>
+Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor, torch.Tensor]]:
+If <code class="docutils literal notranslate"><span class="pre">last_one</span></code> is False:
+- Transformed output tensor of shape (batch, n_query, dim).
+If <code class="docutils literal notranslate"><span class="pre">last_one</span></code> is True:
+- output: Transformed features (batch, n_query, dim).
+- attn: Attention weights (heads, batch, n_query, n_graph).
+- V: Internal value matrices (heads, batch, n_graph, dim).</p>
 </dd></dl>
 
 </dd></dl>

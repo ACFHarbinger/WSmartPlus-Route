@@ -491,7 +491,10 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.policies.selection.service_level">
 <span id="src-models-policies-selection-service-level"></span><h1><a class="reference internal" href="#module-src.models.policies.selection.service_level" title="src.models.policies.selection.service_level"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies.selection.service_level</span></code></a><a class="headerlink" href="#module-src.models.policies.selection.service_level" title="Link to this heading">#</a></h1>
-<p>Service Level (Statistical) Selection Strategy.</p>
+<p>Service level (Statistical) selection strategy.</p>
+<p>This module provides a statistical selection strategy that predicts overflow
+probabilities using mean accumulation rates and standard deviations, marking
+bins for collection based on a specified confidence level.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -512,27 +515,30 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.policies.selection.service_level.</span></span><span class="sig-name descname"><span class="pre">ServiceLevelSelector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">confidence_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_fill</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.selection.service_level.ServiceLevelSelector" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.models.policies.selection.base.html#src.models.policies.selection.base.VectorizedSelector" title="src.models.policies.selection.base.VectorizedSelector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.models.policies.selection.base.VectorizedSelector</span></code></a></p>
 <p>Statistical overflow prediction strategy.</p>
-<p>Uses mean accumulation rate and standard deviation to predict
-overflow probability and select bins accordingly.</p>
+<p>Uses mean accumulation rates and their standard deviations to predict the
+likelihood of overflow. A bin is selected if its predicted peak fill level
+(mean + confidence * std) exceeds the overflow threshold.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize ServiceLevelSelector.</p>
+<p>Initialize the service level selector.</p>
 <p>Args:
 confidence_factor: Number of standard deviations for prediction.
-Higher = more conservative (fewer overflows).
-max_fill: Maximum fill level (overflow threshold). Default: 1.0.</p>
+Higher values lead to more conservative (earlier) collections.
+max_fill: Maximum fill level (overflow threshold).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.policies.selection.service_level.ServiceLevelSelector.select">
-<span class="sig-name descname"><span class="pre">select</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fill_levels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accumulation_rates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">std_deviations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_fill</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.selection.service_level.ServiceLevelSelector.select" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">select</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fill_levels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accumulation_rates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">std_deviations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_fill</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.selection.service_level.ServiceLevelSelector.select" title="Link to this definition">#</a></dt>
 <dd><p>Select bins statistically likely to overflow.</p>
-<p>Prediction: current + rate + (confidence * std) &gt;= max_fill</p>
+<p>Prediction Logic:
+predicted_fill = current + rate + (confidence * std) &gt;= max_fill</p>
 <p>Args:
-fill_levels: Current fill levels (batch_size, num_nodes) in [0, 1].
-accumulation_rates: Mean daily fill rate (batch_size, num_nodes).
-std_deviations: Standard deviation of fill rate (batch_size, num_nodes).
+fill_levels: Current fill levels [B, N] in [0, 1].
+accumulation_rates: Mean daily fill rate [B, N].
+std_deviations: Standard deviation of fill rate [B, N].
 confidence_factor: Optional override for confidence multiplier.
-max_fill: Optional override for overflow threshold.</p>
+max_fill: Optional override for overflow threshold.
+**kwargs: Extra parameters (ignored).</p>
 <p>Returns:
-Tensor: Boolean mask (batch_size, num_nodes).</p>
+torch.Tensor: Boolean mask [B, N] where True indicates collection.</p>
 </dd></dl>
 
 </dd></dl>

@@ -492,6 +492,15 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.decoders.gat.multi_head_attention_layer">
 <span id="src-models-subnets-decoders-gat-multi-head-attention-layer"></span><h1><a class="reference internal" href="#module-src.models.subnets.decoders.gat.multi_head_attention_layer" title="src.models.subnets.decoders.gat.multi_head_attention_layer"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.decoders.gat.multi_head_attention_layer</span></code></a><a class="headerlink" href="#module-src.models.subnets.decoders.gat.multi_head_attention_layer" title="Link to this heading">#</a></h1>
 <p>Multi-Head Attention Layer for GAT Decoder.</p>
+<p>This module implements a single layer of the graph attention mechanism, consisting
+of multi-head attention followed by a feed-forward sublayer with skip connections
+and normalization.</p>
+<p>Attributes:
+MultiHeadAttentionLayer: Single transformer-style layer for GAT decoding.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.decoders.gat.multi_head_attention_layer import MultiHeadAttentionLayer
+&gt;&gt;&gt; layer = MultiHeadAttentionLayer(n_heads=8, embed_dim=128, feed_forward_hidden=512)
+&gt;&gt;&gt; out = layer(query, node_embeddings, mask)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -499,8 +508,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.subnets.decoders.gat.multi_head_attention_layer.MultiHeadAttentionLayer" title="src.models.subnets.decoders.gat.multi_head_attention_layer.MultiHeadAttentionLayer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MultiHeadAttentionLayer</span></code></a></p></td>
-<td><p>Single layer of the Graph Attention Decoder.
-Contains Multi-Head Attention followed by a Feed-Forward block, with normalization.</p></td>
+<td><p>Single layer of the Graph Attention Decoder.</p></td>
 </tr>
 </tbody>
 </table>
@@ -510,16 +518,35 @@ Contains Multi-Head Attention followed by a Feed-Forward block, with normalizati
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.subnets.decoders.gat.multi_head_attention_layer.MultiHeadAttentionLayer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.decoders.gat.multi_head_attention_layer.</span></span><span class="sig-name descname"><span class="pre">MultiHeadAttentionLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feed_forward_hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.models.normalization.NormalizationConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.models.activation_function.ActivationConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.decoders.gat.multi_head_attention_layer.MultiHeadAttentionLayer" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.decoders.gat.multi_head_attention_layer.</span></span><span class="sig-name descname"><span class="pre">MultiHeadAttentionLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feed_forward_hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.models.normalization.NormalizationConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.models.activation_function.ActivationConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.decoders.gat.multi_head_attention_layer.MultiHeadAttentionLayer" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
-<p>Single layer of the Graph Attention Decoder.
-Contains Multi-Head Attention followed by a Feed-Forward block, with normalization.</p>
+<p>Single layer of the Graph Attention Decoder.</p>
+<p>Contains Multi-Head Attention followed by a Feed-Forward block, both with
+skip connections and layer normalization.</p>
+<p>Attributes:
+att (SkipConnection): Multi-head attention sublayer with skip connection.
+norm1 (Normalization): Normalization after attention.
+ff (SkipConnection): Feed-forward sublayer with skip connection.
+norm2 (Normalization): Normalization after feed-forward.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the MultiHeadAttentionLayer.</p>
+<p>Args:
+n_heads: Number of attention heads.
+embed_dim: Embedding dimension.
+feed_forward_hidden: Hidden dimension for the FFN block.
+norm_config: Configuration for normalization layers.
+activation_config: Configuration for activation functions.
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.decoders.gat.multi_head_attention_layer.MultiHeadAttentionLayer.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.decoders.gat.multi_head_attention_layer.MultiHeadAttentionLayer.forward" title="Link to this definition">#</a></dt>
-<dd><p>Forward pass.</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.decoders.gat.multi_head_attention_layer.MultiHeadAttentionLayer.forward" title="Link to this definition">#</a></dt>
+<dd><p>Forward pass through the layer.</p>
+<p>Args:
+q: Query tensor.
+h: Key/Value (node) embeddings.
+mask: Attention mask.</p>
+<p>Returns:
+torch.Tensor: Normalized output embeddings.</p>
 </dd></dl>
 
 </dd></dl>

@@ -473,7 +473,7 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.operators.route.two_opt_star.vectorized_two_opt_star"><code class="docutils literal notranslate"><span class="pre">vectorized_two_opt_star()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.operators.route.two_opt_star._identify_two_opt_star_routes"><code class="docutils literal notranslate"><span class="pre">_identify_two_opt_star_routes()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.operators.route.two_opt_star._compute_two_opt_star_gain"><code class="docutils literal notranslate"><span class="pre">_compute_two_opt_star_gain()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.operators.route.two_opt_star._apply_two_opt_star_moves"><code class="docutils literal notranslate"><span class="pre">_apply_two_opt_star_moves()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.operators.route.two_opt_star._apply_two_opt_moves"><code class="docutils literal notranslate"><span class="pre">_apply_two_opt_moves()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.operators.route.two_opt_star._map_tail_swap"><code class="docutils literal notranslate"><span class="pre">_map_tail_swap()</span></code></a></li>
 </ul>
 </li>
@@ -492,7 +492,10 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.policies.operators.route.two_opt_star">
 <span id="src-models-policies-operators-route-two-opt-star"></span><h1><a class="reference internal" href="#module-src.models.policies.operators.route.two_opt_star" title="src.models.policies.operators.route.two_opt_star"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies.operators.route.two_opt_star</span></code></a><a class="headerlink" href="#module-src.models.policies.operators.route.two_opt_star" title="Link to this heading">#</a></h1>
-<p>2-opt* local search operator (tail swap).</p>
+<p>2-opt* local search operator.</p>
+<p>This module provides a GPU-accelerated implementation of the 2-opt* heuristic,
+frequently referred to as a “Tail Swap”, which improves multi-route solutions
+by exchanging the terminal segments of two different routes.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -500,20 +503,19 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.operators.route.two_opt_star.vectorized_two_opt_star" title="src.models.policies.operators.route.two_opt_star.vectorized_two_opt_star"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vectorized_two_opt_star</span></code></a></p></td>
-<td><p>Vectorized 2-opt* operator. (Tail Swap).
-Exchanges tails of two different routes. Useful for improving solutions by reconnecting routes.</p></td>
+<td><p>Vectorized 2-opt* (Tail Swap) operator.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.models.policies.operators.route.two_opt_star._identify_two_opt_star_routes" title="src.models.policies.operators.route.two_opt_star._identify_two_opt_star_routes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_identify_two_opt_star_routes</span></code></a></p></td>
-<td><p>Identifies route boundaries for tail swap.</p></td>
+<td><p>Detects route boundaries for inter-route tail exchange.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.operators.route.two_opt_star._compute_two_opt_star_gain" title="src.models.policies.operators.route.two_opt_star._compute_two_opt_star_gain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_compute_two_opt_star_gain</span></code></a></p></td>
-<td><p>Computes gain for tail swap (broken edges vs new edges).</p></td>
+<td><p>Calculates gain for breaking edges (u, un) and (v, vn).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.models.policies.operators.route.two_opt_star._apply_two_opt_star_moves" title="src.models.policies.operators.route.two_opt_star._apply_two_opt_star_moves"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_apply_two_opt_star_moves</span></code></a></p></td>
-<td><p>Applies tail swap using index mapping for segments.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.models.policies.operators.route.two_opt_star._apply_two_opt_moves" title="src.models.policies.operators.route.two_opt_star._apply_two_opt_moves"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_apply_two_opt_moves</span></code></a></p></td>
+<td><p>Batch tail swap using conditional segment mapping.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.operators.route.two_opt_star._map_tail_swap" title="src.models.policies.operators.route.two_opt_star._map_tail_swap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_map_tail_swap</span></code></a></p></td>
-<td><p>Constructs the index mapping for a tail swap where first route &lt; second route.</p></td>
+<td><p>Constructs the index mapping for asymmetric route ordering.</p></td>
 </tr>
 </tbody>
 </table>
@@ -523,40 +525,86 @@ Exchanges tails of two different routes. Useful for improving solutions by recon
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.route.two_opt_star.vectorized_two_opt_star">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.two_opt_star.</span></span><span class="sig-name descname"><span class="pre">vectorized_two_opt_star</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.route.two_opt_star.vectorized_two_opt_star" title="Link to this definition">#</a></dt>
-<dd><p>Vectorized 2-opt* operator. (Tail Swap).
-Exchanges tails of two different routes. Useful for improving solutions by reconnecting routes.</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.two_opt_star.</span></span><span class="sig-name descname"><span class="pre">vectorized_two_opt_star</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Generator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.route.two_opt_star.vectorized_two_opt_star" title="Link to this definition">#</a></dt>
+<dd><p>Vectorized 2-opt* (Tail Swap) operator.</p>
+<p>Exchanges the ‘tail’ segments (nodes following positions i and j) between
+two distinct routes. This move is particularly effective for reconnecting
+routes and improving fleet-level efficiency.</p>
 <p>Args:
-tours (torch.Tensor): Current tours (B, max_len).
-dist_matrix (torch.Tensor): Distance matrix.
-max_iterations (int): Number of attempts.
-generator (torch.Generator, optional): Random generator.</p>
+tours: Batch of node sequences of shape [B, L].
+dist_matrix: Edge cost tensor of shape [B, N, N].
+max_iterations: Number of random tail-swap pairs to evaluate.
+generator: Torch device-side RNG.</p>
 <p>Returns:
-torch.Tensor: Updated tours.</p>
+torch.Tensor: Updated batch of tours of shape [B, L].</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.route.two_opt_star._identify_two_opt_star_routes">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.two_opt_star.</span></span><span class="sig-name descname"><span class="pre">_identify_two_opt_star_routes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.route.two_opt_star._identify_two_opt_star_routes" title="Link to this definition">#</a></dt>
-<dd><p>Identifies route boundaries for tail swap.</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.two_opt_star.</span></span><span class="sig-name descname"><span class="pre">_identify_two_opt_star_routes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.operators.route.two_opt_star._identify_two_opt_star_routes" title="Link to this definition">#</a></dt>
+<dd><p>Detects route boundaries for inter-route tail exchange.</p>
+<p>Args:
+tours: Batch of sequences of shape [B, N].
+i: First split position of shape [B, 1].
+j: Second split position of shape [B, 1].
+seq: Coordinate sequence of shape [B, N].
+B: Batch size.</p>
+<p>Returns:
+Tuple[torch.Tensor, torch.Tensor, torch.Tensor]: A tuple containing:
+- end_i: Calculated end index for the first identified route.
+- end_j: Calculated end index for the second identified route.
+- mask: Boolean validity mask for the inter-route exchange.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.route.two_opt_star._compute_two_opt_star_gain">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.two_opt_star.</span></span><span class="sig-name descname"><span class="pre">_compute_two_opt_star_gain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_idx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.route.two_opt_star._compute_two_opt_star_gain" title="Link to this definition">#</a></dt>
-<dd><p>Computes gain for tail swap (broken edges vs new edges).</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.two_opt_star.</span></span><span class="sig-name descname"><span class="pre">_compute_two_opt_star_gain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.route.two_opt_star._compute_two_opt_star_gain" title="Link to this definition">#</a></dt>
+<dd><p>Calculates gain for breaking edges (u, un) and (v, vn).</p>
+<p>Args:
+tours: Batch of sequences of shape [B, N].
+dist: Distance matrix of shape [B, N+1, N+1].
+u: Node at position i of shape [B, 1].
+v: Node at position j of shape [B, 1].
+i: First position index of shape [B, 1].
+j: Second position index of shape [B, 1].
+b_idx: Batch indices of shape [B, 1].</p>
+<p>Returns:
+torch.Tensor: Gain tensor of shape [B, 1].</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="src.models.policies.operators.route.two_opt_star._apply_two_opt_star_moves">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.two_opt_star.</span></span><span class="sig-name descname"><span class="pre">_apply_two_opt_star_moves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">improved</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_len</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.route.two_opt_star._apply_two_opt_star_moves" title="Link to this definition">#</a></dt>
-<dd><p>Applies tail swap using index mapping for segments.</p>
+<dt class="sig sig-object py" id="src.models.policies.operators.route.two_opt_star._apply_two_opt_moves">
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.two_opt_star.</span></span><span class="sig-name descname"><span class="pre">_apply_two_opt_moves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">improved</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.device</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.route.two_opt_star._apply_two_opt_moves" title="Link to this definition">#</a></dt>
+<dd><p>Batch tail swap using conditional segment mapping.</p>
+<p>Args:
+tours: Batch of sequences of shape [B, N].
+improved: Improvement flag of shape [B].
+i: Position in first route of shape [B, 1].
+j: Position in second route of shape [B, 1].
+end_i: Finish index of first route of shape [B, 1].
+end_j: Finish index of second route of shape [B, 1].
+max_len: Total length of tour sequence.
+seq: Sequence indexes of shape [B, N].
+device: Hardware identification locator.</p>
+<p>Returns:
+torch.Tensor: Updated tours of shape [B, N].</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.route.two_opt_star._map_tail_swap">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.two_opt_star.</span></span><span class="sig-name descname"><span class="pre">_map_tail_swap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx_map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_len</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.route.two_opt_star._map_tail_swap" title="Link to this definition">#</a></dt>
-<dd><p>Constructs the index mapping for a tail swap where first route &lt; second route.</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.two_opt_star.</span></span><span class="sig-name descname"><span class="pre">_map_tail_swap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx_map</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.route.two_opt_star._map_tail_swap" title="Link to this definition">#</a></dt>
+<dd><p>Constructs the index mapping for asymmetric route ordering.</p>
+<p>Args:
+idx_map: Current index map of shape [B, N].
+mask: Activation mask for this swap configuration of shape [B, N].
+i: Source route split point of shape [B, 1].
+j: Target route split point of shape [B, 1].
+end_i: Source route end of shape [B, 1].
+end_j: Target route end of shape [B, 1].
+B: Batch size.
+max_len: Total tour length.</p>
+<p>Returns:
+torch.Tensor: Modified index map of shape [B, N].</p>
 </dd></dl>
 
 </section>
@@ -614,7 +662,7 @@ torch.Tensor: Updated tours.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.operators.route.two_opt_star.vectorized_two_opt_star"><code class="docutils literal notranslate"><span class="pre">vectorized_two_opt_star()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.operators.route.two_opt_star._identify_two_opt_star_routes"><code class="docutils literal notranslate"><span class="pre">_identify_two_opt_star_routes()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.operators.route.two_opt_star._compute_two_opt_star_gain"><code class="docutils literal notranslate"><span class="pre">_compute_two_opt_star_gain()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.operators.route.two_opt_star._apply_two_opt_star_moves"><code class="docutils literal notranslate"><span class="pre">_apply_two_opt_star_moves()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.operators.route.two_opt_star._apply_two_opt_moves"><code class="docutils literal notranslate"><span class="pre">_apply_two_opt_moves()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.policies.operators.route.two_opt_star._map_tail_swap"><code class="docutils literal notranslate"><span class="pre">_map_tail_swap()</span></code></a></li>
 </ul>
 </li>

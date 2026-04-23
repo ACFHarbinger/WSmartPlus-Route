@@ -467,7 +467,6 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typical-usage">Typical usage</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
@@ -500,36 +499,17 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.integrations.data">
 <span id="src-tracking-integrations-data"></span><h1><a class="reference internal" href="#module-src.tracking.integrations.data" title="src.tracking.integrations.data"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.integrations.data</span></code></a><a class="headerlink" href="#module-src.tracking.integrations.data" title="Link to this heading">#</a></h1>
-<section id="typical-usage">
-<h2>Typical usage<a class="headerlink" href="#typical-usage" title="Link to this heading">#</a></h2>
-<p>::</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from logic.src.tracking.integrations.data import RuntimeDataTracker
-import logic.src.tracking as wst
-
-tracker = RuntimeDataTracker(wst.get_active_run())
-
-# Baseline snapshot right after data is loaded into memory
-tracker.on_load(dataset.data)
-
-# After each epoch regeneration, snapshot the new distribution
-new_dataset = regenerate_dataset(env, size)
-tracker.on_regenerate(new_dataset.data, epoch=1)
-
-# Inspect drift between the last two snapshots
-drift = tracker.field_drift(&quot;waste&quot;, stat=&quot;mean&quot;)
-</pre></div>
-</div>
-</section>
 <p>Runtime data mutation tracking for WSTracker.</p>
-<p>:class:<code class="docutils literal notranslate"><span class="pre">RuntimeDataTracker</span></code> attaches to a training run and records statistical
-snapshots of tensor datasets each time they are loaded into memory, regenerated,
-or mutated.  It captures the distribution of each tensor field (mean, std, min,
-max, shape) and logs those as run params so drift across epochs is visible in
-the experiment database.</p>
-<p>This module is concerned exclusively with <strong>in-memory variable state</strong> — it
-watches the Python objects that hold the data, not files on disk.  For
-filesystem-level change detection (SHA-256 hashing, file events) see
-:mod:<code class="docutils literal notranslate"><span class="pre">logic.src.tracking.integrations.filesystem</span></code>.</p>
+<p>This module provides the :class:<code class="docutils literal notranslate"><span class="pre">RuntimeDataTracker</span></code> which attaches to a
+tracking run and records statistical snapshots of tensor datasets as they
+are loaded, regenerated, or mutated in memory. It captures distribution
+metrics (mean, std, min, max) to detect dataset drift over training epochs.</p>
+<p>Attributes:
+RuntimeDataTracker: Tracks in-memory dataset distribution mutations.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.tracking.integrations.data import RuntimeDataTracker
+&gt;&gt;&gt; tracker = RuntimeDataTracker(run)
+&gt;&gt;&gt; tracker.on_load(train_dataset.tensor_dict)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -547,113 +527,117 @@ filesystem-level change detection (SHA-256 hashing, file events) see
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.tracking.integrations.data.RuntimeDataTracker">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.tracking.integrations.data.</span></span><span class="sig-name descname"><span class="pre">RuntimeDataTracker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_fields</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">32</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.integrations.data.RuntimeDataTracker" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.tracking.integrations.data.</span></span><span class="sig-name descname"><span class="pre">RuntimeDataTracker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.tracking.core.run.Run</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_fields</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">32</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.integrations.data.RuntimeDataTracker" title="Link to this definition">#</a></dt>
 <dd><p>Tracks in-memory dataset mutations during a training or simulation run.</p>
-<p>Records per-field tensor statistics (mean, std, min, max, shape) as run
-params on every snapshot, making distribution shift across epochs visible
-in the tracking database.</p>
-<p>All param keys are namespaced as <code class="docutils literal notranslate"><span class="pre">data/{tag}/{field}/{stat}</span></code> so multiple
-datasets can be tracked in the same run without key collisions.</p>
-<p>Args:
-run: The active tracking run.  If <code class="docutils literal notranslate"><span class="pre">None</span></code>, all methods are no-ops so
-the class can be used unconditionally without guard clauses.
-max_fields: Maximum number of tensor fields to snapshot per call.
-Protects against very wide batches flooding the param table.</p>
+<p>Records per-field tensor statistics as run parameters on every snapshot,
+enabling visibility into distribution shifts across epochs. Parameters are
+namespaced as <code class="docutils literal notranslate"><span class="pre">data/{tag}/{field}/{stat}</span></code>.</p>
+<p>Attributes:
+_run: The active tracking run instance.
+_max_fields: Maximum number of fields to snapshot per call.
+_history: Chronological list of computed statistics snapshots.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the data mutation tracker.</p>
+<p>Args:
+run: The active tracking run. If None, operations become no-ops.
+max_fields: Maximum number of tensor fields to snapshot per call.
+Defaults to 32.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.integrations.data.RuntimeDataTracker.snapshot">
 <span class="sig-name descname"><span class="pre">snapshot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.integrations.data.RuntimeDataTracker.snapshot" title="Link to this definition">#</a></dt>
-<dd><p>Capture tensor statistics from <em>data</em> and log them to the run.</p>
-<p><em>data</em> can be a :class:<code class="docutils literal notranslate"><span class="pre">torch.Tensor</span></code>, a plain <code class="docutils literal notranslate"><span class="pre">dict</span></code> mapping field
-names to tensors, or any object with a <code class="docutils literal notranslate"><span class="pre">data</span></code> attribute that is one
-of the above (e.g. a <code class="docutils literal notranslate"><span class="pre">TensorDictDataset</span></code>).</p>
+<dd><p>Captures tensor statistics from data and logs them to the run.</p>
 <p>Args:
-data: The in-memory dataset payload to inspect.
-tag: Namespace prefix for param keys (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;train/epoch_3&quot;</span></code>).
-step: Optional integer step to also log per-field mean as a metric
-for trending purposes.</p>
+data: The in-memory dataset payload (Tensor, dict, or object with
+.data attribute).
+tag: Namespace prefix for parameter keys (e.g., ‘val/epoch_5’).
+step: Optional step index for logging per-field mean as a metric.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.integrations.data.RuntimeDataTracker.on_load">
 <span class="sig-name descname"><span class="pre">on_load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.integrations.data.RuntimeDataTracker.on_load" title="Link to this definition">#</a></dt>
-<dd><p>Snapshot statistics of a dataset variable right after it is loaded.</p>
-<p>Call this immediately after the data object is constructed/loaded so
-the initial distribution is captured as the baseline.</p>
+<dd><p>Snapshots a dataset variable immediately after initial loading.</p>
 <p>Args:
-data: The in-memory dataset variable (tensor, dict, or TensorDict).
-shape: Explicit shape; inferred from <em>data</em> if omitted.
-metadata: Extra context logged as a mutation record (e.g. problem,
-graph_size).
-log_event: When <code class="docutils literal notranslate"><span class="pre">False</span></code>, skip the internal <code class="docutils literal notranslate"><span class="pre">log_dataset_event</span></code>
-call.  Use this when the caller already logs its own event to
-avoid duplicates.</p>
+data: The in-memory dataset object.
+shape: Explicit logical shape; inferred from data if omitted.
+metadata: Extra context for the load event.
+log_event: If True, registers a ‘load’ event in the run history.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.integrations.data.RuntimeDataTracker.on_regenerate">
 <span class="sig-name descname"><span class="pre">on_regenerate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.integrations.data.RuntimeDataTracker.on_regenerate" title="Link to this definition">#</a></dt>
-<dd><p>Record that the training dataset variable was replaced for a new epoch.</p>
-<p>Logs a mutation event and snapshots the new variable’s distribution so
-any shift from the previous epoch is visible in the params table.</p>
+<dd><p>Records a dataset mutation event for a new training epoch.</p>
 <p>Args:
-data: The freshly generated in-memory dataset.
-epoch: Current training epoch (used in the snapshot tag and step).
-shape: Explicit shape; inferred from <em>data</em> if omitted.
-metadata: Extra context forwarded to the mutation record.
-log_event: When <code class="docutils literal notranslate"><span class="pre">False</span></code>, skip the internal <code class="docutils literal notranslate"><span class="pre">log_dataset_event</span></code>
-call to avoid duplicates.</p>
+data: The freshly regenerated dataset variable.
+epoch: Current training epoch index.
+shape: Explicit logical shape; inferred from data if omitted.
+metadata: Extra context for the regeneration event.
+log_event: If True, registers a ‘mutate’ event in the run history.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.integrations.data.RuntimeDataTracker.on_augment">
 <span class="sig-name descname"><span class="pre">on_augment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.integrations.data.RuntimeDataTracker.on_augment" title="Link to this definition">#</a></dt>
-<dd><p>Record an in-memory augmentation or transform applied to the dataset variable.</p>
+<dd><p>Records a transformation applied to the in-memory dataset.</p>
 <p>Args:
-data: The dataset after the transform has been applied.
-description: Short human-readable label for the transform.
-step: Optional step value for metric logging.
-metadata: Extra context forwarded to the mutation record.
-log_event: When <code class="docutils literal notranslate"><span class="pre">False</span></code>, skip the internal <code class="docutils literal notranslate"><span class="pre">log_dataset_event</span></code>
-call to avoid duplicates.</p>
+data: The dataset after the transform.
+description: Label for the transformation (e.g., ‘rotation’).
+step: Optional metric step index.
+metadata: Extra context for the augmentation event.
+log_event: If True, registers a ‘mutate’ event in the run history.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.integrations.data.RuntimeDataTracker.field_drift">
 <span class="sig-name descname"><span class="pre">field_drift</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.integrations.data.RuntimeDataTracker.field_drift" title="Link to this definition">#</a></dt>
-<dd><p>Return the absolute change in <em>stat</em> for <em>field</em> over the last <em>window</em> snapshots.</p>
-<p>Useful for detecting distribution shift between dataset regenerations.</p>
+<dd><p>Calculates the drift in a specific statistic over recent snapshots.</p>
 <p>Args:
-field: Tensor field name (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;waste&quot;</span></code>).
-stat: One of <code class="docutils literal notranslate"><span class="pre">&quot;mean&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;std&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;min&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;max&quot;</span></code>.
-window: Number of recent snapshots to compare (default 2 = last vs. previous).</p>
+field: Tensor field name (key in TensorDict/dict).
+stat: Statistic to compare (mean, std, min, max). Defaults to “mean”.
+window: Number of recent snapshots to look back. Defaults to 2.</p>
 <p>Returns:
-Absolute delta, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if there are not enough snapshots or
-the field does not exist.</p>
+Optional[float]: Absolute delta, or None if insufficient history.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.integrations.data.RuntimeDataTracker._extract_fields">
 <span class="sig-name descname"><span class="pre">_extract_fields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.integrations.data.RuntimeDataTracker._extract_fields" title="Link to this definition">#</a></dt>
-<dd><p>Unwrap <em>data</em> into a flat <code class="docutils literal notranslate"><span class="pre">{field:</span> <span class="pre">tensor}</span></code> mapping.</p>
+<dd><p>Unwraps data into a mapping of field names to torch tensors.</p>
+<p>Args:
+data: The payload to extract tensors from.</p>
+<p>Returns:
+Dict[str, torch.Tensor]: Mapping of name to tensor.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.integrations.data.RuntimeDataTracker._compute_stats">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_compute_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fields</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.integrations.data.RuntimeDataTracker._compute_stats" title="Link to this definition">#</a></dt>
-<dd><p>Compute per-field descriptive statistics.</p>
+<dd><p>Computes descriptive statistics for a dictionary of tensors.</p>
+<p>Args:
+fields: Mapping of name to tensor.</p>
+<p>Returns:
+Dict[str, Dict[str, Any]]: Per-field statistics.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.integrations.data.RuntimeDataTracker._log_stats">
 <span class="sig-name descname"><span class="pre">_log_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.integrations.data.RuntimeDataTracker._log_stats" title="Link to this definition">#</a></dt>
-<dd><p>Flatten stats into run params (and optionally metrics).</p>
+<dd><p>Flattens and logs statistics as run parameters and metrics.</p>
+<p>Args:
+stats: Computed statistics dictionary.
+tag: Snapshot tag for namespacing.
+step: Optional step index for metrics.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.integrations.data.RuntimeDataTracker._infer_shape">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_infer_shape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.integrations.data.RuntimeDataTracker._infer_shape" title="Link to this definition">#</a></dt>
-<dd><p>Best-effort shape inference from a variable.</p>
+<dd><p>Provides a best-effort shape inference for a data object.</p>
+<p>Args:
+data: Object to inspect.</p>
+<p>Returns:
+Optional[tuple]: Dimension tuple or None.</p>
 </dd></dl>
 
 </dd></dl>
@@ -707,7 +691,6 @@ the field does not exist.</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typical-usage">Typical usage</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">

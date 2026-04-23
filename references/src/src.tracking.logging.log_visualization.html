@@ -489,8 +489,14 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.logging.log_visualization">
 <span id="src-tracking-logging-log-visualization"></span><h1><a class="reference internal" href="#module-src.tracking.logging.log_visualization" title="src.tracking.logging.log_visualization"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging.log_visualization</span></code></a><a class="headerlink" href="#module-src.tracking.logging.log_visualization" title="Link to this heading">#</a></h1>
-<p>Visualization utilities for training logs and statistics.
-Separated from log_utils to isolate heavy plotting dependencies (matplotlib).</p>
+<p>Visualization utilities for training logs and statistics.</p>
+<p>Separated from log_utils to isolate heavy plotting dependencies (matplotlib).</p>
+<p>Attributes:
+log_training: Logs training history to Parquet, WandB, and generates Plots.
+log_plot: Execution function for saving static plots.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.tracking.logging.log_visualization import log_plot
+&gt;&gt;&gt; log_plot(fig=my_fig, fig_filename=”plot.png”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -525,7 +531,7 @@ cfg: Root Hydra configuration with training and RL parameters.</p>
 <dd><p>Execution function for saving static plots.</p>
 <p>Args:
 visualize: Whether to show the plot. Defaults to False.
-**kwargs: Must contain ‘fig’ (matplotlib Figure) and ‘fig_filename’ (str).</p>
+kwargs: Must contain ‘fig’ (matplotlib Figure) and ‘fig_filename’ (str).</p>
 </dd></dl>
 
 </section>

@@ -490,6 +490,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.ui.components.benchmark_charts">
 <span id="src-ui-components-benchmark-charts"></span><h1><a class="reference internal" href="#module-src.ui.components.benchmark_charts" title="src.ui.components.benchmark_charts"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.components.benchmark_charts</span></code></a><a class="headerlink" href="#module-src.ui.components.benchmark_charts" title="Link to this heading">#</a></h1>
 <p>Plotly charts for benchmark visualization.</p>
+<p>This module provides specialized Plotly renderers for cross-solver
+performance auditing. It supports latency vs throughput tradeoff scatter
+plots and multi-instance bar chart comparisons.</p>
+<p>Example:
+fig = create_benchmark_comparison_chart(df, “latency”, “Latency Comparison”)</p>
+<p>Attributes:
+create_benchmark_comparison_chart: Renders multi-run metric comparisons.
+create_latency_throughput_scatter: Visualizes inference efficiency.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -497,10 +505,10 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.components.benchmark_charts.create_benchmark_comparison_chart" title="src.ui.components.benchmark_charts.create_benchmark_comparison_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_benchmark_comparison_chart</span></code></a></p></td>
-<td><p>Create a bar chart comparing benchmark metrics across policies/models.</p></td>
+<td><p>Creates a bar chart comparing benchmark metrics across policies/models.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.components.benchmark_charts.create_latency_throughput_scatter" title="src.ui.components.benchmark_charts.create_latency_throughput_scatter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_latency_throughput_scatter</span></code></a></p></td>
-<td><p>Create a scatter plot for latency vs throughput.</p></td>
+<td><p>Creates a scatter plot analyzing latency vs throughput efficiency.</p></td>
 </tr>
 </tbody>
 </table>
@@ -511,13 +519,28 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.components.benchmark_charts.create_benchmark_comparison_chart">
 <span class="sig-prename descclassname"><span class="pre">src.ui.components.benchmark_charts.</span></span><span class="sig-name descname"><span class="pre">create_benchmark_comparison_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'policy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'num_nodes'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">plotly.graph_objects.Figure</span></span></span><a class="headerlink" href="#src.ui.components.benchmark_charts.create_benchmark_comparison_chart" title="Link to this definition">#</a></dt>
-<dd><p>Create a bar chart comparing benchmark metrics across policies/models.</p>
+<dd><p>Creates a bar chart comparing benchmark metrics across policies/models.</p>
+<p>Args:
+df: Input DataFrame containing benchmark results.
+metric: Column name of the metric to plot.
+title: Chart title.
+x_axis: Column to use for the X-axis (e.g., ‘policy’).
+color_col: Column to use for color grouping (e.g., ‘num_nodes’).</p>
+<p>Returns:
+go.Figure: Interactive bar chart.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.components.benchmark_charts.create_latency_throughput_scatter">
 <span class="sig-prename descclassname"><span class="pre">src.ui.components.benchmark_charts.</span></span><span class="sig-name descname"><span class="pre">create_latency_throughput_scatter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">latency_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'latency'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">throughput_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'throughput'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'num_nodes'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">plotly.graph_objects.Figure</span></span></span><a class="headerlink" href="#src.ui.components.benchmark_charts.create_latency_throughput_scatter" title="Link to this definition">#</a></dt>
-<dd><p>Create a scatter plot for latency vs throughput.</p>
+<dd><p>Creates a scatter plot analyzing latency vs throughput efficiency.</p>
+<p>Args:
+df: Input DataFrame containing benchmark telemetry.
+latency_col: Column name for latency data.
+throughput_col: Column name for throughput data.
+color_col: Column name for discrete color mapping.</p>
+<p>Returns:
+go.Figure: Multi-dimensional efficiency scatter plot.</p>
 </dd></dl>
 
 </section>

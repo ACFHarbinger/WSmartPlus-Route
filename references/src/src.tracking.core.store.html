@@ -516,10 +516,16 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.core.store">
 <span id="src-tracking-core-store"></span><h1><a class="reference internal" href="#module-src.tracking.core.store" title="src.tracking.core.store"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.core.store</span></code></a><a class="headerlink" href="#module-src.tracking.core.store" title="Link to this heading">#</a></h1>
 <p>SQLite storage backend for the WSTracker.</p>
-<p>Uses WAL journal mode so multiple processes can read/write concurrently
-without corrupting the database.  Every public method opens its own
-short-lived connection and closes it before returning, which is the
-simplest safe pattern for multi-process SQLite access.</p>
+<p>Uses WAL (Write-Ahead Logging) journal mode so multiple processes can read/write
+concurrently without corrupting the database. Every public method opens its own
+short-lived connection and closes it before returning, providing a simple and
+safe pattern for multi-process SQLite access.</p>
+<p>Attributes:
+TrackingStore: Persistent SQLite store for experiment tracking data.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.tracking.core.store import TrackingStore
+&gt;&gt;&gt; store = TrackingStore(“tracking.db”)
+&gt;&gt;&gt; store.get_or_create_experiment(“VRPP-Optimization”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -538,7 +544,7 @@ simplest safe pattern for multi-process SQLite access.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.core.store._safe_json_dumps" title="src.tracking.core.store._safe_json_dumps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_safe_json_dumps</span></code></a></p></td>
-<td><p>JSON-serialise <em>value</em>, falling back to <code class="docutils literal notranslate"><span class="pre">str()</span></code> for non-serialisable types.</p></td>
+<td><p>JSON-serializes value with a fallback for non-serializable types.</p></td>
 </tr>
 </tbody>
 </table>
@@ -549,133 +555,269 @@ simplest safe pattern for multi-process SQLite access.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.core.store._safe_json_dumps">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.core.store.</span></span><span class="sig-name descname"><span class="pre">_safe_json_dumps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.tracking.core.store._safe_json_dumps" title="Link to this definition">#</a></dt>
-<dd><p>JSON-serialise <em>value</em>, falling back to <code class="docutils literal notranslate"><span class="pre">str()</span></code> for non-serialisable types.</p>
+<dd><p>JSON-serializes value with a fallback for non-serializable types.</p>
+<p>Args:
+value: The object to serialize.</p>
+<p>Returns:
+str: JSON-formatted string representing the value.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="src.tracking.core.store.TrackingStore">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.tracking.core.store.</span></span><span class="sig-name descname"><span class="pre">TrackingStore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.core.store.TrackingStore" title="Link to this definition">#</a></dt>
 <dd><p>Persistent SQLite store for experiment tracking data.</p>
-<p>Thread-safe and multi-process safe via SQLite WAL mode.
-Each operation acquires and releases its own connection.</p>
-<p>Args:
-db_path: Absolute path to the <code class="docutils literal notranslate"><span class="pre">.db</span></code> file.</p>
+<p>Thread-safe and multi-process safe via SQLite WAL mode. Each operation
+acquires and releases its own connection to avoid long-lived locks and
+ensure robustness in distributed or multi-threaded environments.</p>
+<p>Attributes:
+db_path: Absolute path to the SQLite database file.
+queries: Dictionary holding loaded SQL query templates.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the storage backend and applies the schema.</p>
+<p>Args:
+db_path: Absolute path to the .db file. If the file does not exist,
+it will be created along with its parent directories.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.store.TrackingStore._conn">
 <span class="sig-name descname"><span class="pre">_conn</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Generator</span><span class="p"><span class="pre">[</span></span><span class="pre">sqlite3.Connection</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.core.store.TrackingStore._conn" title="Link to this definition">#</a></dt>
-<dd><p>Yield a short-lived SQLite connection with autocommit on success.</p>
+<dd><p>Yields a short-lived SQLite connection with autocommit on success.</p>
+<p>Configures the connection for WAL mode and normal synchronous behavior
+to optimize performance while maintaining safety.</p>
+<p>Yields:
+sqlite3.Connection: A managed SQLite connection instance.</p>
+<p>Raises:
+Exception: Re-raises any exception after rolling back the transaction.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.store.TrackingStore._apply_schema">
 <span class="sig-name descname"><span class="pre">_apply_schema</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.core.store.TrackingStore._apply_schema" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Initializes the database schema and performs required migrations.</p>
+<p>Reads the schema.sql file and executes it. Also applies conditional
+alterations for backward compatibility.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.store.TrackingStore._now">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_now</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.tracking.core.store.TrackingStore._now" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the current UTC timestamp in ISO 8601 format.</p>
+<p>Returns:
+str: ISO-formatted timestamp in UTC.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.store.TrackingStore.get_or_create_experiment">
 <span class="sig-name descname"><span class="pre">get_or_create_experiment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.tracking.core.store.TrackingStore.get_or_create_experiment" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Retrieves an existing experiment ID or creates a new record if absent.</p>
+<p>Args:
+name: Human-readable name of the experiment.
+description: Optional text describing the experiment goal/setup.
+tags: Optional dictionary of metadata tags for the experiment.</p>
+<p>Returns:
+int: The unique internal ID of the experiment.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.store.TrackingStore.list_experiments">
 <span class="sig-name descname"><span class="pre">list_experiments</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.core.store.TrackingStore.list_experiments" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Lists all existing experiments in the store.</p>
+<p>Returns:
+List[Dict[str, Any]]: Experiment records containing ‘id’, ‘name’,
+‘created_at’, and metadata.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.store.TrackingStore.create_run">
 <span class="sig-name descname"><span class="pre">create_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifact_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.core.store.TrackingStore.create_run" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Creates a new tracking run record.</p>
+<p>Args:
+run_id: Unique UUID string identifying the run.
+experiment_id: Internal ID of the parent experiment.
+name: Optional human-readable label for the run.
+run_type: Category identifier (e.g., ‘training’, ‘simulation’).
+artifact_dir: Filesystem path to the run’s artifact storage.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.store.TrackingStore.finish_run">
 <span class="sig-name descname"><span class="pre">finish_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'completed'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.core.store.TrackingStore.finish_run" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Marks a run as completed and records the final status.</p>
+<p>Args:
+run_id: UUID string identifying the run.
+status: Terminal status (e.g., ‘completed’, ‘failed’, ‘killed’).
+error: Optional error message or traceback summarizing the failure.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.store.TrackingStore.get_run">
 <span class="sig-name descname"><span class="pre">get_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.core.store.TrackingStore.get_run" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Retrieves the full record for a specific run.</p>
+<p>Args:
+run_id: UUID string identifying the run.</p>
+<p>Returns:
+Optional[Dict[str, Any]]: The run record dictionary, or None if not found.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.store.TrackingStore.list_runs">
 <span class="sig-name descname"><span class="pre">list_runs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.core.store.TrackingStore.list_runs" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Retrieves a filtered list of runs.</p>
+<p>Args:
+experiment_id: Optional parent experiment internal ID filter.
+run_type: Optional category label filter.
+status: Optional terminal status filter (e.g., ‘completed’).</p>
+<p>Returns:
+List[Dict[str, Any]]: Matching run records ordered by start time.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.store.TrackingStore.set_tag">
 <span class="sig-name descname"><span class="pre">set_tag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.core.store.TrackingStore.set_tag" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Records a metadata tag for a run.</p>
+<p>Args:
+run_id: UUID string identifying the run.
+key: Tag key identifier.
+value: Tag string value.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.store.TrackingStore.set_tags">
 <span class="sig-name descname"><span class="pre">set_tags</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.core.store.TrackingStore.set_tags" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Records multiple metadata tags for a run in a single transaction.</p>
+<p>Args:
+run_id: UUID string identifying the run.
+tags: Mapping of tag keys to string values.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.store.TrackingStore.get_tags">
 <span class="sig-name descname"><span class="pre">get_tags</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.core.store.TrackingStore.get_tags" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Retrieves all tags associated with a run.</p>
+<p>Args:
+run_id: UUID string identifying the run.</p>
+<p>Returns:
+Dict[str, str]: Mapping of retrieved tag keys to their string values.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.store.TrackingStore.log_param">
 <span class="sig-name descname"><span class="pre">log_param</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.core.store.TrackingStore.log_param" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Records a configuration parameter.</p>
+<p>Args:
+run_id: UUID string identifying the run.
+key: Parameter key identifier.
+value: Parameter value. Will be JSON-serialized.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.store.TrackingStore.log_params">
 <span class="sig-name descname"><span class="pre">log_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.core.store.TrackingStore.log_params" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Records multiple configuration parameters in a single transaction.</p>
+<p>Args:
+run_id: UUID string identifying the run.
+params: Mapping of parameter keys to values.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.store.TrackingStore.get_params">
 <span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.core.store.TrackingStore.get_params" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Retrieves all configuration parameters associated with a run.</p>
+<p>Args:
+run_id: UUID string identifying the run.</p>
+<p>Returns:
+Dict[str, Any]: Mapping of parameter keys to deserialized values.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.store.TrackingStore.log_metric">
 <span class="sig-name descname"><span class="pre">log_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.core.store.TrackingStore.log_metric" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Records a single scalar metric value.</p>
+<p>Args:
+run_id: UUID string identifying the run.
+key: Metric identifying key.
+value: Scalar metric value.
+step: Optional logical step index. Defaults to 0.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.store.TrackingStore.log_metrics_batch">
 <span class="sig-name descname"><span class="pre">log_metrics_batch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.core.store.TrackingStore.log_metrics_batch" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Records a batch of metric values for improved performance.</p>
+<p>Args:
+run_id: UUID string identifying the run.
+metrics: List of (key, value, step) triples to be inserted.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.store.TrackingStore.get_metric_history">
 <span class="sig-name descname"><span class="pre">get_metric_history</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.core.store.TrackingStore.get_metric_history" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Retrieves the full evolution history for a specific metric.</p>
+<p>Args:
+run_id: UUID string identifying the run.
+key: Metric identifying key.</p>
+<p>Returns:
+List[Dict[str, Any]]: Historical records ordered by step/time.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.store.TrackingStore.get_latest_metrics">
 <span class="sig-name descname"><span class="pre">get_latest_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.core.store.TrackingStore.get_latest_metrics" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Retrieves the most recent value for every metric logged in a run.</p>
+<p>Args:
+run_id: UUID string identifying the run.</p>
+<p>Returns:
+Dict[str, float]: Mapping of metric keys to their latest logged scalars.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.store.TrackingStore.log_artifact">
 <span class="sig-name descname"><span class="pre">log_artifact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifact_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'file'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_hash</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_bytes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.core.store.TrackingStore.log_artifact" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Registers a local file as an artifact record.</p>
+<p>Args:
+run_id: UUID string identifying the run.
+name: Human-readable label for the artifact.
+path: Relative path to the file within the artifact storage.
+artifact_type: Category identifier (e.g., ‘model’, ‘plot’).
+file_hash: Optional SHA-256 hash of the file content.
+size_bytes: Optional file size in bytes.
+metadata: Optional dictionary of additional contextual metadata.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.store.TrackingStore.get_artifacts">
 <span class="sig-name descname"><span class="pre">get_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifact_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.core.store.TrackingStore.get_artifacts" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Retrieves the metadata for artifacts registered in a run.</p>
+<p>Args:
+run_id: UUID string identifying the run.
+artifact_type: Optional category filter.</p>
+<p>Returns:
+List[Dict[str, Any]]: Matching artifact metadata records.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.store.TrackingStore.log_dataset_event">
 <span class="sig-name descname"><span class="pre">log_dataset_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_hash</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prev_hash</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_bytes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.core.store.TrackingStore.log_dataset_event" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Records a data-lifecycle event for lineage tracking.</p>
+<p>Args:
+run_id: UUID string identifying the run.
+event_type: Category (e.g., ‘load’, ‘save’, ‘mutate’).
+file_path: Path to the associated file.
+file_hash: Current SHA-256 hash of the file.
+prev_hash: Previous known SHA-256 hash for version tracking.
+size_bytes: Current file size in bytes.
+shape: Optional logical shape of the dataset if applicable.
+metadata: Optional dictionary of extra experiment-specific info.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.store.TrackingStore.get_dataset_events">
 <span class="sig-name descname"><span class="pre">get_dataset_events</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.core.store.TrackingStore.get_dataset_events" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Retrieves the data-lifecycle events for a specific run.</p>
+<p>Args:
+run_id: UUID string identifying the run.</p>
+<p>Returns:
+List[Dict[str, Any]]: Event records in chronological order.</p>
+</dd></dl>
 
 </dd></dl>
 

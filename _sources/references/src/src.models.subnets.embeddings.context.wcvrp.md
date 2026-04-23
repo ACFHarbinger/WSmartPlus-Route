@@ -37,7 +37,7 @@ Bases: {py:obj}`src.models.subnets.embeddings.context.base.ContextEmbedder`
 ```{autodoc2-docstring} src.models.subnets.embeddings.context.wcvrp.WCVRPContextEmbedder.__init__
 ```
 
-````{py:method} init_node_embeddings(nodes: dict[str, typing.Any], temporal_features: bool = True) -> torch.Tensor
+````{py:method} init_node_embeddings(nodes: typing.Dict[str, typing.Any], temporal_features: bool = True) -> torch.Tensor
 :canonical: src.models.subnets.embeddings.context.wcvrp.WCVRPContextEmbedder.init_node_embeddings
 
 ```{autodoc2-docstring} src.models.subnets.embeddings.context.wcvrp.WCVRPContextEmbedder.init_node_embeddings

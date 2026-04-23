@@ -467,8 +467,6 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typical-usage-inside-a-zenml-step">Typical usage (inside a ZenML step)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-level-helpers">Module-level helpers</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
@@ -503,37 +501,18 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.integrations.zenml_bridge">
 <span id="src-tracking-integrations-zenml-bridge"></span><h1><a class="reference internal" href="#module-src.tracking.integrations.zenml_bridge" title="src.tracking.integrations.zenml_bridge"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.integrations.zenml_bridge</span></code></a><a class="headerlink" href="#module-src.tracking.integrations.zenml_bridge" title="Link to this heading">#</a></h1>
-<section id="typical-usage-inside-a-zenml-step">
-<h2>Typical usage (inside a ZenML step)<a class="headerlink" href="#typical-usage-inside-a-zenml-step" title="Link to this heading">#</a></h2>
-<p>::</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from zenml import step
-from logic.src.tracking.integrations.zenml_bridge import ZenMLBridge
-
-@step(experiment_tracker=&quot;mlflow_tracker&quot;)
-def run_training_step(config_dict: Dict[str, Any]) -&gt; float:
-    bridge = ZenMLBridge()
-    val_reward = run_training(cfg, sinks=[bridge])
-    return val_reward
-</pre></div>
-</div>
-</section>
-<section id="module-level-helpers">
-<h2>Module-level helpers<a class="headerlink" href="#module-level-helpers" title="Link to this heading">#</a></h2>
-<ul class="simple">
-<li><p>:func:<code class="docutils literal notranslate"><span class="pre">configure_zenml_stack</span></code> — register an MLflow experiment tracker and
-create a named local ZenML stack programmatically.</p></li>
-<li><p>:func:<code class="docutils literal notranslate"><span class="pre">extract_zenml_step_output</span></code> — retrieve a step artifact from the last
-pipeline run via the ZenML client.</p></li>
-</ul>
-</section>
 <p>ZenML secondary sink and stack helpers for WSTracker runs.</p>
-<p>:class:<code class="docutils literal notranslate"><span class="pre">ZenMLBridge</span></code> attaches to a :class:<code class="docutils literal notranslate"><span class="pre">~logic.src.tracking.core.run.Run</span></code>
-via :meth:<code class="docutils literal notranslate"><span class="pre">~logic.src.tracking.core.run.Run.add_sink</span></code> and mirrors every metric,
-parameter, and artifact write to the ZenML-managed MLflow experiment tracker.</p>
-<p>Unlike :class:<code class="docutils literal notranslate"><span class="pre">MLflowBridge</span></code>, this class does <strong>not</strong> configure MLflow itself
-(no <code class="docutils literal notranslate"><span class="pre">set_tracking_uri</span></code>, <code class="docutils literal notranslate"><span class="pre">set_experiment</span></code>, or <code class="docutils literal notranslate"><span class="pre">start_run</span></code> calls).  It
-assumes that ZenML’s stack has already started an MLflow run for the current
-step.  All methods are silent no-ops when <code class="docutils literal notranslate"><span class="pre">mlflow.active_run()</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+<p>This module provides the :class:<code class="docutils literal notranslate"><span class="pre">ZenMLBridge</span></code> which enables integration between
+WSTracker and the ZenML environment. It mirrors experiment data to a
+ZenML-managed MLflow experiment tracker. It also provides utility functions
+for programmatic ZenML stack configuration.</p>
+<p>Attributes:
+ZenMLBridge: A sink that forwards experiment data to ZenML-managed MLflow.</p>
+<p>Example:
+&gt;&gt;&gt; &#64;step(experiment_tracker=”mlflow_tracker”)
+… def train_step():
+…     bridge = ZenMLBridge.attach(run)
+…     # Metrics now flow through WSTracker -&gt; ZenML -&gt; MLflow</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -541,7 +520,7 @@ step.  All methods are silent no-ops when <code class="docutils literal notransl
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.integrations.zenml_bridge.ZenMLBridge" title="src.tracking.integrations.zenml_bridge.ZenMLBridge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ZenMLBridge</span></code></a></p></td>
-<td><p>Forwards :class:<code class="docutils literal notranslate"><span class="pre">Run</span></code> events to the ZenML-managed MLflow experiment tracker.</p></td>
+<td><p>Forwards :class:<code class="docutils literal notranslate"><span class="pre">Run</span></code> events to ZenML-managed MLflow.</p></td>
 </tr>
 </tbody>
 </table>
@@ -552,10 +531,10 @@ step.  All methods are silent no-ops when <code class="docutils literal notransl
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.integrations.zenml_bridge.configure_zenml_stack" title="src.tracking.integrations.zenml_bridge.configure_zenml_stack"><code class="xref py py-obj docutils literal notranslate"><span class="pre">configure_zenml_stack</span></code></a></p></td>
-<td><p>Register an MLflow experiment tracker and create a local ZenML stack.</p></td>
+<td><p>Configures a local ZenML stack with MLflow tracking.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.integrations.zenml_bridge.extract_zenml_step_output" title="src.tracking.integrations.zenml_bridge.extract_zenml_step_output"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_zenml_step_output</span></code></a></p></td>
-<td><p>Read a step artifact from the most recent ZenML pipeline run.</p></td>
+<td><p>Retrieves a primary output artifact from the most recent run of a pipeline.</p></td>
 </tr>
 </tbody>
 </table>
@@ -583,57 +562,65 @@ step.  All methods are silent no-ops when <code class="docutils literal notransl
 <dl class="py class">
 <dt class="sig sig-object py" id="src.tracking.integrations.zenml_bridge.ZenMLBridge">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.tracking.integrations.zenml_bridge.</span></span><span class="sig-name descname"><span class="pre">ZenMLBridge</span></span><a class="headerlink" href="#src.tracking.integrations.zenml_bridge.ZenMLBridge" title="Link to this definition">#</a></dt>
-<dd><p>Forwards :class:<code class="docutils literal notranslate"><span class="pre">Run</span></code> events to the ZenML-managed MLflow experiment tracker.</p>
-<p>This sink is a transparent no-op when no MLflow run is active (i.e. when
-called outside a ZenML step decorated with
-<code class="docutils literal notranslate"><span class="pre">experiment_tracker=&quot;mlflow_tracker&quot;</span></code>).  ZenML owns the MLflow run
-lifecycle — <code class="docutils literal notranslate"><span class="pre">finish()</span></code> is therefore an explicit no-op on this class.</p>
-<p>The sink protocol implemented here mirrors :class:<code class="docutils literal notranslate"><span class="pre">MLflowBridge</span></code>:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">log_metric(key,</span> <span class="pre">value,</span> <span class="pre">step)</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">log_params(params)</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">log_artifact(path)</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">finish(status)</span></code> — <strong>no-op</strong></p></li>
-</ul>
+<dd><p>Forwards :class:<code class="docutils literal notranslate"><span class="pre">Run</span></code> events to ZenML-managed MLflow.</p>
+<p>This sink assumes that ZenML has already initialized an MLflow run for the
+current execution context. It acts as a passive proxy, delegating lifecycle
+management (start/stop) to the ZenML framework while mirroring actual
+experiment data points.</p>
+<p>Attributes:
+_mlflow: Cached reference to the mlflow module.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the ZenML bridge.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.integrations.zenml_bridge.ZenMLBridge._has_active_run">
 <span class="sig-name descname"><span class="pre">_has_active_run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.tracking.integrations.zenml_bridge.ZenMLBridge._has_active_run" title="Link to this definition">#</a></dt>
-<dd><p>Return True only when an MLflow run is currently active.</p>
+<dd><p>Determines if a ZenML-owned MLflow run is currently active.</p>
+<p>Returns:
+bool: True if metrics can be forwarded to an active MLflow run.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.integrations.zenml_bridge.ZenMLBridge.log_metric">
 <span class="sig-name descname"><span class="pre">log_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.integrations.zenml_bridge.ZenMLBridge.log_metric" title="Link to this definition">#</a></dt>
-<dd><p>Forward a scalar metric to the active ZenML-managed MLflow run.</p>
+<dd><p>Forwards a scalar metric to the active ZenML experiment tracker.</p>
+<p>Args:
+key: Name of the metric.
+value: Scalar value.
+step: Training or evaluation step index.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.integrations.zenml_bridge.ZenMLBridge.log_params">
 <span class="sig-name descname"><span class="pre">log_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.integrations.zenml_bridge.ZenMLBridge.log_params" title="Link to this definition">#</a></dt>
-<dd><p>Forward parameters to the active MLflow run (values coerced to str).</p>
+<dd><p>Forwards multiple parameters to the active ZenML experiment tracker.</p>
+<p>Args:
+params: Mapping of parameter names to values (coerced to strings).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.integrations.zenml_bridge.ZenMLBridge.log_artifact">
 <span class="sig-name descname"><span class="pre">log_artifact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.integrations.zenml_bridge.ZenMLBridge.log_artifact" title="Link to this definition">#</a></dt>
-<dd><p>Forward a local file path as an MLflow artifact.</p>
+<dd><p>Forwards a local file artifact to the ZenML-managed MLflow storage.</p>
+<p>Args:
+path: Absolute path to the file to log.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.integrations.zenml_bridge.ZenMLBridge.finish">
 <span class="sig-name descname"><span class="pre">finish</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">status</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'completed'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.integrations.zenml_bridge.ZenMLBridge.finish" title="Link to this definition">#</a></dt>
-<dd><p>No-op: ZenML ends the MLflow run when the step exits.</p>
+<dd><p>Terminates tracking. (No-op as ZenML manages the run lifecycle).</p>
+<p>Args:
+status: Final status of the WSTracker run.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.integrations.zenml_bridge.ZenMLBridge.attach">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">attach</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.tracking.core.run.Run</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.integrations.zenml_bridge.ZenMLBridge" title="src.tracking.integrations.zenml_bridge.ZenMLBridge"><span class="pre">src.tracking.integrations.zenml_bridge.ZenMLBridge</span></a></span></span><a class="headerlink" href="#src.tracking.integrations.zenml_bridge.ZenMLBridge.attach" title="Link to this definition">#</a></dt>
-<dd><p>Create a :class:<code class="docutils literal notranslate"><span class="pre">ZenMLBridge</span></code> and attach it to <em>run</em>.</p>
+<dd><p>Factory method to create and attach a bridge to an existing run.</p>
 <p>Args:
-run: The active :class:<code class="docutils literal notranslate"><span class="pre">Run</span></code> to mirror into ZenML’s MLflow tracker.</p>
+run: The WSTracker run instance to mirror.</p>
 <p>Returns:
-The created :class:<code class="docutils literal notranslate"><span class="pre">ZenMLBridge</span></code> instance (already attached).</p>
+ZenMLBridge: The initialized and attached bridge instance.</p>
 </dd></dl>
 
 </dd></dl>
@@ -641,35 +628,25 @@ The created :class:<code class="docutils literal notranslate"><span class="pre">
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.integrations.zenml_bridge.configure_zenml_stack">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.integrations.zenml_bridge.</span></span><span class="sig-name descname"><span class="pre">configure_zenml_stack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mlflow_tracking_uri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stack_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'wsmart-route-stack'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.tracking.integrations.zenml_bridge.configure_zenml_stack" title="Link to this definition">#</a></dt>
-<dd><p>Register an MLflow experiment tracker and create a local ZenML stack.</p>
-<p>Programmatically sets up a ZenML stack named <em>stack_name</em> that contains:</p>
-<ul class="simple">
-<li><p>The default local artifact store.</p></li>
-<li><p>The default local orchestrator.</p></li>
-<li><p>An MLflow experiment tracker pointed at <em>mlflow_tracking_uri</em>.</p></li>
-</ul>
-<p>If the stack or its components already exist the function silently reuses
-them.  All :class:<code class="docutils literal notranslate"><span class="pre">zenml.client.Client</span></code> calls are wrapped in
-:func:<code class="docutils literal notranslate"><span class="pre">contextlib.suppress</span></code> so a missing or misconfigured ZenML
-installation never raises.</p>
+<dd><p>Configures a local ZenML stack with MLflow tracking.</p>
+<p>Programmatically initializes a stack with an associated MLflow experiment
+tracker. If the components already exist, they are activated for use.</p>
 <p>Args:
-mlflow_tracking_uri: URI for the MLflow tracking server (local path,
-<code class="docutils literal notranslate"><span class="pre">http://</span></code> address, or <code class="docutils literal notranslate"><span class="pre">databricks</span></code>).
-stack_name: Name for the ZenML stack to create or reuse.</p>
+mlflow_tracking_uri: URI for the MLflow tracking server.
+stack_name: Unique name for the ZenML stack.</p>
 <p>Returns:
-<code class="docutils literal notranslate"><span class="pre">True</span></code> if the stack was configured and activated successfully,
-<code class="docutils literal notranslate"><span class="pre">False</span></code> on any error.</p>
+bool: True if configuration and activation were successful.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.integrations.zenml_bridge.extract_zenml_step_output">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.integrations.zenml_bridge.</span></span><span class="sig-name descname"><span class="pre">extract_zenml_step_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pipeline_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.integrations.zenml_bridge.extract_zenml_step_output" title="Link to this definition">#</a></dt>
-<dd><p>Read a step artifact from the most recent ZenML pipeline run.</p>
+<dd><p>Retrieves a primary output artifact from the most recent run of a pipeline.</p>
 <p>Args:
-pipeline_name: Name of the ZenML pipeline (as registered in the store).
-step_name: Name of the step whose primary output to load.</p>
+pipeline_name: Name of the registered ZenML pipeline.
+step_name: Name of the step whose output should be loaded.</p>
 <p>Returns:
-The materialised Python object, or <code class="docutils literal notranslate"><span class="pre">None</span></code> on any error.</p>
+Optional[Any]: The materialized Python object, or None if not found.</p>
 </dd></dl>
 
 </section>
@@ -721,8 +698,6 @@ The materialised Python object, or <code class="docutils literal notranslate"><s
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typical-usage-inside-a-zenml-step">Typical usage (inside a ZenML step)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-level-helpers">Module-level helpers</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>

@@ -489,6 +489,12 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.policies.hgs_core.evaluation">
 <span id="src-models-policies-hgs-core-evaluation"></span><h1><a class="reference internal" href="#module-src.models.policies.hgs_core.evaluation" title="src.models.policies.hgs_core.evaluation"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies.hgs_core.evaluation</span></code></a><a class="headerlink" href="#module-src.models.policies.hgs_core.evaluation" title="Link to this heading">#</a></h1>
 <p>Evaluation metrics for HGS.</p>
+<p>Provides GPU-accelerated diversity metrics and fitness evaluation components
+used to maintain population quality and exploration depth.</p>
+<p>Attributes:
+calc_broken_pairs_distance: Diversity metric based on edge preservation.</p>
+<p>Example:
+&gt;&gt;&gt; diversity = calc_broken_pairs_distance(population)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -496,8 +502,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.hgs_core.evaluation.calc_broken_pairs_distance" title="src.models.policies.hgs_core.evaluation.calc_broken_pairs_distance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calc_broken_pairs_distance</span></code></a></p></td>
-<td><p>Computes average Broken Pairs Distance for each individual in the population.
-Distance(A, B) = 1 - (|Edges(A) inter Edges(B)| / N)</p></td>
+<td><p>Computes average Broken Pairs Distance (BPD) for each individual.</p></td>
 </tr>
 </tbody>
 </table>
@@ -508,12 +513,16 @@ Distance(A, B) = 1 - (|Edges(A) inter Edges(B)| / N)</p></td>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.hgs_core.evaluation.calc_broken_pairs_distance">
 <span class="sig-prename descclassname"><span class="pre">src.models.policies.hgs_core.evaluation.</span></span><span class="sig-name descname"><span class="pre">calc_broken_pairs_distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.hgs_core.evaluation.calc_broken_pairs_distance" title="Link to this definition">#</a></dt>
-<dd><p>Computes average Broken Pairs Distance for each individual in the population.
-Distance(A, B) = 1 - (|Edges(A) inter Edges(B)| / N)</p>
+<dd><p>Computes average Broken Pairs Distance (BPD) for each individual.</p>
+<p>BPD measures the diversity between solutions by identifying edges in one
+solution that are absent in another.
+Distance(A, B) = 1 - (|Edges(A) ∩ Edges(B)| / N)</p>
 <p>Args:
-population: (B, P, N) tensor of giant tours.</p>
+population: Tensor of giant tours of shape [B, P, N], where P is the
+population size and N is the number of nodes.</p>
 <p>Returns:
-diversity: (B, P) diversity score (higher is better/more distant).</p>
+torch.Tensor: Normalized diversity scores of shape [B, P].
+Higher scores indicate greater distance from the pool.</p>
 </dd></dl>
 
 </section>

@@ -492,8 +492,17 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.database.cmd_stats">
 <span id="src-tracking-database-cmd-stats"></span><h1><a class="reference internal" href="#module-src.tracking.database.cmd_stats" title="src.tracking.database.cmd_stats"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.database.cmd_stats</span></code></a><a class="headerlink" href="#module-src.tracking.database.cmd_stats" title="Link to this heading">#</a></h1>
-<p>stats and metrics subcommands for the tracking database CLI.</p>
-<p>Invoked via commands.py; not intended to be run directly.</p>
+<p>Stats and metrics subcommands for the tracking database CLI.</p>
+<p>This module provides high-level aggregation and visualization logic for the
+WSTracker database, including summary statistics, metric distribution reports,
+and console-based activity sparklines.</p>
+<p>Invoked via <code class="docutils literal notranslate"><span class="pre">commands.py</span></code>; not intended to be run directly.</p>
+<p>Attributes:
+stats_database: Generates a comprehensive summary of the tracking store.
+metrics_summary: Generates a detailed report for specific metric keys.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.tracking.database.cmd_stats import stats_database
+&gt;&gt;&gt; stats_database(experiment_name=”AM-VRPP-50”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -501,19 +510,19 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.database.cmd_stats._human_bytes" title="src.tracking.database.cmd_stats._human_bytes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_human_bytes</span></code></a></p></td>
-<td></td>
+<td><p>Formats a byte count into a human-readable string (e.g., KB, MB).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.database.cmd_stats._human_duration" title="src.tracking.database.cmd_stats._human_duration"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_human_duration</span></code></a></p></td>
-<td></td>
+<td><p>Formats a duration in seconds into a human-readable string (s, m, h).</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.database.cmd_stats._sparkbar" title="src.tracking.database.cmd_stats._sparkbar"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_sparkbar</span></code></a></p></td>
-<td></td>
+<td><p>Generates a text-based sparkline bar for terminal visualization.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.database.cmd_stats.stats_database" title="src.tracking.database.cmd_stats.stats_database"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stats_database</span></code></a></p></td>
-<td></td>
+<td><p>Prints a comprehensive statistical dashboard for the tracking database.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.database.cmd_stats.metrics_summary" title="src.tracking.database.cmd_stats.metrics_summary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">metrics_summary</span></code></a></p></td>
-<td></td>
+<td><p>Prints a detailed evolution summary for one or more metric keys.</p></td>
 </tr>
 </tbody>
 </table>
@@ -524,27 +533,57 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.database.cmd_stats._human_bytes">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.database.cmd_stats.</span></span><span class="sig-name descname"><span class="pre">_human_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.tracking.database.cmd_stats._human_bytes" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Formats a byte count into a human-readable string (e.g., KB, MB).</p>
+<p>Args:
+n: Number of bytes.</p>
+<p>Returns:
+str: Human-readable size with units.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.database.cmd_stats._human_duration">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.database.cmd_stats.</span></span><span class="sig-name descname"><span class="pre">_human_duration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.tracking.database.cmd_stats._human_duration" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Formats a duration in seconds into a human-readable string (s, m, h).</p>
+<p>Args:
+seconds: Duration in seconds.</p>
+<p>Returns:
+str: Human-readable time with units.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.database.cmd_stats._sparkbar">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.database.cmd_stats.</span></span><span class="sig-name descname"><span class="pre">_sparkbar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.tracking.database.cmd_stats._sparkbar" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Generates a text-based sparkline bar for terminal visualization.</p>
+<p>Args:
+value: Current value to represent.
+max_value: Maximum value in the range for scaling.
+width: Total character width of the bar. Defaults to 20.</p>
+<p>Returns:
+str: A string composed of unicode block characters representing the ratio.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.database.cmd_stats.stats_database">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.database.cmd_stats.</span></span><span class="sig-name descname"><span class="pre">stats_database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.database.cmd_stats.stats_database" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Prints a comprehensive statistical dashboard for the tracking database.</p>
+<p>Includes table row counts, experiment success rates, run duration
+distributions, artifact storage summaries, and recent activity levels.</p>
+<p>Args:
+experiment_name: Optional filter to restrict statistics to a specific
+experiment. Defaults to “”.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.database.cmd_stats.metrics_summary">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.database.cmd_stats.</span></span><span class="sig-name descname"><span class="pre">metrics_summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.database.cmd_stats.metrics_summary" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Prints a detailed evolution summary for one or more metric keys.</p>
+<p>If a key is provided, shows per-run distribution (min, max, mean).
+Otherwise, lists all unique metric keys present in the database.</p>
+<p>Args:
+key: Specific metric key to inspect. Defaults to “”.
+experiment_name: Optional filter to restrict results to a specific
+experiment. Defaults to “”.</p>
+</dd></dl>
 
 </section>
 </section>

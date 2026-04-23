@@ -491,7 +491,16 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.policies.operators.unstringing.type_i">
 <span id="src-models-policies-operators-unstringing-type-i"></span><h1><a class="reference internal" href="#module-src.models.policies.operators.unstringing.type_i" title="src.models.policies.operators.unstringing.type_i"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies.operators.unstringing.type_i</span></code></a><a class="headerlink" href="#module-src.models.policies.operators.unstringing.type_i" title="Link to this heading">#</a></h1>
-<p>Type I Unstringing Operator (vectorized).</p>
+<p>Type I unstringing operator.</p>
+<p>This module provides a GPU-accelerated implementation of the Type I unstringing
+heuristic, which improves tour quality by identifying a node to “unstring”
+and reinserting it into a new position while reversing intermediate segments.</p>
+<p>Attributes:
+vectorized_type_i_unstringing: Vectorized Type I Unstringing local search.</p>
+<p>Example:
+&gt;&gt;&gt; tours = torch.tensor([[0, 1, 2, 3, 4, 5, 0]])
+&gt;&gt;&gt; dist = torch.randn(1, 6, 6)
+&gt;&gt;&gt; opt_tours = vectorized_type_i_unstringing(tours, dist)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -499,7 +508,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.operators.unstringing.type_i.vectorized_type_i_unstringing" title="src.models.policies.operators.unstringing.type_i.vectorized_type_i_unstringing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vectorized_type_i_unstringing</span></code></a></p></td>
-<td><p>Vectorized Type I Unstringing local search across a batch of tours using PyTorch.</p></td>
+<td><p>Vectorized Type I Unstringing local search across a batch of tours.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.models.policies.operators.unstringing.type_i._find_best_type_i_move" title="src.models.policies.operators.unstringing.type_i._find_best_type_i_move"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_find_best_type_i_move</span></code></a></p></td>
 <td><p>Finds the best Type I unstringing move for a single tour.</p></td>
@@ -519,25 +528,60 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.unstringing.type_i.vectorized_type_i_unstringing">
 <span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.unstringing.type_i.</span></span><span class="sig-name descname"><span class="pre">vectorized_type_i_unstringing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Generator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.unstringing.type_i.vectorized_type_i_unstringing" title="Link to this definition">#</a></dt>
-<dd><p>Vectorized Type I Unstringing local search across a batch of tours using PyTorch.</p>
+<dd><p>Vectorized Type I Unstringing local search across a batch of tours.</p>
+<p>Identifies nodes to remove and reinsert in a 3-edge reconnection pattern
+that reverses segments to minimize total distance.</p>
+<p>Args:
+tours: Batch of node sequences of shape [B, N].
+distance_matrix: Pairwise node distances of shape [B, N, N] or [N, N].
+max_iterations: Maximum number of improvement passes.
+sample_size: Number of (j, k) pairs to evaluate per node.
+generator: Torch device-side RNG.</p>
+<p>Returns:
+torch.Tensor: Optimized batch of tours of shape [B, N].</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.unstringing.type_i._find_best_type_i_move">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.unstringing.type_i.</span></span><span class="sig-name descname"><span class="pre">_find_best_type_i_move</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valid_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Generator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.unstringing.type_i._find_best_type_i_move" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.unstringing.type_i.</span></span><span class="sig-name descname"><span class="pre">_find_best_type_i_move</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valid_indices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Generator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.operators.unstringing.type_i._find_best_type_i_move" title="Link to this definition">#</a></dt>
 <dd><p>Finds the best Type I unstringing move for a single tour.</p>
+<p>Args:
+tour: Sequence of shape [N].
+dist: Cost matrix of shape [N, N].
+valid_indices: Nodes available for move of shape [V].
+sample_size: Search depth (number of randomized pairs).
+device: Execution device hardware placement.
+generator: RNG provider.</p>
+<p>Returns:
+Tuple[float, Optional[Tuple[int, int, int]]]: (best delta, move parameters).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.unstringing.type_i._evaluate_type_i_move">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.unstringing.type_i.</span></span><span class="sig-name descname"><span class="pre">_evaluate_type_i_move</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.unstringing.type_i._evaluate_type_i_move" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.unstringing.type_i.</span></span><span class="sig-name descname"><span class="pre">_evaluate_type_i_move</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.models.policies.operators.unstringing.type_i._evaluate_type_i_move" title="Link to this definition">#</a></dt>
 <dd><p>Calculates the delta cost for a specific Type I move.</p>
+<p>Args:
+tour: Node sequence identifiers.
+dist: Pairwise distance weights.
+i: Target position for the unstrung node.
+j: First break point segment split.
+k: Second break point segment split.
+N: Tour length metadata.</p>
+<p>Returns:
+float: Total tour cost change.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.unstringing.type_i._apply_type_i_move">
 <span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.unstringing.type_i.</span></span><span class="sig-name descname"><span class="pre">_apply_type_i_move</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.unstringing.type_i._apply_type_i_move" title="Link to this definition">#</a></dt>
 <dd><p>Applies a Type I unstringing move to the tour.</p>
+<p>Args:
+tour: Original node sequence.
+i: Current position of the node to move.
+j: Segment break first coordinate.
+k: Segment break second coordinate.</p>
+<p>Returns:
+torch.Tensor: Modified tour after segment reversals and re-insertion.</p>
 </dd></dl>
 
 </section>

@@ -493,6 +493,17 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.ui.pages.simulation.kpi">
 <span id="src-ui-pages-simulation-kpi"></span><h1><a class="reference internal" href="#module-src.ui.pages.simulation.kpi" title="src.ui.pages.simulation.kpi"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.pages.simulation.kpi</span></code></a><a class="headerlink" href="#module-src.ui.pages.simulation.kpi" title="Link to this heading">#</a></h1>
+<p>KPI dashboard and metric summary components for simulation results.</p>
+<p>This module provides high-level status visualization for simulation
+telemetry. It includes dashboard components for real-time objective
+monitoring with historical sparklines, cumulative totals across multi-day
+runs, and detailed configuration inspection for routing policies.</p>
+<p>Example:
+render_kpi_dashboard(display_entry, all_entries, controls)</p>
+<p>Attributes:
+render_kpi_dashboard: Main UI component for real-time metric monitoring.
+render_cumulative_summary: Visualizes aggregate performance across days.
+render_policy_info: Inspects and displays policy-specific hyperparameters.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -500,13 +511,13 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.simulation.kpi.render_kpi_dashboard" title="src.ui.pages.simulation.kpi.render_kpi_dashboard"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render_kpi_dashboard</span></code></a></p></td>
-<td><p>Render the Key Performance Indicators section with deltas and sparklines.</p></td>
+<td><p>Renders the Key Performance Indicators section with deltas and sparklines.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.simulation.kpi.render_cumulative_summary" title="src.ui.pages.simulation.kpi.render_cumulative_summary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render_cumulative_summary</span></code></a></p></td>
-<td><p>Render cumulative/aggregate statistics across all days.</p></td>
+<td><p>Renders cumulative and aggregate statistics across the entire simulation run.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.simulation.kpi.render_policy_info" title="src.ui.pages.simulation.kpi.render_policy_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render_policy_info</span></code></a></p></td>
-<td><p>Render policy configuration details parsed from the policy string.</p></td>
+<td><p>Renders detailed policy configuration parsed from identifiers and database.</p></td>
 </tr>
 </tbody>
 </table>
@@ -543,19 +554,28 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.simulation.kpi.render_kpi_dashboard">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.simulation.kpi.</span></span><span class="sig-name descname"><span class="pre">render_kpi_dashboard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">display_entry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">controls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.simulation.kpi.render_kpi_dashboard" title="Link to this definition">#</a></dt>
-<dd><p>Render the Key Performance Indicators section with deltas and sparklines.</p>
+<dd><p>Renders the Key Performance Indicators section with deltas and sparklines.</p>
+<p>Args:
+display_entry: The simulation telemetry record for the current day.
+entries: Master list of parsed simulation log entries.
+controls: User filter settings (selected_policy, selected_sample).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.simulation.kpi.render_cumulative_summary">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.simulation.kpi.</span></span><span class="sig-name descname"><span class="pre">render_cumulative_summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">controls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.simulation.kpi.render_cumulative_summary" title="Link to this definition">#</a></dt>
-<dd><p>Render cumulative/aggregate statistics across all days.</p>
+<dd><p>Renders cumulative and aggregate statistics across the entire simulation run.</p>
+<p>Args:
+entries: Master list of parsed simulation log entries.
+controls: User filter settings (selected_policy, selected_sample).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.simulation.kpi.render_policy_info">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.simulation.kpi.</span></span><span class="sig-name descname"><span class="pre">render_policy_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">display_entry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.simulation.kpi.render_policy_info" title="Link to this definition">#</a></dt>
-<dd><p>Render policy configuration details parsed from the policy string.</p>
+<dd><p>Renders detailed policy configuration parsed from identifiers and database.</p>
+<p>Args:
+display_entry: The simulation telemetry record for the current day.</p>
 </dd></dl>
 
 </section>

@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} CombinedSelector(selectors: list[src.models.policies.selection.base.VectorizedSelector], logic: str = 'or')
+`````{py:class} CombinedSelector(selectors: typing.List[src.models.policies.selection.base.VectorizedSelector], logic: str = 'or')
 :canonical: src.models.policies.selection.combined.CombinedSelector
 
 Bases: {py:obj}`src.models.policies.selection.base.VectorizedSelector`
@@ -37,7 +37,7 @@ Bases: {py:obj}`src.models.policies.selection.base.VectorizedSelector`
 ```{autodoc2-docstring} src.models.policies.selection.combined.CombinedSelector.__init__
 ```
 
-````{py:method} select(fill_levels: torch.Tensor, **kwargs) -> torch.Tensor
+````{py:method} select(fill_levels: torch.Tensor, **kwargs: typing.Any) -> torch.Tensor
 :canonical: src.models.policies.selection.combined.CombinedSelector.select
 
 ```{autodoc2-docstring} src.models.policies.selection.combined.CombinedSelector.select

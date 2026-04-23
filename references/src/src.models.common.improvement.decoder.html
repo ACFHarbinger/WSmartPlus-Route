@@ -492,11 +492,14 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.common.improvement.decoder">
 <span id="src-models-common-improvement-decoder"></span><h1><a class="reference internal" href="#module-src.models.common.improvement.decoder" title="src.models.common.improvement.decoder"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.common.improvement.decoder</span></code></a><a class="headerlink" href="#module-src.models.common.improvement.decoder" title="Link to this heading">#</a></h1>
-<p>improvement_decoder.py module.</p>
+<p>Improvement Decoder base module.</p>
+<p>This module provides the abstract base class for decoders that predict
+local search moves or optimization operators to refine an existing solution.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+ImprovementDecoder: Abstract base class for all improvement decoders.</p>
 <p>Example:
-&gt;&gt;&gt; import improvement_decoder</p>
+&gt;&gt;&gt; from logic.src.models.common.improvement.decoder import ImprovementDecoder
+&gt;&gt;&gt; # subclass and implement forward…</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -514,28 +517,40 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.common.improvement.decoder.ImprovementDecoder">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.common.improvement.decoder.</span></span><span class="sig-name descname"><span class="pre">ImprovementDecoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.common.improvement.decoder.ImprovementDecoder" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.common.improvement.decoder.</span></span><span class="sig-name descname"><span class="pre">ImprovementDecoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.common.improvement.decoder.ImprovementDecoder" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
 <p>Base class for improvement decoders.</p>
-<p>Improvement decoders predict moves or operators to apply to the current solution.</p>
+<p>Improvement decoders analyze the current solution state and predicted
+graph features to decide on the next refinement move (e.g., node swap,
+re-insertion).</p>
+<p>Attributes:
+embed_dim (int): Dimensionality of the latent representation.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize ImprovementDecoder.</p>
+<p>Initializes the ImprovementDecoder.</p>
+<p>Args:
+embed_dim: Internal dimensionality for decoding features.
+**kwargs: Additional parameters for the parent Module.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="src.models.common.improvement.decoder.ImprovementDecoder.device">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">device</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.device</span></em><a class="headerlink" href="#src.models.common.improvement.decoder.ImprovementDecoder.device" title="Link to this definition">#</a></dt>
-<dd><p>Get device of the model.</p>
+<dd><p>Retrieves the device on which the model’s parameters are stored.</p>
+<p>Returns:
+torch.device: The computing device (‘cpu’ or ‘cuda’).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.common.improvement.decoder.ImprovementDecoder.forward">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.common.improvement.decoder.ImprovementDecoder.forward" title="Link to this definition">#</a></dt>
-<dd><p>Predict improvement moves.</p>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.common.improvement.decoder.ImprovementDecoder.forward" title="Link to this definition">#</a></dt>
+<dd><p>Predicts improvement moves for the current solution.</p>
 <p>Args:
-td: TensorDict containing current state.
-embeddings: Encoded state and solution.
-env: Environment for state transitions.</p>
+td: TensorDict containing the problem state and current solution.
+embeddings: Encoded representations of the graph and solution.
+env: Environment object for transition logic and reward calculation.
+**kwargs: Additional parameters for move selection.</p>
 <p>Returns:
-Tuple of (log_likelihood, actions/moves).</p>
+Tuple[torch.Tensor, torch.Tensor]:
+- log_p: Log-likelihood of the selected moves.
+- actions: Selected refinement operators or node indices.</p>
 </dd></dl>
 
 </dd></dl>

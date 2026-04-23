@@ -491,11 +491,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.common.non_autoregressive.encoder">
 <span id="src-models-common-non-autoregressive-encoder"></span><h1><a class="reference internal" href="#module-src.models.common.non_autoregressive.encoder" title="src.models.common.non_autoregressive.encoder"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.common.non_autoregressive.encoder</span></code></a><a class="headerlink" href="#module-src.models.common.non_autoregressive.encoder" title="Link to this heading">#</a></h1>
-<p>nonautoregressive_encoder.py module.</p>
+<p>Non-autoregressive Encoder base module.</p>
+<p>This module provides the abstract base class for encoders used in
+non-autoregressive (NAR) models. These models predict a global heatmap
+(e.g., edge probabilities) in a single pass over the problem instance.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+NonAutoregressiveEncoder: Abstract base class for NAR encoders.</p>
 <p>Example:
-&gt;&gt;&gt; import nonautoregressive_encoder</p>
+&gt;&gt;&gt; from logic.src.models.common.non_autoregressive.encoder import NonAutoregressiveEncoder
+&gt;&gt;&gt; # subclass and implement forward…</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -513,22 +517,30 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.common.non_autoregressive.encoder.NonAutoregressiveEncoder">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.common.non_autoregressive.encoder.</span></span><span class="sig-name descname"><span class="pre">NonAutoregressiveEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.common.non_autoregressive.encoder.NonAutoregressiveEncoder" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.common.non_autoregressive.encoder.</span></span><span class="sig-name descname"><span class="pre">NonAutoregressiveEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.common.non_autoregressive.encoder.NonAutoregressiveEncoder" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
 <p>Base class for non-autoregressive encoders.</p>
 <p>NAR encoders take a problem instance and produce heatmaps
-(log probabilities over edges or nodes) in a single forward pass.</p>
+(log probabilities over edges or nodes) in a single forward pass,
+instead of sequentially constructing embeddings.</p>
+<p>Attributes:
+embed_dim (int): Dimensionality of the produced heatmaps/embeddings.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize NonAutoregressiveEncoder.</p>
+<p>Initializes the NonAutoregressiveEncoder.</p>
+<p>Args:
+embed_dim: Internal dimensionality for feature representations.
+**kwargs: Additional parameters passed to the parent Module.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.common.non_autoregressive.encoder.NonAutoregressiveEncoder.forward">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.common.non_autoregressive.encoder.NonAutoregressiveEncoder.forward" title="Link to this definition">#</a></dt>
-<dd><p>Compute heatmap logits for the problem instance.</p>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.common.non_autoregressive.encoder.NonAutoregressiveEncoder.forward" title="Link to this definition">#</a></dt>
+<dd><p>Computes heatmap logits for the given problem instance.</p>
 <p>Args:
-td: TensorDict containing problem instance (locs, wastes, etc.)</p>
+td: TensorDict containing instance metadata (e.g., coordinates).
+**kwargs: Additional control arguments for heatmap generation.</p>
 <p>Returns:
-Heatmap tensor of shape [batch, num_nodes, num_nodes] for edge-based,
-or [batch, num_nodes] for node-based.</p>
+Union[torch.Tensor, Tuple[torch.Tensor, …]]:
+Heatmap tensor of shape [batch, num_nodes, num_nodes] for
+edge-based models, or [batch, num_nodes] for node-based models.</p>
 </dd></dl>
 
 </dd></dl>

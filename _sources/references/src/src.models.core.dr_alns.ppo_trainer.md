@@ -47,7 +47,7 @@
 
 ````
 
-````{py:method} add(state: torch.Tensor, action: typing.Dict[str, int], log_prob: typing.Dict[str, torch.Tensor], reward: float, done: bool, value: torch.Tensor)
+````{py:method} add(state: torch.Tensor, action: typing.Dict[str, int], log_prob: typing.Dict[str, torch.Tensor], reward: float, done: bool, value: torch.Tensor) -> None
 :canonical: src.models.core.dr_alns.ppo_trainer.PPOBuffer.add
 
 ```{autodoc2-docstring} src.models.core.dr_alns.ppo_trainer.PPOBuffer.add
@@ -109,7 +109,7 @@
 
 ````
 
-````{py:method} train(total_timesteps: int, n_steps_per_update: int = 2048, log_interval: int = 10, instance_generator: typing.Optional[typing.Callable] = None) -> typing.Dict[str, typing.List[float]]
+````{py:method} train(total_timesteps: int, n_steps_per_update: int = 2048, log_interval: int = 10, instance_generator: typing.Optional[typing.Callable[..., typing.Any]] = None) -> typing.Dict[str, typing.List[float]]
 :canonical: src.models.core.dr_alns.ppo_trainer.PPOTrainer.train
 
 ```{autodoc2-docstring} src.models.core.dr_alns.ppo_trainer.PPOTrainer.train

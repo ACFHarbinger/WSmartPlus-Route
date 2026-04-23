@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} AutoregressiveDecoder(embed_dim: int = 128, **kwargs)
+`````{py:class} AutoregressiveDecoder(embed_dim: int = 128, **kwargs: typing.Any)
 :canonical: src.models.common.autoregressive.decoder.AutoregressiveDecoder
 
 Bases: {py:obj}`torch.nn.Module`, {py:obj}`abc.ABC`
@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`, {py:obj}`abc.ABC`
 ```{autodoc2-docstring} src.models.common.autoregressive.decoder.AutoregressiveDecoder.__init__
 ```
 
-````{py:method} forward(td: tensordict.TensorDict, embeddings: typing.Union[torch.Tensor, typing.Tuple[torch.Tensor, ...]], env: logic.src.envs.base.base.RL4COEnvBase, **kwargs) -> typing.Tuple[torch.Tensor, torch.Tensor]
+````{py:method} forward(td: tensordict.TensorDict, embeddings: typing.Union[torch.Tensor, typing.Tuple[torch.Tensor, ...]], env: typing.Optional[logic.src.envs.base.base.RL4COEnvBase] = None, **kwargs: typing.Any) -> typing.Tuple[torch.Tensor, torch.Tensor]
 :canonical: src.models.common.autoregressive.decoder.AutoregressiveDecoder.forward
 :abstractmethod:
 

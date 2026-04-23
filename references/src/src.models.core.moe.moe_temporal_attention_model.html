@@ -492,7 +492,12 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.core.moe.moe_temporal_attention_model">
 <span id="src-models-core-moe-moe-temporal-attention-model"></span><h1><a class="reference internal" href="#module-src.models.core.moe.moe_temporal_attention_model" title="src.models.core.moe.moe_temporal_attention_model"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.core.moe.moe_temporal_attention_model</span></code></a><a class="headerlink" href="#module-src.models.core.moe.moe_temporal_attention_model" title="Link to this heading">#</a></h1>
-<p>Mixture of Experts (MoE) Temporal Attention Model.</p>
+<p>Mixture of Experts Temporal Attention Model.</p>
+<p>This module provides <code class="docutils literal notranslate"><span class="pre">MoETemporalAttentionModel</span></code>, which combines the
+time-varying graph processing of <code class="docutils literal notranslate"><span class="pre">TemporalAttentionModel</span></code> with the sparse
+capacity of Mixture of Experts.</p>
+<p>Attributes:
+MoETemporalAttentionModel: Temporal model with expert-routed encoding.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -500,7 +505,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.core.moe.moe_temporal_attention_model.MoETemporalAttentionModel" title="src.models.core.moe.moe_temporal_attention_model.MoETemporalAttentionModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MoETemporalAttentionModel</span></code></a></p></td>
-<td><p>Temporal Attention Model with Mixture of Experts (MoE) Encoder.</p></td>
+<td><p>Temporal Attention Model with sparse Mixture of Experts (MoE).</p></td>
 </tr>
 </tbody>
 </table>
@@ -510,22 +515,51 @@ document.write(`
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.core.moe.moe_temporal_attention_model.MoETemporalAttentionModel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.moe.moe_temporal_attention_model.</span></span><span class="sig-name descname"><span class="pre">MoETemporalAttentionModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_encode_layers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_encode_sublayers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_decode_layers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'batch'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_heads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_experts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noisy_gating</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.moe.moe_temporal_attention_model.MoETemporalAttentionModel" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.moe.moe_temporal_attention_model.</span></span><span class="sig-name descname"><span class="pre">MoETemporalAttentionModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_encode_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_encode_sublayers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_decode_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'batch'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_experts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noisy_gating</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.moe.moe_temporal_attention_model.MoETemporalAttentionModel" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.models.core.temporal_attention_model.TemporalAttentionModel</span></code></p>
-<p>Temporal Attention Model with Mixture of Experts (MoE) Encoder.</p>
+<p>Temporal Attention Model with sparse Mixture of Experts (MoE).</p>
+<p>Handles evolving problem states (e.g., dynamic waste collection) while
+leveraging expert sub-networks to specialize on different temporal dynamics or
+spatial regions.</p>
+<p>Attributes:
+total_experts (int): Global count of active experts.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize the MoE Temporal Attention Model.</p>
+<p>Initializes the MoE Temporal Attention Model.</p>
+<p>Args:
+embed_dim: dimensionality of latent features.
+hidden_dim: multi-expert sub-layer width.
+problem: domain context.
+n_encode_layers: transformer depth.
+n_encode_sublayers: multi-context sub-layer count.
+n_decode_layers: decoder block count.
+dropout_rate: probability of feature zeroing.
+normalization: type of feature normalization.
+n_heads: attention heads.
+num_experts: population of experts per layer.
+k: active experts per token.
+noisy_gating: enable stochastic routing.
+**kwargs: extra parameters for base TemporalAttentionModel.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.moe.moe_temporal_attention_model.MoETemporalAttentionModel.embed_and_transform">
-<span class="sig-name descname"><span class="pre">embed_and_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.moe.moe_temporal_attention_model.MoETemporalAttentionModel.embed_and_transform" title="Link to this definition">#</a></dt>
-<dd><p>Embed and transform input.
-Wraps parent method to handle potential 4D output from MoE encoder.</p>
+<span class="sig-name descname"><span class="pre">embed_and_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.moe.moe_temporal_attention_model.MoETemporalAttentionModel.embed_and_transform" title="Link to this definition">#</a></dt>
+<dd><p>Encodes temporal input and collapses high-dimensional expert outputs.</p>
+<p>Wraps the base transformation to handle potential 4D tensors produced by
+multi-expert routing, reducing them to standard graph embeddings.</p>
+<p>Args:
+input: raw graph features or sequence.
+edges: connectivity information.</p>
+<p>Returns:
+Tuple[torch.Tensor, Optional[torch.Tensor]]:
+- transformed embeddings [B, N, D].
+- auxiliary edge features (None).</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.models.core.moe.moe_temporal_attention_model.MoETemporalAttentionModel.total_experts">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">total_experts</span></span><a class="headerlink" href="#src.models.core.moe.moe_temporal_attention_model.MoETemporalAttentionModel.total_experts" title="Link to this definition">#</a></dt>
-<dd><p>Get the total number of experts in the model.</p>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">total_experts</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.models.core.moe.moe_temporal_attention_model.MoETemporalAttentionModel.total_experts" title="Link to this definition">#</a></dt>
+<dd><p>Retrieves count of experts in the model.</p>
+<p>Returns:
+int: expert module count.</p>
 </dd></dl>
 
 </dd></dl>

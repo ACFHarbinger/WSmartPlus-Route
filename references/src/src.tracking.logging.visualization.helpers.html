@@ -494,8 +494,17 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.logging.visualization.helpers">
 <span id="src-tracking-logging-visualization-helpers"></span><h1><a class="reference internal" href="#module-src.tracking.logging.visualization.helpers" title="src.tracking.logging.visualization.helpers"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging.visualization.helpers</span></code></a><a class="headerlink" href="#module-src.tracking.logging.visualization.helpers" title="Link to this heading">#</a></h1>
-<p>Visualization helper utilities.</p>
-<p>Provides data generation and model loading functions used across visualization modules.</p>
+<p>Visualization helper utilities for the tracking system.</p>
+<p>This module provides support tools for model visualization, including
+synthetic data generation for testing, a model wrapper for loss landscape
+analysis, and model loading functions that recover states from checkpoints.</p>
+<p>Attributes:
+get_batch: Generates a random batch of routing data.
+MyModelWrapper: Adapter class for loss-landscapes integration.
+load_model_instance: Reconstructs a model from a saved state.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.tracking.logging.visualization import helpers
+&gt;&gt;&gt; batch = helpers.get_batch(device, size=50)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -503,7 +512,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.logging.visualization.helpers.MyModelWrapper" title="src.tracking.logging.visualization.helpers.MyModelWrapper"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MyModelWrapper</span></code></a></p></td>
-<td><p>Wraps a model to conform to the interface expected by loss-landscapes library.</p></td>
+<td><p>Wraps a model to conform to the interface expected by loss-landscapes.</p></td>
 </tr>
 </tbody>
 </table>
@@ -517,8 +526,7 @@ document.write(`
 <td><p>Generates a random batch of VRP-like data for visualization purposes.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.logging.visualization.helpers.load_model_instance" title="src.tracking.logging.visualization.helpers.load_model_instance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_model_instance</span></code></a></p></td>
-<td><p>Loads a model for visualization, instantiating it with default architecture parameters.
-Note: Architecture parameters are currently hardcoded for visualization defaults.</p></td>
+<td><p>Loads a model for visualization with default architecture parameters.</p></td>
 </tr>
 </tbody>
 </table>
@@ -531,25 +539,40 @@ Note: Architecture parameters are currently hardcoded for visualization defaults
 <span class="sig-prename descclassname"><span class="pre">src.tracking.logging.visualization.helpers.</span></span><span class="sig-name descname"><span class="pre">get_batch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temporal_horizon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.logging.visualization.helpers.get_batch" title="Link to this definition">#</a></dt>
 <dd><p>Generates a random batch of VRP-like data for visualization purposes.</p>
 <p>Args:
-device (torch.device): Device to creating tensors on.
-size (int, optional): Graph size. Defaults to 50.
-batch_size (int, optional): Batch size. Defaults to 32.
-temporal_horizon (int, optional): Temporal horizon for features. Defaults to 0.</p>
+device: Device to create tensors on (e.g. ‘cpu’ or ‘cuda’).
+size: Number of nodes in the graph. Defaults to 50.
+batch_size: Number of instances in the batch. Defaults to 32.
+temporal_horizon: Time steps for dynamic features. Defaults to 0.</p>
 <p>Returns:
-dict: Batch dictionary with keys ‘depot’, ‘loc’, ‘dist’, ‘waste’, etc.</p>
+Dict[str, torch.Tensor]: Batch dictionary containing ‘depot’, ‘loc’, etc.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="src.tracking.logging.visualization.helpers.MyModelWrapper">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.tracking.logging.visualization.helpers.</span></span><span class="sig-name descname"><span class="pre">MyModelWrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.logging.visualization.helpers.MyModelWrapper" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
-<p>Wraps a model to conform to the interface expected by loss-landscapes library.</p>
+<p>Wraps a model to conform to the interface expected by loss-landscapes.</p>
+<p>This adapter ensures that the model can be called with a standardized
+forward signature during 3D loss surface perturbations.</p>
+<p>Attributes:
+model (nn.Module): The underlying neural network being wrapped.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the wrapper.</p>
+<p>Args:
+model: The neural network model to wrap for visualization.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.logging.visualization.helpers.MyModelWrapper.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_pi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expert_pi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.logging.visualization.helpers.MyModelWrapper.forward" title="Link to this definition">#</a></dt>
 <dd><p>Forward pass of the model.</p>
+<p>Args:
+input: Input batch data.
+cost_weights: Scaling factors for loss components. Defaults to None.
+return_pi: Whether to return the policy distribution. Defaults to False.
+pad: Whether to pad the input sequences. Defaults to False.
+mask: Optional attention mask. Defaults to None.
+expert_pi: Ground truth policy for comparison. Defaults to None.</p>
+<p>Returns:
+Any: The output of the underlying model.</p>
 </dd></dl>
 
 </dd></dl>
@@ -557,15 +580,14 @@ dict: Batch dictionary with keys ‘depot’, ‘loc’, ‘dist’, ‘waste’
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.logging.visualization.helpers.load_model_instance">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.logging.visualization.helpers.</span></span><span class="sig-name descname"><span class="pre">load_model_instance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wcvrp'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.logging.visualization.helpers.load_model_instance" title="Link to this definition">#</a></dt>
-<dd><p>Loads a model for visualization, instantiating it with default architecture parameters.
-Note: Architecture parameters are currently hardcoded for visualization defaults.</p>
+<dd><p>Loads a model for visualization with default architecture parameters.</p>
 <p>Args:
-model_path (str): Path to checkpoint.
-device (torch.device): Device.
-size (int, optional): Problem size. Defaults to 100.
-problem_name (str, optional): Problem name. Defaults to ‘wcvrp’.</p>
+model_path: Absolute or relative path to the .pt checkpoint.
+device: Device to load the model onto.
+size: Expected problem graph size. Defaults to 100.
+problem_name: Name of the problem environment. Defaults to ‘wcvrp’.</p>
 <p>Returns:
-nn.Module: Loaded model.</p>
+nn.Module: The instantiated and loaded AttentionModel.</p>
 </dd></dl>
 
 </section>

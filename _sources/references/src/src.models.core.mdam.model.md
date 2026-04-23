@@ -35,7 +35,7 @@
 
 ### API
 
-````{py:function} mdam_rollout(baseline_self: typing.Any, model: torch.nn.Module, env: logic.src.envs.base.base.RL4COEnvBase, batch_size: int = 64, device: str = 'cpu', dataset: typing.Any = None) -> torch.Tensor
+````{py:function} mdam_rollout(baseline_self: typing.Any, model: MDAM, env: logic.src.envs.base.base.RL4COEnvBase, batch_size: int = 64, device: typing.Union[str, torch.device] = 'cpu', dataset: typing.Any = None) -> torch.Tensor
 :canonical: src.models.core.mdam.model.mdam_rollout
 
 ```{autodoc2-docstring} src.models.core.mdam.model.mdam_rollout
@@ -56,7 +56,7 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.core.mdam.model.MDAM.__init__
 ```
 
-````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.base.RL4COEnvBase] = None, phase: str = 'train', **kwargs) -> typing.Dict[str, typing.Any]
+````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.base.RL4COEnvBase] = None, phase: str = 'train', **kwargs: typing.Any) -> typing.Dict[str, typing.Any]
 :canonical: src.models.core.mdam.model.MDAM.forward
 
 ```{autodoc2-docstring} src.models.core.mdam.model.MDAM.forward

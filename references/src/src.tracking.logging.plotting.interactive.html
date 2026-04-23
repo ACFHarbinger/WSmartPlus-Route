@@ -488,7 +488,14 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.logging.plotting.interactive">
 <span id="src-tracking-logging-plotting-interactive"></span><h1><a class="reference internal" href="#module-src.tracking.logging.plotting.interactive" title="src.tracking.logging.plotting.interactive"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging.plotting.interactive</span></code></a><a class="headerlink" href="#module-src.tracking.logging.plotting.interactive" title="Link to this heading">#</a></h1>
-<p>Interactive plots.</p>
+<p>Interactive plotting utilities using Plotly.</p>
+<p>This module provides functions for generating interactive, web-based
+visualizations of routing data and attention maps.</p>
+<p>Attributes:
+visualize_interactive_plot: Launcher for interactive Plotly charts.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.tracking.logging.plotting.interactive import visualize_interactive_plot
+&gt;&gt;&gt; visualize_interactive_plot(plot_target=data, title=”Interactive Map”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -509,7 +516,7 @@ document.write(`
 <span class="sig-prename descclassname"><span class="pre">src.tracking.logging.plotting.interactive.</span></span><span class="sig-name descname"><span class="pre">visualize_interactive_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.logging.plotting.interactive.visualize_interactive_plot" title="Link to this definition">#</a></dt>
 <dd><p>Execution function for interactive visualization using Plotly.</p>
 <p>Args:
-**kwargs: Keyword arguments containing ‘plot_target’, ‘title’, ‘x_labels’, ‘y_labels’, ‘figsize’.</p>
+kwargs: Keyword arguments containing ‘plot_target’, ‘title’, ‘x_labels’, ‘y_labels’, ‘figsize’.</p>
 </dd></dl>
 
 </section>

@@ -495,14 +495,10 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.policies">
 <span id="src-models-policies"></span><h1><a class="reference internal" href="#module-src.models.policies" title="src.models.policies"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies</span></code></a><a class="headerlink" href="#module-src.models.policies" title="Link to this heading">#</a></h1>
 <p>Policies module for WSmart-Route.</p>
-<p>Contains all neural and classical policy implementations for combinatorial
-optimization. Use <code class="docutils literal notranslate"><span class="pre">get_policy(name)</span></code> to look up a policy class by its
-short CLI name, or import the class directly.</p>
-<p>Registries:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">POLICY_REGISTRY</span></code>: Maps short names (e.g. “am”, “mdam”) to policy classes.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">get_policy(name,</span> <span class="pre">**kwargs)</span></code>: Factory function for instantiation.</p></li>
-</ul>
+<p>This package contains all neural, classical, and heuristic policy
+implementations for combinatorial optimization. It provides a centralized
+registry and factory functions for looking up and instantiating policies
+via short CLI identifiers.</p>
 <section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
@@ -629,7 +625,7 @@ short CLI name, or import the class directly.</p>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py data">
 <dt class="sig sig-object py" id="src.models.policies._POLICY_REGISTRY_SPEC">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.</span></span><span class="sig-name descname"><span class="pre">_POLICY_REGISTRY_SPEC</span></span><a class="headerlink" href="#src.models.policies._POLICY_REGISTRY_SPEC" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.</span></span><span class="sig-name descname"><span class="pre">_POLICY_REGISTRY_SPEC</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.models.policies._POLICY_REGISTRY_SPEC" title="Link to this definition">#</a></dt>
 <dd><p>None</p>
 </dd></dl>
 
@@ -640,20 +636,20 @@ short CLI name, or import the class directly.</p>
 <p>Args:
 name: Short policy name (e.g. “am”, “mdam”, “deepaco”).</p>
 <p>Returns:
-The policy class (not instantiated).</p>
+type: The policy class (not instantiated).</p>
 <p>Raises:
 ValueError: If the name is not found in the registry.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.get_policy">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.</span></span><span class="sig-name descname"><span class="pre">get_policy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.nn.Module</span></span></span><a class="headerlink" href="#src.models.policies.get_policy" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.</span></span><span class="sig-name descname"><span class="pre">get_policy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.nn.Module</span></span></span><a class="headerlink" href="#src.models.policies.get_policy" title="Link to this definition">#</a></dt>
 <dd><p>Create a policy instance by short CLI name.</p>
 <p>Args:
 name: Short policy name (e.g. “am”, “mdam”, “deepaco”).
 **kwargs: Arguments passed to the policy constructor.</p>
 <p>Returns:
-Instantiated policy module.</p>
+nn.Module: Instantiated policy module.</p>
 </dd></dl>
 
 <dl class="py data">

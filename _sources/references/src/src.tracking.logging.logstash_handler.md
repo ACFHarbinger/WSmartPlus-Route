@@ -37,7 +37,7 @@ Bases: {py:obj}`logging.Handler`
 ```{autodoc2-docstring} src.tracking.logging.logstash_handler.LogstashTcpHandler.__init__
 ```
 
-````{py:method} emit(record)
+````{py:method} emit(record: logging.LogRecord) -> None
 :canonical: src.tracking.logging.logstash_handler.LogstashTcpHandler.emit
 
 ```{autodoc2-docstring} src.tracking.logging.logstash_handler.LogstashTcpHandler.emit

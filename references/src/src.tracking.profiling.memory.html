@@ -512,8 +512,7 @@ document.write(`
 device memory, with automatic forwarding to the active WSTracker run.</p>
 <p>Attributes:
 MemorySnapshot: Immutable record of GPU/CPU memory at one instant.
-MemoryTracker:  Background-thread monitor that records samples at a
-configurable interval.</p>
+MemoryTracker: Background-thread monitor that records periodically.</p>
 <p>Example:
 &gt;&gt;&gt; from logic.src.tracking.profiling import MemorySnapshot, MemoryTracker
 &gt;&gt;&gt; snap = MemorySnapshot.capture(“before_training”)
@@ -550,72 +549,59 @@ tag: Human-readable label for this snapshot.
 gpu_allocated_mb: Bytes currently allocated by PyTorch tensors on the
 selected CUDA device, converted to MiB.
 gpu_reserved_mb: Bytes reserved (cached) by the CUDA allocator, MiB.
-gpu_peak_mb: Peak <code class="docutils literal notranslate"><span class="pre">gpu_allocated_mb</span></code> since the last
-<code class="docutils literal notranslate"><span class="pre">torch.cuda.reset_peak_memory_stats()</span></code> call, MiB.
-cpu_rss_mb: Resident Set Size of this process (requires <em>psutil</em>),
-MiB.  Zero when <em>psutil</em> is not installed.
-timestamp: <code class="docutils literal notranslate"><span class="pre">time.time()</span></code> at capture.</p>
+gpu_peak_mb: Peak gpu_allocated_mb since the last
+torch.cuda.reset_peak_memory_stats() call, MiB.
+cpu_rss_mb: Resident Set Size of this process (requires psutil),
+MiB. Zero when psutil is not installed.
+timestamp: time.time() at capture.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize the memory snapshot.</p>
+<p>Initializes the memory snapshot.</p>
 <p>Args:
-tag: Label used both as the snapshot identifier and as the metric
-namespace when logging (<code class="docutils literal notranslate"><span class="pre">memory/{tag}/...</span></code>).
-gpu_allocated_mb: Bytes currently allocated by PyTorch tensors on the
-selected CUDA device, converted to MiB.
-gpu_reserved_mb: Bytes reserved (cached) by the CUDA allocator, MiB.
-gpu_peak_mb: Peak <code class="docutils literal notranslate"><span class="pre">gpu_allocated_mb</span></code> since the last
-<code class="docutils literal notranslate"><span class="pre">torch.cuda.reset_peak_memory_stats()</span></code> call, MiB.
-cpu_rss_mb: Resident Set Size of this process (requires <em>psutil</em>),
-MiB.  Zero when <em>psutil</em> is not installed.
-timestamp: <code class="docutils literal notranslate"><span class="pre">time.time()</span></code> at capture.</p>
-<p>Returns:
-None</p>
+tag: Label used for identification and logging.
+gpu_allocated_mb: Bytes currently allocated by PyTorch tensors, MiB.
+gpu_reserved_mb: Bytes reserved by the CUDA allocator, MiB.
+gpu_peak_mb: Observed peak CUDA allocation, MiB.
+cpu_rss_mb: Process Resident Set Size, MiB.
+timestamp: Epoch time at capture. Defaults to time.time().</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.memory.MemorySnapshot.capture">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">capture</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.device</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_metric</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.profiling.memory.MemorySnapshot" title="src.tracking.profiling.memory.MemorySnapshot"><span class="pre">src.tracking.profiling.memory.MemorySnapshot</span></a></span></span><a class="headerlink" href="#src.tracking.profiling.memory.MemorySnapshot.capture" title="Link to this definition">#</a></dt>
-<dd><p>Capture the current memory state and return a :class:<code class="docutils literal notranslate"><span class="pre">MemorySnapshot</span></code>.</p>
+<dd><p>Capture the current memory state and return a MemorySnapshot.</p>
 <p>Args:
-tag: Label used both as the snapshot identifier and as the metric
-namespace when logging (<code class="docutils literal notranslate"><span class="pre">memory/{tag}/...</span></code>).
-device: CUDA device to query.  When <code class="docutils literal notranslate"><span class="pre">None</span></code>, the current default
-device is used.  CPU-only environments are handled gracefully.
-step: Metric step forwarded to <code class="docutils literal notranslate"><span class="pre">Run.log_metrics</span></code>.
-log_metric: When <code class="docutils literal notranslate"><span class="pre">True</span></code> (default), call :meth:<code class="docutils literal notranslate"><span class="pre">log_to_run</span></code>
-immediately after capturing.</p>
+tag: Label used for identification and logging.
+device: CUDA device to query. When None, the current default
+device is used. CPU-only environments are handled gracefully.
+step: Optional metric step for logging.
+log_metric: When True (default), logs to active run immediately.</p>
 <p>Returns:
-A :class:<code class="docutils literal notranslate"><span class="pre">MemorySnapshot</span></code> populated with current readings.</p>
+MemorySnapshot: Populated with current readings.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.memory.MemorySnapshot.delta">
 <span class="sig-name descname"><span class="pre">delta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">baseline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.tracking.profiling.memory.MemorySnapshot" title="src.tracking.profiling.memory.MemorySnapshot"><span class="pre">src.tracking.profiling.memory.MemorySnapshot</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.profiling.memory.MemorySnapshot.delta" title="Link to this definition">#</a></dt>
-<dd><p>Compute memory differences relative to <em>baseline</em>.</p>
+<dd><p>Compute memory differences relative to baseline.</p>
 <p>Args:
 baseline: The baseline memory snapshot to compare against.</p>
 <p>Returns:
-Dict with keys <code class="docutils literal notranslate"><span class="pre">gpu_allocated_delta_mb</span></code>,
-<code class="docutils literal notranslate"><span class="pre">gpu_reserved_delta_mb</span></code>, <code class="docutils literal notranslate"><span class="pre">gpu_peak_delta_mb</span></code>,
-<code class="docutils literal notranslate"><span class="pre">cpu_rss_delta_mb</span></code>.</p>
+Dict[str, float]: Dictionary containing deltas for all fields.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.memory.MemorySnapshot.log_to_run">
 <span class="sig-name descname"><span class="pre">log_to_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.profiling.memory.MemorySnapshot.log_to_run" title="Link to this definition">#</a></dt>
 <dd><p>Log all memory fields to the active WSTracker run.</p>
-<p>Metrics are stored under the namespace <code class="docutils literal notranslate"><span class="pre">memory/{tag}/</span></code>.
-This is a silent no-op when no run is active or any error occurs.</p>
+<p>Metrics are stored under the namespace memory/{tag}/.</p>
 <p>Args:
-step: Metric step forwarded to <code class="docutils literal notranslate"><span class="pre">Run.log_metrics</span></code>.</p>
-<p>Returns:
-None</p>
+step: Optional metric step index.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.memory.MemorySnapshot.__repr__">
 <span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.tracking.profiling.memory.MemorySnapshot.__repr__" title="Link to this definition">#</a></dt>
-<dd><p>Return a string representation of the memory snapshot.</p>
+<dd><p>Returns a string representation of the snapshot.</p>
 <p>Returns:
-str</p>
+str: Human-readable representation.</p>
 </dd></dl>
 
 </dd></dl>
@@ -624,43 +610,27 @@ str</p>
 <dt class="sig sig-object py" id="src.tracking.profiling.memory.MemoryTracker">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.tracking.profiling.memory.</span></span><span class="sig-name descname"><span class="pre">MemoryTracker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interval_sec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'background'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.device</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_per_sample</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.profiling.memory.MemoryTracker" title="Link to this definition">#</a></dt>
 <dd><p>Continuously monitors memory usage in a daemon background thread.</p>
-<p>Samples are collected at <em>interval_sec</em> intervals.  Use as a context
-manager or call :meth:<code class="docutils literal notranslate"><span class="pre">start</span></code> / :meth:<code class="docutils literal notranslate"><span class="pre">stop</span></code> manually.  Call
-:meth:<code class="docutils literal notranslate"><span class="pre">log_summary_to_run</span></code> once after stopping to forward the peak values
-to the active WSTracker run.</p>
-<p>Example:
-tracker = MemoryTracker(interval_sec=0.5, tag=”training”)
-with tracker:
-train_one_epoch()
-print(tracker.peak_gpu_mb)
-tracker.log_summary_to_run(step=epoch)</p>
+<p>Samples are collected at interval_sec intervals. Use as a context
+manager or call start/stop manually. Call log_summary_to_run once after
+stopping to forward the peak values to the active WSTracker run.</p>
 <p>Attributes:
 interval_sec: Sampling interval in seconds.
-tag: Metric namespace label; forwarded to each
-:class:<code class="docutils literal notranslate"><span class="pre">MemorySnapshot</span></code>.
-device: CUDA device to query (<code class="docutils literal notranslate"><span class="pre">None</span></code> = default device).
-log_per_sample: When <code class="docutils literal notranslate"><span class="pre">True</span></code>, each snapshot is also logged to the
-active run as a time-series metric.  Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code> to
-avoid metric spam; use :meth:<code class="docutils literal notranslate"><span class="pre">log_summary_to_run</span></code> instead.
-_samples: List of captured memory snapshots.
-_thread: Background thread for periodic sampling.
-_stop_event: Event used to signal the background thread to stop.</p>
+tag: Metric namespace label.
+device: CUDA device to query (None = default device).
+log_per_sample: If True, each snapshot is logged as a metric.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize the memory tracker.</p>
+<p>Initializes the memory tracker.</p>
 <p>Args:
-interval_sec: Sampling interval in seconds.
-tag: Metric namespace label; forwarded to each
-:class:<code class="docutils literal notranslate"><span class="pre">MemorySnapshot</span></code>.
-device: CUDA device to query (<code class="docutils literal notranslate"><span class="pre">None</span></code> = default device).
-log_per_sample: When <code class="docutils literal notranslate"><span class="pre">True</span></code>, each snapshot is also logged to the
-active run as a time-series metric.  Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code> to
-avoid metric spam; use :meth:<code class="docutils literal notranslate"><span class="pre">log_summary_to_run</span></code> instead.</p>
+interval_sec: Sampling interval in seconds. Defaults to 1.0.
+tag: Metric namespace label. Defaults to “background”.
+device: CUDA device to query. Defaults to None.
+log_per_sample: If True, logs metrics per sample. Defaults to False.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="src.tracking.profiling.memory.MemoryTracker.peak_gpu_mb">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">peak_gpu_mb</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.tracking.profiling.memory.MemoryTracker.peak_gpu_mb" title="Link to this definition">#</a></dt>
 <dd><p>Peak GPU-allocated memory observed across all samples (MiB).</p>
 <p>Returns:
-float</p>
+float: Maximum allocated GPU memory.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -668,86 +638,70 @@ float</p>
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">peak_cpu_mb</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.tracking.profiling.memory.MemoryTracker.peak_cpu_mb" title="Link to this definition">#</a></dt>
 <dd><p>Peak CPU RSS observed across all samples (MiB).</p>
 <p>Returns:
-float</p>
+float: Maximum resident set size.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.tracking.profiling.memory.MemoryTracker.n_samples">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_samples</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.tracking.profiling.memory.MemoryTracker.n_samples" title="Link to this definition">#</a></dt>
-<dd><p>Number of snapshots collected since the last :meth:<code class="docutils literal notranslate"><span class="pre">start</span></code>.</p>
+<dd><p>Number of snapshots collected since the last start.</p>
 <p>Returns:
-int</p>
+int: Snapshots recorded.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.memory.MemoryTracker.start">
 <span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.profiling.memory.MemoryTracker" title="src.tracking.profiling.memory.MemoryTracker"><span class="pre">src.tracking.profiling.memory.MemoryTracker</span></a></span></span><a class="headerlink" href="#src.tracking.profiling.memory.MemoryTracker.start" title="Link to this definition">#</a></dt>
-<dd><p>Start the background monitoring thread.  Returns <em>self</em>.</p>
-<p>Args:
-self: The memory tracker instance.</p>
+<dd><p>Start the background monitoring thread.</p>
 <p>Returns:
-MemoryTracker: The memory tracker instance.</p>
+MemoryTracker: The current instance.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.memory.MemoryTracker.stop">
 <span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.profiling.memory.MemoryTracker" title="src.tracking.profiling.memory.MemoryTracker"><span class="pre">src.tracking.profiling.memory.MemoryTracker</span></a></span></span><a class="headerlink" href="#src.tracking.profiling.memory.MemoryTracker.stop" title="Link to this definition">#</a></dt>
 <dd><p>Signal the monitoring thread to stop and wait for it to exit.</p>
-<p>Args:
-self: The memory tracker instance.</p>
 <p>Returns:
-MemoryTracker: The memory tracker instance.</p>
+MemoryTracker: The current instance.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.memory.MemoryTracker._monitor">
 <span class="sig-name descname"><span class="pre">_monitor</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.profiling.memory.MemoryTracker._monitor" title="Link to this definition">#</a></dt>
-<dd><p>Background thread target: continuously capture memory snapshots.</p>
-<p>Args:
-self: The memory tracker instance.</p>
-<p>Returns:
-None</p>
+<dd><p>Monitor thread main loop for capturing snapshots.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.memory.MemoryTracker.log_summary_to_run">
 <span class="sig-name descname"><span class="pre">log_summary_to_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.profiling.memory.MemoryTracker.log_summary_to_run" title="Link to this definition">#</a></dt>
 <dd><p>Log peak GPU and CPU memory and sample count to the active run.</p>
-<p>Metrics are stored under <code class="docutils literal notranslate"><span class="pre">memory/{tag}/</span></code>.</p>
+<p>Metrics are stored under memory/{tag}/.</p>
 <p>Args:
-self: The memory tracker instance.
-step: Metric step forwarded to <code class="docutils literal notranslate"><span class="pre">Run.log_metrics</span></code>.</p>
-<p>Returns:
-None</p>
+step: Optional metric step index.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.memory.MemoryTracker.__enter__">
 <span class="sig-name descname"><span class="pre">__enter__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.profiling.memory.MemoryTracker" title="src.tracking.profiling.memory.MemoryTracker"><span class="pre">src.tracking.profiling.memory.MemoryTracker</span></a></span></span><a class="headerlink" href="#src.tracking.profiling.memory.MemoryTracker.__enter__" title="Link to this definition">#</a></dt>
-<dd><p>Enter the context manager, starting the memory tracker.</p>
-<p>Args:
-self: The memory tracker instance.</p>
+<dd><p>Context entry starting the tracker.</p>
 <p>Returns:
-MemoryTracker: The memory tracker instance.</p>
+MemoryTracker: The current instance.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.memory.MemoryTracker.__exit__">
-<span class="sig-name descname"><span class="pre">__exit__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.profiling.memory.MemoryTracker.__exit__" title="Link to this definition">#</a></dt>
-<dd><p>Exit the context manager, stopping the memory tracker.</p>
+<span class="sig-name descname"><span class="pre">__exit__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.profiling.memory.MemoryTracker.__exit__" title="Link to this definition">#</a></dt>
+<dd><p>Context exit stopping the tracker.</p>
 <p>Args:
-self: The memory tracker instance.
-*_args: Additional arguments.</p>
-<p>Returns:
-None</p>
+args: Exception arguments handled by contextlib.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.profiling.memory.MemoryTracker.__repr__">
 <span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.tracking.profiling.memory.MemoryTracker.__repr__" title="Link to this definition">#</a></dt>
-<dd><p>Return a string representation of the memory tracker.</p>
+<dd><p>Returns a string representation of the tracker.</p>
 <p>Returns:
-str</p>
+str: Human-readable representation.</p>
 </dd></dl>
 
 </dd></dl>

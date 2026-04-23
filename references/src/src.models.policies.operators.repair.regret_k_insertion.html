@@ -491,7 +491,10 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.policies.operators.repair.regret_k_insertion">
 <span id="src-models-policies-operators-repair-regret-k-insertion"></span><h1><a class="reference internal" href="#module-src.models.policies.operators.repair.regret_k_insertion" title="src.models.policies.operators.repair.regret_k_insertion"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies.operators.repair.regret_k_insertion</span></code></a><a class="headerlink" href="#module-src.models.policies.operators.repair.regret_k_insertion" title="Link to this heading">#</a></h1>
-<p>Regret-K insertion repair operator (vectorized).</p>
+<p>Regret-K insertion repair operator.</p>
+<p>This module provides a GPU-accelerated implementation of the Regret-K insertion
+repair heuristic, which prioritizes reinserting nodes that have a large
+difference (regret) between their best and kth-best insertion positions.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -499,8 +502,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.operators.repair.regret_k_insertion.vectorized_regret_k_insertion" title="src.models.policies.operators.repair.regret_k_insertion.vectorized_regret_k_insertion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vectorized_regret_k_insertion</span></code></a></p></td>
-<td><p>Vectorized Regret-K insertion.
-Inserts removed nodes into best positions based on the regret criterion.</p></td>
+<td><p>Vectorized Regret-K insertion.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.models.policies.operators.repair.regret_k_insertion._compute_insertion_costs" title="src.models.policies.operators.repair.regret_k_insertion._compute_insertion_costs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_compute_insertion_costs</span></code></a></p></td>
 <td><p>Computes insertion costs for all pending nodes at all positions.</p></td>
@@ -520,26 +522,56 @@ Inserts removed nodes into best positions based on the regret criterion.</p></td
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.repair.regret_k_insertion.vectorized_regret_k_insertion">
 <span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.repair.regret_k_insertion.</span></span><span class="sig-name descname"><span class="pre">vectorized_regret_k_insertion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Generator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.repair.regret_k_insertion.vectorized_regret_k_insertion" title="Link to this definition">#</a></dt>
-<dd><p>Vectorized Regret-K insertion.
-Inserts removed nodes into best positions based on the regret criterion.</p>
+<dd><p>Vectorized Regret-K insertion.</p>
+<p>Inserts removed nodes into the best positions based on the regret
+criterion: selecting the node that would result in the greatest lost
+opportunity if not inserted in its primary best position.</p>
+<p>Args:
+tours: Batch of current sequences of shape [B, N_curr].
+removed_nodes: Batch of nodes to insert of shape [B, N_rem].
+dist_matrix: Edge cost tensor of shape [B, N, N].
+k: Regret factor (kth-best minus best).
+generator: Torch device-side RNG.</p>
+<p>Returns:
+torch.Tensor: Repaired tours of shape [B, N_curr + N_rem].</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.repair.regret_k_insertion._compute_insertion_costs">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.repair.regret_k_insertion.</span></span><span class="sig-name descname"><span class="pre">_compute_insertion_costs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.repair.regret_k_insertion._compute_insertion_costs" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.repair.regret_k_insertion.</span></span><span class="sig-name descname"><span class="pre">_compute_insertion_costs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">removed_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.repair.regret_k_insertion._compute_insertion_costs" title="Link to this definition">#</a></dt>
 <dd><p>Computes insertion costs for all pending nodes at all positions.</p>
+<p>Args:
+tours: Sequences of shape [B, N].
+removed_nodes: Available nodes of shape [B, N_rem].
+dist: Cost matrix of shape [B, Nmax, Nmax].</p>
+<p>Returns:
+torch.Tensor: 3D cost tensor of shape [B, N_rem, N].</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.repair.regret_k_insertion._compute_regrets">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.repair.regret_k_insertion.</span></span><span class="sig-name descname"><span class="pre">_compute_regrets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">costs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pending_mask</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.repair.regret_k_insertion._compute_regrets" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.repair.regret_k_insertion.</span></span><span class="sig-name descname"><span class="pre">_compute_regrets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">costs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pending_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.operators.repair.regret_k_insertion._compute_regrets" title="Link to this definition">#</a></dt>
 <dd><p>Calculates regret based on top-k insertion costs.</p>
+<p>Args:
+costs: Price tensor of shape [B, N_rem, N].
+k: Regret depth.
+pending_mask: Availability tracker of shape [B, N_rem].</p>
+<p>Returns:
+Tuple[torch.Tensor, torch.Tensor]: A tuple containing:
+- regret_scores: Scores per node ([B, N_rem]).
+- best_positions: Best insertion indices ([B, N_rem]).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.repair.regret_k_insertion._apply_insertion">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.repair.regret_k_insertion.</span></span><span class="sig-name descname"><span class="pre">_apply_insertion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.repair.regret_k_insertion._apply_insertion" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.repair.regret_k_insertion.</span></span><span class="sig-name descname"><span class="pre">_apply_insertion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.repair.regret_k_insertion._apply_insertion" title="Link to this definition">#</a></dt>
 <dd><p>Inserts a node into the tour at the specified position.</p>
+<p>Args:
+tours: Sequences of shape [B, N].
+node: Node to insert of shape [B, 1].
+pos: Target index of shape [B, 1].</p>
+<p>Returns:
+torch.Tensor: Updated sequences of shape [B, N+1].</p>
 </dd></dl>
 
 </section>

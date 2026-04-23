@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} GLOP(env: logic.src.envs.base.base.RL4COEnvBase, policy: typing.Optional[src.models.core.glop.policy.GLOPPolicy] = None, policy_kwargs: typing.Optional[typing.Dict[str, typing.Any]] = None, baseline: str = 'mean', **kwargs)
+`````{py:class} GLOP(env: logic.src.envs.base.base.RL4COEnvBase, policy: typing.Optional[src.models.core.glop.policy.GLOPPolicy] = None, policy_kwargs: typing.Optional[typing.Dict[str, typing.Any]] = None, baseline: str = 'mean', **kwargs: typing.Any)
 :canonical: src.models.core.glop.model.GLOP
 
 Bases: {py:obj}`torch.nn.Module`
@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.core.glop.model.GLOP.__init__
 ```
 
-````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.base.RL4COEnvBase] = None, phase: str = 'train', **kwargs) -> typing.Dict[str, typing.Any]
+````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.base.RL4COEnvBase] = None, phase: str = 'train', **kwargs: typing.Any) -> typing.Dict[str, typing.Any]
 :canonical: src.models.core.glop.model.GLOP.forward
 
 ```{autodoc2-docstring} src.models.core.glop.model.GLOP.forward

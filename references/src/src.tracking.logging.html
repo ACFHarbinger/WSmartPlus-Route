@@ -469,6 +469,14 @@ document.write(`
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#subpackages">Subpackages</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package-contents">Package Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.__all__"><code class="docutils literal notranslate"><span class="pre">__all__</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
             </nav>
         </div>
@@ -482,7 +490,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.logging">
 <span id="src-tracking-logging"></span><h1><a class="reference internal" href="#module-src.tracking.logging" title="src.tracking.logging"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging</span></code></a><a class="headerlink" href="#module-src.tracking.logging" title="Link to this heading">#</a></h1>
-<p>Logging utilities package.</p>
+<p>Logging and diagnostic output utilities for WSmart-Route.</p>
+<p>This package provides tools for standardizing console output, file logging,
+and structured telemetry across both local development and distributed
+cluster environments.</p>
+<p>Attributes:
+get_pylogger: Factory for rank-zero-safe Python loggers.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.tracking.logging import get_pylogger
+&gt;&gt;&gt; logger = get_pylogger(“my_module”)</p>
 <section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
@@ -526,6 +542,29 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="src.tracking.logging.visualize_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging.visualize_utils</span></code></a></li>
 </ul>
 </div>
+</section>
+<section id="package-contents">
+<h2>Package Contents<a class="headerlink" href="#package-contents" title="Link to this heading">#</a></h2>
+<section id="data">
+<h3>Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.logging.__all__" title="src.tracking.logging.__all__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__all__</span></code></a></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="api">
+<h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
+<dl class="py data">
+<dt class="sig sig-object py" id="src.tracking.logging.__all__">
+<span class="sig-prename descclassname"><span class="pre">src.tracking.logging.</span></span><span class="sig-name descname"><span class="pre">__all__</span></span><a class="headerlink" href="#src.tracking.logging.__all__" title="Link to this definition">#</a></dt>
+<dd><p>[‘get_pylogger’]</p>
+</dd></dl>
+
+</section>
 </section>
 </section>
 
@@ -576,6 +615,14 @@ document.write(`
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#subpackages">Subpackages</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package-contents">Package Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.__all__"><code class="docutils literal notranslate"><span class="pre">__all__</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
   </nav></div>
 

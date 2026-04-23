@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} PointerEncoder(input_dim, hidden_dim)
+`````{py:class} PointerEncoder(input_dim: int, hidden_dim: int)
 :canonical: src.models.subnets.encoders.ptr.encoder.PointerEncoder
 
 Bases: {py:obj}`torch.nn.Module`
@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.subnets.encoders.ptr.encoder.PointerEncoder.__init__
 ```
 
-````{py:method} forward(x, hidden)
+````{py:method} forward(x: torch.Tensor, hidden: typing.Tuple[torch.Tensor, torch.Tensor]) -> typing.Tuple[torch.Tensor, typing.Tuple[torch.Tensor, torch.Tensor]]
 :canonical: src.models.subnets.encoders.ptr.encoder.PointerEncoder.forward
 
 ```{autodoc2-docstring} src.models.subnets.encoders.ptr.encoder.PointerEncoder.forward
@@ -45,7 +45,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} init_hidden(hidden_dim)
+````{py:method} init_hidden(hidden_dim: int) -> typing.Tuple[torch.nn.Parameter, torch.nn.Parameter]
 :canonical: src.models.subnets.encoders.ptr.encoder.PointerEncoder.init_hidden
 
 ```{autodoc2-docstring} src.models.subnets.encoders.ptr.encoder.PointerEncoder.init_hidden

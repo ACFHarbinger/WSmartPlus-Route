@@ -488,7 +488,10 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.policies.shared.linear">
 <span id="src-models-policies-shared-linear"></span><h1><a class="reference internal" href="#module-src.models.policies.shared.linear" title="src.models.policies.shared.linear"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies.shared.linear</span></code></a><a class="headerlink" href="#module-src.models.policies.shared.linear" title="Link to this heading">#</a></h1>
-<p>Vectorized Linear Split Algorithm.</p>
+<p>Vectorized linear split algorithm.</p>
+<p>This module provides an efficient, GPU-accelerated implementation of the Split
+algorithm, which partitions a giant tour into a set of feasible routes using
+shortest path logic on a directed acyclic graph (DAG).</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -496,8 +499,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.shared.linear.vectorized_linear_split" title="src.models.policies.shared.linear.vectorized_linear_split"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vectorized_linear_split</span></code></a></p></td>
-<td><p>Vectorized Linear Split Algorithm for Batch of Giant Tours.
-Computes the optimal segmentation of giant tours into routes subject to capacity constraints.</p></td>
+<td><p>Partitions giant tours into feasible routes using shortest paths.</p></td>
 </tr>
 </tbody>
 </table>
@@ -507,18 +509,22 @@ Computes the optimal segmentation of giant tours into routes subject to capacity
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.shared.linear.vectorized_linear_split">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.shared.linear.</span></span><span class="sig-name descname"><span class="pre">vectorized_linear_split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">giant_tours</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vehicle_capacity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_vehicles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.shared.linear.vectorized_linear_split" title="Link to this definition">#</a></dt>
-<dd><p>Vectorized Linear Split Algorithm for Batch of Giant Tours.
-Computes the optimal segmentation of giant tours into routes subject to capacity constraints.</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.shared.linear.</span></span><span class="sig-name descname"><span class="pre">vectorized_linear_split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">giant_tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vehicle_capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_vehicles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.shared.linear.vectorized_linear_split" title="Link to this definition">#</a></dt>
+<dd><p>Partitions giant tours into feasible routes using shortest paths.</p>
+<p>Computes the optimal segmentation of node sequences into routes subject to
+capacity constraints. If <code class="docutils literal notranslate"><span class="pre">max_vehicles</span></code> is provided, it falls back to the
+limited split variant.</p>
 <p>Args:
-giant_tours: (B, N) tensor of node indices (permutation of 1..N or subset).
-dist_matrix: (B, N_all, N_all) tensor of distances.
-wastes: (B, N_all) tensor of wastes.
-vehicle_capacity: float, scalar or (B,) tensor.
-max_len: int, maximum route length to consider for efficiency (default: N).</p>
+giant_tours: Node sequences of shape [B, N].
+dist_matrix: Pairwise distances of shape [B, N_all, N_all] or [N_all, N_all].
+wastes: Node waste amounts of shape [B, N_all] or [N_all].
+vehicle_capacity: Capacity limit (scalar or [B] tensor).
+max_len: Maximum route length to evaluate for speed.
+max_vehicles: Optional limit on the number of allowed routes.</p>
 <p>Returns:
-routes: (B, list_of_routes) where each route is a list/tensor of nodes with depot 0.
-costs: (B,) total cost of the split.</p>
+Tuple[torch.Tensor, torch.Tensor]: A tuple containing:
+- routes: Padded route sequences of shape [B, K, N].
+- costs: Total split cost per batch instance of shape [B].</p>
 </dd></dl>
 
 </section>

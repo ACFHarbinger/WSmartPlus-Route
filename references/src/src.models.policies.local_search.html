@@ -488,19 +488,18 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.policies.local_search">
 <span id="src-models-policies-local-search"></span><h1><a class="reference internal" href="#module-src.models.policies.local_search" title="src.models.policies.local_search"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies.local_search</span></code></a><a class="headerlink" href="#module-src.models.policies.local_search" title="Link to this heading">#</a></h1>
-<p>Vectorized Local Search Operators for Vehicle Routing Problems.</p>
-<p>This module implements several local search heuristics optimized for parallel execution
-on GPU using PyTorch. These operators are used to improve routing solutions in both
-genetic algorithms (like HGS) and as route improvement steps for neural models.</p>
-<p>Implemented Operators:</p>
-<ul class="simple">
-<li><p>vectorized_two_opt: Intra-route segment reversal.</p></li>
-<li><p>vectorized_swap: Intra-route node exchange.</p></li>
-<li><p>vectorized_relocate: Intra-route node relocation.</p></li>
-<li><p>vectorized_two_opt_star: Inter-route tail swap.</p></li>
-<li><p>vectorized_swap_star: Inter-route node exchange with re-insertion optimization.</p></li>
-<li><p>vectorized_three_opt: Intra-route 3-opt moves.</p></li>
-</ul>
+<p>Vectorized local search operators for vehicle routing problems.</p>
+<p>This module exports several local search heuristics optimized for parallel
+execution on GPU using PyTorch. These operators are used to improve routing
+solutions in both genetic algorithms (like HGS) and as route improvement steps
+for neural models.</p>
+<p>Attributes:
+vectorized_two_opt: Intra-route segment reversal.
+vectorized_swap: Intra-route node exchange.
+vectorized_relocate: Intra-route node relocation.
+vectorized_two_opt_star: Inter-route tail swap.
+vectorized_swap_star: Inter-route node exchange with re-insertion optimization.
+vectorized_three_opt: Intra-route 3-opt moves.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="data">

@@ -495,9 +495,13 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.core.mdam.model">
 <span id="src-models-core-mdam-model"></span><h1><a class="reference internal" href="#module-src.models.core.mdam.model" title="src.models.core.mdam.model"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.core.mdam.model</span></code></a><a class="headerlink" href="#module-src.models.core.mdam.model" title="Link to this heading">#</a></h1>
-<p>MDAM (Multi-Decoder Attention Model).</p>
-<p>REINFORCE-based training wrapper for MDAM policy with custom baseline
-that uses the maximum reward across paths.</p>
+<p>Multi-Decoder Attention Model (MDAM) for diverse routing.</p>
+<p>This module provides the <code class="docutils literal notranslate"><span class="pre">MDAM</span></code> wrapper, which trains multiple independent
+decoders sharing a common encoder. It employs a specialized REINFORCE scheme
+where the baseline is the maximum reward across all decoders, encouraging
+diversity through KL-divergence regularization.</p>
+<p>Attributes:
+MDAM: Diverse multi-policy training wrapper.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -505,7 +509,7 @@ that uses the maximum reward across paths.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.core.mdam.model.MDAM" title="src.models.core.mdam.model.MDAM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MDAM</span></code></a></p></td>
-<td><p>MDAM Model with REINFORCE Training.</p></td>
+<td><p>MDAM training wrapper with Multi-Path Baseline.</p></td>
 </tr>
 </tbody>
 </table>
@@ -516,7 +520,7 @@ that uses the maximum reward across paths.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.core.mdam.model.mdam_rollout" title="src.models.core.mdam.model.mdam_rollout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mdam_rollout</span></code></a></p></td>
-<td><p>Custom rollout function for MDAM baseline.</p></td>
+<td><p>Specialized rollout for MDAM that selects the best path per instance.</p></td>
 </tr>
 </tbody>
 </table>
@@ -526,75 +530,80 @@ that uses the maximum reward across paths.</p>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.core.mdam.model.mdam_rollout">
-<span class="sig-prename descclassname"><span class="pre">src.models.core.mdam.model.</span></span><span class="sig-name descname"><span class="pre">mdam_rollout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">baseline_self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cpu'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.core.mdam.model.mdam_rollout" title="Link to this definition">#</a></dt>
-<dd><p>Custom rollout function for MDAM baseline.</p>
-<p>Takes the maximum reward across all paths as the baseline value.</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.core.mdam.model.</span></span><span class="sig-name descname"><span class="pre">mdam_rollout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">baseline_self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.models.core.mdam.model.MDAM" title="src.models.core.mdam.model.MDAM"><span class="pre">MDAM</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.device</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cpu'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.core.mdam.model.mdam_rollout" title="Link to this definition">#</a></dt>
+<dd><p>Specialized rollout for MDAM that selects the best path per instance.</p>
+<p>Computes the maximum reward across all decoder paths to provide a tight
+baseline for the REINFORCE advantage.</p>
 <p>Args:
-baseline_self: Baseline instance (for accessing dataset).
-model: MDAM model.
-env: Environment.
-batch_size: Batch size for rollout.
-device: Device to run on.
-dataset: Dataset to use (or baseline’s dataset if None).</p>
+baseline_self: Instance of the baseline object being patched.
+model: MDAM architecture instance.
+env: Target problem environment.
+batch_size: Batch size for inference passes.
+device: Hardware device to execute on.
+dataset: Input data for rollout evaluation.</p>
 <p>Returns:
-Tensor of baseline rewards (batch_size,).</p>
+torch.Tensor: Best-path rewards per instance [Batch].</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.core.mdam.model.MDAM">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.mdam.model.</span></span><span class="sig-name descname"><span class="pre">MDAM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.models.core.mdam.policy.html#src.models.core.mdam.policy.MDAMPolicy" title="src.models.core.mdam.policy.MDAMPolicy"><span class="pre">src.models.core.mdam.policy.MDAMPolicy</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">baseline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'rollout'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">baseline_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kl_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.mdam.model.MDAM" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
-<p>MDAM Model with REINFORCE Training.</p>
-<p>Multi-Decoder Attention Model trains multiple diverse policies
-to increase the chance of finding good solutions. Uses REINFORCE
-with a custom baseline that takes the max reward across paths.</p>
-<p>Reference:
-Xin et al. “Multi-Decoder Attention Model with Embedding Glimpse for
-Solving Vehicle Routing Problems” (AAAI 2021)</p>
+<p>MDAM training wrapper with Multi-Path Baseline.</p>
+<p>Implements the diverse training strategy from Xin et al. (AAAI 2021).
+Encourages population-style coverage of the solution space.</p>
+<p>Attributes:
+env (RL4COEnvBase): Environment for states and rewards.
+kl_weight (float): Scalar weighting for the diversity entropy term.
+policy (MDAMPolicy): The underlying multi-decoder neural policy.
+baseline_type (str): Meta-identifier for RL baseline logic.
+baseline (Optional[Any]): Concrete baseline object (set during training).</p>
 <p class="rubric">Initialization</p>
-<p>Initialize MDAM model.</p>
+<p>Initializes the MDAM model.</p>
 <p>Args:
-env: Environment for training.
-policy: Pre-built MDAM policy or None to create default.
-baseline: Baseline type (‘rollout’, ‘exponential’, ‘critic’).
-policy_kwargs: Arguments for policy construction.
-baseline_kwargs: Arguments for baseline construction.
-kl_weight: Weight for KL divergence loss term.</p>
+env: Targeted problem environment.
+policy: Pre-instantiated MDAM policy.
+baseline: Identifier for the RL baseline method.
+policy_kwargs: Dictionary for default policy setup.
+baseline_kwargs: Dictionary for baseline parameters.
+kl_weight: Diversity regularization strength.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.mdam.model.MDAM.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'train'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.mdam.model.MDAM.forward" title="Link to this definition">#</a></dt>
-<dd><p>Forward pass through policy.</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'train'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.mdam.model.MDAM.forward" title="Link to this definition">#</a></dt>
+<dd><p>Routes execution to the underlying MDAM policy.</p>
 <p>Args:
-td: Problem instance TensorDict.
-env: Environment (uses self.env if None).
-phase: Training phase.
-**kwargs: Additional arguments.</p>
+td: problem state container.
+env: Environment reference.
+phase: Current execution mode.
+**kwargs: Extra parameters.</p>
 <p>Returns:
-Policy output dictionary.</p>
+Dict[str, Any]: Multi-path construction results.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.mdam.model.MDAM.calculate_loss">
 <span class="sig-name descname"><span class="pre">calculate_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy_out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_likelihood</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.mdam.model.MDAM.calculate_loss" title="Link to this definition">#</a></dt>
-<dd><p>Calculate REINFORCE loss with KL divergence regularization.</p>
+<dd><p>Computes REINFORCE loss with competitive multi-path baseline.</p>
+<p>Incorporates KL-divergence to penalize policy collapse toward a single
+mode, ensuring decoder diversity.</p>
 <p>Args:
-td: Problem instance.
-batch: Batch data (may contain baseline info).
-policy_out: Output from policy forward pass.
-reward: Override reward (uses policy_out if None).
-log_likelihood: Override log_likelihood (uses policy_out if None).</p>
+td: current problem state.
+batch: Data batch (may contain pre-computed baseline).
+policy_out: Map containing ‘reward’, ‘log_likelihood’, and ‘entropy’.
+reward: Optional override for the reward tensor.
+log_likelihood: Optional override for the log_likelihood tensor.</p>
 <p>Returns:
-Updated policy_out with loss components.</p>
+Dict[str, Any]: Updated result map including the scalar ‘loss’.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.mdam.model.MDAM.patch_baseline_rollout">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">patch_baseline_rollout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">baseline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.core.mdam.model.MDAM.patch_baseline_rollout" title="Link to this definition">#</a></dt>
-<dd><p>Patch a rollout baseline to use MDAM-specific rollout.</p>
-<p>Call this after creating the baseline to use max-across-paths
-for baseline estimation.</p>
+<dd><p>Injects MDAM-aware multi-path logic into a standard RL baseline.</p>
+<p>Overwrites the evaluation rollout of the baseline object to use the
+competitive max-reward strategy.</p>
 <p>Args:
-baseline: Baseline instance to patch.</p>
+baseline: RL baseline instance to modify.</p>
 </dd></dl>
 
 </dd></dl>

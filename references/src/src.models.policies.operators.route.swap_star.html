@@ -491,7 +491,10 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.policies.operators.route.swap_star">
 <span id="src-models-policies-operators-route-swap-star"></span><h1><a class="reference internal" href="#module-src.models.policies.operators.route.swap_star" title="src.models.policies.operators.route.swap_star"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies.operators.route.swap_star</span></code></a><a class="headerlink" href="#module-src.models.policies.operators.route.swap_star" title="Link to this heading">#</a></h1>
-<p>Swap* local search operator (inter-route swap with re-insertion).</p>
+<p>Swap* local search operator.</p>
+<p>This module provides a GPU-accelerated implementation of the Swap* operator,
+which performs inter-route exchanges of nodes and re-optimizes their insertion
+points in the target routes for maximum efficiency.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -499,18 +502,16 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.operators.route.swap_star.vectorized_swap_star" title="src.models.policies.operators.route.swap_star.vectorized_swap_star"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vectorized_swap_star</span></code></a></p></td>
-<td><p>Vectorized Swap* operator.
-Exchanges u and v between different routes, re-inserting them at best positions.
-This is a more powerful move that combines swapping nodes between routes with re-optimizing their insertion points.</p></td>
+<td><p>Vectorized Swap* operator for inter-route optimization.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.models.policies.operators.route.swap_star._identify_routes" title="src.models.policies.operators.route.swap_star._identify_routes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_identify_routes</span></code></a></p></td>
-<td><p>Identifies route boundaries for nodes i and j.</p></td>
+<td><p>Detects route start/end points relative to sampled indices.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.operators.route.swap_star._compute_swap_star_gains" title="src.models.policies.operators.route.swap_star._compute_swap_star_gains"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_compute_swap_star_gains</span></code></a></p></td>
-<td><p>Computes gains and identifies best re-insertion points.</p></td>
+<td><p>Evaluates differential insertion/removal costs for the swap pair.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.models.policies.operators.route.swap_star._apply_swap_star_moves" title="src.models.policies.operators.route.swap_star._apply_swap_star_moves"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_apply_swap_star_moves</span></code></a></p></td>
-<td><p>Applies Swap* moves using priority-based sorting.</p></td>
+<td><p>Updates sequence batch by repositioning u and v based on weights.</p></td>
 </tr>
 </tbody>
 </table>
@@ -520,35 +521,79 @@ This is a more powerful move that combines swapping nodes between routes with re
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.route.swap_star.vectorized_swap_star">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.swap_star.</span></span><span class="sig-name descname"><span class="pre">vectorized_swap_star</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.route.swap_star.vectorized_swap_star" title="Link to this definition">#</a></dt>
-<dd><p>Vectorized Swap* operator.
-Exchanges u and v between different routes, re-inserting them at best positions.
-This is a more powerful move that combines swapping nodes between routes with re-optimizing their insertion points.</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.swap_star.</span></span><span class="sig-name descname"><span class="pre">vectorized_swap_star</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Generator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.route.swap_star.vectorized_swap_star" title="Link to this definition">#</a></dt>
+<dd><p>Vectorized Swap* operator for inter-route optimization.</p>
+<p>Exchanges nodes ‘u’ and ‘v’ between two different routes and finds the
+mathematically optimal insertion point for each in their new route.</p>
 <p>Args:
-tours (torch.Tensor): Current tours (B, max_len).
-dist_matrix (torch.Tensor): Distance matrix.
-max_iterations (int): Number of attempts.
-generator (torch.Generator, optional): Random generator.</p>
+tours: Batch of node sequences of shape [B, L].
+dist_matrix: Edge cost tensor of shape [B, N, N].
+max_iterations: Number of random node pairs to evaluate.
+generator: Torch device-side RNG.</p>
 <p>Returns:
-torch.Tensor: Updated tours.</p>
+torch.Tensor: Optimized tours of shape [B, L].</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.route.swap_star._identify_routes">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.swap_star.</span></span><span class="sig-name descname"><span class="pre">_identify_routes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.route.swap_star._identify_routes" title="Link to this definition">#</a></dt>
-<dd><p>Identifies route boundaries for nodes i and j.</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.swap_star.</span></span><span class="sig-name descname"><span class="pre">_identify_routes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.operators.route.swap_star._identify_routes" title="Link to this definition">#</a></dt>
+<dd><p>Detects route start/end points relative to sampled indices.</p>
+<p>Args:
+tours: Batch of sequences of shape [B, N].
+i: First node position of shape [B, 1].
+j: Second node position of shape [B, 1].
+seq: Index sequence of shape [B, N].
+B: Batch size.</p>
+<p>Returns:
+Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]: A tuple containing:
+- start_i: Identified starting index of the first route.
+- end_i: Identified ending index of the first route.
+- start_j: Identified starting index of the second route.
+- end_j: Identified ending index of the second route.
+- mask: Boolean inter-route validity flag.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.route.swap_star._compute_swap_star_gains">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.swap_star.</span></span><span class="sig-name descname"><span class="pre">_compute_swap_star_gains</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_len</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.route.swap_star._compute_swap_star_gains" title="Link to this definition">#</a></dt>
-<dd><p>Computes gains and identifies best re-insertion points.</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.swap_star.</span></span><span class="sig-name descname"><span class="pre">_compute_swap_star_gains</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.device</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.operators.route.swap_star._compute_swap_star_gains" title="Link to this definition">#</a></dt>
+<dd><p>Evaluates differential insertion/removal costs for the swap pair.</p>
+<p>Args:
+tours: Batch of sequences of shape [B, N].
+dist: Distance matrix of shape [B, N, N].
+node_i: Node u identifier of shape [B, 1].
+node_j: Node v identifier of shape [B, 1].
+i: Position of u in current sequence of shape [B, 1].
+j: Position of v in current sequence of shape [B, 1].
+start_i: First route start index of shape [B, 1].
+end_i: First route end index of shape [B, 1].
+start_j: Second route start index of shape [B, 1].
+end_j: Second route end index of shape [B, 1].
+b_idx: Batch indices of shape [B, 1].
+max_len: Total tour length N.
+seq: Sequence index coordinates of shape [B, N].
+device: Hardware identification locator.</p>
+<p>Returns:
+Tuple[torch.Tensor, torch.Tensor, torch.Tensor]: A tuple containing:
+- total_gain: Combined cost reduction for the swap.
+- idx_u: Best new insertion position for node u.
+- idx_v: Best new insertion position for node v.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.route.swap_star._apply_swap_star_moves">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.swap_star.</span></span><span class="sig-name descname"><span class="pre">_apply_swap_star_moves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">improved</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ins_u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ins_v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_len</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.route.swap_star._apply_swap_star_moves" title="Link to this definition">#</a></dt>
-<dd><p>Applies Swap* moves using priority-based sorting.</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.swap_star.</span></span><span class="sig-name descname"><span class="pre">_apply_swap_star_moves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">improved</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ins_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ins_v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.device</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.route.swap_star._apply_swap_star_moves" title="Link to this definition">#</a></dt>
+<dd><p>Updates sequence batch by repositioning u and v based on weights.</p>
+<p>Args:
+tours: Batch of sequences of shape [B, N].
+improved: Improvement flag of shape [B, 1].
+i: Old position of node u of shape [B, 1].
+j: Old position of node v of shape [B, 1].
+ins_u: New optimal position for node u of shape [B, 1].
+ins_v: New optimal position for node v of shape [B, 1].
+max_len: Total tour length N.
+device: Hardware identification locator.</p>
+<p>Returns:
+torch.Tensor: Modified tours of shape [B, N].</p>
 </dd></dl>
 
 </section>

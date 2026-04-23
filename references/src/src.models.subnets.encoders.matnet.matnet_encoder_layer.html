@@ -492,6 +492,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.encoders.matnet.matnet_encoder_layer">
 <span id="src-models-subnets-encoders-matnet-matnet-encoder-layer"></span><h1><a class="reference internal" href="#module-src.models.subnets.encoders.matnet.matnet_encoder_layer" title="src.models.subnets.encoders.matnet.matnet_encoder_layer"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.encoders.matnet.matnet_encoder_layer</span></code></a><a class="headerlink" href="#module-src.models.subnets.encoders.matnet.matnet_encoder_layer" title="Link to this heading">#</a></h1>
 <p>Encoder layer for MatNet.</p>
+<p>Attributes:
+MatNetEncoderLayer: Encoder layer for MatNet performing row and column-wise mixed-score attention.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.encoders.matnet.matnet_encoder_layer import MatNetEncoderLayer
+&gt;&gt;&gt; layer = MatNetEncoderLayer(embed_dim=128, n_heads=8)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -499,9 +504,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.subnets.encoders.matnet.matnet_encoder_layer.MatNetEncoderLayer" title="src.models.subnets.encoders.matnet.matnet_encoder_layer.MatNetEncoderLayer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MatNetEncoderLayer</span></code></a></p></td>
-<td><p>Encoder layer for MatNet.
-Performs row and column-wise mixed-score attention on matrix embeddings.
-Reference: MatNet: Matrix Encoding Network for Combinatorial Optimization (Kwon et al., 2021)</p></td>
+<td><p>Encoder layer for MatNet.</p></td>
 </tr>
 </tbody>
 </table>
@@ -513,20 +516,36 @@ Reference: MatNet: Matrix Encoding Network for Combinatorial Optimization (Kwon 
 <dt class="sig sig-object py" id="src.models.subnets.encoders.matnet.matnet_encoder_layer.MatNetEncoderLayer">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.encoders.matnet.matnet_encoder_layer.</span></span><span class="sig-name descname"><span class="pre">MatNetEncoderLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feed_forward_hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">512</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'instance'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.encoders.matnet.matnet_encoder_layer.MatNetEncoderLayer" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
-<p>Encoder layer for MatNet.
-Performs row and column-wise mixed-score attention on matrix embeddings.
-Reference: MatNet: Matrix Encoding Network for Combinatorial Optimization (Kwon et al., 2021)</p>
+<p>Encoder layer for MatNet.</p>
+<p>Performs row and column-wise mixed-score attention on matrix embeddings.
+Reference: MatNet: Matrix Encoding Network for Combinatorial Optimization
+(Kwon et al., 2021).</p>
+<p>Attributes:
+mha (MixedScoreMHA): Mixed-score multi-head attention module.
+row_norm1 (Normalization): First normalization layer for rows.
+col_norm1 (Normalization): First normalization layer for columns.
+row_ff (nn.Sequential): Feed-forward sublayer for rows.
+col_ff (nn.Sequential): Feed-forward sublayer for columns.
+row_norm2 (Normalization): Second normalization layer for rows.
+col_norm2 (Normalization): Second normalization layer for columns.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize MatNetEncoderLayer.</p>
+<p>Initializes the MatNetEncoderLayer.</p>
 <p>Args:
 embed_dim: Embedding dimension.
-n_heads: Number of heads.
-feed_forward_hidden: Hidden dimension.
-normalization: Normalization type.</p>
+n_heads: Number of attention heads.
+feed_forward_hidden: Hidden dimension for feed-forward layers.
+normalization: Type of normalization (“instance”, “layer”, or “batch”).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.encoders.matnet.matnet_encoder_layer.MatNetEncoderLayer.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row_emb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col_emb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.subnets.encoders.matnet.matnet_encoder_layer.MatNetEncoderLayer.forward" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row_emb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col_emb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.subnets.encoders.matnet.matnet_encoder_layer.MatNetEncoderLayer.forward" title="Link to this definition">#</a></dt>
 <dd><p>Forward pass.</p>
+<p>Args:
+row_emb: Row embeddings of shape (batch, row_size, embed_dim).
+col_emb: Column embeddings of shape (batch, col_size, embed_dim).
+matrix: Input cost/distance matrix of shape (batch, row_size, col_size).
+mask: Optional mask tensor of shape (batch, row_size, col_size).</p>
+<p>Returns:
+Tuple[torch.Tensor, torch.Tensor]: Updated row and column embeddings.</p>
 </dd></dl>
 
 </dd></dl>

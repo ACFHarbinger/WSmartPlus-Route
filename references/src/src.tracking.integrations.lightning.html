@@ -500,7 +500,16 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.integrations.lightning">
 <span id="src-tracking-integrations-lightning"></span><h1><a class="reference internal" href="#module-src.tracking.integrations.lightning" title="src.tracking.integrations.lightning"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.integrations.lightning</span></code></a><a class="headerlink" href="#module-src.tracking.integrations.lightning" title="Link to this heading">#</a></h1>
-<p>PyTorch Lightning callback that forwards all training events to WSTracker.</p>
+<p>PyTorch Lightning callback for WSTracker integration.</p>
+<p>This module provides the :class:<code class="docutils literal notranslate"><span class="pre">TrackingCallback</span></code> which automatically
+orchestrates experiment tracking during PyTorch Lightning training. It
+registers hyperparameters, logs metrics (training/validation/timing),
+manually tracks throughput and memory, and manages model artifacts.</p>
+<p>Attributes:
+TrackingCallback: Lightning callback for automated run instrumentation.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.tracking.integrations.lightning import TrackingCallback
+&gt;&gt;&gt; trainer = pl.Trainer(callbacks=[TrackingCallback(cfg)])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -538,63 +547,95 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.tracking.integrations.lightning.</span></span><span class="sig-name descname"><span class="pre">TrackingCallback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tracking_cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.tracking.TrackingConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.integrations.lightning.TrackingCallback" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">pytorch_lightning.callbacks.Callback</span></code></p>
 <p>Lightning callback that logs training metrics and artifacts to WSTracker.</p>
-<p>Hooks into the Lightning trainer lifecycle to:</p>
-<ul class="simple">
-<li><p>Log model hyperparameters at training start.</p></li>
-<li><p>Log <code class="docutils literal notranslate"><span class="pre">train/*</span></code> metrics at the end of every training epoch.</p></li>
-<li><p>Log <code class="docutils literal notranslate"><span class="pre">val/*</span></code> metrics at the end of every validation epoch.</p></li>
-<li><p>Log <code class="docutils literal notranslate"><span class="pre">time/*</span></code> speed-monitor metrics at training end.</p></li>
-<li><p>Register the best and final model checkpoints as run artifacts.</p></li>
-<li><p>Record dataset regeneration events when dataloaders are reloaded.</p></li>
-<li><p>Optionally register gradient / activation / weight / memory hooks.</p></li>
-<li><p>Optionally track throughput.</p></li>
-<li><p>Optionally run visualisations (attention heatmaps, embeddings,
-loss landscapes) every <em>N</em> epochs or at the end of training.</p></li>
-</ul>
-<p>This callback is added automatically by :class:<code class="docutils literal notranslate"><span class="pre">WSTrainer</span></code> and requires
-no user configuration.</p>
+<p>Hooks into the Lightning trainer lifecycle to automate experiment
+management. It handles metrics, parameters, hardware monitoring, and
+visualization artifact generation.</p>
+<p>Attributes:
+_cfg: Internal reference to the tracking configuration.
+_hook_data: Mapping of active monitoring hooks.
+_throughput: Throttled throughput measurement instance.
+_memory_tracker: Periodic hardware memory monitor.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the tracking callback.</p>
+<p>Args:
+tracking_cfg: Configuration object for the tracker.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.integrations.lightning.TrackingCallback.on_fit_start">
 <span class="sig-name descname"><span class="pre">on_fit_start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.integrations.lightning.TrackingCallback.on_fit_start" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Called when fit begins. Logs parameters and initializes monitors.</p>
+<p>Args:
+trainer: Active Lightning trainer.
+pl_module: Active Lightning module.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.integrations.lightning.TrackingCallback.on_train_batch_end">
 <span class="sig-name descname"><span class="pre">on_train_batch_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.integrations.lightning.TrackingCallback.on_train_batch_end" title="Link to this definition">#</a></dt>
-<dd><p>Record throughput per batch.</p>
+<dd><p>Records throughput statistics at the end of each training batch.</p>
+<p>Args:
+trainer: Active Lightning trainer.
+pl_module: Active Lightning module.
+outputs: Batch outputs.
+batch: Data batch.
+batch_idx: Global batch index.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.integrations.lightning.TrackingCallback.on_train_epoch_end">
 <span class="sig-name descname"><span class="pre">on_train_epoch_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.integrations.lightning.TrackingCallback.on_train_epoch_end" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Logs training metrics and hardware stats at the end of every epoch.</p>
+<p>Args:
+trainer: Active Lightning trainer.
+pl_module: Active Lightning module.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.integrations.lightning.TrackingCallback.on_validation_epoch_end">
 <span class="sig-name descname"><span class="pre">on_validation_epoch_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.integrations.lightning.TrackingCallback.on_validation_epoch_end" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Logs validation metrics at the end of every validation epoch.</p>
+<p>Args:
+trainer: Active Lightning trainer.
+pl_module: Active Lightning module.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.integrations.lightning.TrackingCallback.on_train_end">
 <span class="sig-name descname"><span class="pre">on_train_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.integrations.lightning.TrackingCallback.on_train_end" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Finalizes the run, logs final artifacts, and detaches monitors.</p>
+<p>Args:
+trainer: Active Lightning trainer.
+pl_module: Active Lightning module.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.integrations.lightning.TrackingCallback.on_before_optimizer_step">
 <span class="sig-name descname"><span class="pre">on_before_optimizer_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.integrations.lightning.TrackingCallback.on_before_optimizer_step" title="Link to this definition">#</a></dt>
-<dd><p>Log gradient L2 norm and current learning rate.</p>
+<dd><p>Logs global gradient norm and learning rates before optimizer updates.</p>
+<p>Args:
+trainer: Active Lightning trainer.
+pl_module: Active Lightning module.
+optimizer: Active optimizer instance.
+args: Additional positional arguments from Lightning.
+kwargs: Additional keyword arguments from Lightning.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.integrations.lightning.TrackingCallback.on_save_checkpoint">
 <span class="sig-name descname"><span class="pre">on_save_checkpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpoint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.integrations.lightning.TrackingCallback.on_save_checkpoint" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Registers a checkpoint file as a run artifact when it is written.</p>
+<p>Args:
+trainer: Active Lightning trainer.
+pl_module: Active Lightning module.
+checkpoint: Checkpoint state dictionary.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.integrations.lightning.TrackingCallback.on_train_dataloader">
 <span class="sig-name descname"><span class="pre">on_train_dataloader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.integrations.lightning.TrackingCallback.on_train_dataloader" title="Link to this definition">#</a></dt>
-<dd><p>Record a dataset mutation event when the dataloader is (re)loaded.</p>
+<dd><p>Registers a data mutation event when dataloaders are re-initialized.</p>
+<p>Args:
+trainer: Active Lightning trainer.
+pl_module: Active Lightning module.</p>
 </dd></dl>
 
 </dd></dl>

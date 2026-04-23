@@ -491,6 +491,16 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.database.shared">
 <span id="src-tracking-database-shared"></span><h1><a class="reference internal" href="#module-src.tracking.database.shared" title="src.tracking.database.shared"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.database.shared</span></code></a><a class="headerlink" href="#module-src.tracking.database.shared" title="Link to this heading">#</a></h1>
 <p>Shared database connection utilities for tracking database commands.</p>
+<p>This module provides the common database connection factory and default
+storage path used by the tracking CLI utilities. It ensures consistent
+connection parameters (timeouts, row factories) across all management
+subcommands.</p>
+<p>Attributes:
+DB_PATH: Default relative path to the WSTracker SQLite database.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.tracking.database.shared import _conn
+&gt;&gt;&gt; conn = _conn()
+&gt;&gt;&gt; conn.execute(“SELECT COUNT(*) FROM runs”).fetchone()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -498,7 +508,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.database.shared._conn" title="src.tracking.database.shared._conn"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_conn</span></code></a></p></td>
-<td></td>
+<td><p>Creates a short-lived SQLite connection for CLI operations.</p></td>
 </tr>
 </tbody>
 </table>
@@ -519,14 +529,20 @@ document.write(`
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py data">
 <dt class="sig sig-object py" id="src.tracking.database.shared.DB_PATH">
-<span class="sig-prename descclassname"><span class="pre">src.tracking.database.shared.</span></span><span class="sig-name descname"><span class="pre">DB_PATH</span></span><a class="headerlink" href="#src.tracking.database.shared.DB_PATH" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.tracking.database.shared.</span></span><span class="sig-name descname"><span class="pre">DB_PATH</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.tracking.database.shared.DB_PATH" title="Link to this definition">#</a></dt>
 <dd><p>‘assets/tracking/tracking.db’</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.database.shared._conn">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.database.shared.</span></span><span class="sig-name descname"><span class="pre">_conn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">sqlite3.Connection</span></span></span><a class="headerlink" href="#src.tracking.database.shared._conn" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Creates a short-lived SQLite connection for CLI operations.</p>
+<p>Args:
+timeout: Maximum time in seconds to wait for a database lock.
+Defaults to 5.0.</p>
+<p>Returns:
+sqlite3.Connection: A configured connection with dictionary-like row access.</p>
+</dd></dl>
 
 </section>
 </section>

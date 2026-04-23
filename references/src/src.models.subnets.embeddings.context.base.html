@@ -495,6 +495,15 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.embeddings.context.base">
 <span id="src-models-subnets-embeddings-context-base"></span><h1><a class="reference internal" href="#module-src.models.subnets.embeddings.context.base" title="src.models.subnets.embeddings.context.base"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.embeddings.context.base</span></code></a><a class="headerlink" href="#module-src.models.subnets.embeddings.context.base" title="Link to this heading">#</a></h1>
 <p>Abstract base class for context embeddings.</p>
+<p>This module provides the ContextEmbedder abstract base class, which defines
+the interface for problem-specific step context extraction during decoding.</p>
+<p>Attributes:
+ContextEmbedder: Abstract base class for context embedding modules.</p>
+<p>Example:
+&gt;&gt;&gt; class MyContextEmbedder(ContextEmbedder):
+…     &#64;property
+…     def step_context_dim(self): return 128
+…     def init_node_embeddings(self, nodes): return …</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -502,8 +511,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.subnets.embeddings.context.base.ContextEmbedder" title="src.models.subnets.embeddings.context.base.ContextEmbedder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ContextEmbedder</span></code></a></p></td>
-<td><p>Abstract base class for problem-specific context embeddings.
-Responsible for initializing node embeddings and determining step context dimensions.</p></td>
+<td><p>Abstract base class for problem-specific context embeddings.</p></td>
 </tr>
 </tbody>
 </table>
@@ -515,38 +523,59 @@ Responsible for initializing node embeddings and determining step context dimens
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.context.base.ContextEmbedder">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.embeddings.context.base.</span></span><span class="sig-name descname"><span class="pre">ContextEmbedder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temporal_horizon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.embeddings.context.base.ContextEmbedder" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
-<p>Abstract base class for problem-specific context embeddings.
-Responsible for initializing node embeddings and determining step context dimensions.</p>
+<p>Abstract base class for problem-specific context embeddings.</p>
+<p>Responsible for initializing node embeddings from raw features and
+extracting dynamic step context during autoregressive decoding.</p>
+<p>Attributes:
+embed_dim (int): Dimensionality of node embeddings.
+node_dim (int): Dimensionality of raw input node features.
+temporal_horizon (int): Maximum sequence length or time horizon.
+init_embed (Optional[nn.Module]): Registered initial embedding module.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize the ContextEmbedder.</p>
+<p>Initializes the ContextEmbedder.</p>
+<p>Args:
+embed_dim: Internal embedding dimensionality.
+node_dim: Input feature dimensionality.
+temporal_horizon: Max steps or time limit.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.context.base.ContextEmbedder.init_node_embeddings">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">init_node_embeddings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.embeddings.context.base.ContextEmbedder.init_node_embeddings" title="Link to this definition">#</a></dt>
-<dd><p>Initialize node embeddings from input data.</p>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">init_node_embeddings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.embeddings.context.base.ContextEmbedder.init_node_embeddings" title="Link to this definition">#</a></dt>
+<dd><p>Initializes node embeddings from raw input features.</p>
+<p>Args:
+nodes: Dictionary containing raw problem instance features.</p>
+<p>Returns:
+torch.Tensor: Initial node embeddings.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.context.base.ContextEmbedder.step_context_dim">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">step_context_dim</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.models.subnets.embeddings.context.base.ContextEmbedder.step_context_dim" title="Link to this definition">#</a></dt>
-<dd><p>Get the dimension of the step context.</p>
+<dd><p>Gets the dimensionality of the step context embedding.</p>
+<p>Returns:
+int: Feature dimension size.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.context.base.ContextEmbedder.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes_or_embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.embeddings.context.base.ContextEmbedder.forward" title="Link to this definition">#</a></dt>
-<dd><p>Forward pass handling both initialization and step context.</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes_or_embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.embeddings.context.base.ContextEmbedder.forward" title="Link to this definition">#</a></dt>
+<dd><p>Forward pass handling both initialization and step context extraction.</p>
 <p>Args:
-nodes_or_embeddings: Raw node features (init) or node embeddings (step).
-state: Optional state object for step context.</p>
+nodes_or_embeddings: Raw node features (if state is None) or existing
+node embeddings (during decoding steps).
+state: Optional state object for dynamic context derivation.</p>
 <p>Returns:
-torch.Tensor: Initial node embeddings or step context embedding.</p>
+torch.Tensor: Initial node embeddings or current step context.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.context.base.ContextEmbedder._step_context">
 <span class="sig-name descname"><span class="pre">_step_context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.embeddings.context.base.ContextEmbedder._step_context" title="Link to this definition">#</a></dt>
-<dd><p>Default step context: project current node embedding.
-Can be overridden by subclasses for problem-specific features.</p>
+<dd><p>Extracts the default step context based on current node position.</p>
+<p>Args:
+embeddings: Current node embeddings.
+state: Current environment state object.</p>
+<p>Returns:
+torch.Tensor: Current node embedding of shape (batch, 1, dim).</p>
 </dd></dl>
 
 </dd></dl>

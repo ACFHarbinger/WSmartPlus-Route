@@ -494,6 +494,19 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.modules.moe_dispatcher">
 <span id="src-models-subnets-modules-moe-dispatcher"></span><h1><a class="reference internal" href="#module-src.models.subnets.modules.moe_dispatcher" title="src.models.subnets.modules.moe_dispatcher"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.modules.moe_dispatcher</span></code></a><a class="headerlink" href="#module-src.models.subnets.modules.moe_dispatcher" title="Link to this heading">#</a></h1>
 <p>Sparse Dispatcher for Mixture of Experts.</p>
+<p>This module provides the SparseDispatcher, a utility for efficient routing of
+batch elements to different experts in a Mixture-of-Experts (MoE) layer and
+the subsequent combination of their results.</p>
+<p>Attributes:
+SparseDispatcher: Helper for routing inputs to experts and combining outputs.</p>
+<p>Example:
+&gt;&gt;&gt; import torch
+&gt;&gt;&gt; from logic.src.models.subnets.modules.moe_dispatcher import SparseDispatcher
+&gt;&gt;&gt; gates = torch.tensor([[0.8, 0.2, 0.0], [0.0, 0.5, 0.5]])
+&gt;&gt;&gt; dispatcher = SparseDispatcher(num_experts=3, gates=gates)
+&gt;&gt;&gt; x = torch.randn(2, 128)
+&gt;&gt;&gt; expert_inputs = dispatcher.dispatch(x)
+&gt;&gt;&gt; # Processes expert_inputs…</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -501,7 +514,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.subnets.modules.moe_dispatcher.SparseDispatcher" title="src.models.subnets.modules.moe_dispatcher.SparseDispatcher"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SparseDispatcher</span></code></a></p></td>
-<td><p>Helper for implementing a mixture of experts.</p></td>
+<td><p>Efficient batch routing and combining for Mixture-of-Experts.</p></td>
 </tr>
 </tbody>
 </table>
@@ -511,70 +524,55 @@ document.write(`
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.subnets.modules.moe_dispatcher.SparseDispatcher">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.modules.moe_dispatcher.</span></span><span class="sig-name descname"><span class="pre">SparseDispatcher</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_experts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gates</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.moe_dispatcher.SparseDispatcher" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Helper for implementing a mixture of experts.</p>
-<p>The purpose of this class is to create input minibatches for the experts
-and to combine the results of the experts to form a unified output tensor.</p>
-<p>There are two functions:
-* <strong>dispatch</strong>: take an input Tensor and create input Tensors for each expert.
-* <strong>combine</strong>: take output Tensors from each expert and form a combined output
-Tensor. Outputs from different experts for the same batch element are
-summed together, weighted by the provided “gates”.</p>
-<p>The class is initialized with a “gates” Tensor, which specifies which
-batch elements go to which experts, and the weights to use when combining
-the outputs. Batch element b is sent to expert e iff <code class="docutils literal notranslate"><span class="pre">gates[b,</span> <span class="pre">e]</span> <span class="pre">!=</span> <span class="pre">0</span></code>.
-The inputs and outputs are all two-dimensional [batch, depth].
-Caller is responsible for collapsing additional dimensions prior to
-calling this class and reshaping the output to the original shape.
-See <code class="docutils literal notranslate"><span class="pre">common_layers.reshape_like()</span></code>.</p>
-<p>Example use:</p>
-<p>.. code-block:: python</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># gates: a float32 Tensor with shape [batch_size, num_experts]
-# inputs: a float32 Tensor with shape [batch_size, input_size]
-# experts: a list of length num_experts containing sub-networks.
-dispatcher = SparseDispatcher(num_experts, gates)
-expert_inputs = dispatcher.dispatch(inputs)
-expert_outputs = [experts[i](expert_inputs[i]) for i in range(num_experts)]
-outputs = dispatcher.combine(expert_outputs)
-</pre></div>
-</div>
-<p>The preceding code sets the output for a particular example b to:
-<code class="docutils literal notranslate"><span class="pre">output[b]</span> <span class="pre">=</span> <span class="pre">Sum_i(gates[b,</span> <span class="pre">i]</span> <span class="pre">*</span> <span class="pre">experts[i](inputs[b]))</span></code></p>
-<p>This class takes advantage of sparsity in the gate matrix by including in the
-Tensors for expert i only the batch elements for which <code class="docutils literal notranslate"><span class="pre">gates[b,</span> <span class="pre">i]</span> <span class="pre">&gt;</span> <span class="pre">0</span></code>.</p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.modules.moe_dispatcher.</span></span><span class="sig-name descname"><span class="pre">SparseDispatcher</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_experts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.moe_dispatcher.SparseDispatcher" title="Link to this definition">#</a></dt>
+<dd><p>Efficient batch routing and combining for Mixture-of-Experts.</p>
+<p>Creates specialized micro-batches for each expert by filtering the master batch
+based on gating decisions. It handles the mapping of samples to active experts
+and provides a mechanism to aggregate the weighted outputs.</p>
+<p>Attributes:
+_gates (torch.Tensor): Raw gating weights for the entire batch.
+_num_experts (int): Total number of parallel expert networks.
+_expert_index (torch.Tensor): Sorted indices of experts selected for each sample.
+_batch_index (torch.Tensor): Mapping from expert-local indices back to global.
+_part_sizes (List[int]): Number of samples assigned to each expert.
+_nonzero_gates (torch.Tensor): Gating weights for exactly the active selections.</p>
 <p class="rubric">Initialization</p>
-<p>Create a SparseDispatcher.</p>
+<p>Initializes SparseDispatcher.</p>
+<p>Args:
+num_experts: Number of экспертов in the MoE layer.
+gates: Sparse gating weights of shape (batch, num_experts).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.moe_dispatcher.SparseDispatcher.dispatch">
-<span class="sig-name descname"><span class="pre">dispatch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inp</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.moe_dispatcher.SparseDispatcher.dispatch" title="Link to this definition">#</a></dt>
-<dd><p>Create one input Tensor for each expert.
-The <code class="docutils literal notranslate"><span class="pre">Tensor</span></code> for a expert <code class="docutils literal notranslate"><span class="pre">i</span></code> contains the slices of <code class="docutils literal notranslate"><span class="pre">inp</span></code> corresponding
-to the batch elements <code class="docutils literal notranslate"><span class="pre">b</span></code> where <code class="docutils literal notranslate"><span class="pre">gates[b,</span> <span class="pre">i]</span> <span class="pre">&gt;</span> <span class="pre">0</span></code>.
-Args:
-inp: a <code class="docutils literal notranslate"><span class="pre">Tensor</span></code> of shape “[batch_size, &lt;extra_input_dims&gt;]<code class="docutils literal notranslate"><span class="pre">Returns:</span>&#160;&#160;&#160;&#160; <span class="pre">a</span> <span class="pre">list</span> <span class="pre">of</span></code>num_experts<code class="docutils literal notranslate"> </code>Tensor<code class="docutils literal notranslate"><span class="pre">s</span> <span class="pre">with</span> <span class="pre">shapes</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">[expert_batch_size_i,</span> <span class="pre">&lt;extra_input_dims&gt;]</span></code>.</p>
+<span class="sig-name descname"><span class="pre">dispatch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.subnets.modules.moe_dispatcher.SparseDispatcher.dispatch" title="Link to this definition">#</a></dt>
+<dd><p>Creates specialized input tensors for each expert.</p>
+<p>Expert <code class="docutils literal notranslate"><span class="pre">i</span></code> receives a tensor containing only the slices of <code class="docutils literal notranslate"><span class="pre">inp</span></code> where
+<code class="docutils literal notranslate"><span class="pre">gates[b,</span> <span class="pre">i]</span> <span class="pre">&gt;</span> <span class="pre">0</span></code>.</p>
+<p>Args:
+inp: Global input tensor of shape (batch_size, feature_dim).</p>
+<p>Returns:
+List[torch.Tensor]: A list of length <code class="docutils literal notranslate"><span class="pre">num_experts</span></code> containing tensors of
+expert-dependent batch sizes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.moe_dispatcher.SparseDispatcher.combine">
-<span class="sig-name descname"><span class="pre">combine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expert_out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiply_by_gates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.moe_dispatcher.SparseDispatcher.combine" title="Link to this definition">#</a></dt>
-<dd><p>Sum together the expert output, weighted by the gates.
-The slice corresponding to a particular batch element <code class="docutils literal notranslate"><span class="pre">b</span></code> is computed
-as the sum over all experts <code class="docutils literal notranslate"><span class="pre">i</span></code> of the expert output, weighted by the
-corresponding gate values.  If <code class="docutils literal notranslate"><span class="pre">multiply_by_gates</span></code> is set to False, the
-call values are ignored.
-Args:
-expert_out: a list of <code class="docutils literal notranslate"><span class="pre">num_experts</span></code> <code class="docutils literal notranslate"><span class="pre">Tensor</span></code>s, each with shape
-[expert_batch_size_i, &lt;extra_output_dims&gt;]<code class="docutils literal notranslate"><span class="pre">.</span>&#160;&#160;&#160;&#160; <span class="pre">multiply_by_gates:</span> <span class="pre">a</span> <span class="pre">boolean</span> <span class="pre">Returns:</span>&#160;&#160;&#160;&#160; <span class="pre">a</span> </code>Tensor<code class="docutils literal notranslate"><span class="pre">with</span> <span class="pre">shape</span></code>[batch_size, &lt;extra_output_dims&gt;]`.</p>
+<span class="sig-name descname"><span class="pre">combine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expert_out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiply_by_gates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.modules.moe_dispatcher.SparseDispatcher.combine" title="Link to this definition">#</a></dt>
+<dd><p>Aggregates expert outputs into a single batch tensor.</p>
+<p>Results are weighted by their corresponding gate values before summation
+at overlap positions.</p>
+<p>Args:
+expert_out: List of output tensors from each expert.
+multiply_by_gates: If True, scales outputs by gating intensity.</p>
+<p>Returns:
+torch.Tensor: Combined output tensor of shape (batch_size, feature_dim).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.moe_dispatcher.SparseDispatcher.expert_to_gates">
-<span class="sig-name descname"><span class="pre">expert_to_gates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.moe_dispatcher.SparseDispatcher.expert_to_gates" title="Link to this definition">#</a></dt>
-<dd><p>Gate values corresponding to the examples in the per-expert <code class="docutils literal notranslate"><span class="pre">Tensor</span></code>s.
-Returns:
-a list of <code class="docutils literal notranslate"><span class="pre">num_experts</span></code> one-dimensional <code class="docutils literal notranslate"><span class="pre">Tensor</span></code>s with type <code class="docutils literal notranslate"><span class="pre">tf.float32</span></code>
-and shapes <code class="docutils literal notranslate"><span class="pre">[expert_batch_size_i]</span></code></p>
+<span class="sig-name descname"><span class="pre">expert_to_gates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.subnets.modules.moe_dispatcher.SparseDispatcher.expert_to_gates" title="Link to this definition">#</a></dt>
+<dd><p>Retrieves gating values mapped to the specific expert input tensors.</p>
+<p>Returns:
+List[torch.Tensor]: A list of gating scalars for each expert’s block.</p>
 </dd></dl>
 
 </dd></dl>

@@ -489,11 +489,16 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.core.attention_model">
 <span id="src-models-core-attention-model"></span><h1><a class="reference internal" href="#module-src.models.core.attention_model" title="src.models.core.attention_model"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.core.attention_model</span></code></a><a class="headerlink" href="#module-src.models.core.attention_model" title="Link to this heading">#</a></h1>
-<p><strong>init</strong>.py module.</p>
+<p>Attention Model-based routing components.</p>
+<p>This package implements the Attention Model (AM) and its variants for
+solving combinatorial optimization problems through constructive search.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+AttentionModel: The base encoder-decoder implementation.
+AttentionModelPolicy: RL4CO-compatible wrapper for training.
+DeepDecoderPolicy: Version with a multi-layer attention decoder.
+SymNCOPolicy: Invariant policy with a projection head.</p>
 <p>Example:
-&gt;&gt;&gt; import <strong>init</strong></p>
+&gt;&gt;&gt; from logic.src.models.core.attention_model import AttentionModel</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

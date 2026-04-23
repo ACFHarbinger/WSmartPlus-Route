@@ -491,7 +491,12 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.core.pointer_network.policy">
 <span id="src-models-core-pointer-network-policy"></span><h1><a class="reference internal" href="#module-src.models.core.pointer_network.policy" title="src.models.core.pointer_network.policy"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.core.pointer_network.policy</span></code></a><a class="headerlink" href="#module-src.models.core.pointer_network.policy" title="Link to this heading">#</a></h1>
-<p>Pointer Network Policy Adapter.</p>
+<p>Pointer Network Policy: RNN-based Construction Policy.</p>
+<p>This module provides <code class="docutils literal notranslate"><span class="pre">PointerNetworkPolicy</span></code>, an adapter that wraps the classic
+LSTM encoder-decoder architecture of <code class="docutils literal notranslate"><span class="pre">PointerNetwork</span></code> into the standard
+<code class="docutils literal notranslate"><span class="pre">AutoregressivePolicy</span></code> interface used by the RL4CO pipeline.</p>
+<p>Attributes:
+PointerNetworkPolicy: Adapter for LSTM-based constructive search.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -499,7 +504,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.core.pointer_network.policy.PointerNetworkPolicy" title="src.models.core.pointer_network.policy.PointerNetworkPolicy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PointerNetworkPolicy</span></code></a></p></td>
-<td><p>Pointer Network Policy Adapter.</p></td>
+<td><p>RNN-based Autoregressive Policy.</p></td>
 </tr>
 </tbody>
 </table>
@@ -509,16 +514,37 @@ document.write(`
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.core.pointer_network.policy.PointerNetworkPolicy">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.pointer_network.policy.</span></span><span class="sig-name descname"><span class="pre">PointerNetworkPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">512</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.pointer_network.policy.PointerNetworkPolicy" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.pointer_network.policy.</span></span><span class="sig-name descname"><span class="pre">PointerNetworkPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">512</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.pointer_network.policy.PointerNetworkPolicy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.models.common.autoregressive.policy.AutoregressivePolicy</span></code></p>
-<p>Pointer Network Policy Adapter.</p>
-<p>Adapts the classic RNN-based Pointer Network to the new architecture.</p>
+<p>RNN-based Autoregressive Policy.</p>
+<p>Legacy-style policy that maintains internal recurrent states (LSTM) to
+sequentially select nodes. Used primarily as a baseline or for sequential
+graph processing without multi-head attention.</p>
+<p>Attributes:
+model (PointerNetwork): Standalone LSTM pointer architecture.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize PointerNetworkPolicy.</p>
+<p>Initializes the Pointer Network Policy adapter.</p>
+<p>Args:
+env_name: Target optimization environment name.
+embed_dim: Dimensionality of node embeddings.
+hidden_dim: Width of recurrent hidden states.
+**kwargs: Extra parameters passed to the inner model.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.pointer_network.policy.PointerNetworkPolicy.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sampling'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.pointer_network.policy.PointerNetworkPolicy.forward" title="Link to this definition">#</a></dt>
-<dd><p>Forward pass using Pointer Network subnets.</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sampling'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.pointer_network.policy.PointerNetworkPolicy.forward" title="Link to this definition">#</a></dt>
+<dd><p>Calculates construction solution using the recurrent pointer loop.</p>
+<p>Args:
+td: problem state container (requires ‘locs’).
+env: problem dynamics for reward calculation.
+strategy: constructive decoding mode.
+num_starts: parallel starts (NOTE: mostly ignored by legacy RNN code).
+actions: Pre-selected actions for teacher forcing evaluation.
+**kwargs: extra params.</p>
+<p>Returns:
+Dict[str, Any]: Result mapping containing:
+- reward: calculated scores [B].
+- log_likelihood: cumulative path log probabilities [B].
+- actions: selected node indices [B, SeqLen].</p>
 </dd></dl>
 
 </dd></dl>

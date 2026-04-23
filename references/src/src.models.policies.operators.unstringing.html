@@ -489,18 +489,19 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.policies.operators.unstringing">
 <span id="src-models-policies-operators-unstringing"></span><h1><a class="reference internal" href="#module-src.models.policies.operators.unstringing" title="src.models.policies.operators.unstringing"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies.operators.unstringing</span></code></a><a class="headerlink" href="#module-src.models.policies.operators.unstringing" title="Link to this heading">#</a></h1>
-<p>Vectorized Unstringing and Stringing (US) operators for WSmart-Route.</p>
-<p>This module provides GPU-accelerated implementations of the sophisticated unstringing
-operators family. Unstringing operators remove a node and reconnect the route with
-multiple segment reversals, creating powerful k-opt moves that can escape deep local optima.</p>
-<p>Operator Hierarchy (by complexity):</p>
-<ul class="simple">
-<li><p>Type I:   2 segment reversals, 4 arc deletions, 3 arc insertions</p></li>
-<li><p>Type II:  2 segment reversals (alternative ordering)</p></li>
-<li><p>Type III: 3 segment reversals, 5 arc deletions, 4 arc insertions</p></li>
-<li><p>Type IV:  Complex rearrangement with selective reversals (most powerful)</p></li>
-</ul>
-<p>All operators support batch processing for parallel evaluation across multiple instances.</p>
+<p>Unstringing operators package.</p>
+<p>This package provides GPU-accelerated implementations of the sophisticated
+unstringing operators family (Types I-IV). Unstringing operators improve
+tour quality by removing a node and reconnecting the route with multiple
+segment reversals, creating powerful moves that can escape deep local optima.</p>
+<p>Attributes:
+vectorized_type_i_unstringing: Type I operator (2 segment reversals).
+vectorized_type_ii_unstringing: Type II operator (alternative reversal ordering).
+vectorized_type_iii_unstringing: Type III operator (3 segment reversals).
+vectorized_type_iv_unstringing: Type IV operator (selective reversals).</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.policies.operators import unstringing
+&gt;&gt;&gt; opt_tours = unstringing.vectorized_type_i_unstringing(tours, dist)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

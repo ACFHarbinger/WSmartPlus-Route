@@ -492,11 +492,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.embeddings.positional">
 <span id="src-models-subnets-embeddings-positional"></span><h1><a class="reference internal" href="#module-src.models.subnets.embeddings.positional" title="src.models.subnets.embeddings.positional"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.embeddings.positional</span></code></a><a class="headerlink" href="#module-src.models.subnets.embeddings.positional" title="Link to this heading">#</a></h1>
-<p><strong>init</strong>.py module.</p>
+<p>Positional embedding modules for sequence-aware routing.</p>
+<p>This package provides positional embedding layers that encode the relative
+or absolute order of items, useful for sequence-based models like APE/CPE.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+POSITIONAL_EMBEDDING_REGISTRY (Dict[str, Any]): Mapping of positional
+embedding names to their respective classes.</p>
 <p>Example:
-&gt;&gt;&gt; import <strong>init</strong></p>
+&gt;&gt;&gt; from logic.src.models.subnets.embeddings.positional import pos_init_embedding
+&gt;&gt;&gt; embedder = pos_init_embedding(“APE”, embed_dim=128)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
@@ -513,7 +517,7 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.subnets.embeddings.positional.pos_init_embedding" title="src.models.subnets.embeddings.positional.pos_init_embedding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pos_init_embedding</span></code></a></p></td>
-<td><p>Factory for positional embeddings.</p></td>
+<td><p>Factory function for positional embedding modules.</p></td>
 </tr>
 </tbody>
 </table>
@@ -537,26 +541,28 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.positional.pos_init_embedding">
-<span class="sig-prename descclassname"><span class="pre">src.models.subnets.embeddings.positional.</span></span><span class="sig-name descname"><span class="pre">pos_init_embedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.nn.Module</span></span></span><a class="headerlink" href="#src.models.subnets.embeddings.positional.pos_init_embedding" title="Link to this definition">#</a></dt>
-<dd><p>Factory for positional embeddings.</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.subnets.embeddings.positional.</span></span><span class="sig-name descname"><span class="pre">pos_init_embedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.nn.Module</span></span></span><a class="headerlink" href="#src.models.subnets.embeddings.positional.pos_init_embedding" title="Link to this definition">#</a></dt>
+<dd><p>Factory function for positional embedding modules.</p>
 <p>Args:
-pos_name: “APE” for absolute, “CPE” for cyclic
-embed_dim: Embedding dimension
-**kwargs: Additional arguments</p>
+pos_name: Embedding type (“APE” for absolute, “CPE” for cyclic).
+embed_dim: Resulting embedding dimensionality.
+kwargs: Additional arguments passed to the specific constructor.</p>
 <p>Returns:
-Positional embedding module</p>
+nn.Module: Initialized positional embedding module.</p>
+<p>Raises:
+ValueError: If the positional embedding name is not recognized.</p>
 </dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.positional.POSITIONAL_EMBEDDING_REGISTRY">
-<span class="sig-prename descclassname"><span class="pre">src.models.subnets.embeddings.positional.</span></span><span class="sig-name descname"><span class="pre">POSITIONAL_EMBEDDING_REGISTRY</span></span><a class="headerlink" href="#src.models.subnets.embeddings.positional.POSITIONAL_EMBEDDING_REGISTRY" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.models.subnets.embeddings.positional.</span></span><span class="sig-name descname"><span class="pre">POSITIONAL_EMBEDDING_REGISTRY</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.models.subnets.embeddings.positional.POSITIONAL_EMBEDDING_REGISTRY" title="Link to this definition">#</a></dt>
 <dd><p>None</p>
 </dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.positional.__all__">
-<span class="sig-prename descclassname"><span class="pre">src.models.subnets.embeddings.positional.</span></span><span class="sig-name descname"><span class="pre">__all__</span></span><a class="headerlink" href="#src.models.subnets.embeddings.positional.__all__" title="Link to this definition">#</a></dt>
-<dd><p>[‘AbsolutePositionalEmbedding’, ‘CyclicPositionalEmbedding’, ‘pos_init_embedding’]</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.subnets.embeddings.positional.</span></span><span class="sig-name descname"><span class="pre">__all__</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.models.subnets.embeddings.positional.__all__" title="Link to this definition">#</a></dt>
+<dd><p>[‘AbsolutePositionalEmbedding’, ‘CyclicPositionalEmbedding’, ‘pos_init_embedding’, ‘POSITIONAL_EMBED…</p>
 </dd></dl>
 
 </section>

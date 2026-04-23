@@ -495,8 +495,17 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.core.gfacs.model">
 <span id="src-models-core-gfacs-model"></span><h1><a class="reference internal" href="#module-src.models.core.gfacs.model" title="src.models.core.gfacs.model"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.core.gfacs.model</span></code></a><a class="headerlink" href="#module-src.models.core.gfacs.model" title="Link to this heading">#</a></h1>
-<p>GFACS Model.</p>
-<p>GFlowNet Ant Colony System with Trajectory Balance loss.</p>
+<p>GFACS Model for probabilistic routing.</p>
+<p>This module implements <code class="docutils literal notranslate"><span class="pre">GFACS</span></code> (GFlowNet Ant Colony System), which treats tour
+construction as a flow network (Ye et al. 2024). It optimizes using Trajectory
+Balance (TB) loss by matching forward flows with backward flows under uniform
+action priors.</p>
+<p>Attributes:
+GFACS: Primary training wrapper for GFlowNet-based Ant Colony System.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.core.gfacs.model import GFACS
+&gt;&gt;&gt; model = GFACS(env=my_env)
+&gt;&gt;&gt; out = model(td, phase=”train”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -504,7 +513,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.core.gfacs.model.GFACS" title="src.models.core.gfacs.model.GFACS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GFACS</span></code></a></p></td>
-<td><p>Implements GFACS (GFlowNet Ant Colony System).</p></td>
+<td><p>GFlowNet Ant Colony System (GFACS).</p></td>
 </tr>
 </tbody>
 </table>
@@ -514,83 +523,87 @@ document.write(`
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.core.gfacs.model.GFACS">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.gfacs.model.</span></span><span class="sig-name descname"><span class="pre">GFACS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.models.core.gfacs.policy.html#src.models.core.gfacs.policy.GFACSPolicy" title="src.models.core.gfacs.policy.GFACSPolicy"><span class="pre">src.models.core.gfacs.policy.GFACSPolicy</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">baseline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'no'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_with_local_search</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">baseline_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_flat_epochs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_flat_epochs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.gfacs.model.GFACS" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.gfacs.model.</span></span><span class="sig-name descname"><span class="pre">GFACS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.models.core.gfacs.policy.html#src.models.core.gfacs.policy.GFACSPolicy" title="src.models.core.gfacs.policy.GFACSPolicy"><span class="pre">src.models.core.gfacs.policy.GFACSPolicy</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">baseline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'no'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_with_local_search</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">baseline_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_flat_epochs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_flat_epochs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.gfacs.model.GFACS" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
-<p>Implements GFACS (GFlowNet Ant Colony System).</p>
-<p>Reference: https://arxiv.org/abs/2403.07041</p>
-<p>GFACS uses Trajectory Balance (TB) loss for training, which requires
-computing forward and backward probabilities for each trajectory.</p>
-<p>Args:
-env: Environment to use for the algorithm.
-policy: Policy to use for the algorithm. If None, creates default GFACSPolicy.
-baseline: Baseline type (currently unused, kept for compatibility).
-train_with_local_search: Whether to train with local search.
-policy_kwargs: Keyword arguments for policy.
-baseline_kwargs: Keyword arguments for baseline (currently unused).
-alpha_min: Minimum value for alpha coefficient.
-alpha_max: Maximum value for alpha coefficient.
-alpha_flat_epochs: Number of epochs to keep alpha constant.
-beta_min: Minimum value for beta coefficient.
-beta_max: Maximum value for beta coefficient.
-beta_flat_epochs: Number of epochs to keep beta constant.
-**kwargs: Additional keyword arguments.</p>
+<p>GFlowNet Ant Colony System (GFACS).</p>
+<p>Learns a generative policy for routing problems using Trajectory Balance.
+The model integrates ant-based exploration with GFlowNet’s ability
+to sample solutions proportional to their rewards.</p>
+<p>Attributes:
+env (RL4COEnvBase): Targeted optimization environment.
+policy (GFACSPolicy): Neural flow model.
+train_with_local_search (bool): If True, incorporates LS-refined rewards.
+alpha_min (float): Initial weight for local search in loss.
+alpha_max (float): maximum weight for local search in loss.
+alpha_flat_epochs (int): Epochs before alpha scheduling begins.
+beta_min (float): Initial reward-to-likelihood scaling.
+beta_max (float): Maximum reward-to-likelihood scaling.
+beta_flat_epochs (int): Epochs before beta scheduling begins.
+current_epoch (int): Counter for hyperparameter scheduling.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize Class.</p>
+<p>Initializes the GFACS model.</p>
 <p>Args:
-env (RL4COEnvBase): Description of env.
-policy (Optional[GFACSPolicy]): Description of policy.
-baseline (str): Description of baseline.
-train_with_local_search (bool): Description of train_with_local_search.
-policy_kwargs (Optional[Dict[str, Any]]): Description of policy_kwargs.
-baseline_kwargs (Optional[Dict[str, Any]]): Description of baseline_kwargs.
-alpha_min (float): Description of alpha_min.
-alpha_max (float): Description of alpha_max.
-alpha_flat_epochs (int): Description of alpha_flat_epochs.
-beta_min (float): Description of beta_min.
-beta_max (float): Description of beta_max.
-beta_flat_epochs (int): Description of beta_flat_epochs.
-kwargs (Any): Description of kwargs.</p>
+env: target RL4CO environment.
+policy: Optional pre-defined policy instance.
+baseline: baseline strategy (unused).
+train_with_local_search: Whether to use LS rewards for training.
+policy_kwargs: params for automated policy creation.
+baseline_kwargs: params for baseline setup.
+alpha_min: starting alpha schedule.
+alpha_max: ending alpha schedule.
+alpha_flat_epochs: initial plateau for alpha.
+beta_min: starting beta schedule.
+beta_max: ending beta schedule.
+beta_flat_epochs: initial plateau for beta.
+**kwargs: Unused extra parameters.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.gfacs.model.GFACS.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'train'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.gfacs.model.GFACS.forward" title="Link to this definition">#</a></dt>
-<dd><p>Forward pass during training/evaluation.</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'train'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.gfacs.model.GFACS.forward" title="Link to this definition">#</a></dt>
+<dd><p>Samples trajectories using the GFlowNet policy.</p>
+<p>Args:
+td: Environment state.
+env: Optional env override.
+phase: Current execution phase.
+**kwargs: Extra parameters for the policy.</p>
+<p>Returns:
+Dict[str, Any]: Policy results including actions and rewards.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.models.core.gfacs.model.GFACS.alpha">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">alpha</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.models.core.gfacs.model.GFACS.alpha" title="Link to this definition">#</a></dt>
-<dd><p>Linearly increasing alpha from alpha_min to alpha_max.</p>
+<dd><p>Scheduled weight for local-search reward inclusion.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="src.models.core.gfacs.model.GFACS.beta">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">beta</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.models.core.gfacs.model.GFACS.beta" title="Link to this definition">#</a></dt>
-<dd><p>Logarithmically increasing beta from beta_min to beta_max.</p>
+<dd><p>Scheduled exponent for reward-to-flow mapping.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.gfacs.model.GFACS.calculate_loss">
 <span class="sig-name descname"><span class="pre">calculate_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy_out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_likelihood</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.core.gfacs.model.GFACS.calculate_loss" title="Link to this definition">#</a></dt>
-<dd><p>Calculate loss for GFACS algorithm using Trajectory Balance.</p>
+<dd><p>Computes Trajectory Balance loss (TB).</p>
 <p>Args:
-td: TensorDict containing the current state of the environment.
-batch: Batch of data. This is used to get the extra loss terms.
-policy_out: Output of the policy network.
-reward: Reward tensor. If None, it is taken from <code class="docutils literal notranslate"><span class="pre">policy_out</span></code>.
-log_likelihood: Log-likelihood tensor. If None, it is taken from <code class="docutils literal notranslate"><span class="pre">policy_out</span></code>.</p>
+td: Problem state.
+batch: Data batch.
+policy_out: Results from dynamic rollout.
+reward: Optional reward override.
+log_likelihood: Optional likelihood override.</p>
 <p>Returns:
-Trajectory balance loss.</p>
+torch.Tensor: mean squared TB error.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.gfacs.model.GFACS.calculate_log_pb_uniform">
 <span class="sig-name descname"><span class="pre">calculate_log_pb_uniform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_ants</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.core.gfacs.model.GFACS.calculate_log_pb_uniform" title="Link to this definition">#</a></dt>
-<dd><p>Calculate log probability of actions under uniform backward policy.</p>
+<dd><p>Calculates uniform backward probability for the trajectory.</p>
 <p>Args:
-actions: Action tensor.
-n_ants: Number of ants.</p>
+actions: sampled node indices [B*Ants, N].
+n_ants: population size.</p>
 <p>Returns:
-Log probability tensor.</p>
+torch.Tensor: Log prior of generating the path in reverse.</p>
 </dd></dl>
 
 </dd></dl>

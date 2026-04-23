@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.subnets.modules.matnet_attention.MixedScoreMHA.__init__
 ```
 
-````{py:method} init_parameters()
+````{py:method} init_parameters() -> None
 :canonical: src.models.subnets.modules.matnet_attention.MixedScoreMHA.init_parameters
 
 ```{autodoc2-docstring} src.models.subnets.modules.matnet_attention.MixedScoreMHA.init_parameters
@@ -45,7 +45,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} forward(row_emb: torch.Tensor, col_emb: torch.Tensor, matrix: torch.Tensor, mask: typing.Optional[torch.Tensor] = None) -> tuple[torch.Tensor, torch.Tensor]
+````{py:method} forward(row_emb: torch.Tensor, col_emb: torch.Tensor, matrix: torch.Tensor, mask: typing.Optional[torch.Tensor] = None) -> typing.Tuple[torch.Tensor, torch.Tensor]
 :canonical: src.models.subnets.modules.matnet_attention.MixedScoreMHA.forward
 
 ```{autodoc2-docstring} src.models.subnets.modules.matnet_attention.MixedScoreMHA.forward

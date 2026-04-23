@@ -34,3 +34,29 @@ src.tracking.logging.pylogger
 src.tracking.logging.logstash_handler
 src.tracking.logging.visualize_utils
 ```
+
+## Package Contents
+
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`__all__ <src.tracking.logging.__all__>`
+  - ```{autodoc2-docstring} src.tracking.logging.__all__
+    :summary:
+    ```
+````
+
+### API
+
+````{py:data} __all__
+:canonical: src.tracking.logging.__all__
+:value: >
+   ['get_pylogger']
+
+```{autodoc2-docstring} src.tracking.logging.__all__
+```
+
+````

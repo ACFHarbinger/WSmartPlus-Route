@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} PointerAttention(dim, use_tanh=False, C=10)
+`````{py:class} PointerAttention(dim: int, use_tanh: bool = False, C: float = 10.0)
 :canonical: src.models.subnets.decoders.ptr.pointer_attention.PointerAttention
 
 Bases: {py:obj}`torch.nn.Module`
@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.subnets.decoders.ptr.pointer_attention.PointerAttention.__init__
 ```
 
-````{py:method} forward(query, ref)
+````{py:method} forward(query: torch.Tensor, ref: torch.Tensor) -> typing.Tuple[torch.Tensor, torch.Tensor]
 :canonical: src.models.subnets.decoders.ptr.pointer_attention.PointerAttention.forward
 
 ```{autodoc2-docstring} src.models.subnets.decoders.ptr.pointer_attention.PointerAttention.forward

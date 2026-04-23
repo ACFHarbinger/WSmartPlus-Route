@@ -42,21 +42,21 @@
 ```
 ````
 
-````{py:function} _compute_insertion_costs(tours, removed_nodes, dist)
+````{py:function} _compute_insertion_costs(tours: torch.Tensor, removed_nodes: torch.Tensor, dist: torch.Tensor) -> torch.Tensor
 :canonical: src.models.policies.operators.repair.regret_k_insertion._compute_insertion_costs
 
 ```{autodoc2-docstring} src.models.policies.operators.repair.regret_k_insertion._compute_insertion_costs
 ```
 ````
 
-````{py:function} _compute_regrets(costs, k, pending_mask)
+````{py:function} _compute_regrets(costs: torch.Tensor, k: int, pending_mask: torch.Tensor) -> typing.Tuple[torch.Tensor, torch.Tensor]
 :canonical: src.models.policies.operators.repair.regret_k_insertion._compute_regrets
 
 ```{autodoc2-docstring} src.models.policies.operators.repair.regret_k_insertion._compute_regrets
 ```
 ````
 
-````{py:function} _apply_insertion(tours, node, pos)
+````{py:function} _apply_insertion(tours: torch.Tensor, node: torch.Tensor, pos: torch.Tensor) -> torch.Tensor
 :canonical: src.models.policies.operators.repair.regret_k_insertion._apply_insertion
 
 ```{autodoc2-docstring} src.models.policies.operators.repair.regret_k_insertion._apply_insertion

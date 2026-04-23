@@ -491,11 +491,11 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.meta.hrl_manager.temporal_encoder">
 <span id="src-models-meta-hrl-manager-temporal-encoder"></span><h1><a class="reference internal" href="#module-src.models.meta.hrl_manager.temporal_encoder" title="src.models.meta.hrl_manager.temporal_encoder"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.meta.hrl_manager.temporal_encoder</span></code></a><a class="headerlink" href="#module-src.models.meta.hrl_manager.temporal_encoder" title="Link to this heading">#</a></h1>
-<p>temporal_encoder.py module.</p>
+<p>Temporal Encoder for Historical Waste Pattern Recognition.</p>
+<p>This module provides the <code class="docutils literal notranslate"><span class="pre">TemporalEncoder</span></code>, which processes time-series waste
+level data using Recurrent Neural Networks to identify fill-rate trends.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
-<p>Example:
-&gt;&gt;&gt; import temporal_encoder</p>
+TemporalEncoder: RNN-based history decoder.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -516,19 +516,28 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.meta.hrl_manager.temporal_encoder.</span></span><span class="sig-name descname"><span class="pre">TemporalEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rnn_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'lstm'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.meta.hrl_manager.temporal_encoder.TemporalEncoder" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
 <p>Auto-Regressive Temporal Encoder for waste history.</p>
+<p>Maps a window of historical fill levels for each node into a latent temporal
+embedding that captures accumulation trends.</p>
+<p>Attributes:
+rnn_type (str): model architecture (‘lstm’ or ‘gru’).
+rnn (nn.Module): recurrent layer processing sequence data.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize Class.</p>
+<p>Initializes the temporal encoder.</p>
 <p>Args:
-hidden_dim (int): Description of hidden_dim.
-rnn_type (str): Description of rnn_type.</p>
+hidden_dim: size of the output temporal latent vector.
+rnn_type: choice of RNN cell (‘lstm’ or ‘gru’).</p>
+<p>Raises:
+ValueError: If an unsupported RNN type is provided.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.meta.hrl_manager.temporal_encoder.TemporalEncoder.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dynamic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.meta.hrl_manager.temporal_encoder.TemporalEncoder.forward" title="Link to this definition">#</a></dt>
-<dd><p>Encode dynamic waste history.</p>
+<dd><p>Encodes dynamic waste history into latent embeddings.</p>
+<p>Reshapes [B, N, H] features into a sequence of [B*N, H, 1] for efficient
+parallel RNN processing across all nodes in the batch.</p>
 <p>Args:
-dynamic: (Batch, N, History)</p>
+dynamic: historical fill levels [B, N, History].</p>
 <p>Returns:
-temporal_embed: (Batch, N, hidden_dim)</p>
+torch.Tensor: temporal latent embeddings [B, N, hidden_dim].</p>
 </dd></dl>
 
 </dd></dl>

@@ -491,7 +491,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.embeddings.state.vrpp">
 <span id="src-models-subnets-embeddings-state-vrpp"></span><h1><a class="reference internal" href="#module-src.models.subnets.embeddings.state.vrpp" title="src.models.subnets.embeddings.state.vrpp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.embeddings.state.vrpp</span></code></a><a class="headerlink" href="#module-src.models.subnets.embeddings.state.vrpp" title="Link to this heading">#</a></h1>
-<p>VRPP specific context embedding.</p>
+<p>VRPP specific context embedding module.</p>
+<p>This module provides the VRPPState component, which extracts problem-specific
+metadata like remaining tour length or capacity for the VRPP context.</p>
+<p>Attributes:
+VRPPState: State encoder for Vehicle Routing Problems with Profits.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.embeddings.state.vrpp import VRPPState
+&gt;&gt;&gt; state_embedder = VRPPState(embed_dim=128)
+&gt;&gt;&gt; context = state_embedder(embeddings, td)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -512,19 +520,23 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.embeddings.state.vrpp.</span></span><span class="sig-name descname"><span class="pre">VRPPState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.embeddings.state.vrpp.VRPPState" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.models.subnets.embeddings.state.env.html#src.models.subnets.embeddings.state.env.EnvState" title="src.models.subnets.embeddings.state.env.EnvState"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.models.subnets.embeddings.state.env.EnvState</span></code></a></p>
 <p>Context embedding for VRPP.</p>
+<p>Evolves the environment context by incorporating dynamic features such
+as the remaining allowed tour length or available vehicle capacity.</p>
+<p>Attributes:
+embed_dim (int): Dimensionality of the projected state context.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize Class.</p>
+<p>Initializes VRPPState.</p>
 <p>Args:
-embed_dim (int): Description of embed_dim.</p>
+embed_dim: Resulting embedding dimensionality.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.state.vrpp.VRPPState._state_embedding">
 <span class="sig-name descname"><span class="pre">_state_embedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.embeddings.state.vrpp.VRPPState._state_embedding" title="Link to this definition">#</a></dt>
-<dd><p>state embedding.</p>
+<dd><p>Extracts remaining resources (length/capacity) from the state.</p>
 <p>Args:
-embeddings (torch.Tensor): Description of embeddings.
-td (Any): Description of td.</p>
+embeddings: Current node embeddings (used for device/batch info).
+td: Environment state dictionary/container.</p>
 <p>Returns:
-Any: Description of return value.</p>
+torch.Tensor: Normalized state features of shape (batch, 1).</p>
 </dd></dl>
 
 </dd></dl>

@@ -498,13 +498,17 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.core.dr_alns.ppo_agent">
 <span id="src-models-core-dr-alns-ppo-agent"></span><h1><a class="reference internal" href="#module-src.models.core.dr_alns.ppo_agent" title="src.models.core.dr_alns.ppo_agent"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.core.dr_alns.ppo_agent</span></code></a><a class="headerlink" href="#module-src.models.core.dr_alns.ppo_agent" title="Link to this heading">#</a></h1>
-<p>PPO Agent for DR-ALNS.</p>
-<p>Multi-headed actor-critic network for controlling ALNS parameters online.
-Uses PPO (Proximal Policy Optimization) as described in the DR-ALNS paper.</p>
-<p>Reference:
-Reijnen, R., Zhang, Y., Lau, H. C., &amp; Bukhsh, Z.
-“Online Control of Adaptive Large Neighborhood Search Using Deep
-Reinforcement Learning”, AAAI 2024.</p>
+<p>PPO Agent and State for DR-ALNS control.</p>
+<p>This module provides the neural architecture (<code class="docutils literal notranslate"><span class="pre">DRALNSPPOAgent</span></code>) and state
+representation (<code class="docutils literal notranslate"><span class="pre">DRALNSState</span></code>) used for online control of Adaptive Large
+Neighborhood Search (AAAI 2024).</p>
+<p>Attributes:
+DRALNSPPOAgent: Multi-head actor-critic network.
+DRALNSState: Logic for problem-agnostic search state transformation.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.core.dr_alns.ppo_agent import DRALNSPPOAgent
+&gt;&gt;&gt; agent = DRALNSPPOAgent(state_dim=7)
+&gt;&gt;&gt; actions, log_probs, val = agent.get_action(state_tensor)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -512,10 +516,10 @@ Reinforcement Learning”, AAAI 2024.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.core.dr_alns.ppo_agent.DRALNSPPOAgent" title="src.models.core.dr_alns.ppo_agent.DRALNSPPOAgent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DRALNSPPOAgent</span></code></a></p></td>
-<td><p>PPO Agent for DR-ALNS with multiple discrete action heads.</p></td>
+<td><p>Multi-headed PPO Actor-Critic for meta-heuristic control.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.models.core.dr_alns.ppo_agent.DRALNSState" title="src.models.core.dr_alns.ppo_agent.DRALNSState"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DRALNSState</span></code></a></p></td>
-<td><p>State representation for DR-ALNS.</p></td>
+<td><p>Transformation logic for search dynamics features.</p></td>
 </tr>
 </tbody>
 </table>
@@ -527,58 +531,65 @@ Reinforcement Learning”, AAAI 2024.</p>
 <dt class="sig sig-object py" id="src.models.core.dr_alns.ppo_agent.DRALNSPPOAgent">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.dr_alns.ppo_agent.</span></span><span class="sig-name descname"><span class="pre">DRALNSPPOAgent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_destroy_ops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_repair_ops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_severity_levels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_temp_levels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.dr_alns.ppo_agent.DRALNSPPOAgent" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
-<p>PPO Agent for DR-ALNS with multiple discrete action heads.</p>
-<p>The agent learns to control ALNS by selecting:</p>
-<ol class="arabic simple">
-<li><p>Destroy operator</p></li>
-<li><p>Repair operator</p></li>
-<li><p>Destroy severity (percentage)</p></li>
-<li><p>Acceptance criterion temperature</p></li>
-</ol>
-<p>Architecture: MLP with 2 hidden layers of size 64,
-separate output heads for each discrete action.</p>
+<p>Multi-headed PPO Actor-Critic for meta-heuristic control.</p>
+<p>The agent consists of a shared feature extractor followed by four discrete
+action heads (destroy, repair, severity, temperature) and a scalar value
+head for baseline estimation.</p>
+<p>Attributes:
+state_dim (int): Input feature count.
+hidden_dim (int): Width of hidden layers.
+n_destroy_ops (int): Number of available removal heuristics.
+n_repair_ops (int): Number of available insertion heuristics.
+n_severity_levels (int): Granularity of removal severity selection.
+n_temp_levels (int): Granularity of SA temperature selection.
+shared_net (nn.Sequential): Core MLP feature extractor.
+destroy_head (nn.Linear): Policy head for removal operator.
+repair_head (nn.Linear): Policy head for insertion operator.
+severity_head (nn.Linear): Policy head for destruction magnitude.
+temp_head (nn.Linear): Policy head for acceptance threshold.
+value_head (nn.Linear): Critic head for state value estimation.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize the PPO agent.</p>
+<p>Initializes the PPO agent.</p>
 <p>Args:
-state_dim: Dimension of state vector (default 7 per paper).
-hidden_dim: Hidden layer size (default 64 per paper).
-n_destroy_ops: Number of destroy operators.
-n_repair_ops: Number of repair operators.
-n_severity_levels: Number of destroy severity levels (1-10 = 10%-100%).
-n_temp_levels: Number of temperature levels (1-50 = 0.1-5.0).</p>
+state_dim: Input dimensionality (default 7 based on search dynamics).
+hidden_dim: MLP hidden width.
+n_destroy_ops: Categorical size for destroy selection.
+n_repair_ops: Categorical size for repair selection.
+n_severity_levels: Categorical size for severity mapping.
+n_temp_levels: Categorical size for temperature mapping.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.dr_alns.ppo_agent.DRALNSPPOAgent.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.dr_alns.ppo_agent.DRALNSPPOAgent.forward" title="Link to this definition">#</a></dt>
-<dd><p>Forward pass through the network.</p>
+<dd><p>Performs a forward pass to obtain logits and state value.</p>
 <p>Args:
-state: State tensor of shape (batch, state_dim).</p>
+state: State tensor of shape […, state_dim].</p>
 <p>Returns:
-Tuple of (destroy_logits, repair_logits, severity_logits, temp_logits, value).</p>
+Tuple: (destroy_logits, repair_logits, severity_logits, temp_logits, value).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.dr_alns.ppo_agent.DRALNSPPOAgent.get_action">
-<span class="sig-name descname"><span class="pre">get_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deterministic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.dr_alns.ppo_agent.DRALNSPPOAgent.get_action" title="Link to this definition">#</a></dt>
-<dd><p>Sample actions from the policy.</p>
+<span class="sig-name descname"><span class="pre">get_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deterministic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.dr_alns.ppo_agent.DRALNSPPOAgent.get_action" title="Link to this definition">#</a></dt>
+<dd><p>Samples or selects actions for a given search state.</p>
 <p>Args:
-state: State tensor of shape (batch, state_dim) or (state_dim,).
-deterministic: If True, select argmax instead of sampling.</p>
+state: Input features [7].
+deterministic: Whether to use argmax (True) or sampling (False).</p>
 <p>Returns:
-Tuple of (actions_dict, log_probs_dict, value).
-- actions_dict: {“destroy”: int, “repair”: int, “severity”: int, “temp”: int}
-- log_probs_dict: {“destroy”: tensor, “repair”: tensor, …}
-- value: State value estimate</p>
+Tuple[Dict[str, Any], Dict[str, torch.Tensor], torch.Tensor]:
+- actions: integer indices for each head.
+- log_probs: log-probabilities of selected actions.
+- value: scalar state value estimate.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.dr_alns.ppo_agent.DRALNSPPOAgent.evaluate_actions">
 <span class="sig-name descname"><span class="pre">evaluate_actions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">states</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.dr_alns.ppo_agent.DRALNSPPOAgent.evaluate_actions" title="Link to this definition">#</a></dt>
-<dd><p>Evaluate actions taken in given states (for PPO update).</p>
+<dd><p>Evaluates specific actions for PPO policy updates.</p>
 <p>Args:
-states: State tensor of shape (batch, state_dim).
-actions: Dictionary of action tensors.</p>
+states: Batch of observation tensors.
+actions: Map of integer actions harvested from a rollout.</p>
 <p>Returns:
-Tuple of (log_probs_dict, values, entropy_dict).</p>
+Tuple: (log_probs, state_values, entropy_map).</p>
 </dd></dl>
 
 </dd></dl>
@@ -586,36 +597,42 @@ Tuple of (log_probs_dict, values, entropy_dict).</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.core.dr_alns.ppo_agent.DRALNSState">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.dr_alns.ppo_agent.</span></span><span class="sig-name descname"><span class="pre">DRALNSState</span></span><a class="headerlink" href="#src.models.core.dr_alns.ppo_agent.DRALNSState" title="Link to this definition">#</a></dt>
-<dd><p>State representation for DR-ALNS.</p>
-<p>Based on the 7 problem-agnostic features from the paper:</p>
-<ol class="arabic simple">
-<li><p>Best improved (0/1)</p></li>
-<li><p>Current accepted (0/1)</p></li>
-<li><p>Current improved (0/1)</p></li>
-<li><p>Is current best (0/1)</p></li>
-<li><p>Cost difference from best (percentage, -1 if objective &lt;= 0)</p></li>
-<li><p>Stagnation count (number of iterations without improvement)</p></li>
-<li><p>Search budget used (percentage)</p></li>
-</ol>
+<dd><p>Transformation logic for search dynamics features.</p>
+<p>Maintains the 7 problem-agnostic features defined in AAAI 2024:
+[Best improved, Accepted, Improved, Is best, Cost diff, Stagnation, Budget].</p>
+<p>Attributes:
+best_improved (int): 1 if best solution was updated in last step.
+current_accepted (int): 1 if candidate was accepted.
+current_improved (int): 1 if candidate was objective-improving.
+is_current_best (int): 1 if incumbent is identical to best.
+cost_diff_best (float): Ratio of profit loss vs best.
+stagnation_count (int): Iterations without a global best update.
+search_budget (float): Ratio of iterations consumed.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes empty state.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.dr_alns.ppo_agent.DRALNSState.to_tensor">
 <span class="sig-name descname"><span class="pre">to_tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.device</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.core.dr_alns.ppo_agent.DRALNSState.to_tensor" title="Link to this definition">#</a></dt>
-<dd><p>Convert state to tensor.</p>
+<dd><p>Serializes current features into a float tensor.</p>
+<p>Args:
+device: Optional target hardware device.</p>
+<p>Returns:
+torch.Tensor: Vector of size [7].</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.dr_alns.ppo_agent.DRALNSState.update">
-<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">best_profit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_profit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">previous_profit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_accepted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_best</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iteration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iterations_since_best</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.dr_alns.ppo_agent.DRALNSState.update" title="Link to this definition">#</a></dt>
-<dd><p>Update state based on ALNS search dynamics.</p>
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">best_profit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_profit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">previous_profit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_accepted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_best</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iteration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iterations_since_best</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.core.dr_alns.ppo_agent.DRALNSState.update" title="Link to this definition">#</a></dt>
+<dd><p>Refreshes state features based on current iteration results.</p>
 <p>Args:
-best_profit: Best profit found so far.
-current_profit: Current solution profit.
-previous_profit: Previous iteration profit.
-new_accepted: Whether new solution was accepted.
-iteration: Current iteration number.
-max_iterations: Maximum number of iterations.
-iterations_since_best: Iterations since last best solution.</p>
+best_profit: Peak profit in history.
+current_profit: Incumbent profit.
+previous_profit: profit of incumbent in previous step.
+new_accepted: outcome of acceptance check.
+new_best: outcome of best check.
+iteration: current step count.
+max_iterations: iteration limit.
+iterations_since_best: stagnation duration.</p>
 </dd></dl>
 
 </dd></dl>

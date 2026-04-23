@@ -37,6 +37,7 @@
 
 ````{py:data} DB_PATH
 :canonical: src.tracking.database.shared.DB_PATH
+:type: str
 :value: >
    'assets/tracking/tracking.db'
 

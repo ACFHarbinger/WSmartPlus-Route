@@ -495,6 +495,17 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.modules.adapter_base">
 <span id="src-models-subnets-modules-adapter-base"></span><h1><a class="reference internal" href="#module-src.models.subnets.modules.adapter_base" title="src.models.subnets.modules.adapter_base"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.modules.adapter_base</span></code></a><a class="headerlink" href="#module-src.models.subnets.modules.adapter_base" title="Link to this heading">#</a></h1>
 <p>Base class for GLOP subproblem adapters.</p>
+<p>This module defines the SubproblemAdapter abstract base class, which provides
+a standard interface for converting global problem partitions into local,
+solvable subproblems used in decomposition-based solvers (e.g., GLOP).</p>
+<p>Attributes:
+SubproblemAdapter: Abstract base for mapping global partitions to subproblems.</p>
+<p>Example:
+&gt;&gt;&gt; # SubproblemAdapter is an abstract class. Implementations define
+&gt;&gt;&gt; # how to slice specific problems (e.g., TSPAdapter).
+&gt;&gt;&gt; class MyAdapter(SubproblemAdapter):
+…     def get_batched_subprobs(self): yield from []
+…     def update_actions(self, mapping, actions): pass</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -502,7 +513,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.subnets.modules.adapter_base.SubproblemAdapter" title="src.models.subnets.modules.adapter_base.SubproblemAdapter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SubproblemAdapter</span></code></a></p></td>
-<td><p>Base class for adapters that convert global partitions to local subproblems.</p></td>
+<td><p>Abstract base class for partition-to-subproblem adapters.</p></td>
 </tr>
 </tbody>
 </table>
@@ -514,9 +525,24 @@ document.write(`
 <dt class="sig sig-object py" id="src.models.subnets.modules.adapter_base.SubproblemAdapter">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.modules.adapter_base.</span></span><span class="sig-name descname"><span class="pre">SubproblemAdapter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">partition_actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subprob_batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.adapter_base.SubproblemAdapter" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
-<p>Base class for adapters that convert global partitions to local subproblems.</p>
+<p>Abstract base class for partition-to-subproblem adapters.</p>
+<p>Provides a contract for extracting local subproblems from a partitioned global
+problem instance and reintegrating solved sub-decisions back into the
+global action space.</p>
+<p>Attributes:
+subproblem_env_name (str): Type identifier of the subproblem solver environment.
+td (TensorDict): The original global problem instance data.
+partition_actions (torch.Tensor): Cluster assignments for each node.
+subprob_batch_size (int): Maximum batch size used when querying sub-solvers.
+coordinates (torch.Tensor): Location coordinates of all nodes in the scene.
+batch_size (int): Number of independent problem instances in the batch.
+final_actions (torch.Tensor): The evolving global sequence/assignment plan.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize adapter with problem instance and partition.</p>
+<p>Initializes SubproblemAdapter.</p>
+<p>Args:
+td: TensorDict containing the global problem state.
+partition_actions: Tensor of initial partition/clustering labels.
+subprob_batch_size: Threshold for batching subproblems during inference.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.models.subnets.modules.adapter_base.SubproblemAdapter.subproblem_env_name">
 <span class="sig-name descname"><span class="pre">subproblem_env_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.models.subnets.modules.adapter_base.SubproblemAdapter.subproblem_env_name" title="Link to this definition">#</a></dt>
@@ -526,19 +552,26 @@ document.write(`
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.adapter_base.SubproblemAdapter.get_batched_subprobs">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_batched_subprobs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterator</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.models.subnets.modules.subproblem_mapping.html#src.models.subnets.modules.subproblem_mapping.SubproblemMapping" title="src.models.subnets.modules.subproblem_mapping.SubproblemMapping"><span class="pre">src.models.subnets.modules.subproblem_mapping.SubproblemMapping</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.subnets.modules.adapter_base.SubproblemAdapter.get_batched_subprobs" title="Link to this definition">#</a></dt>
-<dd><p>Yield batches of subproblems for solving.</p>
+<dd><p>Iteratively yields metadata for batches of local subproblems.</p>
+<p>Yields:
+SubproblemMapping: Mapping descriptor for a local problem segment.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.adapter_base.SubproblemAdapter.update_actions">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">update_actions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mapping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.models.subnets.modules.subproblem_mapping.html#src.models.subnets.modules.subproblem_mapping.SubproblemMapping" title="src.models.subnets.modules.subproblem_mapping.SubproblemMapping"><span class="pre">src.models.subnets.modules.subproblem_mapping.SubproblemMapping</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">subprob_actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.subnets.modules.adapter_base.SubproblemAdapter.update_actions" title="Link to this definition">#</a></dt>
-<dd><p>Update final actions with solved subproblem.</p>
+<dd><p>Reintegrates subproblem decisions back into the global decision tensor.</p>
+<p>Args:
+mapping: The mapping used to generate the local subproblem.
+subprob_actions: The optimized actions returned by the sub-solver.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.adapter_base.SubproblemAdapter.get_actions">
 <span class="sig-name descname"><span class="pre">get_actions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.modules.adapter_base.SubproblemAdapter.get_actions" title="Link to this definition">#</a></dt>
-<dd><p>Get final actions after all subproblems solved.</p>
+<dd><p>Retrieves the finalized global decision tensor.</p>
+<p>Returns:
+torch.Tensor: The integrated global action plan.</p>
 </dd></dl>
 
 </dd></dl>

@@ -496,6 +496,17 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.modules.moe_layer">
 <span id="src-models-subnets-modules-moe-layer"></span><h1><a class="reference internal" href="#module-src.models.subnets.modules.moe_layer" title="src.models.subnets.modules.moe_layer"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.modules.moe_layer</span></code></a><a class="headerlink" href="#module-src.models.subnets.modules.moe_layer" title="Link to this heading">#</a></h1>
 <p>Mixture of Experts (MoE) layer.</p>
+<p>This module provides the MoE layer, which implements sparsely-gated Mixture-of-Experts.
+It dynamically selects a subset of expert networks for each input token/node,
+allowing for massive parameter scaling while keeping per-token compute constant.</p>
+<p>Attributes:
+MoE: Sparsely gated mixture of experts layer.</p>
+<p>Example:
+&gt;&gt;&gt; import torch
+&gt;&gt;&gt; from logic.src.models.subnets.modules.moe_layer import MoE
+&gt;&gt;&gt; moe = MoE(input_size=128, output_size=128, num_experts=4, k=2)
+&gt;&gt;&gt; x = torch.randn(1, 10, 128)
+&gt;&gt;&gt; out = moe(x)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -503,14 +514,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.subnets.modules.moe_layer.MoE" title="src.models.subnets.modules.moe_layer.MoE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MoE</span></code></a></p></td>
-<td><p>Call a Sparsely gated mixture of experts layer with 1-layer Feed-Forward networks as experts.
-Args:
-input_size: integer - size of the input
-output_size: integer - size of the input
-num_experts: an integer - number of experts
-num_neurons: a list - hidden dimension of the experts
-noisy_gating: a boolean
-k: an integer - how many experts to use for each batch element</p></td>
+<td><p>Sparsely gated Mixture-of-Experts layer with adaptive expert selection.</p></td>
 </tr>
 </tbody>
 </table>
@@ -520,102 +524,99 @@ k: an integer - how many experts to use for each batch element</p></td>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.subnets.modules.moe_layer.MoE">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.modules.moe_layer.</span></span><span class="sig-name descname"><span class="pre">MoE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_neurons</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_act</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ReLU'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_bias</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_experts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noisy_gating</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.moe_layer.MoE" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.modules.moe_layer.</span></span><span class="sig-name descname"><span class="pre">MoE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_neurons</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.nn.ModuleList</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_act</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'ReLU'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_experts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noisy_gating</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.moe_layer.MoE" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
-<p>Call a Sparsely gated mixture of experts layer with 1-layer Feed-Forward networks as experts.
-Args:
-input_size: integer - size of the input
-output_size: integer - size of the input
-num_experts: an integer - number of experts
-num_neurons: a list - hidden dimension of the experts
-noisy_gating: a boolean
-k: an integer - how many experts to use for each batch element</p>
+<p>Sparsely gated Mixture-of-Experts layer with adaptive expert selection.</p>
+<p>Routes input tokens through a gating network to the ‘best’ <code class="docutils literal notranslate"><span class="pre">k</span></code> experts out
+of a total pool. This allows for significantly increasing model capacity (total
+parameters) without a proportional increase in active computation.</p>
+<p>Attributes:
+noisy_gating (bool): Whether to inject noise into gating logits for load balance.
+num_experts (int): Total number of parallel expert sub-networks.
+output_size (int): Dimensionality of the resulting output features.
+input_size (int): Dimensionality of the input feature space.
+k (int): Exact number of experts to activate for each input sample.
+experts (nn.ModuleList): The collection of expert modules (MLPs or custom).
+w_gate (nn.Parameter): Learnable weights for the master routing gate.
+w_noise (nn.Parameter): Learnable weights for context-aware noise scaling.
+softplus (nn.Softplus): Activation for ensuring positive noise standard deviation.
+softmax (nn.Softmax): Activation for converting logits to routing weights.
+mean (torch.Tensor): Registered buffer for noise distribution mean.
+std (torch.Tensor): Registered buffer for noise distribution standard deviation.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize the MoE layer.</p>
+<p>Initializes the MoE layer.</p>
 <p>Args:
-input_size (int): Dimension of input features.
-output_size (int): Dimension of output features.
-num_neurons (list, optional): Hidden dimensions for MLP experts.
-experts (list, optional): List of expert modules. If None, builds MLPs.
-hidden_act (str): Activation function name for MLP experts.
-out_bias (bool): Whether to include bias in output layer.
-num_experts (int): Number of experts to create.
-k (int): Number of experts to select per input.
-noisy_gating (bool): Whether to use noisy gating for load balancing.
-**kwargs: Extra arguments.</p>
+input_size: Dimension of incoming individual feature vectors.
+output_size: Target dimension for the combined expert outputs.
+num_neurons: Optional hidden depth/width for generated MLP experts.
+experts: Optional pre-built sequence of expert modules.
+hidden_act: Activation function used in generated MLP experts.
+out_bias: Whether to use bias in the final layer of each expert.
+num_experts: Total count of experts to initialize or manage.
+k: Exact number of top experts to activate per time step.
+noisy_gating: Whether to use stochastic top-k selection for exploration.
+kwargs: Any additional configuration for expert builders.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.moe_layer.MoE.cv_squared">
-<span class="sig-name descname"><span class="pre">cv_squared</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.moe_layer.MoE.cv_squared" title="Link to this definition">#</a></dt>
-<dd><p>The squared coefficient of variation of a sample.
-Useful as a loss to encourage a positive distribution to be more uniform.
-Epsilons added for numerical stability.
-Returns 0 for an empty Tensor.
-Args:
-x: a <code class="docutils literal notranslate"><span class="pre">Tensor</span></code>.
-Returns:
-a <code class="docutils literal notranslate"><span class="pre">Scalar</span></code>.</p>
+<span class="sig-name descname"><span class="pre">cv_squared</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.modules.moe_layer.MoE.cv_squared" title="Link to this definition">#</a></dt>
+<dd><p>Calculates the squared coefficient of variation.</p>
+<p>This metric is used as a regularization loss to encourage uniform expert
+usage (load balancing) across the batch.</p>
+<p>Args:
+x: A positive-valued tensor representing counts or loads.</p>
+<p>Returns:
+torch.Tensor: Scalar coefficient of variation squared.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.moe_layer.MoE._gates_to_load">
-<span class="sig-name descname"><span class="pre">_gates_to_load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gates</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.moe_layer.MoE._gates_to_load" title="Link to this definition">#</a></dt>
-<dd><p>Compute the true load per expert, given the gates.
-The load is the number of examples for which the corresponding gate is &gt;0.
-Args:
-gates: a <code class="docutils literal notranslate"><span class="pre">Tensor</span></code> of shape [batch_size, n]
-Returns:
-a float32 <code class="docutils literal notranslate"><span class="pre">Tensor</span></code> of shape [n]</p>
+<span class="sig-name descname"><span class="pre">_gates_to_load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.modules.moe_layer.MoE._gates_to_load" title="Link to this definition">#</a></dt>
+<dd><p>Determines the actual activation frequency (load) for each expert.</p>
+<p>Args:
+gates: Sparse gating tensor of shape (batch, num_experts).</p>
+<p>Returns:
+torch.Tensor: Integer load counts per expert.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.moe_layer.MoE._prob_in_top_k">
-<span class="sig-name descname"><span class="pre">_prob_in_top_k</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clean_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noisy_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_stddev</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noisy_top_values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.moe_layer.MoE._prob_in_top_k" title="Link to this definition">#</a></dt>
-<dd><p>Helper function to NoisyTopKGating.
-Computes the probability that value is in top k, given different random noise.
-This gives us a way of backpropagating from a loss that balances the number
-of times each expert is in the top k experts per example.
-In the case of no noise, pass in None for noise_stddev, and the result will
-not be differentiable.
-Args:
-clean_values: a <code class="docutils literal notranslate"><span class="pre">Tensor</span></code> of shape [batch, n].
-noisy_values: a <code class="docutils literal notranslate"><span class="pre">Tensor</span></code> of shape [batch, n].  Equal to clean values plus
-normally distributed noise with standard deviation noise_stddev.
-noise_stddev: a <code class="docutils literal notranslate"><span class="pre">Tensor</span></code> of shape [batch, n], or None
-noisy_top_values: a <code class="docutils literal notranslate"><span class="pre">Tensor</span></code> of shape [batch, m].
-“values” Output of tf.top_k(noisy_top_values, m).  m &gt;= k+1
-Returns:
-a <code class="docutils literal notranslate"><span class="pre">Tensor</span></code> of shape [batch, n].</p>
+<span class="sig-name descname"><span class="pre">_prob_in_top_k</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clean_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noisy_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_stddev</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noisy_top_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.modules.moe_layer.MoE._prob_in_top_k" title="Link to this definition">#</a></dt>
+<dd><p>Estimates the probability of inclusion in top-k under noise.</p>
+<p>Enables gradient flow safely through the non-differentiable top-k operation
+by considering the expected inclusion probability.</p>
+<p>Args:
+clean_values: Raw routing logits (batch, num_experts).
+noisy_values: Logits with injected stochastic noise.
+noise_stddev: Contextual noise standard deviation.
+noisy_top_values: Top-k values identified in the current noisy pass.</p>
+<p>Returns:
+torch.Tensor: Probability tensor of shape (batch, num_experts).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.moe_layer.MoE.noisy_top_k_gating">
-<span class="sig-name descname"><span class="pre">noisy_top_k_gating</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.moe_layer.MoE.noisy_top_k_gating" title="Link to this definition">#</a></dt>
-<dd><p>Noisy top-k gating.
-See paper: <a class="reference external" href="https://arxiv.org/abs/1701.06538">https://arxiv.org/abs/1701.06538</a>.
-Args:
-x: input Tensor with shape [batch_size, input_size]
-train: a boolean - we only add noise at training time.
-noise_epsilon: a float
-Returns:
-gates: a Tensor with shape [batch_size, num_experts]
-load: a Tensor with shape [num_experts]</p>
+<span class="sig-name descname"><span class="pre">noisy_top_k_gating</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_epsilon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.subnets.modules.moe_layer.MoE.noisy_top_k_gating" title="Link to this definition">#</a></dt>
+<dd><p>Calculates routing gates using the noisy top-k mechanism.</p>
+<p>Based on: Shazeer et al. (2017) “Outrageously Large Neural Networks”.</p>
+<p>Args:
+x: Flattened input sequence of shape (total_tokens, input_size).
+train: Whether to enable stochasticity (noise injection).
+noise_epsilon: Small stability constant for noise standard deviation.</p>
+<p>Returns:
+Tuple[torch.Tensor, torch.Tensor]: A tuple containing:
+- gates: Sparse weights of shape (total_tokens, num_experts).
+- load: Estimated expert load for balancing losses.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.moe_layer.MoE.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_coef</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.moe_layer.MoE.forward" title="Link to this definition">#</a></dt>
-<dd><p>Token/Node-level Gating with the default gating algorithm in <a class="reference external" href="https://arxiv.org/abs/1701.06538">https://arxiv.org/abs/1701.06538</a>.
-In specific, each token/node chooses TopK experts, auxiliary losses required for load balancing.
-Empirically, we found that the load-balancing loss may conflict with the reinforcement loss,
-and thus we do not return loss (i.e., loss_coef=0.).
-Please Refer to (Zhou et al, 2024) <a class="reference external" href="https://arxiv.org/abs/2405.01029">https://arxiv.org/abs/2405.01029</a>.</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_coef</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.modules.moe_layer.MoE.forward" title="Link to this definition">#</a></dt>
+<dd><p>Processes the input through the mixture of experts.</p>
 <p>Args:
-x: tensor shape [batch_size, problem_size, input_size]
-loss_coef: a scalar - multiplier on load-balancing losses</p>
+x: Sequence or batch tensor of shape (…, input_size).
+loss_coef: Scaling factor for load-balancing auxiliary loss.</p>
 <p>Returns:
-y: a tensor with shape [batch_size, problem_size, output_size].
-loss: a scalar. This should be added into the overall training loss of the model.
-The backpropagation of this loss encourages all experts to be approximately equally used across a batch.</p>
+torch.Tensor: Combined expert output of shape (…, output_size).</p>
 </dd></dl>
 
 </dd></dl>

@@ -31,21 +31,21 @@
 
 ### API
 
-````{py:function} vectorized_relocate(tours, dist_matrix, max_iterations=200, generator=None)
+````{py:function} vectorized_relocate(tours: torch.Tensor, dist_matrix: torch.Tensor, max_iterations: int = 200, generator: typing.Optional[torch.Generator] = None) -> torch.Tensor
 :canonical: src.models.policies.operators.move.relocate.vectorized_relocate
 
 ```{autodoc2-docstring} src.models.policies.operators.move.relocate.vectorized_relocate
 ```
 ````
 
-````{py:function} _compute_relocate_gain(tours, dist, node_i, i, j, b_idx)
+````{py:function} _compute_relocate_gain(tours: torch.Tensor, dist: torch.Tensor, node_i: torch.Tensor, i: torch.Tensor, j: torch.Tensor, b_idx: torch.Tensor) -> torch.Tensor
 :canonical: src.models.policies.operators.move.relocate._compute_relocate_gain
 
 ```{autodoc2-docstring} src.models.policies.operators.move.relocate._compute_relocate_gain
 ```
 ````
 
-````{py:function} _apply_relocate_move(tours, improved, i, j, max_len, device)
+````{py:function} _apply_relocate_move(tours: torch.Tensor, improved: torch.Tensor, i: torch.Tensor, j: torch.Tensor, max_len: int, device: torch.device) -> torch.Tensor
 :canonical: src.models.policies.operators.move.relocate._apply_relocate_move
 
 ```{autodoc2-docstring} src.models.policies.operators.move.relocate._apply_relocate_move

@@ -65,7 +65,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.models.subnets';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.models.subnets.helpers" href="src.models.subnets.helpers.html" />
+    <link rel="next" title="src.models.subnets.other" href="src.models.subnets.other.html" />
     <link rel="prev" title="src.models" href="src.models.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -481,14 +481,25 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets">
 <span id="src-models-subnets"></span><h1><a class="reference internal" href="#module-src.models.subnets" title="src.models.subnets"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets</span></code></a><a class="headerlink" href="#module-src.models.subnets" title="Link to this heading">#</a></h1>
-<p>Sub-networks (Encoders, Decoders, Predictors) for the neural models.</p>
+<p>Sub-networks (Encoders, Decoders, Predictors) for neural models.</p>
+<p>This package provides various building blocks for neural combinatorial optimization
+models, including different flavors of encoders (Graph Attention, MatNet, MLP) and
+decoders (Pointer, MDAM).</p>
+<p>Attributes:
+GraphAttentionEncoder: Standard GAT-based encoder.
+PointerDecoder: Classic pointer network decoder.
+GraphAttentionDecoder: GAT-based decoder.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets import GraphAttentionEncoder, PointerDecoder
+&gt;&gt;&gt; encoder = GraphAttentionEncoder(node_dim=2, embed_dim=128)
+&gt;&gt;&gt; decoder = PointerDecoder(embed_dim=128)</p>
 <section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="src.models.subnets.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.helpers</span></code></a><ul>
-<li class="toctree-l2"><a class="reference internal" href="src.models.subnets.helpers.lstm_fill_predictor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.helpers.lstm_fill_predictor</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.models.subnets.helpers.gru_fill_predictor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.helpers.gru_fill_predictor</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.models.subnets.other.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.other</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src.models.subnets.other.lstm_fill_predictor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.other.lstm_fill_predictor</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.models.subnets.other.gru_fill_predictor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.other.gru_fill_predictor</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="src.models.subnets.embeddings.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.embeddings</span></code></a><ul>
@@ -726,11 +737,11 @@ document.write(`
       </div>
     </a>
     <a class="right-next"
-       href="src.models.subnets.helpers.html"
+       href="src.models.subnets.other.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.helpers</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.other</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

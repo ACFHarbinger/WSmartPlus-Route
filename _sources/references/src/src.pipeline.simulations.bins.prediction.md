@@ -159,7 +159,7 @@
 
 `````
 
-`````{py:class} ScenarioGenerator(method: str = 'stochastic', horizon: int = 7, seed: int = 42)
+`````{py:class} ScenarioGenerator(method: str = 'stochastic', horizon: int = 7, seed: int = 42, distribution: str = 'mean', dist_kwargs: typing.Optional[typing.Dict[str, typing.Any]] = None)
 :canonical: src.pipeline.simulations.bins.prediction.ScenarioGenerator
 
 ```{autodoc2-docstring} src.pipeline.simulations.bins.prediction.ScenarioGenerator

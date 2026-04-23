@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} HyperNetwork(input_dim, output_dim, n_days=365, embed_dim=16, hidden_dim=64, normalization='layer', activation='relu', learn_affine=True, bias=True)
+`````{py:class} HyperNetwork(input_dim: int, output_dim: int, n_days: int = 365, embed_dim: int = 16, hidden_dim: int = 64, normalization: str = 'layer', activation: str = 'relu', learn_affine: bool = True, bias: bool = True)
 :canonical: src.models.meta.hypernet.hypernetwork.HyperNetwork
 
 Bases: {py:obj}`torch.nn.Module`
@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.meta.hypernet.hypernetwork.HyperNetwork.__init__
 ```
 
-````{py:method} init_weights()
+````{py:method} init_weights() -> None
 :canonical: src.models.meta.hypernet.hypernetwork.HyperNetwork.init_weights
 
 ```{autodoc2-docstring} src.models.meta.hypernet.hypernetwork.HyperNetwork.init_weights
@@ -45,7 +45,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} forward(metrics, day)
+````{py:method} forward(metrics: torch.Tensor, day: torch.Tensor) -> torch.Tensor
 :canonical: src.models.meta.hypernet.hypernetwork.HyperNetwork.forward
 
 ```{autodoc2-docstring} src.models.meta.hypernet.hypernetwork.HyperNetwork.forward

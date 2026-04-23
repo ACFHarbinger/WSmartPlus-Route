@@ -488,11 +488,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.embeddings.edges.wcvrp">
 <span id="src-models-subnets-embeddings-edges-wcvrp"></span><h1><a class="reference internal" href="#module-src.models.subnets.embeddings.edges.wcvrp" title="src.models.subnets.embeddings.edges.wcvrp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.embeddings.edges.wcvrp</span></code></a><a class="headerlink" href="#module-src.models.subnets.embeddings.edges.wcvrp" title="Link to this heading">#</a></h1>
-<p>wcvrp.py module.</p>
+<p>WCVRP Edge embedding module.</p>
+<p>This module provides the WCVRPEdgeEmbedding layer, which constructs Euclidean-based
+graph representations specifically for Waste Collection VRP variants.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+WCVRPEdgeEmbedding: Edge encoder for waste collection routing problems.</p>
 <p>Example:
-&gt;&gt;&gt; import wcvrp</p>
+&gt;&gt;&gt; from logic.src.models.subnets.embeddings.edges.wcvrp import WCVRPEdgeEmbedding
+&gt;&gt;&gt; embedder = WCVRPEdgeEmbedding(embed_dim=128)
+&gt;&gt;&gt; pyg_batch = embedder(td, init_embeddings)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -510,18 +514,21 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.edges.wcvrp.WCVRPEdgeEmbedding">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.embeddings.edges.wcvrp.</span></span><span class="sig-name descname"><span class="pre">WCVRPEdgeEmbedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linear_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparsify</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_sparse</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">collections.abc.Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.embeddings.edges.wcvrp.WCVRPEdgeEmbedding" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.embeddings.edges.wcvrp.</span></span><span class="sig-name descname"><span class="pre">WCVRPEdgeEmbedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linear_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparsify</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_sparse</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">collections.abc.Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.embeddings.edges.wcvrp.WCVRPEdgeEmbedding" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.models.subnets.embeddings.edges.cvrpp.html#src.models.subnets.embeddings.edges.cvrpp.CVRPPEdgeEmbedding" title="src.models.subnets.embeddings.edges.cvrpp.CVRPPEdgeEmbedding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.models.subnets.embeddings.edges.cvrpp.CVRPPEdgeEmbedding</span></code></a></p>
 <p>Edge embedding for Waste Collection VRP problems.</p>
-<p>Inherits from CVRPEdgeEmbedding since WCVRP has the same graph
-structure (depot + customer nodes with capacity constraints).</p>
+<p>Inherits the structural logic from CVRPPEdgeEmbedding, ensuring critical
+depot-to-customer connectivity is maintained during sparsification.</p>
+<p>Attributes:
+node_dim (int): Dimensionality of raw distance features.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes EdgeEmbedding.</p>
 <p>Args:
 embed_dim: Output embedding dimension for edge features.
 linear_bias: Whether to include bias in the edge projection.
 sparsify: Whether to create a sparse k-NN graph.
-k_sparse: Number of neighbors per node, or a callable(n) -&gt; k.
-Defaults to max(n // 5, 10).</p>
+k_sparse: Number of neighbors per node, or a callable mapping
+instance size to neighbor count. Defaults to max(n // 5, 10).</p>
 </dd></dl>
 
 </section>

@@ -54,21 +54,21 @@
 ```
 ````
 
-````{py:function} _render_geo(attn: numpy.ndarray, coords: numpy.ndarray, center: typing.Optional[typing.Tuple[float, float]], zoom: int, top_k: int, min_alpha: float, height: int) -> typing.Any
+````{py:function} _render_geo(attn: numpy.ndarray, coords: numpy.ndarray, center: typing.Optional[typing.Tuple[float, float]], zoom: int, top_k: int, min_alpha: float, height: int) -> plotly.graph_objects.Figure
 :canonical: src.ui.components.attention_viz._render_geo
 
 ```{autodoc2-docstring} src.ui.components.attention_viz._render_geo
 ```
 ````
 
-````{py:function} _render_bipartite(attn: numpy.ndarray, coords: numpy.ndarray, top_k: int, min_alpha: float, height: int, color_scale: str) -> typing.Any
+````{py:function} _render_bipartite(attn: numpy.ndarray, coords: numpy.ndarray, top_k: int, min_alpha: float, height: int, color_scale: str) -> plotly.graph_objects.Figure
 :canonical: src.ui.components.attention_viz._render_bipartite
 
 ```{autodoc2-docstring} src.ui.components.attention_viz._render_bipartite
 ```
 ````
 
-````{py:function} _render_heatmap(attn: numpy.ndarray, height: int, color_scale: str) -> typing.Any
+````{py:function} _render_heatmap(attn: numpy.ndarray, height: int, color_scale: str) -> plotly.graph_objects.Figure
 :canonical: src.ui.components.attention_viz._render_heatmap
 
 ```{autodoc2-docstring} src.ui.components.attention_viz._render_heatmap

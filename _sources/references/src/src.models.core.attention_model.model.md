@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} AttentionModel(embed_dim: int, hidden_dim: int, problem: typing.Any, component_factory: logic.src.models.subnets.factories.NeuralComponentFactory, n_encode_layers: int = 2, n_encode_sublayers: typing.Optional[int] = None, n_decode_layers: typing.Optional[int] = None, dropout_rate: float = 0.1, aggregation: str = 'sum', aggregation_graph: str = 'avg', tanh_clipping: float = TANH_CLIPPING, mask_inner: bool = True, mask_logits: bool = True, mask_graph: bool = False, norm_config: typing.Optional[logic.src.configs.models.normalization.NormalizationConfig] = None, activation_config: typing.Optional[logic.src.configs.models.activation_function.ActivationConfig] = None, n_heads: int = 8, checkpoint_encoder: bool = False, shrink_size: typing.Optional[int] = None, pomo_size: int = 0, temporal_horizon: int = 0, spatial_bias: bool = False, spatial_bias_scale: float = 1.0, entropy_weight: float = 0.0, predictor_layers: typing.Optional[int] = None, connection_type: str = 'residual', hyper_expansion: int = FEED_FORWARD_EXPANSION, decoder_type: str = 'attention', **kwargs)
+`````{py:class} AttentionModel(embed_dim: int, hidden_dim: int, problem: typing.Any, component_factory: logic.src.models.subnets.factories.NeuralComponentFactory, n_encode_layers: int = 2, n_encode_sublayers: typing.Optional[int] = None, n_decode_layers: typing.Optional[int] = None, dropout_rate: float = 0.1, aggregation: str = 'sum', aggregation_graph: str = 'avg', tanh_clipping: float = TANH_CLIPPING, mask_inner: bool = True, mask_logits: bool = True, mask_graph: bool = False, norm_config: typing.Optional[logic.src.configs.models.normalization.NormalizationConfig] = None, activation_config: typing.Optional[logic.src.configs.models.activation_function.ActivationConfig] = None, n_heads: int = 8, checkpoint_encoder: bool = False, shrink_size: typing.Optional[int] = None, pomo_size: int = 0, temporal_horizon: int = 0, spatial_bias: bool = False, spatial_bias_scale: float = 1.0, entropy_weight: float = 0.0, predictor_layers: typing.Optional[int] = None, connection_type: str = 'residual', hyper_expansion: int = FEED_FORWARD_EXPANSION, decoder_type: str = 'attention', **kwargs: typing.Any)
 :canonical: src.models.core.attention_model.model.AttentionModel
 
 Bases: {py:obj}`src.models.core.attention_model.decoding.DecodingMixin`, {py:obj}`torch.nn.Module`
@@ -37,7 +37,7 @@ Bases: {py:obj}`src.models.core.attention_model.decoding.DecodingMixin`, {py:obj
 ```{autodoc2-docstring} src.models.core.attention_model.model.AttentionModel.__init__
 ```
 
-````{py:method} _init_parameters(embed_dim: int, hidden_dim: int, problem: typing.Any, n_heads: int, pomo_size: int, checkpoint_encoder: bool, aggregation_graph: str, temporal_horizon: int, tanh_clipping: float)
+````{py:method} _init_parameters(embed_dim: int, hidden_dim: int, problem: typing.Any, n_heads: int, pomo_size: int, checkpoint_encoder: bool, aggregation_graph: str, temporal_horizon: int, tanh_clipping: float) -> None
 :canonical: src.models.core.attention_model.model.AttentionModel._init_parameters
 
 ```{autodoc2-docstring} src.models.core.attention_model.model.AttentionModel._init_parameters
@@ -45,7 +45,7 @@ Bases: {py:obj}`src.models.core.attention_model.decoding.DecodingMixin`, {py:obj
 
 ````
 
-````{py:method} _init_context_embedder(temporal_horizon: int)
+````{py:method} _init_context_embedder(temporal_horizon: int) -> None
 :canonical: src.models.core.attention_model.model.AttentionModel._init_context_embedder
 
 ```{autodoc2-docstring} src.models.core.attention_model.model.AttentionModel._init_context_embedder
@@ -55,6 +55,7 @@ Bases: {py:obj}`src.models.core.attention_model.decoding.DecodingMixin`, {py:obj
 
 ````{py:property} is_vrpp
 :canonical: src.models.core.attention_model.model.AttentionModel.is_vrpp
+:type: bool
 
 ```{autodoc2-docstring} src.models.core.attention_model.model.AttentionModel.is_vrpp
 ```
@@ -63,13 +64,14 @@ Bases: {py:obj}`src.models.core.attention_model.decoding.DecodingMixin`, {py:obj
 
 ````{py:property} is_wc
 :canonical: src.models.core.attention_model.model.AttentionModel.is_wc
+:type: bool
 
 ```{autodoc2-docstring} src.models.core.attention_model.model.AttentionModel.is_wc
 ```
 
 ````
 
-````{py:method} _init_components(component_factory: logic.src.models.subnets.factories.NeuralComponentFactory, step_context_dim: int, n_encode_layers: int, n_encode_sublayers: typing.Optional[int], n_decode_layers: typing.Optional[int], norm_config: logic.src.configs.models.normalization.NormalizationConfig, activation_config: logic.src.configs.models.activation_function.ActivationConfig, dropout_rate: float, aggregation: str, hyper_expansion: int, connection_type: str, predictor_layers: typing.Optional[int], tanh_clipping: float, mask_inner: bool, mask_logits: bool, mask_graph: bool, shrink_size: typing.Optional[int], spatial_bias: bool, spatial_bias_scale: float, decoder_type: str = 'attention')
+````{py:method} _init_components(component_factory: logic.src.models.subnets.factories.NeuralComponentFactory, step_context_dim: int, n_encode_layers: int, n_encode_sublayers: typing.Optional[int], n_decode_layers: typing.Optional[int], norm_config: logic.src.configs.models.normalization.NormalizationConfig, activation_config: logic.src.configs.models.activation_function.ActivationConfig, dropout_rate: float, aggregation: str, hyper_expansion: int, connection_type: str, predictor_layers: typing.Optional[int], tanh_clipping: float, mask_inner: bool, mask_logits: bool, mask_graph: bool, shrink_size: typing.Optional[int], spatial_bias: bool, spatial_bias_scale: float, decoder_type: str = 'attention') -> None
 :canonical: src.models.core.attention_model.model.AttentionModel._init_components
 
 ```{autodoc2-docstring} src.models.core.attention_model.model.AttentionModel._init_components
@@ -77,7 +79,7 @@ Bases: {py:obj}`src.models.core.attention_model.decoding.DecodingMixin`, {py:obj
 
 ````
 
-````{py:method} _get_initial_embeddings(input: typing.Dict[str, torch.Tensor])
+````{py:method} _get_initial_embeddings(input: typing.Dict[str, torch.Tensor]) -> typing.Tuple[torch.Tensor, typing.Optional[torch.Tensor]]
 :canonical: src.models.core.attention_model.model.AttentionModel._get_initial_embeddings
 
 ```{autodoc2-docstring} src.models.core.attention_model.model.AttentionModel._get_initial_embeddings
@@ -101,7 +103,7 @@ Bases: {py:obj}`src.models.core.attention_model.decoding.DecodingMixin`, {py:obj
 
 ````
 
-````{py:method} precompute_fixed(input: typing.Dict[str, torch.Tensor], edges: typing.Optional[torch.Tensor])
+````{py:method} precompute_fixed(input: typing.Dict[str, torch.Tensor], edges: typing.Optional[torch.Tensor] = None) -> typing.Any
 :canonical: src.models.core.attention_model.model.AttentionModel.precompute_fixed
 
 ```{autodoc2-docstring} src.models.core.attention_model.model.AttentionModel.precompute_fixed
@@ -109,7 +111,7 @@ Bases: {py:obj}`src.models.core.attention_model.decoding.DecodingMixin`, {py:obj
 
 ````
 
-````{py:method} expand(t)
+````{py:method} expand(t: typing.Union[torch.Tensor, logic.src.interfaces.tensor_dict_like.ITensorDictLike, None]) -> typing.Any
 :canonical: src.models.core.attention_model.model.AttentionModel.expand
 
 ```{autodoc2-docstring} src.models.core.attention_model.model.AttentionModel.expand

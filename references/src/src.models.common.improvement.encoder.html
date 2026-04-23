@@ -491,11 +491,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.common.improvement.encoder">
 <span id="src-models-common-improvement-encoder"></span><h1><a class="reference internal" href="#module-src.models.common.improvement.encoder" title="src.models.common.improvement.encoder"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.common.improvement.encoder</span></code></a><a class="headerlink" href="#module-src.models.common.improvement.encoder" title="Link to this heading">#</a></h1>
-<p>improvement_encoder.py module.</p>
+<p>Improvement Encoder base module.</p>
+<p>This module provides the abstract base class for encoders used in improvement-based
+neural models. These encoders process both the problem instance and the current
+candidate solution to generate latent search space embeddings.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+ImprovementEncoder: Abstract base class for improvement-based encoders.</p>
 <p>Example:
-&gt;&gt;&gt; import improvement_encoder</p>
+&gt;&gt;&gt; from logic.src.models.common.improvement.encoder import ImprovementEncoder
+&gt;&gt;&gt; # subclass and implement forward…</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -513,21 +517,30 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.common.improvement.encoder.ImprovementEncoder">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.common.improvement.encoder.</span></span><span class="sig-name descname"><span class="pre">ImprovementEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.common.improvement.encoder.ImprovementEncoder" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.common.improvement.encoder.</span></span><span class="sig-name descname"><span class="pre">ImprovementEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.common.improvement.encoder.ImprovementEncoder" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
 <p>Base class for improvement encoders.</p>
 <p>Improvement encoders take both the problem instance and the current solution
 to produce embeddings representing the current state of search.</p>
+<p>Attributes:
+embed_dim (int): Dimensionality of the resulting embeddings.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize ImprovementEncoder.</p>
+<p>Initializes the ImprovementEncoder.</p>
+<p>Args:
+embed_dim: Internal dimensionality for encoding features.
+**kwargs: Additional parameters for the parent Module.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.common.improvement.encoder.ImprovementEncoder.forward">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.common.improvement.encoder.ImprovementEncoder.forward" title="Link to this definition">#</a></dt>
-<dd><p>Compute embeddings for the problem instance and current solution.</p>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.common.improvement.encoder.ImprovementEncoder.forward" title="Link to this definition">#</a></dt>
+<dd><p>Computes embeddings for the problem instance and current solution.</p>
 <p>Args:
-td: TensorDict containing problem instance and ‘tour’ or current solution.</p>
+td: TensorDict containing the problem instance and current solution
+(typically in a ‘tour’ or ‘actions’ field).
+**kwargs: Additional control arguments for encoding.</p>
 <p>Returns:
-Embeddings tensor or tuple of tensors.</p>
+Union[torch.Tensor, Tuple[torch.Tensor, …]]:
+Encodings representing the search state, either as a single
+tensor or a tuple of feature-specific tensors.</p>
 </dd></dl>
 
 </dd></dl>

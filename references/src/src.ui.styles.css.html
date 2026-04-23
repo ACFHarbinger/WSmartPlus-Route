@@ -493,6 +493,12 @@ document.write(`
 <p>Custom CSS stylesheet for the Streamlit dashboard.</p>
 <p>Loads modular CSS files from the ‘css’ directory and wraps them
 via a Jinja2 template to ensure a clean Python AST.</p>
+<p>Attributes:
+CUSTOM_CSS: The consolidated and template-wrapped CSS string.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.ui.styles.css import CUSTOM_CSS
+&gt;&gt;&gt; print(CUSTOM_CSS[:50])
+<style>…</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -523,6 +529,8 @@ via a Jinja2 template to ensure a clean Python AST.</p>
 <dt class="sig sig-object py" id="src.ui.styles.css._load_css">
 <span class="sig-prename descclassname"><span class="pre">src.ui.styles.css.</span></span><span class="sig-name descname"><span class="pre">_load_css</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.ui.styles.css._load_css" title="Link to this definition">#</a></dt>
 <dd><p>Read modular CSS files and wrap them using a template.</p>
+<p>Returns:
+str: Consolidated CSS wrapped in an HTML container.</p>
 </dd></dl>
 
 <dl class="py data">

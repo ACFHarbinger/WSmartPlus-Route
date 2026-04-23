@@ -494,9 +494,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.embeddings.edges.base">
 <span id="src-models-subnets-embeddings-edges-base"></span><h1><a class="reference internal" href="#module-src.models.subnets.embeddings.edges.base" title="src.models.subnets.embeddings.edges.base"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.embeddings.edges.base</span></code></a><a class="headerlink" href="#module-src.models.subnets.embeddings.edges.base" title="Link to this heading">#</a></h1>
 <p>Edge embedding modules for graph-based encoders.</p>
-<p>Transforms raw edge features (e.g., distances between nodes) into learned
-embeddings suitable for GNN-based encoders. Supports sparsification to
-focus on k-nearest neighbors, which is critical for scaling to large instances.</p>
+<p>This module provides the EdgeEmbedding base class, which transforms raw pairwise
+features into latent representations used by Graph Neural Networks (GatedGCN, GAT).</p>
+<p>Attributes:
+EdgeEmbedding: Base module for constructing graph-structured data from distances.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.embeddings.edges import EdgeEmbedding
+&gt;&gt;&gt; embedder = EdgeEmbedding(embed_dim=128, k_sparse=20)
+&gt;&gt;&gt; pyg_batch = embedder(td, init_embeddings)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -504,7 +509,7 @@ focus on k-nearest neighbors, which is critical for scaling to large instances.<
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.subnets.embeddings.edges.base.EdgeEmbedding" title="src.models.subnets.embeddings.edges.base.EdgeEmbedding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EdgeEmbedding</span></code></a></p></td>
-<td><p>Base class for edge embeddings.</p></td>
+<td><p>Base class for edge embeddings in graph reinforcement learning.</p></td>
 </tr>
 </tbody>
 </table>
@@ -514,18 +519,25 @@ focus on k-nearest neighbors, which is critical for scaling to large instances.<
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.edges.base.EdgeEmbedding">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.embeddings.edges.base.</span></span><span class="sig-name descname"><span class="pre">EdgeEmbedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linear_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparsify</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_sparse</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">collections.abc.Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.embeddings.edges.base.EdgeEmbedding" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.embeddings.edges.base.</span></span><span class="sig-name descname"><span class="pre">EdgeEmbedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linear_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparsify</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_sparse</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">collections.abc.Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.embeddings.edges.base.EdgeEmbedding" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
-<p>Base class for edge embeddings.</p>
+<p>Base class for edge embeddings in graph reinforcement learning.</p>
 <p>Subclasses define how raw edge features are extracted from problem data
-and projected into the embedding space.</p>
+and projected into the latent space. Includes support for k-NN graph
+sparsification.</p>
+<p>Attributes:
+node_dim (int): Dimensionality of raw input edge features.
+sparsify (bool): Whether to create a sparse k-NN representation.
+edge_embed (nn.Linear): Linear projection for edge features.
+_get_k_sparse (Callable): Logic for calculating number of neighbors.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes EdgeEmbedding.</p>
 <p>Args:
 embed_dim: Output embedding dimension for edge features.
 linear_bias: Whether to include bias in the edge projection.
 sparsify: Whether to create a sparse k-NN graph.
-k_sparse: Number of neighbors per node, or a callable(n) -&gt; k.
-Defaults to max(n // 5, 10).</p>
+k_sparse: Number of neighbors per node, or a callable mapping
+instance size to neighbor count. Defaults to max(n // 5, 10).</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.edges.base.EdgeEmbedding.node_dim">
 <span class="sig-name descname"><span class="pre">node_dim</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.models.subnets.embeddings.edges.base.EdgeEmbedding.node_dim" title="Link to this definition">#</a></dt>
@@ -534,24 +546,24 @@ Defaults to max(n // 5, 10).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.edges.base.EdgeEmbedding.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.embeddings.edges.base.EdgeEmbedding.forward" title="Link to this definition">#</a></dt>
-<dd><p>Build a batched PyG graph with embedded edge features.</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch_geometric.data.Batch</span></span></span><a class="headerlink" href="#src.models.subnets.embeddings.edges.base.EdgeEmbedding.forward" title="Link to this definition">#</a></dt>
+<dd><p>Builds a batched PyG graph with embedded edge features.</p>
 <p>Args:
-td: TensorDict or dict with problem data (must contain ‘locs’).
-init_embeddings: Node embeddings [batch, n_nodes, embed_dim].</p>
+td: Current problem instance data containing ‘locs’.
+init_embeddings: Static node embeddings of shape (batch, nodes, dim).</p>
 <p>Returns:
-PyG Batch with x, edge_index, and embedded edge_attr.</p>
+Batch: PyG Batch object containing x, edge_index, and edge_attr.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.edges.base.EdgeEmbedding._cost_matrix_to_graph">
-<span class="sig-name descname"><span class="pre">_cost_matrix_to_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_cost_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.embeddings.edges.base.EdgeEmbedding._cost_matrix_to_graph" title="Link to this definition">#</a></dt>
-<dd><p>Convert batched cost matrices to a batched PyG graph.</p>
+<span class="sig-name descname"><span class="pre">_cost_matrix_to_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_cost_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch_geometric.data.Batch</span></span></span><a class="headerlink" href="#src.models.subnets.embeddings.edges.base.EdgeEmbedding._cost_matrix_to_graph" title="Link to this definition">#</a></dt>
+<dd><p>Converts batched cost matrices to a single batched PyG graph.</p>
 <p>Args:
-batch_cost_matrix: [batch, n, n] distance/cost matrices.
-init_embeddings: [batch, n, embed_dim] node features.</p>
+batch_cost_matrix: (batch, n, n) cost/distance matrices.
+init_embeddings: (batch, n, embed_dim) node feature embeddings.</p>
 <p>Returns:
-PyG Batch object.</p>
+Batch: Unified PyG Batch object.</p>
 </dd></dl>
 
 </dd></dl>

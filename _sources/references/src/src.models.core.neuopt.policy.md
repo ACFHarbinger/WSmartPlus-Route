@@ -23,7 +23,7 @@
 
 ### API
 
-````{py:class} NeuOptPolicy(embed_dim: int = 128, num_heads: int = 8, num_layers: int = 3, **kwargs)
+````{py:class} NeuOptPolicy(embed_dim: int = 128, num_heads: int = 8, num_layers: int = 3, **kwargs: typing.Any)
 :canonical: src.models.core.neuopt.policy.NeuOptPolicy
 
 Bases: {py:obj}`logic.src.models.common.improvement.policy.ImprovementPolicy`

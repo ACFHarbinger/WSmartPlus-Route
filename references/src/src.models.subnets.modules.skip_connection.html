@@ -492,6 +492,15 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.modules.skip_connection">
 <span id="src-models-subnets-modules-skip-connection"></span><h1><a class="reference internal" href="#module-src.models.subnets.modules.skip_connection" title="src.models.subnets.modules.skip_connection"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.modules.skip_connection</span></code></a><a class="headerlink" href="#module-src.models.subnets.modules.skip_connection" title="Link to this heading">#</a></h1>
 <p>Residual skip connection implementation.</p>
+<p>This module provides the SkipConnection wrapper, which implements the
+identity-based residual mapping (input + transformation).</p>
+<p>Attributes:
+SkipConnection: Class for adding residual connections to neural modules.</p>
+<p>Example:
+&gt;&gt;&gt; from torch import nn
+&gt;&gt;&gt; from logic.src.models.subnets.modules.skip_connection import SkipConnection
+&gt;&gt;&gt; linear = nn.Linear(128, 128)
+&gt;&gt;&gt; residual_linear = SkipConnection(linear)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -512,20 +521,24 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.modules.skip_connection.</span></span><span class="sig-name descname"><span class="pre">SkipConnection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.skip_connection.SkipConnection" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
 <p>Implements a residual connection: output = input + module(input).</p>
+<p>This wrapper ensures that the gradient can flow directly through the identity
+matching part of the network, helping to mitigate the vanishing gradient problem.</p>
+<p>Attributes:
+module (nn.Module): The transformation module being bridged by the skip.</p>
 <p class="rubric">Initialization</p>
-<p>Initializes the skip connection.</p>
+<p>Initializes SkipConnection.</p>
 <p>Args:
 module: The neural network module to wrap with a residual connection.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.skip_connection.SkipConnection.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.skip_connection.SkipConnection.forward" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.modules.skip_connection.SkipConnection.forward" title="Link to this definition">#</a></dt>
 <dd><p>Applies the residual skip connection: input + module(input).</p>
 <p>Args:
-input: Input tensor.
-*args: Additional arguments for the module.
-**kwargs: Additional keyword arguments for the module.</p>
+input: Input feature tensor.
+args: Positional arguments for the wrapped <code class="docutils literal notranslate"><span class="pre">module</span></code>.
+kwargs: Keyword arguments for the wrapped <code class="docutils literal notranslate"><span class="pre">module</span></code>.</p>
 <p>Returns:
-Result of the addition.</p>
+torch.Tensor: The sum of the original input and the module’s output.</p>
 </dd></dl>
 
 </dd></dl>

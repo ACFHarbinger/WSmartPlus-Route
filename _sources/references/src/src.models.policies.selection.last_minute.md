@@ -37,7 +37,7 @@ Bases: {py:obj}`src.models.policies.selection.base.VectorizedSelector`
 ```{autodoc2-docstring} src.models.policies.selection.last_minute.LastMinuteSelector.__init__
 ```
 
-````{py:method} select(fill_levels: torch.Tensor, threshold: typing.Optional[float] = None, **kwargs) -> torch.Tensor
+````{py:method} select(fill_levels: torch.Tensor, threshold: typing.Optional[float] = None, **kwargs: typing.Any) -> torch.Tensor
 :canonical: src.models.policies.selection.last_minute.LastMinuteSelector.select
 
 ```{autodoc2-docstring} src.models.policies.selection.last_minute.LastMinuteSelector.select

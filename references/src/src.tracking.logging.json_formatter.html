@@ -492,6 +492,16 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.logging.json_formatter">
 <span id="src-tracking-logging-json-formatter"></span><h1><a class="reference internal" href="#module-src.tracking.logging.json_formatter" title="src.tracking.logging.json_formatter"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging.json_formatter</span></code></a><a class="headerlink" href="#module-src.tracking.logging.json_formatter" title="Link to this heading">#</a></h1>
 <p>JSON Formatter for structured logging.</p>
+<p>Provides a logging formatter that serializes log records into JSON strings,
+suitable for consumption by ELK, Splunk, or other log aggregators.</p>
+<p>Attributes:
+JsonFormatter: A logging.Formatter subclass for JSON output.</p>
+<p>Example:
+&gt;&gt;&gt; import logging
+&gt;&gt;&gt; handler = logging.StreamHandler()
+&gt;&gt;&gt; handler.setFormatter(JsonFormatter())
+&gt;&gt;&gt; logger = logging.getLogger(“json”)
+&gt;&gt;&gt; logger.addHandler(handler)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -499,7 +509,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.logging.json_formatter.JsonFormatter" title="src.tracking.logging.json_formatter.JsonFormatter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">JsonFormatter</span></code></a></p></td>
-<td><p>Formatter that outputs JSON strings.</p></td>
+<td><p>Formatter that outputs log records as structured JSON strings.</p></td>
 </tr>
 </tbody>
 </table>
@@ -511,7 +521,11 @@ document.write(`
 <dt class="sig sig-object py" id="src.tracking.logging.json_formatter.JsonFormatter">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.tracking.logging.json_formatter.</span></span><span class="sig-name descname"><span class="pre">JsonFormatter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datefmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'%'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defaults</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.logging.json_formatter.JsonFormatter" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logging.Formatter</span></code></p>
-<p>Formatter that outputs JSON strings.</p>
+<p>Formatter that outputs log records as structured JSON strings.</p>
+<p>Extracts standard record attributes (timestamp, level, message, module, etc.)
+and incorporates optional ‘extra_fields’ if they implement ITraversable.</p>
+<p>Attributes:
+No public attributes beyond standard logging.Formatter ones.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the formatter with specified format strings.</p>
 <p>Initialize the formatter either with the specified format string, or a
@@ -527,6 +541,10 @@ Added the <code class="docutils literal notranslate"><span class="pre">style</sp
 <dt class="sig sig-object py" id="src.tracking.logging.json_formatter.JsonFormatter.format">
 <span class="sig-name descname"><span class="pre">format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logging.LogRecord</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.tracking.logging.json_formatter.JsonFormatter.format" title="Link to this definition">#</a></dt>
 <dd><p>Format a log record as a JSON string.</p>
+<p>Args:
+record: The logging record to format.</p>
+<p>Returns:
+str: The JSON-serialized log entry.</p>
 </dd></dl>
 
 </dd></dl>

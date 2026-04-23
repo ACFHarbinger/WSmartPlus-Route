@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} N2SEncoder(embed_dim: int = 128, num_heads: int = 8, k_neighbors: int = 20, **kwargs)
+`````{py:class} N2SEncoder(embed_dim: int = 128, num_heads: int = 8, k_neighbors: int = 20, **kwargs: typing.Any)
 :canonical: src.models.core.n2s.encoder.N2SEncoder
 
 Bases: {py:obj}`logic.src.models.common.improvement.encoder.ImprovementEncoder`
@@ -45,7 +45,7 @@ Bases: {py:obj}`logic.src.models.common.improvement.encoder.ImprovementEncoder`
 
 ````
 
-````{py:method} forward(td: tensordict.TensorDict, **kwargs) -> torch.Tensor
+````{py:method} forward(td: tensordict.TensorDict, **kwargs: typing.Any) -> torch.Tensor
 :canonical: src.models.core.n2s.encoder.N2SEncoder.forward
 
 ```{autodoc2-docstring} src.models.core.n2s.encoder.N2SEncoder.forward

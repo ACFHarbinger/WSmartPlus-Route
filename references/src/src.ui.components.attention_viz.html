@@ -497,29 +497,19 @@ document.write(`
 <p>Streamlit component for visualising Transformer attention maps.</p>
 <p>Renders interactive attention weight visualisations produced by
 <code class="docutils literal notranslate"><span class="pre">logic.src.tracking.hooks.attention_hooks.add_attention_hooks</span></code>.</p>
-<p>Three display modes (chosen automatically based on the <code class="docutils literal notranslate"><span class="pre">node_coords</span></code> argument):</p>
-<ul class="simple">
-<li><p><strong>Heatmap</strong> — Pure attention matrix rendered as a colour grid. Used when no
-node coordinates are provided.</p></li>
-<li><p><strong>Bipartite graph</strong> — Nodes plotted at their normalised 2-D positions with
-edges weighted by attention strength. Used when coords are in <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code>.</p></li>
-<li><p><strong>Geo overlay</strong> — Nodes plotted on a Mapbox map with attention arcs.
-Activated when coordinate values exceed 1.0 (i.e., lat/lon scale).</p></li>
-</ul>
-<p>Usage::</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from logic.src.ui.components.attention_viz import render_attention_viz
-from logic.src.tracking.hooks.attention_hooks import add_attention_hooks
-
-hook_data = add_attention_hooks(model.encoder)
-model(td)  # run inference to populate hook_data
-
-render_attention_viz(
-    hook_data,
-    node_coords=coords_np,   # (N, 2)  — optional
-    title=&quot;Encoder Self-Attention&quot;,
-)
-</pre></div>
-</div>
+<p>Supports three display modes:</p>
+<ol class="arabic simple">
+<li><p><strong>Heatmap</strong>: Pure attention matrix grid.</p></li>
+<li><p><strong>Bipartite graph</strong>: Normalised 2nd positions with weighted edges.</p></li>
+<li><p><strong>Geo overlay</strong>: Mapbox map with attention arcs for lat/lon data.</p></li>
+</ol>
+<p>Example:
+render_attention_viz(hook_data, node_coords=coords)</p>
+<p>Attributes:
+render_attention_viz: Main orchestrator for attention visualization.
+_render_geo: Geospatial renderer for lat/lon coordinates.
+_render_bipartite: Normalised layout renderer.
+_render_heatmap: Coordinate-free matrix renderer.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -530,22 +520,22 @@ render_attention_viz(
 <td><p>Render an interactive attention weight visualisation in Streamlit.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.components.attention_viz._render_geo" title="src.ui.components.attention_viz._render_geo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_geo</span></code></a></p></td>
-<td><p>Attention arcs on a Mapbox scatter-map (lat/lon coordinates).</p></td>
+<td><p>Renders attention arcs on a Mapbox scatter-map (lat/lon coordinates).</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.components.attention_viz._render_bipartite" title="src.ui.components.attention_viz._render_bipartite"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_bipartite</span></code></a></p></td>
-<td><p>Attention edges overlaid on a 2-D node layout (normalised coordinates).</p></td>
+<td><p>Renders attention edges overlaid on a 2-D node layout.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.components.attention_viz._render_heatmap" title="src.ui.components.attention_viz._render_heatmap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_heatmap</span></code></a></p></td>
-<td><p>Standard attention matrix heatmap (no node coordinates required).</p></td>
+<td><p>Renders the standard attention matrix heatmap.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.components.attention_viz._to_numpy" title="src.ui.components.attention_viz._to_numpy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_to_numpy</span></code></a></p></td>
-<td><p>Convert a PyTorch tensor or list to a float32 NumPy array.</p></td>
+<td><p>Converts a PyTorch tensor or list to a float32 NumPy array.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.components.attention_viz._extract_head" title="src.ui.components.attention_viz._extract_head"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_extract_head</span></code></a></p></td>
-<td><p>Extract an <code class="docutils literal notranslate"><span class="pre">(N,</span> <span class="pre">N)</span></code> attention matrix from a tensor of arbitrary leading dims.</p></td>
+<td><p>Extracts an (N, N) attention matrix from mixed-dimension inputs.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.components.attention_viz._top_k_edges" title="src.ui.components.attention_viz._top_k_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_top_k_edges</span></code></a></p></td>
-<td><p>Return the top-K <code class="docutils literal notranslate"><span class="pre">(weight,</span> <span class="pre">src,</span> <span class="pre">dst)</span></code> edges by attention weight.</p></td>
+<td><p>Identifies the top-K attention edges by weight.</p></td>
 </tr>
 </tbody>
 </table>
@@ -581,44 +571,78 @@ title: Panel heading shown above the visualisation.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.components.attention_viz._render_geo">
-<span class="sig-prename descclassname"><span class="pre">src.ui.components.attention_viz.</span></span><span class="sig-name descname"><span class="pre">_render_geo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zoom</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_alpha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.ui.components.attention_viz._render_geo" title="Link to this definition">#</a></dt>
-<dd><p>Attention arcs on a Mapbox scatter-map (lat/lon coordinates).</p>
+<span class="sig-prename descclassname"><span class="pre">src.ui.components.attention_viz.</span></span><span class="sig-name descname"><span class="pre">_render_geo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zoom</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_alpha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">plotly.graph_objects.Figure</span></span></span><a class="headerlink" href="#src.ui.components.attention_viz._render_geo" title="Link to this definition">#</a></dt>
+<dd><p>Renders attention arcs on a Mapbox scatter-map (lat/lon coordinates).</p>
+<p>Args:
+attn: Normalized attention matrix [N, N].
+coords: Geospatial coordinates [N, 2].
+center: Map center (lat, lon).
+zoom: Initial zoom level.
+top_k: Number of highest attention edges to draw.
+min_alpha: Opacity threshold for visibility.
+height: Plot height in pixels.</p>
+<p>Returns:
+go.Figure: Interactive Mapbox figure.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.components.attention_viz._render_bipartite">
-<span class="sig-prename descclassname"><span class="pre">src.ui.components.attention_viz.</span></span><span class="sig-name descname"><span class="pre">_render_bipartite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_alpha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.ui.components.attention_viz._render_bipartite" title="Link to this definition">#</a></dt>
-<dd><p>Attention edges overlaid on a 2-D node layout (normalised coordinates).</p>
+<span class="sig-prename descclassname"><span class="pre">src.ui.components.attention_viz.</span></span><span class="sig-name descname"><span class="pre">_render_bipartite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_alpha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">plotly.graph_objects.Figure</span></span></span><a class="headerlink" href="#src.ui.components.attention_viz._render_bipartite" title="Link to this definition">#</a></dt>
+<dd><p>Renders attention edges overlaid on a 2-D node layout.</p>
+<p>Args:
+attn: Normalized attention matrix [N, N].
+coords: Normalised coordinates [N, 2].
+top_k: Number of highest attention edges to draw.
+min_alpha: Opacity threshold for visibility.
+height: Plot height in pixels.
+color_scale: Plotly color scale name.</p>
+<p>Returns:
+go.Figure: Interactive bipartite graph.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.components.attention_viz._render_heatmap">
-<span class="sig-prename descclassname"><span class="pre">src.ui.components.attention_viz.</span></span><span class="sig-name descname"><span class="pre">_render_heatmap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.ui.components.attention_viz._render_heatmap" title="Link to this definition">#</a></dt>
-<dd><p>Standard attention matrix heatmap (no node coordinates required).</p>
+<span class="sig-prename descclassname"><span class="pre">src.ui.components.attention_viz.</span></span><span class="sig-name descname"><span class="pre">_render_heatmap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">plotly.graph_objects.Figure</span></span></span><a class="headerlink" href="#src.ui.components.attention_viz._render_heatmap" title="Link to this definition">#</a></dt>
+<dd><p>Renders the standard attention matrix heatmap.</p>
+<p>Args:
+attn: Normalized attention matrix [N, N].
+height: Plot height in pixels.
+color_scale: Plotly color scale name.</p>
+<p>Returns:
+go.Figure: Heatmap figure.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.components.attention_viz._to_numpy">
 <span class="sig-prename descclassname"><span class="pre">src.ui.components.attention_viz.</span></span><span class="sig-name descname"><span class="pre">_to_numpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.ui.components.attention_viz._to_numpy" title="Link to this definition">#</a></dt>
-<dd><p>Convert a PyTorch tensor or list to a float32 NumPy array.</p>
+<dd><p>Converts a PyTorch tensor or list to a float32 NumPy array.</p>
+<p>Args:
+tensor: Multi-dimensional array-like object.</p>
+<p>Returns:
+np.ndarray: Resulting NumPy array.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.components.attention_viz._extract_head">
 <span class="sig-prename descclassname"><span class="pre">src.ui.components.attention_viz.</span></span><span class="sig-name descname"><span class="pre">_extract_head</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attn_np</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">head_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.ui.components.attention_viz._extract_head" title="Link to this definition">#</a></dt>
-<dd><p>Extract an <code class="docutils literal notranslate"><span class="pre">(N,</span> <span class="pre">N)</span></code> attention matrix from a tensor of arbitrary leading dims.</p>
-<p>Shapes handled:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">(B,</span> <span class="pre">H,</span> <span class="pre">N,</span> <span class="pre">N)</span></code> → <code class="docutils literal notranslate"><span class="pre">attn_np[0,</span> <span class="pre">head_idx]</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">(H,</span> <span class="pre">N,</span> <span class="pre">N)</span></code>    → <code class="docutils literal notranslate"><span class="pre">attn_np[head_idx]</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">(N,</span> <span class="pre">N)</span></code>       → returned as-is</p></li>
-</ul>
+<dd><p>Extracts an (N, N) attention matrix from mixed-dimension inputs.</p>
+<p>Args:
+attn_np: Input attention weights.
+head_idx: Index of the attention head to extract.</p>
+<p>Returns:
+np.ndarray: Sliced (N, N) attention weight matrix.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.components.attention_viz._top_k_edges">
 <span class="sig-prename descclassname"><span class="pre">src.ui.components.attention_viz.</span></span><span class="sig-name descname"><span class="pre">_top_k_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_alpha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.components.attention_viz._top_k_edges" title="Link to this definition">#</a></dt>
-<dd><p>Return the top-K <code class="docutils literal notranslate"><span class="pre">(weight,</span> <span class="pre">src,</span> <span class="pre">dst)</span></code> edges by attention weight.</p>
+<dd><p>Identifies the top-K attention edges by weight.</p>
+<p>Args:
+attn: Normalized attention matrix [N, N].
+top_k: Maximum number of edges to return.
+min_alpha: Minimum weight threshold.</p>
+<p>Returns:
+List[Tuple[float, int, int]]: Sorted list of (weight, src, dst).</p>
 </dd></dl>
 
 </section>

@@ -492,7 +492,12 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.meta.weight_adjustment_rnn.model">
 <span id="src-models-meta-weight-adjustment-rnn-model"></span><h1><a class="reference internal" href="#module-src.models.meta.weight_adjustment_rnn.model" title="src.models.meta.weight_adjustment_rnn.model"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.meta.weight_adjustment_rnn.model</span></code></a><a class="headerlink" href="#module-src.models.meta.weight_adjustment_rnn.model" title="Link to this heading">#</a></h1>
-<p>This module contains the Meta RNN model for dynamic weight adjustment.</p>
+<p>Meta Recurrent Neural Network for Dynamic Reward Adjustment.</p>
+<p>This module implements the <code class="docutils literal notranslate"><span class="pre">WeightAdjustmentRNN</span></code>, a meta-learning model
+designed to identify patterns in how reward weight modifications influence
+long-term agent performance, enabling automated multi-objective tuning.</p>
+<p>Attributes:
+WeightAdjustmentRNN: Recurrent meta-model for objective weighting.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -500,8 +505,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.meta.weight_adjustment_rnn.model.WeightAdjustmentRNN" title="src.models.meta.weight_adjustment_rnn.model.WeightAdjustmentRNN"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WeightAdjustmentRNN</span></code></a></p></td>
-<td><p>RNN model for dynamically adjusting reward weights based on historical performance.
-This model learns patterns in how weight changes affect future performance.</p></td>
+<td><p>LSTM-based Dynamic Weight Adjustment Model.</p></td>
 </tr>
 </tbody>
 </table>
@@ -511,34 +515,41 @@ This model learns patterns in how weight changes affect future performance.</p><
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.meta.weight_adjustment_rnn.model.WeightAdjustmentRNN">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.meta.weight_adjustment_rnn.model.</span></span><span class="sig-name descname"><span class="pre">WeightAdjustmentRNN</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_layers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.meta.weight_adjustment_rnn.model.WeightAdjustmentRNN" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.meta.weight_adjustment_rnn.model.</span></span><span class="sig-name descname"><span class="pre">WeightAdjustmentRNN</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.meta.weight_adjustment_rnn.model.WeightAdjustmentRNN" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
-<p>RNN model for dynamically adjusting reward weights based on historical performance.
-This model learns patterns in how weight changes affect future performance.</p>
+<p>LSTM-based Dynamic Weight Adjustment Model.</p>
+<p>Analyzes a sequence of historical performance metrics and corresponding
+reward weights to predict optimal adjustments for the next optimization
+period.</p>
+<p>Attributes:
+hidden_size (int): dimensional size of the recurrent state.
+num_layers (int): depth of the LSTM network.
+lstm (nn.LSTM): temporal processing core.
+fc (nn.Sequential): projection layers for weight adjustment prediction.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize the WeightAdjustmentRNN.</p>
+<p>Initializes the weight adjustment RNN.</p>
 <p>Args:
-input_size (int): Size of input features (current weights + performance metrics).
-hidden_size (int): Size of RNN hidden state.
-output_size (int): Size of output (number of weights to adjust).
-num_layers (int, optional): Number of recurrent layers. Defaults to 1.</p>
+input_size: size of input features (current weights + metrics).
+hidden_size: dimensional width of the LSTM hidden state.
+output_size: number of objective weights to adjust.
+num_layers: number of stacked recurrent layers.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.meta.weight_adjustment_rnn.model.WeightAdjustmentRNN.init_weights">
-<span class="sig-name descname"><span class="pre">init_weights</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.meta.weight_adjustment_rnn.model.WeightAdjustmentRNN.init_weights" title="Link to this definition">#</a></dt>
-<dd><p>Initialize LSTM and FC layer weights for stable training</p>
+<span class="sig-name descname"><span class="pre">init_weights</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.meta.weight_adjustment_rnn.model.WeightAdjustmentRNN.init_weights" title="Link to this definition">#</a></dt>
+<dd><p>Initializes parameters using Xavier normal for training stability.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.meta.weight_adjustment_rnn.model.WeightAdjustmentRNN.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.meta.weight_adjustment_rnn.model.WeightAdjustmentRNN.forward" title="Link to this definition">#</a></dt>
-<dd><p>Forward pass through the RNN.</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.meta.weight_adjustment_rnn.model.WeightAdjustmentRNN.forward" title="Link to this definition">#</a></dt>
+<dd><p>Predicts weight adjustments from historical performance sequence.</p>
 <p>Args:
-x (torch.Tensor): Input tensor of shape [batch_size, seq_len, input_size].
-hidden (tuple, optional): Initial hidden state. Defaults to None.</p>
+x: Input feature sequence [batch_size, seq_len, input_size].
+hidden: Initial hidden/cell states for the LSTM.</p>
 <p>Returns:
-tuple: (weight_adjustments, hidden)
-- weight_adjustments: Predicted weight adjustments.
-- hidden: Final hidden state.</p>
+Tuple[torch.Tensor, Tuple[torch.Tensor, torch.Tensor]]:
+- weight_adjustments: Suggested delta for each weight [batch_size, output_size].
+- hidden: Updated LSTM hidden and cell states.</p>
 </dd></dl>
 
 </dd></dl>

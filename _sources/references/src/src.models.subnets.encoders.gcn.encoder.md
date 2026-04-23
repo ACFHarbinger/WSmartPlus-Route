@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} GraphConvolutionEncoder(n_layers, feed_forward_hidden, agg='sum', norm='layer', learn_affine=True, track_norm=False, gated=True, *args, **kwargs)
+`````{py:class} GraphConvolutionEncoder(n_layers: int, feed_forward_hidden: int, agg: str = 'sum', norm: str = 'layer', learn_affine: bool = True, track_norm: bool = False, gated: bool = True, *args: typing.Any, **kwargs: typing.Any)
 :canonical: src.models.subnets.encoders.gcn.encoder.GraphConvolutionEncoder
 
 Bases: {py:obj}`torch.nn.Module`
@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.subnets.encoders.gcn.encoder.GraphConvolutionEncoder.__init__
 ```
 
-````{py:method} forward(x, edges)
+````{py:method} forward(x: torch.Tensor, edges: torch.Tensor) -> torch.Tensor
 :canonical: src.models.subnets.encoders.gcn.encoder.GraphConvolutionEncoder.forward
 
 ```{autodoc2-docstring} src.models.subnets.encoders.gcn.encoder.GraphConvolutionEncoder.forward

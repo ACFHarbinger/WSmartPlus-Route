@@ -494,11 +494,16 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.core.matnet.policy">
 <span id="src-models-core-matnet-policy"></span><h1><a class="reference internal" href="#module-src.models.core.matnet.policy" title="src.models.core.matnet.policy"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.core.matnet.policy</span></code></a><a class="headerlink" href="#module-src.models.core.matnet.policy" title="Link to this heading">#</a></h1>
-<p>policy.py module.</p>
+<p>MatNet Policy for matrix-form problems.</p>
+<p>This module provides the <code class="docutils literal notranslate"><span class="pre">MatNetPolicy</span></code>, which integrates the specialized
+MatNet encoder and decoder components to solve problems where the input is
+primarily a cost or distance matrix (e.g., ATSP, FFSP).</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+MatNetPolicy: Autoregressive policy for matrix-based constructive search.</p>
 <p>Example:
-&gt;&gt;&gt; import policy</p>
+&gt;&gt;&gt; from logic.src.models.core.matnet.policy import MatNetPolicy
+&gt;&gt;&gt; policy = MatNetPolicy(embed_dim=256, hidden_dim=512, problem=env.problem)
+&gt;&gt;&gt; out = policy(td, env)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -506,8 +511,7 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.core.matnet.policy.MatNetPolicy" title="src.models.core.matnet.policy.MatNetPolicy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MatNetPolicy</span></code></a></p></td>
-<td><p>MatNet Policy for matrix-based Combinatorial Optimization.
-Unifies MatNetEncoder and MatNetDecoder with proper initialization.</p></td>
+<td><p>Matrix-aware neural policy.</p></td>
 </tr>
 </tbody>
 </table>
@@ -517,21 +521,29 @@ Unifies MatNetEncoder and MatNetDecoder with proper initialization.</p></td>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.core.matnet.policy.MatNetPolicy">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.matnet.policy.</span></span><span class="sig-name descname"><span class="pre">MatNetPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tanh_clipping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'instance'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.matnet.policy.MatNetPolicy" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.matnet.policy.</span></span><span class="sig-name descname"><span class="pre">MatNetPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tanh_clipping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'instance'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.matnet.policy.MatNetPolicy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.models.common.autoregressive.policy.AutoregressivePolicy</span></code></p>
-<p>MatNet Policy for matrix-based Combinatorial Optimization.
-Unifies MatNetEncoder and MatNetDecoder with proper initialization.</p>
+<p>Matrix-aware neural policy.</p>
+<p>Implements the row and column embedding architecture from Kwon et al. (2021).
+The encoder processes the cost matrix into dual embeddings, which the
+decoder then uses to construct a solution.</p>
+<p>Attributes:
+encoder (MatNetEncoder): Specialized matrix-score attention encoder.
+decoder (MatNetDecoder): Autoregressive constructor for matrix problems.
+init_embedding (MatNetInitEmbedding): Statistical feature projection.
+problem (Any): Problem domain context.
+embed_dim (int): feature vector size.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize Class.</p>
+<p>Initializes the MatNetPolicy.</p>
 <p>Args:
-embed_dim (int): Description of embed_dim.
-hidden_dim (int): Description of hidden_dim.
-problem (Any): Description of problem.
-num_layers (int): Description of num_layers.
-n_heads (int): Description of n_heads.
-tanh_clipping (float): Description of tanh_clipping.
-normalization (str): Description of normalization.
-kwargs (Any): Description of kwargs.</p>
+embed_dim: Internal latent feature size.
+hidden_dim: Hidden layer size for FFN/attention.
+problem: domain problem definition.
+num_layers: Depth of the matrix encoder stack.
+n_heads: Number of attention heads.
+tanh_clipping: range value for logit normalization.
+normalization: Type of normalization layer (‘instance’, ‘batch’).
+**kwargs: Additional parameters for the MatNetDecoder.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.models.core.matnet.policy.MatNetPolicy.encoder">
 <span class="sig-name descname"><span class="pre">encoder</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">logic.src.models.subnets.encoders.matnet.encoder.MatNetEncoder</span></em><a class="headerlink" href="#src.models.core.matnet.policy.MatNetPolicy.encoder" title="Link to this definition">#</a></dt>
@@ -546,19 +558,32 @@ kwargs (Any): Description of kwargs.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.matnet.policy.MatNetPolicy.set_strategy">
-<span class="sig-name descname"><span class="pre">set_strategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.matnet.policy.MatNetPolicy.set_strategy" title="Link to this definition">#</a></dt>
-<dd><p>Set strategy.</p>
+<span class="sig-name descname"><span class="pre">set_strategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.core.matnet.policy.MatNetPolicy.set_strategy" title="Link to this definition">#</a></dt>
+<dd><p>Configures the current action selection tactic.</p>
 <p>Args:
-strategy (str): Description of strategy.
-temp (Optional[float]): Description of temp.</p>
+strategy: Identifier for the mode (e.g. ‘greedy’, ‘sampling’).
+temp: soft-max temperature for sampling diversity.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.matnet.policy.MatNetPolicy.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sampling'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.matnet.policy.MatNetPolicy.forward" title="Link to this definition">#</a></dt>
-<dd><p>Policy forward pass.
-Args:
-input_data: Dict containing ‘dist’ or ‘cost_matrix’ of shape [batch, row_size, col_size]</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sampling'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.matnet.policy.MatNetPolicy.forward" title="Link to this definition">#</a></dt>
+<dd><p>Constructs a solution from the provided matrix data.</p>
+<p>Identifies a cost matrix in <code class="docutils literal notranslate"><span class="pre">td</span></code> (keys: ‘dist’, ‘cost_matrix’),
+encodes it into row/col latents, and construction is handled by the decoder.</p>
+<p>Args:
+td: problem state container.
+env: Optional environment for transition logic.
+strategy: selection strategy.
+num_starts: Number of construction attempts.
+**kwargs: Extra parameters including ‘cost_weights’.</p>
+<p>Returns:
+Dict[str, Any]: Construction results containing:
+- log_p (torch.Tensor): Cumulative log likelihood.
+- actions (torch.Tensor): Output node indices.</p>
+<p>Raises:
+ValueError: If no cost matrix is found in the input.
+AssertionError: If subnets are not properly initialized.</p>
 </dd></dl>
 
 </dd></dl>

@@ -481,7 +481,16 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.ui.components.maps">
 <span id="src-ui-components-maps"></span><h1><a class="reference internal" href="#module-src.ui.components.maps" title="src.ui.components.maps"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.components.maps</span></code></a><a class="headerlink" href="#module-src.ui.components.maps" title="Link to this heading">#</a></h1>
-<p>Map components facade.</p>
+<p>Geospatial mapping component facade.</p>
+<p>This package exports high-level map renderers for waste collection routes,
+bin heatmaps, and multi-day simulation playback.</p>
+<p>Example:
+from logic.src.ui.components.maps import create_simulation_map
+m = create_simulation_map(entry)</p>
+<p>Attributes:
+create_bin_heatmap: Visualizes spatial distribution of bin fill levels.
+create_multi_route_map: Renders multiple routes with temporal overlays.
+create_simulation_map: Main Digital Twin interactive map renderer.</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

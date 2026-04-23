@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} MultiHeadAttentionLayer(n_heads: int, embed_dim: int, feed_forward_hidden: int, norm_config: typing.Optional[logic.src.configs.models.normalization.NormalizationConfig] = None, activation_config: typing.Optional[logic.src.configs.models.activation_function.ActivationConfig] = None, **kwargs)
+`````{py:class} MultiHeadAttentionLayer(n_heads: int, embed_dim: int, feed_forward_hidden: int, norm_config: typing.Optional[logic.src.configs.models.normalization.NormalizationConfig] = None, activation_config: typing.Optional[logic.src.configs.models.activation_function.ActivationConfig] = None, **kwargs: typing.Any)
 :canonical: src.models.subnets.decoders.gat.multi_head_attention_layer.MultiHeadAttentionLayer
 
 Bases: {py:obj}`torch.nn.Module`
@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.subnets.decoders.gat.multi_head_attention_layer.MultiHeadAttentionLayer.__init__
 ```
 
-````{py:method} forward(q, h, mask)
+````{py:method} forward(q: torch.Tensor, h: torch.Tensor, mask: typing.Optional[torch.Tensor]) -> torch.Tensor
 :canonical: src.models.subnets.decoders.gat.multi_head_attention_layer.MultiHeadAttentionLayer.forward
 
 ```{autodoc2-docstring} src.models.subnets.decoders.gat.multi_head_attention_layer.MultiHeadAttentionLayer.forward

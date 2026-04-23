@@ -494,6 +494,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.decoders.polynet.decoder">
 <span id="src-models-subnets-decoders-polynet-decoder"></span><h1><a class="reference internal" href="#module-src.models.subnets.decoders.polynet.decoder" title="src.models.subnets.decoders.polynet.decoder"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.decoders.polynet.decoder</span></code></a><a class="headerlink" href="#module-src.models.subnets.decoders.polynet.decoder" title="Link to this heading">#</a></h1>
 <p>PolyNet Decoder.</p>
+<p>This module implements the PolyNetDecoder, which autoregressively constructs
+routing solutions using a polynomial-based attention mechanism.</p>
+<p>Attributes:
+PolyNetDecoder: Constructive decoder usingPolyNet polynomial attention.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.decoders.polynet.decoder import PolyNetDecoder
+&gt;&gt;&gt; decoder = PolyNetDecoder(k=3, embed_dim=128)
+&gt;&gt;&gt; ll, actions = decoder(td, embeddings, env)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -514,24 +522,68 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.decoders.polynet.decoder.</span></span><span class="sig-name descname"><span class="pre">PolyNetDecoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoder_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'AM'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poly_layer_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'vrpp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_inner</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linear_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_graph_context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_nan</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.decoders.polynet.decoder.PolyNetDecoder" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
 <p>PolyNet Decoder for constructing diverse solutions.</p>
+<p>This decoder uses polynomial attention to improve the expressivity of the
+node selection process in combinatorial optimization problems.</p>
+<p>Attributes:
+k (int): Polynomial order for attention.
+encoder_type (str): Type of encoder being used.
+embed_dim (int): Dimensionality of node embeddings.
+num_heads (int): Number of attention heads.
+env_name (str): Environment name for context.
+use_graph_context (bool): Whether to include global graph context in query.
+context_embedding (Union[nn.Module, nn.Linear]): Layer for context extraction.
+dynamic_embedding (DynamicEmbedding): Module for dynamic step features.
+pointer (PolyNetAttention): Polynomial attention mechanism.
+project_node_embeddings (nn.Linear): Projection for node-based key/values.
+project_fixed_context (nn.Linear): Projection for global graph features.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize PolyNet decoder.</p>
+<p>Initializes PolyNet decoder.</p>
+<p>Args:
+k: Polynomial order.
+encoder_type: Type of encoder architecture.
+embed_dim: Node embedding dimensionality.
+poly_layer_dim: Hidden dimension for polynomial layers.
+num_heads: Number of attention heads.
+env_name: Name of the solver environment.
+mask_inner: Whether to mask nodes in inner layers.
+out_bias: Whether to use bias in the output projection.
+linear_bias: Whether to use bias in input projections.
+use_graph_context: Whether to add global context to the query.
+check_nan: Whether to perform NaN checks on outputs.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.decoders.polynet.decoder.PolyNetDecoder.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sampling'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.subnets.decoders.polynet.decoder.PolyNetDecoder.forward" title="Link to this definition">#</a></dt>
-<dd><p>Decode solution autoregressively.</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sampling'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.subnets.decoders.polynet.decoder.PolyNetDecoder.forward" title="Link to this definition">#</a></dt>
+<dd><p>Decodes solution autoregressively.</p>
+<p>Args:
+td: Initial state TensorDict.
+embeddings: Node embeddings from the encoder.
+env: RL environment instance.
+strategy: Selection strategy (“greedy” or “sampling”).
+num_starts: Number of parallel starts (for POMO/augmentation).
+kwargs: Additional keyword arguments.</p>
+<p>Returns:
+Tuple: Total log-likelihood and action sequence.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.decoders.polynet.decoder.PolyNetDecoder._precompute_cache">
-<span class="sig-name descname"><span class="pre">_precompute_cache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">logic.src.models.subnets.decoders.common.AttentionDecoderCache</span></span></span><a class="headerlink" href="#src.models.subnets.decoders.polynet.decoder.PolyNetDecoder._precompute_cache" title="Link to this definition">#</a></dt>
-<dd><p>Precompute fixed projections for decoding.</p>
+<span class="sig-name descname"><span class="pre">_precompute_cache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">logic.src.models.subnets.decoders.common.AttentionDecoderCache</span></span></span><a class="headerlink" href="#src.models.subnets.decoders.polynet.decoder.PolyNetDecoder._precompute_cache" title="Link to this definition">#</a></dt>
+<dd><p>Precomputes fixed projections for decoding.</p>
+<p>Args:
+embeddings: Node embeddings or (col, row) embedding tuple.</p>
+<p>Returns:
+AttentionDecoderCache: Cache with projected components.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.decoders.polynet.decoder.PolyNetDecoder._get_step_logits">
 <span class="sig-name descname"><span class="pre">_get_step_logits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.models.subnets.decoders.common.AttentionDecoderCache</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.subnets.decoders.polynet.decoder.PolyNetDecoder._get_step_logits" title="Link to this definition">#</a></dt>
-<dd><p>Get logits for current step.</p>
+<dd><p>Gets selection logits for the current decoding step.</p>
+<p>Args:
+cache: Precomputed attention keys and values.
+td: Current state dictionary.</p>
+<p>Returns:
+Tuple: Raw logits and action mask.</p>
 </dd></dl>
 
 </dd></dl>

@@ -494,6 +494,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.decoders.mdam.path">
 <span id="src-models-subnets-decoders-mdam-path"></span><h1><a class="reference internal" href="#module-src.models.subnets.decoders.mdam.path" title="src.models.subnets.decoders.mdam.path"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.decoders.mdam.path</span></code></a><a class="headerlink" href="#module-src.models.subnets.decoders.mdam.path" title="Link to this heading">#</a></h1>
 <p>MDAM Path module.</p>
+<p>This module provides the MDAMPath class, representing a single decoding path
+within the Multi-Decoder Attention Model architecture.</p>
+<p>Attributes:
+MDAMPath: Single constructive decoding path component for MDAM.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.decoders.mdam.path import MDAMPath
+&gt;&gt;&gt; path = MDAMPath(embed_dim=128, env_name=”vrpp”, num_heads=8)
+&gt;&gt;&gt; fixed_cache = path.precompute(h_embed)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -501,8 +509,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.subnets.decoders.mdam.path.MDAMPath" title="src.models.subnets.decoders.mdam.path.MDAMPath"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MDAMPath</span></code></a></p></td>
-<td><p>Single decoding path for MDAM.
-Encapsulates path-specific parameters and computation.</p></td>
+<td><p>Single decoding path for MDAM.</p></td>
 </tr>
 </tbody>
 </table>
@@ -514,40 +521,62 @@ Encapsulates path-specific parameters and computation.</p></td>
 <dt class="sig sig-object py" id="src.models.subnets.decoders.mdam.path.MDAMPath">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.decoders.mdam.path.</span></span><span class="sig-name descname"><span class="pre">MDAMPath</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tanh_clipping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_inner</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_logits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.decoders.mdam.path.MDAMPath" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
-<p>Single decoding path for MDAM.
-Encapsulates path-specific parameters and computation.</p>
+<p>Single decoding path for MDAM.</p>
+<p>Encapsulates path-specific parameters and computation, including context
+embeddings, projections, and attention logic.</p>
+<p>Attributes:
+embed_dim (int): Dimensionality of node embeddings.
+num_heads (int): Number of attention heads.
+tanh_clipping (float): Scale for logit clipping.
+mask_inner (bool): Whether to mask inner attention.
+mask_logits (bool): Whether to mask output logits.
+context_embedding (nn.Module): Dynamics-specific context embedding layer.
+project_node_embeddings (nn.Linear): Linear projection for K/V/Q components.
+project_fixed_context (nn.Linear): Fixed graph context projection.
+project_step_context (nn.Linear): Dynamic step context projection.
+project_out (nn.Linear): Final output projection after attention.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize Class.</p>
+<p>Initializes the MDAMPath.</p>
 <p>Args:
-embed_dim (int): Description of embed_dim.
-env_name (str): Description of env_name.
-num_heads (int): Description of num_heads.
-tanh_clipping (float): Description of tanh_clipping.
-mask_inner (bool): Description of mask_inner.
-mask_logits (bool): Description of mask_logits.</p>
+embed_dim: Node embedding dimensionality.
+env_name: Environment registered name for context retrieval.
+num_heads: Number of attention heads.
+tanh_clipping: Scaling factor for tanh clipping.
+mask_inner: Flag for inner attention masking.
+mask_logits: Flag for output logit masking.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.decoders.mdam.path.MDAMPath.precompute">
 <span class="sig-name descname"><span class="pre">precompute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h_embed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">logic.src.models.subnets.decoders.common.AttentionDecoderCache</span></span></span><a class="headerlink" href="#src.models.subnets.decoders.mdam.path.MDAMPath.precompute" title="Link to this definition">#</a></dt>
-<dd><p>Precompute fixed projections for this path.</p>
+<dd><p>Precomputes fixed projections for this path.</p>
+<p>Args:
+h_embed: Node embeddings of shape (batch, nodes, dim).
+num_steps: Initial number of expansion steps for heads.</p>
+<p>Returns:
+AttentionDecoderCache: Cache containing projected components.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.decoders.mdam.path.MDAMPath._make_heads">
 <span class="sig-name descname"><span class="pre">_make_heads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.decoders.mdam.path.MDAMPath._make_heads" title="Link to this definition">#</a></dt>
-<dd><p>Reshape for multi-head attention.</p>
+<dd><p>Reshapes and expands tensors into multi-head format.</p>
+<p>Args:
+v: Input tensor components of shape (batch, 1, graph_size, dim).
+num_steps: Number of decoding steps to expand for.</p>
+<p>Returns:
+torch.Tensor: Reshaped tensor of shape (heads, batch, steps, nodes, head_dim).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.decoders.mdam.path.MDAMPath.get_logprobs">
 <span class="sig-name descname"><span class="pre">get_logprobs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fixed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.models.subnets.decoders.common.AttentionDecoderCache</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dynamic_embed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.subnets.decoders.mdam.path.MDAMPath.get_logprobs" title="Link to this definition">#</a></dt>
-<dd><p>Get logprobs.</p>
+<dd><p>Computes action log probabilities for the current path state.</p>
 <p>Args:
-fixed (AttentionDecoderCache): Description of fixed.
-td (TensorDict): Description of td.
-dynamic_embed (Tuple[torch.Tensor, torch.Tensor, torch.Tensor]): Description of dynamic_embed.
-path_index (int): Description of path_index.</p>
+fixed: Precomputed keys and values.
+td: Current state dictionary.
+dynamic_embed: Dynamic embeddings for current step.
+path_index: Index of the current decoder path.</p>
 <p>Returns:
-Any: Description of return value.</p>
+Tuple: Log probabilities and action mask.</p>
 </dd></dl>
 
 </dd></dl>

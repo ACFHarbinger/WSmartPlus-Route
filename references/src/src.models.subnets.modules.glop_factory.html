@@ -491,6 +491,12 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.modules.glop_factory">
 <span id="src-models-subnets-modules-glop-factory"></span><h1><a class="reference internal" href="#module-src.models.subnets.modules.glop_factory" title="src.models.subnets.modules.glop_factory"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.modules.glop_factory</span></code></a><a class="headerlink" href="#module-src.models.subnets.modules.glop_factory" title="Link to this heading">#</a></h1>
 <p>GLOP Adapter Factory.</p>
+<p>Attributes:
+ADAPTER_REGISTRY (dict): Mapping of environment names to their corresponding Adapter classes.
+get_adapter: Factory function for retrieving problem-specific adapters.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.modules.glop_factory import get_adapter
+&gt;&gt;&gt; adapter_cls = get_adapter(“tsp”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -498,7 +504,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.subnets.modules.glop_factory.get_adapter" title="src.models.subnets.modules.glop_factory.get_adapter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_adapter</span></code></a></p></td>
-<td><p>Get adapter class for environment.</p></td>
+<td><p>Retrieves the appropriate adapter class for a given environment.</p></td>
 </tr>
 </tbody>
 </table>
@@ -526,7 +532,11 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.subnets.modules.glop_factory.get_adapter">
 <span class="sig-prename descclassname"><span class="pre">src.models.subnets.modules.glop_factory.</span></span><span class="sig-name descname"><span class="pre">get_adapter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">type</span></span></span><a class="headerlink" href="#src.models.subnets.modules.glop_factory.get_adapter" title="Link to this definition">#</a></dt>
-<dd><p>Get adapter class for environment.</p>
+<dd><p>Retrieves the appropriate adapter class for a given environment.</p>
+<p>Args:
+env_name (str): Name of the environment (e.g., ‘tsp’, ‘cvrp’).</p>
+<p>Returns:
+type: The SubproblemAdapter subclass for the environment.</p>
 </dd></dl>
 
 </section>

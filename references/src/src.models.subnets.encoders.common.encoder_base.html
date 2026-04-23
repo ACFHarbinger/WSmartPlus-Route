@@ -501,6 +501,11 @@ document.write(`
 <li><p>Optional hyper-connection support</p></li>
 </ul>
 <p>Subclasses only need to implement <code class="docutils literal notranslate"><span class="pre">_create_layer()</span></code> to define their specific layer type.</p>
+<p>Attributes:
+TransformerEncoderBase: Abstract base class for transformer-style graph encoders.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.encoders.common.encoder_base import TransformerEncoderBase
+&gt;&gt;&gt; # Subclasses would implement _create_layer and then be instantiated</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -521,101 +526,56 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.encoders.common.encoder_base.</span></span><span class="sig-name descname"><span class="pre">TransformerEncoderBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feed_forward_hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">512</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.models.normalization.NormalizationConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.models.activation_function.ActivationConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'skip'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expansion_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.encoders.common.encoder_base.TransformerEncoderBase" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
 <p>Abstract base class for transformer-style graph encoders.</p>
-<p>Handles common boilerplate:</p>
-<ul class="simple">
-<li><p>Parameter validation and initialization</p></li>
-<li><p>Layer stacking via <code class="docutils literal notranslate"><span class="pre">_create_layer()</span></code> abstract method</p></li>
-<li><p>Standard forward pass pattern with dropout</p></li>
-<li><p>Optional hyper-connection expansion/collapse</p></li>
-</ul>
-<p class="rubric" id="id1">Usage Example</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">MyCustomEncoder</span><span class="p">(</span><span class="n">TransformerEncoderBase</span><span class="p">):</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_create_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">MyCustomLayer</span><span class="p">(</span>
-            <span class="n">n_heads</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_heads</span><span class="p">,</span>
-            <span class="n">embed_dim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">embed_dim</span><span class="p">,</span>
-            <span class="n">feed_forward_hidden</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">feed_forward_hidden</span><span class="p">,</span>
-            <span class="n">norm_config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">norm_config</span><span class="p">,</span>
-            <span class="n">activation_config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">activation_config</span><span class="p">,</span>
-        <span class="p">)</span>
-</pre></div>
-</div>
-<p class="rubric" id="id2">Parameters</p>
-<p>n_heads : int
-Number of attention heads (for multi-head attention layers).
-embed_dim : int
-Embedding dimension (must be divisible by n_heads for attention).
-n_layers : int
-Number of encoder layers to stack.
-feed_forward_hidden : int, default=512
-Hidden dimension for feed-forward sublayers.
-norm_config : Optional[NormalizationConfig], default=None
-Normalization configuration. Defaults to batch normalization if None.
-activation_config : Optional[ActivationConfig], default=None
-Activation function configuration. Defaults to ReLU if None.
-dropout_rate : float, default=0.1
-Dropout probability applied after encoder layers.
-connection_type : str, default=”skip”
-Connection type: “skip” (residual), “dense”, “hyper” (hyper-connections).
-expansion_rate : int, default=4
-Expansion factor for hyper-connections (only used if connection_type=”hyper*”).
-**kwargs
-Additional keyword arguments passed to subclass <code class="docutils literal notranslate"><span class="pre">_create_layer()</span></code>.</p>
-<p class="rubric" id="id3">Attributes</p>
-<p>layers : nn.ModuleList
-List of encoder layers created by <code class="docutils literal notranslate"><span class="pre">_create_layer()</span></code>.
-dropout : nn.Dropout
-Dropout layer applied after encoding.</p>
+<p>Handles common boilerplate such as parameter validation, layer stacking,
+standard forward pass patterns, and optional hyper-connection handling.</p>
+<p>Attributes:
+n_heads (int): Number of attention heads.
+embed_dim (int): Embedding dimension.
+n_layers (int): Number of encoder layers.
+feed_forward_hidden (int): Hidden dimension for feed-forward layers.
+dropout_rate (float): Dropout probability.
+conn_type (str): Connection type (e.g., “skip”, “dense”, “hyper”).
+expansion_rate (int): Expansion factor for hyper-connections.
+norm_config (NormalizationConfig): Normalization configuration.
+activation_config (ActivationConfig): Activation function configuration.
+kwargs (Dict[str, Any]): Additional keyword arguments for layer creation.
+layers (nn.ModuleList): Stack of encoder layers.
+dropout (nn.Dropout): Dropout layer applied after encoding.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize the base encoder with common parameters.</p>
+<p>Initializes the TransformerEncoderBase.</p>
+<p>Args:
+n_heads: Number of attention heads.
+embed_dim: Embedding dimension (must be divisible by n_heads).
+n_layers: Number of encoder layers to stack.
+feed_forward_hidden: Hidden dimension for feed-forward sublayers.
+norm_config: Normalization configuration.
+activation_config: Activation function configuration.
+dropout_rate: Dropout probability applied after layers.
+connection_type: Connection type (“skip”, “dense”, or “hyper”).
+expansion_rate: Expansion factor for hyper-connections.
+kwargs: Additional keyword arguments for layer creation.</p>
+<p>Raises:
+ValueError: If embed_dim is not divisible by n_heads.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.encoders.common.encoder_base.TransformerEncoderBase._create_layer">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_create_layer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layer_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.nn.Module</span></span></span><a class="headerlink" href="#src.models.subnets.encoders.common.encoder_base.TransformerEncoderBase._create_layer" title="Link to this definition">#</a></dt>
-<dd><p>Create a single encoder layer.</p>
-<p>Subclasses must implement this to define their specific layer architecture.
-The layer should accept (x, mask/edges) in forward() and return updated x.</p>
-<p class="rubric" id="id4">Parameters</p>
-<p>layer_idx : int
-Index of the layer being created (0 to n_layers-1).
-Can be used for layer-specific configurations.</p>
-<p class="rubric" id="returns">Returns</p>
-<p>nn.Module
-The created encoder layer.</p>
-<p class="rubric" id="example">Example</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">_create_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">GATMultiHeadAttentionLayer</span><span class="p">(</span>
-        <span class="n">n_heads</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_heads</span><span class="p">,</span>
-        <span class="n">embed_dim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">embed_dim</span><span class="p">,</span>
-        <span class="n">feed_forward_hidden</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">feed_forward_hidden</span><span class="p">,</span>
-        <span class="n">norm_config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">norm_config</span><span class="p">,</span>
-        <span class="n">activation_config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">activation_config</span><span class="p">,</span>
-    <span class="p">)</span>
-</pre></div>
-</div>
+<dd><p>Creates a single encoder layer.</p>
+<p>Args:
+layer_idx: Index of the layer being created (0 to n_layers-1).</p>
+<p>Returns:
+nn.Module: The created encoder layer.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.encoders.common.encoder_base.TransformerEncoderBase.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.encoders.common.encoder_base.TransformerEncoderBase.forward" title="Link to this definition">#</a></dt>
 <dd><p>Standard encoder forward pass with layer stacking.</p>
-<p class="rubric" id="id5">Parameters</p>
-<p>x : torch.Tensor
-Input node features of shape (batch_size, num_nodes, embed_dim).
-edges : Optional[torch.Tensor], default=None
-Edge information (adjacency matrix, edge indices, or edge features).
-Format depends on the specific encoder implementation.
-mask : Optional[torch.Tensor], default=None
-Attention mask of shape (batch_size, num_nodes, num_nodes).
-If None, all nodes attend to all nodes.</p>
-<p class="rubric" id="id6">Returns</p>
-<p>torch.Tensor
-Encoded node features of shape (batch_size, num_nodes, embed_dim).</p>
-<p class="rubric" id="notes">Notes</p>
-<ul class="simple">
-<li><p>Supports hyper-connections if connection_type contains “hyper”</p></li>
-<li><p>Applies dropout after all layers</p></li>
-<li><p>Preserves input shape (batch, nodes, embed_dim)</p></li>
-</ul>
+<p>Args:
+x: Input node features of shape (batch_size, num_nodes, embed_dim).
+edges: Edge information (adjacency, features, etc.).
+mask: Attention mask of shape (batch, nodes, nodes).</p>
+<p>Returns:
+torch.Tensor: Encoded node features of shape (batch_size, num_nodes, embed_dim).</p>
 </dd></dl>
 
 </dd></dl>

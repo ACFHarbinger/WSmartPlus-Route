@@ -493,6 +493,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.encoders.nargnn.gnn_layer">
 <span id="src-models-subnets-encoders-nargnn-gnn-layer"></span><h1><a class="reference internal" href="#module-src.models.subnets.encoders.nargnn.gnn_layer" title="src.models.subnets.encoders.nargnn.gnn_layer"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.encoders.nargnn.gnn_layer</span></code></a><a class="headerlink" href="#module-src.models.subnets.encoders.nargnn.gnn_layer" title="Link to this heading">#</a></h1>
 <p>GNN Layer for NARGNN.</p>
+<p>Attributes:
+GNNLayer: Simplified GNN layer for NARGNN.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.encoders.nargnn.gnn_layer import GNNLayer
+&gt;&gt;&gt; layer = GNNLayer(embed_dim=128)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -513,18 +518,47 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.encoders.nargnn.gnn_layer.</span></span><span class="sig-name descname"><span class="pre">GNNLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">act_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'silu'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agg_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mean'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.encoders.nargnn.gnn_layer.GNNLayer" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
 <p>Simplified GNN layer for NARGNN.</p>
+<p>This layer implements an anisotropic graph convolution where messages are
+gated by edge features.</p>
+<p>Attributes:
+embed_dim (int): Dimension of node and edge embeddings.
+act_fn (Callable): Activation function.
+v_lin1 (nn.Linear): Linear layer for node residual update.
+v_lin2 (nn.Linear): Linear layer for message generation.
+v_lin3 (nn.Linear): Linear layer for edge update (source node).
+v_lin4 (nn.Linear): Linear layer for edge update (target node).
+v_bn (nn.Module): Batch normalization for nodes.
+e_lin (nn.Linear): Linear layer for edge residual update.
+e_bn (nn.Module): Batch normalization for edges.
+agg_fn (str): Aggregation function name.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize Class.</p>
+<p>Initializes the GNNLayer.</p>
+<p>Args:
+embed_dim: Dimension of node and edge embeddings.
+act_fn: Name of the activation function in torch.nn.functional.
+agg_fn: Aggregation function for message passing (“mean” supported).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.encoders.nargnn.gnn_layer.GNNLayer._check_dependencies">
-<span class="sig-name descname"><span class="pre">_check_dependencies</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.encoders.nargnn.gnn_layer.GNNLayer._check_dependencies" title="Link to this definition">#</a></dt>
-<dd><p>Check if required PyG dependencies are available.</p>
+<span class="sig-name descname"><span class="pre">_check_dependencies</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.subnets.encoders.nargnn.gnn_layer.GNNLayer._check_dependencies" title="Link to this definition">#</a></dt>
+<dd><p>Checks if required PyG dependencies are available.</p>
+<p>Raises:
+ImportError: If torch-geometric or torch-scatter is not available.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.encoders.nargnn.gnn_layer.GNNLayer.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_attr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.subnets.encoders.nargnn.gnn_layer.GNNLayer.forward" title="Link to this definition">#</a></dt>
-<dd><p>Forward pass.</p>
+<dd><p>Forward pass of the GNN layer.</p>
+<p>Args:
+x: Node embeddings of shape (num_nodes, embed_dim).
+edge_index: Graph connectivity in COO format of shape (2, num_edges).
+edge_attr: Edge features of shape (num_edges, embed_dim).</p>
+<p>Returns:
+Tuple containing:
+- x (torch.Tensor): Updated node embeddings.
+- w (torch.Tensor): Updated edge features.</p>
+<p>Raises:
+NotImplementedError: If an unsupported aggregation function is used.</p>
 </dd></dl>
 
 </dd></dl>

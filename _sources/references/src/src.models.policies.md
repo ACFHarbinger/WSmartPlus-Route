@@ -76,6 +76,7 @@ src.models.policies.hgs_alns
 
 ````{py:data} _POLICY_REGISTRY_SPEC
 :canonical: src.models.policies._POLICY_REGISTRY_SPEC
+:type: typing.Dict[str, typing.Tuple[str, str]]
 :value: >
    None
 
@@ -91,7 +92,7 @@ src.models.policies.hgs_alns
 ```
 ````
 
-````{py:function} get_policy(name: str, **kwargs) -> torch.nn.Module
+````{py:function} get_policy(name: str, **kwargs: typing.Any) -> torch.nn.Module
 :canonical: src.models.policies.get_policy
 
 ```{autodoc2-docstring} src.models.policies.get_policy

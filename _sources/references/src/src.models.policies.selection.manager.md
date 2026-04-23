@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} ManagerSelector(manager=None, manager_config: typing.Optional[dict] = None, threshold: float = 0.5, device: str = 'cuda')
+`````{py:class} ManagerSelector(manager: typing.Optional[logic.src.models.meta.hrl_manager.MandatoryManager] = None, manager_config: typing.Optional[typing.Dict[str, typing.Any]] = None, threshold: float = 0.5, device: str = 'cuda')
 :canonical: src.models.policies.selection.manager.ManagerSelector
 
 Bases: {py:obj}`src.models.policies.selection.base.VectorizedSelector`
@@ -37,7 +37,7 @@ Bases: {py:obj}`src.models.policies.selection.base.VectorizedSelector`
 ```{autodoc2-docstring} src.models.policies.selection.manager.ManagerSelector.__init__
 ```
 
-````{py:method} select(fill_levels: torch.Tensor, locs: typing.Optional[torch.Tensor] = None, waste_history: typing.Optional[torch.Tensor] = None, threshold: typing.Optional[float] = None, **kwargs) -> torch.Tensor
+````{py:method} select(fill_levels: torch.Tensor, locs: typing.Optional[torch.Tensor] = None, waste_history: typing.Optional[torch.Tensor] = None, threshold: typing.Optional[float] = None, **kwargs: typing.Any) -> torch.Tensor
 :canonical: src.models.policies.selection.manager.ManagerSelector.select
 
 ```{autodoc2-docstring} src.models.policies.selection.manager.ManagerSelector.select
@@ -45,7 +45,7 @@ Bases: {py:obj}`src.models.policies.selection.base.VectorizedSelector`
 
 ````
 
-````{py:method} load_weights(path: str)
+````{py:method} load_weights(path: str) -> None
 :canonical: src.models.policies.selection.manager.ManagerSelector.load_weights
 
 ```{autodoc2-docstring} src.models.policies.selection.manager.ManagerSelector.load_weights

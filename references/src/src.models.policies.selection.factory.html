@@ -494,7 +494,9 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.policies.selection.factory">
 <span id="src-models-policies-selection-factory"></span><h1><a class="reference internal" href="#module-src.models.policies.selection.factory" title="src.models.policies.selection.factory"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies.selection.factory</span></code></a><a class="headerlink" href="#module-src.models.policies.selection.factory" title="Link to this heading">#</a></h1>
-<p>Factory functions for creating vectorized selectors.</p>
+<p>Selection strategy factory.</p>
+<p>This module provides factory functions to create vectorized bin selection
+strategies from configuration objects or by explicit name.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -530,52 +532,79 @@ document.write(`
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.selection.factory.create_selector_from_config">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.selection.factory.</span></span><span class="sig-name descname"><span class="pre">create_selector_from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.models.policies.selection.base.html#src.models.policies.selection.base.VectorizedSelector" title="src.models.policies.selection.base.VectorizedSelector"><span class="pre">src.models.policies.selection.base.VectorizedSelector</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.selection.factory.create_selector_from_config" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.selection.factory.</span></span><span class="sig-name descname"><span class="pre">create_selector_from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.models.policies.selection.base.html#src.models.policies.selection.base.VectorizedSelector" title="src.models.policies.selection.base.VectorizedSelector"><span class="pre">src.models.policies.selection.base.VectorizedSelector</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.selection.factory.create_selector_from_config" title="Link to this definition">#</a></dt>
 <dd><p>Create a vectorized selector from a MandatorySelectionConfig or dict.</p>
+<p>Args:
+cfg: Configuration object containing ‘strategy’ and ‘params’.</p>
+<p>Returns:
+Optional[VectorizedSelector]: The instantiated selector or None.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.selection.factory._get_strategy">
 <span class="sig-prename descclassname"><span class="pre">src.models.policies.selection.factory.</span></span><span class="sig-name descname"><span class="pre">_get_strategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">object</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.selection.factory._get_strategy" title="Link to this definition">#</a></dt>
 <dd><p>Extract strategy name from config.</p>
+<p>Args:
+cfg: The configuration object.</p>
+<p>Returns:
+Optional[str]: Strategy name if found, else None.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.selection.factory._get_params">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.selection.factory.</span></span><span class="sig-name descname"><span class="pre">_get_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">object</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#src.models.policies.selection.factory._get_params" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.selection.factory.</span></span><span class="sig-name descname"><span class="pre">_get_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">object</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.selection.factory._get_params" title="Link to this definition">#</a></dt>
 <dd><p>Extract parameters from config, excluding strategy.</p>
+<p>Args:
+cfg: The configuration object.</p>
+<p>Returns:
+Dict[str, Any]: Dictionary of strategy parameters.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.selection.factory._create_combined_selector">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.selection.factory.</span></span><span class="sig-name descname"><span class="pre">_create_combined_selector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.models.policies.selection.base.html#src.models.policies.selection.base.VectorizedSelector" title="src.models.policies.selection.base.VectorizedSelector"><span class="pre">src.models.policies.selection.base.VectorizedSelector</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.selection.factory._create_combined_selector" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.selection.factory.</span></span><span class="sig-name descname"><span class="pre">_create_combined_selector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.models.policies.selection.base.html#src.models.policies.selection.base.VectorizedSelector" title="src.models.policies.selection.base.VectorizedSelector"><span class="pre">src.models.policies.selection.base.VectorizedSelector</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.selection.factory._create_combined_selector" title="Link to this definition">#</a></dt>
 <dd><p>Helper to create a CombinedSelector.</p>
+<p>Args:
+params: Combined selector parameters.</p>
+<p>Returns:
+Optional[VectorizedSelector]: Instantiated CombinedSelector or None.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.selection.factory._create_manager_selector">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.selection.factory.</span></span><span class="sig-name descname"><span class="pre">_create_manager_selector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.models.policies.selection.base.html#src.models.policies.selection.base.VectorizedSelector" title="src.models.policies.selection.base.VectorizedSelector"><span class="pre">src.models.policies.selection.base.VectorizedSelector</span></a></span></span><a class="headerlink" href="#src.models.policies.selection.factory._create_manager_selector" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.selection.factory.</span></span><span class="sig-name descname"><span class="pre">_create_manager_selector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.models.policies.selection.base.html#src.models.policies.selection.base.VectorizedSelector" title="src.models.policies.selection.base.VectorizedSelector"><span class="pre">src.models.policies.selection.base.VectorizedSelector</span></a></span></span><a class="headerlink" href="#src.models.policies.selection.factory._create_manager_selector" title="Link to this definition">#</a></dt>
 <dd><p>Helper to create a ManagerSelector.</p>
+<p>Args:
+params: Neural manager parameters.</p>
+<p>Returns:
+VectorizedSelector: Instantiated ManagerSelector.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.selection.factory._get_strategy_params">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.selection.factory.</span></span><span class="sig-name descname"><span class="pre">_get_strategy_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#src.models.policies.selection.factory._get_strategy_params" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.selection.factory.</span></span><span class="sig-name descname"><span class="pre">_get_strategy_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.selection.factory._get_strategy_params" title="Link to this definition">#</a></dt>
 <dd><p>Map strategy name to its specific parameters.</p>
+<p>Args:
+strategy: name of the strategy.
+params: raw parameter dictionary.</p>
+<p>Returns:
+Dict[str, Any]: mapped parameters for the selector constructor.</p>
+<p>Raises:
+ValueError: if strategy is unknown.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.selection.factory.get_vectorized_selector">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.selection.factory.</span></span><span class="sig-name descname"><span class="pre">get_vectorized_selector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.models.policies.selection.base.html#src.models.policies.selection.base.VectorizedSelector" title="src.models.policies.selection.base.VectorizedSelector"><span class="pre">src.models.policies.selection.base.VectorizedSelector</span></a></span></span><a class="headerlink" href="#src.models.policies.selection.factory.get_vectorized_selector" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.selection.factory.</span></span><span class="sig-name descname"><span class="pre">get_vectorized_selector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.models.policies.selection.base.html#src.models.policies.selection.base.VectorizedSelector" title="src.models.policies.selection.base.VectorizedSelector"><span class="pre">src.models.policies.selection.base.VectorizedSelector</span></a></span></span><a class="headerlink" href="#src.models.policies.selection.factory.get_vectorized_selector" title="Link to this definition">#</a></dt>
 <dd><p>Create a vectorized selector by name.</p>
 <p>Args:
 name: Selector name. Options:
-- ‘last_minute’: Threshold-based reactive selection
-- ‘regular’: Periodic collection on scheduled days
-- ‘lookahead’: Predictive overflow-based selection
-- ‘revenue’: Revenue-based selection
-- ‘service_level’: Statistical overflow prediction
-- ‘manager’: Neural network-based selection (MandatoryManager)
+- ‘last_minute’: Threshold-based reactive selection.
+- ‘regular’: Periodic collection on scheduled days.
+- ‘lookahead’: Predictive overflow-based selection.
+- ‘revenue’: Revenue-based selection.
+- ‘service_level’: Statistical overflow prediction.
+- ‘manager’: Neural network-based selection (MandatoryManager).
 **kwargs: Parameters passed to the selector constructor.</p>
 <p>Returns:
 VectorizedSelector: The instantiated selector.</p>

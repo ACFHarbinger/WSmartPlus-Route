@@ -492,13 +492,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.decoders.common.feed_forward_sublayer">
 <span id="src-models-subnets-decoders-common-feed-forward-sublayer"></span><h1><a class="reference internal" href="#module-src.models.subnets.decoders.common.feed_forward_sublayer" title="src.models.subnets.decoders.common.feed_forward_sublayer"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.decoders.common.feed_forward_sublayer</span></code></a><a class="headerlink" href="#module-src.models.subnets.decoders.common.feed_forward_sublayer" title="Link to this heading">#</a></h1>
 <p>Base decoder classes for reducing boilerplate across decoder implementations.</p>
-<p>This module provides reusable components for decoder architectures:</p>
-<ul class="simple">
-<li><p>FeedForwardSubLayer: Standard FFN sublayer used across multiple decoders</p></li>
-<li><p>Future: DecoderBase class for common decoder patterns</p></li>
-</ul>
-<p>The FeedForwardSubLayer follows the standard transformer pattern:
-Input -&gt; FFN (up-projection) -&gt; Activation -&gt; FFN (down-projection) -&gt; Output</p>
+<p>This module provides reusable components for decoder architectures, specifically
+focusing on standard feed-forward network (FFN) patterns.</p>
+<p>Attributes:
+FeedForwardSubLayer: Shared feed-forward sublayer for decoders.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.decoders.common.feed_forward_sublayer import FeedForwardSubLayer
+&gt;&gt;&gt; ff_layer = FeedForwardSubLayer(embed_dim=128, feed_forward_hidden=512)
+&gt;&gt;&gt; output = ff_layer(input_tensor)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -516,81 +517,32 @@ Input -&gt; FFN (up-projection) -&gt; Activation -&gt; FFN (down-projection) -&g
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.subnets.decoders.common.feed_forward_sublayer.FeedForwardSubLayer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.decoders.common.feed_forward_sublayer.</span></span><span class="sig-name descname"><span class="pre">FeedForwardSubLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feed_forward_hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.models.activation_function.ActivationConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.decoders.common.feed_forward_sublayer.FeedForwardSubLayer" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.decoders.common.feed_forward_sublayer.</span></span><span class="sig-name descname"><span class="pre">FeedForwardSubLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feed_forward_hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.models.activation_function.ActivationConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.decoders.common.feed_forward_sublayer.FeedForwardSubLayer" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
 <p>Reusable feed-forward sub-layer for decoder architectures.</p>
 <p>Implements the standard transformer feed-forward pattern:
 FFN(x) = Activation(W1 * x + b1) * W2 + b2</p>
-<p>Where:</p>
-<ul class="simple">
-<li><p>W1: (embed_dim, feed_forward_hidden)  # Up-projection</p></li>
-<li><p>W2: (feed_forward_hidden, embed_dim)  # Down-projection</p></li>
-</ul>
 <p>This layer is used in GAT decoders, Deep decoders, and other attention-based
 decoder architectures.</p>
-<p class="rubric" id="id1">Parameters</p>
-<p>embed_dim : int
-Input and output embedding dimension.
-feed_forward_hidden : int
-Hidden dimension for the feed-forward network.
-If 0 or negative, uses a single linear layer (embed_dim -&gt; embed_dim).
-activation_config : Optional[ActivationConfig], default=None
-Activation function configuration (name, parameters, thresholds).
-Defaults to ReLU if None.
-bias : bool, default=True
-Whether to use bias in linear layers.
-**kwargs
-Additional keyword arguments (for future extensibility).</p>
-<p class="rubric" id="id2">Attributes</p>
-<p>sub_layers : nn.Sequential
-Sequential container with FFN layers and activation.</p>
-<p class="rubric" id="id3">Examples</p>
-<p>Standard usage:</p>
-<blockquote>
-<div><blockquote>
-<div><blockquote>
-<div><p>config = ActivationConfig(name=”gelu”)
-ff_layer = FeedForwardSubLayer(
-…     embed_dim=128,
-…     feed_forward_hidden=512,
-…     activation_config=config
-… )
-output = ff_layer(input_tensor)  # (B, N, 128) -&gt; (B, N, 128)</p>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
-<p>No hidden layer (direct mapping):</p>
-<blockquote>
-<div><blockquote>
-<div><blockquote>
-<div><p>ff_layer = FeedForwardSubLayer(embed_dim=128, feed_forward_hidden=0)
-output = ff_layer(input_tensor)  # Single linear layer</p>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
-<p class="rubric" id="id4">Notes</p>
-<ul class="simple">
-<li><p>The mask parameter in forward() is ignored (for API compatibility)</p></li>
-<li><p>For feed_forward_hidden &lt;= 0, creates a single linear layer</p></li>
-<li><p>Activation is only applied when feed_forward_hidden &gt; 0</p></li>
-</ul>
+<p>Attributes:
+sub_layers (nn.Sequential): Sequential container with FFN layers and activation.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize the FeedForwardSubLayer.</p>
+<p>Initializes the FeedForwardSubLayer.</p>
+<p>Args:
+embed_dim: Input and output embedding dimension.
+feed_forward_hidden: Hidden dimension for the feed-forward network.
+activation_config: Activation function configuration.
+bias: Whether to use bias in linear layers.
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.decoders.common.feed_forward_sublayer.FeedForwardSubLayer.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.decoders.common.feed_forward_sublayer.FeedForwardSubLayer.forward" title="Link to this definition">#</a></dt>
 <dd><p>Forward pass through feed-forward sublayer.</p>
-<p class="rubric" id="id5">Parameters</p>
-<p>h : torch.Tensor
-Input tensor of shape (batch_size, seq_len, embed_dim).
-mask : Optional[torch.Tensor], default=None
-Mask tensor (currently unused, kept for API compatibility).</p>
-<p class="rubric" id="returns">Returns</p>
-<p>torch.Tensor
-Output tensor of shape (batch_size, seq_len, embed_dim).</p>
-<p class="rubric" id="id6">Notes</p>
-<p>The mask parameter is ignored in the current implementation.
-It’s kept for compatibility with layer interfaces that expect it.</p>
+<p>Args:
+h (torch.Tensor): Input tensor of shape (batch_size, seq_len, embed_dim).
+mask (Optional[torch.Tensor]): Mask tensor (currently unused).</p>
+<p>Returns:
+torch.Tensor: Output tensor of shape (batch_size, seq_len, embed_dim).</p>
 </dd></dl>
 
 </dd></dl>

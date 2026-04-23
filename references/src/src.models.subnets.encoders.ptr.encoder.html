@@ -493,6 +493,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.encoders.ptr.encoder">
 <span id="src-models-subnets-encoders-ptr-encoder"></span><h1><a class="reference internal" href="#module-src.models.subnets.encoders.ptr.encoder" title="src.models.subnets.encoders.ptr.encoder"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.encoders.ptr.encoder</span></code></a><a class="headerlink" href="#module-src.models.subnets.encoders.ptr.encoder" title="Link to this heading">#</a></h1>
 <p>Pointer Network Encoder.</p>
+<p>Attributes:
+PointerEncoder: Maps a graph represented as an input sequence to a hidden vector.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.encoders.ptr import PointerEncoder
+&gt;&gt;&gt; encoder = PointerEncoder(input_dim=2, hidden_dim=128)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -510,9 +515,14 @@ document.write(`
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.subnets.encoders.ptr.encoder.PointerEncoder">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.encoders.ptr.encoder.</span></span><span class="sig-name descname"><span class="pre">PointerEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.encoders.ptr.encoder.PointerEncoder" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.encoders.ptr.encoder.</span></span><span class="sig-name descname"><span class="pre">PointerEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.encoders.ptr.encoder.PointerEncoder" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
 <p>Maps a graph represented as an input sequence to a hidden vector.</p>
+<p>Attributes:
+hidden_dim (int): Hidden dimension size.
+lstm (nn.LSTM): LSTM layer for sequence processing.
+init_hx (nn.Parameter): Trainable initial hidden state.
+init_cx (nn.Parameter): Trainable initial cell state.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the PointerEncoder.</p>
 <p>Args:
@@ -520,17 +530,25 @@ input_dim: Input dimension.
 hidden_dim: Hidden dimension.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.encoders.ptr.encoder.PointerEncoder.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.encoders.ptr.encoder.PointerEncoder.forward" title="Link to this definition">#</a></dt>
-<dd><p>Forward pass.</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.subnets.encoders.ptr.encoder.PointerEncoder.forward" title="Link to this definition">#</a></dt>
+<dd><p>Forward pass of the encoder.</p>
 <p>Args:
-x: Input sequence.
-hidden: Initial hidden state.</p>
+x: Input sequence of shape (seq_len, batch, input_dim).
+hidden: Initial hidden and cell states (h_0, c_0).</p>
+<p>Returns:
+Tuple containing:
+- output: LSTM output sequence.
+- hidden: Final hidden and cell states (h_n, c_n).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.encoders.ptr.encoder.PointerEncoder.init_hidden">
-<span class="sig-name descname"><span class="pre">init_hidden</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.encoders.ptr.encoder.PointerEncoder.init_hidden" title="Link to this definition">#</a></dt>
-<dd><p>Trainable initial hidden state</p>
+<span class="sig-name descname"><span class="pre">init_hidden</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.nn.Parameter</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.nn.Parameter</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.subnets.encoders.ptr.encoder.PointerEncoder.init_hidden" title="Link to this definition">#</a></dt>
+<dd><p>Initializes trainable initial hidden and cell states.</p>
+<p>Args:
+hidden_dim: Dimension of the hidden state.</p>
+<p>Returns:
+Tuple containing the initial hidden state (hx) and cell state (cx).</p>
 </dd></dl>
 
 </dd></dl>

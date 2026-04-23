@@ -54,6 +54,7 @@ src.models.subnets.embeddings.edges.wcvrp
 
 ````{py:data} EDGE_EMBEDDING_REGISTRY
 :canonical: src.models.subnets.embeddings.edges.EDGE_EMBEDDING_REGISTRY
+:type: typing.Dict[str, typing.Any]
 :value: >
    None
 
@@ -62,7 +63,7 @@ src.models.subnets.embeddings.edges.wcvrp
 
 ````
 
-````{py:function} get_edge_embedding(env_name: str, embed_dim: int = 128, **kwargs) -> torch.nn.Module
+````{py:function} get_edge_embedding(env_name: str, embed_dim: int = 128, **kwargs: typing.Any) -> torch.nn.Module
 :canonical: src.models.subnets.embeddings.edges.get_edge_embedding
 
 ```{autodoc2-docstring} src.models.subnets.embeddings.edges.get_edge_embedding
@@ -71,6 +72,7 @@ src.models.subnets.embeddings.edges.wcvrp
 
 ````{py:data} __all__
 :canonical: src.models.subnets.embeddings.edges.__all__
+:type: list[str]
 :value: >
    ['EdgeEmbedding', 'CVRPPEdgeEmbedding', 'NoEdgeEmbedding', 'TSPEdgeEmbedding', 'WCVRPEdgeEmbedding',...
 

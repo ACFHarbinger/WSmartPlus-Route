@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} VRPAdapter(td: tensordict.TensorDict, partition_actions: torch.Tensor, subprob_batch_size: int = 2000, capacity: typing.Optional[float] = None, **kwargs)
+`````{py:class} VRPAdapter(td: tensordict.TensorDict, partition_actions: torch.Tensor, subprob_batch_size: int = 2000, capacity: typing.Optional[float] = None, **kwargs: typing.Any)
 :canonical: src.models.subnets.modules.vrp_adapter.VRPAdapter
 
 Bases: {py:obj}`src.models.subnets.modules.adapter_base.SubproblemAdapter`

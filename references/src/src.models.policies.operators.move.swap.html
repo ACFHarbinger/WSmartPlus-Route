@@ -491,6 +491,9 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.policies.operators.move.swap">
 <span id="src-models-policies-operators-move-swap"></span><h1><a class="reference internal" href="#module-src.models.policies.operators.move.swap" title="src.models.policies.operators.move.swap"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies.operators.move.swap</span></code></a><a class="headerlink" href="#module-src.models.policies.operators.move.swap" title="Link to this heading">#</a></h1>
 <p>Swap local search operator.</p>
+<p>This module provides a GPU-accelerated implementation of the Swap operator,
+which improves tours by exchanging two nodes within the same route across
+problem batches simultaneously.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -498,14 +501,13 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.operators.move.swap.vectorized_swap" title="src.models.policies.operators.move.swap.vectorized_swap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vectorized_swap</span></code></a></p></td>
-<td><p>Vectorized Swap operator.
-Exchanges two nodes within the same route for multiple batch items simultaneously.</p></td>
+<td><p>Vectorized Swap operator for intra-route optimization.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.models.policies.operators.move.swap._compute_swap_gain" title="src.models.policies.operators.move.swap._compute_swap_gain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_compute_swap_gain</span></code></a></p></td>
 <td><p>Computes improvement gain for swapping node V_i and V_j.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.operators.move.swap._apply_swap_moves" title="src.models.policies.operators.move.swap._apply_swap_moves"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_apply_swap_moves</span></code></a></p></td>
-<td><p>Applies swap moves to improved instances in the batch.</p></td>
+<td><p>Applies swap moves to improved instances in the batch using scatter.</p></td>
 </tr>
 </tbody>
 </table>
@@ -515,28 +517,46 @@ Exchanges two nodes within the same route for multiple batch items simultaneousl
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.move.swap.vectorized_swap">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.move.swap.</span></span><span class="sig-name descname"><span class="pre">vectorized_swap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.move.swap.vectorized_swap" title="Link to this definition">#</a></dt>
-<dd><p>Vectorized Swap operator.
-Exchanges two nodes within the same route for multiple batch items simultaneously.</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.move.swap.</span></span><span class="sig-name descname"><span class="pre">vectorized_swap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Generator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.move.swap.vectorized_swap" title="Link to this definition">#</a></dt>
+<dd><p>Vectorized Swap operator for intra-route optimization.</p>
+<p>Randomly samples two node positions ‘i’ and ‘j’ and exchanges their values
+if the resulting tour reduces total edge weight.</p>
 <p>Args:
-tours (torch.Tensor): Current tours (B, max_len).
-dist_matrix (torch.Tensor): Distance matrix.
-max_iterations (int): Number of random swap attempts.
-generator (torch.Generator, optional): Random generator.</p>
+tours: Batch of node sequences of shape [B, L].
+dist_matrix: Edge cost tensor of shape [B, N, N].
+max_iterations: Number of random swap pairs to evaluate.
+generator: Torch device-side RNG.</p>
 <p>Returns:
-torch.Tensor: Updated tours.</p>
+torch.Tensor: Updated batch of tours of shape [B, L].</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.move.swap._compute_swap_gain">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.move.swap.</span></span><span class="sig-name descname"><span class="pre">_compute_swap_gain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_idx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.move.swap._compute_swap_gain" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.move.swap.</span></span><span class="sig-name descname"><span class="pre">_compute_swap_gain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.move.swap._compute_swap_gain" title="Link to this definition">#</a></dt>
 <dd><p>Computes improvement gain for swapping node V_i and V_j.</p>
+<p>Args:
+tours: Batch of individual sequences of shape [B, L].
+dist: Pairwise weights of shape [B, N, N].
+node_i: Unique ID for the first node of shape [B, 1].
+node_j: Unique ID for the second node of shape [B, 1].
+i: Position coordinate for node i.
+j: Position coordinate for node j.
+b_idx: Batch tracker for selection logic.</p>
+<p>Returns:
+torch.Tensor: Evaluated cost improvement results.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.move.swap._apply_swap_moves">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.move.swap.</span></span><span class="sig-name descname"><span class="pre">_apply_swap_moves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">improved</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.move.swap._apply_swap_moves" title="Link to this definition">#</a></dt>
-<dd><p>Applies swap moves to improved instances in the batch.</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.move.swap.</span></span><span class="sig-name descname"><span class="pre">_apply_swap_moves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">improved</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.move.swap._apply_swap_moves" title="Link to this definition">#</a></dt>
+<dd><p>Applies swap moves to improved instances in the batch using scatter.</p>
+<p>Args:
+tours: Source node sequences of shape [B, L].
+improved: Binary boolean activation mask for improving moves of shape [B, 1].
+i: Position indices for first swap targets of shape [B, 1].
+j: Position indices for second swap targets of shape [B, 1].</p>
+<p>Returns:
+torch.Tensor: In-place updated sequence batch.</p>
 </dd></dl>
 
 </section>

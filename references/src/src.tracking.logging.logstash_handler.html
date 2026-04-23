@@ -492,6 +492,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.logging.logstash_handler">
 <span id="src-tracking-logging-logstash-handler"></span><h1><a class="reference internal" href="#module-src.tracking.logging.logstash_handler" title="src.tracking.logging.logstash_handler"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging.logstash_handler</span></code></a><a class="headerlink" href="#module-src.tracking.logging.logstash_handler" title="Link to this heading">#</a></h1>
 <p>Logstash TCP Handler for remote logging.</p>
+<p>Provides a logging handler that transmits structured JSON log entries over
+a TCP socket to a remote Logstash instance.</p>
+<p>Attributes:
+LogstashTcpHandler: A logging.Handler subclass for remote TCP logging.</p>
+<p>Example:
+&gt;&gt;&gt; handler = LogstashTcpHandler(host=”localhost”, port=5000)
+&gt;&gt;&gt; logger = logging.getLogger(“remote”)
+&gt;&gt;&gt; logger.addHandler(handler)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -512,15 +520,22 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.tracking.logging.logstash_handler.</span></span><span class="sig-name descname"><span class="pre">LogstashTcpHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'localhost'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.logging.logstash_handler.LogstashTcpHandler" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logging.Handler</span></code></p>
 <p>Handler that sends JSON logs over TCP to Logstash.</p>
+<p>Transmits formatted log records as newline-terminated strings to a
+Logstash listener.</p>
+<p>Attributes:
+host (str): Logstash server hostname.
+port (int): Logstash server port.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the TCP handler for Logstash.</p>
 <p>Args:
-host: Logstash server hostname.
-port: Logstash server port.</p>
+host: Logstash server hostname. Defaults to “localhost”.
+port: Logstash server port. Defaults to 5000.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.logging.logstash_handler.LogstashTcpHandler.emit">
-<span class="sig-name descname"><span class="pre">emit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.logging.logstash_handler.LogstashTcpHandler.emit" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">emit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logging.LogRecord</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.logging.logstash_handler.LogstashTcpHandler.emit" title="Link to this definition">#</a></dt>
 <dd><p>Emit a log record by sending it to Logstash over TCP.</p>
+<p>Args:
+record: The logging record to emit.</p>
 </dd></dl>
 
 </dd></dl>

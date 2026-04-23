@@ -494,7 +494,16 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.core.temporal_attention_model.policy">
 <span id="src-models-core-temporal-attention-model-policy"></span><h1><a class="reference internal" href="#module-src.models.core.temporal_attention_model.policy" title="src.models.core.temporal_attention_model.policy"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.core.temporal_attention_model.policy</span></code></a><a class="headerlink" href="#module-src.models.core.temporal_attention_model.policy" title="Link to this heading">#</a></h1>
-<p>Temporal Attention Model Policy.</p>
+<p>Temporal Attention Model (TAM) Policy.</p>
+<p>This module implements the policy for the Temporal Attention Model, which
+integrates recurrent fill-level estimation into the constructive routing
+framework for RL4CO environments.</p>
+<p>Attributes:
+TemporalAMPolicy: Policy wrapper with temporal prediction and fusion capabilities.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.core.temporal_attention_model.policy import TemporalAMPolicy
+&gt;&gt;&gt; policy = TemporalAMPolicy(env_name=”wcvrp”, temporal_horizon=5)
+&gt;&gt;&gt; out = policy(td, env)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -502,7 +511,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.core.temporal_attention_model.policy.TemporalAMPolicy" title="src.models.core.temporal_attention_model.policy.TemporalAMPolicy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TemporalAMPolicy</span></code></a></p></td>
-<td><p>Temporal Attention Model Policy.</p></td>
+<td><p>Routing policy with integrated temporal forecasting.</p></td>
 </tr>
 </tbody>
 </table>
@@ -512,16 +521,30 @@ document.write(`
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.core.temporal_attention_model.policy.TemporalAMPolicy">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.temporal_attention_model.policy.</span></span><span class="sig-name descname"><span class="pre">TemporalAMPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">512</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temporal_horizon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictor_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictor_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'gru'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.temporal_attention_model.policy.TemporalAMPolicy" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.temporal_attention_model.policy.</span></span><span class="sig-name descname"><span class="pre">TemporalAMPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">512</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temporal_horizon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictor_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictor_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'gru'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.temporal_attention_model.policy.TemporalAMPolicy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.models.core.attention_model.policy.AttentionModelPolicy</span></code></p>
-<p>Temporal Attention Model Policy.</p>
-<p>Incorporates historical waste data and fill level predictions using
-a Gated Recurrent Fill Predictor.</p>
+<p>Routing policy with integrated temporal forecasting.</p>
+<p>Extends canonical attention policies by adding a time-series sub-network
+to predict node fill levels, fusing these predictions with spatial features
+prior to graph encoding.</p>
+<p>Attributes:
+fill_predictor (Union[LSTM, GRU]): History-aware state estimator.
+temporal_embed (nn.Linear): Linear mapping for scalar predictions.
+combine_embeddings (nn.Sequential): MLP for feature fusion.
+temporal_horizon (int): Input history window size.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize TemporalAMPolicy.</p>
+<p>Initializes the TemporalAMPolicy.</p>
+<p>Args:
+env_name: Targeted environment identifier.
+embed_dim: Latent vector size.
+hidden_dim: Hidden size for predictor and combiner.
+temporal_horizon: Number of time-steps for history input.
+predictor_layers: Depth of the RNN predictor.
+predictor_type: Recurrent cell variant (‘gru’, ‘lstm’).
+**kwargs: Extra parameters for base policy and subnets.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.models.core.temporal_attention_model.policy.TemporalAMPolicy.fill_predictor">
-<span class="sig-name descname"><span class="pre">fill_predictor</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.models.subnets.helpers.lstm_fill_predictor.LongShortTermMemoryFillPredictor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.models.subnets.helpers.gru_fill_predictor.GatedRecurrentUnitFillPredictor</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.models.core.temporal_attention_model.policy.TemporalAMPolicy.fill_predictor" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">fill_predictor</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.models.subnets.other.lstm_fill_predictor.LongShortTermMemoryFillPredictor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.models.subnets.other.gru_fill_predictor.GatedRecurrentUnitFillPredictor</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.models.core.temporal_attention_model.policy.TemporalAMPolicy.fill_predictor" title="Link to this definition">#</a></dt>
 <dd><p>None</p>
 </dd></dl>
 
@@ -539,8 +562,19 @@ a Gated Recurrent Fill Predictor.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.temporal_attention_model.policy.TemporalAMPolicy.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sampling'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#src.models.core.temporal_attention_model.policy.TemporalAMPolicy.forward" title="Link to this definition">#</a></dt>
-<dd><p>Forward pass with temporal feature prediction.</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sampling'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.temporal_attention_model.policy.TemporalAMPolicy.forward" title="Link to this definition">#</a></dt>
+<dd><p>Performs constructive decoding with proactive state estimation.</p>
+<p>Args:
+td: problem state container (expects ‘fill_history’).
+env: environment logic provider.
+strategy: constructive search strategy.
+num_starts: start count for multi-solution search.
+actions: target tour indices for force-decoding.
+**kwargs: additional arguments.</p>
+<p>Returns:
+Dict[str, Any]: result dictionary with rewards and constructed actions.</p>
+<p>Raises:
+AssertionError: If encoder/decoder are uninitialized.</p>
 </dd></dl>
 
 </dd></dl>

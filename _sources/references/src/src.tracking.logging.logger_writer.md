@@ -35,7 +35,7 @@
 
 ### API
 
-`````{py:class} LoggerWriter(terminal, filename, echo_to_terminal=True)
+`````{py:class} LoggerWriter(terminal: typing.TextIO, filename: str, echo_to_terminal: bool = True)
 :canonical: src.tracking.logging.logger_writer.LoggerWriter
 
 ```{autodoc2-docstring} src.tracking.logging.logger_writer.LoggerWriter
@@ -47,7 +47,7 @@
 ```{autodoc2-docstring} src.tracking.logging.logger_writer.LoggerWriter.__init__
 ```
 
-````{py:method} write(message)
+````{py:method} write(message: str) -> None
 :canonical: src.tracking.logging.logger_writer.LoggerWriter.write
 
 ```{autodoc2-docstring} src.tracking.logging.logger_writer.LoggerWriter.write
@@ -55,7 +55,7 @@
 
 ````
 
-````{py:method} flush()
+````{py:method} flush() -> None
 :canonical: src.tracking.logging.logger_writer.LoggerWriter.flush
 
 ```{autodoc2-docstring} src.tracking.logging.logger_writer.LoggerWriter.flush
@@ -63,7 +63,7 @@
 
 ````
 
-````{py:method} close()
+````{py:method} close() -> None
 :canonical: src.tracking.logging.logger_writer.LoggerWriter.close
 
 ```{autodoc2-docstring} src.tracking.logging.logger_writer.LoggerWriter.close
@@ -71,7 +71,7 @@
 
 ````
 
-````{py:method} isatty()
+````{py:method} isatty() -> bool
 :canonical: src.tracking.logging.logger_writer.LoggerWriter.isatty
 
 ```{autodoc2-docstring} src.tracking.logging.logger_writer.LoggerWriter.isatty
@@ -79,7 +79,7 @@
 
 ````
 
-````{py:method} fileno()
+````{py:method} fileno() -> int
 :canonical: src.tracking.logging.logger_writer.LoggerWriter.fileno
 
 ```{autodoc2-docstring} src.tracking.logging.logger_writer.LoggerWriter.fileno
@@ -87,7 +87,7 @@
 
 ````
 
-````{py:method} __getattr__(name)
+````{py:method} __getattr__(name: str) -> typing.Any
 :canonical: src.tracking.logging.logger_writer.LoggerWriter.__getattr__
 
 ```{autodoc2-docstring} src.tracking.logging.logger_writer.LoggerWriter.__getattr__

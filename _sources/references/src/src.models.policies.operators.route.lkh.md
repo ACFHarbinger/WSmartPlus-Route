@@ -73,7 +73,7 @@
 ```
 ````
 
-````{py:function} _try_moves_for_node(tour, i, nodes_count, dist, waste, capacity, candidates, use_3opt, curr_p, curr_c)
+````{py:function} _try_moves_for_node(tour: torch.Tensor, i: int, nodes_count: int, dist: torch.Tensor, waste: typing.Optional[torch.Tensor], capacity: typing.Optional[torch.Tensor], candidates: typing.List[typing.List[int]], use_3opt: bool, curr_p: float, curr_c: float) -> typing.Tuple[bool, torch.Tensor, float, float]
 :canonical: src.models.policies.operators.route.lkh._try_moves_for_node
 
 ```{autodoc2-docstring} src.models.policies.operators.route.lkh._try_moves_for_node

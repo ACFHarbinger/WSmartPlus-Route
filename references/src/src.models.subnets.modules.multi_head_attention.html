@@ -494,6 +494,16 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.modules.multi_head_attention">
 <span id="src-models-subnets-modules-multi-head-attention"></span><h1><a class="reference internal" href="#module-src.models.subnets.modules.multi_head_attention" title="src.models.subnets.modules.multi_head_attention"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.modules.multi_head_attention</span></code></a><a class="headerlink" href="#module-src.models.subnets.modules.multi_head_attention" title="Link to this heading">#</a></h1>
 <p>Multi-Head Attention module for transformer-based models.</p>
+<p>This module provides the MultiHeadAttention layer, which allows the model to
+jointly attend to information from different representation subspaces.</p>
+<p>Attributes:
+MultiHeadAttention: Implementation of scaled dot-product multi-head attention.</p>
+<p>Example:
+&gt;&gt;&gt; import torch
+&gt;&gt;&gt; from logic.src.models.subnets.modules.multi_head_attention import MultiHeadAttention
+&gt;&gt;&gt; mha = MultiHeadAttention(n_heads=8, input_dim=128, embed_dim=128)
+&gt;&gt;&gt; q = torch.randn(1, 10, 128)
+&gt;&gt;&gt; out = mha(q)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -514,15 +524,29 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.modules.multi_head_attention.</span></span><span class="sig-name descname"><span class="pre">MultiHeadAttention</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.multi_head_attention.MultiHeadAttention" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
 <p>Multi-Head Attention mechanism.</p>
-<p>Allows the model to jointly attend to information from different representation subspaces
-at different positions. Implements scaled dot-product attention.</p>
+<p>Allows the model to jointly attend to information from different representation
+subspaces at different positions using scaled dot-product attention.</p>
+<p>Attributes:
+n_heads (int): Number of attention heads.
+input_dim (int): Dimensionality of the input features.
+embed_dim (int): Total embedding dimensionality (output dimension).
+val_dim (int): Dimensionality of value vectors per head.
+key_dim (int): Dimensionality of key/query vectors per head.
+norm_factor (float): Scaling factor for dot-product attention (1 / sqrt(key_dim)).
+W_query (nn.Parameter): Learnable query projection weights.
+W_key (nn.Parameter): Learnable key projection weights.
+W_val (nn.Parameter): Learnable value projection weights.
+W_out (nn.Parameter): Learnable output projection weights.
+last_attn (Tuple[Optional[torch.Tensor], Optional[torch.Tensor]]): Cached
+last attention weights and mask.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes MultiHeadAttention.</p>
 <p>Args:
-n_heads: Number of attention heads.
-input_dim: Dimensionality of the input features.
-embed_dim: Total embedding dimension (output dimension).
-val_dim: Dimension of value vectors per head.
-key_dim: Dimension of key/query vectors per head.</p>
+n_heads: Number of parallel attention heads.
+input_dim: Feature dimensionality of the input sequence.
+embed_dim: Total dimensionality of the output representation.
+val_dim: Dimension of value vectors per head. Defaults to <code class="docutils literal notranslate"><span class="pre">embed_dim</span> <span class="pre">//</span> <span class="pre">n_heads</span></code>.
+key_dim: Dimension of key/query vectors per head. Defaults to <code class="docutils literal notranslate"><span class="pre">val_dim</span></code>.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.models.subnets.modules.multi_head_attention.MultiHeadAttention.last_attn">
 <span class="sig-name descname"><span class="pre">last_attn</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.models.subnets.modules.multi_head_attention.MultiHeadAttention.last_attn" title="Link to this definition">#</a></dt>
@@ -532,20 +556,20 @@ key_dim: Dimension of key/query vectors per head.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.multi_head_attention.MultiHeadAttention.init_parameters">
 <span class="sig-name descname"><span class="pre">init_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.subnets.modules.multi_head_attention.MultiHeadAttention.init_parameters" title="Link to this definition">#</a></dt>
-<dd><p>Initializes the parameters of the attention layers using Xavier uniform initialization.</p>
+<dd><p>Initializes the attention weights using Xavier-like uniform distribution.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.multi_head_attention.MultiHeadAttention.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.modules.multi_head_attention.MultiHeadAttention.forward" title="Link to this definition">#</a></dt>
-<dd><p>Computes the multi-head attention.</p>
+<dd><p>Computes the multi-head attention update.</p>
 <p>Args:
-q: Queries tensor of shape (batch_size, n_query, input_dim).
-h: Key/Value keys tensor of shape (batch_size, graph_size, input_dim).
-If None, defaults to q (self-attention).
-mask: Attention mask of shape (batch_size, n_query, graph_size).</p>
+q: Queries tensor of shape (batch, n_query, input_dim).
+h: Key/Value keys tensor of shape (batch, graph_size, input_dim).
+Defaults to <code class="docutils literal notranslate"><span class="pre">q</span></code> (self-attention) if None.
+mask: Boolean attention mask (batch, n_query, graph_size).</p>
 <p>Returns:
-context vectors (aggregated values) of shape (batch_size, n_query, embed_dim).</p>
+torch.Tensor: Context vectors of shape (batch, n_query, embed_dim).</p>
 </dd></dl>
 
 </dd></dl>

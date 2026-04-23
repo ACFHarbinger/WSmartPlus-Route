@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} ACODecoder(n_ants: int = 20, n_iterations: int = 1, alpha: float = 1.0, beta: float = 2.0, rho: float = 0.1, use_local_search: bool = True, seed: int = 42, **kwargs)
+`````{py:class} ACODecoder(n_ants: int = 20, n_iterations: int = 1, alpha: float = 1.0, beta: float = 2.0, rho: float = 0.1, use_local_search: bool = True, seed: int = 42, **kwargs: typing.Any)
 :canonical: src.models.subnets.decoders.deepaco.decoder.ACODecoder
 
 Bases: {py:obj}`logic.src.models.common.non_autoregressive.decoder.NonAutoregressiveDecoder`
@@ -37,7 +37,7 @@ Bases: {py:obj}`logic.src.models.common.non_autoregressive.decoder.NonAutoregres
 ```{autodoc2-docstring} src.models.subnets.decoders.deepaco.decoder.ACODecoder.__init__
 ```
 
-````{py:method} __getstate__()
+````{py:method} __getstate__() -> typing.Dict[str, typing.Any]
 :canonical: src.models.subnets.decoders.deepaco.decoder.ACODecoder.__getstate__
 
 ```{autodoc2-docstring} src.models.subnets.decoders.deepaco.decoder.ACODecoder.__getstate__
@@ -45,7 +45,7 @@ Bases: {py:obj}`logic.src.models.common.non_autoregressive.decoder.NonAutoregres
 
 ````
 
-````{py:method} __setstate__(state)
+````{py:method} __setstate__(state: typing.Dict[str, typing.Any]) -> None
 :canonical: src.models.subnets.decoders.deepaco.decoder.ACODecoder.__setstate__
 
 ```{autodoc2-docstring} src.models.subnets.decoders.deepaco.decoder.ACODecoder.__setstate__
@@ -62,7 +62,7 @@ Bases: {py:obj}`logic.src.models.common.non_autoregressive.decoder.NonAutoregres
 
 ````
 
-````{py:method} forward(td: tensordict.TensorDict, heatmap: torch.Tensor, env: logic.src.envs.base.base.RL4COEnvBase, **kwargs) -> tuple[torch.Tensor, torch.Tensor]
+````{py:method} forward(td: tensordict.TensorDict, heatmap: torch.Tensor, env: logic.src.envs.base.base.RL4COEnvBase, **kwargs: typing.Any) -> typing.Tuple[torch.Tensor, torch.Tensor]
 :canonical: src.models.subnets.decoders.deepaco.decoder.ACODecoder.forward
 
 ```{autodoc2-docstring} src.models.subnets.decoders.deepaco.decoder.ACODecoder.forward
@@ -70,7 +70,7 @@ Bases: {py:obj}`logic.src.models.common.non_autoregressive.decoder.NonAutoregres
 
 ````
 
-````{py:method} construct(td: tensordict.TensorDict, heatmap: torch.Tensor, env: logic.src.envs.base.base.RL4COEnvBase, num_starts: int = 1, return_all: bool = False, **kwargs) -> typing.Dict[str, torch.Tensor]
+````{py:method} construct(td: tensordict.TensorDict, heatmap: torch.Tensor, env: logic.src.envs.base.base.RL4COEnvBase, num_starts: int = 1, return_all: bool = False, **kwargs: typing.Any) -> typing.Dict[str, torch.Tensor]
 :canonical: src.models.subnets.decoders.deepaco.decoder.ACODecoder.construct
 
 ```{autodoc2-docstring} src.models.subnets.decoders.deepaco.decoder.ACODecoder.construct
@@ -86,7 +86,7 @@ Bases: {py:obj}`logic.src.models.common.non_autoregressive.decoder.NonAutoregres
 
 ````
 
-````{py:method} _construct_tour(prob_matrix: torch.Tensor, dist_matrix: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]
+````{py:method} _construct_tour(prob_matrix: torch.Tensor, dist_matrix: torch.Tensor) -> typing.Tuple[torch.Tensor, torch.Tensor, torch.Tensor]
 :canonical: src.models.subnets.decoders.deepaco.decoder.ACODecoder._construct_tour
 
 ```{autodoc2-docstring} src.models.subnets.decoders.deepaco.decoder.ACODecoder._construct_tour
@@ -102,7 +102,7 @@ Bases: {py:obj}`logic.src.models.common.non_autoregressive.decoder.NonAutoregres
 
 ````
 
-````{py:method} _two_opt(tours: torch.Tensor, dist_matrix: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]
+````{py:method} _two_opt(tours: torch.Tensor, dist_matrix: torch.Tensor) -> typing.Tuple[torch.Tensor, torch.Tensor]
 :canonical: src.models.subnets.decoders.deepaco.decoder.ACODecoder._two_opt
 
 ```{autodoc2-docstring} src.models.subnets.decoders.deepaco.decoder.ACODecoder._two_opt

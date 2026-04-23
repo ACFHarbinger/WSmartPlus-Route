@@ -515,10 +515,19 @@ recorded for the selected day, coloured source-blue → target-orange.</p></li>
  &quot;kg&quot;: 125.5, &quot;km&quot;: 45.2, &quot;cost&quot;: 22.6, &quot;profit&quot;: 50.2, &quot;overflows&quot;: 0}
 </pre></div>
 </div>
-<p>Usage::</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from logic.src.ui.components.maps.pydeck_animated import render_pydeck_animated_map
-
-render_pydeck_animated_map(
+<p>Attributes:
+PYDECK_TOOLTIP_HTML: HTML string for the PyDeck tooltip.
+PYDECK_TOOLTIP_STYLE: Dictionary for the PyDeck tooltip style.
+_load_jsonl: Loads and parses a .jsonl simulation log.
+_reconstruct_fill_levels: Reconstructs fill levels from the simulation log.
+_build_column_data: Builds column data for the PyDeck map.
+_build_arc_data: Builds arc data for the PyDeck map.
+_render_day_kpis: Renders the day KPIs.
+_render_static_bins: Renders the static bins.
+render_pydeck_animated_map: Main entry point for the animated map.</p>
+<p>Example:
+from logic.src.ui.components.maps.pydeck_animated import render_pydeck_animated_map</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>render_pydeck_animated_map(
     bin_locations=bins,
     simulation_log_path=&quot;assets/results/sim_log.jsonl&quot;,
     policy_name=&quot;gurobi&quot;,
@@ -636,6 +645,11 @@ title: Section heading rendered above the map.</p>
 <dt class="sig sig-object py" id="src.ui.components.maps.pydeck_animated._load_jsonl">
 <span class="sig-prename descclassname"><span class="pre">src.ui.components.maps.pydeck_animated.</span></span><span class="sig-name descname"><span class="pre">_load_jsonl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy_filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.components.maps.pydeck_animated._load_jsonl" title="Link to this definition">#</a></dt>
 <dd><p>Load and parse a .jsonl simulation log, optionally filtering by policy.</p>
+<p>Args:
+path: Path to the .jsonl log file.
+policy_filter: Optional policy name to filter log entries by.</p>
+<p>Returns:
+List[Dict[str, Any]]: List of parsed log records.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -644,12 +658,24 @@ title: Section heading rendered above the map.</p>
 <dd><p>Replay simulation days up to <code class="docutils literal notranslate"><span class="pre">up_to_day</span></code> to reconstruct bin fill levels.</p>
 <p>Each bin accumulates <code class="docutils literal notranslate"><span class="pre">daily_increment</span></code> percent per day and resets to 0.0
 when it appears in the collected tour (indices are 1-based, depot = 0).</p>
+<p>Args:
+bins: List of bin coordinate dictionaries.
+records: Simulation log records.
+up_to_day: The simulation day to reconstruct fill levels for.
+daily_increment: Percentage added per bin per day.</p>
+<p>Returns:
+List[float]: Reconstructed fill levels (0-100) for each bin.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.components.maps.pydeck_animated._build_column_data">
 <span class="sig-prename descclassname"><span class="pre">src.ui.components.maps.pydeck_animated.</span></span><span class="sig-name descname"><span class="pre">_build_column_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill_levels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.components.maps.pydeck_animated._build_column_data" title="Link to this definition">#</a></dt>
 <dd><p>Build ColumnLayer records with dynamic colour (green→red gradient).</p>
+<p>Args:
+bins: Bin coordinate list.
+fill_levels: Reconstructed fill percentages.</p>
+<p>Returns:
+List[Dict[str, Any]]: Records formatted for Pydeck ColumnLayer.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -657,18 +683,32 @@ when it appears in the collected tour (indices are 1-based, depot = 0).</p>
 <span class="sig-prename descclassname"><span class="pre">src.ui.components.maps.pydeck_animated.</span></span><span class="sig-name descname"><span class="pre">_build_arc_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">records</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.components.maps.pydeck_animated._build_arc_data" title="Link to this definition">#</a></dt>
 <dd><p>Build ArcLayer records for vehicle movements on a specific day.</p>
 <p>Depot is treated as node index 0, bins as indices 1 … N.</p>
+<p>Args:
+bins: Master list of bin coordinates.
+records: Simulation log records.
+day: The day to extract route arcs for.</p>
+<p>Returns:
+List[Dict[str, Any]]: Records formatted for Pydeck ArcLayer.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.components.maps.pydeck_animated._render_day_kpis">
 <span class="sig-prename descclassname"><span class="pre">src.ui.components.maps.pydeck_animated.</span></span><span class="sig-name descname"><span class="pre">_render_day_kpis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.components.maps.pydeck_animated._render_day_kpis" title="Link to this definition">#</a></dt>
 <dd><p>Display per-day KPI metrics below the map.</p>
+<p>Args:
+record: The log record for the selected day.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.components.maps.pydeck_animated._render_static_bins">
 <span class="sig-prename descclassname"><span class="pre">src.ui.components.maps.pydeck_animated.</span></span><span class="sig-name descname"><span class="pre">_render_static_bins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zoom</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdk</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.components.maps.pydeck_animated._render_static_bins" title="Link to this definition">#</a></dt>
 <dd><p>Fallback: render bin locations as scatter dots when no log is available.</p>
+<p>Args:
+bins: List of bin coordinate dictionaries.
+lat: Latitude for view initialization.
+lon: Longitude for view initialization.
+zoom: Initial zoom level.
+pdk: The PyDeck module instance.</p>
 </dd></dl>
 
 </section>

@@ -37,7 +37,7 @@ Bases: {py:obj}`src.models.policies.selection.base.VectorizedSelector`
 ```{autodoc2-docstring} src.models.policies.selection.revenue.RevenueSelector.__init__
 ```
 
-````{py:method} select(fill_levels: torch.Tensor, revenue_kg: typing.Optional[float] = None, bin_capacity: typing.Optional[float] = None, threshold: typing.Optional[float] = None, **kwargs) -> torch.Tensor
+````{py:method} select(fill_levels: torch.Tensor, revenue_kg: typing.Optional[float] = None, bin_capacity: typing.Optional[float] = None, threshold: typing.Optional[float] = None, **kwargs: typing.Any) -> torch.Tensor
 :canonical: src.models.policies.selection.revenue.RevenueSelector.select
 
 ```{autodoc2-docstring} src.models.policies.selection.revenue.RevenueSelector.select

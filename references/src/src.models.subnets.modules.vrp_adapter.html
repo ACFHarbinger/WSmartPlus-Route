@@ -495,6 +495,19 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.modules.vrp_adapter">
 <span id="src-models-subnets-modules-vrp-adapter"></span><h1><a class="reference internal" href="#module-src.models.subnets.modules.vrp_adapter" title="src.models.subnets.modules.vrp_adapter"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.modules.vrp_adapter</span></code></a><a class="headerlink" href="#module-src.models.subnets.modules.vrp_adapter" title="Link to this heading">#</a></h1>
 <p>VRP Adapter for GLOP.</p>
+<p>This module provides the VRPAdapter, which specializes in converting partitioned
+global nodes into independent Vehicle Routing Problem (VRP) subproblems,
+specifically handling depot insertion and capacity management.</p>
+<p>Attributes:
+VRPAdapter: Mapping system for Vehicle Routing Problem subproblems.</p>
+<p>Example:
+&gt;&gt;&gt; import torch
+&gt;&gt;&gt; from tensordict import TensorDict
+&gt;&gt;&gt; from logic.src.models.subnets.modules.vrp_adapter import VRPAdapter
+&gt;&gt;&gt; td = TensorDict({“locs”: torch.randn(1, 10, 2)}, batch_size=[1])
+&gt;&gt;&gt; actions = torch.zeros(1, 10)
+&gt;&gt;&gt; adapter = VRPAdapter(td, actions)
+&gt;&gt;&gt; # Iterate through subproblems…</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -502,7 +515,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.subnets.modules.vrp_adapter.VRPAdapter" title="src.models.subnets.modules.vrp_adapter.VRPAdapter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VRPAdapter</span></code></a></p></td>
-<td><p>VRP Adapter for converting partitions to VRP-style subproblems.</p></td>
+<td><p>Adapter for extracting and reintegrating VRP-style subproblems.</p></td>
 </tr>
 </tbody>
 </table>
@@ -512,11 +525,24 @@ document.write(`
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.subnets.modules.vrp_adapter.VRPAdapter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.modules.vrp_adapter.</span></span><span class="sig-name descname"><span class="pre">VRPAdapter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">partition_actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subprob_batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.vrp_adapter.VRPAdapter" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.modules.vrp_adapter.</span></span><span class="sig-name descname"><span class="pre">VRPAdapter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">partition_actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subprob_batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.vrp_adapter.VRPAdapter" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.models.subnets.modules.adapter_base.html#src.models.subnets.modules.adapter_base.SubproblemAdapter" title="src.models.subnets.modules.adapter_base.SubproblemAdapter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.models.subnets.modules.adapter_base.SubproblemAdapter</span></code></a></p>
-<p>VRP Adapter for converting partitions to VRP-style subproblems.</p>
+<p>Adapter for extracting and reintegrating VRP-style subproblems.</p>
+<p>Groups global nodes into clusters and prepends the common depot to each cluster
+to form independent CVRP instances. Solved routes are consolidated back into
+the global plan.</p>
+<p>Attributes:
+subproblem_env_name (str): Identifier for the target CVRP solver environment.
+capacity (float): Uniform vehicle capacity constraint for all sub-instances.
+_subproblems (List[SubproblemMapping]): Internal cache of extracted segments.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize VRPAdapter.</p>
+<p>Initializes VRPAdapter.</p>
+<p>Args:
+td: TensorDict containing the global problem state and constraints.
+partition_actions: Cluster labels for each node in the scene.
+subprob_batch_size: Threshold for batching subproblems during optimization.
+capacity: Specific capacity value to enforce (defaults to <code class="docutils literal notranslate"><span class="pre">td</span></code> value).
+kwargs: Additional configuration parameters for subproblem extraction.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.models.subnets.modules.vrp_adapter.VRPAdapter.subproblem_env_name">
 <span class="sig-name descname"><span class="pre">subproblem_env_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.models.subnets.modules.vrp_adapter.VRPAdapter.subproblem_env_name" title="Link to this definition">#</a></dt>
@@ -526,19 +552,24 @@ document.write(`
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.vrp_adapter.VRPAdapter._extract_subproblems">
 <span class="sig-name descname"><span class="pre">_extract_subproblems</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.subnets.modules.vrp_adapter.VRPAdapter._extract_subproblems" title="Link to this definition">#</a></dt>
-<dd><p>Extract VRP subproblems from partition actions.</p>
+<dd><p>Extracts subproblems and ensures each receives a depot at index 0.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.vrp_adapter.VRPAdapter.get_batched_subprobs">
 <span class="sig-name descname"><span class="pre">get_batched_subprobs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterator</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.models.subnets.modules.subproblem_mapping.html#src.models.subnets.modules.subproblem_mapping.SubproblemMapping" title="src.models.subnets.modules.subproblem_mapping.SubproblemMapping"><span class="pre">src.models.subnets.modules.subproblem_mapping.SubproblemMapping</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.subnets.modules.vrp_adapter.VRPAdapter.get_batched_subprobs" title="Link to this definition">#</a></dt>
-<dd><p>Yield subproblems in batches.</p>
+<dd><p>Yields extracted VRP subproblems.</p>
+<p>Yields:
+SubproblemMapping: Mapping for a single VRP subproblem.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.vrp_adapter.VRPAdapter.update_actions">
 <span class="sig-name descname"><span class="pre">update_actions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mapping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.models.subnets.modules.subproblem_mapping.html#src.models.subnets.modules.subproblem_mapping.SubproblemMapping" title="src.models.subnets.modules.subproblem_mapping.SubproblemMapping"><span class="pre">src.models.subnets.modules.subproblem_mapping.SubproblemMapping</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">subprob_actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.subnets.modules.vrp_adapter.VRPAdapter.update_actions" title="Link to this definition">#</a></dt>
-<dd><p>Update final actions with VRP route solution.</p>
+<dd><p>Reintegrates an optimized local VRP route back into the global plan.</p>
+<p>Args:
+mapping: The mapping descriptor for the solved subproblem.
+subprob_actions: Ordered node indices within the subproblem space.</p>
 </dd></dl>
 
 </dd></dl>

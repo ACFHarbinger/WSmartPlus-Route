@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} DynamicHyperConnection(module, embed_dim, n=4)
+`````{py:class} DynamicHyperConnection(module: torch.nn.Module, embed_dim: int, n: int = 4)
 :canonical: src.models.subnets.modules.dynamic_hyper_connection.DynamicHyperConnection
 
 Bases: {py:obj}`torch.nn.Module`
@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.subnets.modules.dynamic_hyper_connection.DynamicHyperConnection.__init__
 ```
 
-````{py:method} _initialize_identity_bias()
+````{py:method} _initialize_identity_bias() -> None
 :canonical: src.models.subnets.modules.dynamic_hyper_connection.DynamicHyperConnection._initialize_identity_bias
 
 ```{autodoc2-docstring} src.models.subnets.modules.dynamic_hyper_connection.DynamicHyperConnection._initialize_identity_bias
@@ -45,7 +45,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} forward(H, *args, **kwargs)
+````{py:method} forward(H: torch.Tensor, *args: typing.Any, **kwargs: typing.Any) -> torch.Tensor
 :canonical: src.models.subnets.modules.dynamic_hyper_connection.DynamicHyperConnection.forward
 
 ```{autodoc2-docstring} src.models.subnets.modules.dynamic_hyper_connection.DynamicHyperConnection.forward

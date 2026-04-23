@@ -490,7 +490,18 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.logging.modules.metrics">
 <span id="src-tracking-logging-modules-metrics"></span><h1><a class="reference internal" href="#module-src.tracking.logging.modules.metrics" title="src.tracking.logging.modules.metrics"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging.modules.metrics</span></code></a><a class="headerlink" href="#module-src.tracking.logging.modules.metrics" title="Link to this heading">#</a></h1>
-<p>Metrics logging for training (terminal, WandB, TensorBoard).</p>
+<p>Training metrics logging and synchronization.</p>
+<p>This module provides functions for recording real-time training progress across
+multiple backends, including standard console output, TensorBoard, and
+Weights &amp; Biases (WandB). It handles loss aggregation, gradient norm
+tracking, and epoch-level statistics generation.</p>
+<p>Attributes:
+log_values: Per-step metric logging to all active backends.
+log_epoch: Summarizes loss metrics at the end of an epoch.
+get_loss_stats: Computes descriptive statistics for a loss distribution.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.tracking.logging.modules import metrics
+&gt;&gt;&gt; metrics.log_values(cost, norms, epoch, batch_id, step, l_dict, tb, cfg)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -516,18 +527,36 @@ document.write(`
 <dt class="sig sig-object py" id="src.tracking.logging.modules.metrics.log_values">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.logging.modules.metrics.</span></span><span class="sig-name descname"><span class="pre">log_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cost</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grad_norms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tb_logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.Config</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">omegaconf.DictConfig</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.logging.modules.metrics.log_values" title="Link to this definition">#</a></dt>
 <dd><p>Logs training metrics to console, TensorBoard, and WandB.</p>
+<p>Args:
+cost: The batch cost tensor.
+grad_norms: Tuple of (raw_norms, clipped_norms).
+epoch: Current training epoch index.
+batch_id: Index of the current batch within the epoch.
+step: Global training step index.
+l_dict: Dictionary of auxiliary losses (e.g. nll, reinforce).
+tb_logger: TensorBoard SummaryWriter instance.
+cfg: Root Hydra configuration.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.logging.modules.metrics.log_epoch">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.logging.modules.metrics.</span></span><span class="sig-name descname"><span class="pre">log_epoch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_tup</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch_loss</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.Config</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">omegaconf.DictConfig</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.logging.modules.metrics.log_epoch" title="Link to this definition">#</a></dt>
 <dd><p>Logs summary statistics for a completed epoch.</p>
+<p>Args:
+x_tup: Tuple of (unit_name, index) e.g., (“epoch”, 10).
+loss_keys: List of keys to summarize from the epoch_loss dict.
+epoch_loss: Map of keys to lists of per-step loss tensors.
+cfg: Root Hydra configuration.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.logging.modules.metrics.get_loss_stats">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.logging.modules.metrics.</span></span><span class="sig-name descname"><span class="pre">get_loss_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epoch_loss</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.logging.modules.metrics.get_loss_stats" title="Link to this definition">#</a></dt>
 <dd><p>Computes mean, std, min, and max for each loss key.</p>
+<p>Args:
+epoch_loss: Map of keys to lists of per-step loss tensors.</p>
+<p>Returns:
+List[float]: Flattened list of [mean, std, min, max] for each key.</p>
 </dd></dl>
 
 </section>

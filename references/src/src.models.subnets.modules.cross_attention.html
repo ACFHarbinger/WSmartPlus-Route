@@ -493,6 +493,19 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.modules.cross_attention">
 <span id="src-models-subnets-modules-cross-attention"></span><h1><a class="reference internal" href="#module-src.models.subnets.modules.cross_attention" title="src.models.subnets.modules.cross_attention"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.modules.cross_attention</span></code></a><a class="headerlink" href="#module-src.models.subnets.modules.cross_attention" title="Link to this heading">#</a></h1>
 <p>Multi-Head Cross Attention module.</p>
+<p>This module provides the MultiHeadCrossAttention layer, which allows a set of
+queries to attend to a separate set of keys and values (e.g., source-target
+attention). This is essential for encoder-decoder architectures where the
+decoder attends to encoded node features.</p>
+<p>Attributes:
+MultiHeadCrossAttention: Cross-attention with decoupled Q vs KV projections.</p>
+<p>Example:
+&gt;&gt;&gt; import torch
+&gt;&gt;&gt; from logic.src.models.subnets.modules.cross_attention import MultiHeadCrossAttention
+&gt;&gt;&gt; model = MultiHeadCrossAttention(embed_dim=128, n_heads=8)
+&gt;&gt;&gt; q = torch.randn(1, 10, 128)
+&gt;&gt;&gt; kv = torch.randn(1, 20, 128)
+&gt;&gt;&gt; out = model(q, kv)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -500,8 +513,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.subnets.modules.cross_attention.MultiHeadCrossAttention" title="src.models.subnets.modules.cross_attention.MultiHeadCrossAttention"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MultiHeadCrossAttention</span></code></a></p></td>
-<td><p>Multi-Head Cross Attention with separate query and key/value projections.
-Uses PyTorch’s native <code class="docutils literal notranslate"><span class="pre">scaled_dot_product_attention</span></code> (SDPA).</p></td>
+<td><p>Multi-Head Cross Attention with separate query and key/value projections.</p></td>
 </tr>
 </tbody>
 </table>
@@ -513,29 +525,55 @@ Uses PyTorch’s native <code class="docutils literal notranslate"><span class="
 <dt class="sig sig-object py" id="src.models.subnets.modules.cross_attention.MultiHeadCrossAttention">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.modules.cross_attention.</span></span><span class="sig-name descname"><span class="pre">MultiHeadCrossAttention</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attention_dropout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_attn_weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sdpa_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.cross_attention.MultiHeadCrossAttention" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
-<p>Multi-Head Cross Attention with separate query and key/value projections.
-Uses PyTorch’s native <code class="docutils literal notranslate"><span class="pre">scaled_dot_product_attention</span></code> (SDPA).</p>
+<p>Multi-Head Cross Attention with separate query and key/value projections.</p>
+<p>Uses PyTorch’s native <code class="docutils literal notranslate"><span class="pre">scaled_dot_product_attention</span></code> (SDPA) for hardware-optimized
+computation when possible, falling back to manual attention for weight storage
+or compatibility.</p>
+<p>Attributes:
+embed_dim (int): Total dimensionality of the input embeddings.
+n_heads (int): Number of parallel attention heads.
+head_dim (int): Dimensionality of each individual attention head.
+store_attn_weights (bool): Whether to explicitly calculate and cache weights.
+attention_dropout (float): Dropout probability applied to the attention maps.
+Wq (nn.Linear): Linear projection for input queries.
+Wkv (nn.Linear): Linear projection for interleaved keys and values.
+out_proj (nn.Linear): Final linear projection to consolidate head outputs.
+sdpa_fn (Optional[Callable]): Reference to the functional attention implementation.
+last_attn (Tuple[Optional[torch.Tensor], Optional[torch.Tensor]]): Cached
+attention weights and mask from the most recent forward pass.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes MultiHeadCrossAttention.</p>
 <p>Args:
-embed_dim: Total embedding dimension.
-n_heads: Number of attention heads.
-bias: Whether to use bias in linear projections.
-attention_dropout: Dropout rate for attention weights.
-store_attn_weights: If True, uses manual attention to store weights (slower).</p>
+embed_dim: Total dimensionality of the feature space.
+n_heads: Number of parallel attention heads.
+bias: Whether to use bias terms in linear transformations.
+attention_dropout: Dropout rate for the attention scores.
+store_attn_weights: If True, forces manual path to enable weight introspection.
+sdpa_fn: Optional functional override for custom attention kernels.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.cross_attention.MultiHeadCrossAttention.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q_input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kv_input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.modules.cross_attention.MultiHeadCrossAttention.forward" title="Link to this definition">#</a></dt>
-<dd><p>Args:
-q_input: Query input (batch, n_query, embed_dim)
-kv_input: Key/Value input (batch, graph_size, embed_dim)
-mask: Attention mask (batch, n_query, graph_size).
-WSmart convention: True = masked (invalid).</p>
+<dd><p>Computes cross-attention between queries and a separate key/value source.</p>
+<p>Args:
+q_input: Query representation of shape (batch, n_query, dim).
+kv_input: Target source representation of shape (batch, n_kv, dim).
+mask: Attention mask of shape (batch, n_query, n_kv).
+True elements represent masked (invalid) positions.</p>
+<p>Returns:
+torch.Tensor: Attended representation of shape (batch, n_query, dim).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.cross_attention.MultiHeadCrossAttention._manual_attention">
 <span class="sig-name descname"><span class="pre">_manual_attention</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.modules.cross_attention.MultiHeadCrossAttention._manual_attention" title="Link to this definition">#</a></dt>
-<dd><p>Manual attention implementation for weights storage or fallback.</p>
+<dd><p>Manual attention path for weight inspection or fallback.</p>
+<p>Args:
+q: Reshaped query tensor of shape (batch, heads, n_query, head_dim).
+k: Reshaped key tensor of shape (batch, heads, graph_size, head_dim).
+v: Reshaped value tensor of shape (batch, heads, graph_size, head_dim).
+mask: Pre-processed boolean mask tensor.</p>
+<p>Returns:
+torch.Tensor: Computed multi-head attention representation.</p>
 </dd></dl>
 
 </dd></dl>

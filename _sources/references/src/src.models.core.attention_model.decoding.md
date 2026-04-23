@@ -35,7 +35,7 @@
 ```{autodoc2-docstring} src.models.core.attention_model.decoding.DecodingMixin.__init__
 ```
 
-````{py:method} set_strategy(strategy: str, temp: typing.Optional[float] = None)
+````{py:method} set_strategy(strategy: str, temp: typing.Optional[float] = None) -> None
 :canonical: src.models.core.attention_model.decoding.DecodingMixin.set_strategy
 
 ```{autodoc2-docstring} src.models.core.attention_model.decoding.DecodingMixin.set_strategy
@@ -43,7 +43,7 @@
 
 ````
 
-````{py:method} beam_search(*args: typing.Any, **kwargs: typing.Any)
+````{py:method} beam_search(*args: typing.Any, **kwargs: typing.Any) -> typing.Any
 :canonical: src.models.core.attention_model.decoding.DecodingMixin.beam_search
 
 ```{autodoc2-docstring} src.models.core.attention_model.decoding.DecodingMixin.beam_search
@@ -51,7 +51,7 @@
 
 ````
 
-````{py:method} propose_expansions(beam: typing.Any, fixed: typing.Any, expand_size: typing.Optional[int] = None, normalize: bool = False, max_calc_batch_size: int = 4096)
+````{py:method} propose_expansions(beam: typing.Any, fixed: typing.Any, expand_size: typing.Optional[int] = None, normalize: bool = False, max_calc_batch_size: int = 4096) -> typing.Any
 :canonical: src.models.core.attention_model.decoding.DecodingMixin.propose_expansions
 
 ```{autodoc2-docstring} src.models.core.attention_model.decoding.DecodingMixin.propose_expansions

@@ -27,14 +27,14 @@
 
 ### API
 
-````{py:function} reconstruct_routes(B, N, giant_tours, P, costs)
+````{py:function} reconstruct_routes(B: int, N: int, giant_tours: torch.Tensor, P: torch.Tensor, costs: torch.Tensor) -> typing.Tuple[typing.List[typing.List[int]], torch.Tensor]
 :canonical: src.models.policies.shared.reconstruction.reconstruct_routes
 
 ```{autodoc2-docstring} src.models.policies.shared.reconstruction.reconstruct_routes
 ```
 ````
 
-````{py:function} reconstruct_limited(B, N, giant_tours, P_k, best_k, costs)
+````{py:function} reconstruct_limited(B: int, N: int, giant_tours: torch.Tensor, P_k: torch.Tensor, best_k: torch.Tensor, costs: torch.Tensor) -> typing.Tuple[typing.List[typing.List[int]], torch.Tensor]
 :canonical: src.models.policies.shared.reconstruction.reconstruct_limited
 
 ```{autodoc2-docstring} src.models.policies.shared.reconstruction.reconstruct_limited

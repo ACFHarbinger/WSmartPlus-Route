@@ -492,6 +492,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.encoders.moe.encoder">
 <span id="src-models-subnets-encoders-moe-encoder"></span><h1><a class="reference internal" href="#module-src.models.subnets.encoders.moe.encoder" title="src.models.subnets.encoders.moe.encoder"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.encoders.moe.encoder</span></code></a><a class="headerlink" href="#module-src.models.subnets.encoders.moe.encoder" title="Link to this heading">#</a></h1>
 <p>MoE Graph Attention Encoder.</p>
+<p>Attributes:
+MoEGraphAttentionEncoder: MoE (Mixture of Experts) Graph Attention Encoder.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.encoders.moe import MoEGraphAttentionEncoder
+&gt;&gt;&gt; encoder = MoEGraphAttentionEncoder(n_heads=8, embed_dim=128, n_layers=3)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -509,7 +514,7 @@ document.write(`
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.subnets.encoders.moe.encoder.MoEGraphAttentionEncoder">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.encoders.moe.encoder.</span></span><span class="sig-name descname"><span class="pre">MoEGraphAttentionEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_heads</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_layers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_sublayers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feed_forward_hidden</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">512</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'batch'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_eps_alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_learn_affine</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_track_stats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_momentum_beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lrnorm_k</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gnorm_groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gelu'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">af_param</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">af_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">af_replacement_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">af_num_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">af_uniform_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'skip'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expansion_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_experts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noisy_gating</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.models.normalization.NormalizationConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.models.activation_function.ActivationConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.encoders.moe.encoder.MoEGraphAttentionEncoder" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.encoders.moe.encoder.</span></span><span class="sig-name descname"><span class="pre">MoEGraphAttentionEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_sublayers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feed_forward_hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">512</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'batch'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_eps_alpha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_learn_affine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_track_stats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_momentum_beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lrnorm_k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gnorm_groups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_function</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'gelu'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">af_param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">af_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">6.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">af_replacement_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">6.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">af_num_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">af_uniform_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'skip'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expansion_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_experts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noisy_gating</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.models.normalization.NormalizationConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.models.activation_function.ActivationConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.encoders.moe.encoder.MoEGraphAttentionEncoder" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.models.subnets.encoders.common.TransformerEncoderBase</span></code></p>
 <p>MoE (Mixture of Experts) Graph Attention Encoder.</p>
 <p>Extends TransformerEncoderBase with MoE-specific multi-head attention layers.
@@ -522,71 +527,64 @@ capacity and specialization.</p>
 <li><p>Dropout application</p></li>
 <li><p>Standard forward pass</p></li>
 </ul>
-<p class="rubric" id="id1">Parameters</p>
-<p>n_heads : int
-Number of attention heads.
-embed_dim : int
-Embedding dimension.
-n_layers : int
-Number of encoder layers.
-n_sublayers : Optional[int], default=None
-Number of sublayers (unused, kept for API compatibility).
-feed_forward_hidden : int, default=512
-Hidden dimension for each expert’s feed-forward network.
-normalization : str, default=”batch”
-Normalization type: “batch”, “layer”, “instance”, or “group”.
-norm_eps_alpha : float, default=1e-05
-Epsilon for normalization stability.
-norm_learn_affine : bool, default=True
-Whether to learn affine parameters in normalization.
-norm_track_stats : bool, default=False
-Whether to track running stats in batch norm.
-norm_momentum_beta : float, default=0.1
-Momentum for batch norm running stats.
-lrnorm_k : float, default=1.0
-Local response normalization parameter.
-gnorm_groups : int, default=3
-Number of groups for group normalization.
-activation_function : str, default=”gelu”
-Activation function name.
-af_param : float, default=1.0
-Activation function parameter.
-af_threshold : float, default=6.0
-Activation threshold.
-af_replacement_value : float, default=6.0
-Activation replacement value.
-af_num_params : int, default=3
-Number of activation parameters.
-af_uniform_range : list, default=[0.125, 1/3]
-Uniform range for activation.
-dropout_rate : float, default=0.1
-Dropout probability.
-agg : Any, default=None
-Aggregation method (unused, kept for API compatibility).
-connection_type : str, default=”skip”
-Connection type: “skip”, “dense”, or “hyper”.
-expansion_rate : int, default=4
-Expansion factor for hyper-connections.
-num_experts : int, default=4
-Number of expert networks in MoE.
-k : int, default=2
-Number of experts to activate per input (top-k routing).
-noisy_gating : bool, default=True
-Whether to use noisy gating for exploration.
-**kwargs
-Additional keyword arguments.</p>
+<p>Attributes:
+num_experts (int): Number of expert networks in MoE.
+k (int): Number of experts to activate per input (top-k routing).
+noisy_gating (bool): Whether to use noisy gating for exploration.
+activation_function (str): Activation function name.
+af_param (float): Activation function parameter.
+af_threshold (float): Activation threshold.
+af_replacement_value (float): Activation replacement value.
+af_num_params (int): Number of activation parameters.
+af_uniform_range (List[float]): Uniform range for activation.
+normalization (str): Normalization type.
+norm_eps_alpha (float): Epsilon for normalization stability.
+norm_learn_affine (bool): Whether to learn affine parameters.
+norm_track_stats (bool): Whether to track running stats.
+norm_momentum_beta (float): Momentum for batch norm stats.
+lrnorm_k (float): Local response normalization parameter.
+gnorm_groups (int): Number of groups for group normalization.
+n_sublayers (Optional[int]): Number of sublayers (unused).
+agg (Optional[Any]): Aggregation method (unused).</p>
 <p class="rubric">Initialization</p>
-<p>Initialize the MoEGraphAttentionEncoder.</p>
+<p>Initializes the MoEGraphAttentionEncoder.</p>
+<p>Args:
+n_heads: Number of attention heads.
+embed_dim: Embedding dimension.
+n_layers: Number of encoder layers.
+n_sublayers: Number of sublayers (unused, kept for API compatibility).
+feed_forward_hidden: Hidden dimension for each expert’s feed-forward network.
+normalization: Normalization type (“batch”, “layer”, “instance”, or “group”).
+norm_eps_alpha: Epsilon for normalization stability.
+norm_learn_affine: Whether to learn affine parameters in normalization.
+norm_track_stats: Whether to track running stats in batch norm.
+norm_momentum_beta: Momentum for batch norm running stats.
+lrnorm_k: Local response normalization parameter.
+gnorm_groups: Number of groups for group normalization.
+activation_function: Activation function name.
+af_param: Activation function parameter.
+af_threshold: Activation threshold.
+af_replacement_value: Activation replacement value.
+af_num_params: Number of activation parameters.
+af_uniform_range: Uniform range for activation.
+dropout_rate: Dropout probability.
+agg: Aggregation method (unused, kept for API compatibility).
+connection_type: Connection type (“skip”, “dense”, or “hyper”).
+expansion_rate: Expansion factor for hyper-connections.
+num_experts: Number of expert networks in MoE.
+k: Number of experts to activate per input (top-k routing).
+noisy_gating: Whether to use noisy gating for exploration.
+norm_config: Optional normalization configuration.
+activation_config: Optional activation function configuration.
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.encoders.moe.encoder.MoEGraphAttentionEncoder._create_layer">
 <span class="sig-name descname"><span class="pre">_create_layer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layer_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.nn.Module</span></span></span><a class="headerlink" href="#src.models.subnets.encoders.moe.encoder.MoEGraphAttentionEncoder._create_layer" title="Link to this definition">#</a></dt>
-<dd><p>Create a single MoE multi-head attention layer.</p>
-<p class="rubric" id="id2">Parameters</p>
-<p>layer_idx : int
-Index of the layer being created (0 to n_layers-1).</p>
-<p class="rubric" id="returns">Returns</p>
-<p>nn.Module
-MoEMultiHeadAttentionLayer instance with MoE feed-forward.</p>
+<dd><p>Creates a single MoE multi-head attention layer.</p>
+<p>Args:
+layer_idx: Index of the layer being created (0 to n_layers-1).</p>
+<p>Returns:
+nn.Module: MoEMultiHeadAttentionLayer instance with MoE feed-forward.</p>
 </dd></dl>
 
 </dd></dl>

@@ -37,7 +37,7 @@ Bases: {py:obj}`logic.src.models.common.autoregressive.encoder.AutoregressiveEnc
 ```{autodoc2-docstring} src.models.subnets.encoders.mdam.encoder.MDAMGraphAttentionEncoder.__init__
 ```
 
-````{py:method} forward(td: tensordict.TensorDict, x: typing.Optional[torch.Tensor] = None, mask: typing.Optional[torch.Tensor] = None, **kwargs) -> typing.Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]
+````{py:method} forward(td: tensordict.TensorDict, x: typing.Optional[torch.Tensor] = None, mask: typing.Optional[torch.Tensor] = None, **kwargs: typing.Any) -> typing.Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]
 :canonical: src.models.subnets.encoders.mdam.encoder.MDAMGraphAttentionEncoder.forward
 
 ```{autodoc2-docstring} src.models.subnets.encoders.mdam.encoder.MDAMGraphAttentionEncoder.forward

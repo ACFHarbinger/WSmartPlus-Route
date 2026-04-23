@@ -491,6 +491,9 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.policies.operators.route.two_opt">
 <span id="src-models-policies-operators-route-two-opt"></span><h1><a class="reference internal" href="#module-src.models.policies.operators.route.two_opt" title="src.models.policies.operators.route.two_opt"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies.operators.route.two_opt</span></code></a><a class="headerlink" href="#module-src.models.policies.operators.route.two_opt" title="Link to this heading">#</a></h1>
 <p>2-opt local search operator.</p>
+<p>This module provides a GPU-accelerated implementation of the 2-opt heuristic,
+evaluating all possible edge-swap combinations in parallel across
+problem batches using meshgrid-based gain computation.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -498,13 +501,13 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.operators.route.two_opt.vectorized_two_opt" title="src.models.policies.operators.route.two_opt.vectorized_two_opt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vectorized_two_opt</span></code></a></p></td>
-<td><p>Vectorized 2-opt local search across a batch of tours using PyTorch.</p></td>
+<td><p>Vectorized 2-opt local search using parallel gain evaluation.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.models.policies.operators.route.two_opt._compute_two_opt_gains" title="src.models.policies.operators.route.two_opt._compute_two_opt_gains"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_compute_two_opt_gains</span></code></a></p></td>
-<td><p>Computes gains for all possible 2-opt edge swaps.</p></td>
+<td><p>Calculates edge weight differential for all candidate swaps.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.operators.route.two_opt._apply_two_opt_moves" title="src.models.policies.operators.route.two_opt._apply_two_opt_moves"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_apply_two_opt_moves</span></code></a></p></td>
-<td><p>Applies best 2-opt moves using segment reversal via index mapping.</p></td>
+<td><p>Batch reversal of segments using index mapping.</p></td>
 </tr>
 </tbody>
 </table>
@@ -514,32 +517,50 @@ document.write(`
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.route.two_opt.vectorized_two_opt">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.two_opt.</span></span><span class="sig-name descname"><span class="pre">vectorized_two_opt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.route.two_opt.vectorized_two_opt" title="Link to this definition">#</a></dt>
-<dd><p>Vectorized 2-opt local search across a batch of tours using PyTorch.</p>
-<p>The 2-opt algorithm is a classic local search heuristic that iteratively improves
-tours by reversing segments. For each pair of edges (i,i+1) and (j,j+1), it checks
-if swapping them reduces total distance:</p>
-<p>Original: … -&gt; i -&gt; i+1 -&gt; … -&gt; j -&gt; j+1 -&gt; …
-2-opt:    … -&gt; i -&gt; j -&gt; … -&gt; i+1 -&gt; j+1 -&gt; …  (reverse middle segment)</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.two_opt.</span></span><span class="sig-name descname"><span class="pre">vectorized_two_opt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Generator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.route.two_opt.vectorized_two_opt" title="Link to this definition">#</a></dt>
+<dd><p>Vectorized 2-opt local search using parallel gain evaluation.</p>
+<p>Iteratively improves tours by reversing segments. For each pair of edges
+(i, i+1) and (j, j+1), it checks if swapping them reduces total distance.</p>
 <p>Args:
-tours: Batch of tours [B, N]
-distance_matrix: Pairwise distances [B, N+1, N+1] or [N+1, N+1]
-max_iterations: Maximum number of improvement iterations (default: 200)
-generator (torch.Generator, optional): Random generator.</p>
+tours: Batch of node sequences of shape [B, N].
+distance_matrix: Edge cost tensor of shape [B, N+1, N+1] or [N+1, N+1].
+max_iterations: Maximum number of improvement cycles.
+generator: Torch device-side RNG.</p>
 <p>Returns:
-torch.Tensor: Improved tours [B, N]</p>
+torch.Tensor: Optimized tours of shape [B, N].</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.route.two_opt._compute_two_opt_gains">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.two_opt.</span></span><span class="sig-name descname"><span class="pre">_compute_two_opt_gains</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">I_vals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">J_vals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">K</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.route.two_opt._compute_two_opt_gains" title="Link to this definition">#</a></dt>
-<dd><p>Computes gains for all possible 2-opt edge swaps.</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.two_opt.</span></span><span class="sig-name descname"><span class="pre">_compute_two_opt_gains</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">I_vals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">J_vals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">K</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.route.two_opt._compute_two_opt_gains" title="Link to this definition">#</a></dt>
+<dd><p>Calculates edge weight differential for all candidate swaps.</p>
+<p>Args:
+tours: Batch of sequences of shape [B, N].
+dist: Distance matrix of shape [B, N+1, N+1].
+I_vals: Starting indices of first edge of shape [K].
+J_vals: Ending indices of second edge of shape [K].
+b_idx: Batch sequence index mapping of shape [B, 1].
+B: Batch size.
+K: Number of coordinate pairs.</p>
+<p>Returns:
+torch.Tensor: Gain tensor of shape [B, K].</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.route.two_opt._apply_two_opt_moves">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.two_opt.</span></span><span class="sig-name descname"><span class="pre">_apply_two_opt_moves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">improved</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">I_vals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">J_vals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">best_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.route.two_opt._apply_two_opt_moves" title="Link to this definition">#</a></dt>
-<dd><p>Applies best 2-opt moves using segment reversal via index mapping.</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.two_opt.</span></span><span class="sig-name descname"><span class="pre">_apply_two_opt_moves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">improved</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">I_vals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">J_vals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">best_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.device</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.route.two_opt._apply_two_opt_moves" title="Link to this definition">#</a></dt>
+<dd><p>Batch reversal of segments using index mapping.</p>
+<p>Args:
+tours: Batch of sequences of shape [B, N].
+improved: Boolean improvement flag of shape [B].
+I_vals: Starting indices of first edge of shape [K].
+J_vals: Ending indices of second edge of shape [K].
+best_idx: Coordinates of max gain of shape [B].
+B: Batch size.
+N: Tour length.
+device: Hardware identification locator.</p>
+<p>Returns:
+torch.Tensor: Updated tours of shape [B, N].</p>
 </dd></dl>
 
 </section>

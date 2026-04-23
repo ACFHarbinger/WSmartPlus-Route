@@ -126,7 +126,7 @@
 ```
 ````
 
-````{py:function} _build_chart(data: typing.List[typing.List[float]], names: typing.List[str], chart_title: str, chart_type: str, smooth_window: int, height: int, colors: typing.List[str]) -> typing.Optional[typing.Any]
+````{py:function} _build_chart(data: typing.List[typing.List[float]], names: typing.List[str], chart_title: str, chart_type: str, smooth_window: int, height: int, colors: typing.List[str]) -> typing.Optional[plotly.graph_objects.Figure]
 :canonical: src.ui.components.alns_charts._build_chart
 
 ```{autodoc2-docstring} src.ui.components.alns_charts._build_chart

@@ -45,7 +45,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} init_parameters()
+````{py:method} init_parameters() -> None
 :canonical: src.models.subnets.modules.activation_function.ActivationFunction.init_parameters
 
 ```{autodoc2-docstring} src.models.subnets.modules.activation_function.ActivationFunction.init_parameters
@@ -53,7 +53,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} forward(input, mask=None)
+````{py:method} forward(input: torch.Tensor, mask: typing.Optional[torch.Tensor] = None) -> torch.Tensor
 :canonical: src.models.subnets.modules.activation_function.ActivationFunction.forward
 
 ```{autodoc2-docstring} src.models.subnets.modules.activation_function.ActivationFunction.forward

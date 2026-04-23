@@ -494,6 +494,19 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.modules.mpnn_layer">
 <span id="src-models-subnets-modules-mpnn-layer"></span><h1><a class="reference internal" href="#module-src.models.subnets.modules.mpnn_layer" title="src.models.subnets.modules.mpnn_layer"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.modules.mpnn_layer</span></code></a><a class="headerlink" href="#module-src.models.subnets.modules.mpnn_layer" title="Link to this heading">#</a></h1>
 <p>Message Passing Layer for MPNN.</p>
+<p>This module provides the MessagePassingLayer, a core interaction layer for
+Graph Neural Networks based on the Message Passing Neural Network (MPNN)
+framework. It handles simultaneous node and edge attribute updates.</p>
+<p>Attributes:
+MessagePassingLayer: Core interaction layer for Graph Neural Networks.</p>
+<p>Example:
+&gt;&gt;&gt; import torch
+&gt;&gt;&gt; from logic.src.models.subnets.modules.mpnn_layer import MessagePassingLayer
+&gt;&gt;&gt; layer = MessagePassingLayer(node_dim=128, edge_dim=64)
+&gt;&gt;&gt; x = torch.randn(10, 128)
+&gt;&gt;&gt; edge_index = torch.tensor([[0, 1], [1, 0]], dtype=torch.long)
+&gt;&gt;&gt; edge_attr = torch.randn(2, 64)
+&gt;&gt;&gt; out_nodes, out_edges = layer(x, edge_index, edge_attr)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -501,7 +514,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.subnets.modules.mpnn_layer.MessagePassingLayer" title="src.models.subnets.modules.mpnn_layer.MessagePassingLayer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MessagePassingLayer</span></code></a></p></td>
-<td><p>Message Passing Layer with custom node and edge update models.</p></td>
+<td><p>Deep Message Passing Layer with coupled node and edge updates.</p></td>
 </tr>
 </tbody>
 </table>
@@ -513,25 +526,61 @@ document.write(`
 <dt class="sig sig-object py" id="src.models.subnets.modules.mpnn_layer.MessagePassingLayer">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.modules.mpnn_layer.</span></span><span class="sig-name descname"><span class="pre">MessagePassingLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'add'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'batch'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.mpnn_layer.MessagePassingLayer" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch_geometric.nn.MessagePassing</span></code></p>
-<p>Message Passing Layer with custom node and edge update models.</p>
+<p>Deep Message Passing Layer with coupled node and edge updates.</p>
+<p>Defines the structured interaction logic between node features and edge
+attributes, following a two-step update cycle:
+1. Edge Update: phi_e(h_i, h_j, e_ij) -&gt; e’_ij
+2. Node Update: h_i + phi_v(h_i, sum(e’_ij)) -&gt; h’_i</p>
+<p>Attributes:
+edge_model (nn.Sequential): MLP for transforming edge and neighbor features.
+node_model (nn.Sequential): MLP for final node state update from aggregates.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize MessagePassingLayer.</p>
+<p>Initializes MessagePassingLayer.</p>
+<p>Args:
+node_dim: Dimensionality of input node features.
+edge_dim: Dimensionality of input/output edge features.
+hidden_dim: Hidden layer width for update MLPs.
+aggr: Neighborhood aggregation scheme (‘add’, ‘mean’, ‘max’).
+norm: Normalization strategy (‘batch’, ‘layer’, ‘instance’).
+bias: Whether to use bias parameters in internal linear layers.</p>
+<p>Raises:
+ImportError: If <code class="docutils literal notranslate"><span class="pre">torch_geometric</span></code> is not available in the environment.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.mpnn_layer.MessagePassingLayer.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.subnets.modules.mpnn_layer.MessagePassingLayer.forward" title="Link to this definition">#</a></dt>
-<dd><p>Forward pass aligned with MessagePassing.forward signature.</p>
+<dd><p>Main interaction pass orchestrating updates.</p>
+<p>Args:
+args: Positional arguments (node features, indices, edge features).
+kwargs: Keyword arguments containing ‘x’, ‘edge_index’, and ‘edge_attr’.</p>
+<p>Returns:
+Union[Tuple[torch.Tensor, torch.Tensor], Any]: A tuple containing:
+- out_nodes: Updated node feature tensor.
+- edge_attr_updated: Updated edge attribute tensor.</p>
+<p>Raises:
+ValueError: If input tensors are missing from arguments.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.mpnn_layer.MessagePassingLayer.message">
 <span class="sig-name descname"><span class="pre">message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_attr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.modules.mpnn_layer.MessagePassingLayer.message" title="Link to this definition">#</a></dt>
-<dd><p>Create messages. PyG maps ‘x_i’, ‘x_j’, etc., based on this signature.</p>
+<dd><p>Transforms neighboring node features into messages.</p>
+<p>Args:
+x_i: Features of target nodes (receivers).
+x_j: Features of source nodes (senders).
+edge_attr: Edge attributes on the incident edges.</p>
+<p>Returns:
+torch.Tensor: The formulated message vector.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.mpnn_layer.MessagePassingLayer.update">
 <span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aggr_out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.modules.mpnn_layer.MessagePassingLayer.update" title="Link to this definition">#</a></dt>
-<dd><p>Update node features using aggregated messages and original features.</p>
+<dd><p>Updates node features using neighborhood message aggregates.</p>
+<p>Args:
+aggr_out: Neighborhood message summation/aggregation result.
+x: Original node features from before propagation.</p>
+<p>Returns:
+torch.Tensor: Final updated node feature representation.</p>
 </dd></dl>
 
 </dd></dl>

@@ -19,3 +19,29 @@ src.models.common.transductive.eas_embeddings
 src.models.common.transductive.eas
 src.models.common.transductive.eas_layers
 ```
+
+## Package Contents
+
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`__all__ <src.models.common.transductive.__all__>`
+  - ```{autodoc2-docstring} src.models.common.transductive.__all__
+    :summary:
+    ```
+````
+
+### API
+
+````{py:data} __all__
+:canonical: src.models.common.transductive.__all__
+:value: >
+   ['TransductiveModel', 'ActiveSearch', 'EAS', 'EASEmb', 'EASLay']
+
+```{autodoc2-docstring} src.models.common.transductive.__all__
+```
+
+````

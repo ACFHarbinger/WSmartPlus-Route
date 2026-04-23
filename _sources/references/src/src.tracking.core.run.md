@@ -132,7 +132,7 @@
 
 ````
 
-````{py:method} set_tag(key: str, value: str) -> src.tracking.core.run.Run
+````{py:method} set_tag(key: str, value: typing.Any) -> src.tracking.core.run.Run
 :canonical: src.tracking.core.run.Run.set_tag
 
 ```{autodoc2-docstring} src.tracking.core.run.Run.set_tag
@@ -140,7 +140,7 @@
 
 ````
 
-````{py:method} set_tags(tags: typing.Dict[str, str]) -> src.tracking.core.run.Run
+````{py:method} set_tags(tags: typing.Dict[str, typing.Any]) -> src.tracking.core.run.Run
 :canonical: src.tracking.core.run.Run.set_tags
 
 ```{autodoc2-docstring} src.tracking.core.run.Run.set_tags
@@ -212,7 +212,7 @@
 
 ````
 
-````{py:method} log_dataset_event(event_type: str, file_path: typing.Optional[str] = None, shape: typing.Optional[tuple] = None, metadata: typing.Optional[typing.Dict[str, typing.Any]] = None) -> src.tracking.core.run.Run
+````{py:method} log_dataset_event(event_type: str, file_path: typing.Optional[str] = None, shape: typing.Optional[typing.Tuple[int, ...]] = None, metadata: typing.Optional[typing.Dict[str, typing.Any]] = None) -> src.tracking.core.run.Run
 :canonical: src.tracking.core.run.Run.log_dataset_event
 
 ```{autodoc2-docstring} src.tracking.core.run.Run.log_dataset_event
@@ -310,6 +310,9 @@
 
 ````{py:method} __repr__() -> str
 :canonical: src.tracking.core.run.Run.__repr__
+
+```{autodoc2-docstring} src.tracking.core.run.Run.__repr__
+```
 
 ````
 

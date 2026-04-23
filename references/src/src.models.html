@@ -489,35 +489,39 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models">
 <span id="src-models"></span><h1><a class="reference internal" href="#module-src.models" title="src.models"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models</span></code></a><a class="headerlink" href="#module-src.models" title="Link to this heading">#</a></h1>
-<p>This package contains deep learning models for solving Vehicle Routing and Scheduling Problems.</p>
-<p>It includes a variety of neural architectures:</p>
-<p>Constructive Models (Autoregressive):</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">AttentionModel</span></code>: The standard Encoder-Decoder with Multi-Head Attention (Kool et al. 2019).</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">POMO</span></code>: Policy Optimization with Multiple Optima (Kwon et al. 2020) via <code class="docutils literal notranslate"><span class="pre">AttentionModel</span></code> configuration.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">PtrNet</span></code>: Pointer Network (Vinyals et al. 2015).</p></li>
-</ul>
-<p>Iterative Improvement Models:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">NeuOpt</span></code>: Neural Optimizer for VRP.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">N2S</span></code>: Neural Neighborhood Search.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">DACT</span></code>: Dual-Aspect Collaborative Transformer.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">DeepACO</span></code>: Deep Ant Colony Optimization.</p></li>
-</ul>
-<p>Transductive / Matrix Models:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">MatNet</span></code>: Matrix Encoding Networks (for ATsp/SDVRP).</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">EAS</span></code>: Efficient Active Search (Hottung et al. 2022).</p></li>
-</ul>
-<p>Baselines:</p>
+<p>Deep learning models for Vehicle Routing and Scheduling Problems.</p>
+<p>This package provides a comprehensive set of neural architectures for combinatorial
+optimization, organized into constructive, iterative improvement, and transductive
+modeling paradigms.</p>
+<p>Attributes:
+AttentionModel: The standard Encoder-Decoder with Multi-Head Attention.
+TemporalAttentionModel: Attention model with time-window awareness.
+CriticNetwork: Value function estimator for RL training.
+MandatoryManager: HRL manager for temporal decision-making.
+WeightAdjustmentRNN: Meta-learning RNN for dynamic weight scaling.
+HyperNetwork: Parameters generator for task-conditioned adapters.
+MatNet: Matrix Encoding Networks for asymmetric/stochastic problems.
+MDAM: Multi-Decoder Attention Model for diverse solution sampling.
+DeepACO: Neural-guided Ant Colony Optimization.
+DACT: Dual-Aspect Collaborative Transformer for local search.
+N2S: Neural Neighborhood Search for iterative improvement.
+NeuOpt: Neural Optimizer for routing refinement.
+PointerNetwork: RNN-based pointer architecture (Vinyals et al.).
+ActiveSearch: Online model adaptation via test-time optimization.
+EAS: Efficient Active Search via adapter tuning.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models import AttentionModel
+&gt;&gt;&gt; model = AttentionModel(env_name=”vrp”, num_loc=50)
+&gt;&gt;&gt; td = env.reset()
+&gt;&gt;&gt; out = model(td, decode_type=”greedy”)</p>
 <section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="src.models.subnets.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets</span></code></a><ul>
-<li class="toctree-l2"><a class="reference internal" href="src.models.subnets.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.helpers</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="src.models.subnets.helpers.lstm_fill_predictor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.helpers.lstm_fill_predictor</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="src.models.subnets.helpers.gru_fill_predictor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.helpers.gru_fill_predictor</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.models.subnets.other.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.other</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.models.subnets.other.lstm_fill_predictor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.other.lstm_fill_predictor</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.models.subnets.other.gru_fill_predictor.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.other.gru_fill_predictor</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="src.models.subnets.embeddings.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.embeddings</span></code></a><ul>

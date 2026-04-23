@@ -493,6 +493,16 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.modules.feed_forward">
 <span id="src-models-subnets-modules-feed-forward"></span><h1><a class="reference internal" href="#module-src.models.subnets.modules.feed_forward" title="src.models.subnets.modules.feed_forward"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.modules.feed_forward</span></code></a><a class="headerlink" href="#module-src.models.subnets.modules.feed_forward" title="Link to this heading">#</a></h1>
 <p>Feed-Forward network module.</p>
+<p>This module provides the FeedForward layer, which implements a standard
+position-wise multi-layer perceptron (MLP) block for spatial feature refinement.</p>
+<p>Attributes:
+FeedForward: Standard Feed-Forward Neural Network (MLP) block.</p>
+<p>Example:
+&gt;&gt;&gt; import torch
+&gt;&gt;&gt; from logic.src.models.subnets.modules.feed_forward import FeedForward
+&gt;&gt;&gt; ffn = FeedForward(input_dim=128, output_dim=512)
+&gt;&gt;&gt; x = torch.randn(1, 10, 128)
+&gt;&gt;&gt; out = ffn(x)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -513,29 +523,33 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.modules.feed_forward.</span></span><span class="sig-name descname"><span class="pre">FeedForward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.feed_forward.FeedForward" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
 <p>Standard Feed-Forward Neural Network (MLP) block.</p>
-<p>Consists of two linear transformations with an activation function in between.
-Often used in Transformer architectures.</p>
+<p>Consists of a linear transformation layer, typically followed by an
+activation function (handled by the caller or container module).</p>
+<p>Attributes:
+input_dim (int): Input feature dimensionality.
+output_dim (int): Output feature dimensionality.
+linear (nn.Linear): Linear transformation layer.</p>
 <p class="rubric">Initialization</p>
-<p>Initializes the feed-forward layer.</p>
+<p>Initializes FeedForward.</p>
 <p>Args:
-input_dim: Input dimension.
-output_dim: Output dimension.
-bias: Whether to include a bias term in the linear layer.</p>
+input_dim: Dimensionality of the incoming features.
+output_dim: Dimensionality of the outgoing features.
+bias: Whether to add a learnable bias term to the transformation.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.feed_forward.FeedForward.init_parameters">
 <span class="sig-name descname"><span class="pre">init_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.subnets.modules.feed_forward.FeedForward.init_parameters" title="Link to this definition">#</a></dt>
-<dd><p>Initializes the parameters using uniform distribution.</p>
+<dd><p>Initializes the weights using a uniform distribution.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.feed_forward.FeedForward.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.modules.feed_forward.FeedForward.forward" title="Link to this definition">#</a></dt>
-<dd><p>Applies the feed-forward network to the input.</p>
+<dd><p>Applies the linear transformation to the input sequence.</p>
 <p>Args:
-input: Input tensor.
-mask: Optional mask (not used in this basic implementation).</p>
+input: Input feature tensor of shape (…, input_dim).
+mask: Optional tensor mask (currently ignored).</p>
 <p>Returns:
-Output tensor.</p>
+torch.Tensor: Transformed tensor of shape (…, output_dim).</p>
 </dd></dl>
 
 </dd></dl>

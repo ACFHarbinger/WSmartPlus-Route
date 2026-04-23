@@ -495,7 +495,17 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.logging.modules.gui">
 <span id="src-tracking-logging-modules-gui"></span><h1><a class="reference internal" href="#module-src.tracking.logging.modules.gui" title="src.tracking.logging.modules.gui"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging.modules.gui</span></code></a><a class="headerlink" href="#module-src.tracking.logging.modules.gui" title="Link to this heading">#</a></h1>
-<p>GUI communication for simulation logs and daily stats.</p>
+<p>GUI communication bridge for simulation results.</p>
+<p>This module provides functions for serializing real-time and end-of-run simulation
+data into a format recognized by the PySide6 desktop application. It handles
+coordinate transformation, popup HTML rendering via Jinja2, and safe file
+appending for multi-threaded simulation environments.</p>
+<p>Attributes:
+send_daily_output_to_gui: Serializes daily simulation metrics and state.
+send_final_output_to_gui: Serializes aggregated experiment statistics.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.tracking.logging.modules import gui
+&gt;&gt;&gt; gui.send_daily_output_to_gui(log, “greedy”, 0, 1, …, “app.log”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -559,18 +569,42 @@ document.write(`
 <dt class="sig sig-object py" id="src.tracking.logging.modules.gui.send_daily_output_to_gui">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.logging.modules.gui.</span></span><span class="sig-name descname"><span class="pre">send_daily_output_to_gui</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">daily_log</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins_c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collected</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins_real_c_after</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coordinates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lock</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">threading.Lock</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.logging.modules.gui.send_daily_output_to_gui" title="Link to this definition">#</a></dt>
 <dd><p>Write daily simulation output to a log file for GUI consumption.</p>
+<p>Args:
+daily_log: Dictionary containing day-to-day metrics.
+policy: Name of the policy/solver being evaluated.
+sample_idx: Index of the current simulation sample.
+day: Current simulation day (1-indexed).
+bins_c: Sequence of bin capacities/levels.
+collected: Sequence of waste amounts collected.
+bins_real_c_after: Real bin levels after collection (for stochasticity).
+log_path: Path to the GUI log file.
+tour: Sequence of nodes visited in the route.
+coordinates: Node coordinate data (DataFrame or list).
+lock: Optional thread lock for safe file appending. Defaults to None.
+mandatory: Optional sequence of nodes that MUST be visited. Defaults to None.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.logging.modules.gui.send_final_output_to_gui">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.logging.modules.gui.</span></span><span class="sig-name descname"><span class="pre">send_final_output_to_gui</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_std</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policies</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lock</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">threading.Lock</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.logging.modules.gui.send_final_output_to_gui" title="Link to this definition">#</a></dt>
 <dd><p>Write final simulation summary to a log file for GUI consumption.</p>
+<p>Args:
+log: Dictionary of mean results per policy.
+log_std: Optional dictionary of standard deviations.
+n_samples: Total number of samples in the simulation.
+policies: List of policy names included in the run.
+log_path: Path to the GUI log file.
+lock: Optional thread lock for safe file writing. Defaults to None.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.logging.modules.gui._get_lat_lon">
-<span class="sig-prename descclassname"><span class="pre">src.tracking.logging.modules.gui.</span></span><span class="sig-name descname"><span class="pre">_get_lat_lon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="headerlink" href="#src.tracking.logging.modules.gui._get_lat_lon" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.tracking.logging.modules.gui.</span></span><span class="sig-name descname"><span class="pre">_get_lat_lon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.logging.modules.gui._get_lat_lon" title="Link to this definition">#</a></dt>
 <dd><p>Extract lat/lon from a row with flexible column naming.</p>
+<p>Args:
+row: Pandas series representing a node’s data.</p>
+<p>Returns:
+Tuple[Optional[float], Optional[float]]: Latitude and longitude.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -582,6 +616,11 @@ document.write(`
 <li><p>Node 0 (Depot) -&gt; Payload ID -1</p></li>
 <li><p>Nodes 1..N (Bins) -&gt; Payload ID 0..N-1</p></li>
 </ul>
+<p>Args:
+node_idx: The 1-based index of the node in the logic layer.
+coords_lookup: Optional coordinate metadata from a CSV/DataFrame.</p>
+<p>Returns:
+Dict[str, Any]: Formatted dictionary for GUI map rendering.</p>
 </dd></dl>
 
 </section>

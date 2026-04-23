@@ -489,7 +489,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.ui.pages.experiment_tracker_zenml">
 <span id="src-ui-pages-experiment-tracker-zenml"></span><h1><a class="reference internal" href="#module-src.ui.pages.experiment_tracker_zenml" title="src.ui.pages.experiment_tracker_zenml"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.pages.experiment_tracker_zenml</span></code></a><a class="headerlink" href="#module-src.ui.pages.experiment_tracker_zenml" title="Link to this heading">#</a></h1>
 <p>ZenML pipeline runs section for the Experiment Tracker page.</p>
-<p>Extracted from <code class="docutils literal notranslate"><span class="pre">experiment_tracker.py</span></code> to keep module sizes under 400 LoC.</p>
+<p>This module provides specialized visualization for ZenML orchestration
+pipelines. It supports step-level status tracking, pipeline lineage auditing,
+and status distribution charting for complex ML workflows.</p>
+<p>Example:
+render_zenml_tracker()</p>
+<p>Attributes:
+_render_zenml_pipelines: Main entry point for the ZenML dashboard section.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -497,7 +503,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.experiment_tracker_zenml._render_zenml_pipelines" title="src.ui.pages.experiment_tracker_zenml._render_zenml_pipelines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_zenml_pipelines</span></code></a></p></td>
-<td><p>ZenML pipeline runs with step status drill-down.</p></td>
+<td><p>Renders the ZenML pipeline run table and step-level drill-down interface.</p></td>
 </tr>
 </tbody>
 </table>
@@ -508,7 +514,9 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.experiment_tracker_zenml._render_zenml_pipelines">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.experiment_tracker_zenml.</span></span><span class="sig-name descname"><span class="pre">_render_zenml_pipelines</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.experiment_tracker_zenml._render_zenml_pipelines" title="Link to this definition">#</a></dt>
-<dd><p>ZenML pipeline runs with step status drill-down.</p>
+<dd><p>Renders the ZenML pipeline run table and step-level drill-down interface.</p>
+<p>Discovers all historical pipeline runs and provides interactive status
+summaries and timing analysis for orchestrated workflows.</p>
 </dd></dl>
 
 </section>

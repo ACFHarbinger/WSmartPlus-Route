@@ -489,7 +489,17 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.policies.hgs_core">
 <span id="src-models-policies-hgs-core"></span><h1><a class="reference internal" href="#module-src.models.policies.hgs_core" title="src.models.policies.hgs_core"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies.hgs_core</span></code></a><a class="headerlink" href="#module-src.models.policies.hgs_core" title="Link to this heading">#</a></h1>
-<p>Hybrid Genetic Search Core Components.</p>
+<p>Hybrid Genetic Search (HGS) core components.</p>
+<p>This package contains the modular building blocks for the Hybrid Genetic Search
+metaheuristic, optimized for vectorized execution on GPU hardware. It includes
+population management, genetic crossover operators, and diversity metrics.</p>
+<p>Attributes:
+VectorizedPopulation: Class managing a diverse pool of elite solutions.
+vectorized_ordered_crossover: GPU-optimized ordered crossover (OX1).
+calc_broken_pairs_distance: Diversity metric based on edge preservation.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.policies.hgs_core import VectorizedPopulation
+&gt;&gt;&gt; pop = VectorizedPopulation(size=50, device=”cuda”)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

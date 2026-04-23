@@ -491,11 +491,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.embeddings.edges.tsp">
 <span id="src-models-subnets-embeddings-edges-tsp"></span><h1><a class="reference internal" href="#module-src.models.subnets.embeddings.edges.tsp" title="src.models.subnets.embeddings.edges.tsp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.embeddings.edges.tsp</span></code></a><a class="headerlink" href="#module-src.models.subnets.embeddings.edges.tsp" title="Link to this heading">#</a></h1>
-<p>tsp.py module.</p>
+<p>TSP Edge embedding module.</p>
+<p>This module provides the TSPEdgeEmbedding layer, which constructs Euclidean-based
+graph representations for Traveling Salesman Problems and related variants.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+TSPEdgeEmbedding: Euclidean distance edge encoder for TSP-family problems.</p>
 <p>Example:
-&gt;&gt;&gt; import tsp</p>
+&gt;&gt;&gt; from logic.src.models.subnets.embeddings.edges.tsp import TSPEdgeEmbedding
+&gt;&gt;&gt; embedder = TSPEdgeEmbedding(embed_dim=128)
+&gt;&gt;&gt; pyg_batch = embedder(td, init_embeddings)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -513,21 +517,25 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.edges.tsp.TSPEdgeEmbedding">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.embeddings.edges.tsp.</span></span><span class="sig-name descname"><span class="pre">TSPEdgeEmbedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linear_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparsify</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_sparse</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">collections.abc.Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.embeddings.edges.tsp.TSPEdgeEmbedding" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.embeddings.edges.tsp.</span></span><span class="sig-name descname"><span class="pre">TSPEdgeEmbedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linear_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparsify</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_sparse</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">collections.abc.Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.embeddings.edges.tsp.TSPEdgeEmbedding" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.models.subnets.embeddings.edges.base.html#src.models.subnets.embeddings.edges.base.EdgeEmbedding" title="src.models.subnets.embeddings.edges.base.EdgeEmbedding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.models.subnets.embeddings.edges.base.EdgeEmbedding</span></code></a></p>
 <p>Edge embedding for TSP-like problems.</p>
-<p>Uses pairwise Euclidean distances as edge features, optionally
-sparsified to k-nearest neighbors per node.</p>
+<p>Uses pairwise Euclidean distances as the primary edge features, optionally
+sparsified to a k-nearest neighbor adjacency structure per node to reduce
+graph complexity.</p>
+<p>Attributes:
+node_dim (int): Dimensionality of raw distance features (fixed to 1).</p>
 <p class="rubric">Initialization</p>
+<p>Initializes EdgeEmbedding.</p>
 <p>Args:
 embed_dim: Output embedding dimension for edge features.
 linear_bias: Whether to include bias in the edge projection.
 sparsify: Whether to create a sparse k-NN graph.
-k_sparse: Number of neighbors per node, or a callable(n) -&gt; k.
-Defaults to max(n // 5, 10).</p>
+k_sparse: Number of neighbors per node, or a callable mapping
+instance size to neighbor count. Defaults to max(n // 5, 10).</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.edges.tsp.TSPEdgeEmbedding.node_dim">
-<span class="sig-name descname"><span class="pre">node_dim</span></span><a class="headerlink" href="#src.models.subnets.embeddings.edges.tsp.TSPEdgeEmbedding.node_dim" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">node_dim</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.models.subnets.embeddings.edges.tsp.TSPEdgeEmbedding.node_dim" title="Link to this definition">#</a></dt>
 <dd><p>1</p>
 </dd></dl>
 

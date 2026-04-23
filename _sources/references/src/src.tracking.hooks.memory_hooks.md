@@ -57,7 +57,7 @@
 ```
 ````
 
-````{py:function} estimate_model_memory(model: torch.nn.Module, input_shape: tuple, batch_size: int = 1, dtype: torch.dtype = torch.float32) -> typing.Dict[str, float]
+````{py:function} estimate_model_memory(model: torch.nn.Module, input_shape: typing.Tuple[int, ...], batch_size: int = 1, dtype: torch.dtype = torch.float32) -> typing.Dict[str, float]
 :canonical: src.tracking.hooks.memory_hooks.estimate_model_memory
 
 ```{autodoc2-docstring} src.tracking.hooks.memory_hooks.estimate_model_memory
@@ -71,7 +71,7 @@
 ```
 ````
 
-````{py:function} optimize_batch_size(model: torch.nn.Module, input_generator: typing.Callable, initial_batch_size: int = 32, device: typing.Optional[torch.device] = None, safety_margin: float = 0.9) -> int
+````{py:function} optimize_batch_size(model: torch.nn.Module, input_generator: typing.Callable[[int], typing.Any], initial_batch_size: int = 32, device: typing.Optional[torch.device] = None, safety_margin: float = 0.9) -> int
 :canonical: src.tracking.hooks.memory_hooks.optimize_batch_size
 
 ```{autodoc2-docstring} src.tracking.hooks.memory_hooks.optimize_batch_size

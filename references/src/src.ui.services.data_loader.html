@@ -501,8 +501,20 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.ui.services.data_loader">
 <span id="src-ui-services-data-loader"></span><h1><a class="reference internal" href="#module-src.ui.services.data_loader" title="src.ui.services.data_loader"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.services.data_loader</span></code></a><a class="headerlink" href="#module-src.ui.services.data_loader" title="Link to this heading">#</a></h1>
-<p>Data loading and caching services for the dashboard.</p>
-<p>Provides cached access to training logs and simulation outputs.</p>
+<p>Data loading and caching services for the Streamlit dashboard.</p>
+<p>This module provides high-level utilities for discovering and loading
+training logs (Lightning CSVs) and simulation telemetry (JSONL files).
+It utilizes Streamlit’s caching mechanisms to ensure responsive UI
+interactions even with large datasets.</p>
+<p>Attributes:
+discover_training_runs: Scans logs/output for versioned training folders.
+load_hparams: Reads hyperparameter YAML files for a given run.
+load_training_metrics: Loads Lightning metrics into a Pandas DataFrame.
+load_policy_params: Retrieves policy configuration from tracking DB.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.ui.services.data_loader import discover_training_runs
+&gt;&gt;&gt; runs = discover_training_runs()
+&gt;&gt;&gt; print(f”Found {len(runs)} training versions.”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -510,46 +522,46 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.services.data_loader.get_project_root" title="src.ui.services.data_loader.get_project_root"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_project_root</span></code></a></p></td>
-<td><p>Get the project root directory (assumes app runs from project root).</p></td>
+<td><p>Retrieves the absolute path to the project root directory.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.services.data_loader.get_logs_dir" title="src.ui.services.data_loader.get_logs_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_logs_dir</span></code></a></p></td>
-<td><p>Get the logs directory path.</p></td>
+<td><p>Retrieves the absolute path to the training logs directory.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.services.data_loader.get_simulation_output_dir" title="src.ui.services.data_loader.get_simulation_output_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_simulation_output_dir</span></code></a></p></td>
-<td><p>Get the simulation output directory path.</p></td>
+<td><p>Retrieves the absolute path to the simulation output directory.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.services.data_loader.discover_training_runs" title="src.ui.services.data_loader.discover_training_runs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">discover_training_runs</span></code></a></p></td>
-<td><p>Discover all training runs in logs/output.</p></td>
+<td><p>Scans the designated logs directory for valid training runs.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.services.data_loader.load_hparams" title="src.ui.services.data_loader.load_hparams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_hparams</span></code></a></p></td>
-<td><p>Load hparams.yaml for a training version.</p></td>
+<td><p>Loads hyperparameters for a specific Lightning training version.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.services.data_loader.load_training_metrics" title="src.ui.services.data_loader.load_training_metrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_training_metrics</span></code></a></p></td>
-<td><p>Load training metrics from a Lightning CSV file.</p></td>
+<td><p>Loads training performance metrics from a CSV file.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.services.data_loader.load_multiple_training_runs" title="src.ui.services.data_loader.load_multiple_training_runs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_multiple_training_runs</span></code></a></p></td>
-<td><p>Load metrics from multiple training runs for comparison.</p></td>
+<td><p>Retrieves and merges metrics from multiple training runs.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.services.data_loader.load_policy_params" title="src.ui.services.data_loader.load_policy_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_policy_params</span></code></a></p></td>
-<td><p>Retrieve structured policy configuration from the tracking database.</p></td>
+<td><p>Retrieves structured policy configuration from the tracking database.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.services.data_loader.discover_simulation_logs" title="src.ui.services.data_loader.discover_simulation_logs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">discover_simulation_logs</span></code></a></p></td>
-<td><p>Discover all simulation log files in assets/output.</p></td>
+<td><p>Identifies all simulation telemetry (JSONL) files in the output directory.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.services.data_loader.load_simulation_log" title="src.ui.services.data_loader.load_simulation_log"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_simulation_log</span></code></a></p></td>
-<td><p>Load and parse a simulation log file (cached).</p></td>
+<td><p>Loads and parses a simulation JSONL file with caching enabled.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.services.data_loader.load_simulation_log_fresh" title="src.ui.services.data_loader.load_simulation_log_fresh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_simulation_log_fresh</span></code></a></p></td>
-<td><p>Load a simulation log without caching (for live tailing).</p></td>
+<td><p>Loads a simulation log without caching, suitable for live tailing.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.services.data_loader.get_simulation_metadata" title="src.ui.services.data_loader.get_simulation_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_simulation_metadata</span></code></a></p></td>
-<td><p>Extract metadata from simulation entries.</p></td>
+<td><p>Extracts summary metadata (policies, samples, day range) from telemetry.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.services.data_loader.entries_to_dataframe" title="src.ui.services.data_loader.entries_to_dataframe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">entries_to_dataframe</span></code></a></p></td>
-<td><p>Convert log entries to a pandas DataFrame.</p></td>
+<td><p>Converts dataclass-style log entries into a flattened Pandas DataFrame.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.services.data_loader.compute_daily_stats" title="src.ui.services.data_loader.compute_daily_stats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_daily_stats</span></code></a></p></td>
-<td><p>Compute mean and std of metrics per day.</p></td>
+<td><p>Computes daily averages and standard deviations for all metrics.</p></td>
 </tr>
 </tbody>
 </table>
@@ -560,122 +572,133 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.data_loader.get_project_root">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.data_loader.</span></span><span class="sig-name descname"><span class="pre">get_project_root</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pathlib.Path</span></span></span><a class="headerlink" href="#src.ui.services.data_loader.get_project_root" title="Link to this definition">#</a></dt>
-<dd><p>Get the project root directory (assumes app runs from project root).</p>
+<dd><p>Retrieves the absolute path to the project root directory.</p>
+<p>Returns:
+Path: The validated project root directory.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.data_loader.get_logs_dir">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.data_loader.</span></span><span class="sig-name descname"><span class="pre">get_logs_dir</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pathlib.Path</span></span></span><a class="headerlink" href="#src.ui.services.data_loader.get_logs_dir" title="Link to this definition">#</a></dt>
-<dd><p>Get the logs directory path.</p>
+<dd><p>Retrieves the absolute path to the training logs directory.</p>
+<p>Returns:
+Path: The directory where model checkpoints and metrics are stored.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.data_loader.get_simulation_output_dir">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.data_loader.</span></span><span class="sig-name descname"><span class="pre">get_simulation_output_dir</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pathlib.Path</span></span></span><a class="headerlink" href="#src.ui.services.data_loader.get_simulation_output_dir" title="Link to this definition">#</a></dt>
-<dd><p>Get the simulation output directory path.</p>
+<dd><p>Retrieves the absolute path to the simulation output directory.</p>
+<p>Returns:
+Path: The directory containing simulation JSONL logs.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.data_loader.discover_training_runs">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.data_loader.</span></span><span class="sig-name descname"><span class="pre">discover_training_runs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.services.data_loader.discover_training_runs" title="Link to this definition">#</a></dt>
-<dd><p>Discover all training runs in logs/output.</p>
+<dd><p>Scans the designated logs directory for valid training runs.</p>
 <p>Returns:
-List of (version_name, metrics_csv_path) tuples.</p>
+List[Tuple[str, Path]]: A sequence of (version_name, metrics_csv_path).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.data_loader.load_hparams">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.data_loader.</span></span><span class="sig-name descname"><span class="pre">load_hparams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">version_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.services.data_loader.load_hparams" title="Link to this definition">#</a></dt>
-<dd><p>Load hparams.yaml for a training version.</p>
+<dd><p>Loads hyperparameters for a specific Lightning training version.</p>
 <p>Args:
-version_name: Version folder name (e.g., “version_0”).</p>
+version_name: Identifier for the version (e.g., “version_0”).</p>
 <p>Returns:
-Dict with hyperparameters, or empty dict if not found.</p>
+Dict[str, Any]: Mapping of hyperparameter keys to values.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.data_loader.load_training_metrics">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.data_loader.</span></span><span class="sig-name descname"><span class="pre">load_training_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.ui.services.data_loader.load_training_metrics" title="Link to this definition">#</a></dt>
-<dd><p>Load training metrics from a Lightning CSV file.</p>
+<dd><p>Loads training performance metrics from a CSV file.</p>
 <p>Args:
-metrics_path: Path to the metrics.csv file.</p>
+metrics_path: Absolute path to the metrics.csv file.</p>
 <p>Returns:
-DataFrame with training metrics.</p>
+pd.DataFrame: A DataFrame indexed by epoch/step with metric columns.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.data_loader.load_multiple_training_runs">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.data_loader.</span></span><span class="sig-name descname"><span class="pre">load_multiple_training_runs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">version_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.services.data_loader.load_multiple_training_runs" title="Link to this definition">#</a></dt>
-<dd><p>Load metrics from multiple training runs for comparison.</p>
+<dd><p>Retrieves and merges metrics from multiple training runs.</p>
 <p>Args:
-version_names: List of version folder names (e.g., [“version_0”, “version_1”]).</p>
+version_names: List of version identifiers (e.g., [“version_0”, “version_1”]).</p>
 <p>Returns:
-Dict mapping version name to DataFrame.</p>
+Dict[str, pd.DataFrame]: Mapping of version name to its metrics DataFrame.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.data_loader.load_policy_params">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.data_loader.</span></span><span class="sig-name descname"><span class="pre">load_policy_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">policy_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.services.data_loader.load_policy_params" title="Link to this definition">#</a></dt>
-<dd><p>Retrieve structured policy configuration from the tracking database.</p>
+<dd><p>Retrieves structured policy configuration from the tracking database.</p>
+<p>Args:
+policy_name: Identifier for the routing policy.
+sample_id: index of the simulation sample.</p>
+<p>Returns:
+Dict[str, Any]: Mapping of configuration parameter names to values.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.data_loader.discover_simulation_logs">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.data_loader.</span></span><span class="sig-name descname"><span class="pre">discover_simulation_logs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.services.data_loader.discover_simulation_logs" title="Link to this definition">#</a></dt>
-<dd><p>Discover all simulation log files in assets/output.</p>
+<dd><p>Identifies all simulation telemetry (JSONL) files in the output directory.</p>
 <p>Returns:
-List of (relative_path_display, absolute_path) tuples.</p>
+List[Tuple[str, Path]]: Sequence of (display_name, absolute_path).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.data_loader.load_simulation_log">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.data_loader.</span></span><span class="sig-name descname"><span class="pre">load_simulation_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.services.data_loader.load_simulation_log" title="Link to this definition">#</a></dt>
-<dd><p>Load and parse a simulation log file (cached).</p>
+<dd><p>Loads and parses a simulation JSONL file with caching enabled.</p>
 <p>Args:
-log_path: Absolute path to the .jsonl file.</p>
+log_path: Absolute filesystem path to the log file.</p>
 <p>Returns:
-List of parsed entry dictionaries.</p>
+List[Dict[str, Any]]: Sequence of daily telemetry records as dictionaries.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.data_loader.load_simulation_log_fresh">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.data_loader.</span></span><span class="sig-name descname"><span class="pre">load_simulation_log_fresh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.ui.services.log_parser.DayLogEntry</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.services.data_loader.load_simulation_log_fresh" title="Link to this definition">#</a></dt>
-<dd><p>Load a simulation log without caching (for live tailing).</p>
+<dd><p>Loads a simulation log without caching, suitable for live tailing.</p>
 <p>Args:
-log_path: Absolute path to the .jsonl file.</p>
+log_path: Absolute filesystem path to the log file.</p>
 <p>Returns:
-List of DayLogEntry objects.</p>
+List[DayLogEntry]: Sequence of parsed daily record dataclasses.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.data_loader.get_simulation_metadata">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.data_loader.</span></span><span class="sig-name descname"><span class="pre">get_simulation_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.ui.services.log_parser.DayLogEntry</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.services.data_loader.get_simulation_metadata" title="Link to this definition">#</a></dt>
-<dd><p>Extract metadata from simulation entries.</p>
+<dd><p>Extracts summary metadata (policies, samples, day range) from telemetry.</p>
 <p>Args:
-entries: List of parsed log entries.</p>
+entries: Master list of parsed log entries.</p>
 <p>Returns:
-Dict with policies, samples, day_range.</p>
+Dict[str, Any]: Mapping with ‘policies’, ‘samples’, and ‘day_range’.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.data_loader.entries_to_dataframe">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.data_loader.</span></span><span class="sig-name descname"><span class="pre">entries_to_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.ui.services.log_parser.DayLogEntry</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.ui.services.data_loader.entries_to_dataframe" title="Link to this definition">#</a></dt>
-<dd><p>Convert log entries to a pandas DataFrame.</p>
+<dd><p>Converts dataclass-style log entries into a flattened Pandas DataFrame.</p>
 <p>Args:
-entries: List of DayLogEntry objects.</p>
+entries: Master list of DayLogEntry dataclasses.</p>
 <p>Returns:
-DataFrame with flattened metrics.</p>
+pd.DataFrame: A long-form DataFrame with metric columns.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.data_loader.compute_daily_stats">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.data_loader.</span></span><span class="sig-name descname"><span class="pre">compute_daily_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.ui.services.log_parser.DayLogEntry</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.ui.services.data_loader.compute_daily_stats" title="Link to this definition">#</a></dt>
-<dd><p>Compute mean and std of metrics per day.</p>
+<dd><p>Computes daily averages and standard deviations for all metrics.</p>
 <p>Args:
-entries: List of log entries.
-policy: Optional policy filter.</p>
+entries: Master list of log entries.
+policy: Optional filter to restrict analysis to a single policy.</p>
 <p>Returns:
-DataFrame with day, metric_mean, metric_std columns.</p>
+pd.DataFrame: Statistics indexed by day with [metric]_mean and [metric]_std.</p>
 </dd></dl>
 
 </section>

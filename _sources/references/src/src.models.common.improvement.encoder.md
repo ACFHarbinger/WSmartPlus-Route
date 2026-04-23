@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} ImprovementEncoder(embed_dim: int = 128, **kwargs)
+`````{py:class} ImprovementEncoder(embed_dim: int = 128, **kwargs: typing.Any)
 :canonical: src.models.common.improvement.encoder.ImprovementEncoder
 
 Bases: {py:obj}`torch.nn.Module`, {py:obj}`abc.ABC`
@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`, {py:obj}`abc.ABC`
 ```{autodoc2-docstring} src.models.common.improvement.encoder.ImprovementEncoder.__init__
 ```
 
-````{py:method} forward(td: tensordict.TensorDict, **kwargs) -> typing.Union[torch.Tensor, typing.Tuple[torch.Tensor, ...]]
+````{py:method} forward(td: tensordict.TensorDict, **kwargs: typing.Any) -> typing.Union[torch.Tensor, typing.Tuple[torch.Tensor, ...]]
 :canonical: src.models.common.improvement.encoder.ImprovementEncoder.forward
 :abstractmethod:
 

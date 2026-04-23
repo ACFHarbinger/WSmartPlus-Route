@@ -493,9 +493,16 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.core.attention_model.policy">
 <span id="src-models-core-attention-model-policy"></span><h1><a class="reference internal" href="#module-src.models.core.attention_model.policy" title="src.models.core.attention_model.policy"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.core.attention_model.policy</span></code></a><a class="headerlink" href="#module-src.models.core.attention_model.policy" title="Link to this heading">#</a></h1>
-<p>Attention Model Policy for RL4CO.</p>
-<p>Adapts the existing GATEncoder and AttentionDecoder to the RL4CO architecture
-using TensorDict for state management.</p>
+<p>Attention Model Policy for RL training.</p>
+<p>This module provides an RL4CO-compatible wrapper around the GATEncoder and
+AttentionDecoder components. It utilizes TensorDict for standardized state
+management across different reinforcement learning environments.</p>
+<p>Attributes:
+AttentionModelPolicy: A constructive policy combining GAT and attention decoding.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.core.attention_model.policy import AttentionModelPolicy
+&gt;&gt;&gt; policy = AttentionModelPolicy(env_name=”vrp”, embed_dim=128)
+&gt;&gt;&gt; out = policy(td, env, strategy=”greedy”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -503,7 +510,7 @@ using TensorDict for state management.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.core.attention_model.policy.AttentionModelPolicy" title="src.models.core.attention_model.policy.AttentionModelPolicy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AttentionModelPolicy</span></code></a></p></td>
-<td><p>RL4CO-style Policy using existing Attention Model components.</p></td>
+<td><p>RL4CO-style Policy for constructive routing.</p></td>
 </tr>
 </tbody>
 </table>
@@ -513,11 +520,27 @@ using TensorDict for state management.</p>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.core.attention_model.policy.AttentionModelPolicy">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.attention_model.policy.</span></span><span class="sig-name descname"><span class="pre">AttentionModelPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_encode_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'batch'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.attention_model.policy.AttentionModelPolicy" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.attention_model.policy.</span></span><span class="sig-name descname"><span class="pre">AttentionModelPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_encode_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'batch'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.attention_model.policy.AttentionModelPolicy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.models.common.autoregressive.policy.AutoregressivePolicy</span></code></p>
-<p>RL4CO-style Policy using existing Attention Model components.</p>
+<p>RL4CO-style Policy for constructive routing.</p>
+<p>Leverages a Graph Attention Network (GAT) to encode nodes and a Glimpse-based
+decoder to autoregressively select the next stop in a route.</p>
+<p>Attributes:
+init_embedding (nn.Module): Problem-specific initial feature projection.
+encoder (GraphAttentionEncoder): Graph-level feature extractor.
+decoder (GlimpseDecoder): Step-wise decision maker with attention glimpse.
+env_name (str): Persistent identifier for specific routing domains.
+embed_dim (int): feature vector dimensionality.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize AttentionModelPolicy.</p>
+<p>Initializes the AttentionModelPolicy.</p>
+<p>Args:
+env_name: Name of the environment registry entry.
+embed_dim: Latent representation size.
+hidden_dim: Hidden size for FFN and attention sublayers.
+n_encode_layers: Number of transformer encoder layers.
+n_heads: Parallel attention heads.
+normalization: Type of normalization (‘batch’, ‘instance’, ‘layer’).
+**kwargs: Additional parameters for the sub-components.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.models.core.attention_model.policy.AttentionModelPolicy.encoder">
 <span class="sig-name descname"><span class="pre">encoder</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">logic.src.models.subnets.encoders.gat.GraphAttentionEncoder</span></em><a class="headerlink" href="#src.models.core.attention_model.policy.AttentionModelPolicy.encoder" title="Link to this definition">#</a></dt>
@@ -532,8 +555,25 @@ using TensorDict for state management.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.attention_model.policy.AttentionModelPolicy.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sampling'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.attention_model.policy.AttentionModelPolicy.forward" title="Link to this definition">#</a></dt>
-<dd><p>Forward pass executing the constructive solution generation.</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sampling'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.attention_model.policy.AttentionModelPolicy.forward" title="Link to this definition">#</a></dt>
+<dd><p>Executes one-shot or multi-start constructive decoding.</p>
+<p>Args:
+td: TensorDict containing instance metadata and state.
+env: Environment object for reward and state updates.
+strategy: Action selection tactic (‘greedy’, ‘sampling’).
+num_starts: Number of parallel construction attempts.
+actions: Pre-defined tour to evaluate (for teacher forcing).
+**kwargs: Control arguments including ‘return_init_embeds’.</p>
+<p>Returns:
+Dict[str, Any]: Policy results including:
+- reward (torch.Tensor): Calculated reward for the routes.
+- log_likelihood (torch.Tensor): Cumulative log prob of actions.
+- actions (torch.Tensor): Selected node indices.
+- entropy (torch.Tensor): Total policy entropy across steps.
+- td (TensorDict): Final environment state after decoding.</p>
+<p>Raises:
+RuntimeError: If encoder or decoder subnets are uninitialized.
+ValueError: If <code class="docutils literal notranslate"><span class="pre">env_name</span></code> is missing from the state.</p>
 </dd></dl>
 
 </dd></dl>

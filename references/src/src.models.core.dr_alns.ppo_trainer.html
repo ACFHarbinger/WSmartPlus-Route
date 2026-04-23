@@ -501,12 +501,18 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.core.dr_alns.ppo_trainer">
 <span id="src-models-core-dr-alns-ppo-trainer"></span><h1><a class="reference internal" href="#module-src.models.core.dr_alns.ppo_trainer" title="src.models.core.dr_alns.ppo_trainer"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.core.dr_alns.ppo_trainer</span></code></a><a class="headerlink" href="#module-src.models.core.dr_alns.ppo_trainer" title="Link to this heading">#</a></h1>
-<p>PPO Trainer for DR-ALNS.</p>
-<p>Training loop for PPO agent using the DR-ALNS Gymnasium environment.</p>
-<p>Reference:
-Reijnen, R., Zhang, Y., Lau, H. C., &amp; Bukhsh, Z.
-“Online Control of Adaptive Large Neighborhood Search Using Deep
-Reinforcement Learning”, AAAI 2024.</p>
+<p>PPO Trainer for DR-ALNS optimization.</p>
+<p>This module implements the training logic for the DR-ALNS agent, including
+the experience replay buffer (<code class="docutils literal notranslate"><span class="pre">PPOBuffer</span></code>) and the <code class="docutils literal notranslate"><span class="pre">PPOTrainer</span></code> which
+manages the environment interactions, advantage estimation, and gradient
+updates using the PPO algorithm.</p>
+<p>Attributes:
+PPOBuffer: Container for on-policy experience collection.
+PPOTrainer: Coordinator for agent-environment optimization loops.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.core.dr_alns.ppo_trainer import PPOTrainer
+&gt;&gt;&gt; trainer = PPOTrainer(agent, env)
+&gt;&gt;&gt; history = trainer.train(total_timesteps=10000)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -514,10 +520,10 @@ Reinforcement Learning”, AAAI 2024.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.core.dr_alns.ppo_trainer.PPOBuffer" title="src.models.core.dr_alns.ppo_trainer.PPOBuffer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PPOBuffer</span></code></a></p></td>
-<td><p>Experience buffer for PPO training.</p></td>
+<td><p>Experience storage for Proximal Policy Optimization.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.models.core.dr_alns.ppo_trainer.PPOTrainer" title="src.models.core.dr_alns.ppo_trainer.PPOTrainer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PPOTrainer</span></code></a></p></td>
-<td><p>PPO Trainer for DR-ALNS agent.</p></td>
+<td><p>Orchestrator for DR-ALNS neural agent optimization.</p></td>
 </tr>
 </tbody>
 </table>
@@ -528,96 +534,135 @@ Reinforcement Learning”, AAAI 2024.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.core.dr_alns.ppo_trainer.PPOBuffer">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.dr_alns.ppo_trainer.</span></span><span class="sig-name descname"><span class="pre">PPOBuffer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.dr_alns.ppo_trainer.PPOBuffer" title="Link to this definition">#</a></dt>
-<dd><p>Experience buffer for PPO training.</p>
+<dd><p>Experience storage for Proximal Policy Optimization.</p>
+<p>Maintains trajectories of states, actions, log-probabilities, rewards,
+done flags, and value estimates collected during environmental rollouts.</p>
+<p>Attributes:
+capacity (int): Maximum steps to store.
+states (List[torch.Tensor]): History of observation vectors [7].
+actions (List[Dict[str, int]]): History of discrete operator indices.
+log_probs (List[Dict[str, torch.Tensor]]): History of policy probabilities.
+rewards (List[float]): History of immediate collection rewards.
+dones (List[bool]): History of episode termination flags.
+values (List[torch.Tensor]): History of critic value estimates.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the experience buffer.</p>
+<p>Args:
+capacity: Buffer size limit.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.dr_alns.ppo_trainer.PPOBuffer.reset">
 <span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.core.dr_alns.ppo_trainer.PPOBuffer.reset" title="Link to this definition">#</a></dt>
-<dd><p>Clear the buffer.</p>
+<dd><p>Flushes all stored trajectories to prepare for new rollouts.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.dr_alns.ppo_trainer.PPOBuffer.add">
-<span class="sig-name descname"><span class="pre">add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_prob</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">done</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.dr_alns.ppo_trainer.PPOBuffer.add" title="Link to this definition">#</a></dt>
-<dd><p>Add a transition to the buffer.</p>
+<span class="sig-name descname"><span class="pre">add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_prob</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">done</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.core.dr_alns.ppo_trainer.PPOBuffer.add" title="Link to this definition">#</a></dt>
+<dd><p>Appends a new transition to the storage.</p>
+<p>Args:
+state: Current observation.
+action: Selected discrete actions map.
+log_prob: Log-probabilities of selected actions.
+reward: Scalar reward from step.
+done: Whether episode terminated.
+value: Estimated state value.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.dr_alns.ppo_trainer.PPOBuffer.get">
 <span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.device</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.dr_alns.ppo_trainer.PPOBuffer.get" title="Link to this definition">#</a></dt>
-<dd><p>Get all experiences as tensors.</p>
+<dd><p>Batches all stored data into tensors for training.</p>
+<p>Args:
+device: hardware target for tensors.</p>
 <p>Returns:
-Dictionary containing batched tensors.</p>
+Dict[str, Any]: Dictionary of batched experience tensors.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.dr_alns.ppo_trainer.PPOBuffer.__len__">
 <span class="sig-name descname"><span class="pre">__len__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.models.core.dr_alns.ppo_trainer.PPOBuffer.__len__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the current step count in the buffer.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.core.dr_alns.ppo_trainer.PPOTrainer">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.dr_alns.ppo_trainer.</span></span><span class="sig-name descname"><span class="pre">PPOTrainer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.models.core.dr_alns.ppo_agent.html#src.models.core.dr_alns.ppo_agent.DRALNSPPOAgent" title="src.models.core.dr_alns.ppo_agent.DRALNSPPOAgent"><span class="pre">src.models.core.dr_alns.ppo_agent.DRALNSPPOAgent</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.dr_alns.DRALNSEnv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0003</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.99</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gae_lambda</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_epsilon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value_loss_coef</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entropy_coef</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_grad_norm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_epochs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.device</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.dr_alns.ppo_trainer.PPOTrainer" title="Link to this definition">#</a></dt>
-<dd><p>PPO Trainer for DR-ALNS agent.</p>
+<dd><p>Orchestrator for DR-ALNS neural agent optimization.</p>
+<p>Implements the PPO pipeline: collection of on-policy rollouts, computation of
+GAE advantages, and stochastic gradient ascent updates.</p>
+<p>Attributes:
+agent (DRALNSPPOAgent): The multi-head model being trained.
+env (DRALNSEnv): Gymnasium interface to the ALNS solver.
+gamma (float): Future reward discount factor.
+gae_lambda (float): Smoothing parameter for advantage estimation.
+clip_epsilon (float): PPO conservation range.
+value_loss_coef (float): Critic regularization weight.
+entropy_coef (float): Exploration regularization weight.
+max_grad_norm (float): Gradient clipping threshold.
+n_epochs (int): Number of SGD passes per collection batch.
+batch_size (int): Minibatch size for gradient steps.
+device (torch.device): Working hardware.
+optimizer (Adam): Neural network optimizer.
+buffer (PPOBuffer): Experience storage.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize PPO trainer.</p>
+<p>Initializes the PPO trainer.</p>
 <p>Args:
-agent: PPO agent to train.
-env: DR-ALNS environment.
+agent: The PPO agent.
+env: The target ALNS environment.
 lr: Learning rate.
 gamma: Discount factor.
-gae_lambda: GAE lambda for advantage estimation.
-clip_epsilon: PPO clipping parameter.
-value_loss_coef: Value loss coefficient.
-entropy_coef: Entropy bonus coefficient.
-max_grad_norm: Maximum gradient norm for clipping.
-n_epochs: Number of PPO update epochs per batch.
-batch_size: Minibatch size for updates.
-device: Torch device.</p>
+gae_lambda: GAE parameter.
+clip_epsilon: PPO clip ratio.
+value_loss_coef: Critic weighting.
+entropy_coef: Exploration weighting.
+max_grad_norm: Gradient norm limit.
+n_epochs: SGD update repeat count.
+batch_size: Training batch size.
+device: Compute device.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.dr_alns.ppo_trainer.PPOTrainer.collect_experience">
 <span class="sig-name descname"><span class="pre">collect_experience</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instance_generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.dr_alns.ppo_trainer.PPOTrainer.collect_experience" title="Link to this definition">#</a></dt>
-<dd><p>Collect experience by running the agent in the environment.</p>
+<dd><p>Interacts with the ALNS environment to harvest state-action-reward tuples.</p>
 <p>Args:
-n_steps: Number of steps to collect.
-instance_generator: Optional instance generator for the environment.</p>
+n_steps: Number of total environment steps to harvest.
+instance_generator: logic for problem reset if applicable.</p>
 <p>Returns:
-Dictionary with collection statistics.</p>
+Dict[str, float]: Rollout statistics (mean reward, best profit, etc).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.dr_alns.ppo_trainer.PPOTrainer.compute_advantages">
 <span class="sig-name descname"><span class="pre">compute_advantages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rewards</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dones</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.dr_alns.ppo_trainer.PPOTrainer.compute_advantages" title="Link to this definition">#</a></dt>
-<dd><p>Compute Generalized Advantage Estimation (GAE).</p>
+<dd><p>Calculates advantages using the GAE algorithm.</p>
 <p>Args:
-rewards: Reward tensor (n_steps,).
-values: Value tensor (n_steps,).
-dones: Done flags (n_steps,).</p>
+rewards: Trajectory rewards [N].
+values: trajectory critic estimates [N].
+dones: Trajectory termination flags [N].</p>
 <p>Returns:
-Tuple of (advantages, returns).</p>
+Tuple[torch.Tensor, torch.Tensor]: Advantage and Return tensors.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.dr_alns.ppo_trainer.PPOTrainer.update">
 <span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.dr_alns.ppo_trainer.PPOTrainer.update" title="Link to this definition">#</a></dt>
-<dd><p>Update the agent using collected experience.</p>
+<dd><p>Performs PPO gradient updates based on buffered experience.</p>
 <p>Returns:
-Dictionary with training statistics.</p>
+Dict[str, float]: Optimization metrics (policy loss, value loss, entropy).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.dr_alns.ppo_trainer.PPOTrainer.train">
-<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">total_timesteps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_steps_per_update</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2048</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instance_generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.dr_alns.ppo_trainer.PPOTrainer.train" title="Link to this definition">#</a></dt>
-<dd><p>Train the agent.</p>
+<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">total_timesteps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_steps_per_update</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2048</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instance_generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.dr_alns.ppo_trainer.PPOTrainer.train" title="Link to this definition">#</a></dt>
+<dd><p>Conducts a full training run over multiple rollout/update cycles.</p>
 <p>Args:
-total_timesteps: Total number of timesteps to train.
-n_steps_per_update: Number of steps to collect before update.
-log_interval: How often to log (in updates).
-instance_generator: Optional instance generator.</p>
+total_timesteps: total budget of interactions.
+n_steps_per_update: Batch size of history to collect before an update.
+log_interval: updates between metrics printing.
+instance_generator: Environment problem generation logic.</p>
 <p>Returns:
-Dictionary with training history.</p>
+Dict[str, List[float]]: Metric histories.</p>
 </dd></dl>
 
 </dd></dl>

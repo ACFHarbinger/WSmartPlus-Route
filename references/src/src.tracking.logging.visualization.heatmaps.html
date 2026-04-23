@@ -489,8 +489,17 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.logging.visualization.heatmaps">
 <span id="src-tracking-logging-visualization-heatmaps"></span><h1><a class="reference internal" href="#module-src.tracking.logging.visualization.heatmaps" title="src.tracking.logging.visualization.heatmaps"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging.visualization.heatmaps</span></code></a><a class="headerlink" href="#module-src.tracking.logging.visualization.heatmaps" title="Link to this heading">#</a></h1>
-<p>Heatmap visualization tools.</p>
-<p>Functions for plotting attention weights and logit lens analysis.</p>
+<p>Heatmap visualization tools for model interpretability.</p>
+<p>This module provides tools for visualizing internal model states as heatmaps.
+It includes support for plotting attention weights across transformer layers
+and implementing the ‘Logit Lens’ technique to observe the evolution of
+action probability distributions through sequential encoder blocks.</p>
+<p>Attributes:
+plot_attention_heatmaps: Visualizes Q, K, V weight matrices as heatmaps.
+plot_logit_lens: Projects intermediate layers to detection logits.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.tracking.logging.visualization import heatmaps
+&gt;&gt;&gt; heatmaps.plot_attention_heatmaps(model, “output/heatmaps/”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -501,9 +510,7 @@ document.write(`
 <td><p>Plots heatmaps of attention weights (Query, Key, Value) for all layers.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.logging.visualization.heatmaps.plot_logit_lens" title="src.tracking.logging.visualization.heatmaps.plot_logit_lens"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_logit_lens</span></code></a></p></td>
-<td><p>Implements the ‘Logit Lens’ technique for Attention Models.
-Project intermediate encoder layer outputs through the decoder’s
-attention mechanism to see what the ‘best’ node is at each layer.</p></td>
+<td><p>Implements the ‘Logit Lens’ technique for Attention Models.</p></td>
 </tr>
 </tbody>
 </table>
@@ -516,22 +523,24 @@ attention mechanism to see what the ‘best’ node is at each layer.</p></td>
 <span class="sig-prename descclassname"><span class="pre">src.tracking.logging.visualization.heatmaps.</span></span><span class="sig-name descname"><span class="pre">plot_attention_heatmaps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.logging.visualization.heatmaps.plot_attention_heatmaps" title="Link to this definition">#</a></dt>
 <dd><p>Plots heatmaps of attention weights (Query, Key, Value) for all layers.</p>
 <p>Args:
-model (nn.Module): The model.
-output_dir (str): Directory to save images.
-epoch (int, optional): Current epoch. Defaults to 0.</p>
+model: The PyTorch neural network to inspect.
+output_dir: Directory where the generated images will be saved.
+epoch: Current training epoch index. Defaults to 0.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.logging.visualization.heatmaps.plot_logit_lens">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.logging.visualization.heatmaps.</span></span><span class="sig-name descname"><span class="pre">plot_logit_lens</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_batch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.logging.visualization.heatmaps.plot_logit_lens" title="Link to this definition">#</a></dt>
-<dd><p>Implements the ‘Logit Lens’ technique for Attention Models.
-Project intermediate encoder layer outputs through the decoder’s
+<dd><p>Implements the ‘Logit Lens’ technique for Attention Models.</p>
+<p>Projects intermediate encoder layer outputs through the decoder’s
 attention mechanism to see what the ‘best’ node is at each layer.</p>
 <p>Args:
-model (nn.Module): The Attention Model.
-x_batch (dict): Input batch.
-output_file (str): Filename to save the heatmap.
-epoch (int): Current epoch.</p>
+model: The Attention Model instance.
+x_batch: Input batch of graph data.
+output_file: File path where the heatmap image will be saved.
+epoch: Current training epoch index.</p>
+<p>Returns:
+None</p>
 </dd></dl>
 
 </section>

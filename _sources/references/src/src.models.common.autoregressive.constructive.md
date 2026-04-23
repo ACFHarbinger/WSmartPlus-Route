@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} ConstructivePolicy(encoder: typing.Optional[torch.nn.Module] = None, decoder: typing.Optional[torch.nn.Module] = None, env_name: typing.Optional[str] = None, embed_dim: int = 128, seed: int = 42, device: str = 'cpu', **kwargs)
+`````{py:class} ConstructivePolicy(encoder: typing.Optional[torch.nn.Module] = None, decoder: typing.Optional[torch.nn.Module] = None, env_name: typing.Optional[str] = None, embed_dim: int = 128, seed: int = 42, device: str = 'cpu', **kwargs: typing.Any)
 :canonical: src.models.common.autoregressive.constructive.ConstructivePolicy
 
 Bases: {py:obj}`torch.nn.Module`, {py:obj}`abc.ABC`
@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`, {py:obj}`abc.ABC`
 ```{autodoc2-docstring} src.models.common.autoregressive.constructive.ConstructivePolicy.__init__
 ```
 
-````{py:method} __getstate__()
+````{py:method} __getstate__() -> typing.Dict[str, typing.Any]
 :canonical: src.models.common.autoregressive.constructive.ConstructivePolicy.__getstate__
 
 ```{autodoc2-docstring} src.models.common.autoregressive.constructive.ConstructivePolicy.__getstate__
@@ -45,7 +45,7 @@ Bases: {py:obj}`torch.nn.Module`, {py:obj}`abc.ABC`
 
 ````
 
-````{py:method} __setstate__(state)
+````{py:method} __setstate__(state: typing.Dict[str, typing.Any]) -> None
 :canonical: src.models.common.autoregressive.constructive.ConstructivePolicy.__setstate__
 
 ```{autodoc2-docstring} src.models.common.autoregressive.constructive.ConstructivePolicy.__setstate__
@@ -53,7 +53,7 @@ Bases: {py:obj}`torch.nn.Module`, {py:obj}`abc.ABC`
 
 ````
 
-````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.base.RL4COEnvBase, strategy: str = 'sampling', num_starts: int = 1, **kwargs) -> dict
+````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.base.RL4COEnvBase] = None, strategy: str = 'sampling', num_starts: int = 1, **kwargs: typing.Any) -> typing.Dict[str, typing.Any]
 :canonical: src.models.common.autoregressive.constructive.ConstructivePolicy.forward
 :abstractmethod:
 
@@ -62,7 +62,7 @@ Bases: {py:obj}`torch.nn.Module`, {py:obj}`abc.ABC`
 
 ````
 
-````{py:method} _select_action(logits: torch.Tensor, mask: torch.Tensor, strategy: str = 'sampling', **kwargs) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]
+````{py:method} _select_action(logits: torch.Tensor, mask: torch.Tensor, strategy: str = 'sampling', **kwargs: typing.Any) -> typing.Tuple[torch.Tensor, torch.Tensor, torch.Tensor]
 :canonical: src.models.common.autoregressive.constructive.ConstructivePolicy._select_action
 
 ```{autodoc2-docstring} src.models.common.autoregressive.constructive.ConstructivePolicy._select_action

@@ -492,12 +492,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.policies.shared">
 <span id="src-models-policies-shared"></span><h1><a class="reference internal" href="#module-src.models.policies.shared" title="src.models.policies.shared"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies.shared</span></code></a><a class="headerlink" href="#module-src.models.policies.shared" title="Link to this heading">#</a></h1>
-<p>Split Package.</p>
-<p>Exports:
-vectorized_linear_split
-vectorized_split_limited (_vectorized_split_limited)
-reconstruct_routes (_reconstruct_routes)
-reconstruct_limited (_reconstruct_limited)</p>
+<p>Shared policy utilities package.</p>
+<p>This package provides shared algorithmic components used across different
+routing policies, including split algorithms for transforming giant tours
+into multiple routes and utilities for route reconstruction.</p>
+<p>Attributes:
+vectorized_linear_split: Linear time split algorithm.
+_vectorized_split_limited: Limited capacity split algorithm.
+_reconstruct_routes: Reconstructs tour sequences from split indices.
+_reconstruct_limited: Reconstruction utility for limited-capacity scenarios.</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

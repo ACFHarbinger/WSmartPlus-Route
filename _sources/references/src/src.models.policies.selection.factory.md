@@ -47,7 +47,7 @@
 
 ### API
 
-````{py:function} create_selector_from_config(cfg) -> typing.Optional[src.models.policies.selection.base.VectorizedSelector]
+````{py:function} create_selector_from_config(cfg: typing.Any) -> typing.Optional[src.models.policies.selection.base.VectorizedSelector]
 :canonical: src.models.policies.selection.factory.create_selector_from_config
 
 ```{autodoc2-docstring} src.models.policies.selection.factory.create_selector_from_config
@@ -61,35 +61,35 @@
 ```
 ````
 
-````{py:function} _get_params(cfg: object) -> dict
+````{py:function} _get_params(cfg: object) -> typing.Dict[str, typing.Any]
 :canonical: src.models.policies.selection.factory._get_params
 
 ```{autodoc2-docstring} src.models.policies.selection.factory._get_params
 ```
 ````
 
-````{py:function} _create_combined_selector(params: dict) -> typing.Optional[src.models.policies.selection.base.VectorizedSelector]
+````{py:function} _create_combined_selector(params: typing.Dict[str, typing.Any]) -> typing.Optional[src.models.policies.selection.base.VectorizedSelector]
 :canonical: src.models.policies.selection.factory._create_combined_selector
 
 ```{autodoc2-docstring} src.models.policies.selection.factory._create_combined_selector
 ```
 ````
 
-````{py:function} _create_manager_selector(params: dict) -> src.models.policies.selection.base.VectorizedSelector
+````{py:function} _create_manager_selector(params: typing.Dict[str, typing.Any]) -> src.models.policies.selection.base.VectorizedSelector
 :canonical: src.models.policies.selection.factory._create_manager_selector
 
 ```{autodoc2-docstring} src.models.policies.selection.factory._create_manager_selector
 ```
 ````
 
-````{py:function} _get_strategy_params(strategy: str, params: dict) -> dict
+````{py:function} _get_strategy_params(strategy: str, params: typing.Dict[str, typing.Any]) -> typing.Dict[str, typing.Any]
 :canonical: src.models.policies.selection.factory._get_strategy_params
 
 ```{autodoc2-docstring} src.models.policies.selection.factory._get_strategy_params
 ```
 ````
 
-````{py:function} get_vectorized_selector(name: str, **kwargs) -> src.models.policies.selection.base.VectorizedSelector
+````{py:function} get_vectorized_selector(name: str, **kwargs: typing.Any) -> src.models.policies.selection.base.VectorizedSelector
 :canonical: src.models.policies.selection.factory.get_vectorized_selector
 
 ```{autodoc2-docstring} src.models.policies.selection.factory.get_vectorized_selector

@@ -36,8 +36,9 @@ src.models.subnets.decoders.mdam.attention
 
 ````{py:data} __all__
 :canonical: src.models.subnets.decoders.mdam.__all__
+:type: list[str]
 :value: >
-   ['MDAMDecoder']
+   ['MDAMDecoder', 'MDAMPath']
 
 ```{autodoc2-docstring} src.models.subnets.decoders.mdam.__all__
 ```

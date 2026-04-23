@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.subnets.modules.distance_graph_convolution.DistanceAwareGraphConvolution.__init__
 ```
 
-````{py:method} init_parameters()
+````{py:method} init_parameters() -> None
 :canonical: src.models.subnets.modules.distance_graph_convolution.DistanceAwareGraphConvolution.init_parameters
 
 ```{autodoc2-docstring} src.models.subnets.modules.distance_graph_convolution.DistanceAwareGraphConvolution.init_parameters
@@ -45,7 +45,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} get_distance_weights(dist_matrix)
+````{py:method} get_distance_weights(dist_matrix: torch.Tensor) -> torch.Tensor
 :canonical: src.models.subnets.modules.distance_graph_convolution.DistanceAwareGraphConvolution.get_distance_weights
 
 ```{autodoc2-docstring} src.models.subnets.modules.distance_graph_convolution.DistanceAwareGraphConvolution.get_distance_weights
@@ -53,7 +53,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} forward(h, adj, dist_matrix=None)
+````{py:method} forward(h: torch.Tensor, adj: torch.Tensor, dist_matrix: typing.Optional[torch.Tensor] = None) -> torch.Tensor
 :canonical: src.models.subnets.modules.distance_graph_convolution.DistanceAwareGraphConvolution.forward
 
 ```{autodoc2-docstring} src.models.subnets.modules.distance_graph_convolution.DistanceAwareGraphConvolution.forward
@@ -61,7 +61,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} single_graph_forward(h, adj, dist_matrix=None)
+````{py:method} single_graph_forward(h: torch.Tensor, adj: torch.Tensor, dist_matrix: typing.Optional[torch.Tensor] = None) -> torch.Tensor
 :canonical: src.models.subnets.modules.distance_graph_convolution.DistanceAwareGraphConvolution.single_graph_forward
 
 ```{autodoc2-docstring} src.models.subnets.modules.distance_graph_convolution.DistanceAwareGraphConvolution.single_graph_forward

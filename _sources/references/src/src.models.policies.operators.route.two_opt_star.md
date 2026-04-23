@@ -27,8 +27,8 @@
   - ```{autodoc2-docstring} src.models.policies.operators.route.two_opt_star._compute_two_opt_star_gain
     :summary:
     ```
-* - {py:obj}`_apply_two_opt_star_moves <src.models.policies.operators.route.two_opt_star._apply_two_opt_star_moves>`
-  - ```{autodoc2-docstring} src.models.policies.operators.route.two_opt_star._apply_two_opt_star_moves
+* - {py:obj}`_apply_two_opt_moves <src.models.policies.operators.route.two_opt_star._apply_two_opt_moves>`
+  - ```{autodoc2-docstring} src.models.policies.operators.route.two_opt_star._apply_two_opt_moves
     :summary:
     ```
 * - {py:obj}`_map_tail_swap <src.models.policies.operators.route.two_opt_star._map_tail_swap>`
@@ -39,35 +39,35 @@
 
 ### API
 
-````{py:function} vectorized_two_opt_star(tours, dist_matrix, max_iterations=200, generator=None)
+````{py:function} vectorized_two_opt_star(tours: torch.Tensor, dist_matrix: torch.Tensor, max_iterations: int = 200, generator: typing.Optional[torch.Generator] = None) -> torch.Tensor
 :canonical: src.models.policies.operators.route.two_opt_star.vectorized_two_opt_star
 
 ```{autodoc2-docstring} src.models.policies.operators.route.two_opt_star.vectorized_two_opt_star
 ```
 ````
 
-````{py:function} _identify_two_opt_star_routes(tours, i, j, seq, B)
+````{py:function} _identify_two_opt_star_routes(tours: torch.Tensor, i: torch.Tensor, j: torch.Tensor, seq: torch.Tensor, B: int) -> typing.Tuple[torch.Tensor, torch.Tensor, torch.Tensor]
 :canonical: src.models.policies.operators.route.two_opt_star._identify_two_opt_star_routes
 
 ```{autodoc2-docstring} src.models.policies.operators.route.two_opt_star._identify_two_opt_star_routes
 ```
 ````
 
-````{py:function} _compute_two_opt_star_gain(tours, dist, u, v, i, j, b_idx)
+````{py:function} _compute_two_opt_star_gain(tours: torch.Tensor, dist: torch.Tensor, u: torch.Tensor, v: torch.Tensor, i: torch.Tensor, j: torch.Tensor, b_idx: torch.Tensor) -> torch.Tensor
 :canonical: src.models.policies.operators.route.two_opt_star._compute_two_opt_star_gain
 
 ```{autodoc2-docstring} src.models.policies.operators.route.two_opt_star._compute_two_opt_star_gain
 ```
 ````
 
-````{py:function} _apply_two_opt_star_moves(tours, improved, i, j, end_i, end_j, max_len, seq, device)
-:canonical: src.models.policies.operators.route.two_opt_star._apply_two_opt_star_moves
+````{py:function} _apply_two_opt_moves(tours: torch.Tensor, improved: torch.Tensor, i: torch.Tensor, j: torch.Tensor, end_i: torch.Tensor, end_j: torch.Tensor, max_len: int, seq: torch.Tensor, device: torch.device) -> torch.Tensor
+:canonical: src.models.policies.operators.route.two_opt_star._apply_two_opt_moves
 
-```{autodoc2-docstring} src.models.policies.operators.route.two_opt_star._apply_two_opt_star_moves
+```{autodoc2-docstring} src.models.policies.operators.route.two_opt_star._apply_two_opt_moves
 ```
 ````
 
-````{py:function} _map_tail_swap(idx_map, mask, i, j, end_i, end_j, B, max_len)
+````{py:function} _map_tail_swap(idx_map: torch.Tensor, mask: torch.Tensor, i: torch.Tensor, j: torch.Tensor, end_i: torch.Tensor, end_j: torch.Tensor, B: int, max_len: int) -> torch.Tensor
 :canonical: src.models.policies.operators.route.two_opt_star._map_tail_swap
 
 ```{autodoc2-docstring} src.models.policies.operators.route.two_opt_star._map_tail_swap

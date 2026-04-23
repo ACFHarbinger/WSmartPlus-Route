@@ -492,6 +492,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.decoders.nar.decoder">
 <span id="src-models-subnets-decoders-nar-decoder"></span><h1><a class="reference internal" href="#module-src.models.subnets.decoders.nar.decoder" title="src.models.subnets.decoders.nar.decoder"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.decoders.nar.decoder</span></code></a><a class="headerlink" href="#module-src.models.subnets.decoders.nar.decoder" title="Link to this heading">#</a></h1>
 <p>Simple NAR Decoder: Constructs solutions using greedy/sampling from heatmaps.</p>
+<p>This module provides a non-autoregressive decoder that directly utilizes
+edge or node heatmaps to produce selection logits.</p>
+<p>Attributes:
+SimpleNARDecoder: Decoder for Non-Autoregressive models using heatmaps.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.decoders.nar.decoder import SimpleNARDecoder
+&gt;&gt;&gt; decoder = SimpleNARDecoder()
+&gt;&gt;&gt; logits, mask = decoder(td, heatmap, env)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -509,25 +517,29 @@ document.write(`
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.subnets.decoders.nar.decoder.SimpleNARDecoder">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.decoders.nar.decoder.</span></span><span class="sig-name descname"><span class="pre">SimpleNARDecoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.decoders.nar.decoder.SimpleNARDecoder" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.decoders.nar.decoder.</span></span><span class="sig-name descname"><span class="pre">SimpleNARDecoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.decoders.nar.decoder.SimpleNARDecoder" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.models.common.non_autoregressive.decoder.NonAutoregressiveDecoder</span></code></p>
 <p>Simple decoder for Non-Autoregressive models.</p>
-<p>Directly uses the heatmap as logits for selection.</p>
+<p>Directly uses a pre-computed heatmap (e.g., from a GNN) as logits
+for selecting the next action in a constructive manner.</p>
+<p>Attributes:
+kwargs (Any): Additional configuration parameters.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize Class.</p>
+<p>Initializes the SimpleNARDecoder.</p>
 <p>Args:
-kwargs (Any): Description of kwargs.</p>
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.decoders.nar.decoder.SimpleNARDecoder.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heatmap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.subnets.decoders.nar.decoder.SimpleNARDecoder.forward" title="Link to this definition">#</a></dt>
-<dd><p>Produce logits for the current step based on the heatmap.</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heatmap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.subnets.decoders.nar.decoder.SimpleNARDecoder.forward" title="Link to this definition">#</a></dt>
+<dd><p>Produces logits for the current step based on the heatmap.</p>
 <p>Args:
-td: TensorDict with current state.
-heatmap: Pre-computed heatmap [batch, n, n] or [batch, n].
-env: Environment.
-num_starts: Number of starts.</p>
+td: TensorDict containing the current state.
+heatmap: Pre-computed heatmap of shape (batch, n, n) or (batch, n).
+env: Environment instance.
+kwargs: Additional keyword arguments.</p>
 <p>Returns:
-Logits for selecting the next node.</p>
+Tuple[torch.Tensor, torch.Tensor]: Logits for selecting the next node
+and the current selection mask.</p>
 </dd></dl>
 
 </dd></dl>

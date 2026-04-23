@@ -491,11 +491,11 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.meta.hrl_manager.mandatory_head">
 <span id="src-models-meta-hrl-manager-mandatory-head"></span><h1><a class="reference internal" href="#module-src.models.meta.hrl_manager.mandatory_head" title="src.models.meta.hrl_manager.mandatory_head"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.meta.hrl_manager.mandatory_head</span></code></a><a class="headerlink" href="#module-src.models.meta.hrl_manager.mandatory_head" title="Link to this heading">#</a></h1>
-<p>mandatory_head.py module.</p>
+<p>Mandatory Selection Head for Node Categorization.</p>
+<p>This module provides the <code class="docutils literal notranslate"><span class="pre">MandatorySelectionHead</span></code>, which determines if a node must
+be collected in the current period based on local and spatial context.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
-<p>Example:
-&gt;&gt;&gt; import mandatory_head</p>
+MandatorySelectionHead: MLP-based binary categorical selection head.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -503,7 +503,7 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.meta.hrl_manager.mandatory_head.MandatorySelectionHead" title="src.models.meta.hrl_manager.mandatory_head.MandatorySelectionHead"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MandatorySelectionHead</span></code></a></p></td>
-<td><p>Head for selecting mandatory nodes.</p></td>
+<td><p>MLP head for per-node mandatory status selection.</p></td>
 </tr>
 </tbody>
 </table>
@@ -515,20 +515,24 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <dt class="sig sig-object py" id="src.models.meta.hrl_manager.mandatory_head.MandatorySelectionHead">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.meta.hrl_manager.mandatory_head.</span></span><span class="sig-name descname"><span class="pre">MandatorySelectionHead</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.meta.hrl_manager.mandatory_head.MandatorySelectionHead" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
-<p>Head for selecting mandatory nodes.</p>
+<p>MLP head for per-node mandatory status selection.</p>
+<p>Produces categorical logits for each node independently, indicating whether
+the node is ‘optional’ (opportunistic collection) or ‘mandatory’ (must collect).</p>
+<p>Attributes:
+net (nn.Sequential): MLP layers (Linear -&gt; ReLU -&gt; Linear).</p>
 <p class="rubric">Initialization</p>
-<p>Initialize Class.</p>
+<p>Initializes the selection head.</p>
 <p>Args:
-input_dim (int): Description of input_dim.
-hidden_dim (int): Description of hidden_dim.</p>
+input_dim: size of node embeddings (spatial + temporal fused).
+hidden_dim: width of the intermediate representation.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.meta.hrl_manager.mandatory_head.MandatorySelectionHead.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.meta.hrl_manager.mandatory_head.MandatorySelectionHead.forward" title="Link to this definition">#</a></dt>
-<dd><p>Forward.</p>
+<dd><p>Predicts selection logits per node.</p>
 <p>Args:
-x (torch.Tensor): Description of x.</p>
+x: local node embeddings [B, N, D].</p>
 <p>Returns:
-Any: Description of return value.</p>
+torch.Tensor: logits for [Optional, Mandatory] [B, N, 2].</p>
 </dd></dl>
 
 </dd></dl>

@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.subnets.encoders.mlp.mlp_layer.MLPLayer.__init__
 ```
 
-````{py:method} forward(x)
+````{py:method} forward(x: torch.Tensor) -> torch.Tensor
 :canonical: src.models.subnets.encoders.mlp.mlp_layer.MLPLayer.forward
 
 ```{autodoc2-docstring} src.models.subnets.encoders.mlp.mlp_layer.MLPLayer.forward

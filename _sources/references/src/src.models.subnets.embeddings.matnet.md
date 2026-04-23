@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.subnets.embeddings.matnet.MatNetInitEmbedding.__init__
 ```
 
-````{py:method} forward(matrix)
+````{py:method} forward(matrix: torch.Tensor) -> typing.Tuple[torch.Tensor, torch.Tensor]
 :canonical: src.models.subnets.embeddings.matnet.MatNetInitEmbedding.forward
 
 ```{autodoc2-docstring} src.models.subnets.embeddings.matnet.MatNetInitEmbedding.forward

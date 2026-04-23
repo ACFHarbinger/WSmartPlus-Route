@@ -147,7 +147,7 @@
 
 ````
 
-````{py:method} render_row(cards_html: list) -> str
+````{py:method} render_row(cards_html: typing.List[str]) -> str
 :canonical: src.ui.styles.kpi.KPIRenderer.render_row
 
 ```{autodoc2-docstring} src.ui.styles.kpi.KPIRenderer.render_row
@@ -174,7 +174,7 @@
 ```
 ````
 
-````{py:function} create_kpi_row(metrics: dict, prefix: str = '') -> str
+````{py:function} create_kpi_row(metrics: typing.Dict[str, typing.Union[float, int, str]], prefix: str = '') -> str
 :canonical: src.ui.styles.kpi.create_kpi_row
 
 ```{autodoc2-docstring} src.ui.styles.kpi.create_kpi_row

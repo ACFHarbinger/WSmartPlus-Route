@@ -495,6 +495,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.ui.pages.benchmark">
 <span id="src-ui-pages-benchmark"></span><h1><a class="reference internal" href="#module-src.ui.pages.benchmark" title="src.ui.pages.benchmark"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.pages.benchmark</span></code></a><a class="headerlink" href="#module-src.ui.pages.benchmark" title="Link to this heading">#</a></h1>
 <p>Benchmark Analysis mode for the Streamlit dashboard.</p>
+<p>This module provides visual auditing of solver performance across multiple
+hardware architectures and problem instances. It supports latency vs
+throughput tradeoff analysis, multi-run aggregation, and environment
+metadata discovery.</p>
+<p>Example:
+render_benchmark_analysis()</p>
+<p>Attributes:
+render_benchmark_analysis: Main entry point for the benchmark dashboard.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -502,25 +510,25 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.benchmark._render_benchmark_kpis" title="src.ui.pages.benchmark._render_benchmark_kpis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_benchmark_kpis</span></code></a></p></td>
-<td><p>Display summary KPI cards for the benchmark dataset.</p></td>
+<td><p>Displays summary KPI cards for the benchmark dataset.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.benchmark._render_benchmark_metadata" title="src.ui.pages.benchmark._render_benchmark_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_benchmark_metadata</span></code></a></p></td>
-<td><p>Display benchmark environment and configuration info.</p></td>
+<td><p>Displays benchmark hardware environment and configuration metadata.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.benchmark._render_performance_table" title="src.ui.pages.benchmark._render_performance_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_performance_table</span></code></a></p></td>
-<td><p>Enhanced performance table with column selector and formatting.</p></td>
+<td><p>Renders an enhanced performance table with interactive column selection.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.benchmark._render_comparison_charts" title="src.ui.pages.benchmark._render_comparison_charts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_comparison_charts</span></code></a></p></td>
-<td><p>Enhanced comparison charts with grouping selector.</p></td>
+<td><p>Renders cross-run metric comparison charts with dynamic grouping.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.benchmark._render_latency_throughput" title="src.ui.pages.benchmark._render_latency_throughput"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_latency_throughput</span></code></a></p></td>
-<td><p>Latency vs throughput scatter plot.</p></td>
+<td><p>Renders latency vs throughput scatter plots for neural solvers.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.benchmark._render_per_run_details" title="src.ui.pages.benchmark._render_per_run_details"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_per_run_details</span></code></a></p></td>
-<td><p>Drill-down into a single benchmark entry.</p></td>
+<td><p>Renders a detailed JSON drill-down for a single benchmark entry.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.benchmark.render_benchmark_analysis" title="src.ui.pages.benchmark.render_benchmark_analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render_benchmark_analysis</span></code></a></p></td>
-<td><p>Render the Benchmark Analysis mode.</p></td>
+<td><p>Orchestrates and renders the core Benchmark Analysis dashboard.</p></td>
 </tr>
 </tbody>
 </table>
@@ -531,43 +539,56 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.benchmark._render_benchmark_kpis">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.benchmark.</span></span><span class="sig-name descname"><span class="pre">_render_benchmark_kpis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.benchmark._render_benchmark_kpis" title="Link to this definition">#</a></dt>
-<dd><p>Display summary KPI cards for the benchmark dataset.</p>
+<dd><p>Displays summary KPI cards for the benchmark dataset.</p>
+<p>Args:
+df: Input DataFrame containing benchmark results.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.benchmark._render_benchmark_metadata">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.benchmark.</span></span><span class="sig-name descname"><span class="pre">_render_benchmark_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.benchmark._render_benchmark_metadata" title="Link to this definition">#</a></dt>
-<dd><p>Display benchmark environment and configuration info.</p>
+<dd><p>Displays benchmark hardware environment and configuration metadata.</p>
+<p>Args:
+df: Input DataFrame containing run metadata.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.benchmark._render_performance_table">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.benchmark.</span></span><span class="sig-name descname"><span class="pre">_render_performance_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filtered_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.benchmark._render_performance_table" title="Link to this definition">#</a></dt>
-<dd><p>Enhanced performance table with column selector and formatting.</p>
+<dd><p>Renders an enhanced performance table with interactive column selection.</p>
+<p>Args:
+filtered_df: Filtered benchmark results for display.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.benchmark._render_comparison_charts">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.benchmark.</span></span><span class="sig-name descname"><span class="pre">_render_comparison_charts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filtered_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.benchmark._render_comparison_charts" title="Link to this definition">#</a></dt>
-<dd><p>Enhanced comparison charts with grouping selector.</p>
+<dd><p>Renders cross-run metric comparison charts with dynamic grouping.</p>
+<p>Args:
+filtered_df: The dataset containing plotting data.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.benchmark._render_latency_throughput">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.benchmark.</span></span><span class="sig-name descname"><span class="pre">_render_latency_throughput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filtered_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.benchmark._render_latency_throughput" title="Link to this definition">#</a></dt>
-<dd><p>Latency vs throughput scatter plot.</p>
+<dd><p>Renders latency vs throughput scatter plots for neural solvers.</p>
+<p>Args:
+filtered_df: The dataset containing plotting data.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.benchmark._render_per_run_details">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.benchmark.</span></span><span class="sig-name descname"><span class="pre">_render_per_run_details</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filtered_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.benchmark._render_per_run_details" title="Link to this definition">#</a></dt>
-<dd><p>Drill-down into a single benchmark entry.</p>
+<dd><p>Renders a detailed JSON drill-down for a single benchmark entry.</p>
+<p>Args:
+filtered_df: The dataset containing candidate records.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.benchmark.render_benchmark_analysis">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.benchmark.</span></span><span class="sig-name descname"><span class="pre">render_benchmark_analysis</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.benchmark.render_benchmark_analysis" title="Link to this definition">#</a></dt>
-<dd><p>Render the Benchmark Analysis mode.</p>
+<dd><p>Orchestrates and renders the core Benchmark Analysis dashboard.</p>
+<p>Handles file ingestion, interactive filtering, and multi-tab rendering.</p>
 </dd></dl>
 
 </section>

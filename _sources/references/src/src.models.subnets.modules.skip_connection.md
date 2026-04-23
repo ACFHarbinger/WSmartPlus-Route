@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.subnets.modules.skip_connection.SkipConnection.__init__
 ```
 
-````{py:method} forward(input, *args, **kwargs)
+````{py:method} forward(input: torch.Tensor, *args: typing.Any, **kwargs: typing.Any) -> torch.Tensor
 :canonical: src.models.subnets.modules.skip_connection.SkipConnection.forward
 
 ```{autodoc2-docstring} src.models.subnets.modules.skip_connection.SkipConnection.forward

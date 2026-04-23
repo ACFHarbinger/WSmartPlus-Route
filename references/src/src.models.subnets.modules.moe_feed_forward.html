@@ -492,6 +492,27 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.modules.moe_feed_forward">
 <span id="src-models-subnets-modules-moe-feed-forward"></span><h1><a class="reference internal" href="#module-src.models.subnets.modules.moe_feed_forward" title="src.models.subnets.modules.moe_feed_forward"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.modules.moe_feed_forward</span></code></a><a class="headerlink" href="#module-src.models.subnets.modules.moe_feed_forward" title="Link to this heading">#</a></h1>
 <p>MoE Feed Forward Network implementation.</p>
+<p>This module provides the MoEFeedForward layer, which replaces standard
+feed-forward sub-layers with a Mixture-of-Experts (MoE) block. Each expert
+is a full FFN (Linear -&gt; Activation -&gt; Linear) and routing is handled via
+a sparse gating network.</p>
+<p>Attributes:
+MoEFeedForward: Sub-layer replacing standard FeedForward with Mixture of Experts.</p>
+<p>Example:
+&gt;&gt;&gt; import torch
+&gt;&gt;&gt; from logic.src.models.subnets.modules.moe_feed_forward import MoEFeedForward
+&gt;&gt;&gt; ffn = MoEFeedForward(
+…     embed_dim=128,
+…     feed_forward_hidden=512,
+…     activation=”ReLU”,
+…     af_param=None,
+…     threshold=0.0,
+…     replacement_value=0.0,
+…     n_params=0,
+…     dist_range=None
+… )
+&gt;&gt;&gt; x = torch.randn(1, 10, 128)
+&gt;&gt;&gt; out = ffn(x)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -509,15 +530,38 @@ document.write(`
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.subnets.modules.moe_feed_forward.MoEFeedForward">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.modules.moe_feed_forward.</span></span><span class="sig-name descname"><span class="pre">MoEFeedForward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feed_forward_hidden</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">af_param</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replacement_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_experts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noisy_gating</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.moe_feed_forward.MoEFeedForward" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.modules.moe_feed_forward.</span></span><span class="sig-name descname"><span class="pre">MoEFeedForward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feed_forward_hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">af_param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replacement_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_experts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noisy_gating</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.moe_feed_forward.MoEFeedForward" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
 <p>Sub-layer replacing standard FeedForward with Mixture of Experts.</p>
+<p>Efficiently scales model capacity by selecting only <code class="docutils literal notranslate"><span class="pre">k</span></code> out of <code class="docutils literal notranslate"><span class="pre">num_experts</span></code>
+for each token in the input sequence. This allows for very large hidden
+dimensions with constant computation costs.</p>
+<p>Attributes:
+moe (MoE): The sparse gating and expert execution controller.</p>
 <p class="rubric">Initialization</p>
-<p>Initializes the MoE FeedForwardSubLayer.</p>
+<p>Initializes MoEFeedForward.</p>
+<p>Args:
+embed_dim: Input and output dimensionality.
+feed_forward_hidden: Hidden layer width within each expert’s FFN.
+activation: String identifier for the activation function.
+af_param: Scaling parameter for specific activation types.
+threshold: Activation pruning threshold.
+replacement_value: Constant substituted when thresholding triggers.
+n_params: Number of learnable parameters in the activation function.
+dist_range: Randomization range for parameterized activations.
+bias: Whether to use bias in internal linear layers.
+num_experts: Total pool of expert FFN blocks.
+k: Number of experts activated for each feature vector.
+noisy_gating: Whether to use stochastic noise for better expert load balancing.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.moe_feed_forward.MoEFeedForward.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.moe_feed_forward.MoEFeedForward.forward" title="Link to this definition">#</a></dt>
-<dd><p>Forward pass.</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.modules.moe_feed_forward.MoEFeedForward.forward" title="Link to this definition">#</a></dt>
+<dd><p>Applies adaptive expert routing and computation.</p>
+<p>Args:
+h: Input state tensor of shape (batch, nodes, embed_dim).
+mask: Optional attention mask (unused by internal MoE implementation).</p>
+<p>Returns:
+torch.Tensor: Transformed states of shape (batch, nodes, embed_dim).</p>
 </dd></dl>
 
 </dd></dl>

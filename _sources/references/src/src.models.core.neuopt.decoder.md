@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} NeuOptDecoder(embed_dim: int = 128, seed: int = 42, **kwargs)
+`````{py:class} NeuOptDecoder(embed_dim: int = 128, seed: int = 42, **kwargs: typing.Any)
 :canonical: src.models.core.neuopt.decoder.NeuOptDecoder
 
 Bases: {py:obj}`logic.src.models.common.improvement.decoder.ImprovementDecoder`
@@ -46,7 +46,7 @@ Bases: {py:obj}`logic.src.models.common.improvement.decoder.ImprovementDecoder`
 
 ````
 
-````{py:method} __getstate__()
+````{py:method} __getstate__() -> typing.Dict[str, typing.Any]
 :canonical: src.models.core.neuopt.decoder.NeuOptDecoder.__getstate__
 
 ```{autodoc2-docstring} src.models.core.neuopt.decoder.NeuOptDecoder.__getstate__
@@ -54,7 +54,7 @@ Bases: {py:obj}`logic.src.models.common.improvement.decoder.ImprovementDecoder`
 
 ````
 
-````{py:method} __setstate__(state)
+````{py:method} __setstate__(state: typing.Dict[str, typing.Any]) -> None
 :canonical: src.models.core.neuopt.decoder.NeuOptDecoder.__setstate__
 
 ```{autodoc2-docstring} src.models.core.neuopt.decoder.NeuOptDecoder.__setstate__
@@ -62,7 +62,7 @@ Bases: {py:obj}`logic.src.models.common.improvement.decoder.ImprovementDecoder`
 
 ````
 
-````{py:method} forward(td: tensordict.TensorDict, embeddings: torch.Tensor | typing.Tuple[torch.Tensor, ...], env: logic.src.envs.base.base.RL4COEnvBase, **kwargs) -> typing.Tuple[torch.Tensor, torch.Tensor]
+````{py:method} forward(td: tensordict.TensorDict, embeddings: torch.Tensor | typing.Tuple[torch.Tensor, ...], env: logic.src.envs.base.base.RL4COEnvBase, **kwargs: typing.Any) -> typing.Tuple[torch.Tensor, torch.Tensor]
 :canonical: src.models.core.neuopt.decoder.NeuOptDecoder.forward
 
 ```{autodoc2-docstring} src.models.core.neuopt.decoder.NeuOptDecoder.forward

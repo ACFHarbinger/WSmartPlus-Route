@@ -491,36 +491,23 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.hooks">
 <span id="src-tracking-hooks"></span><h1><a class="reference internal" href="#module-src.tracking.hooks" title="src.tracking.hooks"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.hooks</span></code></a><a class="headerlink" href="#module-src.tracking.hooks" title="Link to this heading">#</a></h1>
-<p>PyTorch Hooks Utilities for WSmart-Route.</p>
-<p>This module provides comprehensive hooks for monitoring, debugging, and optimizing
-neural network training. Hooks can capture intermediate outputs, track gradients,
-monitor memory usage, and analyze weight updates.</p>
-<p>Usage Categories:
-- Attention Hooks: Capture attention weights and masks
-- Gradient Hooks: Monitor gradient flow and detect vanishing/exploding gradients
-- Activation Hooks: Track activations, dead neurons, and sparsity
-- Memory Hooks: Profile GPU memory usage and detect leaks
-- Weight Hooks: Monitor weight updates and distribution changes</p>
+<p>PyTorch hooks and instrumentation utilities for WSmart-Route.</p>
+<p>This package provides a comprehensive suite of hooks for monitoring, debugging,
+and optimizing neural network training and inference. It enables developers to
+capture intermediate activations, track gradient flow, monitor GPU memory
+utilization, and analyze weight evolution with minimal boilerplate.</p>
+<p>Attributes:
+add_attention_hooks: Utility to record attention head weights and masks.
+add_gradient_monitoring_hooks: Utility to diagnose gradient flow issues.
+add_activation_capture_hooks: Utility to record layer-wise activations.
+add_memory_profiling_hooks: Utility to profile GPU memory consumption.
+add_weight_change_monitor_hook: Utility to track parameter evolution.
+register_hooks_with_run: Utility to log hook summaries to a tracking Run.</p>
 <p>Example:
-&gt;&gt;&gt; from logic.src.tracking.hooks import (
-…     add_gradient_monitoring_hooks,
-…     add_activation_capture_hooks,
-…     add_memory_profiling_hooks,
-… )
-&gt;&gt;&gt;
-&gt;&gt;&gt; # Monitor gradients during training
-&gt;&gt;&gt; grad_hooks = add_gradient_monitoring_hooks(model)
+&gt;&gt;&gt; from logic.src.tracking.hooks import add_gradient_monitoring_hooks
+&gt;&gt;&gt; hook_data = add_gradient_monitoring_hooks(model)
 &gt;&gt;&gt; loss.backward()
-&gt;&gt;&gt; print_gradient_statistics(grad_hooks[‘gradients’])
-&gt;&gt;&gt;
-&gt;&gt;&gt; # Capture activations
-&gt;&gt;&gt; act_hooks = add_activation_capture_hooks(model, layer_types=(nn.Linear,))
-&gt;&gt;&gt; output = model(input)
-&gt;&gt;&gt; for name, activation in act_hooks[‘activations’].items():
-…     print(f”{name}: {activation.shape}”)
-&gt;&gt;&gt;
-&gt;&gt;&gt; # Log hook stats to an active tracking run
-&gt;&gt;&gt; register_hooks_with_run(grad_hooks, run, prefix=”train/hooks”)</p>
+&gt;&gt;&gt; # Statistics are automatically recorded in hook_data</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
@@ -540,7 +527,7 @@ monitor memory usage, and analyze weight updates.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.hooks.register_hooks_with_run" title="src.tracking.hooks.register_hooks_with_run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">register_hooks_with_run</span></code></a></p></td>
-<td><p>Log hook statistics to a tracking Run as params.</p></td>
+<td><p>Logs hook statistics and diagnostic summaries to a tracking Run.</p></td>
 </tr>
 </tbody>
 </table>
@@ -568,16 +555,17 @@ monitor memory usage, and analyze weight updates.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.hooks.register_hooks_with_run">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.hooks.</span></span><span class="sig-name descname"><span class="pre">register_hooks_with_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hook_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'hooks'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.hooks.register_hooks_with_run" title="Link to this definition">#</a></dt>
-<dd><p>Log hook statistics to a tracking Run as params.</p>
-<p>Reads the result dict returned by any of the <code class="docutils literal notranslate"><span class="pre">add_*_hook</span></code> functions and
-serialises the numeric summaries as flat params on <em>run</em> so they appear in
-the experiment database alongside other hyper-parameters.</p>
+<dd><p>Logs hook statistics and diagnostic summaries to a tracking Run.</p>
+<p>This function parses the data dictionaries returned by hook registration
+functions and converts numeric summaries into flat parameters for the
+experiment manager. This allows visualization of gradient health and
+memory usage alongside hyper-parameters in the tracking UI.</p>
 <p>Args:
-hook_data: Dict returned by one of the hook-registration helpers (must
-contain at least one of <code class="docutils literal notranslate"><span class="pre">gradients</span></code>, <code class="docutils literal notranslate"><span class="pre">statistics</span></code>, <code class="docutils literal notranslate"><span class="pre">sparsity</span></code>,
-<code class="docutils literal notranslate"><span class="pre">memory_stats</span></code>, <code class="docutils literal notranslate"><span class="pre">dead_neurons</span></code>).
-run: An active :class:<code class="docutils literal notranslate"><span class="pre">logic.src.tracking.core.run.Run</span></code> instance.
-prefix: Key prefix used when logging params (default <code class="docutils literal notranslate"><span class="pre">&quot;hooks&quot;</span></code>).</p>
+hook_data: Dict mapping created by hook helpers. Must contain at least
+one of ‘gradients’, ‘statistics’, ‘sparsity’, ‘memory_stats’, or
+‘dead_neurons’.
+run: An active tracking Run instance (e.g., MLflow, WandB, or WSTracker).
+prefix: Path prefix for generated parameter names. Defaults to ‘hooks’.</p>
 </dd></dl>
 
 </section>

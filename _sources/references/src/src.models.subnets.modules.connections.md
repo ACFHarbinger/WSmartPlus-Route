@@ -51,7 +51,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:function} get_connection_module(module, embed_dim, connection_type='skip', **kwargs)
+````{py:function} get_connection_module(module: torch.nn.Module, embed_dim: int, connection_type: str = 'skip', **kwargs: typing.Any) -> torch.nn.Module
 :canonical: src.models.subnets.modules.connections.get_connection_module
 
 ```{autodoc2-docstring} src.models.subnets.modules.connections.get_connection_module

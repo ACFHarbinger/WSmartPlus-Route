@@ -23,7 +23,7 @@
 
 ### API
 
-````{py:class} MoEPolicy(env_name: str, embed_dim: int = 128, hidden_dim: int = 128, n_encode_layers: int = 3, n_heads: int = 8, normalization: str = 'batch', num_experts: int = 4, k: int = 2, noisy_gating: bool = True, **kwargs)
+````{py:class} MoEPolicy(env_name: str, embed_dim: int = 128, hidden_dim: int = 128, n_encode_layers: int = 3, n_heads: int = 8, normalization: str = 'batch', num_experts: int = 4, k: int = 2, noisy_gating: bool = True, **kwargs: typing.Any)
 :canonical: src.models.core.moe.policy.MoEPolicy
 
 Bases: {py:obj}`logic.src.models.core.attention_model.AttentionModelPolicy`

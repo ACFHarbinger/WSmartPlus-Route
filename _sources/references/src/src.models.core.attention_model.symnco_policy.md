@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} SymNCOPolicy(embed_dim: int = 128, use_projection_head: bool = True, **kwargs)
+`````{py:class} SymNCOPolicy(embed_dim: int = 128, use_projection_head: bool = True, **kwargs: typing.Any)
 :canonical: src.models.core.attention_model.symnco_policy.SymNCOPolicy
 
 Bases: {py:obj}`logic.src.models.core.attention_model.policy.AttentionModelPolicy`
@@ -37,7 +37,7 @@ Bases: {py:obj}`logic.src.models.core.attention_model.policy.AttentionModelPolic
 ```{autodoc2-docstring} src.models.core.attention_model.symnco_policy.SymNCOPolicy.__init__
 ```
 
-````{py:method} forward(td: tensordict.TensorDict, env, strategy: str = 'sampling', num_starts: int = 1, actions: typing.Optional[torch.Tensor] = None, **kwargs) -> dict
+````{py:method} forward(td: tensordict.TensorDict, env: typing.Any, strategy: str = 'sampling', num_starts: int = 1, actions: typing.Optional[torch.Tensor] = None, **kwargs: typing.Any) -> typing.Dict[str, typing.Any]
 :canonical: src.models.core.attention_model.symnco_policy.SymNCOPolicy.forward
 
 ```{autodoc2-docstring} src.models.core.attention_model.symnco_policy.SymNCOPolicy.forward

@@ -71,6 +71,7 @@ src.models.subnets.embeddings.static
 
 ````{py:data} INIT_EMBEDDING_REGISTRY
 :canonical: src.models.subnets.embeddings.INIT_EMBEDDING_REGISTRY
+:type: typing.Dict[str, typing.Any]
 :value: >
    None
 
@@ -81,6 +82,7 @@ src.models.subnets.embeddings.static
 
 ````{py:data} DYNAMIC_EMBEDDING_REGISTRY
 :canonical: src.models.subnets.embeddings.DYNAMIC_EMBEDDING_REGISTRY
+:type: typing.Dict[str, typing.Any]
 :value: >
    None
 
@@ -98,6 +100,7 @@ src.models.subnets.embeddings.static
 
 ````{py:data} __all__
 :canonical: src.models.subnets.embeddings.__all__
+:type: list[str]
 :value: >
    ['VRPPInitEmbedding', 'CVRPPInitEmbedding', 'WCVRPInitEmbedding', 'EnvState', 'VRPPState', 'CVRPPSta...
 

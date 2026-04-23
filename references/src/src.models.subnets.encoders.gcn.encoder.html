@@ -492,6 +492,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.encoders.gcn.encoder">
 <span id="src-models-subnets-encoders-gcn-encoder"></span><h1><a class="reference internal" href="#module-src.models.subnets.encoders.gcn.encoder" title="src.models.subnets.encoders.gcn.encoder"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.encoders.gcn.encoder</span></code></a><a class="headerlink" href="#module-src.models.subnets.encoders.gcn.encoder" title="Link to this heading">#</a></h1>
 <p>Graph Convolution Encoder.</p>
+<p>Attributes:
+GraphConvolutionEncoder: Encoder based on Gated Graph Convolutions.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.encoders.gcn import GraphConvolutionEncoder
+&gt;&gt;&gt; encoder = GraphConvolutionEncoder(n_layers=3, feed_forward_hidden=128)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -509,49 +514,44 @@ document.write(`
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.subnets.encoders.gcn.encoder.GraphConvolutionEncoder">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.encoders.gcn.encoder.</span></span><span class="sig-name descname"><span class="pre">GraphConvolutionEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_layers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feed_forward_hidden</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sum'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'layer'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learn_affine</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gated</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.encoders.gcn.encoder.GraphConvolutionEncoder" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.encoders.gcn.encoder.</span></span><span class="sig-name descname"><span class="pre">GraphConvolutionEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feed_forward_hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sum'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'layer'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learn_affine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_norm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gated</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.encoders.gcn.encoder.GraphConvolutionEncoder" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
 <p>Encoder based on Gated Graph Convolutions.</p>
 <p>Uses stacked GatedGraphConvolution layers for node and edge feature updates.
 Unlike transformer-based encoders, this encoder operates on graph structure
 directly using graph convolution operations.</p>
-<p class="rubric" id="id1">Parameters</p>
-<p>n_layers : int
-Number of graph convolution layers.
-feed_forward_hidden : int
-Hidden dimension for node and edge features.
-agg : str, default=”sum”
-Aggregation method for neighbor features: “sum”, “mean”, or “max”.
-norm : str, default=”layer”
-Normalization type: “batch”, “layer”, “instance”, or “group”.
-learn_affine : bool, default=True
-Whether to learn affine parameters in normalization.
-track_norm : bool, default=False
-Whether to track running statistics in normalization.
-gated : bool, default=True
-Whether to use gated update mechanism in graph convolutions.
-*args
-Additional positional arguments.
-**kwargs
-Additional keyword arguments.</p>
+<p>Attributes:
+norm_config (NormalizationConfig): Normalization configuration.
+n_layers (int): Number of graph convolution layers.
+hidden_dim (int): Hidden dimension for node and edge features.
+agg (str): Aggregation method for neighbor features.
+gated (bool): Whether to use gated update mechanism.
+init_embed_edges (nn.Embedding): Initial edge embedding layer.
+layers (nn.ModuleList): Stack of gated graph convolution layers.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize the GCN Encoder.</p>
+<p>Initializes the GraphConvolutionEncoder.</p>
+<p>Args:
+n_layers: Number of graph convolution layers.
+feed_forward_hidden: Hidden dimension size for node and edge features.
+agg: Aggregation method: “sum”, “mean”, or “max”.
+norm: Normalization type: “batch”, “layer”, “instance”, or “group”.
+learn_affine: Whether to learn affine parameters in normalization.
+track_norm: Whether to track running statistics in normalization.
+gated: Whether to use gated mechanism in graph convolutions.
+args: Additional positional arguments.
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.encoders.gcn.encoder.GraphConvolutionEncoder.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.encoders.gcn.encoder.GraphConvolutionEncoder.forward" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.encoders.gcn.encoder.GraphConvolutionEncoder.forward" title="Link to this definition">#</a></dt>
 <dd><p>Forward pass through graph convolution layers.</p>
-<p class="rubric" id="id2">Parameters</p>
-<p>x : torch.Tensor
-Input node features of shape (batch_size, num_nodes, hidden_dim).
-edges : torch.Tensor
-Graph adjacency information. Can be:
-- Dense: (batch_size, num_nodes, num_nodes) - adjacency matrix
-- Sparse: (batch_size, 2, num_edges) - edge index list</p>
-<p class="rubric" id="returns">Returns</p>
-<p>torch.Tensor
-Updated node features of shape (batch_size, num_nodes, hidden_dim).</p>
-<p class="rubric" id="notes">Notes</p>
-<p>If edges are provided in sparse format (edge index list), they are
+<p>Args:
+x: Input node features of shape (batch_size, num_nodes, hidden_dim).
+edges: Graph adjacency information. Can be dense (batch_size, num_nodes,
+num_nodes) or sparse (batch_size, 2, num_edges).</p>
+<p>Returns:
+torch.Tensor: Updated node features of shape (batch_size, num_nodes, hidden_dim).</p>
+<p>Note:
+If edges are provided in sparse format (edge index list), they are
 converted to dense adjacency matrices before processing.</p>
 </dd></dl>
 

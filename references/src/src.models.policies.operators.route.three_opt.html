@@ -491,6 +491,9 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.policies.operators.route.three_opt">
 <span id="src-models-policies-operators-route-three-opt"></span><h1><a class="reference internal" href="#module-src.models.policies.operators.route.three_opt" title="src.models.policies.operators.route.three_opt"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies.operators.route.three_opt</span></code></a><a class="headerlink" href="#module-src.models.policies.operators.route.three_opt" title="Link to this heading">#</a></h1>
 <p>3-opt local search operator.</p>
+<p>This module provides a GPU-accelerated implementation of the 3-opt heuristic,
+evaluating multiple reconnection ways (cases 4-7) for three-edge removals
+in parallel across problem batches.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -498,14 +501,13 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.operators.route.three_opt.vectorized_three_opt" title="src.models.policies.operators.route.three_opt.vectorized_three_opt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vectorized_three_opt</span></code></a></p></td>
-<td><p>Vectorized 3-opt local search using sampling for high efficiency.
-Evaluates multiple reconnection ways for 3-edge removals in parallel.</p></td>
+<td><p>Vectorized 3-opt local search using parallel sampling for efficiency.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.models.policies.operators.route.three_opt._compute_three_opt_gains" title="src.models.policies.operators.route.three_opt._compute_three_opt_gains"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_compute_three_opt_gains</span></code></a></p></td>
-<td><p>Computes gains for cases 4-7 of 3-opt.</p></td>
+<td><p>Computes edge differential for cases 4-7 of 3-opt.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.operators.route.three_opt._apply_three_opt_moves" title="src.models.policies.operators.route.three_opt._apply_three_opt_moves"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_apply_three_opt_moves</span></code></a></p></td>
-<td><p>Applies improvements for cases 4-7 using index mapping.</p></td>
+<td><p>Batch recombination based on case IDs.</p></td>
 </tr>
 </tbody>
 </table>
@@ -515,28 +517,51 @@ Evaluates multiple reconnection ways for 3-edge removals in parallel.</p></td>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.route.three_opt.vectorized_three_opt">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.three_opt.</span></span><span class="sig-name descname"><span class="pre">vectorized_three_opt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.route.three_opt.vectorized_three_opt" title="Link to this definition">#</a></dt>
-<dd><p>Vectorized 3-opt local search using sampling for high efficiency.
-Evaluates multiple reconnection ways for 3-edge removals in parallel.</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.three_opt.</span></span><span class="sig-name descname"><span class="pre">vectorized_three_opt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Generator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.route.three_opt.vectorized_three_opt" title="Link to this definition">#</a></dt>
+<dd><p>Vectorized 3-opt local search using parallel sampling for efficiency.</p>
+<p>Randomly samples three edge break points and evaluates the gain for
+four distinct reconnection cases (Symmetrically different 3-opt moves).</p>
 <p>Args:
-tours (torch.Tensor): Current tours (B, max_len).
-dist_matrix (torch.Tensor): Distance matrix (B, N, N) or compatible.
-max_iterations (int): Number of sampling iterations.
-generator (torch.Generator, optional): Random generator.</p>
+tours: Batch of node sequences of shape [B, L].
+dist_matrix: Edge cost tensor of shape [B, N, N] or [N, N].
+max_iterations: Number of random sampling cycles to execute.
+generator: Torch device-side RNG.</p>
 <p>Returns:
-torch.Tensor: Updated tours.</p>
+torch.Tensor: Optimized tours of shape [B, L].</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.route.three_opt._compute_three_opt_gains">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.three_opt.</span></span><span class="sig-name descname"><span class="pre">_compute_three_opt_gains</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_idx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.route.three_opt._compute_three_opt_gains" title="Link to this definition">#</a></dt>
-<dd><p>Computes gains for cases 4-7 of 3-opt.</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.three_opt.</span></span><span class="sig-name descname"><span class="pre">_compute_three_opt_gains</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.operators.route.three_opt._compute_three_opt_gains" title="Link to this definition">#</a></dt>
+<dd><p>Computes edge differential for cases 4-7 of 3-opt.</p>
+<p>Args:
+tours: Batch of sequences of shape [B, N].
+dist: Distance matrix of shape [B, N, N].
+i: First break point index of shape [B, 1].
+j: Second break point index of shape [B, 1].
+k: Third break point index of shape [B, 1].
+b_idx: Batch indices of shape [B, 1].</p>
+<p>Returns:
+Tuple[torch.Tensor, torch.Tensor]: A tuple containing:
+- best_gain: Maximum cost reduction found among cases.
+- best_case: Index of the winning reconnection strategy.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.route.three_opt._apply_three_opt_moves">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.three_opt.</span></span><span class="sig-name descname"><span class="pre">_apply_three_opt_moves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">improved</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">best_case</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_len</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.route.three_opt._apply_three_opt_moves" title="Link to this definition">#</a></dt>
-<dd><p>Applies improvements for cases 4-7 using index mapping.</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.three_opt.</span></span><span class="sig-name descname"><span class="pre">_apply_three_opt_moves</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">improved</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">best_case</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.device</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.route.three_opt._apply_three_opt_moves" title="Link to this definition">#</a></dt>
+<dd><p>Batch recombination based on case IDs.</p>
+<p>Args:
+tours: Batch of tours of shape [B, N].
+improved: Improvement flag of shape [B].
+best_case: Case identifier of shape [B].
+i: First point of shape [B, 1].
+j: Second point of shape [B, 1].
+k: Third point of shape [B, 1].
+max_len: Total tour length N.
+device: Hardware identification locator.</p>
+<p>Returns:
+torch.Tensor: Modified tours of shape [B, N].</p>
 </dd></dl>
 
 </section>

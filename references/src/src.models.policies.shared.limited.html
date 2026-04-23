@@ -488,7 +488,9 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.policies.shared.limited">
 <span id="src-models-policies-shared-limited"></span><h1><a class="reference internal" href="#module-src.models.policies.shared.limited" title="src.models.policies.shared.limited"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies.shared.limited</span></code></a><a class="headerlink" href="#module-src.models.policies.shared.limited" title="Link to this heading">#</a></h1>
-<p>Limited Split Algorithm (Max Vehicles).</p>
+<p>Limited split algorithm.</p>
+<p>This module provides a constrained split algorithm that limits the number of
+vehicles (routes) used when partitioning a giant tour.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -496,8 +498,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.shared.limited.vectorized_split_limited" title="src.models.policies.shared.limited.vectorized_split_limited"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vectorized_split_limited</span></code></a></p></td>
-<td><p>Limited split using K-step updates (like K shortest path layers).
-Constrains the solution to use at most <code class="docutils literal notranslate"><span class="pre">max_vehicles</span></code> routes.</p></td>
+<td><p>Limited split using K-step updates (dynamic programming).</p></td>
 </tr>
 </tbody>
 </table>
@@ -507,22 +508,25 @@ Constrains the solution to use at most <code class="docutils literal notranslate
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.shared.limited.vectorized_split_limited">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.shared.limited.</span></span><span class="sig-name descname"><span class="pre">vectorized_split_limited</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_vehicles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cum_load</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cum_dist_pad</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_0_i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_i_0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">giant_tours</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.shared.limited.vectorized_split_limited" title="Link to this definition">#</a></dt>
-<dd><p>Limited split using K-step updates (like K shortest path layers).
-Constrains the solution to use at most <code class="docutils literal notranslate"><span class="pre">max_vehicles</span></code> routes.</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.shared.limited.</span></span><span class="sig-name descname"><span class="pre">vectorized_split_limited</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">B</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_vehicles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cum_load</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cum_dist_pad</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_0_i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_i_0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">giant_tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.shared.limited.vectorized_split_limited" title="Link to this definition">#</a></dt>
+<dd><p>Limited split using K-step updates (dynamic programming).</p>
+<p>Constrains the solution to use at most <code class="docutils literal notranslate"><span class="pre">max_vehicles</span></code> routes by iterating
+through shortest path layers.</p>
 <p>Args:
-B (int): Batch size.
-N (int): Number of nodes.
-device: Torch device.
-max_vehicles (int): Maximum number of vehicles allowed.
-capacity (float): Vehicle capacity.
-cum_load (torch.Tensor): Cumulative load tensor.
-cum_dist_pad (torch.Tensor): Cumulative distance tensor (padded).
-d_0_i (torch.Tensor): Distance from depot to nodes.
-d_i_0 (torch.Tensor): Distance from nodes to depot.
-giant_tours (torch.Tensor): Giant tour indices.</p>
+B: Batch size.
+N: Number of customers (total nodes - 1).
+device: Hardware identification locator.
+max_vehicles: Maximum routes allowed in the split.
+capacity: Global vehicle volume constraint.
+cum_load: Cumulative node loads of shape [B, N+1].
+cum_dist_pad: Cumulative distance along giant tour of shape [B, N+1].
+d_0_i: Distance from depot to nodes of shape [B, N].
+d_i_0: Distance from nodes to depot of shape [B, N].
+giant_tours: Giant tour node sequences of shape [B, N].</p>
 <p>Returns:
-tuple: (routes_batch, costs)</p>
+Tuple[torch.Tensor, torch.Tensor]: A tuple containing:
+- routes_batch: Padded list of routes of shape [B, K, N].
+- costs: Total calculated cost per batch instance of shape [B].</p>
 </dd></dl>
 
 </section>

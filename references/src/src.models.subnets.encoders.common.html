@@ -492,6 +492,13 @@ document.write(`
 <p>Common shared components for encoder implementations.</p>
 <p>This package contains base classes and utilities shared across multiple encoder
 implementations to reduce code duplication.</p>
+<p>Attributes:
+TransformerEncoderBase: Abstract base class for transformer-style graph encoders.
+EncoderFeedForwardSubLayer: Reusable Feed-Forward Sub-Layer.
+MultiHeadAttentionLayerBase: Base class for multi-head attention layers.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.encoders.common import EncoderFeedForwardSubLayer
+&gt;&gt;&gt; layer = EncoderFeedForwardSubLayer(embed_dim=128, feed_forward_hidden=512)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

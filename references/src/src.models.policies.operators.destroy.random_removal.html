@@ -488,11 +488,10 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.policies.operators.destroy.random_removal">
 <span id="src-models-policies-operators-destroy-random-removal"></span><h1><a class="reference internal" href="#module-src.models.policies.operators.destroy.random_removal" title="src.models.policies.operators.destroy.random_removal"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies.operators.destroy.random_removal</span></code></a><a class="headerlink" href="#module-src.models.policies.operators.destroy.random_removal" title="Link to this heading">#</a></h1>
-<p>random_removal.py module.</p>
-<p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
-<p>Example:
-&gt;&gt;&gt; import random_removal</p>
+<p>Random removal operator.</p>
+<p>This module provides a GPU-accelerated implementation of the random removal
+heuristic, which stochastically selects nodes to eject from tours, providing
+diversification for large neighborhood search.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -512,14 +511,16 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <dt class="sig sig-object py" id="src.models.policies.operators.destroy.random_removal.vectorized_random_removal">
 <span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.destroy.random_removal.</span></span><span class="sig-name descname"><span class="pre">vectorized_random_removal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_remove</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Generator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.operators.destroy.random_removal.vectorized_random_removal" title="Link to this definition">#</a></dt>
 <dd><p>Vectorized random removal of nodes from tours.</p>
+<p>Identifies valid customers (non-depots) and stochastically selects
+n_remove nodes per batch instance using random scoring.</p>
 <p>Args:
-tours (Tensor): Batch of tours (B, N).
-n_remove (int): Number of nodes to remove.
-generator (Optional[torch.Generator]): PyTorch generator for random number generation.</p>
+tours: Batch of node sequences of shape [B, N].
+n_remove: Number of nodes to eject from each tour.
+generator: PyTorch generator for random number generation.</p>
 <p>Returns:
-Tuple[Tensor, Tensor]:
-- Modified tours (B, N-n_remove) (or padded with clean 0s if needed)
-- Removed nodes (B, n_remove)</p>
+Tuple[torch.Tensor, torch.Tensor]: A tuple containing:
+- compressed_tours: Sequence after removal of shape [B, N - n_remove].
+- removed_nodes: IDs of the ejected nodes of shape [B, n_remove].</p>
 </dd></dl>
 
 </section>

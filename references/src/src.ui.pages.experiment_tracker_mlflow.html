@@ -494,7 +494,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.ui.pages.experiment_tracker_mlflow">
 <span id="src-ui-pages-experiment-tracker-mlflow"></span><h1><a class="reference internal" href="#module-src.ui.pages.experiment_tracker_mlflow" title="src.ui.pages.experiment_tracker_mlflow"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.pages.experiment_tracker_mlflow</span></code></a><a class="headerlink" href="#module-src.ui.pages.experiment_tracker_mlflow" title="Link to this heading">#</a></h1>
 <p>MLflow explorer section for the Experiment Tracker page.</p>
-<p>Extracted from <code class="docutils literal notranslate"><span class="pre">experiment_tracker.py</span></code> to keep module sizes under 400 LoC.</p>
+<p>This module provides specialized visualization and data retrieval for MLflow
+tracking servers. It supports cross-experiment run auditing, metric history
+plotting, and hyperparameter inspection.</p>
+<p>Example:
+render_mlflow_tracker(“http://localhost:5000”)</p>
+<p>Attributes:
+HOVER_TEMPLATE: Jinja2 template for interactive Plotly tooltips.
+_PALETTE: Standardized color sequence for multi-run charting.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -502,7 +509,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.experiment_tracker_mlflow._render_mlflow_explorer" title="src.ui.pages.experiment_tracker_mlflow._render_mlflow_explorer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_mlflow_explorer</span></code></a></p></td>
-<td><p>Full MLflow runs explorer with metric charting.</p></td>
+<td><p>Renders the comprehensive MLflow run explorer interface.</p></td>
 </tr>
 </tbody>
 </table>
@@ -557,7 +564,10 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.experiment_tracker_mlflow._render_mlflow_explorer">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.experiment_tracker_mlflow.</span></span><span class="sig-name descname"><span class="pre">_render_mlflow_explorer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tracking_uri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.experiment_tracker_mlflow._render_mlflow_explorer" title="Link to this definition">#</a></dt>
-<dd><p>Full MLflow runs explorer with metric charting.</p>
+<dd><p>Renders the comprehensive MLflow run explorer interface.</p>
+<p>Args:
+tracking_uri: The URI or filesystem path to the MLflow server.
+experiment_name: Optional filter for a specific experiment name.</p>
 </dd></dl>
 
 </section>

@@ -495,7 +495,17 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.modules.flash_attention">
 <span id="src-models-subnets-modules-flash-attention"></span><h1><a class="reference internal" href="#module-src.models.subnets.modules.flash_attention" title="src.models.subnets.modules.flash_attention"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.modules.flash_attention</span></code></a><a class="headerlink" href="#module-src.models.subnets.modules.flash_attention" title="Link to this heading">#</a></h1>
 <p>Multi-Head Flash Attention module.</p>
-<p>Uses PyTorch’s scaled_dot_product_attention (SDPA) for efficiency.</p>
+<p>This module provides the MultiHeadFlashAttention layer, which leverages PyTorch’s
+hardware-optimized <code class="docutils literal notranslate"><span class="pre">scaled_dot_product_attention</span></code> (SDPA) for high-performance
+computation on supported hardware (e.g., NVIDIA Ampere GPUs).</p>
+<p>Attributes:
+MultiHeadFlashAttention: High-performance multi-head attention using SDPA.</p>
+<p>Example:
+&gt;&gt;&gt; import torch
+&gt;&gt;&gt; from logic.src.models.subnets.modules.flash_attention import MultiHeadFlashAttention
+&gt;&gt;&gt; mha = MultiHeadFlashAttention(n_heads=8, input_dim=128, embed_dim=128)
+&gt;&gt;&gt; q = torch.randn(1, 10, 128)
+&gt;&gt;&gt; out = mha(q)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -516,14 +526,35 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.modules.flash_attention.</span></span><span class="sig-name descname"><span class="pre">MultiHeadFlashAttention</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attention_dropout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_attn_weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sdpa_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.flash_attention.MultiHeadFlashAttention" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
 <p>Multi-Head Attention using PyTorch’s SDPA (Flash Attention).</p>
+<p>Efficient implementation of multi-head attention leveraging optimized kernels.
+Includes a manual fallback paths for debugging or when explicit weight
+inspection is required.</p>
+<p>Attributes:
+n_heads (int): Number of attention heads.
+input_dim (int): Input feature dimensionality.
+embed_dim (int): Output embedding dimensionality.
+head_dim (int): Dimensionality of each attention head.
+store_attn_weights (bool): Whether to explicitly calculate and store weights.
+attention_dropout (float): Dropout probability for attention weights.
+W_query (nn.Linear): Linear transformation for query mapping.
+W_key (nn.Linear): Linear transformation for key mapping.
+W_val (nn.Linear): Linear transformation for value mapping.
+W_out (nn.Linear): Linear transformation for output consolidation.
+last_attn (Tuple[Optional[torch.Tensor], Optional[torch.Tensor]]): Cached
+last attention weights and mask.
+sdpa_fn (Optional[Callable]): Reference to the SDPA kernel function.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes MultiHeadFlashAttention.</p>
 <p>Args:
-n_heads: Number of attention heads.
-input_dim: Input feature dimension.
-embed_dim: Output embedding dimension.
-bias: Use bias in projections.
-attention_dropout: Dropout probability.
-store_attn_weights: If True, falls back to manual attention to store weights.</p>
+n_heads: Number of parallel attention heads.
+input_dim: Feature dimensionality of the input sequence.
+embed_dim: Total dimensionality of the output representation.
+val_dim: Custom dimension for values (for compatibility).
+key_dim: Custom dimension for keys (for compatibility).
+bias: Whether to add a bias term in the projection layers.
+attention_dropout: Dropout rate applied to attention weights.
+store_attn_weights: Whether to use the slow manual path to store weights.
+sdpa_fn: Custom replacement for the SDPA function.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.models.subnets.modules.flash_attention.MultiHeadFlashAttention.last_attn">
 <span class="sig-name descname"><span class="pre">last_attn</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.models.subnets.modules.flash_attention.MultiHeadFlashAttention.last_attn" title="Link to this definition">#</a></dt>
@@ -533,29 +564,34 @@ store_attn_weights: If True, falls back to manual attention to store weights.</p
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.flash_attention.MultiHeadFlashAttention.init_parameters">
 <span class="sig-name descname"><span class="pre">init_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.subnets.modules.flash_attention.MultiHeadFlashAttention.init_parameters" title="Link to this definition">#</a></dt>
-<dd><p>Initializes the parameters using Xavier uniform initialization.</p>
+<dd><p>Initializes the linear layer weights using Xavier uniform distribution.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.flash_attention.MultiHeadFlashAttention.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.modules.flash_attention.MultiHeadFlashAttention.forward" title="Link to this definition">#</a></dt>
-<dd><p>Args:
-q: Queries [batch, n_query, input_dim]
-h: Keys/Values [batch, graph_size, input_dim]. If None, self-attention.
-mask: Attention mask [batch, n_query, graph_size]. True = masked out.</p>
+<dd><p>Computes multi-head attention using hardware-optimized memory paths.</p>
+<p>Args:
+q: Queries tensor of shape (batch, n_query, input_dim).
+h: Key/Value keys tensor of shape (batch, graph_size, input_dim).
+Defaults to <code class="docutils literal notranslate"><span class="pre">q</span></code> (self-attention) if None.
+mask: Boolean attention mask (batch, n_query, graph_size).
+True indicates a masked position.</p>
+<p>Returns:
+torch.Tensor: Attended context vectors of shape (batch, n_query, embed_dim).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.flash_attention.MultiHeadFlashAttention._manual_attention">
-<span class="sig-name descname"><span class="pre">_manual_attention</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">K</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.flash_attention.MultiHeadFlashAttention._manual_attention" title="Link to this definition">#</a></dt>
-<dd><p>manual attention.</p>
+<span class="sig-name descname"><span class="pre">_manual_attention</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Q</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">K</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.modules.flash_attention.MultiHeadFlashAttention._manual_attention" title="Link to this definition">#</a></dt>
+<dd><p>Fallback manual attention implementation for weight inspection.</p>
 <p>Args:
-Q (Any): Description of Q.
-K (Any): Description of K.
-V (Any): Description of V.
-mask (Any): Description of mask.</p>
+Q: Query projections.
+K: Key projections.
+V: Value projections.
+mask: Optional tensor mask.</p>
 <p>Returns:
-Any: Description of return value.</p>
+torch.Tensor: Computed attention output.</p>
 </dd></dl>
 
 </dd></dl>

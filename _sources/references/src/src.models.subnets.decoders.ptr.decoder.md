@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} PointerDecoder(embed_dim, hidden_dim, tanh_exploration, use_tanh, n_glimpses=1, mask_glimpses=True, mask_logits=True)
+`````{py:class} PointerDecoder(embed_dim: int, hidden_dim: int, tanh_exploration: float, use_tanh: bool, n_glimpses: int = 1, mask_glimpses: bool = True, mask_logits: bool = True)
 :canonical: src.models.subnets.decoders.ptr.decoder.PointerDecoder
 
 Bases: {py:obj}`torch.nn.Module`
@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.subnets.decoders.ptr.decoder.PointerDecoder.__init__
 ```
 
-````{py:method} update_mask(mask, selected)
+````{py:method} update_mask(mask: torch.Tensor, selected: torch.Tensor) -> torch.Tensor
 :canonical: src.models.subnets.decoders.ptr.decoder.PointerDecoder.update_mask
 
 ```{autodoc2-docstring} src.models.subnets.decoders.ptr.decoder.PointerDecoder.update_mask
@@ -45,7 +45,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} recurrence(x, h_in, prev_mask, prev_idxs, step, context)
+````{py:method} recurrence(x: torch.Tensor, h_in: typing.Tuple[torch.Tensor, torch.Tensor], prev_mask: torch.Tensor, prev_idxs: typing.Optional[torch.Tensor], step: int, context: torch.Tensor) -> typing.Tuple[typing.Tuple[torch.Tensor, torch.Tensor], torch.Tensor, torch.Tensor, torch.Tensor]
 :canonical: src.models.subnets.decoders.ptr.decoder.PointerDecoder.recurrence
 
 ```{autodoc2-docstring} src.models.subnets.decoders.ptr.decoder.PointerDecoder.recurrence
@@ -53,7 +53,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} calc_logits(x, h_in, logit_mask, context, mask_glimpses=None, mask_logits=None)
+````{py:method} calc_logits(x: torch.Tensor, h_in: typing.Tuple[torch.Tensor, torch.Tensor], logit_mask: torch.Tensor, context: torch.Tensor, mask_glimpses: typing.Optional[bool] = None, mask_logits: typing.Optional[bool] = None) -> typing.Tuple[torch.Tensor, typing.Tuple[torch.Tensor, torch.Tensor]]
 :canonical: src.models.subnets.decoders.ptr.decoder.PointerDecoder.calc_logits
 
 ```{autodoc2-docstring} src.models.subnets.decoders.ptr.decoder.PointerDecoder.calc_logits
@@ -61,7 +61,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} forward(decoder_input, embedded_inputs, hidden, context, eval_tours=None)
+````{py:method} forward(decoder_input: torch.Tensor, embedded_inputs: torch.Tensor, hidden: typing.Tuple[torch.Tensor, torch.Tensor], context: torch.Tensor, eval_tours: typing.Optional[torch.Tensor] = None) -> typing.Tuple[typing.Tuple[torch.Tensor, torch.Tensor], typing.Tuple[torch.Tensor, torch.Tensor]]
 :canonical: src.models.subnets.decoders.ptr.decoder.PointerDecoder.forward
 
 ```{autodoc2-docstring} src.models.subnets.decoders.ptr.decoder.PointerDecoder.forward
@@ -69,7 +69,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} decode(probs, mask)
+````{py:method} decode(probs: torch.Tensor, mask: torch.Tensor) -> torch.Tensor
 :canonical: src.models.subnets.decoders.ptr.decoder.PointerDecoder.decode
 
 ```{autodoc2-docstring} src.models.subnets.decoders.ptr.decoder.PointerDecoder.decode

@@ -501,6 +501,14 @@ document.write(`
 <p>Logger redirection to file for simulation output.</p>
 <p>Provides LoggerWriter to tee stdout/stderr to both terminal and file,
 filtering tqdm progress bars from file output.</p>
+<p>Attributes:
+LoggerWriter: File-like object that redirects stream output.
+setup_logger_redirection: Configures sys.stdout/stderr redirection.</p>
+<p>Example:
+&gt;&gt;&gt; import sys
+&gt;&gt;&gt; with open(“output.log”, “w”) as f:
+…     writer = LoggerWriter(sys.stdout, f)
+…     writer.write(“This goes to both screen and file”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -529,48 +537,69 @@ filtering tqdm progress bars from file output.</p>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.tracking.logging.logger_writer.LoggerWriter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.tracking.logging.logger_writer.</span></span><span class="sig-name descname"><span class="pre">LoggerWriter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">terminal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">echo_to_terminal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.logging.logger_writer.LoggerWriter" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.tracking.logging.logger_writer.</span></span><span class="sig-name descname"><span class="pre">LoggerWriter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">terminal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TextIO</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">echo_to_terminal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.logging.logger_writer.LoggerWriter" title="Link to this definition">#</a></dt>
 <dd><p>Fake file-like stream object that redirects writes to both terminal and file.</p>
+<p>Useful for capture-and-tee scenarios where output must be preserved in a
+persistent log file while remaining visible in the interactive terminal.
+Automatically strips ANSI escape codes and filters out carriage-return
+lines (commonly used by tqdm) to keep text logs clean.</p>
+<p>Attributes:
+terminal (TextIO): The original stream being tee-ed.
+filename (str): Path to the output log file.
+echo_to_terminal (bool): Whether writes are still echoed to screen.
+log (TextIO): File handle for the persistence log.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the logger writer.</p>
 <p>Args:
 terminal: Original terminal stream (stdout or stderr).
 filename: Path to the log file.
-echo_to_terminal: If True, also write to terminal.</p>
+echo_to_terminal: If True, also write to terminal. Defaults to True.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.logging.logger_writer.LoggerWriter.write">
-<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.logging.logger_writer.LoggerWriter.write" title="Link to this definition">#</a></dt>
-<dd><p>Write message to terminal and/or log file, stripping ANSI and filtering progress bars.</p>
+<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.logging.logger_writer.LoggerWriter.write" title="Link to this definition">#</a></dt>
+<dd><p>Write message to terminal and/or log file.</p>
+<p>Strips ANSI escape sequences and filters out lines containing carriage
+returns before writing to the log file.</p>
+<p>Args:
+message: The raw text string to write.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.logging.logger_writer.LoggerWriter.flush">
-<span class="sig-name descname"><span class="pre">flush</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.logging.logger_writer.LoggerWriter.flush" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">flush</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.logging.logger_writer.LoggerWriter.flush" title="Link to this definition">#</a></dt>
 <dd><p>Flush both terminal and log file buffers.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.logging.logger_writer.LoggerWriter.close">
-<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.logging.logger_writer.LoggerWriter.close" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.logging.logger_writer.LoggerWriter.close" title="Link to this definition">#</a></dt>
 <dd><p>Close the log file handle.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.logging.logger_writer.LoggerWriter.isatty">
-<span class="sig-name descname"><span class="pre">isatty</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.logging.logger_writer.LoggerWriter.isatty" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">isatty</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.tracking.logging.logger_writer.LoggerWriter.isatty" title="Link to this definition">#</a></dt>
 <dd><p>Return whether the terminal is a TTY.</p>
+<p>Returns:
+bool: True if the underlying terminal is a TTY.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.logging.logger_writer.LoggerWriter.fileno">
-<span class="sig-name descname"><span class="pre">fileno</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.logging.logger_writer.LoggerWriter.fileno" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">fileno</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.tracking.logging.logger_writer.LoggerWriter.fileno" title="Link to this definition">#</a></dt>
 <dd><p>Return the file descriptor number of the terminal.</p>
+<p>Returns:
+int: File descriptor index, or -1 if unavailable.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.logging.logger_writer.LoggerWriter.__getattr__">
-<span class="sig-name descname"><span class="pre">__getattr__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.logging.logger_writer.LoggerWriter.__getattr__" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__getattr__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.tracking.logging.logger_writer.LoggerWriter.__getattr__" title="Link to this definition">#</a></dt>
 <dd><p>Delegate any other attribute access to the terminal stream.</p>
+<p>Args:
+name: Attribute name.</p>
+<p>Returns:
+Any: The attribute from the original terminal stream.</p>
 </dd></dl>
 
 </dd></dl>
@@ -579,12 +608,19 @@ echo_to_terminal: If True, also write to terminal.</p>
 <dt class="sig sig-object py" id="src.tracking.logging.logger_writer.setup_logger_redirection">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.logging.logger_writer.</span></span><span class="sig-name descname"><span class="pre">setup_logger_redirection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">silent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">redirect_stdout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">redirect_stderr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">echo_to_terminal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.tracking.logging.logger_writer.setup_logger_redirection" title="Link to this definition">#</a></dt>
 <dd><p>Redirects stdout and stderr to a timestamped log file.</p>
+<p>Automatically handles log directory creation and reconfigures Loguru
+to respect the redirected stderr stream.</p>
 <p>Args:
 log_file: Optional path to an existing log file to reuse.
+Defaults to None.
 silent: If True, do not print the redirection announcement.
-redirect_stdout: If True, redirect sys.stdout.
-redirect_stderr: If True, redirect sys.stderr.
-echo_to_terminal: If True, keep echoing to the original terminal.</p>
+Defaults to False.
+redirect_stdout: If True, redirect sys.stdout. Defaults to True.
+redirect_stderr: If True, redirect sys.stderr. Defaults to True.
+echo_to_terminal: If True, keep echoing to the original terminal.
+Defaults to False.</p>
+<p>Returns:
+str: Absolute path to the log file used.</p>
 </dd></dl>
 
 </section>

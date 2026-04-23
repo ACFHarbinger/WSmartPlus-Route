@@ -491,11 +491,16 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.common.transductive.active_search">
 <span id="src-models-common-transductive-active-search"></span><h1><a class="reference internal" href="#module-src.models.common.transductive.active_search" title="src.models.common.transductive.active_search"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.common.transductive.active_search</span></code></a><a class="headerlink" href="#module-src.models.common.transductive.active_search" title="Link to this heading">#</a></h1>
-<p>active_search.py module.</p>
+<p>Active Search implementation.</p>
+<p>This module implements Active Search (Bello et al. 2016), a transductive
+inference method that fine-tunes all model parameters on a per-instance
+basis using the REINFORCE algorithm.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+ActiveSearch: Transductive model that optimizes all parameters.</p>
 <p>Example:
-&gt;&gt;&gt; import active_search</p>
+&gt;&gt;&gt; from logic.src.models.common.transductive.active_search import ActiveSearch
+&gt;&gt;&gt; search = ActiveSearch(policy, n_search_steps=50)
+&gt;&gt;&gt; results = search(td, env)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -516,13 +521,24 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.common.transductive.active_search.</span></span><span class="sig-name descname"><span class="pre">ActiveSearch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_search_steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.common.transductive.active_search.ActiveSearch" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.models.common.transductive.base.html#src.models.common.transductive.base.TransductiveModel" title="src.models.common.transductive.base.TransductiveModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.models.common.transductive.base.TransductiveModel</span></code></a></p>
 <p>Active Search (Bello et al. 2016).</p>
-<p>Optimizes all parameters of the wrapped model on individual test instances.</p>
+<p>Optimizes the entirety of the wrapped model’s parameters on individual
+test instances to find better solutions than the zero-shot policy.</p>
+<p>Attributes:
+model (nn.Module): The policy to be optimized.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize TransductiveModel.</p>
+<p>Initialize the TransductiveModel.</p>
+<p>Args:
+model: The base neural policy to be adapted.
+optimizer_kwargs: Keyword arguments for the Adam optimizer (e.g., ‘lr’).
+n_search_steps: Number of search/adaptation steps to perform.
+**kwargs: Additional parameters stored in <code class="docutils literal notranslate"><span class="pre">self.kwargs</span></code>.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.common.transductive.active_search.ActiveSearch._get_search_params">
 <span class="sig-name descname"><span class="pre">_get_search_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.models.common.transductive.active_search.ActiveSearch._get_search_params" title="Link to this definition">#</a></dt>
-<dd><p>Active Search optimizes all parameters.</p>
+<dd><p>Defines parameters for optimization.</p>
+<p>In Active Search, all parameters of the underlying model are updated.</p>
+<p>Returns:
+Any: An iterable of all model parameters.</p>
 </dd></dl>
 
 </dd></dl>

@@ -492,7 +492,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.embeddings.positional.absolute_positional_embedding">
 <span id="src-models-subnets-embeddings-positional-absolute-positional-embedding"></span><h1><a class="reference internal" href="#module-src.models.subnets.embeddings.positional.absolute_positional_embedding" title="src.models.subnets.embeddings.positional.absolute_positional_embedding"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.embeddings.positional.absolute_positional_embedding</span></code></a><a class="headerlink" href="#module-src.models.subnets.embeddings.positional.absolute_positional_embedding" title="Link to this heading">#</a></h1>
-<p>Sinusoidal positional embedding.</p>
+<p>Sinusoidal positional embedding module.</p>
+<p>This module provides the AbsolutePositionalEmbedding layer, which implements
+standard sinusoidal positional encodings for transformer-based architectures.</p>
+<p>Attributes:
+AbsolutePositionalEmbedding: Sine/Cosine absolute positional encoder.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.embeddings.positional.absolute_positional_embedding import AbsolutePositionalEmbedding
+&gt;&gt;&gt; pe = AbsolutePositionalEmbedding(embed_dim=128)
+&gt;&gt;&gt; x = pe(x)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -513,11 +521,16 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.embeddings.positional.absolute_positional_embedding.</span></span><span class="sig-name descname"><span class="pre">AbsolutePositionalEmbedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.embeddings.positional.absolute_positional_embedding.AbsolutePositionalEmbedding" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
 <p>Sinusoidal positional embedding.</p>
+<p>Implements absolute positional encodings using alternating sine and cosine
+functions of different frequencies to represent item positions in a sequence.</p>
+<p>Attributes:
+embed_dim (int): Dimensionality of the embeddings.
+pe (torch.Tensor): Precomputed positional encoding buffer.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize AbsolutePositionalEmbedding.</p>
+<p>Initializes AbsolutePositionalEmbedding.</p>
 <p>Args:
-embed_dim: Embedding dimension.
-max_len: Maximum sequence length.</p>
+embed_dim: Internal embedding dimensionality.
+max_len: Maximum supported sequence length for the lookup buffer.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.positional.absolute_positional_embedding.AbsolutePositionalEmbedding.pe">
 <span class="sig-name descname"><span class="pre">pe</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.Tensor</span></em><a class="headerlink" href="#src.models.subnets.embeddings.positional.absolute_positional_embedding.AbsolutePositionalEmbedding.pe" title="Link to this definition">#</a></dt>
@@ -527,11 +540,11 @@ max_len: Maximum sequence length.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.positional.absolute_positional_embedding.AbsolutePositionalEmbedding.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.embeddings.positional.absolute_positional_embedding.AbsolutePositionalEmbedding.forward" title="Link to this definition">#</a></dt>
-<dd><p>Add positional encoding to input.</p>
+<dd><p>Adds positional encoding to the input tensor.</p>
 <p>Args:
-x: Input tensor of shape (batch, seq_len, embed_dim)</p>
+x: Input tensor of shape (batch, seq_len, embed_dim).</p>
 <p>Returns:
-Tensor with positional encoding added</p>
+torch.Tensor: Augmented tensor with sinusoidal features.</p>
 </dd></dl>
 
 </dd></dl>

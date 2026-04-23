@@ -54,42 +54,42 @@
 ```
 ````
 
-````{py:function} _perform_cross_exchange_iteration(B, tours, max_segment_len, distance_matrix, wastes, capacities, has_capacity, device) -> bool
+````{py:function} _perform_cross_exchange_iteration(B: int, tours: torch.Tensor, max_segment_len: int, distance_matrix: torch.Tensor, wastes: typing.Optional[torch.Tensor], capacities: typing.Optional[torch.Tensor], has_capacity: bool, device: torch.device) -> bool
 :canonical: src.models.policies.operators.exchange.cross_exchange._perform_cross_exchange_iteration
 
 ```{autodoc2-docstring} src.models.policies.operators.exchange.cross_exchange._perform_cross_exchange_iteration
 ```
 ````
 
-````{py:function} _get_routes_from_tour(tour: torch.Tensor)
+````{py:function} _get_routes_from_tour(tour: torch.Tensor) -> typing.List[typing.Tuple[int, int]]
 :canonical: src.models.policies.operators.exchange.cross_exchange._get_routes_from_tour
 
 ```{autodoc2-docstring} src.models.policies.operators.exchange.cross_exchange._get_routes_from_tour
 ```
 ````
 
-````{py:function} _find_best_move_for_segments(b_idx, tour, routes, seg_a_len, seg_b_len, distance_matrix, wastes, capacities, has_capacity, device)
+````{py:function} _find_best_move_for_segments(b_idx: int, tour: torch.Tensor, routes: typing.List[typing.Tuple[int, int]], seg_a_len: int, seg_b_len: int, distance_matrix: torch.Tensor, wastes: typing.Optional[torch.Tensor], capacities: typing.Optional[torch.Tensor], has_capacity: bool, device: torch.device) -> typing.Tuple[torch.Tensor, typing.Optional[tuple]]
 :canonical: src.models.policies.operators.exchange.cross_exchange._find_best_move_for_segments
 
 ```{autodoc2-docstring} src.models.policies.operators.exchange.cross_exchange._find_best_move_for_segments
 ```
 ````
 
-````{py:function} _check_cross_capacity(b, tour, s_a, len_a, s_b, len_b, r_a_s, r_a_e, r_b_s, r_b_e, wastes, capacities)
+````{py:function} _check_cross_capacity(b: int, tour: torch.Tensor, s_a: int, len_a: int, s_b: int, len_b: int, r_a_s: int, r_a_e: int, r_b_s: int, r_b_e: int, wastes: torch.Tensor, capacities: torch.Tensor) -> bool
 :canonical: src.models.policies.operators.exchange.cross_exchange._check_cross_capacity
 
 ```{autodoc2-docstring} src.models.policies.operators.exchange.cross_exchange._check_cross_capacity
 ```
 ````
 
-````{py:function} _compute_cross_delta(b, tour, s_a, len_a, s_b, len_b, r_a_s, r_a_e, r_b_s, r_b_e, dist_mat)
+````{py:function} _compute_cross_delta(b: int, tour: torch.Tensor, s_a: int, len_a: int, s_b: int, len_b: int, r_a_s: int, r_a_e: int, r_b_s: int, r_b_e: int, dist_mat: torch.Tensor) -> torch.Tensor
 :canonical: src.models.policies.operators.exchange.cross_exchange._compute_cross_delta
 
 ```{autodoc2-docstring} src.models.policies.operators.exchange.cross_exchange._compute_cross_delta
 ```
 ````
 
-````{py:function} _apply_cross_exchange_move(tour, move, device)
+````{py:function} _apply_cross_exchange_move(tour: torch.Tensor, move: tuple) -> torch.Tensor
 :canonical: src.models.policies.operators.exchange.cross_exchange._apply_cross_exchange_move
 
 ```{autodoc2-docstring} src.models.policies.operators.exchange.cross_exchange._apply_cross_exchange_move

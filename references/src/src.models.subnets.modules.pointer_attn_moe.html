@@ -492,6 +492,21 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.modules.pointer_attn_moe">
 <span id="src-models-subnets-modules-pointer-attn-moe"></span><h1><a class="reference internal" href="#module-src.models.subnets.modules.pointer_attn_moe" title="src.models.subnets.modules.pointer_attn_moe"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.modules.pointer_attn_moe</span></code></a><a class="headerlink" href="#module-src.models.subnets.modules.pointer_attn_moe" title="Link to this heading">#</a></h1>
 <p>Pointer Attention Mixture of Experts Module.</p>
+<p>This module provides the PointerAttnMoE layer, which combines multi-head
+attention for glimpse generation with a Mixture-of-Experts (MoE) projection
+for final pointing. This architecture allows the model to select specialized
+pointing strategies based on the current context.</p>
+<p>Attributes:
+PointerAttnMoE: Pointer attention enhanced with MoE output projection.</p>
+<p>Example:
+&gt;&gt;&gt; import torch
+&gt;&gt;&gt; from logic.src.models.subnets.modules.pointer_attn_moe import PointerAttnMoE
+&gt;&gt;&gt; model = PointerAttnMoE(embed_dim=128, num_heads=8)
+&gt;&gt;&gt; q = torch.randn(1, 1, 128)
+&gt;&gt;&gt; k = torch.randn(1, 10, 128)
+&gt;&gt;&gt; v = torch.randn(1, 10, 128)
+&gt;&gt;&gt; lk = torch.randn(1, 10, 128)
+&gt;&gt;&gt; logits = model(q, k, v, lk)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -512,38 +527,37 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.modules.pointer_attn_moe.</span></span><span class="sig-name descname"><span class="pre">PointerAttnMoE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_experts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noisy_gating</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_inner</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_nan</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.pointer_attn_moe.PointerAttnMoE" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
 <p>Pointer Attention with Mixture-of-Experts (MoE) output projection.</p>
-<p>Uses standard Multi-Head Attention to compute a glimpse (context vector),
-then projects this glimpse using an MoE layer before computing the final
-pointing logits. This allows the model to specialize its pointing strategy
-based on the context.</p>
-<p>Args:
-embed_dim: Embedding dimension.
-num_heads: Number of attention heads.
-num_experts: Number of experts in the MoE layer.
-k: Number of experts to select per token.
-noisy_gating: Whether to use noisy gating for MoE.
-mask_inner: Whether to mask the inner MHA.</p>
+<p>Uses standard Multi-Head Attention to compute a context vector (glimpse), which
+is then passed through an MoE layer before the final dot-product pointing operation.
+This enables per-step specialization of the pointing mechanism.</p>
+<p>Attributes:
+embed_dim (int): Dimensionality of input features.
+check_nan (bool): Whether to check for NaN values in output logits.
+mask_inner (bool): Whether to strictly mask internal attention.
+mha (MultiHeadAttention): Internal module for generating the glimpse vector.
+moe_out (MoE): Specialized transformation layer for context-aware pointing.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize PointerAttnMoE.</p>
+<p>Initializes PointerAttnMoE.</p>
 <p>Args:
-embed_dim: Embedding dimension.
-num_heads: Number of heads.
-num_experts: Number of experts.
-k: Top-k experts.
-noisy_gating: Noisy gating.
-mask_inner: Mask inner attention.
-check_nan: Check for NaNs.</p>
+embed_dim: Dimensionality of inputs and internal representations.
+num_heads: Number of parallel attention heads in the glimpse mechanism.
+num_experts: Number of parallel transformation experts available.
+k: Number of experts to activate per time step.
+noisy_gating: Whether to use stochastic noise in the gating mechanism.
+mask_inner: Whether to block padding during the glimpse attention pass.
+check_nan: Whether to perform runtime validity checks on logits.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.pointer_attn_moe.PointerAttnMoE.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logit_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attn_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.modules.pointer_attn_moe.PointerAttnMoE.forward" title="Link to this definition">#</a></dt>
-<dd><p>Args:
-query: Query tensor (batch, num_steps, embed_dim)
-key: Key tensor (batch, graph_size, embed_dim)
-value: Value tensor (batch, graph_size, embed_dim)
-logit_key: Logit key tensor (batch, graph_size, embed_dim) - used for final dot product
-attn_mask: Mask for attention (batch, graph_size) or (batch, num_steps, graph_size)</p>
+<dd><p>Computes pointer logits through MHA context and MoE projection.</p>
+<p>Args:
+query: Query feature tensor of shape (batch, n_steps, dim).
+key: Key database tensor of shape (batch, nodes, dim).
+value: Value database tensor of shape (batch, nodes, dim).
+logit_key: Pointing key database of shape (batch, nodes, dim).
+attn_mask: Boolean attention mask (batch, nodes). True indicates valid.</p>
 <p>Returns:
-logits: (batch, num_steps, graph_size)</p>
+torch.Tensor: Pointing logits of shape (batch, n_steps, nodes).</p>
 </dd></dl>
 
 </dd></dl>

@@ -489,11 +489,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.core.mdam">
 <span id="src-models-core-mdam"></span><h1><a class="reference internal" href="#module-src.models.core.mdam" title="src.models.core.mdam"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.core.mdam</span></code></a><a class="headerlink" href="#module-src.models.core.mdam" title="Link to this heading">#</a></h1>
-<p><strong>init</strong>.py module.</p>
+<p>MDAM: Multi-Decoder Attention Model.</p>
+<p>This package provides MDAM for diverse solution generation. It uses a shared
+encoder and multiple parallel decoders to branch out during construction.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+MDAM: Diverse training wrapper with competitive baseline.
+MDAMPolicy: Multi-path construction policy.
+mdam_rollout: Best-of-all rollout logic for baseline calculation.</p>
 <p>Example:
-&gt;&gt;&gt; import <strong>init</strong></p>
+&gt;&gt;&gt; from logic.src.models.core.mdam import MDAM</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

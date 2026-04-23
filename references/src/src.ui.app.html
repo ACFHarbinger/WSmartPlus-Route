@@ -488,11 +488,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.ui.app">
 <span id="src-ui-app"></span><h1><a class="reference internal" href="#module-src.ui.app" title="src.ui.app"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.app</span></code></a><a class="headerlink" href="#module-src.ui.app" title="Link to this heading">#</a></h1>
-<p>MLOps Control Tower Dashboard - Main Entry Point.</p>
-<p>A unified Streamlit interface for monitoring Deep Learning training
-and visualizing VRP Simulation outputs.</p>
-<p>Usage:
-streamlit run logic/src/pipeline/ui/app.py</p>
+<p>Main entry point for the MLOps Control Tower Dashboard.</p>
+<p>This module provides a unified Streamlit interface for monitoring deep
+reinforcement learning training sessions and visualizing VRP simulation
+outputs in a Digital Twin environment.</p>
+<p>Attributes:
+main: The top-level launcher for the multi-page dashboard.</p>
+<p>Example:
+To launch the dashboard from the project root:
+$ streamlit run logic/src/ui/app.py</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -500,7 +504,7 @@ streamlit run logic/src/pipeline/ui/app.py</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.app.main" title="src.ui.app.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a></p></td>
-<td><p>Main entry point for the dashboard.</p></td>
+<td><p>Orchestrates the dashboard layout and page navigation.</p></td>
 </tr>
 </tbody>
 </table>
@@ -511,7 +515,9 @@ streamlit run logic/src/pipeline/ui/app.py</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.app.main">
 <span class="sig-prename descclassname"><span class="pre">src.ui.app.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.app.main" title="Link to this definition">#</a></dt>
-<dd><p>Main entry point for the dashboard.</p>
+<dd><p>Orchestrates the dashboard layout and page navigation.</p>
+<p>Initializes the page configuration, applies custom styling, and
+dispatches rendering to the selected sub-page based on sidebar input.</p>
 </dd></dl>
 
 </section>

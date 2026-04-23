@@ -489,6 +489,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.encoders.mdam.mdam_attention_layer">
 <span id="src-models-subnets-encoders-mdam-mdam-attention-layer"></span><h1><a class="reference internal" href="#module-src.models.subnets.encoders.mdam.mdam_attention_layer" title="src.models.subnets.encoders.mdam.mdam_attention_layer"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.encoders.mdam.mdam_attention_layer</span></code></a><a class="headerlink" href="#module-src.models.subnets.encoders.mdam.mdam_attention_layer" title="Link to this heading">#</a></h1>
 <p>Attention layer for MDAM Encoder.</p>
+<p>Attributes:
+MultiHeadAttentionLayer: Single transformer layer with MHA + FFN for MDAM encoder.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.encoders.mdam.mdam_attention_layer import MultiHeadAttentionLayer
+&gt;&gt;&gt; layer = MultiHeadAttentionLayer(embed_dim=128, num_heads=8)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -516,17 +521,14 @@ transformer encoder layer pattern. This is a simplified version that:</p>
 <li><p>Uses simple skip connections (no hyper-connections)</p></li>
 <li><p>Uses configurable normalization type</p></li>
 </ul>
-<p class="rubric" id="id1">Parameters</p>
-<p>embed_dim : int
-Embedding dimension.
-num_heads : int
-Number of attention heads.
-feed_forward_hidden : int, default=512
-Hidden dimension for FFN.
-normalization : str, default=”batch”
-Type of normalization (‘batch’, ‘layer’, ‘instance’).</p>
+<p>Attributes:
+n_heads (int): Number of attention heads.
+embed_dim (int): Embedding dimension.
+feed_forward_hidden (int): Hidden dimension for feed-forward layers.
+norm_config (NormalizationConfig): Normalization configuration.
+activation_config (ActivationConfig): Activation function configuration.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize attention layer.</p>
+<p>Initializes the MultiHeadAttentionLayer.</p>
 <p>Args:
 embed_dim: Embedding dimension.
 num_heads: Number of attention heads.

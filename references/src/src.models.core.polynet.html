@@ -489,11 +489,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.core.polynet">
 <span id="src-models-core-polynet"></span><h1><a class="reference internal" href="#module-src.models.core.polynet" title="src.models.core.polynet"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.core.polynet</span></code></a><a class="headerlink" href="#module-src.models.core.polynet" title="Link to this heading">#</a></h1>
-<p><strong>init</strong>.py module.</p>
+<p>PolyNet: Learning Diverse Solution Strategies.</p>
+<p>This package provides PolyNet models that learn multiple distinct search
+behaviors for combinatorial optimization using strategy conditioning and
+the Poppy loss function.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+PolyNet: Training wrapper for multi-strategy learning.
+PolyNetPolicy: Behavior-conditioned construction policy.</p>
 <p>Example:
-&gt;&gt;&gt; import <strong>init</strong></p>
+&gt;&gt;&gt; from logic.src.models.core.polynet import PolyNet</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

@@ -499,14 +499,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.ui.pages.simulation.summary">
 <span id="src-ui-pages-simulation-summary"></span><h1><a class="reference internal" href="#module-src.ui.pages.simulation.summary" title="src.ui.pages.simulation.summary"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.pages.simulation.summary</span></code></a><a class="headerlink" href="#module-src.ui.pages.simulation.summary" title="Link to this heading">#</a></h1>
 <p>Simulation Summary page for the Streamlit dashboard.</p>
-<p>Loads simulation output JSON files (mean, std, full, daily) and provides:</p>
-<ul class="simple">
-<li><p>Policy comparison table with mean +/- std per metric</p></li>
-<li><p>Pareto front scatter for any two selected metrics</p></li>
-<li><p>Per-metric bar chart ranking across policies</p></li>
-<li><p>Per-distribution comparison for the same policy across distributions</p></li>
-<li><p>Daily time-series overlay per policy</p></li>
-</ul>
+<p>Presents multi-model performance aggregations, Pareto tradeoff surfaces,
+and cross-distribution robustness analysis for simulation experiments.</p>
+<p>Example:
+render_simulation_summary()</p>
+<p>Attributes:
+render_simulation_summary: Main entry point for the summary analysis.
+_parse_policy_name: Heuristic to split policy identifiers.
+_DIST_PATTERN: Internal regex for distribution detection.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -514,31 +514,31 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.simulation.summary._discover_output_dirs" title="src.ui.pages.simulation.summary._discover_output_dirs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_discover_output_dirs</span></code></a></p></td>
-<td><p>Find directories under assets/output/ that contain simulation JSONs.</p></td>
+<td><p>Finds directories under assets/output/ that contain simulation JSONs.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.simulation.summary._load_json" title="src.ui.pages.simulation.summary._load_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_load_json</span></code></a></p></td>
-<td><p>Load and parse a JSON file, returning None on failure.</p></td>
+<td><p>Loads and parses a JSON file with error handling.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.simulation.summary._find_json_files" title="src.ui.pages.simulation.summary._find_json_files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_find_json_files</span></code></a></p></td>
-<td><p>Given a directory, discover the different JSON file types.</p></td>
+<td><p>Discovers the available JSON file types in a given output directory.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.simulation.summary._parse_policy_name" title="src.ui.pages.simulation.summary._parse_policy_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_parse_policy_name</span></code></a></p></td>
-<td><p>Split a raw policy key into (base_name, distribution).</p></td>
+<td><p>Splits a raw policy identifier into a base name and distribution type.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.simulation.summary._extract_distributions" title="src.ui.pages.simulation.summary._extract_distributions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_extract_distributions</span></code></a></p></td>
-<td><p>Extract sorted unique distributions from mean JSON keys.</p></td>
+<td><p>Extracts unique distribution identifiers from the simulation mean data.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.simulation.summary._build_summary_df" title="src.ui.pages.simulation.summary._build_summary_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_build_summary_df</span></code></a></p></td>
-<td><p>Build a summary DataFrame from mean (and optional std) JSON data.</p></td>
+<td><p>Builds a summary statistical DataFrame from mean and optional std data.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.simulation.summary._build_daily_df" title="src.ui.pages.simulation.summary._build_daily_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_build_daily_df</span></code></a></p></td>
-<td><p>Flatten a daily JSON (policy -&gt; {metric: [values per day]}) into a long DataFrame.</p></td>
+<td><p>Flattens daily simulation metrics into a long-form DataFrame.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.simulation.summary._render_sidebar_controls" title="src.ui.pages.simulation.summary._render_sidebar_controls"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_sidebar_controls</span></code></a></p></td>
-<td><p>Render sidebar controls for Simulation Summary page.</p></td>
+<td><p>Renders sidebar controls for the simulation summary visualization.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.simulation.summary.render_simulation_summary" title="src.ui.pages.simulation.summary.render_simulation_summary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render_simulation_summary</span></code></a></p></td>
-<td><p>Render the Simulation Summary page.</p></td>
+<td><p>Renders the comprehensive Simulation Summary page.</p></td>
 </tr>
 </tbody>
 </table>
@@ -566,59 +566,89 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.simulation.summary._discover_output_dirs">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.simulation.summary.</span></span><span class="sig-name descname"><span class="pre">_discover_output_dirs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.pages.simulation.summary._discover_output_dirs" title="Link to this definition">#</a></dt>
-<dd><p>Find directories under assets/output/ that contain simulation JSONs.</p>
+<dd><p>Finds directories under assets/output/ that contain simulation JSONs.</p>
+<p>Returns:
+List[str]: Relative paths to valid output directories.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.simulation.summary._load_json">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.simulation.summary.</span></span><span class="sig-name descname"><span class="pre">_load_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.ui.pages.simulation.summary._load_json" title="Link to this definition">#</a></dt>
-<dd><p>Load and parse a JSON file, returning None on failure.</p>
+<dd><p>Loads and parses a JSON file with error handling.</p>
+<p>Args:
+path: Absolute filesystem path to the JSON file.</p>
+<p>Returns:
+Any: Parsed JSON data (typically dict or list) or None on failure.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.simulation.summary._find_json_files">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.simulation.summary.</span></span><span class="sig-name descname"><span class="pre">_find_json_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.pages.simulation.summary._find_json_files" title="Link to this definition">#</a></dt>
-<dd><p>Given a directory, discover the different JSON file types.</p>
-<p>Returns dict with keys like ‘mean’, ‘std’, ‘full’, ‘daily_*’ mapping
-to absolute file paths.</p>
+<dd><p>Discovers the available JSON file types in a given output directory.</p>
+<p>Args:
+output_dir: Relative path (from assets/output) to the target directory.</p>
+<p>Returns:
+Dict[str, str]: Mapping of file types (‘mean’, ‘std’, ‘full’) to paths.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.simulation.summary._parse_policy_name">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.simulation.summary.</span></span><span class="sig-name descname"><span class="pre">_parse_policy_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.pages.simulation.summary._parse_policy_name" title="Link to this definition">#</a></dt>
-<dd><p>Split a raw policy key into (base_name, distribution).</p>
+<dd><p>Splits a raw policy identifier into a base name and distribution type.</p>
+<p>Args:
+raw_name: Full policy string (e.g., ‘hgs_exp_uniform’).</p>
+<p>Returns:
+Tuple[str, str]: (Base policy name, distribution type).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.simulation.summary._extract_distributions">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.simulation.summary.</span></span><span class="sig-name descname"><span class="pre">_extract_distributions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mean_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.pages.simulation.summary._extract_distributions" title="Link to this definition">#</a></dt>
-<dd><p>Extract sorted unique distributions from mean JSON keys.</p>
+<dd><p>Extracts unique distribution identifiers from the simulation mean data.</p>
+<p>Args:
+mean_data: Mapping of policy keys to mean metric values.</p>
+<p>Returns:
+List[str]: Sorted list of unique distribution names encountered.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.simulation.summary._build_summary_df">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.simulation.summary.</span></span><span class="sig-name descname"><span class="pre">_build_summary_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mean_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">std_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.ui.pages.simulation.summary._build_summary_df" title="Link to this definition">#</a></dt>
-<dd><p>Build a summary DataFrame from mean (and optional std) JSON data.</p>
-<p>Columns: Policy, Distribution, Policy_Key, metric1_mean, metric1_std, …</p>
+<dd><p>Builds a summary statistical DataFrame from mean and optional std data.</p>
+<p>Args:
+mean_data: Mapping of policy keys to mean metric values.
+std_data: Optional mapping of policy keys to standard deviation values.</p>
+<p>Returns:
+pd.DataFrame: A flattened DataFrame with mean and std columns.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.simulation.summary._build_daily_df">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.simulation.summary.</span></span><span class="sig-name descname"><span class="pre">_build_daily_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">daily_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.ui.pages.simulation.summary._build_daily_df" title="Link to this definition">#</a></dt>
-<dd><p>Flatten a daily JSON (policy -&gt; {metric: [values per day]}) into a long DataFrame.</p>
-<p>Columns: Policy, Distribution, day, metric1, metric2, …</p>
+<dd><p>Flattens daily simulation metrics into a long-form DataFrame.</p>
+<p>Args:
+daily_data: Mapping of policy keys to daily metric records.</p>
+<p>Returns:
+pd.DataFrame: A long-form DataFrame with daily granularity.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.simulation.summary._render_sidebar_controls">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.simulation.summary.</span></span><span class="sig-name descname"><span class="pre">_render_sidebar_controls</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">available_dirs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distributions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.pages.simulation.summary._render_sidebar_controls" title="Link to this definition">#</a></dt>
-<dd><p>Render sidebar controls for Simulation Summary page.</p>
+<dd><p>Renders sidebar controls for the simulation summary visualization.</p>
+<p>Args:
+available_dirs: List of directories containing valid JSON results.
+distributions: List of unique distribution types found in data.</p>
+<p>Returns:
+Dict[str, Any]: User filter settings (selected_dir, dist_filter).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.simulation.summary.render_simulation_summary">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.simulation.summary.</span></span><span class="sig-name descname"><span class="pre">render_simulation_summary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.simulation.summary.render_simulation_summary" title="Link to this definition">#</a></dt>
-<dd><p>Render the Simulation Summary page.</p>
+<dd><p>Renders the comprehensive Simulation Summary page.</p>
+<p>Orchestrates data discovery, distribution extraction, and selective
+rendering of sub-sections based on user tab selection.</p>
 </dd></dl>
 
 </section>

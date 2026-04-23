@@ -35,6 +35,7 @@ src.models.subnets.decoders.glimpse.attention
 
 ````{py:data} __all__
 :canonical: src.models.subnets.decoders.glimpse.__all__
+:type: list[str]
 :value: >
    ['GlimpseDecoder']
 

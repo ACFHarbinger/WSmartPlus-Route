@@ -497,6 +497,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.decoders.mdam.decoder">
 <span id="src-models-subnets-decoders-mdam-decoder"></span><h1><a class="reference internal" href="#module-src.models.subnets.decoders.mdam.decoder" title="src.models.subnets.decoders.mdam.decoder"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.decoders.mdam.decoder</span></code></a><a class="headerlink" href="#module-src.models.subnets.decoders.mdam.decoder" title="Link to this heading">#</a></h1>
 <p>MDAM Multi-Path Decoder implementation.</p>
+<p>This module provides the multi-decoder architecture for MDAM, which constructs
+diverse solutions by running multiple parallel decoder paths.</p>
+<p>Attributes:
+MDAMDecoder: Parallel multi-path decoder for diverse routing solutions.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.decoders.mdam.decoder import MDAMDecoder
+&gt;&gt;&gt; decoder = MDAMDecoder(embed_dim=128, num_paths=5)
+&gt;&gt;&gt; reward, ll, kl, pi = decoder(td, embeddings, env)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -523,8 +531,23 @@ KL divergence between path outputs encourages solution diversity.</p>
 <p>Reference:
 Xin et al. “Multi-Decoder Attention Model with Embedding Glimpse for
 Solving Vehicle Routing Problems” (AAAI 2021)</p>
+<p>Attributes:
+embed_dim (int): Dimensionality of embeddings.
+num_heads (int): Number of attention heads.
+num_paths (int): Number of parallel paths.
+env_name (str): Environment name for context.
+mask_inner (bool): Masking flag for inner attention.
+mask_logits (bool): Masking flag for output logits.
+eg_step_gap (int): Encoder glimpse update frequency.
+tanh_clipping (float): Scale for tanh clipping.
+train_strategy (str): Default strategy for training.
+val_strategy (str): Default strategy for validation.
+test_strategy (str): Default strategy for testing.
+dynamic_embedding (DynamicEmbedding): Embedding for dynamic context.
+W_placeholder (nn.Parameter): Initial step context parameters.
+paths (nn.ModuleList): Parallel MDAMPath instances.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize MDAM decoder.</p>
+<p>Initializes MDAM decoder.</p>
 <p>Args:
 embed_dim: Embedding dimension.
 num_heads: Number of attention heads.
@@ -551,26 +574,56 @@ test_strategy: Decoding type during testing.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.decoders.mdam.decoder.MDAMDecoder.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'greedy'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.subnets.decoders.mdam.decoder.MDAMDecoder.forward" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'greedy'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.subnets.decoders.mdam.decoder.MDAMDecoder.forward" title="Link to this definition">#</a></dt>
 <dd><p>MDAM Multi-path decoding.</p>
+<p>Args:
+td: Initial state dictionary.
+embeddings: Encoder embeddings (tuple for MDAM).
+env: Environment instance for stepping.
+strategy: Decoding strategy (e.g., “greedy”).
+kwargs: Additional arguments, expects ‘encoder’.</p>
+<p>Returns:
+Tuple: Batch rewards, log probabilities, KL divergence, and path actions.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.decoders.mdam.decoder.MDAMDecoder._compute_initial_kl_divergence">
 <span class="sig-name descname"><span class="pre">_compute_initial_kl_divergence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.decoders.mdam.decoder.MDAMDecoder._compute_initial_kl_divergence" title="Link to this definition">#</a></dt>
-<dd><p>Compute KL divergence between path logprobs at first step.</p>
+<dd><p>Computes KL divergence between path logprobs at first step.</p>
+<p>Args:
+td: Current state dictionary.
+h: Node embeddings.</p>
+<p>Returns:
+torch.Tensor: Mean pairwise divergence between all paths.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.decoders.mdam.decoder.MDAMDecoder._decode_path">
 <span class="sig-name descname"><span class="pre">_decode_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_old</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.subnets.decoders.mdam.decoder.MDAMDecoder._decode_path" title="Link to this definition">#</a></dt>
-<dd><p>Decode a single path.</p>
+<dd><p>Decodes a single path sequence.</p>
+<p>Args:
+td: State dictionary for the path.
+h: Node embeddings.
+env: RL environment.
+attn: Pre-update attention scores.
+V: Pre-update values.
+h_old: Pre-update hidden states.
+encoder: MDAM encoder instance for updates.
+path_idx: Index of the decoder path.
+strategy: Selection strategy name.</p>
+<p>Returns:
+Tuple: Final reward, total log-likelihood, and action sequence.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.decoders.mdam.decoder.MDAMDecoder._get_log_likelihood">
 <span class="sig-name descname"><span class="pre">_get_log_likelihood</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_probs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.decoders.mdam.decoder.MDAMDecoder._get_log_likelihood" title="Link to this definition">#</a></dt>
-<dd><p>Compute log-likelihood of action sequence.</p>
+<dd><p>Computes log-likelihood of action sequence.</p>
+<p>Args:
+log_probs: Sequence log probabilities of shape (batch, seq, nodes).
+actions: Chosen action sequence.</p>
+<p>Returns:
+torch.Tensor: Summed log-likelihood per batch element.</p>
 </dd></dl>
 
 </dd></dl>

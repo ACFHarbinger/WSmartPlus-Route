@@ -494,17 +494,21 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.database.commands">
 <span id="src-tracking-database-commands"></span><h1><a class="reference internal" href="#module-src.tracking.database.commands" title="src.tracking.database.commands"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.database.commands</span></code></a><a class="headerlink" href="#module-src.tracking.database.commands" title="Link to this heading">#</a></h1>
 <p>Database management commands for the WSmart-Route tracking store.</p>
-<p>All SQL is loaded from the sql/ subdirectory via sql_loader.</p>
-<p>Usage::</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>python -m logic.src.tracking.database.commands inspect
-python -m logic.src.tracking.database.commands compact
-python -m logic.src.tracking.database.commands clean
-python -m logic.src.tracking.database.commands stats [--experiment NAME]
-python -m logic.src.tracking.database.commands metrics [--key KEY] [--experiment NAME]
-python -m logic.src.tracking.database.commands prune [--older-than N] [--status S] [--experiment E] [--dry-run]
-python -m logic.src.tracking.database.commands export [--run-id UUID] [--experiment E] [--latest] [-o FILE]
-</pre></div>
-</div>
+<p>This module provides the core CLI implementations for maintaining the
+experiment tracking database. It includes utilities for database inspection,
+cleanup, compaction, data pruning based on age or status, and exporting
+run records to JSON format.</p>
+<p>All SQL logic is decoupled into the <code class="docutils literal notranslate"><span class="pre">sql/</span></code> subdirectory and loaded
+dynamically via <code class="docutils literal notranslate"><span class="pre">sql_loader</span></code>.</p>
+<p>Attributes:
+inspect_database: Prints a high-level summary of the tracking store state.
+clean_database: Removes all data while preserving the database schema.
+compact_database: Performs SQLite VACUUM and integrity checks.
+prune_database: Removes old or failed runs based on retention policy.
+export_run: Serializes a complete run record to JSON.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.tracking.database.commands import compact_database
+&gt;&gt;&gt; compact_database()</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -512,22 +516,22 @@ python -m logic.src.tracking.database.commands export [--run-id UUID] [--experim
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.database.commands.inspect_database" title="src.tracking.database.commands.inspect_database"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inspect_database</span></code></a></p></td>
-<td></td>
+<td><p>Prints a high-level summary of the tracking database.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.database.commands.clean_database" title="src.tracking.database.commands.clean_database"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clean_database</span></code></a></p></td>
-<td></td>
+<td><p>Removes all experiments and runs, resetting the database to empty.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.database.commands.compact_database" title="src.tracking.database.commands.compact_database"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compact_database</span></code></a></p></td>
-<td></td>
+<td><p>Defragments the SQLite file and performs an integrity check.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.database.commands.prune_database" title="src.tracking.database.commands.prune_database"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prune_database</span></code></a></p></td>
-<td></td>
+<td><p>Removes runs matching the specified criteria to prevent DB bloating.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.database.commands._resolve_run_id" title="src.tracking.database.commands._resolve_run_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_resolve_run_id</span></code></a></p></td>
-<td></td>
+<td><p>Internal helper to resolve a human-provided run identifier to a UUID.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.database.commands.export_run" title="src.tracking.database.commands.export_run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">export_run</span></code></a></p></td>
-<td></td>
+<td><p>Exports all data for a specific run into a JSON file.</p></td>
 </tr>
 </tbody>
 </table>
@@ -538,32 +542,68 @@ python -m logic.src.tracking.database.commands export [--run-id UUID] [--experim
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.database.commands.inspect_database">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.database.commands.</span></span><span class="sig-name descname"><span class="pre">inspect_database</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.database.commands.inspect_database" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Prints a high-level summary of the tracking database.</p>
+<p>Displays file size, experiment list, run counts by status and type,
+record totals (metrics, params, artifacts), and the most recent runs.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.database.commands.clean_database">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.database.commands.</span></span><span class="sig-name descname"><span class="pre">clean_database</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.database.commands.clean_database" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Removes all experiments and runs, resetting the database to empty.</p>
+<p>The schema structure is preserved. Use with caution as this operation
+is irreversible.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.database.commands.compact_database">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.database.commands.</span></span><span class="sig-name descname"><span class="pre">compact_database</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.database.commands.compact_database" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Defragments the SQLite file and performs an integrity check.</p>
+<p>Runs PRAGMA integrity_check followed by VACUUM to reclaim disk space
+from deleted records.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.database.commands.prune_database">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.database.commands.</span></span><span class="sig-name descname"><span class="pre">prune_database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">older_than_days</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'failed'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dry_run</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.database.commands.prune_database" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Removes runs matching the specified criteria to prevent DB bloating.</p>
+<p>Args:
+older_than_days: Minimum age of runs to remove. Defaults to 30.
+status: Specific run status to target (e.g., ‘failed’, ‘killed’).
+Defaults to “failed”.
+experiment_name: Optional filter to restrict pruning to one experiment.
+Defaults to “”.
+dry_run: If True, only lists candidates without deleting them.
+Defaults to False.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.database.commands._resolve_run_id">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.database.commands.</span></span><span class="sig-name descname"><span class="pre">_resolve_run_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">sqlite3.Connection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">latest</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.tracking.database.commands._resolve_run_id" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Internal helper to resolve a human-provided run identifier to a UUID.</p>
+<p>Args:
+conn: Managed SQLite connection.
+run_id: UUID or UUID prefix.
+experiment_name: Context for ‘latest’ resolution.
+latest: If True, resolves to the most recent run in the context.</p>
+<p>Returns:
+str: Fully qualified UUID.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.database.commands.export_run">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.database.commands.</span></span><span class="sig-name descname"><span class="pre">export_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">latest</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.database.commands.export_run" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Exports all data for a specific run into a JSON file.</p>
+<p>Includes metadata, tags, parameters, full metric history, artifact
+registrations, and dataset lifecycle events.</p>
+<p>Args:
+run_id: UUID or UUID prefix of the run to export. Defaults to “”.
+experiment_name: Optional context for latest-run resolution.
+Defaults to “”.
+latest: If True, exports the most recent run. Defaults to False.
+output: Optional filename to write the JSON to (defaults to stdout).
+Defaults to “”.</p>
+</dd></dl>
 
 </section>
 </section>

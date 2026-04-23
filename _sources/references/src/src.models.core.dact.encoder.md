@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} DACTEncoder(embed_dim: int = 128, num_layers: int = 3, num_heads: int = 8, pos_type: str = 'CPE', **kwargs)
+`````{py:class} DACTEncoder(embed_dim: int = 128, num_layers: int = 3, num_heads: int = 8, pos_type: str = 'CPE', **kwargs: typing.Any)
 :canonical: src.models.core.dact.encoder.DACTEncoder
 
 Bases: {py:obj}`logic.src.models.common.improvement.encoder.ImprovementEncoder`
@@ -37,7 +37,7 @@ Bases: {py:obj}`logic.src.models.common.improvement.encoder.ImprovementEncoder`
 ```{autodoc2-docstring} src.models.core.dact.encoder.DACTEncoder.__init__
 ```
 
-````{py:method} forward(td: tensordict.TensorDict, **kwargs) -> torch.Tensor
+````{py:method} forward(td: tensordict.TensorDict, **kwargs: typing.Any) -> torch.Tensor
 :canonical: src.models.core.dact.encoder.DACTEncoder.forward
 
 ```{autodoc2-docstring} src.models.core.dact.encoder.DACTEncoder.forward

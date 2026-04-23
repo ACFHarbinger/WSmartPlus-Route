@@ -491,11 +491,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.embeddings.edges.cvrpp">
 <span id="src-models-subnets-embeddings-edges-cvrpp"></span><h1><a class="reference internal" href="#module-src.models.subnets.embeddings.edges.cvrpp" title="src.models.subnets.embeddings.edges.cvrpp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.embeddings.edges.cvrpp</span></code></a><a class="headerlink" href="#module-src.models.subnets.embeddings.edges.cvrpp" title="Link to this heading">#</a></h1>
-<p>cvrpp.py module.</p>
+<p>CVRPP Edge embedding module.</p>
+<p>This module provides the CVRPPEdgeEmbedding layer, which constructs graph
+representations for Capacitated VRPs, preserving critical depot connectivity.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+CVRPPEdgeEmbedding: Edge encoder with guaranteed depot-to-customer links.</p>
 <p>Example:
-&gt;&gt;&gt; import cvrpp</p>
+&gt;&gt;&gt; from logic.src.models.subnets.embeddings.edges.cvrpp import CVRPPEdgeEmbedding
+&gt;&gt;&gt; embedder = CVRPPEdgeEmbedding(embed_dim=128)
+&gt;&gt;&gt; pyg_batch = embedder(td, init_embeddings)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -513,27 +517,31 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.edges.cvrpp.CVRPPEdgeEmbedding">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.embeddings.edges.cvrpp.</span></span><span class="sig-name descname"><span class="pre">CVRPPEdgeEmbedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linear_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparsify</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_sparse</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">collections.abc.Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.embeddings.edges.cvrpp.CVRPPEdgeEmbedding" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.embeddings.edges.cvrpp.</span></span><span class="sig-name descname"><span class="pre">CVRPPEdgeEmbedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linear_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparsify</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_sparse</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">collections.abc.Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.embeddings.edges.cvrpp.CVRPPEdgeEmbedding" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.models.subnets.embeddings.edges.base.html#src.models.subnets.embeddings.edges.base.EdgeEmbedding" title="src.models.subnets.embeddings.edges.base.EdgeEmbedding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.models.subnets.embeddings.edges.base.EdgeEmbedding</span></code></a></p>
 <p>Edge embedding for capacitated VRP problems.</p>
-<p>Like TSPEdgeEmbedding but ensures all nodes maintain edges to/from
-the depot (node 0), since depot connectivity is critical for VRP feasibility.</p>
+<p>Extends the base EdgeEmbedding logic to ensure all customer nodes maintain
+direct edges to and from the depot (node 0), even when graph sparsification
+is applied. Depot connectivity is critical for routing feasibility.</p>
+<p>Attributes:
+node_dim (int): Dimensionality of raw edge features.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes EdgeEmbedding.</p>
 <p>Args:
 embed_dim: Output embedding dimension for edge features.
 linear_bias: Whether to include bias in the edge projection.
 sparsify: Whether to create a sparse k-NN graph.
-k_sparse: Number of neighbors per node, or a callable(n) -&gt; k.
-Defaults to max(n // 5, 10).</p>
+k_sparse: Number of neighbors per node, or a callable mapping
+instance size to neighbor count. Defaults to max(n // 5, 10).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.edges.cvrpp.CVRPPEdgeEmbedding._cost_matrix_to_graph">
-<span class="sig-name descname"><span class="pre">_cost_matrix_to_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_cost_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.embeddings.edges.cvrpp.CVRPPEdgeEmbedding._cost_matrix_to_graph" title="Link to this definition">#</a></dt>
-<dd><p>cost matrix to graph.</p>
+<span class="sig-name descname"><span class="pre">_cost_matrix_to_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_cost_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch_geometric.data.Batch</span></span></span><a class="headerlink" href="#src.models.subnets.embeddings.edges.cvrpp.CVRPPEdgeEmbedding._cost_matrix_to_graph" title="Link to this definition">#</a></dt>
+<dd><p>Converts batched cost matrices to a graph with forced depot connections.</p>
 <p>Args:
-batch_cost_matrix (torch.Tensor): Description of batch_cost_matrix.
-init_embeddings (torch.Tensor): Description of init_embeddings.</p>
+batch_cost_matrix: (batch, n, n) distance/cost matrices.
+init_embeddings: (batch, n, embed_dim) node feature embeddings.</p>
 <p>Returns:
-Any: Description of return value.</p>
+Batch: PyG Batch object containing the augmented sparse graph.</p>
 </dd></dl>
 
 </dd></dl>

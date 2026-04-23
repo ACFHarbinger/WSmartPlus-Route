@@ -496,8 +496,23 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.modules.polynet_attention">
 <span id="src-models-subnets-modules-polynet-attention"></span><h1><a class="reference internal" href="#module-src.models.subnets.modules.polynet_attention" title="src.models.subnets.modules.polynet_attention"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.modules.polynet_attention</span></code></a><a class="headerlink" href="#module-src.models.subnets.modules.polynet_attention" title="Link to this heading">#</a></h1>
 <p>PolyNet Attention Module.</p>
-<p>Implements K-strategy conditioning via binary vectors for diverse solution learning.
-Based on Hottung et al. (2024): https://arxiv.org/abs/2402.14048</p>
+<p>This module provides the PolyNetAttention layer, which implements K-strategy
+conditioning via binary vectors to enable learning of diverse solution
+strategies within a single neural network.</p>
+<p>Reference:
+Hottung, A., et al. (2024). PolyNet: Learning Diverse Solution Strategies
+for Neural Combinatorial Optimization. arXiv preprint arXiv:2402.14048.</p>
+<p>Attributes:
+PolyNetAttention: Attention mechanism with binary strategy conditioning.</p>
+<p>Example:
+&gt;&gt;&gt; import torch
+&gt;&gt;&gt; from logic.src.models.subnets.modules.polynet_attention import PolyNetAttention
+&gt;&gt;&gt; poly = PolyNetAttention(k=4, embed_dim=128)
+&gt;&gt;&gt; q = torch.randn(1, 1, 128)
+&gt;&gt;&gt; k = torch.randn(1, 10, 128)
+&gt;&gt;&gt; v = torch.randn(1, 10, 128)
+&gt;&gt;&gt; lk = torch.randn(1, 10, 128)
+&gt;&gt;&gt; logits = poly(q, k, v, lk)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -518,23 +533,31 @@ Based on Hottung et al. (2024): https://arxiv.org/abs/2402.14048</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.modules.polynet_attention.</span></span><span class="sig-name descname"><span class="pre">PolyNetAttention</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poly_layer_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_inner</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_nan</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.polynet_attention.PolyNetAttention" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
 <p>PolyNet Attention with K-strategy binary conditioning.</p>
-<p>Extends pointer attention to condition logits on K different binary vectors,
-allowing learning of K diverse solution strategies from a single model.</p>
-<p>The binary vectors are generated as the first K elements of the set of all
-binary vectors of length ceil(log2(K)).</p>
-<p>Reference:
-Hottung et al. “PolyNet: Learning Diverse Solution Strategies for
-Neural Combinatorial Optimization” (2024)</p>
+<p>Extends standard multi-head attention to condition glimpse vectors on K different
+binary identifier vectors. This forces the model to branch its decision logic,
+facilitating the discovery of multiple distinct high-quality paths for complex
+optimization problems.</p>
+<p>Attributes:
+k (int): Number of distinct strategies to learn.
+embed_dim (int): Dimensionality of input features.
+num_heads (int): Number of attention heads.
+mask_inner (bool): Whether to mask padding in internal attention.
+check_nan (bool): Whether to perform runtime NaN checks on logits.
+binary_vector_dim (int): Number of bits required to encode k strategies.
+binary_vectors (torch.Tensor): Precomputed binary identifier vectors.
+project_out (nn.Linear): Linear output projection for concatenated heads.
+poly_layer_1 (nn.Linear): First conditioning transformation.
+poly_layer_2 (nn.Linear): Second conditioning transformation for residuals.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize PolyNet attention.</p>
+<p>Initializes PolyNetAttention.</p>
 <p>Args:
-k: Number of strategies to learn.
-embed_dim: Embedding dimension.
-poly_layer_dim: Hidden dimension of PolyNet layers.
-num_heads: Number of attention heads.
-mask_inner: Whether to mask inner attention.
-out_bias: Whether to use bias in output projection.
-check_nan: Whether to check for NaN values.</p>
+k: Number of parallel strategies to learn.
+embed_dim: Dimensionality of inputs and internal representations.
+poly_layer_dim: Dimensionality of conditioning mlp hidden layer.
+num_heads: Number of parallel attention heads.
+mask_inner: Whether to block padding during internal attention pass.
+out_bias: Whether to use a bias term in the glimpse projection.
+check_nan: Whether to enable runtime sanity checks for invalid values.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.models.subnets.modules.polynet_attention.PolyNetAttention.binary_vectors">
 <span class="sig-name descname"><span class="pre">binary_vectors</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.Tensor</span></em><a class="headerlink" href="#src.models.subnets.modules.polynet_attention.PolyNetAttention.binary_vectors" title="Link to this definition">#</a></dt>
@@ -544,33 +567,49 @@ check_nan: Whether to check for NaN values.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.polynet_attention.PolyNetAttention.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logit_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attn_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.modules.polynet_attention.PolyNetAttention.forward" title="Link to this definition">#</a></dt>
-<dd><p>Compute attention logits with K-strategy conditioning.</p>
+<dd><p>Computes K-conditioned attention logits.</p>
 <p>Args:
-query: Query tensor (batch, num_steps, embed_dim).
-key: Key tensor (batch, graph_size, embed_dim).
-value: Value tensor (batch, graph_size, embed_dim).
-logit_key: Logit key tensor (batch, graph_size, embed_dim).
-attn_mask: Attention mask (batch, graph_size). True = valid.</p>
+query: Query feature tensor of shape (batch, n_steps, dim).
+key: Key feature tensor of shape (batch, nodes, dim).
+value: Value feature tensor of shape (batch, nodes, dim).
+logit_key: Specialized key for final dot product (batch, nodes, dim).
+attn_mask: Boolean attention mask (batch, nodes). True indicates valid.</p>
 <p>Returns:
-Logits tensor (batch, num_steps, graph_size).</p>
+torch.Tensor: Computed logits of shape (batch, n_steps, nodes).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.polynet_attention.PolyNetAttention._get_strategy_vectors">
 <span class="sig-name descname"><span class="pre">_get_strategy_vectors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_solutions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.device</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.modules.polynet_attention.PolyNetAttention._get_strategy_vectors" title="Link to this definition">#</a></dt>
-<dd><p>Get binary strategy vectors for given number of solutions.</p>
+<dd><p>Retrieves and cycles precomputed binary strategy vectors.</p>
+<p>Args:
+num_solutions: Number of parallel paths being evaluated.
+device: Target device for the tensor returned.</p>
+<p>Returns:
+torch.Tensor: Binary strategy matrix.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.polynet_attention.PolyNetAttention._inner_mha">
 <span class="sig-name descname"><span class="pre">_inner_mha</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attn_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.modules.polynet_attention.PolyNetAttention._inner_mha" title="Link to this definition">#</a></dt>
-<dd><p>Perform inner multi-head attention.</p>
+<dd><p>Internal multi-head attention implementation.</p>
+<p>Args:
+query: Input queries.
+key: Input keys.
+value: Input values.
+attn_mask: Padding/Adjacency mask.</p>
+<p>Returns:
+torch.Tensor: Aggregated multi-head representation.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.polynet_attention.PolyNetAttention._make_heads">
 <span class="sig-name descname"><span class="pre">_make_heads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.modules.polynet_attention.PolyNetAttention._make_heads" title="Link to this definition">#</a></dt>
-<dd><p>Reshape tensor for multi-head attention.</p>
+<dd><p>Reshapes and transposes a tensor for multi-head attention.</p>
+<p>Args:
+v: Input tensor (batch, seq, dim).</p>
+<p>Returns:
+torch.Tensor: Reshaped tensor (batch, heads, seq, head_dim).</p>
 </dd></dl>
 
 </dd></dl>

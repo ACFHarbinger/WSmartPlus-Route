@@ -492,6 +492,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.encoders.matnet.encoder">
 <span id="src-models-subnets-encoders-matnet-encoder"></span><h1><a class="reference internal" href="#module-src.models.subnets.encoders.matnet.encoder" title="src.models.subnets.encoders.matnet.encoder"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.encoders.matnet.encoder</span></code></a><a class="headerlink" href="#module-src.models.subnets.encoders.matnet.encoder" title="Link to this heading">#</a></h1>
 <p>MatNet Encoder.</p>
+<p>Attributes:
+MatNetEncoder: MatNet Encoder that stacks multiple MatNetEncoderLayers.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.encoders.matnet import MatNetEncoder
+&gt;&gt;&gt; encoder = MatNetEncoder(num_layers=3, embed_dim=128, n_heads=8)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -499,8 +504,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.subnets.encoders.matnet.encoder.MatNetEncoder" title="src.models.subnets.encoders.matnet.encoder.MatNetEncoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MatNetEncoder</span></code></a></p></td>
-<td><p>MatNet Encoder.
-Stacks multiple MatNetEncoderLayer.</p></td>
+<td><p>MatNet Encoder.</p></td>
 </tr>
 </tbody>
 </table>
@@ -512,14 +516,30 @@ Stacks multiple MatNetEncoderLayer.</p></td>
 <dt class="sig sig-object py" id="src.models.subnets.encoders.matnet.encoder.MatNetEncoder">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.encoders.matnet.encoder.</span></span><span class="sig-name descname"><span class="pre">MatNetEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feed_forward_hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">512</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'instance'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.encoders.matnet.encoder.MatNetEncoder" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
-<p>MatNet Encoder.
-Stacks multiple MatNetEncoderLayer.</p>
+<p>MatNet Encoder.</p>
+<p>Stacks multiple MatNetEncoderLayer instances to process row and column
+embeddings for assignment problems.</p>
+<p>Attributes:
+layers (nn.ModuleList): List of MatNetEncoderLayer instances.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize MatNetEncoder.</p>
+<p>Initializes the MatNetEncoder.</p>
+<p>Args:
+num_layers: Number of encoder layers.
+embed_dim: Embedding dimension.
+n_heads: Number of attention heads.
+feed_forward_hidden: Hidden dimension for feed-forward layers.
+normalization: Type of normalization (“instance”, “layer”, or “batch”).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.encoders.matnet.encoder.MatNetEncoder.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row_emb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col_emb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.subnets.encoders.matnet.encoder.MatNetEncoder.forward" title="Link to this definition">#</a></dt>
 <dd><p>Forward pass.</p>
+<p>Args:
+row_emb: Row embeddings of shape (batch, row_size, embed_dim).
+col_emb: Column embeddings of shape (batch, col_size, embed_dim).
+matrix: Input cost/distance matrix of shape (batch, row_size, col_size).
+mask: Optional mask tensor of shape (batch, row_size, col_size).</p>
+<p>Returns:
+Tuple[torch.Tensor, torch.Tensor]: Updated row and column embeddings.</p>
 </dd></dl>
 
 </dd></dl>

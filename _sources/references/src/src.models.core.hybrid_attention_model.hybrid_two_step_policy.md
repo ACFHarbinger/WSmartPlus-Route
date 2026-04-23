@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} HybridTwoStagePolicy(env_name: str, embed_dim: int = 128, hidden_dim: int = 128, n_encode_layers: int = 3, n_heads: int = 8, refine_steps: int = 10, seed: int = 42, **kwargs)
+`````{py:class} HybridTwoStagePolicy(env_name: str, embed_dim: int = 128, hidden_dim: int = 128, n_encode_layers: int = 3, n_heads: int = 8, refine_steps: int = 10, seed: int = 42, **kwargs: typing.Any)
 :canonical: src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy
 
 Bases: {py:obj}`logic.src.models.common.autoregressive.policy.AutoregressivePolicy`
@@ -53,7 +53,7 @@ Bases: {py:obj}`logic.src.models.common.autoregressive.policy.AutoregressivePoli
 
 ````
 
-````{py:method} _initialize_tours(td: tensordict.TensorDict, env: logic.src.envs.base.base.RL4COEnvBase, strategy: str, embeddings: torch.Tensor, **kwargs) -> typing.Tuple[torch.Tensor, torch.Tensor]
+````{py:method} _initialize_tours(td: tensordict.TensorDict, env: logic.src.envs.base.base.RL4COEnvBase, strategy: str, embeddings: torch.Tensor, **kwargs: typing.Any) -> typing.Tuple[torch.Tensor, torch.Tensor]
 :canonical: src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy._initialize_tours
 
 ```{autodoc2-docstring} src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy._initialize_tours
@@ -69,7 +69,7 @@ Bases: {py:obj}`logic.src.models.common.autoregressive.policy.AutoregressivePoli
 
 ````
 
-````{py:method} _execute_refinement_operator(operator_fn, sub_tours: torch.Tensor, sub_dist: torch.Tensor, sub_removed: torch.Tensor, device: torch.device) -> typing.Tuple[torch.Tensor, torch.Tensor]
+````{py:method} _execute_refinement_operator(operator_fn: typing.Any, sub_tours: torch.Tensor, sub_dist: torch.Tensor, sub_removed: torch.Tensor, device: torch.device) -> typing.Tuple[torch.Tensor, torch.Tensor]
 :canonical: src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy._execute_refinement_operator
 
 ```{autodoc2-docstring} src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy._execute_refinement_operator
@@ -85,12 +85,15 @@ Bases: {py:obj}`logic.src.models.common.autoregressive.policy.AutoregressivePoli
 
 ````
 
-````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.base.RL4COEnvBase, strategy: str = 'greedy', **kwargs) -> typing.Dict[str, typing.Any]
+````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.base.RL4COEnvBase, strategy: str = 'greedy', **kwargs: typing.Any) -> typing.Dict[str, typing.Any]
 :canonical: src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy.forward
+
+```{autodoc2-docstring} src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy.forward
+```
 
 ````
 
-````{py:method} _get_dist_matrix(td)
+````{py:method} _get_dist_matrix(td: tensordict.TensorDict) -> torch.Tensor
 :canonical: src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy._get_dist_matrix
 
 ```{autodoc2-docstring} src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy._get_dist_matrix
@@ -98,7 +101,7 @@ Bases: {py:obj}`logic.src.models.common.autoregressive.policy.AutoregressivePoli
 
 ````
 
-````{py:method} _get_random_tours(td)
+````{py:method} _get_random_tours(td: tensordict.TensorDict) -> torch.Tensor
 :canonical: src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy._get_random_tours
 
 ```{autodoc2-docstring} src.models.core.hybrid_attention_model.hybrid_two_step_policy.HybridTwoStagePolicy._get_random_tours

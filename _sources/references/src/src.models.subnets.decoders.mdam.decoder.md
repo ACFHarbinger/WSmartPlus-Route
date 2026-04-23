@@ -59,7 +59,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} forward(td: tensordict.TensorDict, embeddings: typing.Union[torch.Tensor, typing.Tuple[torch.Tensor, ...]], env: logic.src.envs.base.base.RL4COEnvBase, strategy: str = 'greedy', **kwargs) -> typing.Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]
+````{py:method} forward(td: tensordict.TensorDict, embeddings: typing.Union[torch.Tensor, typing.Tuple[torch.Tensor, ...]], env: logic.src.envs.base.base.RL4COEnvBase, strategy: typing.Optional[str] = 'greedy', **kwargs: typing.Any) -> typing.Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]
 :canonical: src.models.subnets.decoders.mdam.decoder.MDAMDecoder.forward
 
 ```{autodoc2-docstring} src.models.subnets.decoders.mdam.decoder.MDAMDecoder.forward

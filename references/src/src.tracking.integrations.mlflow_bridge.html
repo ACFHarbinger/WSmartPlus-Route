@@ -467,7 +467,6 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typical-usage">Typical usage</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
@@ -496,32 +495,16 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.integrations.mlflow_bridge">
 <span id="src-tracking-integrations-mlflow-bridge"></span><h1><a class="reference internal" href="#module-src.tracking.integrations.mlflow_bridge" title="src.tracking.integrations.mlflow_bridge"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.integrations.mlflow_bridge</span></code></a><a class="headerlink" href="#module-src.tracking.integrations.mlflow_bridge" title="Link to this heading">#</a></h1>
-<section id="typical-usage">
-<h2>Typical usage<a class="headerlink" href="#typical-usage" title="Link to this heading">#</a></h2>
-<p>::</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>import mlflow
-import logic.src.tracking as wst
-from logic.src.tracking.integrations.mlflow_bridge import MLflowBridge
-
-tracker = wst.init(experiment_name=&quot;AM-VRPP-50&quot;)
-with tracker.start_run(&quot;AM-VRPP-50&quot;, run_type=&quot;training&quot;) as run:
-    bridge = MLflowBridge.attach(
-        run,
-        mlflow_tracking_uri=&quot;http://localhost:5000&quot;,
-        experiment_name=&quot;AM-VRPP-50&quot;,
-        run_name=run.run_id[:8],
-    )
-    run.log_params({&quot;lr&quot;: 1e-4})   # written to both WSTracker and MLflow
-    run.log_metric(&quot;val/reward&quot;, 0.95, step=1)
-</pre></div>
-</div>
-</section>
 <p>MLflow secondary sink for WSTracker runs.</p>
-<p>:class:<code class="docutils literal notranslate"><span class="pre">MLflowBridge</span></code> attaches to a :class:<code class="docutils literal notranslate"><span class="pre">~logic.src.tracking.core.run.Run</span></code>
-via :meth:<code class="docutils literal notranslate"><span class="pre">~logic.src.tracking.core.run.Run.add_sink</span></code> and mirrors every
-metric, parameter, and artifact write to an MLflow tracking server.  It acts
-as a transparent secondary backend — primary WSTracker writes are unaffected
+<p>This module provides the :class:<code class="docutils literal notranslate"><span class="pre">MLflowBridge</span></code> which attaches to a WSTracker run
+and mirrors every metric, parameter, and artifact write to an MLflow tracking
+server. It acts as a transparent secondary backend, ensuring fail-safe logging
 even if the MLflow server is unreachable.</p>
+<p>Attributes:
+MLflowBridge: A sink that forwards experiment data to MLflow.</p>
+<p>Example:
+&gt;&gt;&gt; bridge = MLflowBridge.attach(run, “http://localhost:5000”, “VRPP-HNA”)
+&gt;&gt;&gt; run.log_metric(“reward”, 0.9)  # Mirrored to MLflow automatically</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -541,59 +524,65 @@ even if the MLflow server is unreachable.</p>
 <dt class="sig sig-object py" id="src.tracking.integrations.mlflow_bridge.MLflowBridge">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.tracking.integrations.mlflow_bridge.</span></span><span class="sig-name descname"><span class="pre">MLflowBridge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mlflow_tracking_uri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.integrations.mlflow_bridge.MLflowBridge" title="Link to this definition">#</a></dt>
 <dd><p>Forwards :class:<code class="docutils literal notranslate"><span class="pre">Run</span></code> events to an MLflow tracking server.</p>
-<p>This object satisfies the sink protocol expected by
-:meth:<code class="docutils literal notranslate"><span class="pre">~logic.src.tracking.core.run.Run.add_sink</span></code>:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">log_metric(key,</span> <span class="pre">value,</span> <span class="pre">step)</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">log_params(params)</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">log_artifact(path)</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">finish(status)</span></code></p></li>
-</ul>
-<p>All methods catch and suppress every exception so a broken or
-unreachable MLflow server never disrupts the training loop.</p>
-<p>Args:
-mlflow_tracking_uri: MLflow tracking server URI or local path.
-Passed to <code class="docutils literal notranslate"><span class="pre">mlflow.set_tracking_uri()</span></code>.
-experiment_name: MLflow experiment name.
-run_name: Optional human-readable run name shown in the UI.
-tags: Extra key/value tags attached to the MLflow run.</p>
+<p>Satisfies the sink protocol expected by the WSTracker run system. It
+encapsulates all MLflow communication, providing exception safety and
+asynchronous-like behavior by suppressing errors from the remote server.</p>
+<p>Attributes:
+_mlflow: Cached reference to the mlflow module.
+_active_run: The active MLflow run handle.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the MLflow bridge and starts a remote run.</p>
+<p>Args:
+mlflow_tracking_uri: URI of the MLflow tracking server.
+experiment_name: Name of the experiment in MLflow.
+run_name: Optional display name for the run.
+tags: Dictionary of tags to attach to the MLflow run.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.integrations.mlflow_bridge.MLflowBridge.log_metric">
 <span class="sig-name descname"><span class="pre">log_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.integrations.mlflow_bridge.MLflowBridge.log_metric" title="Link to this definition">#</a></dt>
-<dd><p>Forward a scalar metric to MLflow.</p>
+<dd><p>Forwards a scalar metric to the MLflow tracking server.</p>
+<p>Args:
+key: Name of the metric.
+value: Scalar value.
+step: Training or evaluation step index.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.integrations.mlflow_bridge.MLflowBridge.log_params">
 <span class="sig-name descname"><span class="pre">log_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.integrations.mlflow_bridge.MLflowBridge.log_params" title="Link to this definition">#</a></dt>
-<dd><p>Forward parameters to MLflow (values coerced to str).</p>
+<dd><p>Forwards multiple parameters to the MLflow tracking server.</p>
+<p>Args:
+params: Mapping of parameter names to values (coerced to strings).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.integrations.mlflow_bridge.MLflowBridge.log_artifact">
 <span class="sig-name descname"><span class="pre">log_artifact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.integrations.mlflow_bridge.MLflowBridge.log_artifact" title="Link to this definition">#</a></dt>
-<dd><p>Forward a local file path as an MLflow artifact.</p>
+<dd><p>Forwards a local file artifact to the MLflow storage backend.</p>
+<p>Args:
+path: Absolute path to the file to log.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.integrations.mlflow_bridge.MLflowBridge.finish">
 <span class="sig-name descname"><span class="pre">finish</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">status</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'completed'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.integrations.mlflow_bridge.MLflowBridge.finish" title="Link to this definition">#</a></dt>
-<dd><p>End the MLflow run, mapping WSTracker status to MLflow status.</p>
+<dd><p>Terminates the MLflow run and updates the final status.</p>
+<p>Args:
+status: Final status of the WSTracker run.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.integrations.mlflow_bridge.MLflowBridge.attach">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">attach</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.tracking.core.run.Run</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mlflow_tracking_uri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.integrations.mlflow_bridge.MLflowBridge" title="src.tracking.integrations.mlflow_bridge.MLflowBridge"><span class="pre">src.tracking.integrations.mlflow_bridge.MLflowBridge</span></a></span></span><a class="headerlink" href="#src.tracking.integrations.mlflow_bridge.MLflowBridge.attach" title="Link to this definition">#</a></dt>
-<dd><p>Create a bridge and immediately attach it to <em>run</em>.</p>
+<dd><p>Factory method to create and attach a bridge to an existing run.</p>
 <p>Args:
-run: The active :class:<code class="docutils literal notranslate"><span class="pre">Run</span></code> to mirror.
-mlflow_tracking_uri: MLflow server URI or local path.
+run: The WSTracker run instance to mirror.
+mlflow_tracking_uri: URI of the MLflow tracking server.
 experiment_name: MLflow experiment name.
-run_name: Optional display name for the MLflow run.
-tags: Extra tags forwarded to the MLflow run.</p>
+run_name: Optional display name for the run.
+tags: Optional tags to attach to the MLflow run.</p>
 <p>Returns:
-The created :class:<code class="docutils literal notranslate"><span class="pre">MLflowBridge</span></code> instance (already attached).</p>
+MLflowBridge: The initialized and attached bridge instance.</p>
 </dd></dl>
 
 </dd></dl>
@@ -647,7 +636,6 @@ The created :class:<code class="docutils literal notranslate"><span class="pre">
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typical-usage">Typical usage</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">

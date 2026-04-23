@@ -494,11 +494,12 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.core.neuopt.decoder">
 <span id="src-models-core-neuopt-decoder"></span><h1><a class="reference internal" href="#module-src.models.core.neuopt.decoder" title="src.models.core.neuopt.decoder"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.core.neuopt.decoder</span></code></a><a class="headerlink" href="#module-src.models.core.neuopt.decoder" title="Link to this heading">#</a></h1>
-<p>decoder.py module.</p>
+<p>NeuOpt Decoder implementation.</p>
+<p>This module implements the <code class="docutils literal notranslate"><span class="pre">NeuOptDecoder</span></code>, which identifies high-quality
+local search moves by evaluating node-to-node transition probabilities
+conditioned on the global problem context.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
-<p>Example:
-&gt;&gt;&gt; import decoder</p>
+NeuOptDecoder: Pairwise action decoder for guided local search moves.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -506,7 +507,7 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.core.neuopt.decoder.NeuOptDecoder" title="src.models.core.neuopt.decoder.NeuOptDecoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NeuOptDecoder</span></code></a></p></td>
-<td><p>NeuOpt Decoder: Guided move selection.</p></td>
+<td><p>NeuOpt Decoder for selecting improvement moves.</p></td>
 </tr>
 </tbody>
 </table>
@@ -516,36 +517,61 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.core.neuopt.decoder.NeuOptDecoder">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.neuopt.decoder.</span></span><span class="sig-name descname"><span class="pre">NeuOptDecoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.neuopt.decoder.NeuOptDecoder" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.neuopt.decoder.</span></span><span class="sig-name descname"><span class="pre">NeuOptDecoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.neuopt.decoder.NeuOptDecoder" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.models.common.improvement.decoder.ImprovementDecoder</span></code></p>
-<p>NeuOpt Decoder: Guided move selection.</p>
+<p>NeuOpt Decoder for selecting improvement moves.</p>
+<p>Employs a pairwise attention mechanism to compute the similarity between
+all node pairs in a batch, selecting the directed edge or move that promises
+the highest objective improvement.</p>
+<p>Attributes:
+project_q (nn.Linear): Dimensionality projector for query features.
+project_k (nn.Linear): Dimensionality projector for key features.
+scale (float): attention normalization constant.
+seed (int): RNG seed for reproducible move sampling.
+generator (torch.Generator): Local random search generator.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize Class.</p>
+<p>Initializes the NeuOpt decoder.</p>
 <p>Args:
-embed_dim (int): Description of embed_dim.
-kwargs (Any): Description of kwargs.</p>
+embed_dim: width of the embedded node features.
+seed: random seed for sampling-based move selection.
+**kwargs: Extra parameters including ‘device’.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="src.models.core.neuopt.decoder.NeuOptDecoder.device">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">device</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.device</span></em><a class="headerlink" href="#src.models.core.neuopt.decoder.NeuOptDecoder.device" title="Link to this definition">#</a></dt>
-<dd><p>Get device of the model.</p>
+<dd><p>Determines the current execution device.</p>
+<p>Returns:
+torch.device: Current placement of solver parameters.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.neuopt.decoder.NeuOptDecoder.__getstate__">
-<span class="sig-name descname"><span class="pre">__getstate__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.neuopt.decoder.NeuOptDecoder.__getstate__" title="Link to this definition">#</a></dt>
-<dd><p>Prepare state for pickling (handle non-picklable Generator).</p>
+<span class="sig-name descname"><span class="pre">__getstate__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.neuopt.decoder.NeuOptDecoder.__getstate__" title="Link to this definition">#</a></dt>
+<dd><p>Serializes current state for persistence.</p>
+<p>Returns:
+Dict[str, Any]: Attribute map with generator state extracted.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.neuopt.decoder.NeuOptDecoder.__setstate__">
-<span class="sig-name descname"><span class="pre">__setstate__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.neuopt.decoder.NeuOptDecoder.__setstate__" title="Link to this definition">#</a></dt>
-<dd><p>Restore state after unpickling.</p>
+<span class="sig-name descname"><span class="pre">__setstate__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.core.neuopt.decoder.NeuOptDecoder.__setstate__" title="Link to this definition">#</a></dt>
+<dd><p>Restores policy parameters and RNG state.</p>
+<p>Args:
+state: Serialized dictionary of solver attributes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.neuopt.decoder.NeuOptDecoder.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.neuopt.decoder.NeuOptDecoder.forward" title="Link to this definition">#</a></dt>
-<dd><p>Predict move (idx1, idx2).</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.neuopt.decoder.NeuOptDecoder.forward" title="Link to this definition">#</a></dt>
+<dd><p>Predicts a promising neighborhood move (idx1, idx2).</p>
+<p>Args:
+td: problem state container with current solution.
+embeddings: encoded node features [B, N, D].
+env: active environment dynamics.
+**kwargs: execution flags including ‘strategy’.</p>
+<p>Returns:
+Tuple[torch.Tensor, torch.Tensor]:
+- log_p: log-likelihood of the selected move [B].
+- actions: indices of nodes to modify [B, 2].</p>
 </dd></dl>
 
 </dd></dl>

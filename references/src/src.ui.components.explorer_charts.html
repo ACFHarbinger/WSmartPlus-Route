@@ -496,8 +496,16 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.ui.components.explorer_charts">
 <span id="src-ui-components-explorer-charts"></span><h1><a class="reference internal" href="#module-src.ui.components.explorer_charts" title="src.ui.components.explorer_charts"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.components.explorer_charts</span></code></a><a class="headerlink" href="#module-src.ui.components.explorer_charts" title="Link to this heading">#</a></h1>
 <p>Plotly chart generators for the Data Explorer and analysis pages.</p>
-<p>Extracted from <code class="docutils literal notranslate"><span class="pre">charts.py</span></code> to keep module sizes under 400 LoC.
-Functions here are re-exported from <code class="docutils literal notranslate"><span class="pre">charts.py</span></code> for backward compatibility.</p>
+<p>This module provides specialized visualization components for interactive
+dataset profiling and multi-objective tradeoff analysis. It includes
+area charts, histograms, box plots, Pareto front visualizations, and
+correlation matrices.</p>
+<p>Example:
+fig = create_correlation_matrix_chart(df)</p>
+<p>Attributes:
+create_area_chart: Renders filled area plots with line overlays.
+calculate_pareto_front: Mathematical utility for dominates-testing.
+create_pareto_scatter_chart: Visualizes objective efficiency.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">

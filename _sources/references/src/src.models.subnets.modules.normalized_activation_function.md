@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.subnets.modules.normalized_activation_function.NormalizedActivationFunction.__init__
 ```
 
-````{py:method} init_parameters()
+````{py:method} init_parameters() -> None
 :canonical: src.models.subnets.modules.normalized_activation_function.NormalizedActivationFunction.init_parameters
 
 ```{autodoc2-docstring} src.models.subnets.modules.normalized_activation_function.NormalizedActivationFunction.init_parameters
@@ -45,7 +45,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} forward(input, mask=None)
+````{py:method} forward(input: torch.Tensor, mask: typing.Optional[torch.Tensor] = None) -> torch.Tensor
 :canonical: src.models.subnets.modules.normalized_activation_function.NormalizedActivationFunction.forward
 
 ```{autodoc2-docstring} src.models.subnets.modules.normalized_activation_function.NormalizedActivationFunction.forward

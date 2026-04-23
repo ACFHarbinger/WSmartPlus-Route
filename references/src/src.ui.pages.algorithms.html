@@ -492,8 +492,15 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.ui.pages.algorithms">
 <span id="src-ui-pages-algorithms"></span><h1><a class="reference internal" href="#module-src.ui.pages.algorithms" title="src.ui.pages.algorithms"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.pages.algorithms</span></code></a><a class="headerlink" href="#module-src.ui.pages.algorithms" title="Link to this heading">#</a></h1>
 <p>Algorithms Registry Page.</p>
-<p>Displays all registered policies, models, and components with advanced filtering
-by tags, paradigms, and pipeline phases.</p>
+<p>This module provides a unified interface for exploring the global registry
+of optimization solvers, neural models, and algorithmic operators. It
+supports discovery via semantic tags, technical metadata auditing, and
+pipeline phase classification.</p>
+<p>Example:
+render_algorithms()</p>
+<p>Attributes:
+render_algorithms: Main entry point for the registry dashboard.
+render_algo_card: Reusable UI component for single algorithm display.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -504,13 +511,13 @@ by tags, paradigms, and pipeline phases.</p>
 <td><p>Returns a readable name for a tag including its category.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.algorithms.get_tag_color" title="src.ui.pages.algorithms.get_tag_color"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_tag_color</span></code></a></p></td>
-<td><p>Returns a CSS color based on the tag type.</p></td>
+<td><p>Returns a CSS hex color based on the semantic tag category.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.algorithms.render_algo_card" title="src.ui.pages.algorithms.render_algo_card"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render_algo_card</span></code></a></p></td>
 <td><p>Renders a single algorithm as a card-like expander.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.algorithms.render_algorithms" title="src.ui.pages.algorithms.render_algorithms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render_algorithms</span></code></a></p></td>
-<td><p>Renders the Algorithms registry page in the Streamlit UI.</p></td>
+<td><p>Orchestrates and renders the core Algorithms Registry dashboard.</p></td>
 </tr>
 </tbody>
 </table>
@@ -522,24 +529,36 @@ by tags, paradigms, and pipeline phases.</p>
 <dt class="sig sig-object py" id="src.ui.pages.algorithms.get_tag_display_name">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.algorithms.</span></span><span class="sig-name descname"><span class="pre">get_tag_display_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.enums.registry.AnyTag</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.ui.pages.algorithms.get_tag_display_name" title="Link to this definition">#</a></dt>
 <dd><p>Returns a readable name for a tag including its category.</p>
+<p>Args:
+tag: An instance of any registry tag (Policy, Model, etc.).</p>
+<p>Returns:
+str: Formatted display name (e.g., ‘Policy: CONSTRUCTION’).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.algorithms.get_tag_color">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.algorithms.</span></span><span class="sig-name descname"><span class="pre">get_tag_color</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.enums.registry.AnyTag</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.ui.pages.algorithms.get_tag_color" title="Link to this definition">#</a></dt>
-<dd><p>Returns a CSS color based on the tag type.</p>
+<dd><p>Returns a CSS hex color based on the semantic tag category.</p>
+<p>Args:
+tag: An instance of any registry tag.</p>
+<p>Returns:
+str: Hex color code for UI rendering.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.algorithms.render_algo_card">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.algorithms.</span></span><span class="sig-name descname"><span class="pre">render_algo_card</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.algorithms.render_algo_card" title="Link to this definition">#</a></dt>
 <dd><p>Renders a single algorithm as a card-like expander.</p>
+<p>Args:
+item: Registry record containing ‘name’, ‘doc’, ‘tags’, and ‘obj’.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.algorithms.render_algorithms">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.algorithms.</span></span><span class="sig-name descname"><span class="pre">render_algorithms</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.algorithms.render_algorithms" title="Link to this definition">#</a></dt>
-<dd><p>Renders the Algorithms registry page in the Streamlit UI.</p>
+<dd><p>Orchestrates and renders the core Algorithms Registry dashboard.</p>
+<p>Handles registry retrieval, multi-tag filtering logic, and categorized
+tab layout.</p>
 </dd></dl>
 
 </section>

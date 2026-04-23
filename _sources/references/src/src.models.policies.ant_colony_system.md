@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} VectorizedACOPolicy(env_name: str, n_ants: int = 20, n_iterations: int = 50, alpha: float = 1.0, beta: float = 2.0, decay: float = 0.1, elitism: int = 1, q0: float = 0.9, min_pheromone: float = 0.01, seed: int = 42, device: str = 'cpu', **kwargs)
+`````{py:class} VectorizedACOPolicy(env_name: str, n_ants: int = 20, n_iterations: int = 50, alpha: float = 1.0, beta: float = 2.0, decay: float = 0.1, elitism: int = 1, q0: float = 0.9, min_pheromone: float = 0.01, seed: int = 42, device: str = 'cpu', **kwargs: typing.Any)
 :canonical: src.models.policies.ant_colony_system.VectorizedACOPolicy
 
 Bases: {py:obj}`logic.src.models.common.autoregressive.policy.AutoregressivePolicy`, {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
@@ -61,7 +61,7 @@ Bases: {py:obj}`logic.src.models.common.autoregressive.policy.AutoregressivePoli
 
 ````
 
-````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.base.RL4COEnvBase, strategy: str = 'sampling', num_starts: int = 1, **kwargs) -> typing.Dict[str, typing.Any]
+````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.base.RL4COEnvBase] = None, strategy: str = 'sampling', num_starts: int = 1, **kwargs: typing.Any) -> typing.Dict[str, typing.Any]
 :canonical: src.models.policies.ant_colony_system.VectorizedACOPolicy.forward
 
 ```{autodoc2-docstring} src.models.policies.ant_colony_system.VectorizedACOPolicy.forward

@@ -497,11 +497,11 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.policies.ant_colony_system">
 <span id="src-models-policies-ant-colony-system"></span><h1><a class="reference internal" href="#module-src.models.policies.ant_colony_system" title="src.models.policies.ant_colony_system"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies.ant_colony_system</span></code></a><a class="headerlink" href="#module-src.models.policies.ant_colony_system" title="Link to this heading">#</a></h1>
-<p>ant_colony_system.py module.</p>
-<p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
-<p>Example:
-&gt;&gt;&gt; import ant_colony_system</p>
+<p>Vectorized Ant Colony Optimization (ACO) Policy.</p>
+<p>This module implements a high-performance, GPU-accelerated Ant Colony
+System (ACS). It processes multiple problem instances and multiple ants per
+instance in parallel using tensor operations, drastically reducing the
+computational overhead of pheromone updates and local updates.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -509,7 +509,7 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.ant_colony_system.VectorizedACOPolicy" title="src.models.policies.ant_colony_system.VectorizedACOPolicy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VectorizedACOPolicy</span></code></a></p></td>
-<td><p>Vectorized Ant Colony Optimization (ACO) Policy.</p></td>
+<td><p>Vectorized ACS Policy for Combinatorial Optimization.</p></td>
 </tr>
 </tbody>
 </table>
@@ -519,66 +519,116 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.policies.ant_colony_system.VectorizedACOPolicy">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.policies.ant_colony_system.</span></span><span class="sig-name descname"><span class="pre">VectorizedACOPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_ants</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decay</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elitism</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_pheromone</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cpu'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.ant_colony_system.VectorizedACOPolicy" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.policies.ant_colony_system.</span></span><span class="sig-name descname"><span class="pre">VectorizedACOPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_ants</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decay</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elitism</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_pheromone</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cpu'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.ant_colony_system.VectorizedACOPolicy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.models.common.autoregressive.policy.AutoregressivePolicy</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.tracking.viz_mixin.PolicyVizMixin</span></code></p>
-<p>Vectorized Ant Colony Optimization (ACO) Policy.</p>
-<p>Implements a tensor-based ACO that processes multiple batch instances
-and multiple ants per instance in parallel on the GPU.</p>
+<p>Vectorized ACS Policy for Combinatorial Optimization.</p>
+<p>Maintains a global pheromone matrix (tau) per batch and utilizes heuristic
+information (eta) to guide ants through a stochastic decision process.
+Supports ACS-specific elitism and weight-based pheromone updates.</p>
+<p>Attributes:
+n_ants: Number of parallel agents per batch instance.
+n_iterations: Number of pheromone update cycles.
+alpha: Pheromone influence coefficient.
+beta: Heuristic/distance influence coefficient.
+decay: Pheromone evaporation rate.
+elitism: Number of top ants contributing to global updates.
+q0: ACS exploitation probability (vs exploration).
+min_pheromone: Floor value for pheromone trails to prevent stagnation.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize Class.</p>
+<p>Initialize the ACO policy.</p>
 <p>Args:
-env_name (str): Description of env_name.
-n_ants (int): Description of n_ants.
-n_iterations (int): Description of n_iterations.
-alpha (float): Description of alpha.
-beta (float): Description of beta.
-decay (float): Description of decay.
-elitism (int): Description of elitism.
-q0 (float): Description of q0.
-min_pheromone (float): Description of min_pheromone.
-seed (int): Description of seed.
-device (str): Description of device.
-kwargs (Any): Description of kwargs.</p>
+env_name: Identifier for the problem environment.
+n_ants: Number of concurrent ants per instance.
+n_iterations: Convergence loop limit.
+alpha: Importance of pheromone trails.
+beta: Importance of visibility (inverse distance).
+decay: Rate of trail evaporation.
+elitism: Count of best ants for trail reinforcement.
+q0: Parameter controlling exploration/exploitation tradeoff.
+min_pheromone: Lower bound on trail intensity.
+seed: RNG constant.
+device: Target device.
+**kwargs: Additional hyperparameters.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.policies.ant_colony_system.VectorizedACOPolicy.__getstate__">
 <span class="sig-name descname"><span class="pre">__getstate__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.ant_colony_system.VectorizedACOPolicy.__getstate__" title="Link to this definition">#</a></dt>
-<dd><p>Return state for pickling.</p>
+<dd><p>Prepare state for serialization, extracting generator state.</p>
+<p>Returns:
+Dict[str, Any]: Attribute map safe for pickling.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.policies.ant_colony_system.VectorizedACOPolicy.__setstate__">
 <span class="sig-name descname"><span class="pre">__setstate__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.policies.ant_colony_system.VectorizedACOPolicy.__setstate__" title="Link to this definition">#</a></dt>
-<dd><p>Restore state after pickling.</p>
+<dd><p>Restore state and initialize RNG from serialized data.</p>
+<p>Args:
+state: Serialized dictionary of attributes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.policies.ant_colony_system.VectorizedACOPolicy._get_heuristic">
 <span class="sig-name descname"><span class="pre">_get_heuristic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.ant_colony_system.VectorizedACOPolicy._get_heuristic" title="Link to this definition">#</a></dt>
-<dd><p>Compute heuristic information (eta = 1 / distance).</p>
+<dd><p>Compute inverse distance heuristic.</p>
+<p>Args:
+dist_matrix: Pairwise node distances of shape [B, N, N].</p>
+<p>Returns:
+torch.Tensor: Heuristic visibility information (eta) of shape [B, N, N].</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.policies.ant_colony_system.VectorizedACOPolicy.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sampling'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.ant_colony_system.VectorizedACOPolicy.forward" title="Link to this definition">#</a></dt>
-<dd><p>Run vectorized ACO.</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sampling'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.ant_colony_system.VectorizedACOPolicy.forward" title="Link to this definition">#</a></dt>
+<dd><p>Execute the parallel ACO search.</p>
+<p>Constructs solutions for all ants, updates pheromones based on iteration
+quality, and tracks the global best solution across the batch.</p>
+<p>Args:
+td: Problem instance data.
+env: Target environment for constraints.
+strategy: Selection strategy (not used for meta-heuristics).
+num_starts: Number of independent starts (ACO handles this via ants).
+**kwargs: Runtime parameters.</p>
+<p>Returns:
+Dict[str, Any]: Best actions, rewards, and associated costs.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.policies.ant_colony_system.VectorizedACOPolicy._construct_solutions">
 <span class="sig-name descname"><span class="pre">_construct_solutions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.ant_colony_system.VectorizedACOPolicy._construct_solutions" title="Link to this definition">#</a></dt>
-<dd><p>Construct routes for all ants in parallel.</p>
+<dd><p>Parallel path construction for all ants.</p>
+<p>Utilizes multinomial sampling guided by (tau^alpha * eta^beta) with masking
+for previously visited nodes.</p>
+<p>Args:
+dist_matrix: Distance tensor of shape [B, N, N].
+tau: Pheromone matrix of shape [B, N, N].
+eta: Heuristic matrix of shape [B, N, N].
+env: Environment for masking/validations.</p>
+<p>Returns:
+Tuple[torch.Tensor, torch.Tensor]: A tuple containing:
+- final_ant_tours: Node sequences of shape [B, K, N].
+- log_probs_sum: Tour probabilities of shape [B, K].</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.policies.ant_colony_system.VectorizedACOPolicy._evaluate_batch">
 <span class="sig-name descname"><span class="pre">_evaluate_batch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ant_tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.ant_colony_system.VectorizedACOPolicy._evaluate_batch" title="Link to this definition">#</a></dt>
-<dd><p>Calculate lengths of all ant tours.</p>
+<dd><p>Compute total lengths for all constructed ant tours.</p>
+<p>Args:
+ant_tours: Node sequences of shape [B, K, N].
+dist_matrix: Distances of shape [B, N, N].</p>
+<p>Returns:
+torch.Tensor: Absolute tour lengths of shape [B, K].</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.policies.ant_colony_system.VectorizedACOPolicy._update_pheromones">
 <span class="sig-name descname"><span class="pre">_update_pheromones</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tau</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ant_tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">costs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.ant_colony_system.VectorizedACOPolicy._update_pheromones" title="Link to this definition">#</a></dt>
-<dd><p>Update pheromone matrix.</p>
+<dd><p>Perform pheromone evaporation and global update from the best ants.</p>
+<p>Args:
+tau: Current pheromone matrix of shape [B, N, N].
+ant_tours: Iteration tours of shape [B, K, N].
+costs: Iteration costs of shape [B, K].</p>
+<p>Returns:
+torch.Tensor: Evaporated and updated pheromone matrix.</p>
 </dd></dl>
 
 </dd></dl>

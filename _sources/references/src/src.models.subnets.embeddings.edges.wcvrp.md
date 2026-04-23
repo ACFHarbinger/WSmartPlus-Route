@@ -23,7 +23,7 @@
 
 ### API
 
-````{py:class} WCVRPEdgeEmbedding(embed_dim: int, linear_bias: bool = True, sparsify: bool = True, k_sparse: int | collections.abc.Callable[[int], int] | None = None)
+````{py:class} WCVRPEdgeEmbedding(embed_dim: int, linear_bias: bool = True, sparsify: bool = True, k_sparse: typing.Optional[typing.Union[int, collections.abc.Callable[[int], int]]] = None)
 :canonical: src.models.subnets.embeddings.edges.wcvrp.WCVRPEdgeEmbedding
 
 Bases: {py:obj}`src.models.subnets.embeddings.edges.cvrpp.CVRPPEdgeEmbedding`

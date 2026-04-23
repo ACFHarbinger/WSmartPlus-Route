@@ -489,7 +489,29 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.logging.modules">
 <span id="src-tracking-logging-modules"></span><h1><a class="reference internal" href="#module-src.tracking.logging.modules" title="src.tracking.logging.modules"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging.modules</span></code></a><a class="headerlink" href="#module-src.tracking.logging.modules" title="Link to this heading">#</a></h1>
-<p>Logging module for simulation and training.</p>
+<p>Simulation and training logging modules.</p>
+<p>This package provides granular logging components for different aspects of
+the system, including metric tracking, disk storage, GUI integration, and
+statistical analysis of experiment results.</p>
+<p>Attributes:
+log_values: Records scalar values and tensors to the log.
+log_epoch: Summarizes epoch-level metrics.
+get_loss_stats: Computes training progress statistics.
+setup_system_logger: Initializes file and stream handlers.
+sort_log: Reorders log entries by timestamp or epoch.
+log_to_json: Serializer for experiment logs.
+log_to_json2: Alternative serializer for nested data.
+log_to_pickle: Binary serializer for efficient storage.
+update_log: Adds new entries to an existing log file.
+load_log_dict: Deserializes logs from disk.
+output_stats: Prints experiment results summary to console.
+runs_per_policy: Groups results by solver/policy name.
+final_simulation_summary: Generates an end-of-run simulation report.
+send_daily_output_to_gui: Pushes simulation state to the desktop app.
+send_final_output_to_gui: Pushes final results to the desktop app.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.tracking.logging.modules import setup_system_logger
+&gt;&gt;&gt; setup_system_logger(“experiment.log”)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

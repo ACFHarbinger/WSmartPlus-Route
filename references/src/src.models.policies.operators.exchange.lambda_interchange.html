@@ -488,10 +488,10 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.policies.operators.exchange.lambda_interchange">
 <span id="src-models-policies-operators-exchange-lambda-interchange"></span><h1><a class="reference internal" href="#module-src.models.policies.operators.exchange.lambda_interchange" title="src.models.policies.operators.exchange.lambda_interchange"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies.operators.exchange.lambda_interchange</span></code></a><a class="headerlink" href="#module-src.models.policies.operators.exchange.lambda_interchange" title="Link to this heading">#</a></h1>
-<p>Lambda-interchange operator (vectorized).</p>
-<p>Lambda-interchange is a systematic exploration of the cross-exchange neighborhood
-with segment lengths ranging from 0 to λ. This is a powerful operator that
-generalizes many simpler moves.</p>
+<p>Lambda-interchange operator.</p>
+<p>This module provides a GPU-accelerated implementation of the Lambda-interchange
+operator, a generalized version of cross-exchange that systematically explores
+segment swaps of lengths ranging from 0 to λ_max.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -499,7 +499,7 @@ generalizes many simpler moves.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.operators.exchange.lambda_interchange.vectorized_lambda_interchange" title="src.models.policies.operators.exchange.lambda_interchange.vectorized_lambda_interchange"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vectorized_lambda_interchange</span></code></a></p></td>
-<td><p>Vectorized λ-interchange local search across a batch of tours using PyTorch.</p></td>
+<td><p>Vectorized λ-interchange local search across a batch of tours.</p></td>
 </tr>
 </tbody>
 </table>
@@ -510,50 +510,25 @@ generalizes many simpler moves.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.exchange.lambda_interchange.vectorized_lambda_interchange">
 <span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.exchange.lambda_interchange.</span></span><span class="sig-name descname"><span class="pre">vectorized_lambda_interchange</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambda_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Generator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.exchange.lambda_interchange.vectorized_lambda_interchange" title="Link to this definition">#</a></dt>
-<dd><p>Vectorized λ-interchange local search across a batch of tours using PyTorch.</p>
-<p>λ-interchange systematically explores the cross-exchange neighborhood by trying
-all combinations of segment lengths from 0 to λ_max. This creates a rich
-neighborhood that includes:</p>
+<dd><p>Vectorized λ-interchange local search across a batch of tours.</p>
+<p>Systematically explores the cross-exchange neighborhood for all segment
+length combinations (λ_a, λ_b) where 0 &lt;= λ_i &lt;= λ_max. This exhaustive
+sweep captures moves such as:</p>
 <ul class="simple">
-<li><p>λ=0: One-sided relocations (equivalent to relocate operator)</p></li>
-<li><p>λ=1: Single node swaps and relocations</p></li>
-<li><p>λ=2: Two-node segment exchanges</p></li>
-<li><p>λ=k: k-node segment exchanges</p></li>
+<li><p>(0, 1): Node relocation</p></li>
+<li><p>(1, 1): Single node swap</p></li>
+<li><p>(2, 2): Two-node segment exchange</p></li>
 </ul>
-<p>The operator iteratively applies cross-exchange with all segment length combinations
-until no improvement is found. This is more thorough than a single cross-exchange
-call but also more computationally expensive.</p>
-<p>Algorithm:</p>
-<ol class="arabic simple">
-<li><p>For λ_a in [0, λ_max]:
-For λ_b in [0, λ_max]:
-Skip if both are 0 (no-op)
-Apply cross-exchange with segment lengths (λ_a, λ_b)
-If improvement found, restart from λ=0</p></li>
-<li><p>Repeat until no improvement found in full sweep</p></li>
-</ol>
 <p>Args:
-tours: Batch of tours [B, N] where B=batch size, N=tour length
-distance_matrix: Pairwise distances [B, N+1, N+1] or [N+1, N+1] (shared)
-capacities: Vehicle capacities [B] or scalar (optional, for capacity checks)
-wastes: Node wastes [B, N+1] or [N+1] (optional, for capacity checks)
-lambda_max: Maximum segment length to consider (default: 2)
-Higher values = larger neighborhood but slower
-max_iterations: Maximum number of full neighborhood sweeps (default: 50)
-generator (Optional[torch.Generator]): PyTorch generator for random number generation.</p>
+tours: Batch of node sequences of shape [B, N].
+distance_matrix: Edge cost tensor of shape [B, N+1, N+1] or [N+1, N+1].
+capacities: Vehicle capacity per instance of shape [B] or scalar.
+wastes: Node demand metadata of shape [B, N+1] or [N+1].
+lambda_max: Maximum segment length to consider (typically 1-3).
+max_iterations: Limit for neighborhood sweeps (iteration count).
+generator: Torch device-side RNG (for future randomness).</p>
 <p>Returns:
-torch.Tensor: Improved tours [B, N] with same shape as input</p>
-<p>Note:
-- Tours should include depot as node 0
-- For single-route problems, this operator has no effect
-- This is a wrapper around vectorized_cross_exchange
-- Complexity: O(λ_max² × N⁴) per sweep
-- More expensive than single cross-exchange but finds better solutions
-- Recommended λ_max values: 1-3 (2 is good balance)</p>
-<p>Example:
-&gt;&gt;&gt; tours = torch.tensor([[0, 3, 1, 0, 2, 4, 0]])  # Two routes
-&gt;&gt;&gt; dist = torch.rand(5, 5)  # Distance matrix
-&gt;&gt;&gt; improved = vectorized_lambda_interchange(tours, dist, lambda_max=2)</p>
+torch.Tensor: Optimized tours of shape [B, N].</p>
 </dd></dl>
 
 </section>

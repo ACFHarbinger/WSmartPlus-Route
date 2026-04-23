@@ -38,14 +38,14 @@
 ```
 ````
 
-````{py:function} _compute_greedy_insertion_costs(tours, node, dist)
+````{py:function} _compute_greedy_insertion_costs(tours: torch.Tensor, node: torch.Tensor, dist: torch.Tensor) -> torch.Tensor
 :canonical: src.models.policies.operators.repair.greedy_insertion._compute_greedy_insertion_costs
 
 ```{autodoc2-docstring} src.models.policies.operators.repair.greedy_insertion._compute_greedy_insertion_costs
 ```
 ````
 
-````{py:function} _apply_insertion(tours, node, pos)
+````{py:function} _apply_insertion(tours: torch.Tensor, node: torch.Tensor, pos: torch.Tensor) -> torch.Tensor
 :canonical: src.models.policies.operators.repair.greedy_insertion._apply_insertion
 
 ```{autodoc2-docstring} src.models.policies.operators.repair.greedy_insertion._apply_insertion

@@ -492,11 +492,12 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.core.n2s.encoder">
 <span id="src-models-core-n2s-encoder"></span><h1><a class="reference internal" href="#module-src.models.core.n2s.encoder" title="src.models.core.n2s.encoder"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.core.n2s.encoder</span></code></a><a class="headerlink" href="#module-src.models.core.n2s.encoder" title="Link to this heading">#</a></h1>
-<p>encoder.py module.</p>
+<p>N2S Encoder implementation.</p>
+<p>This module provides the <code class="docutils literal notranslate"><span class="pre">N2SEncoder</span></code>, which implements a lightweight
+Transformer with neighborhood masking. It attends only to the K-nearest
+neighbors of each node to maintain efficiency and focus on local moves.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
-<p>Example:
-&gt;&gt;&gt; import encoder</p>
+N2SEncoder: Neural encoder for neighborhood-constrained attention.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -504,7 +505,7 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.core.n2s.encoder.N2SEncoder" title="src.models.core.n2s.encoder.N2SEncoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">N2SEncoder</span></code></a></p></td>
-<td><p>N2S Encoder: A lightweight transformer with neighborhood masking.</p></td>
+<td><p>N2S Encoder with sparse neighborhood attention.</p></td>
 </tr>
 </tbody>
 </table>
@@ -514,28 +515,45 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.core.n2s.encoder.N2SEncoder">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.n2s.encoder.</span></span><span class="sig-name descname"><span class="pre">N2SEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_neighbors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.n2s.encoder.N2SEncoder" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.n2s.encoder.</span></span><span class="sig-name descname"><span class="pre">N2SEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_neighbors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.n2s.encoder.N2SEncoder" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.models.common.improvement.encoder.ImprovementEncoder</span></code></p>
-<p>N2S Encoder: A lightweight transformer with neighborhood masking.</p>
-<p>Attends only to K-nearest neighbors to improve efficiency and focus
-on local search moves.</p>
+<p>N2S Encoder with sparse neighborhood attention.</p>
+<p>Optimizes the representation of problem nodes by restricting the attention
+mechanism to a local k-neighbor window, facilitating more efficient
+iterative enhancement.</p>
+<p>Attributes:
+k_neighbors (int): number of spatially proximal nodes to attend to.
+num_heads (int): count of attention heads.
+mha (MultiHeadAttention): masked attention subnet.
+norm (Normalization): layer normalization module.
+ff (nn.Sequential): feed-forward expansion network.
+init_proj (nn.Linear): Initial spatial coordinate projector.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize N2SEncoder.</p>
+<p>Initializes the N2S encoder.</p>
 <p>Args:
-embed_dim: Embedding dimension.
-num_heads: Number of attention heads.
-k_neighbors: Number of nearest neighbors to attend to.
-**kwargs: Unused arguments.</p>
+embed_dim: dimensionality of latent features.
+num_heads: count of attention heads.
+k_neighbors: size of the local attention window.
+**kwargs: Unused parameters.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.n2s.encoder.N2SEncoder._get_neighborhood_mask">
 <span class="sig-name descname"><span class="pre">_get_neighborhood_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.core.n2s.encoder.N2SEncoder._get_neighborhood_mask" title="Link to this definition">#</a></dt>
-<dd><p>Compute mask for K-nearest neighbors based on spatial distance.</p>
+<dd><p>Computes a binary mask based on spatial proximity.</p>
+<p>Args:
+td: Environment state containing node coordinates (‘locs’ and ‘depot’).</p>
+<p>Returns:
+torch.Tensor: Boolean mask where True indicates an excluded neighbor [B, N, N].</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.n2s.encoder.N2SEncoder.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.core.n2s.encoder.N2SEncoder.forward" title="Link to this definition">#</a></dt>
-<dd><p>Encode nodes with neighborhood-constrained attention.</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.core.n2s.encoder.N2SEncoder.forward" title="Link to this definition">#</a></dt>
+<dd><p>Encodes node features using neighborhood-constrained attention.</p>
+<p>Args:
+td: state container with instance data.
+**kwargs: Unused.</p>
+<p>Returns:
+torch.Tensor: Refined node embeddings [B, N, embed_dim].</p>
 </dd></dl>
 
 </dd></dl>

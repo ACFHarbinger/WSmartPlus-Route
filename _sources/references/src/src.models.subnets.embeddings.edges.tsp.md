@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} TSPEdgeEmbedding(embed_dim: int, linear_bias: bool = True, sparsify: bool = True, k_sparse: int | collections.abc.Callable[[int], int] | None = None)
+`````{py:class} TSPEdgeEmbedding(embed_dim: int, linear_bias: bool = True, sparsify: bool = True, k_sparse: typing.Optional[typing.Union[int, collections.abc.Callable[[int], int]]] = None)
 :canonical: src.models.subnets.embeddings.edges.tsp.TSPEdgeEmbedding
 
 Bases: {py:obj}`src.models.subnets.embeddings.edges.base.EdgeEmbedding`
@@ -39,6 +39,7 @@ Bases: {py:obj}`src.models.subnets.embeddings.edges.base.EdgeEmbedding`
 
 ````{py:attribute} node_dim
 :canonical: src.models.subnets.embeddings.edges.tsp.TSPEdgeEmbedding.node_dim
+:type: int
 :value: >
    1
 

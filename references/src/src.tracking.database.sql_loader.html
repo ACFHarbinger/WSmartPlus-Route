@@ -467,7 +467,6 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#convention">Convention</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
@@ -493,21 +492,18 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.database.sql_loader">
 <span id="src-tracking-database-sql-loader"></span><h1><a class="reference internal" href="#module-src.tracking.database.sql_loader" title="src.tracking.database.sql_loader"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.database.sql_loader</span></code></a><a class="headerlink" href="#module-src.tracking.database.sql_loader" title="Link to this heading">#</a></h1>
-<section id="convention">
-<h2>Convention<a class="headerlink" href="#convention" title="Link to this heading">#</a></h2>
-<p>Multi-query SQL files use <code class="docutils literal notranslate"><span class="pre">--</span> <span class="pre">[section_name]</span></code> markers to separate named
-sections::</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>-- [experiments]
-SELECT name FROM experiments ORDER BY created_at DESC;
-
--- [runs_by_status]
-SELECT status, COUNT(*) AS count FROM runs GROUP BY status;
-</pre></div>
-</div>
-<p>Single-query files (e.g. <code class="docutils literal notranslate"><span class="pre">prune_candidates.sql</span></code>) contain no markers and
-are returned as-is by :func:<code class="docutils literal notranslate"><span class="pre">load_sql</span></code>.</p>
-</section>
-<p>Utilities for loading SQL files from the sql/ subdirectory.</p>
+<p>SQL loader utility for the tracking database CLI.</p>
+<p>This module provides the mechanism for loading raw SQL strings from external
+files located in the <code class="docutils literal notranslate"><span class="pre">sql/</span></code> sub-package. It supports loading entire file
+contents or extracting specifically delimited sections from high-level SQL
+templates.</p>
+<p>Attributes:
+_SQL_DIR: The directory path where SQL files are stored.
+_SECTION_RE: Regex pattern to identify section markers like – [name].</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.tracking.database.sql_loader import load_sections
+&gt;&gt;&gt; queries = load_sections(“stats.sql”)
+&gt;&gt;&gt; print(queries[“table_sizes”])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -515,10 +511,10 @@ are returned as-is by :func:<code class="docutils literal notranslate"><span cla
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.database.sql_loader.load_sql" title="src.tracking.database.sql_loader.load_sql"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_sql</span></code></a></p></td>
-<td><p>Return the raw text of <em>filename</em> from the sql/ directory.</p></td>
+<td><p>Returns the raw text of a SQL file from the sql/ directory.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.database.sql_loader.load_sections" title="src.tracking.database.sql_loader.load_sections"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_sections</span></code></a></p></td>
-<td><p>Parse a SQL file with <code class="docutils literal notranslate"><span class="pre">--</span> <span class="pre">[section_name]</span></code> markers into an ordered dict.</p></td>
+<td><p>Parses a SQL file with – [section_name] markers into a dictionary.</p></td>
 </tr>
 </tbody>
 </table>
@@ -555,22 +551,23 @@ are returned as-is by :func:<code class="docutils literal notranslate"><span cla
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.database.sql_loader.load_sql">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.database.sql_loader.</span></span><span class="sig-name descname"><span class="pre">load_sql</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.tracking.database.sql_loader.load_sql" title="Link to this definition">#</a></dt>
-<dd><p>Return the raw text of <em>filename</em> from the sql/ directory.</p>
+<dd><p>Returns the raw text of a SQL file from the sql/ directory.</p>
+<p>Args:
+filename: Name of the file within the sql/ directory (e.g., ‘inspect.sql’).</p>
+<p>Returns:
+str: The raw SQL content.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.database.sql_loader.load_sections">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.database.sql_loader.</span></span><span class="sig-name descname"><span class="pre">load_sections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.database.sql_loader.load_sections" title="Link to this definition">#</a></dt>
-<dd><p>Parse a SQL file with <code class="docutils literal notranslate"><span class="pre">--</span> <span class="pre">[section_name]</span></code> markers into an ordered dict.</p>
-<p>Sections appear in file order (Python 3.7+ dict ordering guarantee).
-Each body is stripped of leading/trailing whitespace.  Empty bodies are
-omitted.</p>
-<p class="rubric" id="id1">Parameters</p>
-<p>filename:
-Filename relative to the <code class="docutils literal notranslate"><span class="pre">sql/</span></code> subdirectory, e.g. <code class="docutils literal notranslate"><span class="pre">inspect.sql</span></code>.</p>
-<p class="rubric" id="id2">Returns</p>
-<p>Dict[str, str]
-Mapping of section name → SQL text (with trailing <code class="docutils literal notranslate"><span class="pre">;</span></code> preserved).</p>
+<dd><p>Parses a SQL file with – [section_name] markers into a dictionary.</p>
+<p>Sections appear in file order. Each body is stripped of leading/trailing
+whitespace. Empty bodies are omitted.</p>
+<p>Args:
+filename: Filename relative to the sql/ subdirectory.</p>
+<p>Returns:
+Dict[str, str]: Mapping of section name to SQL text.</p>
 </dd></dl>
 
 </section>
@@ -622,7 +619,6 @@ Mapping of section name → SQL text (with trailing <code class="docutils litera
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#convention">Convention</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>

@@ -37,7 +37,7 @@ Bases: {py:obj}`src.models.subnets.embeddings.context.base.ContextEmbedder`
 ```{autodoc2-docstring} src.models.subnets.embeddings.context.generic.GenericContextEmbedder.__init__
 ```
 
-````{py:method} init_node_embeddings(nodes: dict[str, typing.Any]) -> torch.Tensor
+````{py:method} init_node_embeddings(nodes: typing.Dict[str, typing.Any]) -> torch.Tensor
 :canonical: src.models.subnets.embeddings.context.generic.GenericContextEmbedder.init_node_embeddings
 
 ```{autodoc2-docstring} src.models.subnets.embeddings.context.generic.GenericContextEmbedder.init_node_embeddings

@@ -494,6 +494,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.encoders.common.multi_head_attention_layer">
 <span id="src-models-subnets-encoders-common-multi-head-attention-layer"></span><h1><a class="reference internal" href="#module-src.models.subnets.encoders.common.multi_head_attention_layer" title="src.models.subnets.encoders.common.multi_head_attention_layer"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.encoders.common.multi_head_attention_layer</span></code></a><a class="headerlink" href="#module-src.models.subnets.encoders.common.multi_head_attention_layer" title="Link to this heading">#</a></h1>
 <p>Base Multi-Head Attention Layer for Encoder Architectures.</p>
+<p>Attributes:
+MultiHeadAttentionLayerBase: Base Multi-Head Attention Layer for Encoder Architectures.</p>
+<p>Example:
+&gt;&gt;&gt; import torch
+&gt;&gt;&gt; from logic.src.models.subnets.encoders.common.multi_head_attention_layer import MultiHeadAttentionLayerBase
+&gt;&gt;&gt; layer = MultiHeadAttentionLayerBase(n_heads=8, embed_dim=128, feed_forward_hidden=512)
+&gt;&gt;&gt; x = torch.randn(1, 10, 128)
+&gt;&gt;&gt; out = layer(x)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -511,7 +519,7 @@ document.write(`
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.subnets.encoders.common.multi_head_attention_layer.MultiHeadAttentionLayerBase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.encoders.common.multi_head_attention_layer.</span></span><span class="sig-name descname"><span class="pre">MultiHeadAttentionLayerBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feed_forward_hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.models.normalization.NormalizationConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.models.activation_function.ActivationConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'skip'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expansion_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.encoders.common.multi_head_attention_layer.MultiHeadAttentionLayerBase" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.encoders.common.multi_head_attention_layer.</span></span><span class="sig-name descname"><span class="pre">MultiHeadAttentionLayerBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feed_forward_hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.models.normalization.NormalizationConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.models.activation_function.ActivationConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'skip'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expansion_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.encoders.common.multi_head_attention_layer.MultiHeadAttentionLayerBase" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
 <p>Base Multi-Head Attention Layer for Encoder Architectures.</p>
 <p>Implements the standard transformer encoder layer pattern:</p>
@@ -530,85 +538,51 @@ document.write(`
 </ul>
 <p>Subclasses can override the feed-forward component to use specialized
 variants (e.g., MoEFeedForward, ConvolutionalFFN).</p>
-<p class="rubric" id="id1">Parameters</p>
-<p>n_heads : int
-Number of attention heads.
-embed_dim : int
-Embedding dimension (must be divisible by n_heads).
-feed_forward_hidden : int
-Hidden dimension for feed-forward network.
-norm_config : Optional[NormalizationConfig], default=None
-Normalization configuration. If None, uses default (batch norm).
-activation_config : Optional[ActivationConfig], default=None
-Activation function configuration. If None, uses default (ReLU).
-connection_type : str, default=”skip”
-Type of connection: “skip” (residual), “dense”, or “hyper”.
-expansion_rate : int, default=4
-Expansion factor for hyper-connections (only used when connection_type=”hyper”).
-**kwargs
-Additional keyword arguments (for future extensibility).</p>
-<p class="rubric" id="id2">Attributes</p>
-<p>att : nn.Module
-Multi-head attention module wrapped with connection.
-norm1 : Normalization
-First normalization layer (after attention).
-ff : nn.Module
-Feed-forward module wrapped with connection.
-norm2 : Normalization
-Second normalization layer (after feed-forward).</p>
-<p class="rubric" id="id3">Examples</p>
-<blockquote>
-<div><blockquote>
-<div><blockquote>
-<div><p>from logic.src.configs.models import NormalizationConfig, ActivationConfig
-layer = MultiHeadAttentionLayerBase(
-…     n_heads=8,
-…     embed_dim=128,
-…     feed_forward_hidden=512,
-…     norm_config=NormalizationConfig(norm_type=’layer’),
-…     activation_config=ActivationConfig(name=’gelu’)
-… )
-output = layer(input_tensor, mask=attention_mask)</p>
-</div></blockquote>
-</div></blockquote>
-</div></blockquote>
+<p>Attributes:
+att (nn.Module): Multi-head attention module wrapped with connection.
+norm1 (Normalization): First normalization layer (after attention).
+ff (nn.Module): Feed-forward module wrapped with connection.
+norm2 (Normalization): Second normalization layer (after feed-forward).
+norm_config (NormalizationConfig): Normalization configuration.
+activation_config (ActivationConfig): Activation function configuration.</p>
 <p class="rubric">Initialization</p>
 <p>Initialize the MultiHeadAttentionLayerBase.</p>
+<p>Args:
+n_heads (int): Number of attention heads.
+embed_dim (int): Embedding dimension (must be divisible by n_heads).
+feed_forward_hidden (int): Hidden dimension for feed-forward network.
+norm_config (Optional[NormalizationConfig]): Normalization configuration. Defaults to None.
+activation_config (Optional[ActivationConfig]): Activation configuration. Defaults to None.
+connection_type (str): Type of connection: “skip”, “dense”, or “hyper”. Defaults to “skip”.
+expansion_rate (int): Expansion factor for hyper-connections. Defaults to 4.
+kwargs: Additional keyword arguments.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.encoders.common.multi_head_attention_layer.MultiHeadAttentionLayerBase._create_feed_forward">
 <span class="sig-name descname"><span class="pre">_create_feed_forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feed_forward_hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.configs.models.activation_function.ActivationConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expansion_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.nn.Module</span></span></span><a class="headerlink" href="#src.models.subnets.encoders.common.multi_head_attention_layer.MultiHeadAttentionLayerBase._create_feed_forward" title="Link to this definition">#</a></dt>
 <dd><p>Create the feed-forward component.</p>
 <p>Subclasses can override this to use specialized feed-forward variants
 (e.g., MoEFeedForward, ConvolutionalFFN).</p>
-<p class="rubric" id="id4">Parameters</p>
-<p>embed_dim : int
-Embedding dimension.
-feed_forward_hidden : int
-Hidden dimension for feed-forward network.
-activation_config : ActivationConfig
-Activation function configuration.
-connection_type : str
-Type of connection wrapper.
-expansion_rate : int
-Expansion factor for hyper-connections.</p>
-<p class="rubric" id="returns">Returns</p>
-<p>nn.Module
-Feed-forward module wrapped with connection.</p>
+<p>Args:
+embed_dim (int): Embedding dimension.
+feed_forward_hidden (int): Hidden dimension for feed-forward network.
+activation_config (ActivationConfig): Activation function configuration.
+connection_type (str): Type of connection wrapper.
+expansion_rate (int): Expansion factor for hyper-connections.</p>
+<p>Returns:
+nn.Module: Feed-forward module wrapped with connection.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.encoders.common.multi_head_attention_layer.MultiHeadAttentionLayerBase.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.encoders.common.multi_head_attention_layer.MultiHeadAttentionLayerBase.forward" title="Link to this definition">#</a></dt>
 <dd><p>Forward pass through the attention layer.</p>
-<p class="rubric" id="id5">Parameters</p>
-<p>h : torch.Tensor
-Input tensor of shape (batch, seq_len, embed_dim) or (batch, seq_len, embed_dim, n)
-for hyper-connections.
-mask : Optional[torch.Tensor], default=None
-Attention mask of shape (batch, seq_len) or (batch, seq_len, seq_len).</p>
-<p class="rubric" id="id6">Returns</p>
-<p>torch.Tensor
-Output tensor with the same shape as input.</p>
+<p>Args:
+h (torch.Tensor): Input tensor of shape (batch, seq_len, embed_dim)
+or (batch, seq_len, embed_dim, n) for hyper-connections.
+mask (Optional[torch.Tensor]): Attention mask of shape (batch, seq_len)
+or (batch, seq_len, seq_len). Defaults to None.</p>
+<p>Returns:
+torch.Tensor: Output tensor with the same shape as input.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -618,14 +592,11 @@ Output tensor with the same shape as input.</p>
 <p>For hyper-connections, the input is 4D: (batch, seq_len, embed_dim, n).
 We need to permute to (batch, seq_len, n, embed_dim) for normalization,
 then permute back.</p>
-<p class="rubric" id="id7">Parameters</p>
-<p>h : torch.Tensor
-Input tensor (3D or 4D).
-norm_layer : nn.Module
-Normalization layer to apply.</p>
-<p class="rubric" id="id8">Returns</p>
-<p>torch.Tensor
-Normalized tensor with the same shape as input.</p>
+<p>Args:
+h (torch.Tensor): Input tensor (3D or 4D).
+norm_layer (nn.Module): Normalization layer to apply.</p>
+<p>Returns:
+torch.Tensor: Normalized tensor with the same shape as input.</p>
 </dd></dl>
 
 </dd></dl>

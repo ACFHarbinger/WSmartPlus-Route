@@ -481,11 +481,13 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.meta.hypernet">
 <span id="src-models-meta-hypernet"></span><h1><a class="reference internal" href="#module-src.models.meta.hypernet" title="src.models.meta.hypernet"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.meta.hypernet</span></code></a><a class="headerlink" href="#module-src.models.meta.hypernet" title="Link to this heading">#</a></h1>
-<p><strong>init</strong>.py module.</p>
+<p>HyperNetwork for Adaptive Reward Weighting.</p>
+<p>This package implements a metadata-driven approach to adjust the relative
+importance of multiple objectives (e.g., overflows vs distance) in the
+reward function, adapting to temporal changes and fleet performance.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
-<p>Example:
-&gt;&gt;&gt; import <strong>init</strong></p>
+HyperNetwork: Neural generator for adaptive weighting scalars.
+HyperNetworkOptimizer: Manager for hypernetwork training and inference.</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

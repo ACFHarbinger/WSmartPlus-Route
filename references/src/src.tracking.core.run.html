@@ -523,6 +523,20 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.core.run">
 <span id="src-tracking-core-run"></span><h1><a class="reference internal" href="#module-src.tracking.core.run" title="src.tracking.core.run"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.core.run</span></code></a><a class="headerlink" href="#module-src.tracking.core.run" title="Link to this heading">#</a></h1>
 <p>Run lifecycle management for the WSTracker.</p>
+<p>Provides the core recording interface for tracking individual experiments.
+Manages buffered metric writes, parameter logging, tag management,
+artifact registration, and dataset lifecycle event tracking.</p>
+<p>Attributes:
+get_active_run: Function to retrieve the current process-level active run.
+set_active_run: Function to set the process-level active run.
+Run: Main class for interacting with an individual tracked run.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.tracking.core.run import Run
+&gt;&gt;&gt; from logic.src.tracking.core.store import TrackingStore
+&gt;&gt;&gt; store = TrackingStore(“tracking.db”)
+&gt;&gt;&gt; with Run(“uuid-123”, store, “./artifacts”) as run:
+…     run.log_param(“lr”, 0.001)
+…     run.log_metric(“loss”, 0.5, step=1)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -541,16 +555,16 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.core.run.get_active_run" title="src.tracking.core.run.get_active_run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_active_run</span></code></a></p></td>
-<td><p>Return the active :class:<code class="docutils literal notranslate"><span class="pre">Run</span></code> for the current process, or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></td>
+<td><p>Returns the active Run instance for the current process.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.core.run.set_active_run" title="src.tracking.core.run.set_active_run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_active_run</span></code></a></p></td>
-<td><p>Set the active :class:<code class="docutils literal notranslate"><span class="pre">Run</span></code> for the current process.</p></td>
+<td><p>Sets the active Run instance for the current process.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.core.run._flatten_dict" title="src.tracking.core.run._flatten_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_flatten_dict</span></code></a></p></td>
-<td><p>Recursively flatten a nested dict using dot-separated keys.</p></td>
+<td><p>Recursively flattens a nested dictionary using separator-joined keys.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.core.run._safe_float" title="src.tracking.core.run._safe_float"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_safe_float</span></code></a></p></td>
-<td></td>
+<td><p>Safely converts a value to a float, returning None on failure or overflow.</p></td>
 </tr>
 </tbody>
 </table>
@@ -587,209 +601,306 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.core.run.get_active_run">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.core.run.</span></span><span class="sig-name descname"><span class="pre">get_active_run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><span class="pre">Run</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.core.run.get_active_run" title="Link to this definition">#</a></dt>
-<dd><p>Return the active :class:<code class="docutils literal notranslate"><span class="pre">Run</span></code> for the current process, or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+<dd><p>Returns the active Run instance for the current process.</p>
+<p>Returns:
+Optional[Run]: The current process-global active run, or None if no
+run is active.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.core.run.set_active_run">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.core.run.</span></span><span class="sig-name descname"><span class="pre">set_active_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><span class="pre">Run</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.core.run.set_active_run" title="Link to this definition">#</a></dt>
-<dd><p>Set the active :class:<code class="docutils literal notranslate"><span class="pre">Run</span></code> for the current process.</p>
+<dd><p>Sets the active Run instance for the current process.</p>
+<p>This is usually called automatically by the Run context manager.</p>
+<p>Args:
+run: The Run instance to register as active, or None to clear the registry.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.core.run._flatten_dict">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.core.run.</span></span><span class="sig-name descname"><span class="pre">_flatten_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sep</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'.'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.core.run._flatten_dict" title="Link to this definition">#</a></dt>
-<dd><p>Recursively flatten a nested dict using dot-separated keys.</p>
+<dd><p>Recursively flattens a nested dictionary using separator-joined keys.</p>
+<p>Args:
+d: The nested dictionary to flatten.
+prefix: Current key prefix for recursive calls.
+sep: Separator character between nested levels.</p>
+<p>Returns:
+Dict[str, Any]: A single-level dictionary with flattened keys.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.core.run._safe_float">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.core.run.</span></span><span class="sig-name descname"><span class="pre">_safe_float</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.core.run._safe_float" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Safely converts a value to a float, returning None on failure or overflow.</p>
+<p>Args:
+v: The value to convert.</p>
+<p>Returns:
+Optional[float]: The converted float value, or None if invalid.</p>
+</dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="src.tracking.core.run.Run">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.tracking.core.run.</span></span><span class="sig-name descname"><span class="pre">Run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.tracking.core.store.TrackingStore</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifact_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">200</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.core.run.Run" title="Link to this definition">#</a></dt>
 <dd><p>A single tracked experiment run.</p>
-<p>Provides methods to log metrics, parameters, tags, artifacts, and
-dataset lifecycle events.  All metric writes are buffered in memory
-and flushed to SQLite in batches for efficiency.</p>
-<p>This class is <strong>thread-safe</strong>: multiple threads in the same process
-may call :meth:<code class="docutils literal notranslate"><span class="pre">log_metric</span></code> / :meth:<code class="docutils literal notranslate"><span class="pre">log_metrics</span></code> concurrently.</p>
+<p>Provides high-level methods to log metrics, parameters, tags, artifacts, and
+dataset lifecycle events. Metric writes are buffered in memory and flushed
+to SQLite in batches to maximize I/O performance.</p>
+<p>This class is thread-safe; multiple threads may log concurrently.</p>
+<p>Attributes:
+run_id: Unique UUID string identifying the run in the database.
+artifact_dir: Root directory where this run’s artifacts are stored.</p>
+<p class="rubric">Initialization</p>
+<p>Initializes a new tracking run.</p>
 <p>Args:
 run_id: UUID string identifying the run.
-store: Backend storage instance.
-artifact_dir: Root directory for artifact files.
-buffer_size: Number of metric entries to buffer before a flush.</p>
-<p class="rubric">Initialization</p>
+store: Persistent storage backend instance.
+artifact_dir: Local directory for storing artifact files.
+buffer_size: Number of metrics to buffer before an automatic flush.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.run.Run.add_sink">
 <span class="sig-name descname"><span class="pre">add_sink</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sink</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><span class="pre">src.tracking.core.run.Run</span></a></span></span><a class="headerlink" href="#src.tracking.core.run.Run.add_sink" title="Link to this definition">#</a></dt>
-<dd><p>Attach a secondary logging sink to this run.</p>
+<dd><p>Attaches a secondary logging sink to this run.</p>
 <p>The sink receives forwarded calls for every metric, param, and
-artifact logged hereafter.  It must implement:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">log_metric(key:</span> <span class="pre">str,</span> <span class="pre">value:</span> <span class="pre">float,</span> <span class="pre">step:</span> <span class="pre">int)</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">log_params(params:</span> <span class="pre">dict)</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">log_artifact(path:</span> <span class="pre">str)</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">finish(status:</span> <span class="pre">str)</span></code></p></li>
-</ul>
-<p>Errors raised by the sink are silently suppressed so a broken
-secondary backend never disrupts the primary WSTracker writes.</p>
+artifact logged. Sinks are useful for mirroring data to external
+services like MLflow or W&amp;B.</p>
 <p>Args:
-sink: Any object implementing the sink protocol above.</p>
+sink: Object implementing log_metric, log_params, log_artifact,
+and finish methods.</p>
 <p>Returns:
-<code class="docutils literal notranslate"><span class="pre">self</span></code> for method chaining.</p>
+Run: Self for method chaining.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.run.Run.set_tag">
-<span class="sig-name descname"><span class="pre">set_tag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><span class="pre">src.tracking.core.run.Run</span></a></span></span><a class="headerlink" href="#src.tracking.core.run.Run.set_tag" title="Link to this definition">#</a></dt>
-<dd><p>Attach a metadata tag to this run.</p>
+<span class="sig-name descname"><span class="pre">set_tag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><span class="pre">src.tracking.core.run.Run</span></a></span></span><a class="headerlink" href="#src.tracking.core.run.Run.set_tag" title="Link to this definition">#</a></dt>
+<dd><p>Attaches a metadata tag to this run.</p>
+<p>Args:
+key: Semantic name for the tag.
+value: Tag value (will be cast to string).</p>
+<p>Returns:
+Run: Self for method chaining.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.run.Run.set_tags">
-<span class="sig-name descname"><span class="pre">set_tags</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tags</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><span class="pre">src.tracking.core.run.Run</span></a></span></span><a class="headerlink" href="#src.tracking.core.run.Run.set_tags" title="Link to this definition">#</a></dt>
-<dd><p>Attach multiple metadata tags to this run.</p>
+<span class="sig-name descname"><span class="pre">set_tags</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tags</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><span class="pre">src.tracking.core.run.Run</span></a></span></span><a class="headerlink" href="#src.tracking.core.run.Run.set_tags" title="Link to this definition">#</a></dt>
+<dd><p>Attaches multiple metadata tags to this run.</p>
+<p>Args:
+tags: Dictionary of tag keys and values.</p>
+<p>Returns:
+Run: Self for method chaining.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.run.Run.log_param">
 <span class="sig-name descname"><span class="pre">log_param</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><span class="pre">src.tracking.core.run.Run</span></a></span></span><a class="headerlink" href="#src.tracking.core.run.Run.log_param" title="Link to this definition">#</a></dt>
-<dd><p>Record a single configuration parameter (set-once semantics).</p>
+<dd><p>Records a single configuration parameter.</p>
+<p>Args:
+key: Name of the parameter.
+value: Parameter value.</p>
+<p>Returns:
+Run: Self for method chaining.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.run.Run.log_params">
 <span class="sig-name descname"><span class="pre">log_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><span class="pre">src.tracking.core.run.Run</span></a></span></span><a class="headerlink" href="#src.tracking.core.run.Run.log_params" title="Link to this definition">#</a></dt>
-<dd><p>Record multiple configuration parameters, flattening nested dicts.</p>
+<dd><p>Records multiple configuration parameters, flattening nested dicts.</p>
+<p>Args:
+params: Dictionary of parameters to log.</p>
+<p>Returns:
+Run: Self for method chaining.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.run.Run.log_metric">
 <span class="sig-name descname"><span class="pre">log_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><span class="pre">src.tracking.core.run.Run</span></a></span></span><a class="headerlink" href="#src.tracking.core.run.Run.log_metric" title="Link to this definition">#</a></dt>
-<dd><p>Log a single scalar metric value at the given step.</p>
+<dd><p>Logs a single scalar metric value.</p>
+<p>Args:
+key: Name of the metric.
+value: Scalar value to log (must be convertible to float).
+step: Training or simulation step index.</p>
+<p>Returns:
+Run: Self for method chaining.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.run.Run.log_metrics">
 <span class="sig-name descname"><span class="pre">log_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><span class="pre">src.tracking.core.run.Run</span></a></span></span><a class="headerlink" href="#src.tracking.core.run.Run.log_metrics" title="Link to this definition">#</a></dt>
-<dd><p>Log a dict of scalar metric values at the given step.</p>
+<dd><p>Logs a dictionary of scalar metric values.</p>
+<p>Args:
+metrics: Mapping of metric keys to values.
+step: Training or simulation step index.</p>
+<p>Returns:
+Run: Self for method chaining.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.run.Run.flush">
 <span class="sig-name descname"><span class="pre">flush</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><span class="pre">src.tracking.core.run.Run</span></a></span></span><a class="headerlink" href="#src.tracking.core.run.Run.flush" title="Link to this definition">#</a></dt>
-<dd><p>Force-flush any buffered metrics to the store.</p>
+<dd><p>Force-flushes any buffered metrics to the storage backend.</p>
+<p>Returns:
+Run: Self for method chaining.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.run.Run._flush_metrics_locked">
 <span class="sig-name descname"><span class="pre">_flush_metrics_locked</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.core.run.Run._flush_metrics_locked" title="Link to this definition">#</a></dt>
-<dd><p>Flush buffer — caller must hold <code class="docutils literal notranslate"><span class="pre">_buffer_lock</span></code>.</p>
+<dd><p>Internal helper to flush the metric buffer.</p>
+<p>Caller must hold <code class="docutils literal notranslate"><span class="pre">_buffer_lock</span></code>.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.run.Run.log_artifact">
 <span class="sig-name descname"><span class="pre">log_artifact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifact_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'file'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><span class="pre">src.tracking.core.run.Run</span></a></span></span><a class="headerlink" href="#src.tracking.core.run.Run.log_artifact" title="Link to this definition">#</a></dt>
-<dd><p>Register a file as an artifact of this run.</p>
+<dd><p>Registers a local file as an artifact of this run.</p>
 <p>Args:
-path: Path to the file.
-name: Human-readable name (defaults to basename of <em>path</em>).
-artifact_type: Semantic type, e.g. <code class="docutils literal notranslate"><span class="pre">'model'</span></code>, <code class="docutils literal notranslate"><span class="pre">'checkpoint'</span></code>,
-<code class="docutils literal notranslate"><span class="pre">'config'</span></code>, <code class="docutils literal notranslate"><span class="pre">'result'</span></code>.
-metadata: Arbitrary extra metadata dict.</p>
+path: Local path to the artifact file.
+name: Human-readable name (defaults to file basename).
+artifact_type: Semantic category (e.g., ‘model’, ‘plot’).
+metadata: Additional JSON-serializable metadata.</p>
+<p>Returns:
+Run: Self for method chaining.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.run.Run.log_artifacts_dir">
 <span class="sig-name descname"><span class="pre">log_artifacts_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dir_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifact_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'file'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><span class="pre">src.tracking.core.run.Run</span></a></span></span><a class="headerlink" href="#src.tracking.core.run.Run.log_artifacts_dir" title="Link to this definition">#</a></dt>
-<dd><p>Register every file in <em>dir_path</em> as an artifact.</p>
+<dd><p>Registers every file in a directory as an artifact.</p>
+<p>Note: This is non-recursive.</p>
+<p>Args:
+dir_path: Path to the directory.
+artifact_type: Semantic category applied to all files.</p>
+<p>Returns:
+Run: Self for method chaining.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.run.Run.log_dataset_event">
-<span class="sig-name descname"><span class="pre">log_dataset_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><span class="pre">src.tracking.core.run.Run</span></a></span></span><a class="headerlink" href="#src.tracking.core.run.Run.log_dataset_event" title="Link to this definition">#</a></dt>
-<dd><p>Record a data-lifecycle event.</p>
+<span class="sig-name descname"><span class="pre">log_dataset_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><span class="pre">src.tracking.core.run.Run</span></a></span></span><a class="headerlink" href="#src.tracking.core.run.Run.log_dataset_event" title="Link to this definition">#</a></dt>
+<dd><p>Records a data-lifecycle event (e.g., loading, mutation).</p>
 <p>Args:
-event_type: One of <code class="docutils literal notranslate"><span class="pre">'load'</span></code>, <code class="docutils literal notranslate"><span class="pre">'generate'</span></code>, <code class="docutils literal notranslate"><span class="pre">'mutate'</span></code>,
-<code class="docutils literal notranslate"><span class="pre">'save'</span></code>, <code class="docutils literal notranslate"><span class="pre">'hash_change'</span></code>, <code class="docutils literal notranslate"><span class="pre">'schema_change'</span></code>.
-file_path: Path to the data file (optional).
-shape: Shape of the data item (optional).
-metadata: Arbitrary extra context dict.</p>
+event_type: Semantic event (load, save, generate, hash_change).
+file_path: Path to the associated data file if applicable.
+shape: Logical shape of the dataset.
+metadata: Extra contextual information.</p>
+<p>Returns:
+Run: Self for method chaining.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.run.Run.watch_file">
 <span class="sig-name descname"><span class="pre">watch_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><span class="pre">src.tracking.core.run.Run</span></a></span></span><a class="headerlink" href="#src.tracking.core.run.Run.watch_file" title="Link to this definition">#</a></dt>
-<dd><p>Register the current hash of <em>file_path</em> for future change detection.</p>
+<dd><p>Registers the current SHA-256 of a file for change detection.</p>
+<p>Args:
+file_path: Path to the file to monitor.</p>
+<p>Returns:
+Run: Self for method chaining.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.run.Run.check_file_changed">
 <span class="sig-name descname"><span class="pre">check_file_changed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.tracking.core.run.Run.check_file_changed" title="Link to this definition">#</a></dt>
-<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> and record an event if <em>file_path</em> has changed.</p>
-<p>The internal hash map is updated on every call regardless of the result,
-so the next call uses the latest version as the baseline.</p>
+<dd><p>Determines if a watched file has changed on disk.</p>
+<p>Updating the baseline hash on every call ensures subsequent checks
+measure drift from the most recent confirmed state.</p>
+<p>Args:
+file_path: Path to the file to check.</p>
+<p>Returns:
+bool: True if the file hash has changed since the last observation.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.run.Run.finish">
 <span class="sig-name descname"><span class="pre">finish</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">status</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'completed'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.core.run.Run.finish" title="Link to this definition">#</a></dt>
-<dd><p>Flush buffers and mark this run as finished in the store.</p>
+<dd><p>Concludes the run, flushing buffers and updating state.</p>
+<p>Args:
+status: Final status (completed, failed, killed).
+error: Optional error message summarizing the failure.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.run.Run.__enter__">
 <span class="sig-name descname"><span class="pre">__enter__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><span class="pre">src.tracking.core.run.Run</span></a></span></span><a class="headerlink" href="#src.tracking.core.run.Run.__enter__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Enters the tracking context, registering this as the active run.</p>
+<p>Returns:
+Run: The active run instance.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.run.Run.__exit__">
 <span class="sig-name descname"><span class="pre">__exit__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exc_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exc_val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_exc_tb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">typing_extensions.Literal</span><span class="p"><span class="pre">[</span></span><span class="k"><span class="pre">False</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.core.run.Run.__exit__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Exits the context, automatically finishing the run.</p>
+<p>Handles exception logging if the context was exited via an error.</p>
+<p>Args:
+exc_type: Type of the exception if one occurred.
+exc_val: Exception instance.
+_exc_tb: Traceback object.</p>
+<p>Returns:
+Literal[False]: Always returns False to propagate exceptions.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.run.Run.get_params">
 <span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.core.run.Run.get_params" title="Link to this definition">#</a></dt>
-<dd><p>Return all logged parameters.</p>
+<dd><p>Retrieves all configuration parameters logged for this run.</p>
+<p>Returns:
+Dict[str, Any]: Dictionary mapping parameter keys to values.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.run.Run.get_tags">
 <span class="sig-name descname"><span class="pre">get_tags</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.core.run.Run.get_tags" title="Link to this definition">#</a></dt>
-<dd><p>Return all logged tags.</p>
+<dd><p>Retrieves all metadata tags logged for this run.</p>
+<p>Returns:
+Dict[str, str]: Dictionary mapping tag keys to values.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.run.Run.get_latest_metrics">
 <span class="sig-name descname"><span class="pre">get_latest_metrics</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.core.run.Run.get_latest_metrics" title="Link to this definition">#</a></dt>
-<dd><p>Return the latest value for every logged metric key.</p>
+<dd><p>Retrieves the most recent value for every logged metric.</p>
+<p>Returns:
+Dict[str, float]: Dictionary mapping metric keys to their latest scalars.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.run.Run.get_metric_history">
 <span class="sig-name descname"><span class="pre">get_metric_history</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.core.run.Run.get_metric_history" title="Link to this definition">#</a></dt>
-<dd><p>Return the full step-indexed history for a metric <em>key</em>.</p>
+<dd><p>Retrieves the full evolution history for a specific metric.</p>
+<p>Args:
+key: Semantic name of the metric to query.</p>
+<p>Returns:
+List[Dict[str, Any]]: Step-indexed records containing ‘value’,
+‘step’, and ‘timestamp’.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.run.Run.get_artifacts">
 <span class="sig-name descname"><span class="pre">get_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">artifact_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.core.run.Run.get_artifacts" title="Link to this definition">#</a></dt>
-<dd><p>Return registered artifacts, optionally filtered by <em>artifact_type</em>.</p>
+<dd><p>Retrieves Registered artifacts for this run.</p>
+<p>Args:
+artifact_type: Optional filter by semantic category.</p>
+<p>Returns:
+List[Dict[str, Any]]: Artifact records mapping attributes like
+‘name’, ‘path’, and ‘metadata’.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.run.Run.get_dataset_events">
 <span class="sig-name descname"><span class="pre">get_dataset_events</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.core.run.Run.get_dataset_events" title="Link to this definition">#</a></dt>
-<dd><p>Return all dataset lifecycle events in chronological order.</p>
+<dd><p>Retrieves all data-lifecycle events in chronological order.</p>
+<p>Returns:
+List[Dict[str, Any]]: Event records containing type, path, and context.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.core.run.Run.__repr__">
 <span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.tracking.core.run.Run.__repr__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Returns a string representation of the Run state.</p>
+<p>Returns:
+str: Developer-readable string summary.</p>
+</dd></dl>
 
 </dd></dl>
 

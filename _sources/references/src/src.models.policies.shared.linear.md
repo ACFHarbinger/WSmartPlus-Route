@@ -23,7 +23,7 @@
 
 ### API
 
-````{py:function} vectorized_linear_split(giant_tours, dist_matrix, wastes, vehicle_capacity, max_len=None, max_vehicles=None)
+````{py:function} vectorized_linear_split(giant_tours: torch.Tensor, dist_matrix: torch.Tensor, wastes: torch.Tensor, vehicle_capacity: typing.Union[float, torch.Tensor], max_len: typing.Optional[int] = None, max_vehicles: typing.Optional[int] = None) -> typing.Tuple[torch.Tensor, torch.Tensor]
 :canonical: src.models.policies.shared.linear.vectorized_linear_split
 
 ```{autodoc2-docstring} src.models.policies.shared.linear.vectorized_linear_split

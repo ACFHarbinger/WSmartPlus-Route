@@ -491,7 +491,19 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.logging.plotting.routes">
 <span id="src-tracking-logging-plotting-routes"></span><h1><a class="reference internal" href="#module-src.tracking.logging.plotting.routes" title="src.tracking.logging.plotting.routes"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging.plotting.routes</span></code></a><a class="headerlink" href="#module-src.tracking.logging.plotting.routes" title="Link to this heading">#</a></h1>
-<p>TSP and VRP route visualization.</p>
+<p>TSP and VRP route visualization utilities.</p>
+<p>This module provides tools for visualizing vehicle routing solutions, including
+Traveling Salesman Problem (TSP) tours and Capacitorized Vehicle Routing Problem
+(CVRP) routes. It supports plotting paths with arrows indicating direction,
+node scatter plots, and waste level bars for collection scenarios.</p>
+<p>Attributes:
+draw_graph: Visualizes coordinate-free graphs using spring layouts.
+plot_tsp: Renders a single-vehicle TSP tour on a 2D plane.
+discrete_cmap: Utility for creating N-bin colormaps for vehicle indexing.
+plot_vehicle_routes: Renders multi-vehicle routes with capacity annotations.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.tracking.logging.plotting.routes import plot_tsp
+&gt;&gt;&gt; plot_tsp(xy_coords, tour_indices, matplotlib_ax)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -521,7 +533,7 @@ document.write(`
 <span class="sig-prename descclassname"><span class="pre">src.tracking.logging.plotting.routes.</span></span><span class="sig-name descname"><span class="pre">draw_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.logging.plotting.routes.draw_graph" title="Link to this definition">#</a></dt>
 <dd><p>Draws a networkx graph from a distance matrix using spring layout.</p>
 <p>Args:
-distance_matrix (np.ndarray): The adjacency/distance matrix.</p>
+distance_matrix: The adjacency or distance matrix of shape [N, N].</p>
 </dd></dl>
 
 <dl class="py function">
@@ -529,9 +541,9 @@ distance_matrix (np.ndarray): The adjacency/distance matrix.</p>
 <span class="sig-prename descclassname"><span class="pre">src.tracking.logging.plotting.routes.</span></span><span class="sig-name descname"><span class="pre">plot_tsp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tour</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.logging.plotting.routes.plot_tsp" title="Link to this definition">#</a></dt>
 <dd><p>Plot the TSP tour on matplotlib axis ax1.</p>
 <p>Args:
-xy (np.ndarray): Node coordinates [N, 2].
-tour (np.ndarray): Tour indices [N+1] (including return to start).
-ax1 (matplotlib.axes.Axes): The axis to plot on.</p>
+xy: Node coordinates of shape [N, 2].
+tour: Tour indices of shape [N+1] (including return to start).
+ax1: The matplotlib axis to plot on.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -539,10 +551,10 @@ ax1 (matplotlib.axes.Axes): The axis to plot on.</p>
 <span class="sig-prename descclassname"><span class="pre">src.tracking.logging.plotting.routes.</span></span><span class="sig-name descname"><span class="pre">discrete_cmap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.logging.plotting.routes.discrete_cmap" title="Link to this definition">#</a></dt>
 <dd><p>Create an N-bin discrete colormap from the specified input map.</p>
 <p>Args:
-N (int): Number of bins.
-base_cmap (str or Colormap, optional): Base colormap name.</p>
+N: Number of bins to create.
+base_cmap: Base colormap name or object. Defaults to “viridis”.</p>
 <p>Returns:
-Colormap: Discretized colormap.</p>
+LinearSegmentedColormap: The discretized colormap.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -550,13 +562,13 @@ Colormap: Discretized colormap.</p>
 <span class="sig-prename descclassname"><span class="pre">src.tracking.logging.plotting.routes.</span></span><span class="sig-name descname"><span class="pre">plot_vehicle_routes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">route</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">markersize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualize_waste</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">round_waste</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.logging.plotting.routes.plot_vehicle_routes" title="Link to this definition">#</a></dt>
 <dd><p>Plot the vehicle routes on matplotlib axis ax1.</p>
 <p>Args:
-data (dict): Dictionary with ‘depot’, ‘locs’, ‘waste’.
-route (Tensor): Route indices (single sequence with delimiters).
-ax1 (matplotlib.axes.Axes): Axis to plot on.
-markersize (int, optional): Size of markers. Defaults to 5.
-visualize_waste (bool, optional): Visualize waste levels as bars. Defaults to False.
-waste_scale (float, optional): Scaling factor for waste values. Defaults to 1.
-round_waste (bool, optional): Round waste values in labels. Defaults to False.</p>
+data: Dictionary with ‘depot’, ‘locs’, ‘waste’ tensors.
+route: Route indices (single sequence with delimiters).
+ax1: Axis to plot on.
+markersize: Size of markers. Defaults to 5.
+visualize_waste: Visualize waste levels as bars. Defaults to False.
+waste_scale: Scaling factor for waste values. Defaults to 1.
+round_waste: Round waste values in labels. Defaults to False.</p>
 </dd></dl>
 
 </section>

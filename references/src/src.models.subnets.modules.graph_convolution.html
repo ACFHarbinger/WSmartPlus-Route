@@ -494,6 +494,17 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.modules.graph_convolution">
 <span id="src-models-subnets-modules-graph-convolution"></span><h1><a class="reference internal" href="#module-src.models.subnets.modules.graph_convolution" title="src.models.subnets.modules.graph_convolution"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.modules.graph_convolution</span></code></a><a class="headerlink" href="#module-src.models.subnets.modules.graph_convolution" title="Link to this heading">#</a></h1>
 <p>Standard Graph Convolutional Network (GCN) layer.</p>
+<p>This module provides the GraphConvolution layer, which performs neighborhood
+aggregation on node features based on a graph adjacency matrix.</p>
+<p>Attributes:
+GraphConvolution: Standard graph convolution layer for node feature aggregation.</p>
+<p>Example:
+&gt;&gt;&gt; import torch
+&gt;&gt;&gt; from logic.src.models.subnets.modules.graph_convolution import GraphConvolution
+&gt;&gt;&gt; model = GraphConvolution(in_channels=128, out_channels=128)
+&gt;&gt;&gt; x = torch.randn(1, 10, 128)
+&gt;&gt;&gt; adj = torch.eye(10)
+&gt;&gt;&gt; out = model(x, adj)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -514,38 +525,50 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.modules.graph_convolution.</span></span><span class="sig-name descname"><span class="pre">GraphConvolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_channels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sum'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.graph_convolution.GraphConvolution" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
 <p>Standard Graph Convolution layer.</p>
-<p>Performs message passing by aggregating features from neighbors:
+<p>Performs message passing by aggregating features from neighbors according to:
 h_i’ = W * h_i + Agg({h_j})</p>
+<p>Attributes:
+in_channels (int): Dimensionality of input node features.
+out_channels (int): Dimensionality of output node features.
+aggregation (str): Pooling strategy (‘sum’, ‘mean’, ‘max’).
+linear (nn.Linear): Transformation layer for input features.
+bias (Optional[nn.Parameter]): Learnable bias vector.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes GraphConvolution.</p>
 <p>Args:
-in_channels: Dimension of input node features.
-out_channels: Dimension of output node features.
-aggregation: Aggregation method (‘sum’, ‘mean’, ‘max’).
-bias: Whether to include a learnable bias term.</p>
+in_channels: Input feature dimensionality.
+out_channels: Output feature dimensionality.
+aggregation: Strategy for neighborhood pooling (‘sum’, ‘mean’, ‘max’).
+bias: Whether to add a learnable bias term.</p>
+<p>Raises:
+ImportError: If ‘max’ aggregation is requested but PyTorch Geometric
+is not installed.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.graph_convolution.GraphConvolution.init_parameters">
-<span class="sig-name descname"><span class="pre">init_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.graph_convolution.GraphConvolution.init_parameters" title="Link to this definition">#</a></dt>
-<dd><p>Initializes the parameters of the layer using uniform distribution.</p>
+<span class="sig-name descname"><span class="pre">init_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.subnets.modules.graph_convolution.GraphConvolution.init_parameters" title="Link to this definition">#</a></dt>
+<dd><p>Initializes the linear layer weights using a uniform distribution.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.graph_convolution.GraphConvolution.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.graph_convolution.GraphConvolution.forward" title="Link to this definition">#</a></dt>
-<dd><p>Args:
-h: Input node features (B x V x H_1)
-mask: Graph adjacency matrix (V x V) - shared across all batches</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.modules.graph_convolution.GraphConvolution.forward" title="Link to this definition">#</a></dt>
+<dd><p>Applies graph convolution to a batch of node features.</p>
+<p>Args:
+h: Input features of shape (batch, nodes, in_channels).
+mask: Adjacency/mask matrix of shape (nodes, nodes) or (batch, nodes, nodes).</p>
 <p>Returns:
-Updated node features (B x V x H_2)</p>
+torch.Tensor: Updated features of shape (batch, nodes, out_channels).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.graph_convolution.GraphConvolution.single_graph_forward">
-<span class="sig-name descname"><span class="pre">single_graph_forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adj</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.graph_convolution.GraphConvolution.single_graph_forward" title="Link to this definition">#</a></dt>
-<dd><p>Args:
-h: Input node features (N x H_1)
-adj: Graph adjacency matrix (N x N)</p>
+<span class="sig-name descname"><span class="pre">single_graph_forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.modules.graph_convolution.GraphConvolution.single_graph_forward" title="Link to this definition">#</a></dt>
+<dd><p>Applies graph convolution to a single unbatched graph.</p>
+<p>Args:
+h: Node features of shape (nodes, in_channels).
+adj: Single graph adjacency matrix of shape (nodes, nodes).</p>
 <p>Returns:
-Updated node features (N x H_2)</p>
+torch.Tensor: Updated features of shape (nodes, out_channels).</p>
 </dd></dl>
 
 </dd></dl>

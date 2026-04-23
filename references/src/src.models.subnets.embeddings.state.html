@@ -490,11 +490,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.embeddings.state">
 <span id="src-models-subnets-embeddings-state"></span><h1><a class="reference internal" href="#module-src.models.subnets.embeddings.state" title="src.models.subnets.embeddings.state"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.embeddings.state</span></code></a><a class="headerlink" href="#module-src.models.subnets.embeddings.state" title="Link to this heading">#</a></h1>
-<p><strong>init</strong>.py module.</p>
+<p>State embedding modules for environment representations.</p>
+<p>This package provides classes that encapsulate environment states (e.g., VRPP,
+WCVRP) for consistent processing by RL models and context embedders.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+STATE_EMBEDDING_REGISTRY (Dict[str, Any]): Mapping of environment names
+to their respective state classes.</p>
 <p>Example:
-&gt;&gt;&gt; import <strong>init</strong></p>
+&gt;&gt;&gt; from logic.src.models.subnets.embeddings.state import STATE_EMBEDDING_REGISTRY
+&gt;&gt;&gt; state_cls = STATE_EMBEDDING_REGISTRY[“vrpp”]</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
@@ -527,14 +531,14 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py data">
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.state.STATE_EMBEDDING_REGISTRY">
-<span class="sig-prename descclassname"><span class="pre">src.models.subnets.embeddings.state.</span></span><span class="sig-name descname"><span class="pre">STATE_EMBEDDING_REGISTRY</span></span><a class="headerlink" href="#src.models.subnets.embeddings.state.STATE_EMBEDDING_REGISTRY" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.models.subnets.embeddings.state.</span></span><span class="sig-name descname"><span class="pre">STATE_EMBEDDING_REGISTRY</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.models.subnets.embeddings.state.STATE_EMBEDDING_REGISTRY" title="Link to this definition">#</a></dt>
 <dd><p>None</p>
 </dd></dl>
 
 <dl class="py data">
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.state.__all__">
-<span class="sig-prename descclassname"><span class="pre">src.models.subnets.embeddings.state.</span></span><span class="sig-name descname"><span class="pre">__all__</span></span><a class="headerlink" href="#src.models.subnets.embeddings.state.__all__" title="Link to this definition">#</a></dt>
-<dd><p>[‘EnvState’, ‘VRPPState’, ‘WCVRPState’, ‘CVRPPState’, ‘SWCVRPState’]</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.subnets.embeddings.state.</span></span><span class="sig-name descname"><span class="pre">__all__</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.models.subnets.embeddings.state.__all__" title="Link to this definition">#</a></dt>
+<dd><p>[‘EnvState’, ‘VRPPState’, ‘WCVRPState’, ‘CVRPPState’, ‘SWCVRPState’, ‘STATE_EMBEDDING_REGISTRY’]</p>
 </dd></dl>
 
 </section>

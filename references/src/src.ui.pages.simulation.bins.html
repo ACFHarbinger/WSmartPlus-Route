@@ -493,6 +493,20 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.ui.pages.simulation.bins">
 <span id="src-ui-pages-simulation-bins"></span><h1><a class="reference internal" href="#module-src.ui.pages.simulation.bins" title="src.ui.pages.simulation.bins"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.pages.simulation.bins</span></code></a><a class="headerlink" href="#module-src.ui.pages.simulation.bins" title="Link to this heading">#</a></h1>
+<p>Bin state inspection and visualization components for simulation results.</p>
+<p>This module provides interactive tools for auditing individual waste bin
+states throughout a simulation day. It includes heatmaps for fill level
+visualization, tabular inspectors for selective bin filtering, and
+detailed collection breakdowns with cross-referencing to mandatory set
+assignments.</p>
+<p>Example:
+render_bin_tab(selected_entry)</p>
+<p>Attributes:
+BIN_STYLES: Visual configuration mapping for bin status indicators.
+style_bin_table: Applies conditional CSS formatting to bin DataFrames.
+render_bin_state_inspector: Main UI component for auditing bin levels.
+render_collection_details: Visualizes specific collection events.
+render_bin_tab: Orchestrates the integrated bins analysis tab.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -500,16 +514,16 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.simulation.bins.style_bin_table" title="src.ui.pages.simulation.bins.style_bin_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">style_bin_table</span></code></a></p></td>
-<td><p>Apply conditional formatting to the bin state table.</p></td>
+<td><p>Applies conditional formatting to the bin state exploration table.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.simulation.bins.render_bin_state_inspector" title="src.ui.pages.simulation.bins.render_bin_state_inspector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render_bin_state_inspector</span></code></a></p></td>
-<td><p>Render detailed bin state inspection table.</p></td>
+<td><p>Renders a filtered table for inspect individual waste bin states.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.simulation.bins.render_collection_details" title="src.ui.pages.simulation.bins.render_collection_details"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render_collection_details</span></code></a></p></td>
-<td><p>Render collection details for the day.</p></td>
+<td><p>Renders high-level metrics and breakdown for bin collection events.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.simulation.bins.render_bin_tab" title="src.ui.pages.simulation.bins.render_bin_tab"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render_bin_tab</span></code></a></p></td>
-<td><p>Render the Bins tab content.</p></td>
+<td><p>Orchestrates and renders the integrated Bins analysis tab content.</p></td>
 </tr>
 </tbody>
 </table>
@@ -537,25 +551,37 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.simulation.bins.style_bin_table">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.simulation.bins.</span></span><span class="sig-name descname"><span class="pre">style_bin_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.ui.pages.simulation.bins.style_bin_table" title="Link to this definition">#</a></dt>
-<dd><p>Apply conditional formatting to the bin state table.</p>
+<dd><p>Applies conditional formatting to the bin state exploration table.</p>
+<p>Args:
+df: The raw bin state DataFrame.</p>
+<p>Returns:
+Any: A Styler object with applied gradients and status indicators.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.simulation.bins.render_bin_state_inspector">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.simulation.bins.</span></span><span class="sig-name descname"><span class="pre">render_bin_state_inspector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">display_entry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.simulation.bins.render_bin_state_inspector" title="Link to this definition">#</a></dt>
-<dd><p>Render detailed bin state inspection table.</p>
+<dd><p>Renders a filtered table for inspect individual waste bin states.</p>
+<p>Displays fill levels before/after collection, mandatory status, and
+overflow alerts for all bins in the simulation environment.</p>
+<p>Args:
+display_entry: The simulation telemetry record for the current day.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.simulation.bins.render_collection_details">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.simulation.bins.</span></span><span class="sig-name descname"><span class="pre">render_collection_details</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">display_entry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.simulation.bins.render_collection_details" title="Link to this definition">#</a></dt>
-<dd><p>Render collection details for the day.</p>
+<dd><p>Renders high-level metrics and breakdown for bin collection events.</p>
+<p>Args:
+display_entry: The simulation telemetry record for the current day.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.simulation.bins.render_bin_tab">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.simulation.bins.</span></span><span class="sig-name descname"><span class="pre">render_bin_tab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">display_entry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.simulation.bins.render_bin_tab" title="Link to this definition">#</a></dt>
-<dd><p>Render the Bins tab content.</p>
+<dd><p>Orchestrates and renders the integrated Bins analysis tab content.</p>
+<p>Args:
+display_entry: The simulation telemetry record for the current day.</p>
 </dd></dl>
 
 </section>

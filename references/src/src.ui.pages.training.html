@@ -496,6 +496,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.ui.pages.training">
 <span id="src-ui-pages-training"></span><h1><a class="reference internal" href="#module-src.ui.pages.training" title="src.ui.pages.training"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.pages.training</span></code></a><a class="headerlink" href="#module-src.ui.pages.training" title="Link to this heading">#</a></h1>
 <p>Training Monitor mode for the Streamlit dashboard.</p>
+<p>This module provides real-time visualization and audit capabilities for active
+and historical DRL training runs. It includes hyperparameter inspection,
+loss curve plotting, convergence status alerts, and multi-run comparison tools.</p>
+<p>Example:
+render_training_monitor()</p>
+<p>Attributes:
+render_training_monitor: Main entry point for the training dashboard.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -503,16 +510,16 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.training._render_run_overview" title="src.ui.pages.training._render_run_overview"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_run_overview</span></code></a></p></td>
-<td><p>Display hyperparameters and run configuration for selected runs.</p></td>
+<td><p>Displays hyperparameters and run configuration for selected runs.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.training._render_training_progress" title="src.ui.pages.training._render_training_progress"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_training_progress</span></code></a></p></td>
-<td><p>Display training progress bars based on current vs total epochs.</p></td>
+<td><p>Displays training progress bars based on current vs total epochs.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.training._render_convergence_status" title="src.ui.pages.training._render_convergence_status"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_convergence_status</span></code></a></p></td>
-<td><p>Show convergence status for each run (plateau detection).</p></td>
+<td><p>Detects and displays convergence status (plateau detection).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.training.render_training_monitor" title="src.ui.pages.training.render_training_monitor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render_training_monitor</span></code></a></p></td>
-<td><p>Render the Training Monitor mode.</p></td>
+<td><p>Renders the Training Monitor page.</p></td>
 </tr>
 </tbody>
 </table>
@@ -558,25 +565,34 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.training._render_run_overview">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.training.</span></span><span class="sig-name descname"><span class="pre">_render_run_overview</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">selected_runs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.training._render_run_overview" title="Link to this definition">#</a></dt>
-<dd><p>Display hyperparameters and run configuration for selected runs.</p>
+<dd><p>Displays hyperparameters and run configuration for selected runs.</p>
+<p>Args:
+selected_runs: List of selected run names (folder identifiers).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.training._render_training_progress">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.training.</span></span><span class="sig-name descname"><span class="pre">_render_training_progress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">runs_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_runs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.training._render_training_progress" title="Link to this definition">#</a></dt>
-<dd><p>Display training progress bars based on current vs total epochs.</p>
+<dd><p>Displays training progress bars based on current vs total epochs.</p>
+<p>Args:
+runs_data: Mapping from run name to its metrics DataFrame.
+selected_runs: List of active run names to visualize.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.training._render_convergence_status">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.training.</span></span><span class="sig-name descname"><span class="pre">_render_convergence_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">runs_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.training._render_convergence_status" title="Link to this definition">#</a></dt>
-<dd><p>Show convergence status for each run (plateau detection).</p>
+<dd><p>Detects and displays convergence status (plateau detection).</p>
+<p>Args:
+runs_data: Mapping from run name to its metrics DataFrame.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.training.render_training_monitor">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.training.</span></span><span class="sig-name descname"><span class="pre">render_training_monitor</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.training.render_training_monitor" title="Link to this definition">#</a></dt>
-<dd><p>Render the Training Monitor mode.</p>
+<dd><p>Renders the Training Monitor page.</p>
+<p>Orchestrates run discovery, data loading, and the sequential rendering of
+analysis sections (Overview, KPIs, Loss Curves, Metrics).</p>
 </dd></dl>
 
 </section>

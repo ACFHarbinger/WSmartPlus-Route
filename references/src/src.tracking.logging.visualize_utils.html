@@ -489,14 +489,18 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.logging.visualize_utils">
 <span id="src-tracking-logging-visualize-utils"></span><h1><a class="reference internal" href="#module-src.tracking.logging.visualize_utils" title="src.tracking.logging.visualize_utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging.visualize_utils</span></code></a><a class="headerlink" href="#module-src.tracking.logging.visualize_utils" title="Link to this heading">#</a></h1>
 <p>Visualization utilities for the routing problems.</p>
-<p>This module provides functions for:</p>
-<ul class="simple">
-<li><p>Visualizing routing solutions and graphs.</p></li>
-<li><p>Plotting loss landscapes (if used).</p></li>
-<li><p>Creating PCA visualizations of embeddings.</p></li>
-<li><p>Interfacing with TensorBoard for visual logging.</p></li>
-</ul>
+<p>This module provides functions for visualizing routing solutions, graphs,
+loss landscapes, and model training metrics. It primarily acts as a
+re-export interface for the newer visualization sub-package.</p>
 <p>DEPRECATED: Use logic.src.utils.logging.visualization package instead.</p>
+<p>Attributes:
+plot_attention_heatmaps: Generates heatmaps of policy attention weights.
+plot_loss_landscape: Computes and visualizes the 2D loss surface.
+project_node_embeddings: Projects high-dimensional node features to 2D.
+log_weight_distributions: Records histograms of network parameters.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.tracking.logging import visualize_utils
+&gt;&gt;&gt; visualize_utils.plot_attention_heatmaps(policy, “heatmaps/”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="data">

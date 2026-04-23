@@ -488,11 +488,10 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.policies.operators.destroy.worst_removal">
 <span id="src-models-policies-operators-destroy-worst-removal"></span><h1><a class="reference internal" href="#module-src.models.policies.operators.destroy.worst_removal" title="src.models.policies.operators.destroy.worst_removal"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies.operators.destroy.worst_removal</span></code></a><a class="headerlink" href="#module-src.models.policies.operators.destroy.worst_removal" title="Link to this heading">#</a></h1>
-<p>worst_removal.py module.</p>
-<p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
-<p>Example:
-&gt;&gt;&gt; import worst_removal</p>
+<p>Worst removal operator.</p>
+<p>This module provides a GPU-accelerated implementation of the worst removal
+heuristic, which greedily identifies and ejects nodes from the tour that
+contribute most to its total distance.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -500,7 +499,7 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.operators.destroy.worst_removal.vectorized_worst_removal" title="src.models.policies.operators.destroy.worst_removal.vectorized_worst_removal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vectorized_worst_removal</span></code></a></p></td>
-<td><p>Vectorized worst removal (highest saving).</p></td>
+<td><p>Vectorized worst removal (highest cost-savings ejection).</p></td>
 </tr>
 </tbody>
 </table>
@@ -511,14 +510,18 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.destroy.worst_removal.vectorized_worst_removal">
 <span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.destroy.worst_removal.</span></span><span class="sig-name descname"><span class="pre">vectorized_worst_removal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_remove</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Generator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.operators.destroy.worst_removal.vectorized_worst_removal" title="Link to this definition">#</a></dt>
-<dd><p>Vectorized worst removal (highest saving).</p>
+<dd><p>Vectorized worst removal (highest cost-savings ejection).</p>
+<p>Calculates the savings (edge cost reduction) obtained by removing each
+node and its adjacent edges. Prioritizes nodes with the highest savings.</p>
 <p>Args:
-tours (Tensor): (B, N)
-dist_matrix (Tensor): (B, N_all, N_all) or (1, N_all, N_all)
-n_remove (int): Number to remove
-generator (Optional[torch.Generator]): PyTorch generator for random number generation.</p>
+tours: Batch of node sequences of shape [B, N].
+dist_matrix: Global distance matrix of shape [B, N_all, N_all] or [1, N_all, N_all].
+n_remove: Number of nodes to remove per tour.
+generator: PyTorch generator for random number generation.</p>
 <p>Returns:
-Tuple[Tensor, Tensor]: New tours, Removed nodes</p>
+Tuple[torch.Tensor, torch.Tensor]: A tuple containing:
+- new_tours: Sequence after removal of shape [B, N - n_remove].
+- removed_nodes: IDs of the ejected nodes of shape [B, n_remove].</p>
 </dd></dl>
 
 </section>

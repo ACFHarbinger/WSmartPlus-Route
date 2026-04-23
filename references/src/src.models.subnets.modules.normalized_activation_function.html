@@ -493,6 +493,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.modules.normalized_activation_function">
 <span id="src-models-subnets-modules-normalized-activation-function"></span><h1><a class="reference internal" href="#module-src.models.subnets.modules.normalized_activation_function" title="src.models.subnets.modules.normalized_activation_function"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.modules.normalized_activation_function</span></code></a><a class="headerlink" href="#module-src.models.subnets.modules.normalized_activation_function" title="Link to this heading">#</a></h1>
 <p>Normalized activation functions (Softmax, etc.) with adaptive options.</p>
+<p>Attributes:
+NormalizedActivationFunction: Wrapper for diverse normalized activation layers.</p>
+<p>Example:
+&gt;&gt;&gt; import torch
+&gt;&gt;&gt; from logic.src.models.subnets.modules.normalized_activation_function import NormalizedActivationFunction
+&gt;&gt;&gt; act = NormalizedActivationFunction(naf_name=”softmax”, dim=-1)
+&gt;&gt;&gt; x = torch.randn(1, 10)
+&gt;&gt;&gt; out = act(x)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -513,30 +521,39 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.modules.normalized_activation_function.</span></span><span class="sig-name descname"><span class="pre">NormalizedActivationFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">naf_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'softmax'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_classes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoffs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.normalized_activation_function.NormalizedActivationFunction" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
 <p>Wrapper for normalized activation functions (Softmax, LogSoftmax, etc.).</p>
+<p>Provides a unified interface for standard PyTorch normalized activations
+and more complex ones like AdaptiveLogSoftmax.</p>
+<p>Attributes:
+norm_activation (nn.Module): The underlying normalization layer.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the normalized activation function.</p>
 <p>Args:
-naf_name: Name of the normalized activation function (‘softmax’, ‘logsoftmax’, etc.).
-dim: Dimension along which the activation is applied.
-n_classes: Number of classes (for adaptive softmax).
-cutoffs: Cutoffs for adaptive softmax clusters.
-dval: Divisor value for adaptive softmax.
-bias: Whether to use bias in adaptive softmax.</p>
+naf_name (str): Name of the normalized activation function
+(‘softmax’, ‘logsoftmax’, ‘softmin’, ‘softmax2d’, ‘adaptivelogsoftmax’).
+dim (Optional[int]): Dimension along which the activation is applied. Defaults to -1.
+n_classes (Optional[int]): Number of classes (required for adaptive softmax).
+cutoffs (Optional[Sequence[int]]): Cutoffs for adaptive softmax clusters.
+dval (Optional[float]): Divisor value for adaptive softmax. Defaults to 4.0.
+bias (Optional[bool]): Whether to insert bias in adaptive softmax. Defaults to False.</p>
+<p>Raises:
+ValueError: If unknown activation name or missing required parameters.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.normalized_activation_function.NormalizedActivationFunction.init_parameters">
-<span class="sig-name descname"><span class="pre">init_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.normalized_activation_function.NormalizedActivationFunction.init_parameters" title="Link to this definition">#</a></dt>
-<dd><p>Initializes the parameters if applicable.</p>
+<span class="sig-name descname"><span class="pre">init_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.subnets.modules.normalized_activation_function.NormalizedActivationFunction.init_parameters" title="Link to this definition">#</a></dt>
+<dd><p>Initializes the parameters using Xavier-like uniform distribution.</p>
+<p>Only applies if the underlying activation has learnable parameters
+(e.g., AdaptiveLogSoftmax).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.normalized_activation_function.NormalizedActivationFunction.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.normalized_activation_function.NormalizedActivationFunction.forward" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.modules.normalized_activation_function.NormalizedActivationFunction.forward" title="Link to this definition">#</a></dt>
 <dd><p>Applies the normalized activation function to the input.</p>
 <p>Args:
-input: Input tensor.
-mask: Optional mask (not used by all activations).</p>
+input (torch.Tensor): Input tensor.
+mask (Optional[torch.Tensor]): Optional mask or target (used by AdaptiveLogSoftmax).</p>
 <p>Returns:
-Output tensor.</p>
+torch.Tensor: Normalized output or log probabilities.</p>
 </dd></dl>
 
 </dd></dl>

@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} GFACSEncoder(embed_dim: int = 128, num_layers: int = 3, num_heads: int = 8, feedforward_dim: int = 512, dropout: float = 0.0, input_dim: int = 2, **kwargs)
+`````{py:class} GFACSEncoder(embed_dim: int = 128, num_layers: int = 3, num_heads: int = 8, feedforward_dim: int = 512, dropout: float = 0.0, input_dim: int = 2, **kwargs: typing.Any)
 :canonical: src.models.subnets.encoders.gfacs.encoder.GFACSEncoder
 
 Bases: {py:obj}`logic.src.models.common.non_autoregressive.encoder.NonAutoregressiveEncoder`
@@ -37,7 +37,7 @@ Bases: {py:obj}`logic.src.models.common.non_autoregressive.encoder.NonAutoregres
 ```{autodoc2-docstring} src.models.subnets.encoders.gfacs.encoder.GFACSEncoder.__init__
 ```
 
-````{py:method} forward(td: tensordict.TensorDict, return_embeddings: bool = False, **kwargs) -> typing.Union[torch.Tensor, typing.Tuple[torch.Tensor, torch.Tensor]]
+````{py:method} forward(td: tensordict.TensorDict, return_embeddings: bool = False, **kwargs: typing.Any) -> typing.Union[torch.Tensor, typing.Tuple[torch.Tensor, torch.Tensor]]
 :canonical: src.models.subnets.encoders.gfacs.encoder.GFACSEncoder.forward
 
 ```{autodoc2-docstring} src.models.subnets.encoders.gfacs.encoder.GFACSEncoder.forward

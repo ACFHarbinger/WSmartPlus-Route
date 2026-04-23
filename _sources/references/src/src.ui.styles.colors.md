@@ -106,7 +106,7 @@
 
 ````
 
-````{py:function} get_page_config() -> dict
+````{py:function} get_page_config() -> typing.Dict[str, typing.Any]
 :canonical: src.ui.styles.colors.get_page_config
 
 ```{autodoc2-docstring} src.ui.styles.colors.get_page_config

@@ -496,6 +496,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.decoders.ptr.decoder">
 <span id="src-models-subnets-decoders-ptr-decoder"></span><h1><a class="reference internal" href="#module-src.models.subnets.decoders.ptr.decoder" title="src.models.subnets.decoders.ptr.decoder"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.decoders.ptr.decoder</span></code></a><a class="headerlink" href="#module-src.models.subnets.decoders.ptr.decoder" title="Link to this heading">#</a></h1>
 <p>Pointer Network Decoder.</p>
+<p>This module provides the PointerDecoder, which implements a recurrent pointer
+network architecture for combinatorial optimization problems.</p>
+<p>Attributes:
+PointerDecoder: Recurrent decoder that “points” to input elements sequentially.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.decoders.ptr.decoder import PointerDecoder
+&gt;&gt;&gt; decoder = PointerDecoder(embed_dim=128, hidden_dim=128, …)
+&gt;&gt;&gt; (ll, pi), hidden = decoder(input, embeddings, hidden, context)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -513,9 +521,24 @@ document.write(`
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.subnets.decoders.ptr.decoder.PointerDecoder">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.decoders.ptr.decoder.</span></span><span class="sig-name descname"><span class="pre">PointerDecoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tanh_exploration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_tanh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_glimpses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_glimpses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_logits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.decoders.ptr.decoder.PointerDecoder" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.decoders.ptr.decoder.</span></span><span class="sig-name descname"><span class="pre">PointerDecoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tanh_exploration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_tanh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_glimpses</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_glimpses</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_logits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.decoders.ptr.decoder.PointerDecoder" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
 <p>Standard Pointer Network Decoder.</p>
+<p>Implements the classical pointer network with an LSTM cell and attention-based
+pointing mechanism, as described in Vinyals et al. (2015).</p>
+<p>Attributes:
+embed_dim (int): Dimensionality of input embeddings.
+hidden_dim (int): Dimensionality of recurrent hidden state.
+n_glimpses (int): Number of glimpse attention steps per decoding step.
+mask_glimpses (bool): Whether to mask visited nodes during glimpses.
+mask_logits (bool): Whether to mask visited nodes in final logits.
+use_tanh (bool): Whether to use tanh in final attention.
+tanh_exploration (float): Tanh scaling constant.
+strategy (str): Decoding strategy (e.g., ‘greedy’, ‘sampling’).
+lstm (nn.LSTMCell): Recurrent transition cell.
+pointer (PointerAttention): Final pointing attention module.
+glimpse (PointerAttention): Glimpse attention module.
+sm (nn.Softmax): Softmax layer for glimpses.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the PointerDecoder.</p>
 <p>Args:
@@ -528,40 +551,70 @@ mask_glimpses: Whether to mask glimpses.
 mask_logits: Whether to mask logits.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.decoders.ptr.decoder.PointerDecoder.update_mask">
-<span class="sig-name descname"><span class="pre">update_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.decoders.ptr.decoder.PointerDecoder.update_mask" title="Link to this definition">#</a></dt>
-<dd><p>Updates the mask based on selected nodes.</p>
+<span class="sig-name descname"><span class="pre">update_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.decoders.ptr.decoder.PointerDecoder.update_mask" title="Link to this definition">#</a></dt>
+<dd><p>Updates the selection mask based on chosen nodes.</p>
+<p>Args:
+mask: Current boolean mask of shape (batch, nodes).
+selected: Indices of the selected nodes.</p>
+<p>Returns:
+torch.Tensor: Updated mask with selected nodes marked True.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.decoders.ptr.decoder.PointerDecoder.recurrence">
-<span class="sig-name descname"><span class="pre">recurrence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prev_mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prev_idxs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.decoders.ptr.decoder.PointerDecoder.recurrence" title="Link to this definition">#</a></dt>
-<dd><p>Performs one step of recurrence.</p>
+<span class="sig-name descname"><span class="pre">recurrence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_in</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prev_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prev_idxs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.subnets.decoders.ptr.decoder.PointerDecoder.recurrence" title="Link to this definition">#</a></dt>
+<dd><p>Performs one step of recurrent decoding.</p>
+<p>Args:
+x: Input embedding for the current step.
+h_in: Previous hidden and cell states.
+prev_mask: Mask from the previous step.
+prev_idxs: Selected indices from the previous step.
+step: Current decoding step index.
+context: Encoder outputs for attention referencing.</p>
+<p>Returns:
+Tuple: New hidden states, log probabilities, raw probabilities, and updated mask.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.decoders.ptr.decoder.PointerDecoder.calc_logits">
-<span class="sig-name descname"><span class="pre">calc_logits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logit_mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_glimpses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_logits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.decoders.ptr.decoder.PointerDecoder.calc_logits" title="Link to this definition">#</a></dt>
-<dd><p>Calculates logits for the next step.</p>
+<span class="sig-name descname"><span class="pre">calc_logits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_in</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logit_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_glimpses</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_logits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.subnets.decoders.ptr.decoder.PointerDecoder.calc_logits" title="Link to this definition">#</a></dt>
+<dd><p>Calculates attention logits for the next selection step.</p>
+<p>Args:
+x: Input feature vector.
+h_in: Current LSTM hidden and cell states.
+logit_mask: Current node selection mask.
+context: Attention reference sequence.
+mask_glimpses: Visibility flag for internal glimpses.
+mask_logits: Visibility flag for final pointing step.</p>
+<p>Returns:
+Tuple: Raw attention logits and updated hidden states.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.decoders.ptr.decoder.PointerDecoder.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">decoder_input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embedded_inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_tours</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.decoders.ptr.decoder.PointerDecoder.forward" title="Link to this definition">#</a></dt>
-<dd><p>Forward pass.</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">decoder_input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embedded_inputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.subnets.decoders.ptr.decoder.PointerDecoder.forward" title="Link to this definition">#</a></dt>
+<dd><p>Autoregressively decodes a sequence of indices.</p>
 <p>Args:
-decoder_input: The initial input to the decoder [batch_size x embed_dim].
-embedded_inputs: [sourceL x batch_size x embed_dim]
-hidden: The prev hidden state [batch_size x hidden_dim].
-context: Encoder outputs [sourceL x batch_size x hidden_dim].
-eval_tours: (Optional) tours to evaluate against.</p>
+decoder_input: The initial starting input [batch_size, embed_dim].
+embedded_inputs: Reference embeddings [sourceL, batch, embed_dim].
+hidden: Initial hidden states [batch, hidden_dim].
+context: Encoder referencing pool [sourceL, batch, hidden_dim].
+eval_tours: Pre-defined sequence to evaluate (optional).</p>
 <p>Returns:
-(outputs, selections), hidden</p>
+Tuple: Sequence log-probabilities, chosen indices, and final hidden state.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.decoders.ptr.decoder.PointerDecoder.decode">
-<span class="sig-name descname"><span class="pre">decode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.decoders.ptr.decoder.PointerDecoder.decode" title="Link to this definition">#</a></dt>
-<dd><p>Decodes probabilities to actions based on strategy.</p>
+<span class="sig-name descname"><span class="pre">decode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.decoders.ptr.decoder.PointerDecoder.decode" title="Link to this definition">#</a></dt>
+<dd><p>Decodes probabilities to specific node indices based on strategy.</p>
+<p>Args:
+probs: Predicted probability distribution.
+mask: Current boolean mask of visited nodes.</p>
+<p>Returns:
+torch.Tensor: Selected node indices.</p>
+<p>Raises:
+AssertionError: If an unknown strategy is used or greedy action is invalid.</p>
 </dd></dl>
 
 </dd></dl>

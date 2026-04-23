@@ -489,11 +489,15 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.core.glop">
 <span id="src-models-core-glop"></span><h1><a class="reference internal" href="#module-src.models.core.glop" title="src.models.core.glop"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.core.glop</span></code></a><a class="headerlink" href="#module-src.models.core.glop" title="Link to this heading">#</a></h1>
-<p><strong>init</strong>.py module.</p>
+<p>GLOP: Global-Local Optimization Policy.</p>
+<p>This package implements the GLOP architecture for large-scale routing. It
+decomposes the problem into neural global partitioning and heuristic local
+construction.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
+GLOP: Unified training wrapper.
+GLOPPolicy: Hierarchical node partitioning policy.</p>
 <p>Example:
-&gt;&gt;&gt; import <strong>init</strong></p>
+&gt;&gt;&gt; from logic.src.models.core.glop import GLOP</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">

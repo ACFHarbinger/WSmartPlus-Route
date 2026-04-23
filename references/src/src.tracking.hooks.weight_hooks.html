@@ -496,8 +496,22 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.hooks.weight_hooks">
 <span id="src-tracking-hooks-weight-hooks"></span><h1><a class="reference internal" href="#module-src.tracking.hooks.weight_hooks" title="src.tracking.hooks.weight_hooks"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.hooks.weight_hooks</span></code></a><a class="headerlink" href="#module-src.tracking.hooks.weight_hooks" title="Link to this heading">#</a></h1>
-<p>Weight monitoring and analysis hooks.</p>
-<p>Track weight updates, detect training issues, and visualize weight distributions.</p>
+<p>Weight monitoring and analysis hooks for PyTorch models.</p>
+<p>This module provides utilities to track parameter evolution during training.
+It includes hooks to monitor weight drift, distribution statistics, update
+magnitudes from the optimizer, and hard constraints on weight norms. These
+tools are vital for detecting mode collapse and initialization pathology in
+routing models.</p>
+<p>Attributes:
+add_weight_change_monitor_hook: Tracks parameter drift from start state.
+add_weight_distribution_monitor: Computes moment statistics of weights.
+add_weight_update_monitor_hook: Intercepts optimizer to track step sizes.
+add_weight_norm_constraint_hook: Enforces hard limits on weight norms.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.tracking.hooks.weight_hooks import add_weight_change_monitor_hook
+&gt;&gt;&gt; hook_data = add_weight_change_monitor_hook(model)
+&gt;&gt;&gt; # After training loop:
+&gt;&gt;&gt; drift = compute_weight_changes(model, hook_data)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -505,31 +519,31 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.hooks.weight_hooks.add_weight_change_monitor_hook" title="src.tracking.hooks.weight_hooks.add_weight_change_monitor_hook"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_weight_change_monitor_hook</span></code></a></p></td>
-<td><p>Monitor weight changes during training to detect learning issues.</p></td>
+<td><p>Monitors weight changes during training to detect learning issues.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.hooks.weight_hooks.compute_weight_changes" title="src.tracking.hooks.weight_hooks.compute_weight_changes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_weight_changes</span></code></a></p></td>
-<td><p>Compute weight changes from initial state.</p></td>
+<td><p>Computes weight changes from the initial state captured in hook_data.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.hooks.weight_hooks.add_weight_distribution_monitor" title="src.tracking.hooks.weight_hooks.add_weight_distribution_monitor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_weight_distribution_monitor</span></code></a></p></td>
-<td><p>Monitor weight distribution statistics over time.</p></td>
+<td><p>Monitors weight distribution statistics (mean, std, min, max, sparsity).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.hooks.weight_hooks.add_weight_update_monitor_hook" title="src.tracking.hooks.weight_hooks.add_weight_update_monitor_hook"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_weight_update_monitor_hook</span></code></a></p></td>
-<td><p>Monitor weight updates during training (momentum, learning rate effects).</p></td>
+<td><p>Monitors raw parameter update magnitudes by wrapping the optimizer step.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.hooks.weight_hooks.restore_optimizer_step" title="src.tracking.hooks.weight_hooks.restore_optimizer_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">restore_optimizer_step</span></code></a></p></td>
-<td><p>Restore original optimizer.step() function.</p></td>
+<td><p>Restores the original optimizer.step() implementation.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.hooks.weight_hooks.add_weight_norm_constraint_hook" title="src.tracking.hooks.weight_hooks.add_weight_norm_constraint_hook"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_weight_norm_constraint_hook</span></code></a></p></td>
-<td><p>Register hooks to constrain weight norms during training.</p></td>
+<td><p>Registers hooks to enforce maximum weight norms during training.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.hooks.weight_hooks.detect_weight_symmetry_breaking" title="src.tracking.hooks.weight_hooks.detect_weight_symmetry_breaking"><code class="xref py py-obj docutils literal notranslate"><span class="pre">detect_weight_symmetry_breaking</span></code></a></p></td>
-<td><p>Detect if weights have broken symmetry from initialization.</p></td>
+<td><p>Verifies that weights have broken symmetry from their initialization.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.hooks.weight_hooks.print_weight_summary" title="src.tracking.hooks.weight_hooks.print_weight_summary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_weight_summary</span></code></a></p></td>
-<td><p>Print comprehensive weight analysis summary.</p></td>
+<td><p>Renders a diagnostic summary of weight evolution and statistics.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.hooks.weight_hooks.analyze_weight_updates" title="src.tracking.hooks.weight_hooks.analyze_weight_updates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">analyze_weight_updates</span></code></a></p></td>
-<td><p>Analyze weight update patterns to detect training issues.</p></td>
+<td><p>Analyzes raw update magnitudes to detect training stagnation or explosion.</p></td>
 </tr>
 </tbody>
 </table>
@@ -540,143 +554,115 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.hooks.weight_hooks.add_weight_change_monitor_hook">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.hooks.weight_hooks.</span></span><span class="sig-name descname"><span class="pre">add_weight_change_monitor_hook</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.hooks.weight_hooks.add_weight_change_monitor_hook" title="Link to this definition">#</a></dt>
-<dd><p>Monitor weight changes during training to detect learning issues.</p>
-<p>Stores initial weights and computes change magnitude after each update.</p>
+<dd><p>Monitors weight changes during training to detect learning issues.</p>
+<p>Stores a snapshot of the initial state and enables future calculation of
+absolute and relative weight drift.</p>
 <p>Args:
-model: PyTorch model.
-layer_names: Specific layers to monitor. If None, monitors all.</p>
+model: The target PyTorch model.
+layer_names: Optional specific parameter names to monitor. If None,
+monitors all model parameters. Defaults to None.</p>
 <p>Returns:
-dict: Contains ‘initial_weights’, ‘weight_changes’, and metadata.</p>
-<p>Example:
-&gt;&gt;&gt; hook_data = add_weight_change_monitor_hook(model)
-&gt;&gt;&gt; changes = compute_weight_changes(model, hook_data)
-&gt;&gt;&gt; for name, change in changes.items():
-…     print(f”{name}: {change:.6f}”)</p>
+Dict[str, Any]: Mapping containing ‘initial_weights’ and metadata.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.hooks.weight_hooks.compute_weight_changes">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.hooks.weight_hooks.</span></span><span class="sig-name descname"><span class="pre">compute_weight_changes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hook_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'norm'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.hooks.weight_hooks.compute_weight_changes" title="Link to this definition">#</a></dt>
-<dd><p>Compute weight changes from initial state.</p>
+<dd><p>Computes weight changes from the initial state captured in hook_data.</p>
 <p>Args:
-model: Current model state.
-hook_data: Data from add_weight_change_monitor_hook.
-metric: Change metric (‘norm’, ‘mean_abs’, ‘max_abs’, ‘relative’).</p>
+model: The current model state.
+hook_data: Data mapping created by add_weight_change_monitor_hook.
+metric: Magnitude metric (‘norm’, ‘mean_abs’, ‘max_abs’, ‘relative’).
+Defaults to “norm”.</p>
 <p>Returns:
-dict: Weight change magnitude per layer.</p>
-<p>Example:
-&gt;&gt;&gt; hook_data = add_weight_change_monitor_hook(model)
-&gt;&gt;&gt; optimizer.step()  # Update weights
-&gt;&gt;&gt; changes = compute_weight_changes(model, hook_data, metric=’norm’)</p>
+Dict[str, float]: Mapping of parameter names to change magnitudes.</p>
+<p>Raises:
+ValueError: If an unsupported metric is specified.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.hooks.weight_hooks.add_weight_distribution_monitor">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.hooks.weight_hooks.</span></span><span class="sig-name descname"><span class="pre">add_weight_distribution_monitor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer_types</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">type</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(nn.Linear,</span> <span class="pre">nn.Conv2d)</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.hooks.weight_hooks.add_weight_distribution_monitor" title="Link to this definition">#</a></dt>
-<dd><p>Monitor weight distribution statistics over time.</p>
-<p>Useful for detecting weight initialization issues or training instabilities.</p>
+<dd><p>Monitors weight distribution statistics (mean, std, min, max, sparsity).</p>
+<p>Useful for identifying layers with initialization pathology or that
+become saturated during training.</p>
 <p>Args:
-model: PyTorch model.
-layer_types: Types of layers to monitor.</p>
+model: The target model.
+layer_types: Tuple of layer classes to analyze. Defaults to
+(nn.Linear, nn.Conv2d).</p>
 <p>Returns:
-dict: Current weight statistics.</p>
-<p>Example:
-&gt;&gt;&gt; stats = add_weight_distribution_monitor(model)
-&gt;&gt;&gt; for name, stat in stats[‘statistics’].items():
-…     print(f”{name}: mean={stat[‘mean’]:.4f}, std={stat[‘std’]:.4f}”)</p>
+Dict[str, Any]: Mapping containing current ‘statistics’ per layer.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.hooks.weight_hooks.add_weight_update_monitor_hook">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.hooks.weight_hooks.</span></span><span class="sig-name descname"><span class="pre">add_weight_update_monitor_hook</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.optim.Optimizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.hooks.weight_hooks.add_weight_update_monitor_hook" title="Link to this definition">#</a></dt>
-<dd><p>Monitor weight updates during training (momentum, learning rate effects).</p>
-<p>Wraps optimizer.step() to track update magnitudes.</p>
+<dd><p>Monitors raw parameter update magnitudes by wrapping the optimizer step.</p>
+<p>This tracks the delta applied to weights by the optimizer (including
+momentum and weight decay effects).</p>
 <p>Args:
-optimizer: PyTorch optimizer.
-log_interval: Log statistics every N steps.</p>
+optimizer: The PyTorch optimizer to instrument.
+log_interval: Frequency of update logging (to minimize overhead).
+Defaults to 10.</p>
 <p>Returns:
-dict: Contains ‘update_history’ and ‘step_count’.</p>
-<p>Example:
-&gt;&gt;&gt; hook_data = add_weight_update_monitor_hook(optimizer, log_interval=1)
-&gt;&gt;&gt; # Training loop
-&gt;&gt;&gt; for i in range(100):
-…     loss.backward()
-…     optimizer.step()  # Updates logged automatically
-…     optimizer.zero_grad()</p>
+Dict[str, Any]: Mapping with history buffer and metadata.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.hooks.weight_hooks.restore_optimizer_step">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.hooks.weight_hooks.</span></span><span class="sig-name descname"><span class="pre">restore_optimizer_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">optimizer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.optim.Optimizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hook_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.hooks.weight_hooks.restore_optimizer_step" title="Link to this definition">#</a></dt>
-<dd><p>Restore original optimizer.step() function.</p>
+<dd><p>Restores the original optimizer.step() implementation.</p>
 <p>Args:
-optimizer: PyTorch optimizer.
-hook_data: Data from add_weight_update_monitor_hook.</p>
+optimizer: The PyTorch optimizer to restore.
+hook_data: The mapping returned by add_weight_update_monitor_hook.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.hooks.weight_hooks.add_weight_norm_constraint_hook">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.hooks.weight_hooks.</span></span><span class="sig-name descname"><span class="pre">add_weight_norm_constraint_hook</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_norm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.hooks.weight_hooks.add_weight_norm_constraint_hook" title="Link to this definition">#</a></dt>
-<dd><p>Register hooks to constrain weight norms during training.</p>
-<p>Useful for preventing weight explosion in specific layers.</p>
+<dd><p>Registers hooks to enforce maximum weight norms during training.</p>
+<p>Directly scales parameter data if its norm exceeds the specified threshold
+during the backward pass.</p>
 <p>Args:
-model: PyTorch model.
-max_norm: Maximum weight norm per layer.
-layer_names: Specific layers to constrain. If None, constrains all.</p>
+model: The target model.
+max_norm: Maximum allowed L2 weight norm per layer. Defaults to 10.0.
+layer_names: Optional layers to restrict. If None, restricts all trainable.
+Defaults to None.</p>
 <p>Returns:
-list: Hook handles.</p>
-<p>Example:
-&gt;&gt;&gt; handles = add_weight_norm_constraint_hook(model, max_norm=5.0)
-&gt;&gt;&gt; # Training automatically constrains weights</p>
+List[Any]: List of hook handles.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.hooks.weight_hooks.detect_weight_symmetry_breaking">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.hooks.weight_hooks.</span></span><span class="sig-name descname"><span class="pre">detect_weight_symmetry_breaking</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.hooks.weight_hooks.detect_weight_symmetry_breaking" title="Link to this definition">#</a></dt>
-<dd><p>Detect if weights have broken symmetry from initialization.</p>
-<p>Symmetric weights can prevent learning. This checks if diversity exists.</p>
+<dd><p>Verifies that weights have broken symmetry from their initialization.</p>
 <p>Args:
-model: PyTorch model.
-threshold: Minimum weight diversity threshold.</p>
+model: The target model.
+threshold: Minimum standard deviation required to consider symmetry broken.
+Defaults to 1e-4.</p>
 <p>Returns:
-dict: True if symmetry broken (good), False otherwise (potential issue).</p>
-<p>Example:
-&gt;&gt;&gt; symmetry = detect_weight_symmetry_breaking(model)
-&gt;&gt;&gt; for name, broken in symmetry.items():
-…     if not broken:
-…         print(f”⚠️  {name}: Weights may be stuck in symmetric state!”)</p>
+Dict[str, bool]: Mapping of layer names to their symmetry broken status.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.hooks.weight_hooks.print_weight_summary">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.hooks.weight_hooks.</span></span><span class="sig-name descname"><span class="pre">print_weight_summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weight_changes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_stats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.hooks.weight_hooks.print_weight_summary" title="Link to this definition">#</a></dt>
-<dd><p>Print comprehensive weight analysis summary.</p>
+<dd><p>Renders a diagnostic summary of weight evolution and statistics.</p>
 <p>Args:
-weight_changes: Weight changes from compute_weight_changes.
-weight_stats: Weight statistics from add_weight_distribution_monitor.
-top_k: Number of layers to display.</p>
-<p>Example:
-&gt;&gt;&gt; hook_data = add_weight_change_monitor_hook(model)
-&gt;&gt;&gt; changes = compute_weight_changes(model, hook_data)
-&gt;&gt;&gt; stats = add_weight_distribution_monitor(model)
-&gt;&gt;&gt; print_weight_summary(changes, stats[‘statistics’])</p>
+weight_changes: Drifts computed via compute_weight_changes.
+weight_stats: Moments recorded from add_weight_distribution_monitor.
+top_k: Number of layers with largest drift to display. Defaults to 10.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.hooks.weight_hooks.analyze_weight_updates">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.hooks.weight_hooks.</span></span><span class="sig-name descname"><span class="pre">analyze_weight_updates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">update_history</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.hooks.weight_hooks.analyze_weight_updates" title="Link to this definition">#</a></dt>
-<dd><p>Analyze weight update patterns to detect training issues.</p>
+<dd><p>Analyzes raw update magnitudes to detect training stagnation or explosion.</p>
 <p>Args:
-update_history: Update history from add_weight_update_monitor_hook.
-window_size: Window for computing moving statistics.</p>
+update_history: Buffer of update magnitudes from the step hook.
+window_size: Rolling window size for trend analysis. Defaults to 10.</p>
 <p>Returns:
-dict: Analysis including trend, variance, and potential issues.</p>
-<p>Example:
-&gt;&gt;&gt; hook_data = add_weight_update_monitor_hook(optimizer)
-&gt;&gt;&gt; analysis = analyze_weight_updates(hook_data[‘update_history’])
-&gt;&gt;&gt; for name, metrics in analysis.items():
-…     if metrics[‘is_stuck’]:
-…         print(f”⚠️  {name}: Weights may be stuck!”)</p>
+Dict[str, Dict[str, float]]: Mapping of parameter names to diagnostic flags.</p>
 </dd></dl>
 
 </section>

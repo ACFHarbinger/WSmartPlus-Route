@@ -49,7 +49,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} get_action(state: torch.Tensor, deterministic: bool = False) -> typing.Tuple[typing.Dict[str, int], typing.Dict[str, torch.Tensor], torch.Tensor]
+````{py:method} get_action(state: torch.Tensor, deterministic: bool = False) -> typing.Tuple[typing.Dict[str, typing.Any], typing.Dict[str, torch.Tensor], torch.Tensor]
 :canonical: src.models.core.dr_alns.ppo_agent.DRALNSPPOAgent.get_action
 
 ```{autodoc2-docstring} src.models.core.dr_alns.ppo_agent.DRALNSPPOAgent.get_action
@@ -87,7 +87,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} update(best_profit: float, current_profit: float, previous_profit: float, new_accepted: bool, new_best: bool, iteration: int, max_iterations: int, iterations_since_best: int)
+````{py:method} update(best_profit: float, current_profit: float, previous_profit: float, new_accepted: bool, new_best: bool, iteration: int, max_iterations: int, iterations_since_best: int) -> None
 :canonical: src.models.core.dr_alns.ppo_agent.DRALNSState.update
 
 ```{autodoc2-docstring} src.models.core.dr_alns.ppo_agent.DRALNSState.update

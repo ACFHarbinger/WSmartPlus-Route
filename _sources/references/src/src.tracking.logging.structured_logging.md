@@ -38,14 +38,14 @@
 ```
 ````
 
-````{py:function} log_test_metric(name: str, value: typing.Any, logger_name: str = 'wsmart.structured')
+````{py:function} log_test_metric(name: str, value: typing.Any, logger_name: str = 'wsmart.structured') -> None
 :canonical: src.tracking.logging.structured_logging.log_test_metric
 
 ```{autodoc2-docstring} src.tracking.logging.structured_logging.log_test_metric
 ```
 ````
 
-````{py:function} log_benchmark_metric(benchmark: str, metrics: typing.Dict[str, typing.Any], metadata: typing.Optional[typing.Dict[str, typing.Any]] = None, logger_name: str = 'wsmart.benchmark')
+````{py:function} log_benchmark_metric(benchmark: str, metrics: typing.Dict[str, typing.Any], metadata: typing.Optional[typing.Dict[str, typing.Any]] = None, logger_name: str = 'wsmart.benchmark') -> None
 :canonical: src.tracking.logging.structured_logging.log_benchmark_metric
 
 ```{autodoc2-docstring} src.tracking.logging.structured_logging.log_benchmark_metric

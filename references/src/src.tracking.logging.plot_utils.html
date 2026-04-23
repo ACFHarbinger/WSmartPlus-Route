@@ -489,7 +489,19 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.logging.plot_utils">
 <span id="src-tracking-logging-plot-utils"></span><h1><a class="reference internal" href="#module-src.tracking.logging.plot_utils" title="src.tracking.logging.plot_utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging.plot_utils</span></code></a><a class="headerlink" href="#module-src.tracking.logging.plot_utils" title="Link to this heading">#</a></h1>
 <p>Plotting utilities for the WSmart+ Route framework.</p>
-<p>This file acts as a facade for the plotting sub-package.</p>
+<p>This file acts as a facade for the plotting sub-package, providing a central
+interface for generating static and interactive visualizations of routing
+solutions, attention maps, and training metrics.</p>
+<p>Attributes:
+plot_linechart: Generates 2D line charts for metric tracking.
+draw_graph: Visualizes problem graphs and nodes.
+plot_tsp: Plots Traveling Salesman Problem solutions.
+plot_vehicle_routes: Visualizes multi-vehicle routing paths.
+plot_attention_maps_wrapper: Batch plotting of attention mechanism weights.
+visualize_interactive_plot: Launcher for web-based interactive charts.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.tracking.logging import plot_utils
+&gt;&gt;&gt; plot_utils.plot_linechart(data, “output.png”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="data">

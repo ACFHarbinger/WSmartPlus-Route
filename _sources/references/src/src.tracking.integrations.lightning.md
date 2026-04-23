@@ -62,6 +62,9 @@ Bases: {py:obj}`pytorch_lightning.callbacks.Callback`
 ````{py:method} on_fit_start(trainer: pytorch_lightning.Trainer, pl_module: pytorch_lightning.LightningModule) -> None
 :canonical: src.tracking.integrations.lightning.TrackingCallback.on_fit_start
 
+```{autodoc2-docstring} src.tracking.integrations.lightning.TrackingCallback.on_fit_start
+```
+
 ````
 
 ````{py:method} on_train_batch_end(trainer: pytorch_lightning.Trainer, pl_module: pytorch_lightning.LightningModule, outputs: typing.Any, batch: typing.Any, batch_idx: int) -> None
@@ -75,15 +78,24 @@ Bases: {py:obj}`pytorch_lightning.callbacks.Callback`
 ````{py:method} on_train_epoch_end(trainer: pytorch_lightning.Trainer, pl_module: pytorch_lightning.LightningModule) -> None
 :canonical: src.tracking.integrations.lightning.TrackingCallback.on_train_epoch_end
 
+```{autodoc2-docstring} src.tracking.integrations.lightning.TrackingCallback.on_train_epoch_end
+```
+
 ````
 
 ````{py:method} on_validation_epoch_end(trainer: pytorch_lightning.Trainer, pl_module: pytorch_lightning.LightningModule) -> None
 :canonical: src.tracking.integrations.lightning.TrackingCallback.on_validation_epoch_end
 
+```{autodoc2-docstring} src.tracking.integrations.lightning.TrackingCallback.on_validation_epoch_end
+```
+
 ````
 
 ````{py:method} on_train_end(trainer: pytorch_lightning.Trainer, pl_module: pytorch_lightning.LightningModule) -> None
 :canonical: src.tracking.integrations.lightning.TrackingCallback.on_train_end
+
+```{autodoc2-docstring} src.tracking.integrations.lightning.TrackingCallback.on_train_end
+```
 
 ````
 
@@ -97,6 +109,9 @@ Bases: {py:obj}`pytorch_lightning.callbacks.Callback`
 
 ````{py:method} on_save_checkpoint(trainer: pytorch_lightning.Trainer, pl_module: pytorch_lightning.LightningModule, checkpoint: typing.Dict[str, typing.Any]) -> None
 :canonical: src.tracking.integrations.lightning.TrackingCallback.on_save_checkpoint
+
+```{autodoc2-docstring} src.tracking.integrations.lightning.TrackingCallback.on_save_checkpoint
+```
 
 ````
 

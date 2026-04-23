@@ -35,7 +35,7 @@
 
 ### API
 
-`````{py:class} CriticNetwork(env_name: str, embed_dim: int = 128, hidden_dim: int = 128, n_layers: int = 3, n_heads: int = 8, normalization: str = 'batch', dropout_rate: float = 0.0, aggregation: str = 'avg', encoder: typing.Optional[torch.nn.Module] = None, **kwargs)
+`````{py:class} CriticNetwork(env_name: str, embed_dim: int = 128, hidden_dim: int = 128, n_layers: int = 3, n_heads: int = 8, normalization: str = 'batch', dropout_rate: float = 0.0, aggregation: str = 'avg', encoder: typing.Optional[torch.nn.Module] = None, **kwargs: typing.Any)
 :canonical: src.models.common.critic_network.policy.CriticNetwork
 
 Bases: {py:obj}`torch.nn.Module`
@@ -59,7 +59,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 `````
 
-````{py:function} create_critic_from_actor(policy: torch.nn.Module, backbone_name: str = 'encoder', **critic_kwargs)
+````{py:function} create_critic_from_actor(policy: torch.nn.Module, backbone_name: str = 'encoder', **critic_kwargs: typing.Any) -> src.models.common.critic_network.policy.CriticNetwork
 :canonical: src.models.common.critic_network.policy.create_critic_from_actor
 
 ```{autodoc2-docstring} src.models.common.critic_network.policy.create_critic_from_actor

@@ -491,7 +491,9 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.policies.selection.combined">
 <span id="src-models-policies-selection-combined"></span><h1><a class="reference internal" href="#module-src.models.policies.selection.combined" title="src.models.policies.selection.combined"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies.selection.combined</span></code></a><a class="headerlink" href="#module-src.models.policies.selection.combined" title="Link to this heading">#</a></h1>
-<p>Combined Selection Strategy.</p>
+<p>Combined selection strategy.</p>
+<p>This module provides a mechanism to combine multiple bin selection strategies
+using logical operators (AND/OR).</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -499,7 +501,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.selection.combined.CombinedSelector" title="src.models.policies.selection.combined.CombinedSelector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CombinedSelector</span></code></a></p></td>
-<td><p>Combines multiple selection strategies with logical OR.</p></td>
+<td><p>Combines multiple selection strategies with Boolean logic.</p></td>
 </tr>
 </tbody>
 </table>
@@ -509,24 +511,27 @@ document.write(`
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.policies.selection.combined.CombinedSelector">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.policies.selection.combined.</span></span><span class="sig-name descname"><span class="pre">CombinedSelector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">selectors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.models.policies.selection.base.html#src.models.policies.selection.base.VectorizedSelector" title="src.models.policies.selection.base.VectorizedSelector"><span class="pre">src.models.policies.selection.base.VectorizedSelector</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'or'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.selection.combined.CombinedSelector" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.policies.selection.combined.</span></span><span class="sig-name descname"><span class="pre">CombinedSelector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">selectors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.models.policies.selection.base.html#src.models.policies.selection.base.VectorizedSelector" title="src.models.policies.selection.base.VectorizedSelector"><span class="pre">src.models.policies.selection.base.VectorizedSelector</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'or'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.selection.combined.CombinedSelector" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.models.policies.selection.base.html#src.models.policies.selection.base.VectorizedSelector" title="src.models.policies.selection.base.VectorizedSelector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.models.policies.selection.base.VectorizedSelector</span></code></a></p>
-<p>Combines multiple selection strategies with logical OR.</p>
-<p>A bin is selected if ANY of the constituent selectors select it.</p>
+<p>Combines multiple selection strategies with Boolean logic.</p>
+<p>A bin is selected if the logical combination (AND/OR) of all constituent
+selectors results in a True value.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize CombinedSelector.</p>
+<p>Initialize the combined selector.</p>
 <p>Args:
-selectors: List of VectorizedSelector instances to combine.
-logic: logical operator to combine selectors (‘or’ or ‘and’). Default: ‘or’.</p>
+selectors: instances of VectorizedSelector to combine.
+logic: logical operator to combine masks (‘or’ or ‘and’).</p>
+<p>Raises:
+ValueError: if logic is not ‘or’ or ‘and’.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.policies.selection.combined.CombinedSelector.select">
-<span class="sig-name descname"><span class="pre">select</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fill_levels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.selection.combined.CombinedSelector.select" title="Link to this definition">#</a></dt>
-<dd><p>Select bins chosen by any constituent selector.</p>
+<span class="sig-name descname"><span class="pre">select</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fill_levels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.selection.combined.CombinedSelector.select" title="Link to this definition">#</a></dt>
+<dd><p>Select bins chosen by constituent selectors according to logic.</p>
 <p>Args:
-fill_levels: Current fill levels (batch_size, num_nodes).
-**kwargs: Passed to all constituent selectors.</p>
+fill_levels: Current fill levels [B, N].
+**kwargs: parameters passed to all constituent selectors.</p>
 <p>Returns:
-Tensor: Boolean mask (batch_size, num_nodes).</p>
+torch.Tensor: Boolean mask [B, N] of selected bins.</p>
 </dd></dl>
 
 </dd></dl>

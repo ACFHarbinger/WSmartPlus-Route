@@ -492,7 +492,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.embeddings.dynamic">
 <span id="src-models-subnets-embeddings-dynamic"></span><h1><a class="reference internal" href="#module-src.models.subnets.embeddings.dynamic" title="src.models.subnets.embeddings.dynamic"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.embeddings.dynamic</span></code></a><a class="headerlink" href="#module-src.models.subnets.embeddings.dynamic" title="Link to this heading">#</a></h1>
 <p>Dynamic embeddings for step-dependent updates.</p>
-<p>Aligns with rl4co’s DynamicEmbedding pattern.</p>
+<p>This module provides the DynamicEmbedding layer, which aligns with the rl4co
+pattern for updating attention keys and values based on time-varying state features.</p>
+<p>Attributes:
+DynamicEmbedding: Module for projecting dynamic node features into embedding space.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.embeddings.dynamic import DynamicEmbedding
+&gt;&gt;&gt; embed = DynamicEmbedding(embed_dim=128)
+&gt;&gt;&gt; d_k, d_v, d_l = embed(td)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -500,8 +507,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.subnets.embeddings.dynamic.DynamicEmbedding" title="src.models.subnets.embeddings.dynamic.DynamicEmbedding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DynamicEmbedding</span></code></a></p></td>
-<td><p>Dynamic embedding that updates key/values based on state.
-Example: Projecting ‘visited’ mask or other dynamic node features.</p></td>
+<td><p>Dynamic embedding that updates key/values based on current step state.</p></td>
 </tr>
 </tbody>
 </table>
@@ -513,22 +519,28 @@ Example: Projecting ‘visited’ mask or other dynamic node features.</p></td>
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.dynamic.DynamicEmbedding">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.embeddings.dynamic.</span></span><span class="sig-name descname"><span class="pre">DynamicEmbedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dynamic_node_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.embeddings.dynamic.DynamicEmbedding" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
-<p>Dynamic embedding that updates key/values based on state.
-Example: Projecting ‘visited’ mask or other dynamic node features.</p>
+<p>Dynamic embedding that updates key/values based on current step state.</p>
+<p>Typically used to project dynamic node features (e.g., visited masks, current
+load, or time windows) into components that are added to the static encoder
+context.</p>
+<p>Attributes:
+embed_dim (int): Dimensionality of the target embedding space.
+project_dynamic (nn.Linear): Linear projection for dynamic features.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize DynamicEmbedding.</p>
+<p>Initializes DynamicEmbedding.</p>
 <p>Args:
 embed_dim: Embedding dimension.
-dynamic_node_dim: Dimension of dynamic features.</p>
+dynamic_node_dim: Input dimension of dynamic node-level features.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.dynamic.DynamicEmbedding.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.subnets.embeddings.dynamic.DynamicEmbedding.forward" title="Link to this definition">#</a></dt>
-<dd><p>Compute dynamic updates for glimpse K, V and logit K.</p>
-<p>Checks for ‘visited’ or ‘dynamic_context’ in td.</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.subnets.embeddings.dynamic.DynamicEmbedding.forward" title="Link to this definition">#</a></dt>
+<dd><p>Computes dynamic updates for attention components.</p>
+<p>Checks for ‘dynamic_context’ or ‘visited’ in the input state to derive
+node-level updates for glimps keys, values, and selection keys.</p>
 <p>Args:
-td: TensorDict.</p>
+td: Current state dictionary.</p>
 <p>Returns:
-Tuple of (glimpse_key, glimpse_val, logit_key).</p>
+Tuple: Updated glimpse keys, glimpse values, and selection logit keys.</p>
 </dd></dl>
 
 </dd></dl>

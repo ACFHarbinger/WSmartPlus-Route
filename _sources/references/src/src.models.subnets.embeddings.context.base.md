@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`, {py:obj}`abc.ABC`
 ```{autodoc2-docstring} src.models.subnets.embeddings.context.base.ContextEmbedder.__init__
 ```
 
-````{py:method} init_node_embeddings(nodes: dict[str, typing.Any]) -> torch.Tensor
+````{py:method} init_node_embeddings(nodes: typing.Dict[str, typing.Any]) -> torch.Tensor
 :canonical: src.models.subnets.embeddings.context.base.ContextEmbedder.init_node_embeddings
 :abstractmethod:
 
@@ -56,7 +56,7 @@ Bases: {py:obj}`torch.nn.Module`, {py:obj}`abc.ABC`
 
 ````
 
-````{py:method} forward(nodes_or_embeddings: torch.Tensor | dict[str, typing.Any], state: typing.Any | None = None) -> torch.Tensor
+````{py:method} forward(nodes_or_embeddings: typing.Union[torch.Tensor, typing.Dict[str, typing.Any]], state: typing.Optional[typing.Any] = None) -> torch.Tensor
 :canonical: src.models.subnets.embeddings.context.base.ContextEmbedder.forward
 
 ```{autodoc2-docstring} src.models.subnets.embeddings.context.base.ContextEmbedder.forward

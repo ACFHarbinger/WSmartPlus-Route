@@ -491,11 +491,11 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.meta.hrl_manager.critic_head">
 <span id="src-models-meta-hrl-manager-critic-head"></span><h1><a class="reference internal" href="#module-src.models.meta.hrl_manager.critic_head" title="src.models.meta.hrl_manager.critic_head"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.meta.hrl_manager.critic_head</span></code></a><a class="headerlink" href="#module-src.models.meta.hrl_manager.critic_head" title="Link to this heading">#</a></h1>
-<p>critic_head.py module.</p>
+<p>Critic Head for State Value Estimation.</p>
+<p>This module provides the <code class="docutils literal notranslate"><span class="pre">CriticHead</span></code>, which estimates the expected cumulative
+discounted reward from a given global problem state.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
-<p>Example:
-&gt;&gt;&gt; import critic_head</p>
+CriticHead: MLP-based value function estimator.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -503,7 +503,7 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.meta.hrl_manager.critic_head.CriticHead" title="src.models.meta.hrl_manager.critic_head.CriticHead"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CriticHead</span></code></a></p></td>
-<td><p>Critic head for value estimation.</p></td>
+<td><p>MLP head for value function estimation in PPO.</p></td>
 </tr>
 </tbody>
 </table>
@@ -515,20 +515,23 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <dt class="sig sig-object py" id="src.models.meta.hrl_manager.critic_head.CriticHead">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.meta.hrl_manager.critic_head.</span></span><span class="sig-name descname"><span class="pre">CriticHead</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.meta.hrl_manager.critic_head.CriticHead" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
-<p>Critic head for value estimation.</p>
+<p>MLP head for value function estimation in PPO.</p>
+<p>Projects the combined global problem features to a single scalar value.</p>
+<p>Attributes:
+net (nn.Sequential): MLP layers (Linear -&gt; ReLU -&gt; Linear).</p>
 <p class="rubric">Initialization</p>
-<p>Initialize Class.</p>
+<p>Initializes the critic head.</p>
 <p>Args:
-input_dim (int): Description of input_dim.
-hidden_dim (int): Description of hidden_dim.</p>
+input_dim: size of the incoming feature vector (pooled spatial + global).
+hidden_dim: width of the intermediate representation.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.meta.hrl_manager.critic_head.CriticHead.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.meta.hrl_manager.critic_head.CriticHead.forward" title="Link to this definition">#</a></dt>
-<dd><p>Forward.</p>
+<dd><p>Estimates the state value.</p>
 <p>Args:
-x (torch.Tensor): Description of x.</p>
+x: current global feature representation [B, D].</p>
 <p>Returns:
-Any: Description of return value.</p>
+torch.Tensor: predicted value scalars [B, 1].</p>
 </dd></dl>
 
 </dd></dl>

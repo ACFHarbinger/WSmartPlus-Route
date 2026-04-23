@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} IteratedLocalSearchPolicy(env_name: str, ls_operator: typing.Union[str, dict[str, float]] = 'two_opt', perturbation_type: typing.Union[str, dict[str, float]] = 'double_bridge', n_restarts: int = 5, ls_iterations: int = 50, perturbation_strength: float = 0.2, seed: int = 42, device: str = 'cpu', **kwargs)
+`````{py:class} IteratedLocalSearchPolicy(env_name: str, ls_operator: typing.Union[str, typing.Dict[str, float]] = 'two_opt', perturbation_type: typing.Union[str, typing.Dict[str, float]] = 'double_bridge', n_restarts: int = 5, ls_iterations: int = 50, perturbation_strength: float = 0.2, seed: int = 42, device: str = 'cpu', **kwargs: typing.Any)
 :canonical: src.models.policies.iterated_local_search.IteratedLocalSearchPolicy
 
 Bases: {py:obj}`logic.src.models.common.improvement.policy.ImprovementPolicy`, {py:obj}`logic.src.tracking.viz_mixin.PolicyVizMixin`
@@ -53,7 +53,7 @@ Bases: {py:obj}`logic.src.models.common.improvement.policy.ImprovementPolicy`, {
 
 ````
 
-````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.base.RL4COEnvBase] = None, strategy: str = 'greedy', num_starts: int = 1, max_steps: typing.Optional[int] = None, phase: str = 'train', return_actions: bool = True, **kwargs) -> typing.Dict[str, typing.Any]
+````{py:method} forward(td: tensordict.TensorDict, env: typing.Optional[logic.src.envs.base.base.RL4COEnvBase] = None, strategy: str = 'greedy', num_starts: int = 1, max_steps: typing.Optional[int] = None, phase: str = 'train', return_actions: bool = True, **kwargs: typing.Any) -> typing.Dict[str, typing.Any]
 :canonical: src.models.policies.iterated_local_search.IteratedLocalSearchPolicy.forward
 
 ```{autodoc2-docstring} src.models.policies.iterated_local_search.IteratedLocalSearchPolicy.forward

@@ -488,8 +488,18 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.logging.pylogger">
 <span id="src-tracking-logging-pylogger"></span><h1><a class="reference internal" href="#module-src.tracking.logging.pylogger" title="src.tracking.logging.pylogger"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging.pylogger</span></code></a><a class="headerlink" href="#module-src.tracking.logging.pylogger" title="Link to this heading">#</a></h1>
-<p>Multi-GPU friendly python logger.
-Adapter from rl4co/utils/pylogger.py.</p>
+<p>Multi-GPU friendly Python logging utilities.</p>
+<p>This module provides a specialized logger initialization that is compatible with
+distributed training environments. It ensures that logs are only emitted from
+the primary process (rank zero) to prevent terminal output clutter and
+multiplication. It also optionally integrates with structured JSON logging if a
+file path is provided.</p>
+<p>Attributes:
+get_pylogger: Primary utility for initializing rank-zero-only loggers.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.tracking.logging.pylogger import get_pylogger
+&gt;&gt;&gt; logger = get_pylogger(<strong>name</strong>)
+&gt;&gt;&gt; logger.info(“This message only appears once on rank zero.”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -497,7 +507,7 @@ Adapter from rl4co/utils/pylogger.py.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.logging.pylogger.get_pylogger" title="src.tracking.logging.pylogger.get_pylogger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_pylogger</span></code></a></p></td>
-<td><p>Initializes multi-GPU-friendly python command line logger.</p></td>
+<td><p>Initializes a multi-GPU-friendly Python command line logger.</p></td>
 </tr>
 </tbody>
 </table>
@@ -507,11 +517,16 @@ Adapter from rl4co/utils/pylogger.py.</p>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.logging.pylogger.get_pylogger">
-<span class="sig-prename descclassname"><span class="pre">src.tracking.logging.pylogger.</span></span><span class="sig-name descname"><span class="pre">get_pylogger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">__name__</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">logging.Logger</span></span></span><a class="headerlink" href="#src.tracking.logging.pylogger.get_pylogger" title="Link to this definition">#</a></dt>
-<dd><p>Initializes multi-GPU-friendly python command line logger.</p>
+<span class="sig-prename descclassname"><span class="pre">src.tracking.logging.pylogger.</span></span><span class="sig-name descname"><span class="pre">get_pylogger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">__name__</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">logging.Logger</span></span></span><a class="headerlink" href="#src.tracking.logging.pylogger.get_pylogger" title="Link to this definition">#</a></dt>
+<dd><p>Initializes a multi-GPU-friendly Python command line logger.</p>
+<p>Wraps standard logging methods with the rank_zero_only decorator to prevent
+duplicate output in distributed settings.</p>
 <p>Args:
-name: Logger name.
-log_file: Optional path to log file. If provided, enables structured JSON logging.</p>
+name: The name used for the logger instance. Defaults to the module name.
+log_file: Optional path to a log file. If provided, enables structured
+JSON logging to that file. Defaults to None.</p>
+<p>Returns:
+logging.Logger: The configured rank-zero-safe logger.</p>
 </dd></dl>
 
 </section>

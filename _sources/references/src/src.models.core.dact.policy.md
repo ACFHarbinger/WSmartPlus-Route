@@ -23,7 +23,7 @@
 
 ### API
 
-````{py:class} DACTPolicy(embed_dim: int = 128, num_layers: int = 3, num_heads: int = 8, env_name: str = 'tsp_kopt', **kwargs)
+````{py:class} DACTPolicy(embed_dim: int = 128, num_layers: int = 3, num_heads: int = 8, env_name: str = 'tsp_kopt', **kwargs: typing.Any)
 :canonical: src.models.core.dact.policy.DACTPolicy
 
 Bases: {py:obj}`logic.src.models.common.improvement.policy.ImprovementPolicy`

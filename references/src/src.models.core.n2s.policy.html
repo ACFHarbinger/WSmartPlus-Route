@@ -488,11 +488,11 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.core.n2s.policy">
 <span id="src-models-core-n2s-policy"></span><h1><a class="reference internal" href="#module-src.models.core.n2s.policy" title="src.models.core.n2s.policy"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.core.n2s.policy</span></code></a><a class="headerlink" href="#module-src.models.core.n2s.policy" title="Link to this heading">#</a></h1>
-<p>policy.py module.</p>
+<p>Neural Neighborhood Search (N2S) Policy.</p>
+<p>This module implements the <code class="docutils literal notranslate"><span class="pre">N2SPolicy</span></code>, which integrates the N2S-specific
+encoder and decoder for iterative improvement of combinatorial solutions.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
-<p>Example:
-&gt;&gt;&gt; import policy</p>
+N2SPolicy: Collaborative Transformer policy for neighborhood search.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -500,7 +500,7 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.core.n2s.policy.N2SPolicy" title="src.models.core.n2s.policy.N2SPolicy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">N2SPolicy</span></code></a></p></td>
-<td><p>N2S Policy: Iterative neighborhood search.</p></td>
+<td><p>N2S Policy for iterative routing improvement.</p></td>
 </tr>
 </tbody>
 </table>
@@ -510,16 +510,22 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.core.n2s.policy.N2SPolicy">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.n2s.policy.</span></span><span class="sig-name descname"><span class="pre">N2SPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_neighbors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.n2s.policy.N2SPolicy" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.n2s.policy.</span></span><span class="sig-name descname"><span class="pre">N2SPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_neighbors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.n2s.policy.N2SPolicy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.models.common.improvement.policy.ImprovementPolicy</span></code></p>
-<p>N2S Policy: Iterative neighborhood search.</p>
+<p>N2S Policy for iterative routing improvement.</p>
+<p>Leverages a spatial-aware encoder and a move-selection decoder to
+iteratively refine a solution by exploring and selecting local
+neighborhood moves.</p>
+<p>Attributes:
+encoder (N2SEncoder): Transformer encoder for problem and solution state.
+decoder (N2SDecoder): Pairwise node-selection decoder.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize Class.</p>
+<p>Initializes the N2S policy.</p>
 <p>Args:
-embed_dim (int): Description of embed_dim.
-num_heads (int): Description of num_heads.
-k_neighbors (int): Description of k_neighbors.
-kwargs (Any): Description of kwargs.</p>
+embed_dim: Width of the latent feature space.
+num_heads: count of attention heads for the internal subnets.
+k_neighbors: number of local neighbors to consider per node.
+**kwargs: Extra parameters passed to the improvement base.</p>
 </dd></dl>
 
 </section>

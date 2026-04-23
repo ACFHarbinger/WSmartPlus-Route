@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} RuntimeDataTracker(run: typing.Any, max_fields: int = 32)
+`````{py:class} RuntimeDataTracker(run: typing.Optional[logic.src.tracking.core.run.Run], max_fields: int = 32)
 :canonical: src.tracking.integrations.data.RuntimeDataTracker
 
 ```{autodoc2-docstring} src.tracking.integrations.data.RuntimeDataTracker

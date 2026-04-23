@@ -497,8 +497,20 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.ui.pages.simulation.summary_sections">
 <span id="src-ui-pages-simulation-summary-sections"></span><h1><a class="reference internal" href="#module-src.ui.pages.simulation.summary_sections" title="src.ui.pages.simulation.summary_sections"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.pages.simulation.summary_sections</span></code></a><a class="headerlink" href="#module-src.ui.pages.simulation.summary_sections" title="Link to this heading">#</a></h1>
 <p>Section renderers for the Simulation Summary page.</p>
-<p>Extracted from <code class="docutils literal notranslate"><span class="pre">simulation_summary.py</span></code> to keep module sizes under 400 LoC.
-Functions are re-exported from the original module for backward compatibility.</p>
+<p>This module provides specialized visualization components for analyzing
+aggregate simulation results. It includes renderers for KPI overviews,
+comprehensive performance tables, metric rankings, Pareto front analysis,
+cross-distribution comparisons, and daily time-series trends.</p>
+<p>Example:
+_render_kpi_overview(summary_df, “All”)</p>
+<p>Attributes:
+_filter_by_dist: Utility to filter analysis DataFrames by distribution.
+_render_kpi_overview: Displays top-level status cards.
+_render_summary_table: Renders the master policy comparison table.
+_render_metric_bar_chart: Visualizes metric rankings across policies.
+_render_pareto: Performs multi-objective tradeoff analysis.
+_render_distribution_comparison: Analyzes policy stability across environments.
+_render_daily_timeseries: Visualizes temporal performance dynamics.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -506,25 +518,25 @@ Functions are re-exported from the original module for backward compatibility.</
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.simulation.summary_sections._filter_by_dist" title="src.ui.pages.simulation.summary_sections._filter_by_dist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_filter_by_dist</span></code></a></p></td>
-<td><p>Apply distribution filter to a DataFrame. Returns filtered copy.</p></td>
+<td><p>Applies a distribution filter to the provided DataFrame.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.simulation.summary_sections._render_kpi_overview" title="src.ui.pages.simulation.summary_sections._render_kpi_overview"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_kpi_overview</span></code></a></p></td>
-<td><p>Render top-level KPI cards with best values across filtered policies.</p></td>
+<td><p>Renders top-level KPI cards for best-performing policies.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.simulation.summary_sections._render_summary_table" title="src.ui.pages.simulation.summary_sections._render_summary_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_summary_table</span></code></a></p></td>
-<td><p>Render the policy comparison table with mean +/- std.</p></td>
+<td><p>Renders a formatted policy comparison table with confidence intervals.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.simulation.summary_sections._render_metric_bar_chart" title="src.ui.pages.simulation.summary_sections._render_metric_bar_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_metric_bar_chart</span></code></a></p></td>
-<td><p>Render a bar chart ranking policies by a selected metric.</p></td>
+<td><p>Renders a ranked bar chart for a selected performance metric.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.simulation.summary_sections._render_pareto" title="src.ui.pages.simulation.summary_sections._render_pareto"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_pareto</span></code></a></p></td>
-<td><p>Render Pareto front scatter for two user-selected metrics.</p></td>
+<td><p>Renders a Pareto front tradeoff analysis between two selected metrics.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.simulation.summary_sections._render_distribution_comparison" title="src.ui.pages.simulation.summary_sections._render_distribution_comparison"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_distribution_comparison</span></code></a></p></td>
-<td><p>Render side-by-side comparison of the same policy across distributions.</p></td>
+<td><p>Renders a side-by-side comparison of policies across different environments.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.simulation.summary_sections._render_daily_timeseries" title="src.ui.pages.simulation.summary_sections._render_daily_timeseries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_daily_timeseries</span></code></a></p></td>
-<td><p>Render daily metric time-series overlaid per policy.</p></td>
+<td><p>Renders temporal performance dynamics overlaid across multiple policies.</p></td>
 </tr>
 </tbody>
 </table>
@@ -552,43 +564,65 @@ Functions are re-exported from the original module for backward compatibility.</
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.simulation.summary_sections._filter_by_dist">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.simulation.summary_sections.</span></span><span class="sig-name descname"><span class="pre">_filter_by_dist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.ui.pages.simulation.summary_sections._filter_by_dist" title="Link to this definition">#</a></dt>
-<dd><p>Apply distribution filter to a DataFrame. Returns filtered copy.</p>
+<dd><p>Applies a distribution filter to the provided DataFrame.</p>
+<p>Args:
+df: The input analysis DataFrame containing a ‘Distribution’ column.
+dist_filter: The distribution name to filter by (or “All”).</p>
+<p>Returns:
+pd.DataFrame: A filtered copy of the original DataFrame.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.simulation.summary_sections._render_kpi_overview">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.simulation.summary_sections.</span></span><span class="sig-name descname"><span class="pre">_render_kpi_overview</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">summary_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.simulation.summary_sections._render_kpi_overview" title="Link to this definition">#</a></dt>
-<dd><p>Render top-level KPI cards with best values across filtered policies.</p>
+<dd><p>Renders top-level KPI cards for best-performing policies.</p>
+<p>Args:
+summary_df: The master summary statistical DataFrame.
+dist_filter: Active distribution filter from user controls.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.simulation.summary_sections._render_summary_table">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.simulation.summary_sections.</span></span><span class="sig-name descname"><span class="pre">_render_summary_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">summary_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.simulation.summary_sections._render_summary_table" title="Link to this definition">#</a></dt>
-<dd><p>Render the policy comparison table with mean +/- std.</p>
+<dd><p>Renders a formatted policy comparison table with confidence intervals.</p>
+<p>Args:
+summary_df: The master summary statistical DataFrame.
+dist_filter: Active distribution filter from user controls.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.simulation.summary_sections._render_metric_bar_chart">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.simulation.summary_sections.</span></span><span class="sig-name descname"><span class="pre">_render_metric_bar_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">summary_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.simulation.summary_sections._render_metric_bar_chart" title="Link to this definition">#</a></dt>
-<dd><p>Render a bar chart ranking policies by a selected metric.</p>
+<dd><p>Renders a ranked bar chart for a selected performance metric.</p>
+<p>Args:
+summary_df: The master summary statistical DataFrame.
+dist_filter: Active distribution filter from user controls.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.simulation.summary_sections._render_pareto">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.simulation.summary_sections.</span></span><span class="sig-name descname"><span class="pre">_render_pareto</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">summary_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.simulation.summary_sections._render_pareto" title="Link to this definition">#</a></dt>
-<dd><p>Render Pareto front scatter for two user-selected metrics.</p>
+<dd><p>Renders a Pareto front tradeoff analysis between two selected metrics.</p>
+<p>Args:
+summary_df: The master summary statistical DataFrame.
+dist_filter: Active distribution filter from user controls.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.simulation.summary_sections._render_distribution_comparison">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.simulation.summary_sections.</span></span><span class="sig-name descname"><span class="pre">_render_distribution_comparison</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">summary_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.simulation.summary_sections._render_distribution_comparison" title="Link to this definition">#</a></dt>
-<dd><p>Render side-by-side comparison of the same policy across distributions.</p>
+<dd><p>Renders a side-by-side comparison of policies across different environments.</p>
+<p>Args:
+summary_df: The master summary statistical DataFrame.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.simulation.summary_sections._render_daily_timeseries">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.simulation.summary_sections.</span></span><span class="sig-name descname"><span class="pre">_render_daily_timeseries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">daily_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.simulation.summary_sections._render_daily_timeseries" title="Link to this definition">#</a></dt>
-<dd><p>Render daily metric time-series overlaid per policy.</p>
+<dd><p>Renders temporal performance dynamics overlaid across multiple policies.</p>
+<p>Args:
+daily_df: Long-form DataFrame containing daily metric records.
+dist_filter: Active distribution filter from user controls.</p>
 </dd></dl>
 
 </section>

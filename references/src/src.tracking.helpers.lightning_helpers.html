@@ -501,6 +501,17 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.helpers.lightning_helpers">
 <span id="src-tracking-helpers-lightning-helpers"></span><h1><a class="reference internal" href="#module-src.tracking.helpers.lightning_helpers" title="src.tracking.helpers.lightning_helpers"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.helpers.lightning_helpers</span></code></a><a class="headerlink" href="#module-src.tracking.helpers.lightning_helpers" title="Link to this heading">#</a></h1>
 <p>Helper functions and utilities for the WSTracker Lightning integration.</p>
+<p>This module provides support logic for the :class:<code class="docutils literal notranslate"><span class="pre">TrackingCallback</span></code>,
+including hook registration mechanisms, visualization orchestration (attention
+heatmaps, embeddings, loss landscapes), and metric extraction utilities. It
+acts as the glue between PyTorch Lightning’s lifecycle and the WSTracker API.</p>
+<p>Attributes:
+register_monitoring_hooks: Configures model hooks for activation/gradient tracking.
+run_periodic_visualisations: Triggers high-level artifact generation.
+log_checkpoint_artifact: Registers model checkpoints in the run database.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.tracking.helpers.lightning_helpers import extract_metrics
+&gt;&gt;&gt; metrics = extract_metrics(trainer.callback_metrics, prefix=”train/”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -508,37 +519,37 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.helpers.lightning_helpers._opt" title="src.tracking.helpers.lightning_helpers._opt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_opt</span></code></a></p></td>
-<td><p>Read a flag from the tracking config, defaulting when absent.</p></td>
+<td><p>Reads a configuration flag with a fallback value.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.helpers.lightning_helpers.register_monitoring_hooks" title="src.tracking.helpers.lightning_helpers.register_monitoring_hooks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">register_monitoring_hooks</span></code></a></p></td>
-<td><p>Register monitoring hooks based on tracking config flags.</p></td>
+<td><p>Configures monitoring hooks on the module based on settings.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.helpers.lightning_helpers.log_hook_stats_to_run" title="src.tracking.helpers.lightning_helpers.log_hook_stats_to_run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_hook_stats_to_run</span></code></a></p></td>
-<td><p>Forward accumulated hook statistics to WSTracker.</p></td>
+<td><p>Processes and logs accumulated hook statistics to the WSTracker run.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.helpers.lightning_helpers.remove_monitoring_hooks" title="src.tracking.helpers.lightning_helpers.remove_monitoring_hooks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_monitoring_hooks</span></code></a></p></td>
-<td><p>Remove all registered monitoring hooks.</p></td>
+<td><p>Detaches and clears all registered monitoring hooks from the model.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.helpers.lightning_helpers._log_attention_heatmaps" title="src.tracking.helpers.lightning_helpers._log_attention_heatmaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_log_attention_heatmaps</span></code></a></p></td>
-<td><p>Log attention heatmaps.</p></td>
+<td><p>Generates and logs attention heatmap visualizations.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.helpers.lightning_helpers._log_embeddings" title="src.tracking.helpers.lightning_helpers._log_embeddings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_log_embeddings</span></code></a></p></td>
-<td><p>Log node embeddings.</p></td>
+<td><p>Generates and logs weight distribution and node embedding projections.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.helpers.lightning_helpers._log_loss_landscape" title="src.tracking.helpers.lightning_helpers._log_loss_landscape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_log_loss_landscape</span></code></a></p></td>
-<td><p>Log loss landscape.</p></td>
+<td><p>Computes and logs a 2D projection of the loss landscape.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.helpers.lightning_helpers.run_periodic_visualisations" title="src.tracking.helpers.lightning_helpers.run_periodic_visualisations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_periodic_visualisations</span></code></a></p></td>
-<td><p>Run configured visualisations (attention heatmaps, embeddings, loss landscape).</p></td>
+<td><p>Dispatches all scheduled visualization tasks for the current epoch.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.helpers.lightning_helpers.log_execution_profiling_report" title="src.tracking.helpers.lightning_helpers.log_execution_profiling_report"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_execution_profiling_report</span></code></a></p></td>
-<td><p>Generate and log execution profiling report to WSTracker.</p></td>
+<td><p>Gathers the latest profiling data and logs the report to the active run.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.helpers.lightning_helpers.extract_metrics" title="src.tracking.helpers.lightning_helpers.extract_metrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_metrics</span></code></a></p></td>
-<td><p>Extract metrics from Lightning callback_metrics that begin with prefix.</p></td>
+<td><p>Filters and formats metrics from a callback dictionary by prefix.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.helpers.lightning_helpers.log_checkpoint_artifact" title="src.tracking.helpers.lightning_helpers.log_checkpoint_artifact"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_checkpoint_artifact</span></code></a></p></td>
-<td><p>Log Lightning checkpoint paths directly as run artifacts.</p></td>
+<td><p>Registers best and last model checkpoints as run artifacts.</p></td>
 </tr>
 </tbody>
 </table>
@@ -566,67 +577,113 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.helpers.lightning_helpers._opt">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.helpers.lightning_helpers.</span></span><span class="sig-name descname"><span class="pre">_opt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.tracking.TrackingConfig</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.tracking.helpers.lightning_helpers._opt" title="Link to this definition">#</a></dt>
-<dd><p>Read a flag from the tracking config, defaulting when absent.</p>
+<dd><p>Reads a configuration flag with a fallback value.</p>
+<p>Args:
+cfg: The tracking configuration object.
+attr: Attribute name to read.
+default: Fallback value if configuration is None or attribute is missing.</p>
+<p>Returns:
+Any: The configuration value or default.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.helpers.lightning_helpers.register_monitoring_hooks">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.helpers.lightning_helpers.</span></span><span class="sig-name descname"><span class="pre">register_monitoring_hooks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.tracking.TrackingConfig</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hook_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.helpers.lightning_helpers.register_monitoring_hooks" title="Link to this definition">#</a></dt>
-<dd><p>Register monitoring hooks based on tracking config flags.</p>
+<dd><p>Configures monitoring hooks on the module based on settings.</p>
+<p>Registers hooks for gradients, activations, weight distributions, and
+NaN detection if enabled in the tracking configuration.</p>
+<p>Args:
+cfg: The tracking configuration defining which hooks to enable.
+pl_module: The Lightning module to instrument.
+hook_data: Shared dictionary to store hook handles for later removal.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.helpers.lightning_helpers.log_hook_stats_to_run">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.helpers.lightning_helpers.</span></span><span class="sig-name descname"><span class="pre">log_hook_stats_to_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hook_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.helpers.lightning_helpers.log_hook_stats_to_run" title="Link to this definition">#</a></dt>
-<dd><p>Forward accumulated hook statistics to WSTracker.</p>
+<dd><p>Processes and logs accumulated hook statistics to the WSTracker run.</p>
+<p>Args:
+run: The active tracking run.
+epoch: Current epoch index for metric step logging.
+hook_data: Dictionary containing active hook handles and statistics.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.helpers.lightning_helpers.remove_monitoring_hooks">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.helpers.lightning_helpers.</span></span><span class="sig-name descname"><span class="pre">remove_monitoring_hooks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hook_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.helpers.lightning_helpers.remove_monitoring_hooks" title="Link to this definition">#</a></dt>
-<dd><p>Remove all registered monitoring hooks.</p>
+<dd><p>Detaches and clears all registered monitoring hooks from the model.</p>
+<p>Args:
+hook_data: Dictionary containing currently active hook handles.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.helpers.lightning_helpers._log_attention_heatmaps">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.helpers.lightning_helpers.</span></span><span class="sig-name descname"><span class="pre">_log_attention_heatmaps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.tracking.TrackingConfig</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.helpers.lightning_helpers._log_attention_heatmaps" title="Link to this definition">#</a></dt>
-<dd><p>Log attention heatmaps.</p>
+<dd><p>Generates and logs attention heatmap visualizations.</p>
+<p>Args:
+log_dir: Base directory for storing visualization artifacts.
+cfg: Tracking configuration object.
+pl_module: The Lightning module containing the policy networks.
+epoch: Current epoch index for versioning the artifacts.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.helpers.lightning_helpers._log_embeddings">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.helpers.lightning_helpers.</span></span><span class="sig-name descname"><span class="pre">_log_embeddings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.tracking.TrackingConfig</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.helpers.lightning_helpers._log_embeddings" title="Link to this definition">#</a></dt>
-<dd><p>Log node embeddings.</p>
+<dd><p>Generates and logs weight distribution and node embedding projections.</p>
+<p>Args:
+log_dir: Base directory for storing visualization artifacts.
+cfg: Tracking configuration object.
+pl_module: The Lightning module containing the policy networks.
+epoch: Current epoch index.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.helpers.lightning_helpers._log_loss_landscape">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.helpers.lightning_helpers.</span></span><span class="sig-name descname"><span class="pre">_log_loss_landscape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.tracking.TrackingConfig</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.helpers.lightning_helpers._log_loss_landscape" title="Link to this definition">#</a></dt>
-<dd><p>Log loss landscape.</p>
+<dd><p>Computes and logs a 2D projection of the loss landscape.</p>
+<p>Args:
+log_dir: Base directory for output.
+cfg: Tracking configuration object.
+pl_module: The Lightning module to perturb.
+epoch: Current epoch index.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.helpers.lightning_helpers.run_periodic_visualisations">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.helpers.lightning_helpers.</span></span><span class="sig-name descname"><span class="pre">run_periodic_visualisations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.tracking.TrackingConfig</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.helpers.lightning_helpers.run_periodic_visualisations" title="Link to this definition">#</a></dt>
-<dd><p>Run configured visualisations (attention heatmaps, embeddings, loss landscape).</p>
+<dd><p>Dispatches all scheduled visualization tasks for the current epoch.</p>
+<p>Args:
+cfg: The tracking configuration defining which plots are enabled.
+pl_module: The Lightning module being trained.
+epoch: Current epoch index.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.helpers.lightning_helpers.log_execution_profiling_report">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.helpers.lightning_helpers.</span></span><span class="sig-name descname"><span class="pre">log_execution_profiling_report</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.helpers.lightning_helpers.log_execution_profiling_report" title="Link to this definition">#</a></dt>
-<dd><p>Generate and log execution profiling report to WSTracker.</p>
+<dd><p>Gathers the latest profiling data and logs the report to the active run.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.helpers.lightning_helpers.extract_metrics">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.helpers.lightning_helpers.</span></span><span class="sig-name descname"><span class="pre">extract_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">callback_metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.helpers.lightning_helpers.extract_metrics" title="Link to this definition">#</a></dt>
-<dd><p>Extract metrics from Lightning callback_metrics that begin with prefix.</p>
+<dd><p>Filters and formats metrics from a callback dictionary by prefix.</p>
+<p>Args:
+callback_metrics: Dictionary of metrics (usually trainer.callback_metrics).
+prefix: Metric name prefix to filter by (e.g., ‘val/’).</p>
+<p>Returns:
+Dict[str, float]: Filtered mapping of metric names to scalars.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.helpers.lightning_helpers.log_checkpoint_artifact">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.helpers.lightning_helpers.</span></span><span class="sig-name descname"><span class="pre">log_checkpoint_artifact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.callbacks.ModelCheckpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.helpers.lightning_helpers.log_checkpoint_artifact" title="Link to this definition">#</a></dt>
-<dd><p>Log Lightning checkpoint paths directly as run artifacts.</p>
+<dd><p>Registers best and last model checkpoints as run artifacts.</p>
+<p>Args:
+run: The active tracking run.
+cb: The ModelCheckpoint callback instance.
+epoch: Current epoch index for checkpoint metadata.</p>
 </dd></dl>
 
 </section>

@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} TSPAdapter(td: tensordict.TensorDict, partition_actions: torch.Tensor, subprob_batch_size: int = 2000, **kwargs)
+`````{py:class} TSPAdapter(td: tensordict.TensorDict, partition_actions: torch.Tensor, subprob_batch_size: int = 2000, **kwargs: typing.Any)
 :canonical: src.models.subnets.modules.tsp_adapter.TSPAdapter
 
 Bases: {py:obj}`src.models.subnets.modules.adapter_base.SubproblemAdapter`

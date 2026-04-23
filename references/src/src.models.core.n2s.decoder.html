@@ -494,11 +494,12 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.core.n2s.decoder">
 <span id="src-models-core-n2s-decoder"></span><h1><a class="reference internal" href="#module-src.models.core.n2s.decoder" title="src.models.core.n2s.decoder"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.core.n2s.decoder</span></code></a><a class="headerlink" href="#module-src.models.core.n2s.decoder" title="Link to this heading">#</a></h1>
-<p>decoder.py module.</p>
+<p>N2S Decoder implementation.</p>
+<p>This module implements the <code class="docutils literal notranslate"><span class="pre">N2SDecoder</span></code>, which selects node pairs for local
+neighborhood moves based on the learned node embeddings and spatial
+constraints.</p>
 <p>Attributes:
-MODULE_VAR (Type): Description of module level variable.</p>
-<p>Example:
-&gt;&gt;&gt; import decoder</p>
+N2SDecoder: Pairwise action decoder for iterative neighborhood search.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -506,7 +507,7 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.core.n2s.decoder.N2SDecoder" title="src.models.core.n2s.decoder.N2SDecoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">N2SDecoder</span></code></a></p></td>
-<td><p>N2S Decoder: Predicts moves within node neighborhoods.</p></td>
+<td><p>N2S Decoder for selecting neighborhood moves.</p></td>
 </tr>
 </tbody>
 </table>
@@ -516,37 +517,61 @@ MODULE_VAR (Type): Description of module level variable.</p>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.core.n2s.decoder.N2SDecoder">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.n2s.decoder.</span></span><span class="sig-name descname"><span class="pre">N2SDecoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.n2s.decoder.N2SDecoder" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.n2s.decoder.</span></span><span class="sig-name descname"><span class="pre">N2SDecoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.n2s.decoder.N2SDecoder" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.models.common.improvement.decoder.ImprovementDecoder</span></code></p>
-<p>N2S Decoder: Predicts moves within node neighborhoods.</p>
+<p>N2S Decoder for selecting neighborhood moves.</p>
+<p>Uses a pairwise attention mechanism to evaluate all valid node combinations
+within a batch, selecting the move that most likely leads to a solution
+improvement.</p>
+<p>Attributes:
+project_q (nn.Linear): Transformation for query nodes.
+project_k (nn.Linear): Transformation for key nodes.
+scale (float): Attention normalization factor.
+seed (int): RNG seed for sampling.
+generator (torch.Generator): Local random search generator.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize Class.</p>
+<p>Initializes the N2S decoder.</p>
 <p>Args:
-embed_dim (int): Description of embed_dim.
-seed (int): Description of seed.
-kwargs (Any): Description of kwargs.</p>
+embed_dim: width of the latent features.
+seed: RNG seed for reproducible sampling.
+**kwargs: Extra parameters like ‘device’.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="src.models.core.n2s.decoder.N2SDecoder.device">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">device</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.device</span></em><a class="headerlink" href="#src.models.core.n2s.decoder.N2SDecoder.device" title="Link to this definition">#</a></dt>
-<dd><p>Get device of the model.</p>
+<dd><p>Determines the current hardware placement of parameters.</p>
+<p>Returns:
+torch.device: The active device (CPU/CUDA).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.n2s.decoder.N2SDecoder.__getstate__">
-<span class="sig-name descname"><span class="pre">__getstate__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.n2s.decoder.N2SDecoder.__getstate__" title="Link to this definition">#</a></dt>
-<dd><p>Prepare state for pickling (handle non-picklable Generator).</p>
+<span class="sig-name descname"><span class="pre">__getstate__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.n2s.decoder.N2SDecoder.__getstate__" title="Link to this definition">#</a></dt>
+<dd><p>Serializes the state, handling non-picklable components.</p>
+<p>Returns:
+Dict[str, Any]: Attribute map with generator state recorded.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.n2s.decoder.N2SDecoder.__setstate__">
-<span class="sig-name descname"><span class="pre">__setstate__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.n2s.decoder.N2SDecoder.__setstate__" title="Link to this definition">#</a></dt>
-<dd><p>Restore state after unpickling.</p>
+<span class="sig-name descname"><span class="pre">__setstate__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.core.n2s.decoder.N2SDecoder.__setstate__" title="Link to this definition">#</a></dt>
+<dd><p>Restores policy state including the RNG generator.</p>
+<p>Args:
+state: Serialized dictionary of attributes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.n2s.decoder.N2SDecoder.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.n2s.decoder.N2SDecoder.forward" title="Link to this definition">#</a></dt>
-<dd><p>Predict move (idx1, idx2).</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.n2s.decoder.N2SDecoder.forward" title="Link to this definition">#</a></dt>
+<dd><p>Predicts an improvement move (node pair i, j).</p>
+<p>Args:
+td: problem state container.
+embeddings: encoded node features [B, N, D].
+env: targeted environment logic.
+**kwargs: Execution flags including ‘strategy’ (‘greedy’ or ‘sample’).</p>
+<p>Returns:
+Tuple[torch.Tensor, torch.Tensor]:
+- log_p: log-likelihood of the selected move [B].
+- actions: pair of node indices [B, 2].</p>
 </dd></dl>
 
 </dd></dl>

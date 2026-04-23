@@ -37,7 +37,7 @@ Bases: {py:obj}`src.models.policies.selection.base.VectorizedSelector`
 ```{autodoc2-docstring} src.models.policies.selection.regular.RegularSelector.__init__
 ```
 
-````{py:method} select(fill_levels: torch.Tensor, current_day: typing.Optional[torch.Tensor] = None, frequency: typing.Optional[int] = None, **kwargs) -> torch.Tensor
+````{py:method} select(fill_levels: torch.Tensor, current_day: typing.Optional[typing.Union[torch.Tensor, int]] = None, frequency: typing.Optional[int] = None, **kwargs: typing.Any) -> torch.Tensor
 :canonical: src.models.policies.selection.regular.RegularSelector.select
 
 ```{autodoc2-docstring} src.models.policies.selection.regular.RegularSelector.select

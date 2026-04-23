@@ -489,7 +489,16 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.decoders.glimpse.attention">
 <span id="src-models-subnets-decoders-glimpse-attention"></span><h1><a class="reference internal" href="#module-src.models.subnets.decoders.glimpse.attention" title="src.models.subnets.decoders.glimpse.attention"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.decoders.glimpse.attention</span></code></a><a class="headerlink" href="#module-src.models.subnets.decoders.glimpse.attention" title="Link to this heading">#</a></h1>
-<p>Multi-Head Attention (MHA) logic for constructuve decoders.</p>
+<p>Multi-Head Attention (MHA) logic for constructive decoders.</p>
+<p>This module provides utility functions for computing attention-based logits
+and reshaping tensors for multi-head attention mechanisms used in decoders.</p>
+<p>Attributes:
+one_to_many_logits: Function to compute attention logits for multiple nodes.
+make_heads: Function to reshape tensors for multi-head attention.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.decoders.glimpse.attention import one_to_many_logits, make_heads
+&gt;&gt;&gt; k_heads = make_heads(k_tensor, n_heads=8)
+&gt;&gt;&gt; logits = one_to_many_logits(query, k_heads, v_heads, logit_k, mask, n_heads=8)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -497,10 +506,10 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.subnets.decoders.glimpse.attention.one_to_many_logits" title="src.models.subnets.decoders.glimpse.attention.one_to_many_logits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">one_to_many_logits</span></code></a></p></td>
-<td><p>Compute attention logits for a query against multiple nodes.</p></td>
+<td><p>Computes attention logits for a query against multiple nodes.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.models.subnets.decoders.glimpse.attention.make_heads" title="src.models.subnets.decoders.glimpse.attention.make_heads"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_heads</span></code></a></p></td>
-<td><p>Reshape tensor into heads.</p></td>
+<td><p>Reshapes tensor into heads for multi-head attention.</p></td>
 </tr>
 </tbody>
 </table>
@@ -511,13 +520,32 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.subnets.decoders.glimpse.attention.one_to_many_logits">
 <span class="sig-prename descclassname"><span class="pre">src.models.subnets.decoders.glimpse.attention.</span></span><span class="sig-name descname"><span class="pre">one_to_many_logits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">glimpse_K</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">glimpse_V</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logit_K</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-math.inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tanh_clipping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.decoders.glimpse.attention.one_to_many_logits" title="Link to this definition">#</a></dt>
-<dd><p>Compute attention logits for a query against multiple nodes.</p>
+<dd><p>Computes attention logits for a query against multiple nodes.</p>
+<p>Args:
+query: Query embeddings of shape (batch, steps, embed_dim).
+glimpse_K: Key embeddings for glimpse attention.
+glimpse_V: Value embeddings for glimpse attention.
+logit_K: Key embeddings for final logit computation.
+mask: Mask for visited/invalid nodes.
+n_heads: Number of attention heads.
+graph_mask: Optional graph-level mask.
+dist_bias: Optional distance or cost bias.
+mask_val: Value to use for masked nodes.
+tanh_clipping: Scaling factor for tanh logit clipping.</p>
+<p>Returns:
+torch.Tensor: Logits for node selection of shape (batch, graph_size).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.subnets.decoders.glimpse.attention.make_heads">
 <span class="sig-prename descclassname"><span class="pre">src.models.subnets.decoders.glimpse.attention.</span></span><span class="sig-name descname"><span class="pre">make_heads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.decoders.glimpse.attention.make_heads" title="Link to this definition">#</a></dt>
-<dd><p>Reshape tensor into heads.</p>
+<dd><p>Reshapes tensor into heads for multi-head attention.</p>
+<p>Args:
+v: Input tensor of shape (batch, size, embed_dim).
+n_heads: Number of attention heads.
+num_steps: Optional number of steps (defaults to graph size).</p>
+<p>Returns:
+torch.Tensor: Reshaped tensor of shape (batch, n_heads, size, head_dim).</p>
 </dd></dl>
 
 </section>

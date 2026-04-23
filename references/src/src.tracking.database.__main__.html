@@ -489,10 +489,13 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.database.__main__">
 <span id="src-tracking-database-main"></span><h1><a class="reference internal" href="#module-src.tracking.database.__main__" title="src.tracking.database.__main__"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.database.__main__</span></code></a><a class="headerlink" href="#module-src.tracking.database.__main__" title="Link to this heading">#</a></h1>
 <p>Entrypoint for the tracking database CLI.</p>
-<p>Usage::
-python -m logic.src.tracking.database inspect
-python -m logic.src.tracking.database compact
-python -m logic.src.tracking.database clean</p>
+<p>This module provides the command-line interface for the WSmart-Route tracking
+system. It exposes subcommands for database inspection, maintenance, analytics,
+and data export.</p>
+<p>Attributes:
+main: Function responsible for parsing arguments and dispatching commands.</p>
+<p>Example:
+$ python -m logic.src.tracking.database stats –experiment AM-VRPP-50</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -500,7 +503,7 @@ python -m logic.src.tracking.database clean</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.database.__main__.main" title="src.tracking.database.__main__.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a></p></td>
-<td></td>
+<td><p>Parses command-line arguments and executes the requested database command.</p></td>
 </tr>
 </tbody>
 </table>
@@ -511,7 +514,16 @@ python -m logic.src.tracking.database clean</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.database.__main__.main">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.database.__main__.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.database.__main__.main" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Parses command-line arguments and executes the requested database command.</p>
+<p>Supported subcommands:
+inspect: Print database overview and recent runs.
+clean: Delete all data, preserve schema.
+compact: Integrity check, WAL checkpoint, VACUUM.
+stats: Show comprehensive database statistics.
+metrics: Show per-metric evolution statistics.
+prune: Remove stale or failed runs.
+export: Serializes a run record to JSON.</p>
+</dd></dl>
 
 </section>
 </section>

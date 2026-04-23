@@ -467,7 +467,6 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typical-usage">Typical usage</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
@@ -502,30 +501,19 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.ui.services.tracking_service">
 <span id="src-ui-services-tracking-service"></span><h1><a class="reference internal" href="#module-src.ui.services.tracking_service" title="src.ui.services.tracking_service"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.services.tracking_service</span></code></a><a class="headerlink" href="#module-src.ui.services.tracking_service" title="Link to this heading">#</a></h1>
-<section id="typical-usage">
-<h2>Typical usage<a class="headerlink" href="#typical-usage" title="Link to this heading">#</a></h2>
-<p>::</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from logic.src.ui.services.tracking_service import (
-    load_tracking_runs,
-    load_run_metrics,
-    load_run_params,
-    list_metric_keys,
-)
-
-runs = load_tracking_runs()
-run_id = runs[0][&quot;id&quot;]
-df = load_run_metrics(run_id, &quot;gurobi/s0/profit&quot;)
-st.line_chart(df.set_index(&quot;step&quot;)[&quot;value&quot;])
-</pre></div>
-</div>
-</section>
-<p>WSTracker read service for the Streamlit dashboard.</p>
-<p>Provides cached Streamlit functions to query the WSTracker SQLite
-database so simulation and training metrics can be rendered alongside
-the existing JSON-log-based charts.</p>
-<p>All public functions accept an optional <em>tracking_uri</em> parameter; when
-omitted the default <code class="docutils literal notranslate"><span class="pre">assets/tracking</span></code> directory relative to the
-project root is used.</p>
+<p>Read service for backend-agnostic experiment tracking.</p>
+<p>This module provides cached Streamlit functions to query metrics and runs
+from multiple tracking backends including the native WSTracker (SQLite),
+MLflow, and ZenML. It enables unified visualization of simulation stability
+metrics and deep learning training progress.</p>
+<p>Attributes:
+load_tracking_runs: Fetches runs from the native SQLite store.
+load_mlflow_runs: Fetches runs from an MLflow tracking server.
+load_zenml_pipeline_runs: Fetches recent ZenML pipeline executions.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.ui.services.tracking_service import load_tracking_runs
+&gt;&gt;&gt; runs = load_tracking_runs(tracking_uri=”assets/tracking”)
+&gt;&gt;&gt; print(f”Found {len(runs)} active experiments.”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -533,46 +521,46 @@ project root is used.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.services.tracking_service._get_tracking_uri" title="src.ui.services.tracking_service._get_tracking_uri"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_tracking_uri</span></code></a></p></td>
-<td></td>
+<td><p>Resolves the tracking URI, falling back to the default assets path.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.services.tracking_service._open_store" title="src.ui.services.tracking_service._open_store"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_open_store</span></code></a></p></td>
-<td><p>Return a :class:<code class="docutils literal notranslate"><span class="pre">TrackingStore</span></code> for <em>tracking_uri</em>, or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></td>
+<td><p>Retrieves a TrackingStore instance for the specified URI.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.services.tracking_service.load_tracking_runs" title="src.ui.services.tracking_service.load_tracking_runs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_tracking_runs</span></code></a></p></td>
-<td><p>Return all runs from the WSTracker database.</p></td>
+<td><p>Retrieves all experiment runs from the native WSTracker database.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.services.tracking_service.load_run_metrics" title="src.ui.services.tracking_service.load_run_metrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_run_metrics</span></code></a></p></td>
-<td><p>Return the step-indexed history of <em>metric_key</em> for <em>run_id</em>.</p></td>
+<td><p>Retrieves the step-indexed history of a specific metric for a run.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.services.tracking_service.load_run_params" title="src.ui.services.tracking_service.load_run_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_run_params</span></code></a></p></td>
-<td><p>Return the logged parameters for <em>run_id</em>.</p></td>
+<td><p>Retrieves the logged parameters for a specific experiment run.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.services.tracking_service.list_metric_keys" title="src.ui.services.tracking_service.list_metric_keys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">list_metric_keys</span></code></a></p></td>
-<td><p>Return the distinct metric keys logged for <em>run_id</em>.</p></td>
+<td><p>Retrieves the distinct metric keys logged for a specific run.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.services.tracking_service.load_run_tags" title="src.ui.services.tracking_service.load_run_tags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_run_tags</span></code></a></p></td>
-<td><p>Return the tags for <em>run_id</em>.</p></td>
+<td><p>Retrieves the metadata tags associated with a specific experiment run.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.services.tracking_service.load_run_artifacts" title="src.ui.services.tracking_service.load_run_artifacts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_run_artifacts</span></code></a></p></td>
-<td><p>Return the logged artifacts for <em>run_id</em>.</p></td>
+<td><p>Retrieves the logged artifacts metadata for a specific experiment run.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.services.tracking_service.load_run_dataset_events" title="src.ui.services.tracking_service.load_run_dataset_events"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_run_dataset_events</span></code></a></p></td>
-<td><p>Return the dataset lifecycle events for <em>run_id</em>.</p></td>
+<td><p>Retrieves dataset lifecycle events associated with a specific run.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.services.tracking_service.load_mlflow_runs" title="src.ui.services.tracking_service.load_mlflow_runs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_mlflow_runs</span></code></a></p></td>
-<td><p>Return a DataFrame of MLflow runs.</p></td>
+<td><p>Retrieves a summary of experiment runs from an MLflow tracking server.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.services.tracking_service.load_mlflow_metric_history" title="src.ui.services.tracking_service.load_mlflow_metric_history"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_mlflow_metric_history</span></code></a></p></td>
-<td><p>Return the step-indexed history of <em>metric_key</em> from MLflow.</p></td>
+<td><p>Retrieves the step-indexed history of a metric from MLflow.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.services.tracking_service.list_mlflow_metric_keys" title="src.ui.services.tracking_service.list_mlflow_metric_keys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">list_mlflow_metric_keys</span></code></a></p></td>
-<td><p>Return metric keys logged for an MLflow run.</p></td>
+<td><p>Retrieves a list of all metric keys logged for an MLflow run.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.services.tracking_service.load_zenml_pipeline_runs" title="src.ui.services.tracking_service.load_zenml_pipeline_runs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_zenml_pipeline_runs</span></code></a></p></td>
-<td><p>Return recent ZenML pipeline runs.</p></td>
+<td><p>Retrieves the metadata for recent ZenML pipeline executions.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.services.tracking_service.load_zenml_run_steps" title="src.ui.services.tracking_service.load_zenml_run_steps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_zenml_run_steps</span></code></a></p></td>
-<td><p>Return the steps of a ZenML pipeline run.</p></td>
+<td><p>Retrieves step-level granular metadata for a ZenML pipeline run.</p></td>
 </tr>
 </tbody>
 </table>
@@ -583,147 +571,151 @@ project root is used.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.tracking_service._get_tracking_uri">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.tracking_service.</span></span><span class="sig-name descname"><span class="pre">_get_tracking_uri</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tracking_uri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.ui.services.tracking_service._get_tracking_uri" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Resolves the tracking URI, falling back to the default assets path.</p>
+<p>Args:
+tracking_uri: Optional user-provided path or URI.</p>
+<p>Returns:
+str: Resolved path to the tracking directory.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.tracking_service._open_store">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.tracking_service.</span></span><span class="sig-name descname"><span class="pre">_open_store</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tracking_uri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.services.tracking_service._open_store" title="Link to this definition">#</a></dt>
-<dd><p>Return a :class:<code class="docutils literal notranslate"><span class="pre">TrackingStore</span></code> for <em>tracking_uri</em>, or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+<dd><p>Retrieves a TrackingStore instance for the specified URI.</p>
+<p>Args:
+tracking_uri: Path to the tracking directory.</p>
+<p>Returns:
+Optional[TrackingStore]: An initialized store if valid, else None.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.tracking_service.load_tracking_runs">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.tracking_service.</span></span><span class="sig-name descname"><span class="pre">load_tracking_runs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tracking_uri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.services.tracking_service.load_tracking_runs" title="Link to this definition">#</a></dt>
-<dd><p>Return all runs from the WSTracker database.</p>
+<dd><p>Retrieves all experiment runs from the native WSTracker database.</p>
 <p>Args:
-tracking_uri: Path to the tracking directory containing
-<code class="docutils literal notranslate"><span class="pre">tracking.db</span></code>.  Defaults to <code class="docutils literal notranslate"><span class="pre">assets/tracking</span></code>.
-run_type: Optional filter (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;training&quot;</span></code> or
-<code class="docutils literal notranslate"><span class="pre">&quot;simulation&quot;</span></code>).</p>
+tracking_uri: Path containing tracking.db. Defaults to assets/tracking.
+run_type: Optional filter (e.g., “training” or “simulation”).</p>
 <p>Returns:
-List of run dicts with keys <code class="docutils literal notranslate"><span class="pre">id</span></code>, <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">status</span></code>,
-<code class="docutils literal notranslate"><span class="pre">run_type</span></code>, <code class="docutils literal notranslate"><span class="pre">start_time</span></code>, <code class="docutils literal notranslate"><span class="pre">end_time</span></code>.</p>
+List[Dict[str, Any]]: Sequence of run metadata dictionaries.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.tracking_service.load_run_metrics">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.tracking_service.</span></span><span class="sig-name descname"><span class="pre">load_run_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracking_uri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.ui.services.tracking_service.load_run_metrics" title="Link to this definition">#</a></dt>
-<dd><p>Return the step-indexed history of <em>metric_key</em> for <em>run_id</em>.</p>
+<dd><p>Retrieves the step-indexed history of a specific metric for a run.</p>
 <p>Args:
-run_id: UUID of the run.
-metric_key: Exact metric key string (e.g.
-<code class="docutils literal notranslate"><span class="pre">&quot;gurobi/s0/profit&quot;</span></code>).
+run_id: Unique identifier for the tracking run.
+metric_key: identifier for the metric (e.g., “gurobi/s0/profit”).
 tracking_uri: Path to the tracking directory.</p>
 <p>Returns:
-DataFrame with columns <code class="docutils literal notranslate"><span class="pre">step</span></code>, <code class="docutils literal notranslate"><span class="pre">value</span></code>, <code class="docutils literal notranslate"><span class="pre">timestamp</span></code>.
-Empty DataFrame when the run or metric is not found.</p>
+pd.DataFrame: History with columns [step, value, timestamp].</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.tracking_service.load_run_params">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.tracking_service.</span></span><span class="sig-name descname"><span class="pre">load_run_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracking_uri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.services.tracking_service.load_run_params" title="Link to this definition">#</a></dt>
-<dd><p>Return the logged parameters for <em>run_id</em>.</p>
+<dd><p>Retrieves the logged parameters for a specific experiment run.</p>
 <p>Args:
-run_id: UUID of the run.
+run_id: Unique identifier for the tracking run.
 tracking_uri: Path to the tracking directory.</p>
 <p>Returns:
-Flat param dict, or an empty dict when not found.</p>
+Dict[str, Any]: Flat dictionary of parameters logged for the run.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.tracking_service.list_metric_keys">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.tracking_service.</span></span><span class="sig-name descname"><span class="pre">list_metric_keys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracking_uri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.services.tracking_service.list_metric_keys" title="Link to this definition">#</a></dt>
-<dd><p>Return the distinct metric keys logged for <em>run_id</em>.</p>
+<dd><p>Retrieves the distinct metric keys logged for a specific run.</p>
 <p>Args:
-run_id: UUID of the run.
+run_id: Unique identifier for the tracking run.
 tracking_uri: Path to the tracking directory.</p>
 <p>Returns:
-Sorted list of metric key strings.</p>
+List[str]: Sorted sequence of distinct metric key strings.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.tracking_service.load_run_tags">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.tracking_service.</span></span><span class="sig-name descname"><span class="pre">load_run_tags</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracking_uri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.services.tracking_service.load_run_tags" title="Link to this definition">#</a></dt>
-<dd><p>Return the tags for <em>run_id</em>.</p>
+<dd><p>Retrieves the metadata tags associated with a specific experiment run.</p>
 <p>Args:
-run_id: UUID of the run.
+run_id: Unique identifier for the tracking run.
 tracking_uri: Path to the tracking directory.</p>
 <p>Returns:
-Dict of tag key/values, or an empty dict when not found.</p>
+Dict[str, str]: Dictionary of tag keys and values.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.tracking_service.load_run_artifacts">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.tracking_service.</span></span><span class="sig-name descname"><span class="pre">load_run_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracking_uri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.services.tracking_service.load_run_artifacts" title="Link to this definition">#</a></dt>
-<dd><p>Return the logged artifacts for <em>run_id</em>.</p>
+<dd><p>Retrieves the logged artifacts metadata for a specific experiment run.</p>
 <p>Args:
-run_id: UUID of the run.
+run_id: Unique identifier for the tracking run.
 tracking_uri: Path to the tracking directory.</p>
 <p>Returns:
-List of artifact dicts (path, artifact_type, timestamp, etc.).</p>
+List[Dict[str, Any]]: Sequence of artifact metadata dictionaries.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.tracking_service.load_run_dataset_events">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.tracking_service.</span></span><span class="sig-name descname"><span class="pre">load_run_dataset_events</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracking_uri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.services.tracking_service.load_run_dataset_events" title="Link to this definition">#</a></dt>
-<dd><p>Return the dataset lifecycle events for <em>run_id</em>.</p>
+<dd><p>Retrieves dataset lifecycle events associated with a specific run.</p>
 <p>Args:
-run_id: UUID of the run.
+run_id: Unique identifier for the tracking run.
 tracking_uri: Path to the tracking directory.</p>
 <p>Returns:
-List of event dicts (event_type, file_path, timestamp, etc.).</p>
+List[Dict[str, Any]]: Sequence of dataset event dictionaries.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.tracking_service.load_mlflow_runs">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.tracking_service.</span></span><span class="sig-name descname"><span class="pre">load_mlflow_runs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tracking_uri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mlruns'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">mlflow.entities.Run</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.services.tracking_service.load_mlflow_runs" title="Link to this definition">#</a></dt>
-<dd><p>Return a DataFrame of MLflow runs.</p>
+<dd><p>Retrieves a summary of experiment runs from an MLflow tracking server.</p>
 <p>Args:
-tracking_uri: MLflow tracking server URI.
-experiment_name: Optional experiment filter.</p>
+tracking_uri: MLflow tracking server URI. Defaults to “mlruns”.
+experiment_name: Optional experiment filter to narrow down results.</p>
 <p>Returns:
-DataFrame with columns from <code class="docutils literal notranslate"><span class="pre">mlflow.search_runs</span></code>, or empty.</p>
+Union[pd.DataFrame, List[Run]]: DataFrame containing run metadata.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.tracking_service.load_mlflow_metric_history">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.tracking_service.</span></span><span class="sig-name descname"><span class="pre">load_mlflow_metric_history</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracking_uri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mlruns'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.ui.services.tracking_service.load_mlflow_metric_history" title="Link to this definition">#</a></dt>
-<dd><p>Return the step-indexed history of <em>metric_key</em> from MLflow.</p>
+<dd><p>Retrieves the step-indexed history of a metric from MLflow.</p>
 <p>Args:
-run_id: MLflow run ID.
-metric_key: Metric key to fetch.
-tracking_uri: MLflow tracking server URI.</p>
+run_id: Unique MLflow identifier for the run.
+metric_key: identifier for the metric to fetch.
+tracking_uri: MLflow tracking server URI. Defaults to “mlruns”.</p>
 <p>Returns:
-DataFrame with columns <code class="docutils literal notranslate"><span class="pre">step</span></code>, <code class="docutils literal notranslate"><span class="pre">value</span></code>, <code class="docutils literal notranslate"><span class="pre">timestamp</span></code>.</p>
+pd.DataFrame: History with columns [step, value, timestamp].</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.tracking_service.list_mlflow_metric_keys">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.tracking_service.</span></span><span class="sig-name descname"><span class="pre">list_mlflow_metric_keys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracking_uri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mlruns'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.services.tracking_service.list_mlflow_metric_keys" title="Link to this definition">#</a></dt>
-<dd><p>Return metric keys logged for an MLflow run.</p>
+<dd><p>Retrieves a list of all metric keys logged for an MLflow run.</p>
 <p>Args:
-run_id: MLflow run ID.
-tracking_uri: MLflow tracking server URI.</p>
+run_id: Unique MLflow identifier for the run.
+tracking_uri: MLflow tracking server URI. Defaults to “mlruns”.</p>
 <p>Returns:
-Sorted list of metric key strings.</p>
+List[str]: Sorted sequence of metric key strings.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.tracking_service.load_zenml_pipeline_runs">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.tracking_service.</span></span><span class="sig-name descname"><span class="pre">load_zenml_pipeline_runs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.services.tracking_service.load_zenml_pipeline_runs" title="Link to this definition">#</a></dt>
-<dd><p>Return recent ZenML pipeline runs.</p>
+<dd><p>Retrieves the metadata for recent ZenML pipeline executions.</p>
 <p>Returns:
-List of dicts with pipeline run metadata (name, status, etc.).</p>
+List[Dict[str, Any]]: Sequence of pipeline run metadata dicts.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.services.tracking_service.load_zenml_run_steps">
 <span class="sig-prename descclassname"><span class="pre">src.ui.services.tracking_service.</span></span><span class="sig-name descname"><span class="pre">load_zenml_run_steps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.services.tracking_service.load_zenml_run_steps" title="Link to this definition">#</a></dt>
-<dd><p>Return the steps of a ZenML pipeline run.</p>
+<dd><p>Retrieves step-level granular metadata for a ZenML pipeline run.</p>
 <p>Args:
-run_id: UUID of the ZenML pipeline run.</p>
+run_id: Unique ZenML identifier for the pipeline run.</p>
 <p>Returns:
-List of step dicts (name, status, duration, etc.).</p>
+List[Dict[str, Any]]: Sequence of step metadata dictionaries.</p>
 </dd></dl>
 
 </section>
@@ -775,7 +767,6 @@ List of step dicts (name, status, duration, etc.).</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typical-usage">Typical usage</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">

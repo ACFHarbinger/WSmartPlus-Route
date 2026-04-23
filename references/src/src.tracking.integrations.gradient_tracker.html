@@ -497,20 +497,16 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.integrations.gradient_tracker">
 <span id="src-tracking-integrations-gradient-tracker"></span><h1><a class="reference internal" href="#module-src.tracking.integrations.gradient_tracker" title="src.tracking.integrations.gradient_tracker"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.integrations.gradient_tracker</span></code></a><a class="headerlink" href="#module-src.tracking.integrations.gradient_tracker" title="Link to this heading">#</a></h1>
-<p>Gradient norm and weight distribution tracker for PyTorch Lightning training.</p>
-<p>Logs per-layer gradient norms, global gradient norm, weight distributions,
-and grad/weight ratios to W&amp;B or TensorBoard to monitor for mode collapse,
-vanishing gradients, or exploding gradients during neural routing model training.</p>
-<p>Zero-interference design: all logging is guarded by <code class="docutils literal notranslate"><span class="pre">log_freq</span></code> / <code class="docutils literal notranslate"><span class="pre">hist_freq</span></code>
-parameters and does NOT modify any tensor states.</p>
-<p>Usage (Hydra config):
-callbacks:
-- gradient_tracker:
-<em>target</em>: logic.src.pipeline.callbacks.pytorch.gradient_tracker.GradientTrackerCallback
-log_freq: 50
-hist_freq: 200
-log_histograms: true
-prefix: “debug/”</p>
+<p>Gradient and weight distribution tracker for PyTorch Lightning.</p>
+<p>This module provides the :class:<code class="docutils literal notranslate"><span class="pre">GradientTrackerCallback</span></code> which monitors
+gradient norms, weight distributions, and stability ratios during training.
+It integrates with W&amp;B and TensorBoard to provide visual diagnostics for neural
+routing model convergence.</p>
+<p>Attributes:
+GradientTrackerCallback: Callback for monitoring gradient and weight dynamics.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.tracking.integrations.gradient_tracker import GradientTrackerCallback
+&gt;&gt;&gt; tracker = GradientTrackerCallback(log_freq=10, prefix=”train/debug/”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -531,72 +527,96 @@ prefix: “debug/”</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.tracking.integrations.gradient_tracker.</span></span><span class="sig-name descname"><span class="pre">GradientTrackerCallback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_freq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hist_freq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_histograms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer_filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'debug/'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_grad_norm_alert</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.integrations.gradient_tracker.GradientTrackerCallback" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">pytorch_lightning.callbacks.Callback</span></code></p>
 <p>Tracks gradient norms and weight distributions per layer during training.</p>
-<p>Logs the following metrics to the active logger (W&amp;B or TensorBoard):</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">{prefix}global_grad_norm</span></code> — L2 norm across all tracked parameters.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">{prefix}grad_norm/{layer}</span></code> — Per-layer gradient L2 norm.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">{prefix}grad_weight_ratio/{layer}</span></code> — Ratio of gradient norm to weight
-norm (a stability diagnostic; large values suggest exploding gradients).</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">{prefix}weights/{layer}</span></code> — Weight histogram (W&amp;B / TensorBoard).</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">{prefix}gradients/{layer}</span></code> — Gradient histogram (W&amp;B / TensorBoard).</p></li>
-</ul>
-<p>Args:
-log_freq: Log scalar gradient norms every N global training steps. Default 50.
-hist_freq: Log weight/gradient histograms every N global steps. Default 200.
-norm_type: Norm type for gradient computation. Accepts 1, 2, or <code class="docutils literal notranslate"><span class="pre">float(&quot;inf&quot;)</span></code>.
-Default 2.0.
-log_histograms: Whether to log weight and gradient histograms.
-Requires W&amp;B or TensorBoard logger. Default True.
-include_bias: Whether to track bias parameters. Default False.
-layer_filter: Optional list of substrings. Only layers whose parameter
-name contains at least one substring are tracked. None = track all. Default None.
-prefix: Metric key prefix prepended to all logged keys. Default <code class="docutils literal notranslate"><span class="pre">&quot;debug/&quot;</span></code>.
-max_grad_norm_alert: Emit a <code class="docutils literal notranslate"><span class="pre">RuntimeWarning</span></code> when the global gradient
-norm exceeds this value. Set to None to disable. Default 100.0.</p>
+<p>Logs diagnostic metrics including global and per-layer gradient norms,
+grad/weight ratios, and optional histograms to the active logger.</p>
+<p>Attributes:
+log_freq: Step frequency for scalar logging.
+hist_freq: Step frequency for histogram logging.
+norm_type: L-norm type for gradient calculation.
+log_histograms: If True, enables weight/gradient histogram capture.
+include_bias: If True, tracks bias parameters in addition to weights.
+layer_filter: List of substrings to filter tracked layer names.
+prefix: Namespace prefix for all logged metric keys.
+max_grad_norm_alert: Threshold for emitting gradient explosion warnings.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes the gradient tracking callback.</p>
+<p>Args:
+log_freq: Scalar logging frequency. Defaults to 50.
+hist_freq: Histogram logging frequency. Defaults to 200.
+norm_type: Order of the norm (1, 2, or inf). Defaults to 2.0.
+log_histograms: Whether to log distribution histograms. Defaults to True.
+include_bias: Whether to track bias terms. Defaults to False.
+layer_filter: Optional substrings to filter parameter names.
+prefix: Metric key prefix. Defaults to “debug/”.
+max_grad_norm_alert: Gradient norm threshold for runtime warnings.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.integrations.gradient_tracker.GradientTrackerCallback._should_track">
 <span class="sig-name descname"><span class="pre">_should_track</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.tracking.integrations.gradient_tracker.GradientTrackerCallback._should_track" title="Link to this definition">#</a></dt>
-<dd><p>Return True if this parameter name should be included in logging.</p>
+<dd><p>Determines if a parameter should be included in tracking.</p>
+<p>Args:
+name: Parameter name (e.g., ‘encoder.layers.0.weight’).</p>
+<p>Returns:
+bool: True if the parameter passes all filters.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.integrations.gradient_tracker.GradientTrackerCallback._grad_norm">
 <span class="sig-name descname"><span class="pre">_grad_norm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Parameter</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.integrations.gradient_tracker.GradientTrackerCallback._grad_norm" title="Link to this definition">#</a></dt>
-<dd><p>Compute gradient norm for one parameter tensor. Returns None if no grad.</p>
+<dd><p>Calculates the gradient norm for a single parameter tensor.</p>
+<p>Args:
+param: The parameter object to inspect.</p>
+<p>Returns:
+Optional[float]: The computed norm, or None if no gradient exists.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.integrations.gradient_tracker.GradientTrackerCallback._detect_logger">
 <span class="sig-name descname"><span class="pre">_detect_logger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.integrations.gradient_tracker.GradientTrackerCallback._detect_logger" title="Link to this definition">#</a></dt>
-<dd><p>Return <code class="docutils literal notranslate"><span class="pre">'wandb'</span></code>, <code class="docutils literal notranslate"><span class="pre">'tensorboard'</span></code>, or None for the active logger.</p>
+<dd><p>Identifies the active experiment logger type.</p>
+<p>Args:
+trainer: The PyTorch Lightning trainer instance.</p>
+<p>Returns:
+Optional[str]: ‘wandb’, ‘tensorboard’, or None.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.integrations.gradient_tracker.GradientTrackerCallback.on_after_backward">
 <span class="sig-name descname"><span class="pre">on_after_backward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.integrations.gradient_tracker.GradientTrackerCallback.on_after_backward" title="Link to this definition">#</a></dt>
-<dd><p>Hook called immediately after <code class="docutils literal notranslate"><span class="pre">loss.backward()</span></code>.</p>
-<p>Logs per-layer gradient norms and the global grad norm every
-<code class="docutils literal notranslate"><span class="pre">log_freq</span></code> steps. Does NOT clip or modify any gradients.</p>
+<dd><p>Hook called immediately after backward pass to log gradient norms.</p>
+<p>Args:
+trainer: Active Lightning trainer.
+pl_module: Active Lightning module.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.integrations.gradient_tracker.GradientTrackerCallback.on_train_batch_end">
 <span class="sig-name descname"><span class="pre">on_train_batch_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.integrations.gradient_tracker.GradientTrackerCallback.on_train_batch_end" title="Link to this definition">#</a></dt>
-<dd><p>Log weight and gradient histograms every <code class="docutils literal notranslate"><span class="pre">hist_freq</span></code> steps.</p>
-<p>Dispatches to W&amp;B or TensorBoard depending on the active logger.</p>
+<dd><p>Hook called at batch end to log distribution histograms.</p>
+<p>Args:
+trainer: Active Lightning trainer.
+pl_module: Active Lightning module.
+outputs: Batch outputs.
+batch: Data batch.
+batch_idx: Global batch index.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.integrations.gradient_tracker.GradientTrackerCallback._log_histograms_wandb">
 <span class="sig-name descname"><span class="pre">_log_histograms_wandb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.integrations.gradient_tracker.GradientTrackerCallback._log_histograms_wandb" title="Link to this definition">#</a></dt>
-<dd><p>Send weight and gradient histograms to W&amp;B.</p>
+<dd><p>Serializes and sends histograms to Weights &amp; Biases.</p>
+<p>Args:
+pl_module: Lightning module containing parameters.
+step: Global step index.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.tracking.integrations.gradient_tracker.GradientTrackerCallback._log_histograms_tensorboard">
 <span class="sig-name descname"><span class="pre">_log_histograms_tensorboard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.Trainer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pl_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pytorch_lightning.LightningModule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.integrations.gradient_tracker.GradientTrackerCallback._log_histograms_tensorboard" title="Link to this definition">#</a></dt>
-<dd><p>Send weight and gradient histograms to TensorBoard.</p>
+<dd><p>Serializes and sends histograms to TensorBoard.</p>
+<p>Args:
+trainer: Lightning trainer instance.
+pl_module: Lightning module containing parameters.
+step: Global step index.</p>
 </dd></dl>
 
 </dd></dl>

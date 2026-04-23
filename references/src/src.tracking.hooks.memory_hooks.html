@@ -493,8 +493,22 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.hooks.memory_hooks">
 <span id="src-tracking-hooks-memory-hooks"></span><h1><a class="reference internal" href="#module-src.tracking.hooks.memory_hooks" title="src.tracking.hooks.memory_hooks"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.hooks.memory_hooks</span></code></a><a class="headerlink" href="#module-src.tracking.hooks.memory_hooks" title="Link to this heading">#</a></h1>
-<p>Memory profiling and monitoring hooks.</p>
-<p>Track GPU memory usage, identify memory leaks, and optimize batch sizes.</p>
+<p>Memory profiling and monitoring hooks for PyTorch models.</p>
+<p>This module provides utilities to record and analyze GPU memory consumption
+during model execution. It includes hooks for per-layer memory tracking,
+automated leak detection, and offline estimation of model footprints. These
+tools are essential for optimizing batch sizes and identifying memory-hungry
+attention mechanisms in large routing networks.</p>
+<p>Attributes:
+add_memory_profiling_hooks: Utility to record per-layer memory snapshots.
+add_memory_leak_detector_hook: Utility to warn on memory growth over time.
+estimate_model_memory: Theoretical calculation of memory requirements.
+optimize_batch_size: Empirical search for maximizing GPU utilization.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.tracking.hooks.memory_hooks import add_memory_profiling_hooks
+&gt;&gt;&gt; hook_data = add_memory_profiling_hooks(model)
+&gt;&gt;&gt; _ = model(input_tensor)
+&gt;&gt;&gt; print_memory_summary(hook_data[‘memory_stats’])</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -502,22 +516,22 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.hooks.memory_hooks.add_memory_profiling_hooks" title="src.tracking.hooks.memory_hooks.add_memory_profiling_hooks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_memory_profiling_hooks</span></code></a></p></td>
-<td><p>Register forward hooks to track memory usage per layer.</p></td>
+<td><p>Registers forward hooks to track memory usage per layer.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.hooks.memory_hooks.add_memory_leak_detector_hook" title="src.tracking.hooks.memory_hooks.add_memory_leak_detector_hook"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_memory_leak_detector_hook</span></code></a></p></td>
-<td><p>Detect potential memory leaks by tracking memory growth.</p></td>
+<td><p>Registers hooks to detect cumulative memory growth across forward passes.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.hooks.memory_hooks.estimate_model_memory" title="src.tracking.hooks.memory_hooks.estimate_model_memory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">estimate_model_memory</span></code></a></p></td>
-<td><p>Estimate memory footprint of a model without running inference.</p></td>
+<td><p>Estimates the theoretical memory footprint of a model and training state.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.hooks.memory_hooks.print_memory_summary" title="src.tracking.hooks.memory_hooks.print_memory_summary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_memory_summary</span></code></a></p></td>
-<td><p>Print formatted memory usage summary.</p></td>
+<td><p>Renders a formatted table of memory consumption per module.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.hooks.memory_hooks.optimize_batch_size" title="src.tracking.hooks.memory_hooks.optimize_batch_size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">optimize_batch_size</span></code></a></p></td>
-<td><p>Find optimal batch size that maximizes GPU utilization without OOM.</p></td>
+<td><p>Heuristically searches for the maximum batch size the GPU can support.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.hooks.memory_hooks.remove_all_hooks" title="src.tracking.hooks.memory_hooks.remove_all_hooks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_all_hooks</span></code></a></p></td>
-<td><p>Remove all registered hooks.</p></td>
+<td><p>Detaches all PyTorch handles stored in the hook data dictionary.</p></td>
 </tr>
 </tbody>
 </table>
@@ -528,91 +542,75 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.hooks.memory_hooks.add_memory_profiling_hooks">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.hooks.memory_hooks.</span></span><span class="sig-name descname"><span class="pre">add_memory_profiling_hooks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.device</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_allocations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.hooks.memory_hooks.add_memory_profiling_hooks" title="Link to this definition">#</a></dt>
-<dd><p>Register forward hooks to track memory usage per layer.</p>
+<dd><p>Registers forward hooks to track memory usage per layer.</p>
 <p>Args:
 model: PyTorch model to profile.
-device: Device to monitor (auto-detected if None).
-track_allocations: Track CUDA memory allocations in addition to reserved memory.</p>
+device: Device to monitor (auto-detected if None). Defaults to None.
+track_allocations: If True, tracks active CUDA memory in addition to
+reserved pool. Defaults to True.</p>
 <p>Returns:
-dict: Contains ‘memory_stats’ (list of memory snapshots) and ‘handles’.</p>
-<p>Example:
-&gt;&gt;&gt; hook_data = add_memory_profiling_hooks(model)
-&gt;&gt;&gt; output = model(input)
-&gt;&gt;&gt; for stat in hook_data[‘memory_stats’]:
-…     print(f”{stat[‘name’]}: {stat[‘allocated_mb’]:.2f} MB”)</p>
+Dict[str, Any]: Mapping containing ‘memory_stats’ and ‘handles’.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.hooks.memory_hooks.add_memory_leak_detector_hook">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.hooks.memory_hooks.</span></span><span class="sig-name descname"><span class="pre">add_memory_leak_detector_hook</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold_mb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.device</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.hooks.memory_hooks.add_memory_leak_detector_hook" title="Link to this definition">#</a></dt>
-<dd><p>Detect potential memory leaks by tracking memory growth.</p>
-<p>Warns if memory usage increases beyond threshold between forward passes.</p>
+<dd><p>Registers hooks to detect cumulative memory growth across forward passes.</p>
 <p>Args:
-model: PyTorch model.
-threshold_mb: Memory growth threshold in MB to trigger warning.
-device: Device to monitor (auto-detected if None).</p>
+model: The model to monitor.
+threshold_mb: Memory growth threshold (in MB) to trigger a warning.
+Defaults to 100.0.
+device: Device to monitor (auto-detected if None). Defaults to None.</p>
 <p>Returns:
-dict: Contains ‘memory_history’ and ‘handles’.</p>
-<p>Example:
-&gt;&gt;&gt; hook_data = add_memory_leak_detector_hook(model, threshold_mb=50.0)
-&gt;&gt;&gt; for _ in range(10):
-…     output = model(input)  # Warnings printed if leaks detected</p>
+Dict[str, Any]: Mapping containing ‘memory_history’ and ‘handles’.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.hooks.memory_hooks.estimate_model_memory">
-<span class="sig-prename descclassname"><span class="pre">src.tracking.hooks.memory_hooks.</span></span><span class="sig-name descname"><span class="pre">estimate_model_memory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.dtype</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">torch.float32</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.hooks.memory_hooks.estimate_model_memory" title="Link to this definition">#</a></dt>
-<dd><p>Estimate memory footprint of a model without running inference.</p>
+<span class="sig-prename descclassname"><span class="pre">src.tracking.hooks.memory_hooks.</span></span><span class="sig-name descname"><span class="pre">estimate_model_memory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.dtype</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">torch.float32</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.hooks.memory_hooks.estimate_model_memory" title="Link to this definition">#</a></dt>
+<dd><p>Estimates the theoretical memory footprint of a model and training state.</p>
 <p>Args:
 model: PyTorch model.
-input_shape: Shape of single input (without batch dimension).
-batch_size: Batch size for estimation.
-dtype: Data type of inputs.</p>
+input_shape: Shape of a single input sample (excluding batch dimension).
+batch_size: Evaluation batch size. Defaults to 1.
+dtype: Numerical data type. Defaults to torch.float32.</p>
 <p>Returns:
-dict: Memory estimates in MB.</p>
-<p>Example:
-&gt;&gt;&gt; memory = estimate_model_memory(model, input_shape=(100, 2), batch_size=128)
-&gt;&gt;&gt; print(f”Estimated memory: {memory[‘total_mb’]:.2f} MB”)</p>
+Dict[str, float]: Memory estimates in MB for parameters, activations,
+gradients, and optimizer states.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.hooks.memory_hooks.print_memory_summary">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.hooks.memory_hooks.</span></span><span class="sig-name descname"><span class="pre">print_memory_summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">memory_stats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.hooks.memory_hooks.print_memory_summary" title="Link to this definition">#</a></dt>
-<dd><p>Print formatted memory usage summary.</p>
+<dd><p>Renders a formatted table of memory consumption per module.</p>
 <p>Args:
-memory_stats: Memory statistics from add_memory_profiling_hooks.
-top_k: Number of top memory-consuming layers to display.</p>
-<p>Example:
-&gt;&gt;&gt; hook_data = add_memory_profiling_hooks(model)
-&gt;&gt;&gt; output = model(input)
-&gt;&gt;&gt; print_memory_summary(hook_data[‘memory_stats’], top_k=5)</p>
+memory_stats: Snapshot list from add_memory_profiling_hooks.
+top_k: Number of memory-consuming layers to display. Defaults to 10.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.hooks.memory_hooks.optimize_batch_size">
-<span class="sig-prename descclassname"><span class="pre">src.tracking.hooks.memory_hooks.</span></span><span class="sig-name descname"><span class="pre">optimize_batch_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.device</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">safety_margin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.9</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.tracking.hooks.memory_hooks.optimize_batch_size" title="Link to this definition">#</a></dt>
-<dd><p>Find optimal batch size that maximizes GPU utilization without OOM.</p>
+<span class="sig-prename descclassname"><span class="pre">src.tracking.hooks.memory_hooks.</span></span><span class="sig-name descname"><span class="pre">optimize_batch_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.device</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">safety_margin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.9</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.tracking.hooks.memory_hooks.optimize_batch_size" title="Link to this definition">#</a></dt>
+<dd><p>Heuristically searches for the maximum batch size the GPU can support.</p>
+<p>Runs binary search on batch sizes, executing a forward pass at each step
+until an Out-of-Memory (OOM) error is encountered.</p>
 <p>Args:
-model: PyTorch model.
-input_generator: Function that generates input of shape (batch_size, …).
-initial_batch_size: Starting batch size.
-device: Device to test on.
-safety_margin: Use this fraction of max batch size (0.9 = 90%).</p>
+model: The model to test.
+input_generator: Function returning inputs for a given batch size.
+initial_batch_size: Starting point for the search. Defaults to 32.
+device: Target device (must be CUDA). Defaults to None.
+safety_margin: Scaling factor applied to the maximum found size.
+Defaults to 0.9.</p>
 <p>Returns:
-int: Optimal batch size.</p>
-<p>Example:
-&gt;&gt;&gt; def input_gen(batch_size):
-…     return torch.randn(batch_size, 100, 2, device=’cuda’)
-&gt;&gt;&gt; optimal_bs = optimize_batch_size(model, input_gen, initial_batch_size=32)
-&gt;&gt;&gt; print(f”Optimal batch size: {optimal_bs}”)</p>
+int: Recommended ‘safe’ batch size.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.hooks.memory_hooks.remove_all_hooks">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.hooks.memory_hooks.</span></span><span class="sig-name descname"><span class="pre">remove_all_hooks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hook_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.hooks.memory_hooks.remove_all_hooks" title="Link to this definition">#</a></dt>
-<dd><p>Remove all registered hooks.</p>
+<dd><p>Detaches all PyTorch handles stored in the hook data dictionary.</p>
 <p>Args:
-hook_data: Dictionary returned by hook registration functions.</p>
+hook_data: Mapping returned by any memory registration function.</p>
 </dd></dl>
 
 </section>

@@ -489,6 +489,16 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.ui.pages.simulation.tour">
 <span id="src-ui-pages-simulation-tour"></span><h1><a class="reference internal" href="#module-src.ui.pages.simulation.tour" title="src.ui.pages.simulation.tour"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.pages.simulation.tour</span></code></a><a class="headerlink" href="#module-src.ui.pages.simulation.tour" title="Link to this heading">#</a></h1>
+<p>Tour sequence and raw telemetry inspection components.</p>
+<p>This module provides tabular and JSON-based views for inspecting the
+specific sequence of nodes visited in a collection route. It includes
+stop counts, node coordinates, and raw data exploration for debugging
+simulation results.</p>
+<p>Example:
+render_tour_details(selected_entry)</p>
+<p>Attributes:
+render_tour_details: Visualizes the ordered sequence of collection stops.
+render_raw_data_view: Provides a JSON explorer for the full day telemetry.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -496,10 +506,10 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.simulation.tour.render_tour_details" title="src.ui.pages.simulation.tour.render_tour_details"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render_tour_details</span></code></a></p></td>
-<td><p>Render tour sequence and leg details.</p></td>
+<td><p>Renders the detailed stop sequence and leg distance metrics.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.simulation.tour.render_raw_data_view" title="src.ui.pages.simulation.tour.render_raw_data_view"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render_raw_data_view</span></code></a></p></td>
-<td><p>Render raw data view for debugging.</p></td>
+<td><p>Renders the raw JSON telemetry record for auditing and debugging.</p></td>
 </tr>
 </tbody>
 </table>
@@ -510,13 +520,17 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.simulation.tour.render_tour_details">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.simulation.tour.</span></span><span class="sig-name descname"><span class="pre">render_tour_details</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">display_entry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.simulation.tour.render_tour_details" title="Link to this definition">#</a></dt>
-<dd><p>Render tour sequence and leg details.</p>
+<dd><p>Renders the detailed stop sequence and leg distance metrics.</p>
+<p>Args:
+display_entry: The simulation telemetry record for the current day.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.simulation.tour.render_raw_data_view">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.simulation.tour.</span></span><span class="sig-name descname"><span class="pre">render_raw_data_view</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">display_entry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.simulation.tour.render_raw_data_view" title="Link to this definition">#</a></dt>
-<dd><p>Render raw data view for debugging.</p>
+<dd><p>Renders the raw JSON telemetry record for auditing and debugging.</p>
+<p>Args:
+display_entry: The simulation telemetry record for the current day.</p>
 </dd></dl>
 
 </section>

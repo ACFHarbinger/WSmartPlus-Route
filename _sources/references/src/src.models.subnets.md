@@ -13,7 +13,7 @@
 :titlesonly:
 :maxdepth: 3
 
-src.models.subnets.helpers
+src.models.subnets.other
 src.models.subnets.embeddings
 src.models.subnets.factories
 src.models.subnets.modules

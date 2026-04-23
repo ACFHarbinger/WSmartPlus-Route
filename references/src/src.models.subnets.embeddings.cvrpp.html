@@ -492,6 +492,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.embeddings.cvrpp">
 <span id="src-models-subnets-embeddings-cvrpp"></span><h1><a class="reference internal" href="#module-src.models.subnets.embeddings.cvrpp" title="src.models.subnets.embeddings.cvrpp"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.embeddings.cvrpp</span></code></a><a class="headerlink" href="#module-src.models.subnets.embeddings.cvrpp" title="Link to this heading">#</a></h1>
 <p>CVRPP Embedding module.</p>
+<p>This module provides the CVRPPInitEmbedding layer, which encodes locations
+and waste levels for Capacitated Vehicle Routing Problems with Profits.</p>
+<p>Attributes:
+CVRPPInitEmbedding: Initial feature encoder for CVRPP instances.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.embeddings.cvrpp import CVRPPInitEmbedding
+&gt;&gt;&gt; embed = CVRPPInitEmbedding(embed_dim=128)
+&gt;&gt;&gt; h = embed(td)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -499,7 +507,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.subnets.embeddings.cvrpp.CVRPPInitEmbedding" title="src.models.subnets.embeddings.cvrpp.CVRPPInitEmbedding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CVRPPInitEmbedding</span></code></a></p></td>
-<td><p>Initial embedding for CVRPP (capacitated VRPP).</p></td>
+<td><p>Initial embedding for CVRPP (Capacitated VRPP).</p></td>
 </tr>
 </tbody>
 </table>
@@ -511,19 +519,24 @@ document.write(`
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.cvrpp.CVRPPInitEmbedding">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.embeddings.cvrpp.</span></span><span class="sig-name descname"><span class="pre">CVRPPInitEmbedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.embeddings.cvrpp.CVRPPInitEmbedding" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
-<p>Initial embedding for CVRPP (capacitated VRPP).</p>
+<p>Initial embedding for CVRPP (Capacitated VRPP).</p>
+<p>Projects static node features (coordinates and waste/demand quantities)
+into a joint embedding space.</p>
+<p>Attributes:
+node_embed (nn.Linear): Linear projection for customer node features.
+depot_embed (nn.Linear): Specialized linear projection for depot location.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize CVRPPInitEmbedding.</p>
+<p>Initializes CVRPPInitEmbedding.</p>
 <p>Args:
-embed_dim: Embedding dimension.</p>
+embed_dim: Internal embedding dimensionality.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.cvrpp.CVRPPInitEmbedding.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.embeddings.cvrpp.CVRPPInitEmbedding.forward" title="Link to this definition">#</a></dt>
-<dd><p>Forward pass for CVRPP embedding.</p>
+<dd><p>Encodes CVRPP features into initial node embeddings.</p>
 <p>Args:
-td: TensorDict containing ‘locs’, ‘waste’, ‘depot’.</p>
+td: TensorDict containing instance metadata (‘locs’, ‘waste’, ‘depot’).</p>
 <p>Returns:
-Embeddings tensor [batch, num_nodes, embed_dim].</p>
+torch.Tensor: Initial node embeddings of shape (batch, num_nodes, dim).</p>
 </dd></dl>
 
 </dd></dl>

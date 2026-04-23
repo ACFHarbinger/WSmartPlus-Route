@@ -511,11 +511,15 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.ui.pages.data_explorer">
 <span id="src-ui-pages-data-explorer"></span><h1><a class="reference internal" href="#module-src.ui.pages.data_explorer" title="src.ui.pages.data_explorer"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.pages.data_explorer</span></code></a><a class="headerlink" href="#module-src.ui.pages.data_explorer" title="Link to this heading">#</a></h1>
 <p>Data Explorer mode for the Streamlit dashboard.</p>
-<p>Provides interactive file loading, table viewing, statistical profiling,
-correlation analysis, and advanced charting for CSV, XLSX, PKL, JSON, and
-JSONL data files.  Includes VRPP/WCVRP dataset splitting heuristics and
-simulation-output analysis features (distribution filtering, Pareto front).</p>
-<p>Ported &amp; enhanced from <code class="docutils literal notranslate"><span class="pre">gui/src/tabs/analysis/</span></code>.</p>
+<p>This module provides a comprehensive environment for interactive visual
+discovery of DRL and OR datasets. It supports high-performance TensorDict
+(.td) lazy loading, automated VRPP instance splitting, simulation result
+warehousing, and classical statistical profiling.</p>
+<p>Example:
+render_data_explorer()</p>
+<p>Attributes:
+_META_COLUMNS: Internal tracking keys for simulation result pivoting.
+render_data_explorer: Main entry point for the explorer dashboard.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -523,61 +527,61 @@ simulation-output analysis features (distribution filtering, Pareto front).</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.data_explorer._td_tensor_to_df" title="src.ui.pages.data_explorer._td_tensor_to_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_td_tensor_to_df</span></code></a></p></td>
-<td><p>Convert a single TensorDict tensor array to a display DataFrame.</p></td>
+<td><p>Converts a single TensorDict tensor array to a display-ready DataFrame.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.data_explorer._collect_td_metadata" title="src.ui.pages.data_explorer._collect_td_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_collect_td_metadata</span></code></a></p></td>
-<td><p>Scan TensorDict keys and return (coord_keys, depot_keys, scalar_keys, summary_rows).</p></td>
+<td><p>Scans TensorDict keys and extracts structural metadata.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.data_explorer._load_td_file" title="src.ui.pages.data_explorer._load_td_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_load_td_file</span></code></a></p></td>
-<td><p>Load a TensorDict (.td) file into named DataFrames.</p></td>
+<td><p>Loads a TensorDict (.td) file into named DataFrames from an uploaded buffer.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.data_explorer._process_raw_to_dfs" title="src.ui.pages.data_explorer._process_raw_to_dfs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_process_raw_to_dfs</span></code></a></p></td>
-<td><p>Recursively convert raw data into a flat list of DataFrames.</p></td>
+<td><p>Recursively converts primitive raw data into a flat list of DataFrames.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.data_explorer._try_vrpp_split" title="src.ui.pages.data_explorer._try_vrpp_split"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_try_vrpp_split</span></code></a></p></td>
-<td><p>Attempt VRPP/WCVRP 4-column heuristic split.</p></td>
+<td><p>Attempts a VRPP/WCVRP 4-column semantic split on a raw DataFrame.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.data_explorer._pivot_json_data" title="src.ui.pages.data_explorer._pivot_json_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_pivot_json_data</span></code></a></p></td>
-<td><p>Flatten nested simulation JSON into columnar form with metadata.</p></td>
+<td><p>Flattens nested simulation multi-run JSON into columnar form.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.data_explorer._load_json_file" title="src.ui.pages.data_explorer._load_json_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_load_json_file</span></code></a></p></td>
-<td><p>Load a JSON simulation results file.</p></td>
+<td><p>Loads a JSON simulation results or configuration file.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.data_explorer._load_jsonl_file" title="src.ui.pages.data_explorer._load_jsonl_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_load_jsonl_file</span></code></a></p></td>
-<td><p>Load a JSONL file (one JSON object per line).</p></td>
+<td><p>Loads a JSONL (newline-delimited JSON) file.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.data_explorer._load_npz_file" title="src.ui.pages.data_explorer._load_npz_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_load_npz_file</span></code></a></p></td>
-<td><p>Load a .npz file into named DataFrames, one per array key.</p></td>
+<td><p>Loads a .npz NumPy archive file into named DataFrames.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.data_explorer._load_uploaded_file" title="src.ui.pages.data_explorer._load_uploaded_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_load_uploaded_file</span></code></a></p></td>
-<td><p>Parse an uploaded file into named DataFrames.</p></td>
+<td><p>Parses an uploaded file into named DataFrames based on file extension.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.data_explorer._load_td_from_path" title="src.ui.pages.data_explorer._load_td_from_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_load_td_from_path</span></code></a></p></td>
-<td><p>Load a .td file from a local filesystem path with minimal memory footprint.</p></td>
+<td><p>Loads a .td file from a local filesystem path with minimal RAM impact.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.data_explorer._lazy_load_td_tensor" title="src.ui.pages.data_explorer._lazy_load_td_tensor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_lazy_load_td_tensor</span></code></a></p></td>
-<td><p>Return a DataFrame for one tensor key, loading from disk if not yet cached.</p></td>
+<td><p>Retrieves a DataFrame for one specific tensor key, loading from disk on demand.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.data_explorer._safe_nunique" title="src.ui.pages.data_explorer._safe_nunique"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_safe_nunique</span></code></a></p></td>
-<td><p>Safely calculate unique values, falling back to string if unhashable.</p></td>
+<td><p>Safely calculates unique value counts, handling unhashable objects.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.data_explorer._render_raw_data_tab" title="src.ui.pages.data_explorer._render_raw_data_tab"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_raw_data_tab</span></code></a></p></td>
-<td><p>Render the Raw Data tab with optional column/row filtering.</p></td>
+<td><p>Renders the Raw Data explorer tab with filtering and export options.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.data_explorer._render_statistics_tab" title="src.ui.pages.data_explorer._render_statistics_tab"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_statistics_tab</span></code></a></p></td>
-<td><p>Render the Statistics tab with data profiling and descriptive stats.</p></td>
+<td><p>Renders the Statistics tab with data profiling and descriptive records.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.data_explorer._render_correlation_tab" title="src.ui.pages.data_explorer._render_correlation_tab"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_correlation_tab</span></code></a></p></td>
-<td><p>Render the Correlation tab with matrix heatmap and pair scatter.</p></td>
+<td><p>Renders the Correlation tab with matrix heatmaps and pair analysis.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.data_explorer._render_sidebar_controls" title="src.ui.pages.data_explorer._render_sidebar_controls"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_sidebar_controls</span></code></a></p></td>
-<td><p>Render Data Explorer sidebar controls. Returns settings dict.</p></td>
+<td><p>Renders global Data Explorer control widgets in the sidebar.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.data_explorer._resolve_selected_df" title="src.ui.pages.data_explorer._resolve_selected_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_resolve_selected_df</span></code></a></p></td>
-<td><p>Return the DataFrame for <em>selected_table</em>, lazy-loading when needed.</p></td>
+<td><p>Resolves and loads the DataFrame for a specific selection identifier.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.data_explorer.render_data_explorer" title="src.ui.pages.data_explorer.render_data_explorer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render_data_explorer</span></code></a></p></td>
-<td><p>Render the Data Explorer page.</p></td>
+<td><p>Renders the main Data Explorer page application.</p></td>
 </tr>
 </tbody>
 </table>
@@ -617,38 +621,60 @@ simulation-output analysis features (distribution filtering, Pareto front).</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.data_explorer._td_tensor_to_df">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.data_explorer.</span></span><span class="sig-name descname"><span class="pre">_td_tensor_to_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.pages.data_explorer._td_tensor_to_df" title="Link to this definition">#</a></dt>
-<dd><p>Convert a single TensorDict tensor array to a display DataFrame.</p>
+<dd><p>Converts a single TensorDict tensor array to a display-ready DataFrame.</p>
+<p>Handles dimensional mapping (coord flattening, node normalization) for
+VRPP-style datasets.</p>
+<p>Args:
+key: The tensor key name (e.g., ‘coords’, ‘demand’).
+arr: The numerical array extracted from the tensor.</p>
+<p>Returns:
+Optional[pd.DataFrame]: A reshaped DataFrame or None if unrenderable.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.data_explorer._collect_td_metadata">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.data_explorer.</span></span><span class="sig-name descname"><span class="pre">_collect_td_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.pages.data_explorer._collect_td_metadata" title="Link to this definition">#</a></dt>
-<dd><p>Scan TensorDict keys and return (coord_keys, depot_keys, scalar_keys, summary_rows).</p>
+<dd><p>Scans TensorDict keys and extracts structural metadata.</p>
+<p>Args:
+td: A PyTorch TensorDict instance.
+keys: List of keys to scan within the TensorDict.</p>
+<p>Returns:
+Tuple[List[str], List[str], List[str], List[Dict[str, Any]]]:
+Indices for coordinates, depots, scalars, and summary records.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.data_explorer._load_td_file">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.data_explorer.</span></span><span class="sig-name descname"><span class="pre">_load_td_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uploaded_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.pages.data_explorer._load_td_file" title="Link to this definition">#</a></dt>
-<dd><p>Load a TensorDict (.td) file into named DataFrames.</p>
-<p>Produces:</p>
-<ul class="simple">
-<li><p>A <code class="docutils literal notranslate"><span class="pre">Structure</span></code> summary table (key, shape, dtype, min/max/mean/std).</p></li>
-<li><p>One DataFrame per tensor key, reshaped for tabular display.</p></li>
-<li><p>Session-state metadata (<code class="docutils literal notranslate"><span class="pre">{cache_key}_is_td</span></code>, <code class="docutils literal notranslate"><span class="pre">{cache_key}_td_meta</span></code>)
-consumed by the TD Overview tab.</p></li>
-</ul>
+<dd><p>Loads a TensorDict (.td) file into named DataFrames from an uploaded buffer.</p>
+<p>Args:
+uploaded_file: The Streamlit UploadedFile object.
+cache_key: Unique identifier for session state caching.</p>
+<p>Returns:
+Dict[str, pd.DataFrame]: Mapping of tensor names to reshaped DataFrames.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.data_explorer._process_raw_to_dfs">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.data_explorer.</span></span><span class="sig-name descname"><span class="pre">_process_raw_to_dfs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.pages.data_explorer._process_raw_to_dfs" title="Link to this definition">#</a></dt>
-<dd><p>Recursively convert raw data into a flat list of DataFrames.</p>
+<dd><p>Recursively converts primitive raw data into a flat list of DataFrames.</p>
+<p>Supports nested lists, dictionaries, and NumPy arrays commonly found
+in legacy Pickle (.pkl) exports.</p>
+<p>Args:
+raw_data: Unstructured data payload from file loader.</p>
+<p>Returns:
+List[pd.DataFrame]: List of successfully converted DataFrames.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.data_explorer._try_vrpp_split">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.data_explorer.</span></span><span class="sig-name descname"><span class="pre">_try_vrpp_split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.pages.data_explorer._try_vrpp_split" title="Link to this definition">#</a></dt>
-<dd><p>Attempt VRPP/WCVRP 4-column heuristic split.</p>
+<dd><p>Attempts a VRPP/WCVRP 4-column semantic split on a raw DataFrame.</p>
+<p>Args:
+df: Input DataFrame with potentially 4 high-level columns.</p>
+<p>Returns:
+Optional[List[Tuple[str, pd.DataFrame]]]: List of semantically split
+DataFrames (Depots, Locations, etc.) if heuristic matches.</p>
 </dd></dl>
 
 <dl class="py data">
@@ -660,100 +686,147 @@ consumed by the TD Overview tab.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.data_explorer._pivot_json_data">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.data_explorer.</span></span><span class="sig-name descname"><span class="pre">_pivot_json_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.pages.data_explorer._pivot_json_data" title="Link to this definition">#</a></dt>
-<dd><p>Flatten nested simulation JSON into columnar form with metadata.</p>
+<dd><p>Flattens nested simulation multi-run JSON into columnar form.</p>
+<p>Args:
+data: Raw nested dictionary from JSON file.
+file_id: Optional identifier for the source file.</p>
+<p>Returns:
+Dict[str, List[Any]]: Flattened data columns with policy/dist labels.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.data_explorer._load_json_file">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.data_explorer.</span></span><span class="sig-name descname"><span class="pre">_load_json_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uploaded_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.pages.data_explorer._load_json_file" title="Link to this definition">#</a></dt>
-<dd><p>Load a JSON simulation results file.</p>
+<dd><p>Loads a JSON simulation results or configuration file.</p>
+<p>Args:
+uploaded_file: The Streamlit UploadedFile object.</p>
+<p>Returns:
+Dict[str, pd.DataFrame]: Parsed tables from JSON content.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.data_explorer._load_jsonl_file">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.data_explorer.</span></span><span class="sig-name descname"><span class="pre">_load_jsonl_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uploaded_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.pages.data_explorer._load_jsonl_file" title="Link to this definition">#</a></dt>
-<dd><p>Load a JSONL file (one JSON object per line).</p>
+<dd><p>Loads a JSONL (newline-delimited JSON) file.</p>
+<p>Args:
+uploaded_file: The Streamlit UploadedFile object.</p>
+<p>Returns:
+Dict[str, pd.DataFrame]: Concatenated DataFrame of record objects.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.data_explorer._load_npz_file">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.data_explorer.</span></span><span class="sig-name descname"><span class="pre">_load_npz_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uploaded_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.pages.data_explorer._load_npz_file" title="Link to this definition">#</a></dt>
-<dd><p>Load a .npz file into named DataFrames, one per array key.</p>
+<dd><p>Loads a .npz NumPy archive file into named DataFrames.</p>
+<p>Args:
+uploaded_file: The Streamlit UploadedFile object.</p>
+<p>Returns:
+Dict[str, pd.DataFrame]: Mapping of array keys to DataFrames.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.data_explorer._load_uploaded_file">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.data_explorer.</span></span><span class="sig-name descname"><span class="pre">_load_uploaded_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uploaded_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.pages.data_explorer._load_uploaded_file" title="Link to this definition">#</a></dt>
-<dd><p>Parse an uploaded file into named DataFrames.</p>
+<dd><p>Parses an uploaded file into named DataFrames based on file extension.</p>
+<p>Args:
+uploaded_file: The Streamlit UploadedFile object.
+cache_key: Optional identifier for session state caching.</p>
+<p>Returns:
+Dict[str, pd.DataFrame]: Consolidated mapping of discovered tables.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.data_explorer._load_td_from_path">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.data_explorer.</span></span><span class="sig-name descname"><span class="pre">_load_td_from_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.pages.data_explorer._load_td_from_path" title="Link to this definition">#</a></dt>
-<dd><p>Load a .td file from a local filesystem path with minimal memory footprint.</p>
-<p>Unlike the upload variant (which pre-converts every tensor to a DataFrame),
-this function:</p>
-<ol class="arabic simple">
-<li><p>Loads the TensorDict directly via <code class="docutils literal notranslate"><span class="pre">torch.load(path)</span></code> — no intermediate
-bytes buffer.</p></li>
-<li><p>Extracts only the structure metadata (shapes, dtypes, per-tensor stats).</p></li>
-<li><p>Immediately frees the TensorDict from RAM (<code class="docutils literal notranslate"><span class="pre">del</span> <span class="pre">td</span></code>).</p></li>
-<li><p>Stores the file path in <code class="docutils literal notranslate"><span class="pre">td_meta[&quot;filepath&quot;]</span></code> so individual tensors can
-be loaded on demand when the user selects them.</p></li>
-</ol>
-<p>The result is that session state only holds a small structure-summary
-DataFrame, keeping dashboard interactions fast regardless of file size.</p>
+<dd><p>Loads a .td file from a local filesystem path with minimal RAM impact.</p>
+<p>Uses lazy structural extraction to avoid loading full tensor payloads
+into session state.</p>
+<p>Args:
+path: Absolute or relative filesystem path to the .td file.
+cache_key: Unique identifier for session state caching.</p>
+<p>Returns:
+Dict[str, pd.DataFrame]: Mapping containing structural summary table.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.data_explorer._lazy_load_td_tensor">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.data_explorer.</span></span><span class="sig-name descname"><span class="pre">_lazy_load_td_tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td_meta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.pages.data_explorer._lazy_load_td_tensor" title="Link to this definition">#</a></dt>
-<dd><p>Return a DataFrame for one tensor key, loading from disk if not yet cached.</p>
-<p>Results are stored in <code class="docutils literal notranslate"><span class="pre">st.session_state</span></code> under
-<code class="docutils literal notranslate"><span class="pre">&quot;{cache_key}_tensor_{key}&quot;</span></code> so subsequent accesses within the same
-session are instantaneous.</p>
+<dd><p>Retrieves a DataFrame for one specific tensor key, loading from disk on demand.</p>
+<p>Args:
+td_meta: Metadata dictionary containing the source filepath.
+key: The tensor key to load.
+cache_key: Unique identifier for session state caching.</p>
+<p>Returns:
+Optional[pd.DataFrame]: The loaded and reshaped DataFrame or None.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.data_explorer._safe_nunique">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.data_explorer.</span></span><span class="sig-name descname"><span class="pre">_safe_nunique</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#src.ui.pages.data_explorer._safe_nunique" title="Link to this definition">#</a></dt>
-<dd><p>Safely calculate unique values, falling back to string if unhashable.</p>
+<dd><p>Safely calculates unique value counts, handling unhashable objects.</p>
+<p>Args:
+s: Input pandas Series.</p>
+<p>Returns:
+int: Total unique value count.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.data_explorer._render_raw_data_tab">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.data_explorer.</span></span><span class="sig-name descname"><span class="pre">_render_raw_data_tab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_table</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visible_columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.data_explorer._render_raw_data_tab" title="Link to this definition">#</a></dt>
-<dd><p>Render the Raw Data tab with optional column/row filtering.</p>
+<dd><p>Renders the Raw Data explorer tab with filtering and export options.</p>
+<p>Args:
+df: Input DataFrame to visualize.
+selected_table: The name/key of the currently active table.
+visible_columns: Optional list of columns to display.
+row_limit: Maximum number of rows to render.
+precision: Decimal precision for numerical formatting.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.data_explorer._render_statistics_tab">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.data_explorer.</span></span><span class="sig-name descname"><span class="pre">_render_statistics_tab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.data_explorer._render_statistics_tab" title="Link to this definition">#</a></dt>
-<dd><p>Render the Statistics tab with data profiling and descriptive stats.</p>
+<dd><p>Renders the Statistics tab with data profiling and descriptive records.</p>
+<p>Args:
+df: Input DataFrame to analyze.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.data_explorer._render_correlation_tab">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.data_explorer.</span></span><span class="sig-name descname"><span class="pre">_render_correlation_tab</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.data_explorer._render_correlation_tab" title="Link to this definition">#</a></dt>
-<dd><p>Render the Correlation tab with matrix heatmap and pair scatter.</p>
+<dd><p>Renders the Correlation tab with matrix heatmaps and pair analysis.</p>
+<p>Args:
+df: Input DataFrame to analyze.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.data_explorer._render_sidebar_controls">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.data_explorer.</span></span><span class="sig-name descname"><span class="pre">_render_sidebar_controls</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.pages.data_explorer._render_sidebar_controls" title="Link to this definition">#</a></dt>
-<dd><p>Render Data Explorer sidebar controls. Returns settings dict.</p>
+<dd><p>Renders global Data Explorer control widgets in the sidebar.</p>
+<p>Args:
+df: The currently active DataFrame (used for column discovery).</p>
+<p>Returns:
+Dict[str, Any]: Current settings for visibility, limits, and precision.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.data_explorer._resolve_selected_df">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.data_explorer.</span></span><span class="sig-name descname"><span class="pre">_resolve_selected_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td_meta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_table</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.pages.data_explorer._resolve_selected_df" title="Link to this definition">#</a></dt>
-<dd><p>Return the DataFrame for <em>selected_table</em>, lazy-loading when needed.</p>
+<dd><p>Resolves and loads the DataFrame for a specific selection identifier.</p>
+<p>Args:
+tables: Mapping of already loaded DataFrames.
+td_meta: Metadata for TensorDict lazy loading.
+selected_table: The target key to resolve.
+cache_key: Unique identifier for session state caching.</p>
+<p>Returns:
+Optional[pd.DataFrame]: The resolved DataFrame or None.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.data_explorer.render_data_explorer">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.data_explorer.</span></span><span class="sig-name descname"><span class="pre">render_data_explorer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.data_explorer.render_data_explorer" title="Link to this definition">#</a></dt>
-<dd><p>Render the Data Explorer page.</p>
+<dd><p>Renders the main Data Explorer page application.</p>
+<p>Orchestrates file discovery, ingestion, caching, and multi-tab rendering
+for all supported data formats.</p>
 </dd></dl>
 
 </section>

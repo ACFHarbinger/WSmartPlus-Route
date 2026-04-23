@@ -489,6 +489,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.encoders.gat.gat_multi_head_attention_layer">
 <span id="src-models-subnets-encoders-gat-gat-multi-head-attention-layer"></span><h1><a class="reference internal" href="#module-src.models.subnets.encoders.gat.gat_multi_head_attention_layer" title="src.models.subnets.encoders.gat.gat_multi_head_attention_layer"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.encoders.gat.gat_multi_head_attention_layer</span></code></a><a class="headerlink" href="#module-src.models.subnets.encoders.gat.gat_multi_head_attention_layer" title="Link to this heading">#</a></h1>
 <p>Multi-Head Attention Layer for GAT Encoder.</p>
+<p>Attributes:
+GATMultiHeadAttentionLayer: Single layer of the Graph Attention Encoder.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.encoders.gat.gat_multi_head_attention_layer import GATMultiHeadAttentionLayer
+&gt;&gt;&gt; layer = GATMultiHeadAttentionLayer(n_heads=8, embed_dim=128, feed_forward_hidden=512)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -506,36 +511,35 @@ document.write(`
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.subnets.encoders.gat.gat_multi_head_attention_layer.GATMultiHeadAttentionLayer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.encoders.gat.gat_multi_head_attention_layer.</span></span><span class="sig-name descname"><span class="pre">GATMultiHeadAttentionLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feed_forward_hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.models.normalization.NormalizationConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.models.activation_function.ActivationConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'skip'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expansion_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.encoders.gat.gat_multi_head_attention_layer.GATMultiHeadAttentionLayer" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.encoders.gat.gat_multi_head_attention_layer.</span></span><span class="sig-name descname"><span class="pre">GATMultiHeadAttentionLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feed_forward_hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.models.normalization.NormalizationConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.models.activation_function.ActivationConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'skip'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expansion_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.encoders.gat.gat_multi_head_attention_layer.GATMultiHeadAttentionLayer" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.models.subnets.encoders.common.MultiHeadAttentionLayerBase</span></code></p>
 <p>Single layer of the Graph Attention Encoder.</p>
-<p>Inherits from MultiHeadAttentionLayerBase, which provides:</p>
+<p>Inherits from MultiHeadAttentionLayerBase, providing:</p>
 <ul class="simple">
 <li><p>Multi-head attention with configurable connections (skip/dense/hyper)</p></li>
 <li><p>Feed-forward network with configurable activation</p></li>
 <li><p>Layer normalization</p></li>
 <li><p>Automatic 4D tensor handling for hyper-connections</p></li>
 </ul>
-<p>This class is a direct application of the base pattern with no customization needed.</p>
-<p class="rubric" id="id1">Parameters</p>
-<p>n_heads : int
-Number of attention heads.
-embed_dim : int
-Embedding dimension.
-feed_forward_hidden : int
-Hidden dimension for feed-forward network.
-norm_config : Optional[NormalizationConfig], default=None
-Normalization configuration.
-activation_config : Optional[ActivationConfig], default=None
-Activation function configuration.
-connection_type : str, default=”skip”
-Connection type: “skip”, “dense”, or “hyper”.
-expansion_rate : int, default=4
-Expansion factor for hyper-connections.
-**kwargs
-Additional keyword arguments.</p>
+<p>Attributes:
+n_heads (int): Number of attention heads.
+embed_dim (int): Embedding dimension.
+feed_forward_hidden (int): Hidden dimension for feed-forward network.
+norm_config (NormalizationConfig): Normalization configuration.
+activation_config (ActivationConfig): Activation function configuration.
+conn_type (str): Connection type.
+expansion_rate (int): Expansion factor for hyper-connections.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize the GATMultiHeadAttentionLayer.</p>
+<p>Initializes the GATMultiHeadAttentionLayer.</p>
+<p>Args:
+n_heads: Number of attention heads.
+embed_dim: Embedding dimension.
+feed_forward_hidden: Hidden dimension for feed-forward network.
+norm_config: Normalization configuration.
+activation_config: Activation function configuration.
+connection_type: Connection type (“skip”, “dense”, or “hyper”).
+expansion_rate: Expansion factor for hyper-connections.
+kwargs: Additional keyword arguments.</p>
 </dd></dl>
 
 </section>

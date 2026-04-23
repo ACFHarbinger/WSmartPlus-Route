@@ -492,6 +492,14 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.decoders.ptr.pointer_attention">
 <span id="src-models-subnets-decoders-ptr-pointer-attention"></span><h1><a class="reference internal" href="#module-src.models.subnets.decoders.ptr.pointer_attention" title="src.models.subnets.decoders.ptr.pointer_attention"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.decoders.ptr.pointer_attention</span></code></a><a class="headerlink" href="#module-src.models.subnets.decoders.ptr.pointer_attention" title="Link to this heading">#</a></h1>
 <p>Pointer attention module.</p>
+<p>This module provides the PointerAttention class, which implements the bahdanau-style
+attention mechanism used by Pointer Networks.</p>
+<p>Attributes:
+PointerAttention: Attention mechanism for pointing to specific input elements.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.decoders.ptr.pointer_attention import PointerAttention
+&gt;&gt;&gt; attention = PointerAttention(dim=128)
+&gt;&gt;&gt; ref_proj, logits = attention(query, reference)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -499,7 +507,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.subnets.decoders.ptr.pointer_attention.PointerAttention" title="src.models.subnets.decoders.ptr.pointer_attention.PointerAttention"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PointerAttention</span></code></a></p></td>
-<td><p>A generic attention module for a decoder in seq2seq.</p></td>
+<td><p>Generic attention module for pointer-style decoders.</p></td>
 </tr>
 </tbody>
 </table>
@@ -509,24 +517,34 @@ document.write(`
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.subnets.decoders.ptr.pointer_attention.PointerAttention">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.decoders.ptr.pointer_attention.</span></span><span class="sig-name descname"><span class="pre">PointerAttention</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_tanh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.decoders.ptr.pointer_attention.PointerAttention" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.decoders.ptr.pointer_attention.</span></span><span class="sig-name descname"><span class="pre">PointerAttention</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_tanh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.decoders.ptr.pointer_attention.PointerAttention" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
-<p>A generic attention module for a decoder in seq2seq.</p>
+<p>Generic attention module for pointer-style decoders.</p>
+<p>Calculates compatibility scores between a query vector (recurrent state)
+and a reference sequence (encoder outputs) to produce selection logits.</p>
+<p>Attributes:
+use_tanh (bool): Whether to use tanh exploration.
+project_query (nn.Linear): Linear projection for the query vector.
+project_ref (nn.Conv1d): 1D convolution projection for the reference sequence.
+C (float): Tanh exploration scaling constant.
+tanh (nn.Tanh): Tanh activation function.
+v (nn.Parameter): Learnable attention weight vector.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes PointerAttention.</p>
 <p>Args:
-dim: Dimension of attention vector.
+dim: Dimension of the attention vector.
 use_tanh: Whether to use tanh exploration.
 C: Tanh exploration constant.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.decoders.ptr.pointer_attention.PointerAttention.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.decoders.ptr.pointer_attention.PointerAttention.forward" title="Link to this definition">#</a></dt>
-<dd><p>Calculate attention logits.</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.subnets.decoders.ptr.pointer_attention.PointerAttention.forward" title="Link to this definition">#</a></dt>
+<dd><p>Calculates attention logits for a given query and reference set.</p>
 <p>Args:
-query: Hidden state of the decoder at the current time step (batch x dim).
-ref: Set of hidden states from the encoder (sourceL x batch x hidden_dim).</p>
+query: Current decoder hidden state of shape (batch, dim).
+ref: Reference sequence from the encoder of shape (sourceL, batch, dim).</p>
 <p>Returns:
-Projected reference and logits.</p>
+Tuple[torch.Tensor, torch.Tensor]: Projected references and the resulting
+attention logits.</p>
 </dd></dl>
 
 </dd></dl>

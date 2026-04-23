@@ -495,6 +495,12 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.factories.base">
 <span id="src-models-subnets-factories-base"></span><h1><a class="reference internal" href="#module-src.models.subnets.factories.base" title="src.models.subnets.factories.base"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.factories.base</span></code></a><a class="headerlink" href="#module-src.models.subnets.factories.base" title="Link to this heading">#</a></h1>
 <p>Abstract base for neural component factories and decoder utility.</p>
+<p>Attributes:
+NeuralComponentFactory: Abstract interface for creating encoders and decoders.
+_create_decoder_by_type: Internal utility for instantiating decoders by string identifiers.</p>
+<p>Example:
+&gt;&gt;&gt; # Factories are usually inherited or used via specific implementations
+&gt;&gt;&gt; from logic.src.models.subnets.factories.base import NeuralComponentFactory</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -513,7 +519,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.subnets.factories.base._create_decoder_by_type" title="src.models.subnets.factories.base._create_decoder_by_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_create_decoder_by_type</span></code></a></p></td>
-<td><p>Create a decoder instance based on decoder_type.</p></td>
+<td><p>Instantiates a decoder based on the specified type name.</p></td>
 </tr>
 </tbody>
 </table>
@@ -524,14 +530,14 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.subnets.factories.base._create_decoder_by_type">
 <span class="sig-prename descclassname"><span class="pre">src.models.subnets.factories.base.</span></span><span class="sig-name descname"><span class="pre">_create_decoder_by_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">decoder_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.nn.Module</span></span></span><a class="headerlink" href="#src.models.subnets.factories.base._create_decoder_by_type" title="Link to this definition">#</a></dt>
-<dd><p>Create a decoder instance based on decoder_type.</p>
+<dd><p>Instantiates a decoder based on the specified type name.</p>
 <p>Args:
-decoder_type: Type of decoder (‘attention’, ‘deep’, ‘pointer’).
-**kwargs: Arguments to pass to the decoder constructor.</p>
+decoder_type (str): Type identifier (‘attention’, ‘deep’, ‘pointer’, ‘mdam’, ‘polynet’, ‘aco’).
+kwargs: Configuration arguments passed directly to the decoder constructor.</p>
 <p>Returns:
-nn.Module: The decoder instance.</p>
+nn.Module: The instantiated decoder module.</p>
 <p>Raises:
-ValueError: If decoder_type is not recognized.</p>
+ValueError: If the decoder_type is not recognized.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -539,16 +545,31 @@ ValueError: If decoder_type is not recognized.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.factories.base.</span></span><span class="sig-name descname"><span class="pre">NeuralComponentFactory</span></span><a class="headerlink" href="#src.models.subnets.factories.base.NeuralComponentFactory" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
 <p>Abstract Factory for creating neural components (Encoders and Decoders).</p>
+<p>Attributes:
+None: Abstract base class does not maintain state.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.factories.base.NeuralComponentFactory.create_encoder">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_encoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norm_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.models.normalization.NormalizationConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.models.activation_function.ActivationConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.nn.Module</span></span></span><a class="headerlink" href="#src.models.subnets.factories.base.NeuralComponentFactory.create_encoder" title="Link to this definition">#</a></dt>
 <dd><p>Create an encoder instance.</p>
+<p>Args:
+norm_config (Optional[NormalizationConfig]): Normalization settings. Defaults to None.
+activation_config (Optional[ActivationConfig]): Activation settings. Defaults to None.
+kwargs: Architecture-specific configuration.</p>
+<p>Returns:
+nn.Module: The instantiated encoder module.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.factories.base.NeuralComponentFactory.create_decoder">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_decoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">decoder_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'attention'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.models.normalization.NormalizationConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.configs.models.activation_function.ActivationConfig</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.nn.Module</span></span></span><a class="headerlink" href="#src.models.subnets.factories.base.NeuralComponentFactory.create_decoder" title="Link to this definition">#</a></dt>
 <dd><p>Create a decoder instance based on decoder_type.</p>
+<p>Args:
+decoder_type (str): Type of decoder (‘attention’, ‘deep’, ‘pointer’). Defaults to ‘attention’.
+norm_config (Optional[NormalizationConfig]): Normalization settings. Defaults to None.
+activation_config (Optional[ActivationConfig]): Activation settings. Defaults to None.
+kwargs: Architecture-specific configuration.</p>
+<p>Returns:
+nn.Module: The instantiated decoder module.</p>
 </dd></dl>
 
 </dd></dl>

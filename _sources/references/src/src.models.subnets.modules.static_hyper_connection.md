@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.subnets.modules.static_hyper_connection.StaticHyperConnection.__init__
 ```
 
-````{py:method} forward(H, *args, **kwargs)
+````{py:method} forward(H: torch.Tensor, *args: typing.Any, **kwargs: typing.Any) -> torch.Tensor
 :canonical: src.models.subnets.modules.static_hyper_connection.StaticHyperConnection.forward
 
 ```{autodoc2-docstring} src.models.subnets.modules.static_hyper_connection.StaticHyperConnection.forward

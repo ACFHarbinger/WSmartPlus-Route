@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} EdgeHeatmapGenerator(embed_dim: int, num_layers: int, act_fn: str | collections.abc.Callable = 'silu', linear_bias: bool = True, undirected_graph: bool = True)
+`````{py:class} EdgeHeatmapGenerator(embed_dim: int, num_layers: int, act_fn: typing.Union[str, typing.Callable] = 'silu', linear_bias: bool = True, undirected_graph: bool = True)
 :canonical: src.models.subnets.encoders.nargnn.edge_heatmap_generator.EdgeHeatmapGenerator
 
 Bases: {py:obj}`torch.nn.Module`

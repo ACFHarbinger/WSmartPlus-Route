@@ -488,7 +488,16 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking.logging.plotting.attention">
 <span id="src-tracking-logging-plotting-attention"></span><h1><a class="reference internal" href="#module-src.tracking.logging.plotting.attention" title="src.tracking.logging.plotting.attention"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.logging.plotting.attention</span></code></a><a class="headerlink" href="#module-src.tracking.logging.plotting.attention" title="Link to this heading">#</a></h1>
-<p>Attention map visualization.</p>
+<p>Attention map visualization utilities.</p>
+<p>This module provides tools for visualizing the attention mechanism weights of
+neural routing models. It generates heatmaps that show how query vertices
+attend to key vertices in the graph, with support for multi-head and
+multi-batch averaging.</p>
+<p>Attributes:
+plot_attention_maps_wrapper: Primary entry point for attention visualization.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.tracking.logging.plotting.attention import plot_attention_maps_wrapper
+&gt;&gt;&gt; plot_attention_maps_wrapper(“output/”, attn_dict, “am”, log_plot)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -496,7 +505,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.logging.plotting.attention.plot_attention_maps_wrapper" title="src.tracking.logging.plotting.attention.plot_attention_maps_wrapper"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_attention_maps_wrapper</span></code></a></p></td>
-<td><p>Plot attention maps as heatmaps for a given layer, head, batch, and simulation sample.</p></td>
+<td><p>Plot attention maps as heatmaps for a given layer, head, batch, and sample.</p></td>
 </tr>
 </tbody>
 </table>
@@ -507,25 +516,25 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.logging.plotting.attention.plot_attention_maps_wrapper">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.logging.plotting.attention.</span></span><span class="sig-name descname"><span class="pre">plot_attention_maps_wrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dir_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attention_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer_idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">head_idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">execution_kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.tracking.logging.plotting.attention.plot_attention_maps_wrapper" title="Link to this definition">#</a></dt>
-<dd><p>Plot attention maps as heatmaps for a given layer, head, batch, and simulation sample.</p>
+<dd><p>Plot attention maps as heatmaps for a given layer, head, batch, and sample.</p>
 <p>Args:
-dir_path (str): Directory path to save the heatmap image.
-attention_dict (dict): Dictionary where:
+dir_path: Directory path to save the heatmap image.
+attention_dict: Dictionary where:
 - Keys are model names (str);
 - Values are lists of attention data for each sample, where each
 element is a dictionary containing: ‘attention_weights’ tensor of
 shape [num_layers, n_heads, batch_size, graph_size, graph_size].
-model_name (str): Name of the model to extract attention maps for.
-execution_function (function): Function that handles the plotting/saving logic.
-layer_idx (int): Index of the layer to visualize.
-sample_idx (int): Index of the simulation sample to visualize.
-head_idx (int): Index of the head to visualize (-1 for average over all heads).
-batch_idx (int): Index of the data batch to visualize (-1 for average over all batches).
-x_labels (list, optional): Custom labels for x-axis vertices.
-y_labels (list, optional): Custom labels for y-axis vertices.
-**execution_kwargs: Additional arguments to pass to the execution function.</p>
+model_name: Name of the model to extract attention maps for.
+execution_function: Function that handles the plotting/saving logic.
+layer_idx: Index of the layer to visualize. Defaults to 0.
+sample_idx: Index of the simulation sample to visualize. Defaults to 0.
+head_idx: Index of the head to visualize (-1 for average). Defaults to 0.
+batch_idx: Index of the data batch to visualize (-1 for average). Defaults to 0.
+x_labels: Custom labels for x-axis vertices. Defaults to None.
+y_labels: Custom labels for y-axis vertices. Defaults to None.
+execution_kwargs: Additional arguments to pass to the execution function.</p>
 <p>Returns:
-attn_map (np.ndarray): The attention map as a Numpy array.</p>
+np.ndarray: The attention map as a Numpy array.</p>
 </dd></dl>
 
 </section>

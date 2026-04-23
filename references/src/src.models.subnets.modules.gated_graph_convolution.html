@@ -494,6 +494,19 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.modules.gated_graph_convolution">
 <span id="src-models-subnets-modules-gated-graph-convolution"></span><h1><a class="reference internal" href="#module-src.models.subnets.modules.gated_graph_convolution" title="src.models.subnets.modules.gated_graph_convolution"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.modules.gated_graph_convolution</span></code></a><a class="headerlink" href="#module-src.models.subnets.modules.gated_graph_convolution" title="Link to this heading">#</a></h1>
 <p>Gated Graph Convolution (GatedGCN) with explicit edge updates.</p>
+<p>This module provides the GatedGraphConvolution layer, which explicitly models
+edge features and uses a gating mechanism to control information flow between
+neighboring nodes in a graph.</p>
+<p>Attributes:
+GatedGraphConvolution: Gated graph convolution layer for node and edge updates.</p>
+<p>Example:
+&gt;&gt;&gt; import torch
+&gt;&gt;&gt; from logic.src.models.subnets.modules.gated_graph_convolution import GatedGraphConvolution
+&gt;&gt;&gt; layer = GatedGraphConvolution(hidden_dim=128)
+&gt;&gt;&gt; h = torch.randn(1, 10, 128)
+&gt;&gt;&gt; e = torch.randn(1, 10, 10, 128)
+&gt;&gt;&gt; mask = torch.zeros(1, 10, 10, dtype=torch.bool)
+&gt;&gt;&gt; h_out, e_out = layer(h, e, mask)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -501,11 +514,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.subnets.modules.gated_graph_convolution.GatedGraphConvolution" title="src.models.subnets.modules.gated_graph_convolution.GatedGraphConvolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GatedGraphConvolution</span></code></a></p></td>
-<td><p>Implements the Gated Graph ConvNet layer:
-h_i = ReLU ( U<em>h_i + Aggr.( sigma_ij, V</em>h_j) ),
-sigma_ij = sigmoid( A<em>h_i + B</em>h_j + C<em>e_ij ),
-e_ij = ReLU ( A</em>h_i + B<em>h_j + C</em>e_ij ),
-where Aggr. is an aggregation function: sum/mean/max.</p></td>
+<td><p>Gated Graph Convolution Layer (GatedGCN).</p></td>
 </tr>
 </tbody>
 </table>
@@ -517,51 +526,68 @@ where Aggr. is an aggregation function: sum/mean/max.</p></td>
 <dt class="sig sig-object py" id="src.models.subnets.modules.gated_graph_convolution.GatedGraphConvolution">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.modules.gated_graph_convolution.</span></span><span class="sig-name descname"><span class="pre">GatedGraphConvolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sum'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'batch'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'relu'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learn_affine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gated</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.gated_graph_convolution.GatedGraphConvolution" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
-<p>Implements the Gated Graph ConvNet layer:
-h_i = ReLU ( U<em>h_i + Aggr.( sigma_ij, V</em>h_j) ),
-sigma_ij = sigmoid( A<em>h_i + B</em>h_j + C<em>e_ij ),
-e_ij = ReLU ( A</em>h_i + B<em>h_j + C</em>e_ij ),
-where Aggr. is an aggregation function: sum/mean/max.</p>
+<p>Gated Graph Convolution Layer (GatedGCN).</p>
+<p>Explicitly models edge features and uses a gating mechanism to control
+information flow between neighbors. Updates both node and edge features.</p>
+<p>Implements the Gated Graph ConvNet layer as described in Dwivedi et al. (2020).</p>
+<p>Attributes:
+hidden_dim (int): Dimensionality of hidden features.
+aggregation (str): Strategy for neighborhood pooling (‘sum’, ‘mean’, ‘max’).
+norm (str): Type of normalization strategy (‘batch’, ‘layer’, ‘instance’).
+learn_affine (bool): Whether normalization has learnable parameters.
+gated (bool): Whether the gating mechanism is active.
+U (nn.Linear): Transformation for source nodes in node update.
+V (nn.Linear): Transformation for neighbor nodes in node update.
+A (nn.Linear): Transformation for source nodes in edge update.
+B (nn.Linear): Transformation for target nodes in edge update.
+C (nn.Linear): Transformation for edge features in edge update.
+norm_h (Normalization): Normalization layer for node features.
+norm_e (Normalization): Normalization layer for edge features.
+activation (ActivationFunction): Non-linear activation module.</p>
 <p>References:
-- X. Bresson and T. Laurent. An experimental study of neural networks for variable graphs.
-In International Conference on Learning Representations, 2018.
-- V. P. Dwivedi, C. K. Joshi, T. Laurent, Y. Bengio, and X. Bresson.
-Benchmarking graph neural networks. arXiv preprint arXiv:2003.00982, 2020.</p>
+Dwivedi, V. P., et al. (2020). Benchmarking graph neural networks.
+arXiv preprint arXiv:2003.00982.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes GatedGraphConvolution.</p>
 <p>Args:
-hidden_dim: Dimension of hidden features (input and output are assumed same size).
-aggregation: Aggregation method (‘sum’, ‘mean’, ‘max’).
+hidden_dim: Dimensionality of inputs and internal representations.
+aggregation: Strategy for neighborhood pooling (‘sum’, ‘mean’, ‘max’).
 norm: Normalization type (‘batch’, ‘layer’, ‘instance’).
-activation: Activation function name.
-learn_affine: Whether normalization layers have learnable affine parameters.
-gated: Whether to use the gating mechanism.
-bias: Whether to use a bias term in linear layers.</p>
+activation: Activation function name (e.g., ‘relu’, ‘swish’).
+learn_affine: Whether to learn gain and bias in normalization layers.
+gated: Whether to use gated message passing. Must be True for this layer.
+bias: Whether to use bias terms in linear transformations.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.gated_graph_convolution.GatedGraphConvolution.reset_parameters">
-<span class="sig-name descname"><span class="pre">reset_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.gated_graph_convolution.GatedGraphConvolution.reset_parameters" title="Link to this definition">#</a></dt>
-<dd><p>Initializes the parameters of the layer using uniform distribution.</p>
+<span class="sig-name descname"><span class="pre">reset_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.subnets.modules.gated_graph_convolution.GatedGraphConvolution.reset_parameters" title="Link to this definition">#</a></dt>
+<dd><p>Initializes the linear layer weights using a uniform distribution.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.gated_graph_convolution.GatedGraphConvolution.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.gated_graph_convolution.GatedGraphConvolution.forward" title="Link to this definition">#</a></dt>
-<dd><p>Args:
-h: Input node features (B x V x H)
-e: Input edge features (B x V x V x H)
-mask: Graph adjacency matrices (B x V x V)
-Returns:
-Updated node and edge features</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.subnets.modules.gated_graph_convolution.GatedGraphConvolution.forward" title="Link to this definition">#</a></dt>
+<dd><p>Updates node and edge features using GatedGCN logic.</p>
+<p>Args:
+h: Input node features of shape (batch, nodes, hidden_dim).
+e: Input edge features of shape (batch, nodes, nodes, hidden_dim).
+mask: Adjacency/mask tensor of shape (batch, nodes, nodes).
+True indicates a masked edge.</p>
+<p>Returns:
+Tuple[torch.Tensor, torch.Tensor]: A tuple containing:
+- Updated node features of shape (batch, nodes, hidden_dim).
+- Updated edge features of shape (batch, nodes, nodes, hidden_dim).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.gated_graph_convolution.GatedGraphConvolution.aggregate">
-<span class="sig-name descname"><span class="pre">aggregate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Vh</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gates</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.gated_graph_convolution.GatedGraphConvolution.aggregate" title="Link to this definition">#</a></dt>
-<dd><p>Args:
-Vh: Neighborhood features (B x V x V x H)
-gates: Edge gates (B x V x V x H)
-mask: Graph adjacency matrices (B x V x V)
-Returns:
-Aggregated neighborhood features (B x V x H)</p>
+<span class="sig-name descname"><span class="pre">aggregate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Vh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.modules.gated_graph_convolution.GatedGraphConvolution.aggregate" title="Link to this definition">#</a></dt>
+<dd><p>Aggregates neighborhood information using gating and graph structure.</p>
+<p>Args:
+Vh: Neighborhood features of shape (batch, nodes, nodes, hidden_dim).
+mask: Adjacency mask of shape (batch, nodes, nodes).
+gates: Edge gates of shape (batch, nodes, nodes, hidden_dim).</p>
+<p>Returns:
+torch.Tensor: Aggregated feature representation of shape (batch, nodes, H).</p>
 </dd></dl>
 
 </dd></dl>

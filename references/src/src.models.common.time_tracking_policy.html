@@ -492,6 +492,16 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.common.time_tracking_policy">
 <span id="src-models-common-time-tracking-policy"></span><h1><a class="reference internal" href="#module-src.models.common.time_tracking_policy" title="src.models.common.time_tracking_policy"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.common.time_tracking_policy</span></code></a><a class="headerlink" href="#module-src.models.common.time_tracking_policy" title="Link to this heading">#</a></h1>
+<p>Performance profiling wrapper for neural policies.</p>
+<p>Provides timing instrumentation that automatically handles GPU synchronization
+to ensure accurate duration measurements for CUDA-based model execution.</p>
+<p>Attributes:
+TimeTrackingPolicy: wrapper module for tracking inference duration.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.common import TimeTrackingPolicy
+&gt;&gt;&gt; timed_policy = TimeTrackingPolicy(policy)
+&gt;&gt;&gt; out = timed_policy(td, env)
+&gt;&gt;&gt; print(f”Time: {out[‘inference_time’]}”)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -499,7 +509,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.common.time_tracking_policy.TimeTrackingPolicy" title="src.models.common.time_tracking_policy.TimeTrackingPolicy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TimeTrackingPolicy</span></code></a></p></td>
-<td><p>Wrapper for policies to track inference time.</p></td>
+<td><p>Wrapper for neural policies to track inference duration.</p></td>
 </tr>
 </tbody>
 </table>
@@ -511,19 +521,44 @@ document.write(`
 <dt class="sig sig-object py" id="src.models.common.time_tracking_policy.TimeTrackingPolicy">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.common.time_tracking_policy.</span></span><span class="sig-name descname"><span class="pre">TimeTrackingPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.common.time_tracking_policy.TimeTrackingPolicy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
-<p>Wrapper for policies to track inference time.</p>
-<p>injects “inference_time” into the output dictionary.</p>
+<p>Wrapper for neural policies to track inference duration.</p>
+<p>Instruments the underlying policy to measure execution time, automatically
+handling GPU synchronization to ensure accurate profiling of CUDA kernels.
+The resulting duration is injected into the output dictionary.</p>
+<p>Attributes:
+policy: The underlying neural policy being profiled.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize internal Module state, shared by both nn.Module and ScriptModule.</p>
+<p>Initializes the timing wrapper.</p>
+<p>Args:
+policy: Neural policy module to wrap for performance tracking.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.common.time_tracking_policy.TimeTrackingPolicy.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.common.time_tracking_policy.TimeTrackingPolicy.forward" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.common.time_tracking_policy.TimeTrackingPolicy.forward" title="Link to this definition">#</a></dt>
+<dd><p>Executes the wrapped policy and measures elapsed time.</p>
+<p>Synchronizes the CUDA device if necessary before and after execution to
+guarantee that the recorded time includes asynchronous GPU kernel completion.</p>
+<p>Args:
+td: Input state data as a TensorDict.
+env: Optional problem environment defining physical constraints.
+kwargs: Additional model parameters passed to the inner policy.</p>
+<p>Returns:
+Dict[str, Any]: Combined output from the policy including a new
+‘inference_time’ tensor scalar.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.common.time_tracking_policy.TimeTrackingPolicy.__getattr__">
 <span class="sig-name descname"><span class="pre">__getattr__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.models.common.time_tracking_policy.TimeTrackingPolicy.__getattr__" title="Link to this definition">#</a></dt>
-<dd><p>Forward attribute access to underlying policy.</p>
+<dd><p>Forwards attribute access to the underlying policy.</p>
+<p>Ensures that parameters, buffers, and submodules of the wrapped policy
+remain directly accessible via the wrapper instance.</p>
+<p>Args:
+name: Name of the attribute to retrieve.</p>
+<p>Returns:
+Any: The attribute from this wrapper or the wrapped policy.</p>
+<p>Raises:
+AttributeError: If the attribute is not found in either the wrapper
+or the policy.</p>
 </dd></dl>
 
 </dd></dl>

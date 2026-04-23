@@ -491,8 +491,12 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.core.hybrid_attention_model.hybrid_neural_heuristic_policy">
 <span id="src-models-core-hybrid-attention-model-hybrid-neural-heuristic-policy"></span><h1><a class="reference internal" href="#module-src.models.core.hybrid_attention_model.hybrid_neural_heuristic_policy" title="src.models.core.hybrid_attention_model.hybrid_neural_heuristic_policy"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.core.hybrid_attention_model.hybrid_neural_heuristic_policy</span></code></a><a class="headerlink" href="#module-src.models.core.hybrid_attention_model.hybrid_neural_heuristic_policy" title="Link to this heading">#</a></h1>
-<p>Neural-Heuristic Hybrid Policy.
-Uses a neural model for construction and a heuristic for refinement.</p>
+<p>Neural Heuristic Hybrid: Constructive-Refinement Policy.</p>
+<p>This module implements a hybrid execution flow where a neural network generates
+an initial solution (constructive phase), and a classic meta-heuristic
+(refinement phase) iterates upon it to reach local optimality.</p>
+<p>Attributes:
+NeuralHeuristicHybrid: Unified policy for construction and refinement.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -500,7 +504,7 @@ Uses a neural model for construction and a heuristic for refinement.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.core.hybrid_attention_model.hybrid_neural_heuristic_policy.NeuralHeuristicHybrid" title="src.models.core.hybrid_attention_model.hybrid_neural_heuristic_policy.NeuralHeuristicHybrid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NeuralHeuristicHybrid</span></code></a></p></td>
-<td><p>Hybrid policy combining neural construction and heuristic refinement.</p></td>
+<td><p>Hybrid policy combining deep learning construction and OR-based refinement.</p></td>
 </tr>
 </tbody>
 </table>
@@ -510,15 +514,31 @@ Uses a neural model for construction and a heuristic for refinement.</p>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.core.hybrid_attention_model.hybrid_neural_heuristic_policy.NeuralHeuristicHybrid">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.hybrid_attention_model.hybrid_neural_heuristic_policy.</span></span><span class="sig-name descname"><span class="pre">NeuralHeuristicHybrid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">neural_policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.models.common.autoregressive.policy.AutoregressivePolicy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heuristic_policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.models.policies.alns.VectorizedALNS</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.models.policies.hgs.VectorizedHGS</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.hybrid_attention_model.hybrid_neural_heuristic_policy.NeuralHeuristicHybrid" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.hybrid_attention_model.hybrid_neural_heuristic_policy.</span></span><span class="sig-name descname"><span class="pre">NeuralHeuristicHybrid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">neural_policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.models.common.autoregressive.policy.AutoregressivePolicy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heuristic_policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.models.policies.alns.VectorizedALNS</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">logic.src.models.policies.hgs.VectorizedHGS</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.hybrid_attention_model.hybrid_neural_heuristic_policy.NeuralHeuristicHybrid" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.models.common.autoregressive.policy.AutoregressivePolicy</span></code></p>
-<p>Hybrid policy combining neural construction and heuristic refinement.</p>
+<p>Hybrid policy combining deep learning construction and OR-based refinement.</p>
+<p>Attributes:
+neural_policy (AutoregressivePolicy): The model used for Stage 1.
+heuristic_policy (Union[VectorizedALNS, VectorizedHGS]): Classic solver
+used for Stage 2 refinement.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize NeuralHeuristicHybrid.</p>
+<p>Initializes the hybrid policy.</p>
+<p>Args:
+neural_policy: Pre-trained constructive model.
+heuristic_policy: Vectorized meta-heuristic instance.
+**kwargs: Extra parameters for base policy.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.hybrid_attention_model.hybrid_neural_heuristic_policy.NeuralHeuristicHybrid.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'greedy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.hybrid_attention_model.hybrid_neural_heuristic_policy.NeuralHeuristicHybrid.forward" title="Link to this definition">#</a></dt>
-<dd><p>Solve instances using neural construction followed by heuristic refinement.</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'greedy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.hybrid_attention_model.hybrid_neural_heuristic_policy.NeuralHeuristicHybrid.forward" title="Link to this definition">#</a></dt>
+<dd><p>Solves problem instances using the hybrid execution flow.</p>
+<p>Args:
+td: problem state.
+env: dynamics and rewards.
+strategy: constructive decoding mode.
+num_starts: multi-start count for construction.
+**kwargs: extra parameters passed to both components.</p>
+<p>Returns:
+Dict[str, Any]: Refinement results including ‘actions’ and ‘reward’.</p>
 </dd></dl>
 
 </dd></dl>

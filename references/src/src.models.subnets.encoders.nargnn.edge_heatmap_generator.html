@@ -493,6 +493,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.encoders.nargnn.edge_heatmap_generator">
 <span id="src-models-subnets-encoders-nargnn-edge-heatmap-generator"></span><h1><a class="reference internal" href="#module-src.models.subnets.encoders.nargnn.edge_heatmap_generator" title="src.models.subnets.encoders.nargnn.edge_heatmap_generator"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.encoders.nargnn.edge_heatmap_generator</span></code></a><a class="headerlink" href="#module-src.models.subnets.encoders.nargnn.edge_heatmap_generator" title="Link to this heading">#</a></h1>
 <p>Heatmap generator for NARGNN.</p>
+<p>Attributes:
+EdgeHeatmapGenerator: MLP for converting edge embeddings to heatmaps.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.encoders.nargnn.edge_heatmap_generator import EdgeHeatmapGenerator
+&gt;&gt;&gt; gen = EdgeHeatmapGenerator(embed_dim=128, num_layers=3)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -510,27 +515,45 @@ document.write(`
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.subnets.encoders.nargnn.edge_heatmap_generator.EdgeHeatmapGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.encoders.nargnn.edge_heatmap_generator.</span></span><span class="sig-name descname"><span class="pre">EdgeHeatmapGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">act_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">collections.abc.Callable</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'silu'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linear_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">undirected_graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.encoders.nargnn.edge_heatmap_generator.EdgeHeatmapGenerator" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.encoders.nargnn.edge_heatmap_generator.</span></span><span class="sig-name descname"><span class="pre">EdgeHeatmapGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">act_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'silu'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linear_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">undirected_graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.encoders.nargnn.edge_heatmap_generator.EdgeHeatmapGenerator" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
 <p>MLP for converting edge embeddings to heatmaps.</p>
+<p>This module processes edge features through a series of linear layers and
+reconstructs a full heatmap tensor from a sparse graph representation.</p>
+<p>Attributes:
+linears (nn.ModuleList): Internal linear layers for feature processing.
+output (nn.Linear): Final projection to a single logit per edge.
+act (Callable): Activation function.
+undirected_graph (bool): Whether the graph is treated as undirected.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize Class.</p>
+<p>Initializes the EdgeHeatmapGenerator.</p>
 <p>Args:
-embed_dim (int): Description of embed_dim.
-num_layers (int): Description of num_layers.
-act_fn (str | Callable): Description of act_fn.
-linear_bias (bool): Description of linear_bias.
-undirected_graph (bool): Description of undirected_graph.</p>
+embed_dim: Dimension of the edge embeddings.
+num_layers: Total number of linear layers in the MLP.
+act_fn: Activation function or name of a torch.nn.functional function.
+linear_bias: Whether to use bias in linear layers.
+undirected_graph: Whether to assume the graph is undirected.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.encoders.nargnn.edge_heatmap_generator.EdgeHeatmapGenerator.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch_geometric.data.Batch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.encoders.nargnn.edge_heatmap_generator.EdgeHeatmapGenerator.forward" title="Link to this definition">#</a></dt>
-<dd><p>Forward pass.</p>
+<dd><p>Forward pass of the heatmap generator.</p>
+<p>Processes edge features and converts them to a full square heatmap matrix.</p>
+<p>Args:
+graph: PyG Batch object containing edge features.</p>
+<p>Returns:
+torch.Tensor: Heatmap logits of shape (batch, num_nodes, num_nodes).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.encoders.nargnn.edge_heatmap_generator.EdgeHeatmapGenerator._make_heatmap_logits">
 <span class="sig-name descname"><span class="pre">_make_heatmap_logits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch_geometric.data.Batch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.encoders.nargnn.edge_heatmap_generator.EdgeHeatmapGenerator._make_heatmap_logits" title="Link to this definition">#</a></dt>
-<dd><p>Helper to create heatmap logits.</p>
+<dd><p>Helper to create heatmap logits from a sparse graph batch.</p>
+<p>Args:
+batch_graph: PyG Batch object.</p>
+<p>Returns:
+torch.Tensor: Heatmap logits tensor.</p>
+<p>Raises:
+ValueError: If the edge attribute dtype is not supported.</p>
 </dd></dl>
 
 </dd></dl>

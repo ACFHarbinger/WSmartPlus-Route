@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} TemporalAttentionModel(embed_dim: int, hidden_dim: int, problem: typing.Any, component_factory: logic.src.models.subnets.factories.NeuralComponentFactory, n_encode_layers: int = 2, n_encode_sublayers: typing.Optional[int] = None, n_decode_layers: typing.Optional[int] = None, dropout_rate: float = 0.1, aggregation: str = 'sum', aggregation_graph: str = 'mean', tanh_clipping: float = 10.0, mask_inner: bool = True, mask_logits: bool = True, mask_graph: bool = False, norm_config: typing.Optional[logic.src.configs.models.normalization.NormalizationConfig] = None, activation_config: typing.Optional[logic.src.configs.models.activation_function.ActivationConfig] = None, n_heads: int = 8, checkpoint_encoder: bool = False, shrink_size: typing.Optional[int] = None, temporal_horizon: int = 5, predictor_layers: int = 2, pomo_size: int = 0, spatial_bias: bool = False, spatial_bias_scale: float = 1.0, entropy_weight: float = 0.0, connection_type: str = 'residual', hyper_expansion: int = 4, decoder_type: str = 'attention', predictor_type: str = 'gru', **kwargs)
+`````{py:class} TemporalAttentionModel(embed_dim: int, hidden_dim: int, problem: typing.Any, component_factory: logic.src.models.subnets.factories.NeuralComponentFactory, n_encode_layers: int = 2, n_encode_sublayers: typing.Optional[int] = None, n_decode_layers: typing.Optional[int] = None, dropout_rate: float = 0.1, aggregation: str = 'sum', aggregation_graph: str = 'mean', tanh_clipping: float = 10.0, mask_inner: bool = True, mask_logits: bool = True, mask_graph: bool = False, norm_config: typing.Optional[logic.src.configs.models.normalization.NormalizationConfig] = None, activation_config: typing.Optional[logic.src.configs.models.activation_function.ActivationConfig] = None, n_heads: int = 8, checkpoint_encoder: bool = False, shrink_size: typing.Optional[int] = None, temporal_horizon: int = 5, predictor_layers: int = 2, pomo_size: int = 0, spatial_bias: bool = False, spatial_bias_scale: float = 1.0, entropy_weight: float = 0.0, connection_type: str = 'residual', hyper_expansion: int = 4, decoder_type: str = 'attention', predictor_type: str = 'gru', **kwargs: typing.Any)
 :canonical: src.models.core.temporal_attention_model.model.TemporalAttentionModel
 
 Bases: {py:obj}`logic.src.models.core.attention_model.AttentionModel`
@@ -45,7 +45,7 @@ Bases: {py:obj}`logic.src.models.core.attention_model.AttentionModel`
 
 ````
 
-````{py:method} forward(input, cost_weights=None, return_pi=False, pad=False, mask=None, expert_pi=None, **kwargs)
+````{py:method} forward(input: typing.Dict[str, torch.Tensor], env: typing.Optional[typing.Any] = None, strategy: typing.Optional[str] = None, return_pi: bool = False, pad: bool = False, mask: typing.Optional[torch.Tensor] = None, expert_pi: typing.Optional[torch.Tensor] = None, **kwargs: typing.Any) -> typing.Dict[str, typing.Any]
 :canonical: src.models.core.temporal_attention_model.model.TemporalAttentionModel.forward
 
 ```{autodoc2-docstring} src.models.core.temporal_attention_model.model.TemporalAttentionModel.forward
@@ -53,7 +53,7 @@ Bases: {py:obj}`logic.src.models.core.attention_model.AttentionModel`
 
 ````
 
-````{py:method} update_fill_history(fill_history, new_fills)
+````{py:method} update_fill_history(fill_history: torch.Tensor, new_fills: torch.Tensor) -> torch.Tensor
 :canonical: src.models.core.temporal_attention_model.model.TemporalAttentionModel.update_fill_history
 
 ```{autodoc2-docstring} src.models.core.temporal_attention_model.model.TemporalAttentionModel.update_fill_history
@@ -61,7 +61,7 @@ Bases: {py:obj}`logic.src.models.core.attention_model.AttentionModel`
 
 ````
 
-````{py:method} compute_simulator_day(input, graph)
+````{py:method} compute_simulator_day(input: typing.Dict[str, typing.Any], graph: typing.Any) -> typing.Dict[str, typing.Any]
 :canonical: src.models.core.temporal_attention_model.model.TemporalAttentionModel.compute_simulator_day
 
 ```{autodoc2-docstring} src.models.core.temporal_attention_model.model.TemporalAttentionModel.compute_simulator_day

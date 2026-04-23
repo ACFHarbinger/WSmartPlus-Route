@@ -493,8 +493,16 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.core.glop.model">
 <span id="src-models-core-glop-model"></span><h1><a class="reference internal" href="#module-src.models.core.glop.model" title="src.models.core.glop.model"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.core.glop.model</span></code></a><a class="headerlink" href="#module-src.models.core.glop.model" title="Link to this heading">#</a></h1>
-<p>GLOP Model.</p>
-<p>REINFORCE training for Global-Local Optimization Policy.</p>
+<p>GLOP Model for large-scale routing.</p>
+<p>This module implements <code class="docutils literal notranslate"><span class="pre">GLOP</span></code> (Global-Local Optimization), a hierarchical
+approach that learns to partition a large problem into smaller sub-problems
+(Meta-partitioning) which are then solved by local constructive solvers.</p>
+<p>Attributes:
+GLOP: Training orchestrator for the hierarchical partitioning model.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.core.glop.model import GLOP
+&gt;&gt;&gt; model = GLOP(env=large_scale_env, policy_kwargs={‘n_samples’: 4})
+&gt;&gt;&gt; out = model(td)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -502,7 +510,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.core.glop.model.GLOP" title="src.models.core.glop.model.GLOP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GLOP</span></code></a></p></td>
-<td><p>GLOP Model: Global-Local Optimization with REINFORCE.</p></td>
+<td><p>Global-Local Optimization Policy (GLOP).</p></td>
 </tr>
 </tbody>
 </table>
@@ -512,57 +520,62 @@ document.write(`
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.core.glop.model.GLOP">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.glop.model.</span></span><span class="sig-name descname"><span class="pre">GLOP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.models.core.glop.policy.html#src.models.core.glop.policy.GLOPPolicy" title="src.models.core.glop.policy.GLOPPolicy"><span class="pre">src.models.core.glop.policy.GLOPPolicy</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">baseline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.glop.model.GLOP" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.glop.model.</span></span><span class="sig-name descname"><span class="pre">GLOP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.models.core.glop.policy.html#src.models.core.glop.policy.GLOPPolicy" title="src.models.core.glop.policy.GLOPPolicy"><span class="pre">src.models.core.glop.policy.GLOPPolicy</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">baseline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.glop.model.GLOP" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
-<p>GLOP Model: Global-Local Optimization with REINFORCE.</p>
-<p>Trains a NAR partitioning policy using REINFORCE with mean baseline.
-The local solvers are typically non-differentiable heuristics.</p>
-<p>Reference:
-Ye et al. “GLOP: Learning Global Partition and Local Construction
-for Solving Large-scale Routing Problems in Real-time” (2023)</p>
+<p>Global-Local Optimization Policy (GLOP).</p>
+<p>Trains a neural partitioner using REINFORCE. The model learns to cluster
+nodes into manageable segments such that the total cost after local
+construction and merge is minimized.</p>
+<p>Attributes:
+env (RL4COEnvBase): Environment instance for state transitions.
+policy (GLOPPolicy): Neural partitioner and local solver wrapper.
+baseline (str): Reinforcement learning baseline (default: “mean”).
+n_samples (int): count of parallel partition candidates per instance.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize GLOP model.</p>
+<p>Initializes the GLOP model.</p>
 <p>Args:
-env: Environment for training.
-policy: Pre-built policy or None to create default.
-policy_kwargs: Arguments for policy construction.
-baseline: Baseline type (only “mean” supported).</p>
+env: heavy-duty optimization environment.
+policy: Optional pre-configured partitioning policy.
+policy_kwargs: parameter map for automated policy creation.
+baseline: identifier for reward normalization.
+**kwargs: Unused extra parameters.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.glop.model.GLOP.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'train'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.glop.model.GLOP.forward" title="Link to this definition">#</a></dt>
-<dd><p>Forward pass through GLOP policy.</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'train'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.glop.model.GLOP.forward" title="Link to this definition">#</a></dt>
+<dd><p>Executes the partitioning and local optimization pipeline.</p>
 <p>Args:
-td: Problem instance.
-env: Environment.
-phase: Training phase.</p>
+td: Environment state.
+env: Optional environment override.
+phase: Current execution phase (‘train’, ‘val’, ‘test’).
+**kwargs: Extra parameters for the policy logic.</p>
 <p>Returns:
-Policy output dictionary.</p>
+Dict[str, Any]: results including ‘reward’, ‘log_likelihood’, and ‘actions’.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.glop.model.GLOP.shared_step">
 <span class="sig-name descname"><span class="pre">shared_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.glop.model.GLOP.shared_step" title="Link to this definition">#</a></dt>
-<dd><p>Shared step for training/validation/testing.</p>
+<dd><p>Standardized execution step for Lightning-style pipelines.</p>
 <p>Args:
-batch: Batch of problem instances.
-batch_idx: Batch index.
-phase: Current phase.</p>
+batch: Data container with problem instances.
+batch_idx: Sequential index of the batch.
+phase: Descriptive label for the current pass.</p>
 <p>Returns:
-Dictionary with loss and metrics.</p>
+Dict[str, Any]: execution metadata including loss and top rewards.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.glop.model.GLOP.calculate_loss">
 <span class="sig-name descname"><span class="pre">calculate_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy_out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_likelihood</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.glop.model.GLOP.calculate_loss" title="Link to this definition">#</a></dt>
-<dd><p>Calculate REINFORCE loss with mean baseline.</p>
+<dd><p>Computes REINFORCE gradients based on policy outputs.</p>
 <p>Args:
-td: Problem instance.
-batch: Batch data.
-policy_out: Output from policy forward pass.
-reward: Override reward.
-log_likelihood: Override log_likelihood.</p>
+td: problem state.
+batch: input data.
+policy_out: mapping of constructed rewards and probabilities.
+reward: optional override for the reward tensor.
+log_likelihood: optional override for the likelihood tensor.</p>
 <p>Returns:
-Updated policy_out with loss.</p>
+Dict[str, Any]: updated policy output containing ‘loss’.</p>
 </dd></dl>
 
 </dd></dl>

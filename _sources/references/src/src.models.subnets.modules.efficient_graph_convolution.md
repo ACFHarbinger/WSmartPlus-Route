@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} EfficientGraphConvolution(in_channels: int, out_channels: int, aggrs: typing.Iterable[str] = ('symnorm', ), n_heads: int = 8, num_bases: int = 4, cached: bool = False, add_self_loops: bool = True, bias: bool = True, sigmoid: bool = False, **kwargs)
+`````{py:class} EfficientGraphConvolution(in_channels: int, out_channels: int, aggrs: typing.Iterable[str] = ('symnorm', ), n_heads: int = 8, num_bases: int = 4, cached: bool = False, add_self_loops: bool = True, bias: bool = True, sigmoid: bool = False, **kwargs: typing.Any)
 :canonical: src.models.subnets.modules.efficient_graph_convolution.EfficientGraphConvolution
 
 Bases: {py:obj}`torch_geometric.nn.MessagePassing`
@@ -59,7 +59,7 @@ Bases: {py:obj}`torch_geometric.nn.MessagePassing`
 
 ````
 
-````{py:method} reset_parameters()
+````{py:method} reset_parameters() -> None
 :canonical: src.models.subnets.modules.efficient_graph_convolution.EfficientGraphConvolution.reset_parameters
 
 ```{autodoc2-docstring} src.models.subnets.modules.efficient_graph_convolution.EfficientGraphConvolution.reset_parameters
@@ -123,7 +123,7 @@ Bases: {py:obj}`torch_geometric.nn.MessagePassing`
 
 ````
 
-````{py:method} __repr__()
+````{py:method} __repr__() -> str
 :canonical: src.models.subnets.modules.efficient_graph_convolution.EfficientGraphConvolution.__repr__
 
 ```{autodoc2-docstring} src.models.subnets.modules.efficient_graph_convolution.EfficientGraphConvolution.__repr__

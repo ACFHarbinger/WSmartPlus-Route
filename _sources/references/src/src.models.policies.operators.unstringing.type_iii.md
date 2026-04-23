@@ -42,14 +42,14 @@
 ```
 ````
 
-````{py:function} _find_best_type_iii_move(tour, dist, valid_indices, sample_size, device, generator: typing.Optional[torch.Generator] = None)
+````{py:function} _find_best_type_iii_move(tour: torch.Tensor, dist: torch.Tensor, valid_indices: torch.Tensor, sample_size: int, device: torch.device, generator: typing.Optional[torch.Generator] = None) -> typing.Tuple[float, typing.Optional[typing.Tuple[int, int, int, int]]]
 :canonical: src.models.policies.operators.unstringing.type_iii._find_best_type_iii_move
 
 ```{autodoc2-docstring} src.models.policies.operators.unstringing.type_iii._find_best_type_iii_move
 ```
 ````
 
-````{py:function} _evaluate_type_iii_move(tour, dist, i, k, j, l, N)
+````{py:function} _evaluate_type_iii_move(tour: torch.Tensor, dist: torch.Tensor, i: int, k: int, j: int, l: int, N: int) -> float
 :canonical: src.models.policies.operators.unstringing.type_iii._evaluate_type_iii_move
 
 ```{autodoc2-docstring} src.models.policies.operators.unstringing.type_iii._evaluate_type_iii_move

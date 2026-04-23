@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} DeepACOPolicy(encoder: typing.Optional[logic.src.models.common.non_autoregressive.encoder.NonAutoregressiveEncoder] = None, decoder: typing.Optional[logic.src.models.subnets.decoders.deepaco.ACODecoder] = None, embed_dim: int = 128, num_encoder_layers: int = 3, num_heads: int = 8, n_ants: int = 20, n_iterations: int = 1, alpha: float = 1.0, beta: float = 2.0, rho: float = 0.1, use_local_search: bool = True, env_name: typing.Optional[str] = None, **kwargs)
+`````{py:class} DeepACOPolicy(encoder: typing.Optional[logic.src.models.common.non_autoregressive.encoder.NonAutoregressiveEncoder] = None, decoder: typing.Optional[logic.src.models.subnets.decoders.deepaco.ACODecoder] = None, embed_dim: int = 128, num_encoder_layers: int = 3, num_heads: int = 8, n_ants: int = 20, n_iterations: int = 1, alpha: float = 1.0, beta: float = 2.0, rho: float = 0.1, use_local_search: bool = True, env_name: typing.Optional[str] = None, **kwargs: typing.Any)
 :canonical: src.models.core.deepaco.policy.DeepACOPolicy
 
 Bases: {py:obj}`logic.src.models.common.non_autoregressive.policy.NonAutoregressivePolicy`
@@ -37,7 +37,7 @@ Bases: {py:obj}`logic.src.models.common.non_autoregressive.policy.NonAutoregress
 ```{autodoc2-docstring} src.models.core.deepaco.policy.DeepACOPolicy.__init__
 ```
 
-````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.base.RL4COEnvBase, num_starts: int = 1, **kwargs) -> typing.Dict[str, typing.Any]
+````{py:method} forward(td: tensordict.TensorDict, env: logic.src.envs.base.base.RL4COEnvBase, num_starts: int = 1, **kwargs: typing.Any) -> typing.Dict[str, typing.Any]
 :canonical: src.models.core.deepaco.policy.DeepACOPolicy.forward
 
 ```{autodoc2-docstring} src.models.core.deepaco.policy.DeepACOPolicy.forward

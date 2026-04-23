@@ -35,7 +35,7 @@
 
 ### API
 
-`````{py:class} LegacyCriticNetwork(problem, component_factory, embed_dim, hidden_dim, n_layers, n_sublayers, encoder_normalization='batch', activation='gelu', n_heads=8, aggregation_graph='avg', dropout_rate=0.0, temporal_horizon=0)
+`````{py:class} LegacyCriticNetwork(problem: typing.Any, component_factory: typing.Any, embed_dim: int, hidden_dim: int, n_layers: int, n_sublayers: int, encoder_normalization: str = 'batch', activation: str = 'gelu', n_heads: int = 8, aggregation_graph: str = 'avg', dropout_rate: float = 0.0, temporal_horizon: int = 0)
 :canonical: src.models.common.critic_network.model.LegacyCriticNetwork
 
 Bases: {py:obj}`torch.nn.Module`
@@ -49,7 +49,7 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.common.critic_network.model.LegacyCriticNetwork.__init__
 ```
 
-````{py:method} _init_embed(nodes)
+````{py:method} _init_embed(nodes: torch.Tensor) -> torch.Tensor
 :canonical: src.models.common.critic_network.model.LegacyCriticNetwork._init_embed
 
 ```{autodoc2-docstring} src.models.common.critic_network.model.LegacyCriticNetwork._init_embed
@@ -57,7 +57,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} forward(inputs)
+````{py:method} forward(inputs: typing.Dict[str, typing.Any]) -> torch.Tensor
 :canonical: src.models.common.critic_network.model.LegacyCriticNetwork.forward
 
 ```{autodoc2-docstring} src.models.common.critic_network.model.LegacyCriticNetwork.forward

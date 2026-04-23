@@ -491,6 +491,18 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.ui.pages.simulation.charts">
 <span id="src-ui-pages-simulation-charts"></span><h1><a class="reference internal" href="#module-src.ui.pages.simulation.charts" title="src.ui.pages.simulation.charts"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.pages.simulation.charts</span></code></a><a class="headerlink" href="#module-src.ui.pages.simulation.charts" title="Link to this heading">#</a></h1>
+<p>Performance visualization components for simulation results.</p>
+<p>This module provides specialized chart renderers for analyzing mathematical
+performance across different routing policies. It includes radar charts for
+multi-objective comparison, descriptive statistics tables, and interactive
+time-series charts for daily performance monitoring.</p>
+<p>Example:
+render_policy_comparison(entries, current_day)</p>
+<p>Attributes:
+render_policy_comparison: Renders a radar chart for multi-objective analysis.
+render_summary_statistics: Renders a tabular overview of performance.
+render_metric_charts: Visualizes daily telemetry as interactive line charts.
+render_tracking_run_metrics: Displays metrics from the WSTracker backend.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -498,13 +510,13 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.simulation.charts.render_policy_comparison" title="src.ui.pages.simulation.charts.render_policy_comparison"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render_policy_comparison</span></code></a></p></td>
-<td><p>Render radar chart comparing all policies for the selected day.</p></td>
+<td><p>Renders a radar chart comparing all active policies for a specific day.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.simulation.charts.render_summary_statistics" title="src.ui.pages.simulation.charts.render_summary_statistics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render_summary_statistics</span></code></a></p></td>
-<td><p>Render descriptive statistics table.</p></td>
+<td><p>Renders a comprehensive descriptive statistics table for simulation results.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.simulation.charts.render_metric_charts" title="src.ui.pages.simulation.charts.render_metric_charts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render_metric_charts</span></code></a></p></td>
-<td><p>Render evaluation metrics charts with user-selectable metrics.</p></td>
+<td><p>Renders daily performance line charts for user-selected metrics.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.simulation.charts.render_tracking_run_metrics" title="src.ui.pages.simulation.charts.render_tracking_run_metrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render_tracking_run_metrics</span></code></a></p></td>
 <td><p>Render step-by-step metrics from WSTracker for a given run.</p></td>
@@ -518,19 +530,30 @@ document.write(`
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.simulation.charts.render_policy_comparison">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.simulation.charts.</span></span><span class="sig-name descname"><span class="pre">render_policy_comparison</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.simulation.charts.render_policy_comparison" title="Link to this definition">#</a></dt>
-<dd><p>Render radar chart comparing all policies for the selected day.</p>
+<dd><p>Renders a radar chart comparing all active policies for a specific day.</p>
+<p>Visualizes normalized values across multiple objectives (profit, distance,
+load, overflows, cost, efficiency) to highlight performance tradeoffs.</p>
+<p>Args:
+entries: Master list of parsed simulation log entries.
+selected_day: The simulation day index to analyze.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.simulation.charts.render_summary_statistics">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.simulation.charts.</span></span><span class="sig-name descname"><span class="pre">render_summary_statistics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">controls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.simulation.charts.render_summary_statistics" title="Link to this definition">#</a></dt>
-<dd><p>Render descriptive statistics table.</p>
+<dd><p>Renders a comprehensive descriptive statistics table for simulation results.</p>
+<p>Args:
+entries: Master list of parsed simulation log entries.
+controls: User filter settings containing ‘selected_policy’.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.simulation.charts.render_metric_charts">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.simulation.charts.</span></span><span class="sig-name descname"><span class="pre">render_metric_charts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">controls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.simulation.charts.render_metric_charts" title="Link to this definition">#</a></dt>
-<dd><p>Render evaluation metrics charts with user-selectable metrics.</p>
+<dd><p>Renders daily performance line charts for user-selected metrics.</p>
+<p>Args:
+entries: Master list of parsed simulation log entries.
+controls: User filter settings containing ‘selected_policy’.</p>
 </dd></dl>
 
 <dl class="py function">

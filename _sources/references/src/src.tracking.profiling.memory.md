@@ -153,7 +153,7 @@
 
 ````
 
-````{py:method} __exit__(*_args: typing.Any) -> None
+````{py:method} __exit__(*args: typing.Any) -> None
 :canonical: src.tracking.profiling.memory.MemoryTracker.__exit__
 
 ```{autodoc2-docstring} src.tracking.profiling.memory.MemoryTracker.__exit__

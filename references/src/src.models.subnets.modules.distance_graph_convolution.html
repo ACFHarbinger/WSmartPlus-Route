@@ -495,6 +495,17 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.modules.distance_graph_convolution">
 <span id="src-models-subnets-modules-distance-graph-convolution"></span><h1><a class="reference internal" href="#module-src.models.subnets.modules.distance_graph_convolution" title="src.models.subnets.modules.distance_graph_convolution"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.modules.distance_graph_convolution</span></code></a><a class="headerlink" href="#module-src.models.subnets.modules.distance_graph_convolution" title="Link to this heading">#</a></h1>
 <p>Graph Convolutional layer with distance-aware edge weighting.</p>
+<p>This module provides the DistanceAwareGraphConvolution layer, which scales
+messages during graph propagation based on physical distance metadata.</p>
+<p>Attributes:
+DistanceAwareGraphConvolution: GCN layer using distance-based message scaling.</p>
+<p>Example:
+&gt;&gt;&gt; import torch
+&gt;&gt;&gt; from logic.src.models.subnets.modules.distance_graph_convolution import DistanceAwareGraphConvolution
+&gt;&gt;&gt; model = DistanceAwareGraphConvolution(in_channels=128, out_channels=128)
+&gt;&gt;&gt; x = torch.randn(1, 10, 128)
+&gt;&gt;&gt; adj = torch.eye(10)
+&gt;&gt;&gt; out = model(x, adj)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -502,7 +513,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.subnets.modules.distance_graph_convolution.DistanceAwareGraphConvolution" title="src.models.subnets.modules.distance_graph_convolution.DistanceAwareGraphConvolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DistanceAwareGraphConvolution</span></code></a></p></td>
-<td><p>Graph Convolution that incorporates distance information into the message passing.</p></td>
+<td><p>Graph Convolution that incorporates distance into message passing.</p></td>
 </tr>
 </tbody>
 </table>
@@ -514,52 +525,67 @@ document.write(`
 <dt class="sig sig-object py" id="src.models.subnets.modules.distance_graph_convolution.DistanceAwareGraphConvolution">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.modules.distance_graph_convolution.</span></span><span class="sig-name descname"><span class="pre">DistanceAwareGraphConvolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_channels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_influence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'inverse'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sum'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.distance_graph_convolution.DistanceAwareGraphConvolution" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
-<p>Graph Convolution that incorporates distance information into the message passing.</p>
+<p>Graph Convolution that incorporates distance into message passing.</p>
 <p>Supports different aggregation methods (sum, mean, max) and handles
-edge features related to physical distance.</p>
+scaling strategies like inverse distance or exponential decay.</p>
+<p>Attributes:
+in_channels (int): Dimension of input node features.
+out_channels (int): Dimension of output node features.
+aggregation (str): Aggregation method (‘sum’, ‘mean’, ‘max’).
+distance_influence (str): Weighting strategy (‘inverse’, ‘exponential’,
+‘learnable’).
+linear (nn.Linear): Transformation for input features.
+bias (Optional[nn.Parameter]): Learnable output bias vector.
+distance_transform (Optional[nn.Sequential]): Transform for learnable weights.
+temp (Optional[nn.Parameter]): Temperature for exponential decay.
+alpha (Optional[nn.Parameter]): Power for inverse distance scaling.</p>
 <p class="rubric">Initialization</p>
+<p>Initializes DistanceAwareGraphConvolution.</p>
 <p>Args:
-in_channels: Dimension of input node features.
-out_channels: Dimension of output node features.
-distance_influence: Method to incorporate distance (‘inverse’, ‘exponential’, ‘learnable’).
-aggregation: Aggregation method (‘sum’, ‘mean’, ‘max’).
-bias: Whether to use a bias term.</p>
+in_channels: Input feature dimensionality.
+out_channels: Output feature dimensionality.
+distance_influence: Method to incorporate distance. Options are
+‘inverse’, ‘exponential’, or ‘learnable’.
+aggregation: Message pooling mode (‘sum’, ‘mean’, ‘max’).
+bias: Whether to add a learnable bias term to the output.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.distance_graph_convolution.DistanceAwareGraphConvolution.init_parameters">
-<span class="sig-name descname"><span class="pre">init_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.distance_graph_convolution.DistanceAwareGraphConvolution.init_parameters" title="Link to this definition">#</a></dt>
-<dd><p>Initializes the parameters of the layer using uniform distribution.</p>
+<span class="sig-name descname"><span class="pre">init_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.subnets.modules.distance_graph_convolution.DistanceAwareGraphConvolution.init_parameters" title="Link to this definition">#</a></dt>
+<dd><p>Initializes the linear transformation using uniform distribution.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.distance_graph_convolution.DistanceAwareGraphConvolution.get_distance_weights">
-<span class="sig-name descname"><span class="pre">get_distance_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.distance_graph_convolution.DistanceAwareGraphConvolution.get_distance_weights" title="Link to this definition">#</a></dt>
-<dd><p>Compute edge weights based on distances</p>
+<span class="sig-name descname"><span class="pre">get_distance_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.modules.distance_graph_convolution.DistanceAwareGraphConvolution.get_distance_weights" title="Link to this definition">#</a></dt>
+<dd><p>Computes continuous edge weights based on physical distances.</p>
 <p>Args:
-dist_matrix: Distance matrix (V x V)</p>
+dist_matrix: Pairwise distance matrix of shape (V, V).</p>
 <p>Returns:
-Edge weights with same shape as dist_matrix</p>
+torch.Tensor: Computed weights for each edge (V, V).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.distance_graph_convolution.DistanceAwareGraphConvolution.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.distance_graph_convolution.DistanceAwareGraphConvolution.forward" title="Link to this definition">#</a></dt>
-<dd><p>Args:
-h: Input node features (B x V x H_1)
-adj: Graph adjacency matrix (V x V) - shared across all batches
-dist_matrix: Distance matrix (V x V) - shared across all batches</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.modules.distance_graph_convolution.DistanceAwareGraphConvolution.forward" title="Link to this definition">#</a></dt>
+<dd><p>Applies distance-aware graph convolution to the input batch.</p>
+<p>Args:
+h: Input node features (batch, nodes, in_channels).
+adj: Graph adjacency/mask matrix (nodes, nodes).
+dist_matrix: Pairwise node distances. Defaults to using <code class="docutils literal notranslate"><span class="pre">adj</span></code> if None.</p>
 <p>Returns:
-Updated node features (B x V x H_2)</p>
+torch.Tensor: Aggregated node features (batch, nodes, out_channels).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.modules.distance_graph_convolution.DistanceAwareGraphConvolution.single_graph_forward">
-<span class="sig-name descname"><span class="pre">single_graph_forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.modules.distance_graph_convolution.DistanceAwareGraphConvolution.single_graph_forward" title="Link to this definition">#</a></dt>
-<dd><p>Args:
-h: Input node features (N x H_1)
-adj: Graph adjacency matrix (N x N)
-dist_matrix: Distance matrix (N x N)</p>
+<span class="sig-name descname"><span class="pre">single_graph_forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.modules.distance_graph_convolution.DistanceAwareGraphConvolution.single_graph_forward" title="Link to this definition">#</a></dt>
+<dd><p>Applies distance-aware graph convolution to a single graph.</p>
+<p>Args:
+h: Input node features (nodes, in_channels).
+adj: Single graph adjacency matrix (nodes, nodes).
+dist_matrix: Node pairwise distances. Defaults to <code class="docutils literal notranslate"><span class="pre">adj</span></code> if None.</p>
 <p>Returns:
-Updated node features (N x H_2)</p>
+torch.Tensor: Updated node features (nodes, out_channels).</p>
 </dd></dl>
 
 </dd></dl>

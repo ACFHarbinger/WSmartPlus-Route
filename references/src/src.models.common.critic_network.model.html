@@ -495,10 +495,9 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.common.critic_network.model">
 <span id="src-models-common-critic-network-model"></span><h1><a class="reference internal" href="#module-src.models.common.critic_network.model" title="src.models.common.critic_network.model"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.common.critic_network.model</span></code></a><a class="headerlink" href="#module-src.models.common.critic_network.model" title="Link to this heading">#</a></h1>
 <p>Backward-compatibility shim for CriticNetwork.</p>
-<p>The canonical CriticNetwork implementation is now in
-<code class="docutils literal notranslate"><span class="pre">logic.src.models.critic</span></code>. This module re-exports both
-the new (TensorDict-based) and legacy (problem/factory-based) versions.</p>
-<p><strong>New code should import from</strong> <code class="docutils literal notranslate"><span class="pre">logic.src.models.critic</span></code>.</p>
+<p>This module provides the legacy implementation of the critic network and
+re-exports the canonical <code class="docutils literal notranslate"><span class="pre">CriticNetwork</span></code> from the policy module. It serves
+as a bridge for older problem-based pipelines.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -527,45 +526,54 @@ the new (TensorDict-based) and legacy (problem/factory-based) versions.</p>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.common.critic_network.model.LegacyCriticNetwork">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.common.critic_network.model.</span></span><span class="sig-name descname"><span class="pre">LegacyCriticNetwork</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component_factory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_layers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_sublayers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoder_normalization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'batch'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gelu'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_heads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregation_graph</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'avg'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temporal_horizon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.common.critic_network.model.LegacyCriticNetwork" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.common.critic_network.model.</span></span><span class="sig-name descname"><span class="pre">LegacyCriticNetwork</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component_factory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_sublayers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoder_normalization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'batch'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'gelu'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregation_graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'avg'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temporal_horizon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.common.critic_network.model.LegacyCriticNetwork" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
 <p>Legacy Critic Network using problem objects and component factories.</p>
 <p>This is the original implementation kept for backward compatibility with
-the legacy training pipeline. New code should use
-<code class="docutils literal notranslate"><span class="pre">logic.src.models.critic.CriticNetwork</span></code> instead.</p>
+the legacy training pipeline. It evaluates graph states by aggregating
+node embeddings and passing them through a value head.</p>
+<p>Attributes:
+hidden_dim: Dimensionality of the value head hidden layers.
+embed_dim: Dimensionality of the node embeddings.
+aggregation_graph: Graph aggregation mode (‘avg’, ‘sum’, ‘max’).
+is_wc: Whether the problem is waste-collection based.
+is_vrpp: Whether the problem is VRPP-based.
+context_embedder: Problem-specific node feature encoder.
+encoder: The graph neural network used for feature extraction.
+value_head: Linear layers to predict state value.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize Class.</p>
+<p>Initialize the LegacyCriticNetwork.</p>
 <p>Args:
-problem (Any): Description of problem.
-component_factory (Any): Description of component_factory.
-embed_dim (Any): Description of embed_dim.
-hidden_dim (Any): Description of hidden_dim.
-n_layers (Any): Description of n_layers.
-n_sublayers (Any): Description of n_sublayers.
-encoder_normalization (Any): Description of encoder_normalization.
-activation (Any): Description of activation.
-n_heads (Any): Description of n_heads.
-aggregation_graph (Any): Description of aggregation_graph.
-dropout_rate (Any): Description of dropout_rate.
-temporal_horizon (Any): Description of temporal_horizon.</p>
+problem: Problem instance defining the environment type.
+component_factory: Factory used to instantiate the encoder.
+embed_dim: Input dimensionality of node features.
+hidden_dim: Hidden dimensionality for the value head.
+n_layers: Number of layers in the encoder.
+n_sublayers: Number of sub-layers per encoder block.
+encoder_normalization: Normalization type for the encoder.
+activation: Nonlinearity to use (e.g., ‘relu’, ‘gelu’).
+n_heads: Number of attention heads in the encoder.
+aggregation_graph: Message aggregation strategy.
+dropout_rate: Dropout probability.
+temporal_horizon: Look-ahead horizon for dynamic features.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.common.critic_network.model.LegacyCriticNetwork._init_embed">
-<span class="sig-name descname"><span class="pre">_init_embed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.common.critic_network.model.LegacyCriticNetwork._init_embed" title="Link to this definition">#</a></dt>
-<dd><p>init embed.</p>
+<span class="sig-name descname"><span class="pre">_init_embed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.common.critic_network.model.LegacyCriticNetwork._init_embed" title="Link to this definition">#</a></dt>
+<dd><p>Initialize node embeddings from raw node features.</p>
 <p>Args:
-nodes (Any): Description of nodes.</p>
+nodes: Raw node feature tensor.</p>
 <p>Returns:
-Any: Description of return value.</p>
+torch.Tensor: Initial latent representations.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.common.critic_network.model.LegacyCriticNetwork.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.common.critic_network.model.LegacyCriticNetwork.forward" title="Link to this definition">#</a></dt>
-<dd><p>Forward.</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.common.critic_network.model.LegacyCriticNetwork.forward" title="Link to this definition">#</a></dt>
+<dd><p>Estimate the state value for the given input instance.</p>
 <p>Args:
-inputs (Any): Description of inputs.</p>
+inputs: Dictionary containing ‘nodes’ and optional ‘edges’.</p>
 <p>Returns:
-Any: Description of return value.</p>
+torch.Tensor: Scalar value prediction of shape [batch, 1].</p>
 </dd></dl>
 
 </dd></dl>

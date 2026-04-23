@@ -506,6 +506,14 @@ document.write(`
 <span id="src-ui-styles-kpi"></span><h1><a class="reference internal" href="#module-src.ui.styles.kpi" title="src.ui.styles.kpi"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.styles.kpi</span></code></a><a class="headerlink" href="#module-src.ui.styles.kpi" title="Link to this heading">#</a></h1>
 <p>KPI card HTML generation and number formatting utilities.</p>
 <p>Provides functions to create styled KPI card HTML with optional deltas and sparklines.</p>
+<p>Attributes:
+KPIValue: Type alias for KPI values (float, int, or str).
+KPIDelta: Type alias for optional float delta values.
+renderer: Global instance of KPIRenderer for HTML generation.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.ui.styles.kpi import create_kpi_row
+&gt;&gt;&gt; metrics = {“Profit”: 1250.5, “Distance”: 45.2}
+&gt;&gt;&gt; html = create_kpi_row(metrics)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -513,7 +521,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.styles.kpi.KPIRenderer" title="src.ui.styles.kpi.KPIRenderer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">KPIRenderer</span></code></a></p></td>
-<td></td>
+<td><p>Renderer for KPI components using Jinja2 templates.</p></td>
 </tr>
 </tbody>
 </table>
@@ -539,7 +547,7 @@ document.write(`
 <td><p>Wrapper function that now uses the template renderer.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.styles.kpi.create_kpi_row" title="src.ui.styles.kpi.create_kpi_row"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_kpi_row</span></code></a></p></td>
-<td><p>Logic for color selection stays in Python, but HTML generation moves to templates.</p></td>
+<td><p>Logic for color selection and HTML generation for a row of metrics.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.styles.kpi.create_kpi_row_with_deltas" title="src.ui.styles.kpi.create_kpi_row_with_deltas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_kpi_row_with_deltas</span></code></a></p></td>
 <td><p>Create HTML for a row of KPI cards with delta indicators and optional sparklines.</p></td>
@@ -583,40 +591,73 @@ document.write(`
 <dt class="sig sig-object py" id="src.ui.styles.kpi.format_number">
 <span class="sig-prename descclassname"><span class="pre">src.ui.styles.kpi.</span></span><span class="sig-name descname"><span class="pre">format_number</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.ui.styles.kpi.format_number" title="Link to this definition">#</a></dt>
 <dd><p>Format a number with thousands separator and precision.</p>
+<p>Args:
+value (float): The numeric value to format.
+precision (int): Number of decimal places (default: 2).</p>
+<p>Returns:
+str: Formatted string (e.g., “1,250.50”).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.styles.kpi.format_percentage">
 <span class="sig-prename descclassname"><span class="pre">src.ui.styles.kpi.</span></span><span class="sig-name descname"><span class="pre">format_percentage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.ui.styles.kpi.format_percentage" title="Link to this definition">#</a></dt>
 <dd><p>Format a value as percentage.</p>
+<p>Args:
+value (float): The numeric value (e.g., 85.5).</p>
+<p>Returns:
+str: Formatted percentage string (e.g., “85.5%”).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.styles.kpi._format_delta">
 <span class="sig-prename descclassname"><span class="pre">src.ui.styles.kpi.</span></span><span class="sig-name descname"><span class="pre">_format_delta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.ui.styles.kpi._format_delta" title="Link to this definition">#</a></dt>
 <dd><p>Format a delta value with arrow indicator.</p>
+<p>Args:
+delta (float): The change value.</p>
+<p>Returns:
+str: Formatted delta string with ▲/▼ arrows.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.styles.kpi._delta_css_class">
 <span class="sig-prename descclassname"><span class="pre">src.ui.styles.kpi.</span></span><span class="sig-name descname"><span class="pre">_delta_css_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.ui.styles.kpi._delta_css_class" title="Link to this definition">#</a></dt>
 <dd><p>Return the CSS class for a delta value.</p>
+<p>Args:
+delta (float): The change value.</p>
+<p>Returns:
+str: CSS class name (“positive”, “negative”, or “neutral”).</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="src.ui.styles.kpi.KPIRenderer">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.ui.styles.kpi.</span></span><span class="sig-name descname"><span class="pre">KPIRenderer</span></span><a class="headerlink" href="#src.ui.styles.kpi.KPIRenderer" title="Link to this definition">#</a></dt>
-<dd><p class="rubric">Initialization</p>
+<dd><p>Renderer for KPI components using Jinja2 templates.</p>
+<p>Attributes:
+env (jinja2.Environment): Jinja2 environment for template loading.
+card_template (jinja2.Template): Template for individual KPI cards.
+row_template (jinja2.Template): Template for a row container of cards.</p>
+<p class="rubric">Initialization</p>
+<p>Initialize the renderer and load templates.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.ui.styles.kpi.KPIRenderer.render_card">
 <span class="sig-name descname"><span class="pre">render_card</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.ui.styles.kpi.KPIRenderer.render_card" title="Link to this definition">#</a></dt>
 <dd><p>Renders a single KPI card using the HTML template.</p>
+<p>Args:
+label (str): Metric title.
+value (str): Formatted primary value.
+kwargs: Additional template variables (color, delta, etc.).</p>
+<p>Returns:
+str: Rendered HTML card content.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.ui.styles.kpi.KPIRenderer.render_row">
-<span class="sig-name descname"><span class="pre">render_row</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cards_html</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.ui.styles.kpi.KPIRenderer.render_row" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">render_row</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cards_html</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.ui.styles.kpi.KPIRenderer.render_row" title="Link to this definition">#</a></dt>
 <dd><p>Wraps multiple card strings into a flex container.</p>
+<p>Args:
+cards_html (List[str]): List of rendered card HTML strings.</p>
+<p>Returns:
+str: Wrapped HTML row content.</p>
 </dd></dl>
 
 </dd></dl>
@@ -631,12 +672,27 @@ document.write(`
 <dt class="sig sig-object py" id="src.ui.styles.kpi.create_kpi_html">
 <span class="sig-prename descclassname"><span class="pre">src.ui.styles.kpi.</span></span><span class="sig-name descname"><span class="pre">create_kpi_html</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'#667eea'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'#5a67d8'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_class</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'neutral'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparkline_svg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.ui.styles.kpi.create_kpi_html" title="Link to this definition">#</a></dt>
 <dd><p>Wrapper function that now uses the template renderer.</p>
+<p>Args:
+label (str): Metric label.
+value (str): Display value.
+color (str): Start color for gradient.
+color_end (str): End color for gradient.
+delta (Optional[str]): Formatted delta string.
+delta_class (str): CSS class for delta.
+sparkline_svg (str): Raw SVG content for sparkline.</p>
+<p>Returns:
+str: Rendered HTML for a single KPI card.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.styles.kpi.create_kpi_row">
-<span class="sig-prename descclassname"><span class="pre">src.ui.styles.kpi.</span></span><span class="sig-name descname"><span class="pre">create_kpi_row</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.ui.styles.kpi.create_kpi_row" title="Link to this definition">#</a></dt>
-<dd><p>Logic for color selection stays in Python, but HTML generation moves to templates.</p>
+<span class="sig-prename descclassname"><span class="pre">src.ui.styles.kpi.</span></span><span class="sig-name descname"><span class="pre">create_kpi_row</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.ui.styles.kpi.create_kpi_row" title="Link to this definition">#</a></dt>
+<dd><p>Logic for color selection and HTML generation for a row of metrics.</p>
+<p>Args:
+metrics (Dict[str, Union[float, int, str]]): Mapping of label to value.
+prefix (str): Optional prefix for all labels.</p>
+<p>Returns:
+str: HTML flexbox row containing the KPI cards.</p>
 </dd></dl>
 
 <dl class="py function">

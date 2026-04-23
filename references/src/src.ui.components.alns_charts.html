@@ -503,33 +503,17 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.ui.components.alns_charts">
 <span id="src-ui-components-alns-charts"></span><h1><a class="reference internal" href="#module-src.ui.components.alns_charts" title="src.ui.components.alns_charts"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.components.alns_charts</span></code></a><a class="headerlink" href="#module-src.ui.components.alns_charts" title="Link to this heading">#</a></h1>
-<p>Streamlit visualisation components for ALNS operator weight trajectories.</p>
-<p>Plots the roulette-wheel selection probabilities of Destroy and Repair operators
-across ALNS iterations, making the meta-heuristic’s exploration dynamics
-fully transparent for analysis and debugging.</p>
-<p>Two integration patterns are supported:</p>
-<ol class="arabic simple">
-<li><p><strong>TrackedVectorizedALNS</strong> (preferred) — A subclass of <code class="docutils literal notranslate"><span class="pre">VectorizedALNS</span></code> that
-overrides <code class="docutils literal notranslate"><span class="pre">solve()</span></code> to snapshot weights every <code class="docutils literal notranslate"><span class="pre">log_freq</span></code> iterations with
-zero modification to the original solve logic.</p></li>
-<li><p><strong>ALNSSnapshotTracker</strong> — A lightweight wrapper that records weights before
-and after a full solve run.  Use this when you cannot change the class
-being instantiated (e.g., imported from a third-party source).</p></li>
-</ol>
-<p>Usage::</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from logic.src.ui.components.alns_charts import (
-    TrackedVectorizedALNS,
-    render_alns_operator_charts,
-)
-
-solver = TrackedVectorizedALNS(
-    dist_matrix=d, wastes=waste, vehicle_capacity=cap, log_freq=25
-)
-solver.solve(initial_solutions, n_iterations=500)
-
-render_alns_operator_charts(solver.weight_history)
-</pre></div>
-</div>
+<p>Visualisation components for ALNS operator weight trajectories.</p>
+<p>This module provides specialized tools for auditing the roulette-wheel
+selection dynamics of ALNS Destroy and Repair operators. It includes
+a tracked solver subclass, a standalone telemetry tracker, and Plotly
+renderers for probability trajectories.</p>
+<p>Example:
+render_alns_operator_charts(solver.weight_history)</p>
+<p>Attributes:
+TrackedVectorizedALNS: Drop-in solver that snapshots operator weights.
+ALNSSnapshotTracker: Non-invasive wrapper for weight recording.
+render_alns_operator_charts: Main UI orchestrator for dynamics.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -537,12 +521,10 @@ render_alns_operator_charts(solver.weight_history)
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.components.alns_charts.TrackedVectorizedALNS" title="src.ui.components.alns_charts.TrackedVectorizedALNS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TrackedVectorizedALNS</span></code></a></p></td>
-<td><p>Drop-in replacement for <code class="docutils literal notranslate"><span class="pre">VectorizedALNS</span></code> that records operator weight
-trajectories during <code class="docutils literal notranslate"><span class="pre">solve()</span></code>.</p></td>
+<td><p>Drop-in replacement for VectorizedALNS that records operator weight trajectories.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.components.alns_charts.ALNSSnapshotTracker" title="src.ui.components.alns_charts.ALNSSnapshotTracker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ALNSSnapshotTracker</span></code></a></p></td>
-<td><p>Records operator weights <em>before</em> and <em>after</em> a <code class="docutils literal notranslate"><span class="pre">VectorizedALNS.solve()</span></code>
-call without subclassing or modifying the solver.</p></td>
+<td><p>Records operator weights before and after a solver run.</p></td>
 </tr>
 </tbody>
 </table>
@@ -556,13 +538,13 @@ call without subclassing or modifying the solver.</p></td>
 <td><p>Render line or stacked-area charts of ALNS operator selection probabilities.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.components.alns_charts._build_chart" title="src.ui.components.alns_charts._build_chart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_build_chart</span></code></a></p></td>
-<td><p>Build a Plotly line or stacked-area chart for one operator group.</p></td>
+<td><p>Builds a Plotly line or stacked-area chart for an operator group.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.components.alns_charts._render_prob_table" title="src.ui.components.alns_charts._render_prob_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_prob_table</span></code></a></p></td>
-<td><p>Render a concise table of final operator selection probabilities.</p></td>
+<td><p>Renders a concise table of final operator selection probabilities.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.components.alns_charts._softmax_probs" title="src.ui.components.alns_charts._softmax_probs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_softmax_probs</span></code></a></p></td>
-<td><p>Convert raw ALNS weights to selection probabilities via normalisation.</p></td>
+<td><p>Converts raw ALNS weights to probabilities via normalisation.</p></td>
 </tr>
 </tbody>
 </table>
@@ -573,18 +555,27 @@ call without subclassing or modifying the solver.</p></td>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.ui.components.alns_charts.TrackedVectorizedALNS">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.ui.components.alns_charts.</span></span><span class="sig-name descname"><span class="pre">TrackedVectorizedALNS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_freq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">25</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.ui.components.alns_charts.TrackedVectorizedALNS" title="Link to this definition">#</a></dt>
-<dd><p>Drop-in replacement for <code class="docutils literal notranslate"><span class="pre">VectorizedALNS</span></code> that records operator weight
-trajectories during <code class="docutils literal notranslate"><span class="pre">solve()</span></code>.</p>
+<dd><p>Drop-in replacement for VectorizedALNS that records operator weight trajectories.</p>
 <p>Inherits all functionality from the original solver and adds a
 <code class="docutils literal notranslate"><span class="pre">weight_history</span></code> attribute populated after each call to <code class="docutils literal notranslate"><span class="pre">solve()</span></code>.</p>
-<p>Args:
-log_freq: Snapshot operator weights every N ALNS iterations. Default 25.
-*args / **kwargs: Forwarded verbatim to <code class="docutils literal notranslate"><span class="pre">VectorizedALNS.__init__</span></code>.</p>
+<p>Attributes:
+weight_history: Dictionary containing the weight history for both destroy and repair operators.
+log_freq: Snapshot operator weights every N ALNS iterations.
+_inner: The inner VectorizedALNS instance.</p>
 <p class="rubric">Initialization</p>
+<p>Args:
+args: Forwarded verbatim to <code class="docutils literal notranslate"><span class="pre">VectorizedALNS.__init__</span></code>.
+log_freq: Snapshot operator weights every N ALNS iterations.
+kwargs: Forwarded verbatim to <code class="docutils literal notranslate"><span class="pre">VectorizedALNS.__init__</span></code>.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.ui.components.alns_charts.TrackedVectorizedALNS.__getattr__">
 <span class="sig-name descname"><span class="pre">__getattr__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.ui.components.alns_charts.TrackedVectorizedALNS.__getattr__" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Get attribute from the inner solver.</p>
+<p>Args:
+name: Name of the attribute to get.</p>
+<p>Returns:
+The attribute from the inner solver.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.ui.components.alns_charts.TrackedVectorizedALNS.solve">
@@ -593,6 +584,14 @@ log_freq: Snapshot operator weights every N ALNS iterations. Default 25.
 <p>Calls the original <code class="docutils literal notranslate"><span class="pre">solve()</span></code> in chunks of <code class="docutils literal notranslate"><span class="pre">log_freq</span></code> iterations,
 recording <code class="docutils literal notranslate"><span class="pre">d_weights</span></code> / <code class="docutils literal notranslate"><span class="pre">r_weights</span></code> between chunks so that the
 weight trajectory can be plotted after completion.</p>
+<p>Args:
+initial_solutions: Initial solutions for the ALNS solver.
+n_iterations: Number of iterations to run the solver for.
+time_limit: Time limit for the solver.
+max_vehicles: Maximum number of vehicles to use.
+start_temp: Starting temperature for the solver.
+cooling_rate: Cooling rate for the solver.
+kwargs: Forwarded verbatim to <code class="docutils literal notranslate"><span class="pre">VectorizedALNS.solve</span></code>.</p>
 <p>Returns:
 The same <code class="docutils literal notranslate"><span class="pre">(routes,</span> <span class="pre">costs)</span></code> tuple returned by <code class="docutils literal notranslate"><span class="pre">VectorizedALNS.solve</span></code>.</p>
 </dd></dl>
@@ -602,34 +601,40 @@ The same <code class="docutils literal notranslate"><span class="pre">(routes,</
 <dl class="py class">
 <dt class="sig sig-object py" id="src.ui.components.alns_charts.ALNSSnapshotTracker">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.ui.components.alns_charts.</span></span><span class="sig-name descname"><span class="pre">ALNSSnapshotTracker</span></span><a class="headerlink" href="#src.ui.components.alns_charts.ALNSSnapshotTracker" title="Link to this definition">#</a></dt>
-<dd><p>Records operator weights <em>before</em> and <em>after</em> a <code class="docutils literal notranslate"><span class="pre">VectorizedALNS.solve()</span></code>
-call without subclassing or modifying the solver.</p>
-<p>Use this when you need a quick pre/post comparison::</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>tracker = ALNSSnapshotTracker()
+<dd><p>Records operator weights before and after a solver run.</p>
+<p>Attributes:
+weight_history: Dictionary containing the weight history for both destroy and repair operators.</p>
+<p>Example:
+tracker = ALNSSnapshotTracker()
 tracker.before(solver)
-solver.solve(...)
-tracker.after(solver)
-
-render_alns_operator_charts(tracker.weight_history)
-</pre></div>
-</div>
+solver.solve(…)
+tracker.after(solver)</p>
 <p class="rubric">Initialization</p>
+<p>Initialize the snapshot tracker.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.ui.components.alns_charts.ALNSSnapshotTracker.before">
 <span class="sig-name descname"><span class="pre">before</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.components.alns_charts.ALNSSnapshotTracker.before" title="Link to this definition">#</a></dt>
 <dd><p>Snapshot weights immediately before a solve call.</p>
+<p>Args:
+solver: The ALNS solver instance.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.ui.components.alns_charts.ALNSSnapshotTracker.after">
 <span class="sig-name descname"><span class="pre">after</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.components.alns_charts.ALNSSnapshotTracker.after" title="Link to this definition">#</a></dt>
 <dd><p>Snapshot weights immediately after a solve call.</p>
+<p>Args:
+solver: The ALNS solver instance.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.ui.components.alns_charts.ALNSSnapshotTracker._snapshot">
 <span class="sig-name descname"><span class="pre">_snapshot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.components.alns_charts.ALNSSnapshotTracker._snapshot" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Snapshot weights immediately before or after a solve call.</p>
+<p>Args:
+solver: The ALNS solver instance.
+label: Label indicating whether this is a “before” or “after” snapshot.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -656,20 +661,39 @@ color_palette: Optional list of hex colour strings (one per operator).</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.components.alns_charts._build_chart">
-<span class="sig-prename descclassname"><span class="pre">src.ui.components.alns_charts.</span></span><span class="sig-name descname"><span class="pre">_build_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chart_title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chart_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smooth_window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.components.alns_charts._build_chart" title="Link to this definition">#</a></dt>
-<dd><p>Build a Plotly line or stacked-area chart for one operator group.</p>
+<span class="sig-prename descclassname"><span class="pre">src.ui.components.alns_charts.</span></span><span class="sig-name descname"><span class="pre">_build_chart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chart_title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chart_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smooth_window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">plotly.graph_objects.Figure</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.components.alns_charts._build_chart" title="Link to this definition">#</a></dt>
+<dd><p>Builds a Plotly line or stacked-area chart for an operator group.</p>
+<p>Args:
+data: List of weight vectors over time.
+names: Human-readable operator labels.
+chart_title: Figure title.
+chart_type: Either ‘line’ or ‘area’.
+smooth_window: EMA span.
+height: Plot height in pixels.
+colors: Color palette to use.</p>
+<p>Returns:
+Optional[go.Figure]: Resulting Plotly figure if data exists.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.components.alns_charts._render_prob_table">
 <span class="sig-prename descclassname"><span class="pre">src.ui.components.alns_charts.</span></span><span class="sig-name descname"><span class="pre">_render_prob_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">destroy_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repair_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.components.alns_charts._render_prob_table" title="Link to this definition">#</a></dt>
-<dd><p>Render a concise table of final operator selection probabilities.</p>
+<dd><p>Renders a concise table of final operator selection probabilities.</p>
+<p>Args:
+destroy_data: History of destroy weights.
+d_names: Destroy operator labels.
+repair_data: History of repair weights.
+r_names: Repair operator labels.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.components.alns_charts._softmax_probs">
 <span class="sig-prename descclassname"><span class="pre">src.ui.components.alns_charts.</span></span><span class="sig-name descname"><span class="pre">_softmax_probs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.components.alns_charts._softmax_probs" title="Link to this definition">#</a></dt>
-<dd><p>Convert raw ALNS weights to selection probabilities via normalisation.</p>
+<dd><p>Converts raw ALNS weights to probabilities via normalisation.</p>
+<p>Args:
+weights: Raw weight vector (Tensor or NumPy).</p>
+<p>Returns:
+List[float]: Scaled probabilities summing to 1.0.</p>
 </dd></dl>
 
 </section>

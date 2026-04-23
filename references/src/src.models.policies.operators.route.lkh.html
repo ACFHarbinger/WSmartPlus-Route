@@ -503,11 +503,11 @@ local search algorithm. LKH combines powerful k-opt moves with alpha-nearness
 candidate sets and lexicographic optimization for VRP problems.</p>
 <p>Key features:</p>
 <ul class="simple">
-<li><p>Alpha-measure edge pruning based on MST</p></li>
-<li><p>Candidate set restriction for efficiency</p></li>
-<li><p>Sequential 2-opt and 3-opt moves</p></li>
-<li><p>Double bridge kicks for perturbation</p></li>
-<li><p>Lexicographic optimization (penalty, cost)</p></li>
+<li><p>Alpha-measure edge pruning based on MST.</p></li>
+<li><p>Candidate set restriction for efficiency.</p></li>
+<li><p>Sequential 2-opt and 3-opt moves.</p></li>
+<li><p>Double bridge kicks for perturbation.</p></li>
+<li><p>Lexicographic optimization (penalty, cost).</p></li>
 </ul>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
@@ -516,34 +516,34 @@ candidate sets and lexicographic optimization for VRP problems.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.operators.route.lkh.vectorized_lkh" title="src.models.policies.operators.route.lkh.vectorized_lkh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vectorized_lkh</span></code></a></p></td>
-<td><p>Vectorized Lin-Kernighan-Helsgaun local search across a batch of tours using PyTorch.</p></td>
+<td><p>Vectorized LKH local search across a batch of tours.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.models.policies.operators.route.lkh._run_local_search" title="src.models.policies.operators.route.lkh._run_local_search"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_run_local_search</span></code></a></p></td>
-<td><p>Performs the local search phase for a single tour instance.</p></td>
+<td><p>Internal loop for iterating until local convergence.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.operators.route.lkh._try_moves_for_node" title="src.models.policies.operators.route.lkh._try_moves_for_node"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_try_moves_for_node</span></code></a></p></td>
-<td><p>Tries 2-opt and optionally 3-opt moves starting from position i.</p></td>
+<td><p>Tries combinations of 2-opt and 3-opt moves for a header node.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.models.policies.operators.route.lkh._compute_alpha_measures" title="src.models.policies.operators.route.lkh._compute_alpha_measures"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_compute_alpha_measures</span></code></a></p></td>
-<td><p>Compute alpha measures for edge pruning based on MST.</p></td>
+<td><p>Estimates edge reliability using alpha-measure heuristics.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.operators.route.lkh._get_candidate_sets" title="src.models.policies.operators.route.lkh._get_candidate_sets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_candidate_sets</span></code></a></p></td>
-<td><p>Generate candidate sets based on alpha measures.</p></td>
+<td><p>Restricts neighborhood search space to high-alpha edges.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.models.policies.operators.route.lkh._compute_score" title="src.models.policies.operators.route.lkh._compute_score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_compute_score</span></code></a></p></td>
-<td><p>Compute (penalty, cost) for lexicographic comparison.</p></td>
+<td><p>Lexicographic (Penalty, Cost) evaluator.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.operators.route.lkh._is_better" title="src.models.policies.operators.route.lkh._is_better"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_is_better</span></code></a></p></td>
-<td><p>Lexicographic comparison: (p1, c1) &lt; (p2, c2)?</p></td>
+<td><p>True if (p1, c1) is superior to (p2, c2) in lexicographic order.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.models.policies.operators.route.lkh._apply_2opt" title="src.models.policies.operators.route.lkh._apply_2opt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_apply_2opt</span></code></a></p></td>
-<td><p>Apply 2-opt move: reverse segment [i+1, j].</p></td>
+<td><p>Segment reversal for 2-opt moves.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.operators.route.lkh._apply_3opt" title="src.models.policies.operators.route.lkh._apply_3opt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_apply_3opt</span></code></a></p></td>
-<td><p>Apply 3-opt move: reverse segments [i+1, j] and [j+1, k].</p></td>
+<td><p>Triple segment recombination for 3-opt moves.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.models.policies.operators.route.lkh._double_bridge_kick" title="src.models.policies.operators.route.lkh._double_bridge_kick"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_double_bridge_kick</span></code></a></p></td>
-<td><p>Apply double bridge perturbation (4-opt move).</p></td>
+<td><p>4-opt perturbation (Double Bridge Kick).</p></td>
 </tr>
 </tbody>
 </table>
@@ -554,80 +554,145 @@ candidate sets and lexicographic optimization for VRP problems.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.route.lkh.vectorized_lkh">
 <span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.lkh.</span></span><span class="sig-name descname"><span class="pre">vectorized_lkh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_candidates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_3opt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perturbation_interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Generator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.route.lkh.vectorized_lkh" title="Link to this definition">#</a></dt>
-<dd><p>Vectorized Lin-Kernighan-Helsgaun local search across a batch of tours using PyTorch.</p>
-<p>LKH is one of the most sophisticated local search algorithms for TSP/VRP, combining:</p>
-<ol class="arabic simple">
-<li><p>Alpha-nearness for edge pruning (based on MST)</p></li>
-<li><p>Sequential k-opt moves (2-opt and 3-opt)</p></li>
-<li><p>Double bridge perturbations for escaping local optima</p></li>
-<li><p>Lexicographic optimization: minimize (penalty, cost)</p></li>
-</ol>
+<dd><p>Vectorized LKH local search across a batch of tours.</p>
+<p>LKH is one of the most sophisticated local search algorithms for TSP/VRP,
+combining alpha-nearness pruning with sequential k-opt moves.</p>
 <p>Args:
-tours: Batch of tours [B, N]
-distance_matrix: Pairwise distances [B, N+1, N+1] or [N+1, N+1]
-capacities: Vehicle capacities [B] or scalar
-wastes: Node wastes [B, N+1] or [N+1]
-max_iterations: Number of ILS iterations
-max_candidates: Number of candidate edges per node (default: 5)
-use_3opt: Whether to use 3-opt extensions
-perturbation_interval: Apply kicks every N iterations
-generator: Random generator for reproducibility
-Returns:
-torch.Tensor: Improved tours [B, N]</p>
+tours: Batch of node sequences of shape [B, N].
+distance_matrix: Pairwise distances of shape [B, N+1, N+1] or [N+1, N+1].
+capacities: Vehicle capacities per instance of shape [B] or scalar.
+wastes: Individual node demands of shape [B, N+1] or [N+1].
+max_iterations: Iteration limit for the ILS loop.
+max_candidates: Number of pruned edges per node (candidate set size).
+use_3opt: Whether to extend search to 3-opt neighborhoods.
+perturbation_interval: Frequency of double-bridge kicks.
+generator: Torch device-side RNG.</p>
+<p>Returns:
+torch.Tensor: Optimized tours of shape [B, N].</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.route.lkh._run_local_search">
 <span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.lkh.</span></span><span class="sig-name descname"><span class="pre">_run_local_search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_3opt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.route.lkh._run_local_search" title="Link to this definition">#</a></dt>
-<dd><p>Performs the local search phase for a single tour instance.</p>
+<dd><p>Internal loop for iterating until local convergence.</p>
+<p>Args:
+tour: Node sequence of shape [N].
+dist: Distance matrix of shape [N+1, N+1].
+waste: Node demands of shape [N+1].
+capacity: Vehicle capacity scalar.
+candidates: Alpha-nearness neighbor lists for each node.
+use_3opt: Whether to evaluate 3-opt moves.</p>
+<p>Returns:
+torch.Tensor: Locally optimized tour of shape [N].</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.route.lkh._try_moves_for_node">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.lkh.</span></span><span class="sig-name descname"><span class="pre">_try_moves_for_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes_count</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_3opt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">curr_p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">curr_c</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.route.lkh._try_moves_for_node" title="Link to this definition">#</a></dt>
-<dd><p>Tries 2-opt and optionally 3-opt moves starting from position i.</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.lkh.</span></span><span class="sig-name descname"><span class="pre">_try_moves_for_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waste</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_3opt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">curr_p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">curr_c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.operators.route.lkh._try_moves_for_node" title="Link to this definition">#</a></dt>
+<dd><p>Tries combinations of 2-opt and 3-opt moves for a header node.</p>
+<p>Args:
+tour: Current sequence under evaluation.
+i: Node position index under evaluation.
+nodes_count: Total sequence length.
+dist: Pairwise cost matrix.
+waste: Node demands for capacity calculation.
+capacity: Fleet capacity limit.
+candidates: Near-set neighbor lists.
+use_3opt: Whether to enable 3-opt neighborhood exploration.
+curr_p: Current tour penalty score.
+curr_c: Current tour distance cost.</p>
+<p>Returns:
+Tuple[bool, torch.Tensor, float, float]: A tuple containing:
+- improved: Whether any move was accepted.
+- tour: The updated (or original) tour.
+- new_p: Resulting penalty.
+- new_c: Resulting cost.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.route.lkh._compute_alpha_measures">
 <span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.lkh.</span></span><span class="sig-name descname"><span class="pre">_compute_alpha_measures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.device</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.route.lkh._compute_alpha_measures" title="Link to this definition">#</a></dt>
-<dd><p>Compute alpha measures for edge pruning based on MST.</p>
+<dd><p>Estimates edge reliability using alpha-measure heuristics.</p>
+<p>Args:
+distance_matrix: Edge weights of shape [N, N].
+device: Hardware identification locator.</p>
+<p>Returns:
+torch.Tensor: Alpha measures of shape [N, N].</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.route.lkh._get_candidate_sets">
 <span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.lkh.</span></span><span class="sig-name descname"><span class="pre">_get_candidate_sets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha_measures</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_candidates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.operators.route.lkh._get_candidate_sets" title="Link to this definition">#</a></dt>
-<dd><p>Generate candidate sets based on alpha measures.</p>
+<dd><p>Restricts neighborhood search space to high-alpha edges.</p>
+<p>Args:
+alpha_measures: Pre-computed alpha scores of shape [N, N].
+max_candidates: Maximum neighbor count per node.</p>
+<p>Returns:
+List[List[int]]: Per-node candidate neighbor index lists.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.route.lkh._compute_score">
 <span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.lkh.</span></span><span class="sig-name descname"><span class="pre">_compute_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.policies.operators.route.lkh._compute_score" title="Link to this definition">#</a></dt>
-<dd><p>Compute (penalty, cost) for lexicographic comparison.</p>
+<dd><p>Lexicographic (Penalty, Cost) evaluator.</p>
+<p>Args:
+tour: Sequence of nodes of shape [L].
+distance_matrix: Pairwise weights of shape [N, N].
+wastes: Node demands of shape [N].
+capacity: Vehicle capacity limit.</p>
+<p>Returns:
+Tuple[float, float]: A tuple containing:
+- penalty: Calculated capacity violation penalty.
+- cost: Calculated tour distance cost.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.route.lkh._is_better">
 <span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.lkh.</span></span><span class="sig-name descname"><span class="pre">_is_better</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.models.policies.operators.route.lkh._is_better" title="Link to this definition">#</a></dt>
-<dd><p>Lexicographic comparison: (p1, c1) &lt; (p2, c2)?</p>
+<dd><p>True if (p1, c1) is superior to (p2, c2) in lexicographic order.</p>
+<p>Args:
+p1: First tour penalty score.
+c1: First tour distance cost.
+p2: Second tour penalty score.
+c2: Second tour distance cost.</p>
+<p>Returns:
+bool: True if the first solution dominates the second.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.route.lkh._apply_2opt">
 <span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.lkh.</span></span><span class="sig-name descname"><span class="pre">_apply_2opt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.route.lkh._apply_2opt" title="Link to this definition">#</a></dt>
-<dd><p>Apply 2-opt move: reverse segment [i+1, j].</p>
+<dd><p>Segment reversal for 2-opt moves.</p>
+<p>Args:
+tour: Sequence under transformation.
+i: First edge break position.
+j: Second edge break position.</p>
+<p>Returns:
+torch.Tensor: The tour after segment reversal.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.route.lkh._apply_3opt">
 <span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.lkh.</span></span><span class="sig-name descname"><span class="pre">_apply_3opt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.route.lkh._apply_3opt" title="Link to this definition">#</a></dt>
-<dd><p>Apply 3-opt move: reverse segments [i+1, j] and [j+1, k].</p>
+<dd><p>Triple segment recombination for 3-opt moves.</p>
+<p>Args:
+tour: Sequence under transformation.
+i: First edge break position.
+j: Second edge break position.
+k: Third edge break position.</p>
+<p>Returns:
+torch.Tensor: The tour after triple segment recombination.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.route.lkh._double_bridge_kick">
 <span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.route.lkh.</span></span><span class="sig-name descname"><span class="pre">_double_bridge_kick</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Generator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.route.lkh._double_bridge_kick" title="Link to this definition">#</a></dt>
-<dd><p>Apply double bridge perturbation (4-opt move).</p>
+<dd><p>4-opt perturbation (Double Bridge Kick).</p>
+<p>Args:
+tour: Node sequence to perturb.
+generator: Torch device-side RNG.</p>
+<p>Returns:
+torch.Tensor: The perturbed tour.</p>
 </dd></dl>
 
 </section>

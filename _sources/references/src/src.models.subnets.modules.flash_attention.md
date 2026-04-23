@@ -64,7 +64,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} _manual_attention(Q, K, V, mask)
+````{py:method} _manual_attention(Q: torch.Tensor, K: torch.Tensor, V: torch.Tensor, mask: typing.Optional[torch.Tensor]) -> torch.Tensor
 :canonical: src.models.subnets.modules.flash_attention.MultiHeadFlashAttention._manual_attention
 
 ```{autodoc2-docstring} src.models.subnets.modules.flash_attention.MultiHeadFlashAttention._manual_attention

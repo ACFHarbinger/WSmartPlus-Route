@@ -491,6 +491,9 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.policies.operators.move.relocate">
 <span id="src-models-policies-operators-move-relocate"></span><h1><a class="reference internal" href="#module-src.models.policies.operators.move.relocate" title="src.models.policies.operators.move.relocate"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.policies.operators.move.relocate</span></code></a><a class="headerlink" href="#module-src.models.policies.operators.move.relocate" title="Link to this heading">#</a></h1>
 <p>Relocate local search operator.</p>
+<p>This module provides a GPU-accelerated implementation of the Relocate operator,
+which improves tours by moving a node from its current position and
+re-inserting it at a more cost-effective location.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -498,14 +501,13 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.operators.move.relocate.vectorized_relocate" title="src.models.policies.operators.move.relocate.vectorized_relocate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vectorized_relocate</span></code></a></p></td>
-<td><p>Vectorized Relocate operator. Moves a node to a new position.
-Removes a node from its current position and re-inserts it elsewhere if it yields an improvement.</p></td>
+<td><p>Vectorized Relocate operator using parallel sampling.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.models.policies.operators.move.relocate._compute_relocate_gain" title="src.models.policies.operators.move.relocate._compute_relocate_gain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_compute_relocate_gain</span></code></a></p></td>
-<td><p>Computes improvement gain for relocating node V_i after node V_j.</p></td>
+<td><p>Calculates improvement gain for relocating node V_i after node V_j.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.policies.operators.move.relocate._apply_relocate_move" title="src.models.policies.operators.move.relocate._apply_relocate_move"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_apply_relocate_move</span></code></a></p></td>
-<td><p>Updates tour by moving node at i to position after j.</p></td>
+<td><p>Updates tour segment order using conditional index shifting.</p></td>
 </tr>
 </tbody>
 </table>
@@ -515,28 +517,47 @@ Removes a node from its current position and re-inserts it elsewhere if it yield
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.move.relocate.vectorized_relocate">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.move.relocate.</span></span><span class="sig-name descname"><span class="pre">vectorized_relocate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.move.relocate.vectorized_relocate" title="Link to this definition">#</a></dt>
-<dd><p>Vectorized Relocate operator. Moves a node to a new position.
-Removes a node from its current position and re-inserts it elsewhere if it yields an improvement.</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.move.relocate.</span></span><span class="sig-name descname"><span class="pre">vectorized_relocate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Generator</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.move.relocate.vectorized_relocate" title="Link to this definition">#</a></dt>
+<dd><p>Vectorized Relocate operator using parallel sampling.</p>
+<p>Removes a sampler node ‘i’ and re-inserts it at position ‘j’ across
+the entire batch, applying the move only if it yields a positive gain.</p>
 <p>Args:
-tours (torch.Tensor): Current tours (B, max_len).
-dist_matrix (torch.Tensor): Distance matrix.
-max_iterations (int): Number of attempts.
-generator (torch.Generator, optional): Random generator.</p>
+tours: Batch of node sequences of shape [B, L].
+dist_matrix: Edge cost tensor of shape [B, N, N].
+max_iterations: Number of random relocation pairs to evaluate.
+generator: Torch device-side RNG.</p>
 <p>Returns:
-torch.Tensor: Updated tours.</p>
+torch.Tensor: Optimized tours of shape [B, L].</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.move.relocate._compute_relocate_gain">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.move.relocate.</span></span><span class="sig-name descname"><span class="pre">_compute_relocate_gain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_idx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.move.relocate._compute_relocate_gain" title="Link to this definition">#</a></dt>
-<dd><p>Computes improvement gain for relocating node V_i after node V_j.</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.move.relocate.</span></span><span class="sig-name descname"><span class="pre">_compute_relocate_gain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.move.relocate._compute_relocate_gain" title="Link to this definition">#</a></dt>
+<dd><p>Calculates improvement gain for relocating node V_i after node V_j.</p>
+<p>Args:
+tours: Batch of sequences of shape [B, L].
+dist: Batch of distance matrices of shape [B, N, N].
+node_i: Column vector of node IDs being moved of shape [B, 1].
+i: Current positions of nodes to move of shape [B, 1].
+j: Target insertion positions of shape [B, 1].
+b_idx: Batch indices for gathering of shape [B, 1].</p>
+<p>Returns:
+torch.Tensor: Calculated cost improvement per sample.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.models.policies.operators.move.relocate._apply_relocate_move">
-<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.move.relocate.</span></span><span class="sig-name descname"><span class="pre">_apply_relocate_move</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">improved</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_len</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.policies.operators.move.relocate._apply_relocate_move" title="Link to this definition">#</a></dt>
-<dd><p>Updates tour by moving node at i to position after j.</p>
+<span class="sig-prename descclassname"><span class="pre">src.models.policies.operators.move.relocate.</span></span><span class="sig-name descname"><span class="pre">_apply_relocate_move</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">improved</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.device</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.policies.operators.move.relocate._apply_relocate_move" title="Link to this definition">#</a></dt>
+<dd><p>Updates tour segment order using conditional index shifting.</p>
+<p>Args:
+tours: Input tour sequences of shape [B, L].
+improved: Activation mask for improving moves of shape [B, 1].
+i: IDs of moving nodes.
+j: Targeted insertion positions.
+max_len: Sequence length L.
+device: Hardware identification locator.</p>
+<p>Returns:
+torch.Tensor: Physically updated sequence batch.</p>
 </dd></dl>
 
 </section>

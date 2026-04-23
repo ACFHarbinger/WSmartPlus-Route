@@ -498,32 +498,19 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.ui.pages.hpo_tracker">
 <span id="src-ui-pages-hpo-tracker"></span><h1><a class="reference internal" href="#module-src.ui.pages.hpo_tracker" title="src.ui.pages.hpo_tracker"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.ui.pages.hpo_tracker</span></code></a><a class="headerlink" href="#module-src.ui.pages.hpo_tracker" title="Link to this heading">#</a></h1>
 <p>Streamlit page for Optuna hyperparameter optimisation (HPO) tracking.</p>
-<p>Pulls a live or completed Optuna study from a SQLite / MySQL storage backend
-and renders four interactive analysis views:</p>
-<ul class="simple">
-<li><p><strong>Parallel Coordinates</strong> — All trials as lines across all hyperparameter axes.</p></li>
-<li><p><strong>Parameter Importance</strong> — FANOVA-based importance scores with Slice plots for
-the top-4 most influential parameters.</p></li>
-<li><p><strong>Optimisation History</strong> — Objective value over trial number, with rolling best.</p></li>
-<li><p><strong>Contour Plots</strong> — 2-D contour surfaces for pairs of hyperparameters.</p></li>
-</ul>
-<p>Integration into the existing dashboard::</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># In logic/src/ui/app.py add a new mode branch:
-elif mode == &quot;hpo_tracker&quot;:
-    render_hpo_tracker()
-
-# In logic/src/ui/components/sidebar.py, add &quot;hpo_tracker&quot; to the
-# mode selector options list.
-</pre></div>
-</div>
-<p>Standalone usage::</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>from logic.src.ui.pages.hpo_tracker import render_hpo_tracker
+<p>This module provides a comprehensive suite of visualization tools for
+analyzing HPO studies. It supports FANOVA importance analysis, 2D contour
+plots, and parallel coordinate discoveries to optimize model architectures
+and solver parameters.</p>
+<p>Example:
 render_hpo_tracker(
-    storage_url=&quot;sqlite:///assets/hpo/study.db&quot;,
-    study_name=&quot;vrpp_am_sweep&quot;,
-)
-</pre></div>
-</div>
+storage_url=”sqlite:///assets/hpo/study.db”,
+study_name=”vrpp_am_sweep”
+)</p>
+<p>Attributes:
+render_hpo_tracker: Main orchestrator for the HPO dashboard.
+_load_study: Graceful loader for Optuna storage backends.
+_apply_layout: Consistent visual styling for Plotly figures.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="functions">
@@ -531,34 +518,34 @@ render_hpo_tracker(
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.hpo_tracker.render_hpo_tracker" title="src.ui.pages.hpo_tracker.render_hpo_tracker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">render_hpo_tracker</span></code></a></p></td>
-<td><p>Render the full HPO tracking dashboard in Streamlit.</p></td>
+<td><p>Renders the full HPO tracking dashboard in Streamlit.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.hpo_tracker._render_hpo_kpis" title="src.ui.pages.hpo_tracker._render_hpo_kpis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_hpo_kpis</span></code></a></p></td>
-<td><p>Render the header KPI metrics.</p></td>
+<td><p>Renders the header KPI metrics for the study.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.hpo_tracker._render_tab_parallel_coords" title="src.ui.pages.hpo_tracker._render_tab_parallel_coords"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_tab_parallel_coords</span></code></a></p></td>
-<td><p>Render the Parallel Coordinates tab.</p></td>
+<td><p>Renders the Parallel Coordinates tab.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.hpo_tracker._render_tab_importance" title="src.ui.pages.hpo_tracker._render_tab_importance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_tab_importance</span></code></a></p></td>
-<td><p>Render the Parameter Importance tab.</p></td>
+<td><p>Renders the Parameter Importance tab.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.hpo_tracker._render_tab_history" title="src.ui.pages.hpo_tracker._render_tab_history"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_tab_history</span></code></a></p></td>
-<td><p>Render the Optimisation History tab.</p></td>
+<td><p>Renders the Optimisation History tab.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.hpo_tracker._render_tab_contour" title="src.ui.pages.hpo_tracker._render_tab_contour"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_tab_contour</span></code></a></p></td>
-<td><p>Render the Contour Plots tab.</p></td>
+<td><p>Renders the Contour Plots tab.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.hpo_tracker._load_study" title="src.ui.pages.hpo_tracker._load_study"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_load_study</span></code></a></p></td>
-<td><p>Load an Optuna study from storage with graceful error handling.</p></td>
+<td><p>Loads an Optuna study from storage with graceful error handling.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.hpo_tracker._build_evaluator" title="src.ui.pages.hpo_tracker._build_evaluator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_build_evaluator</span></code></a></p></td>
-<td><p>Instantiate the requested FANOVA/MDI importance evaluator.</p></td>
+<td><p>Instantiates the requested importance evaluator.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.ui.pages.hpo_tracker._apply_layout" title="src.ui.pages.hpo_tracker._apply_layout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_apply_layout</span></code></a></p></td>
-<td><p>Apply consistent Plotly layout settings to all Optuna figures.</p></td>
+<td><p>Applies consistent Plotly layout settings to Optuna figures.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.ui.pages.hpo_tracker._render_trial_table" title="src.ui.pages.hpo_tracker._render_trial_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_render_trial_table</span></code></a></p></td>
-<td><p>Render the top-N completed trials as an interactive DataFrame.</p></td>
+<td><p>Renders the top-N completed trials as an interactive DataFrame.</p></td>
 </tr>
 </tbody>
 </table>
@@ -569,80 +556,116 @@ render_hpo_tracker(
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.hpo_tracker.render_hpo_tracker">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.hpo_tracker.</span></span><span class="sig-name descname"><span class="pre">render_hpo_tracker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">storage_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sqlite:///assets/hpo/study.db'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">study_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_top_trials</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_parallel_coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_importance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_history</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_contour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">importance_evaluator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'fanova'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">600</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.hpo_tracker.render_hpo_tracker" title="Link to this definition">#</a></dt>
-<dd><p>Render the full HPO tracking dashboard in Streamlit.</p>
+<dd><p>Renders the full HPO tracking dashboard in Streamlit.</p>
 <p>Connects to an Optuna study and renders interactive optimisation views.
 All chart dimensions and displayed study names are driven by the function
-arguments so there are no hardcoded values in the render logic.</p>
+arguments.</p>
 <p>Args:
 storage_url: SQLAlchemy connection string for the Optuna storage backend.
-SQLite example: <code class="docutils literal notranslate"><span class="pre">&quot;sqlite:///assets/hpo/study.db&quot;</span></code>.
-MySQL example:  <code class="docutils literal notranslate"><span class="pre">&quot;mysql://user:pass&#64;host/db&quot;</span></code>.
-study_name: Name of the study to visualise. When None, a study picker
-dropdown is shown if multiple studies exist in storage.
+study_name: Name of the study to visualise (None = picker).
 n_top_trials: Number of best trials highlighted in the trial table.
-Default 10.
-show_parallel_coords: Render parallel coordinate plot. Default True.
-show_importance: Render FANOVA importance + slice plots. Default True.
-show_history: Render optimisation history curve. Default True.
-show_contour: Render 2-D contour plots (expensive for many params).
-Default False.
-importance_evaluator: <code class="docutils literal notranslate"><span class="pre">&quot;fanova&quot;</span></code> (default) or
-<code class="docutils literal notranslate"><span class="pre">&quot;mean_decrease_impurity&quot;</span></code> for the importance algorithm.
-height: Chart height in pixels for all plots. Default 600.</p>
+show_parallel_coords: Render parallel coordinate plot.
+show_importance: Render FANOVA importance + slice plots.
+show_history: Render optimisation history curve.
+show_contour: Render 2-D contour plots.
+importance_evaluator: “fanova” or “mean_decrease_impurity”.
+height: Chart height in pixels for all plots.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.hpo_tracker._render_hpo_kpis">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.hpo_tracker.</span></span><span class="sig-name descname"><span class="pre">_render_hpo_kpis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">study</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trials</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_complete</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optuna</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.hpo_tracker._render_hpo_kpis" title="Link to this definition">#</a></dt>
-<dd><p>Render the header KPI metrics.</p>
+<dd><p>Renders the header KPI metrics for the study.</p>
+<p>Args:
+study: The active Optuna study object.
+trials: List of all trials in the study.
+n_complete: Count of trials with COMPLETE state.
+optuna: The optuna module instance.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.hpo_tracker._render_tab_parallel_coords">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.hpo_tracker.</span></span><span class="sig-name descname"><span class="pre">_render_tab_parallel_coords</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">study</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ov</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.hpo_tracker._render_tab_parallel_coords" title="Link to this definition">#</a></dt>
-<dd><p>Render the Parallel Coordinates tab.</p>
+<dd><p>Renders the Parallel Coordinates tab.</p>
+<p>Args:
+study: The active Optuna study.
+ov: The optuna.visualization module.
+height: Plot height in pixels.
+args: Variable arguments for compatibility.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.hpo_tracker._render_tab_importance">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.hpo_tracker.</span></span><span class="sig-name descname"><span class="pre">_render_tab_importance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">study</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ov</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evaluator_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.hpo_tracker._render_tab_importance" title="Link to this definition">#</a></dt>
-<dd><p>Render the Parameter Importance tab.</p>
+<dd><p>Renders the Parameter Importance tab.</p>
+<p>Args:
+study: The active Optuna study.
+ov: The optuna.visualization module.
+height: Plot height in pixels.
+evaluator_name: Name of the importance algorithm.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.hpo_tracker._render_tab_history">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.hpo_tracker.</span></span><span class="sig-name descname"><span class="pre">_render_tab_history</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">study</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ov</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.hpo_tracker._render_tab_history" title="Link to this definition">#</a></dt>
-<dd><p>Render the Optimisation History tab.</p>
+<dd><p>Renders the Optimisation History tab.</p>
+<p>Args:
+study: The active Optuna study.
+ov: The optuna.visualization module.
+height: Plot height in pixels.
+args: Variable arguments for compatibility.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.hpo_tracker._render_tab_contour">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.hpo_tracker.</span></span><span class="sig-name descname"><span class="pre">_render_tab_contour</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">study</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ov</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.hpo_tracker._render_tab_contour" title="Link to this definition">#</a></dt>
-<dd><p>Render the Contour Plots tab.</p>
+<dd><p>Renders the Contour Plots tab.</p>
+<p>Args:
+study: The active Optuna study.
+ov: The optuna.visualization module.
+height: Plot height in pixels.
+args: Variable arguments for compatibility.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.hpo_tracker._load_study">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.hpo_tracker.</span></span><span class="sig-name descname"><span class="pre">_load_study</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">storage_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">study_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optuna</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.ui.pages.hpo_tracker._load_study" title="Link to this definition">#</a></dt>
-<dd><p>Load an Optuna study from storage with graceful error handling.</p>
+<dd><p>Loads an Optuna study from storage with graceful error handling.</p>
+<p>Args:
+storage_url: Connection string for the storage backend.
+study_name: Name of study to load (None = picker).
+optuna: The optuna module instance.</p>
+<p>Returns:
+Optional[Any]: The loaded study object or None.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.hpo_tracker._build_evaluator">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.hpo_tracker.</span></span><span class="sig-name descname"><span class="pre">_build_evaluator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optuna</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.ui.pages.hpo_tracker._build_evaluator" title="Link to this definition">#</a></dt>
-<dd><p>Instantiate the requested FANOVA/MDI importance evaluator.</p>
+<dd><p>Instantiates the requested importance evaluator.</p>
+<p>Args:
+name: Name of evaluated algorithm (‘fanova’ or ‘mdi’).
+optuna: The optuna module instance.</p>
+<p>Returns:
+Any: The importance evaluator instance.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.hpo_tracker._apply_layout">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.hpo_tracker.</span></span><span class="sig-name descname"><span class="pre">_apply_layout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.hpo_tracker._apply_layout" title="Link to this definition">#</a></dt>
-<dd><p>Apply consistent Plotly layout settings to all Optuna figures.</p>
+<dd><p>Applies consistent Plotly layout settings to Optuna figures.</p>
+<p>Args:
+fig: The Plotly figure to modify.
+height: Target height in pixels.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.ui.pages.hpo_tracker._render_trial_table">
 <span class="sig-prename descclassname"><span class="pre">src.ui.pages.hpo_tracker.</span></span><span class="sig-name descname"><span class="pre">_render_trial_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">completed_trials</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_top</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.ui.pages.hpo_tracker._render_trial_table" title="Link to this definition">#</a></dt>
-<dd><p>Render the top-N completed trials as an interactive DataFrame.</p>
+<dd><p>Renders the top-N completed trials as an interactive DataFrame.</p>
+<p>Args:
+completed_trials: List of trials with COMPLETE state.
+n_top: Maximum number of rows to display.</p>
 </dd></dl>
 
 </section>

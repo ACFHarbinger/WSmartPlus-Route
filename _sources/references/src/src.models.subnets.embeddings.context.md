@@ -41,6 +41,7 @@ src.models.subnets.embeddings.context.wcvrp
 
 ````{py:data} CONTEXT_EMBEDDING_REGISTRY
 :canonical: src.models.subnets.embeddings.context.CONTEXT_EMBEDDING_REGISTRY
+:type: typing.Dict[str, typing.Any]
 :value: >
    None
 
@@ -51,8 +52,9 @@ src.models.subnets.embeddings.context.wcvrp
 
 ````{py:data} __all__
 :canonical: src.models.subnets.embeddings.context.__all__
+:type: list[str]
 :value: >
-   ['ContextEmbedder', 'GenericContextEmbedder', 'VRPPContextEmbedder', 'WCVRPContextEmbedder']
+   ['ContextEmbedder', 'GenericContextEmbedder', 'VRPPContextEmbedder', 'WCVRPContextEmbedder', 'CONTEX...
 
 ```{autodoc2-docstring} src.models.subnets.embeddings.context.__all__
 ```

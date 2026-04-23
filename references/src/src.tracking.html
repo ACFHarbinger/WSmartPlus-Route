@@ -467,10 +467,8 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#public-api">Public API</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#subpackages">Subpackages</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Submodules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package-contents">Package Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
@@ -496,89 +494,20 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.tracking">
 <span id="src-tracking"></span><h1><a class="reference internal" href="#module-src.tracking" title="src.tracking"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking</span></code></a><a class="headerlink" href="#module-src.tracking" title="Link to this heading">#</a></h1>
-<section id="public-api">
-<h2>Public API<a class="headerlink" href="#public-api" title="Link to this heading">#</a></h2>
-<ul class="simple">
-<li><p>:func:<code class="docutils literal notranslate"><span class="pre">init</span></code> — initialise the global tracker and return it.</p></li>
-<li><p>:func:<code class="docutils literal notranslate"><span class="pre">get_tracker</span></code> — return the active :class:<code class="docutils literal notranslate"><span class="pre">Tracker</span></code>, or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
-<li><p>:func:<code class="docutils literal notranslate"><span class="pre">get_active_run</span></code> — return the active :class:<code class="docutils literal notranslate"><span class="pre">Run</span></code> for this process.</p></li>
-<li><p>:func:<code class="docutils literal notranslate"><span class="pre">init_worker</span></code> — attach an existing run in a worker sub-process.</p></li>
-<li><p>:class:<code class="docutils literal notranslate"><span class="pre">Tracker</span></code> — manages experiments and creates runs.</p></li>
-<li><p>:class:<code class="docutils literal notranslate"><span class="pre">Run</span></code> — logs metrics, params, tags, artifacts, and dataset events.</p></li>
-</ul>
-</section>
-<section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
-<ul>
-<li><p>:mod:<code class="docutils literal notranslate"><span class="pre">logic.src.tracking.logging</span></code> — logging utilities (canonical location).</p></li>
-<li><p>:mod:<code class="docutils literal notranslate"><span class="pre">logic.src.tracking.profiling</span></code> — execution profiling utilities.</p></li>
-<li><p>:mod:<code class="docutils literal notranslate"><span class="pre">logic.src.tracking.hooks</span></code> — PyTorch forward/backward hooks.</p>
-<p>Both <code class="docutils literal notranslate"><span class="pre">logic.src.tracking.logging</span></code>, <code class="docutils literal notranslate"><span class="pre">logic.src.tracking.profiling</span></code>, and
-<code class="docutils literal notranslate"><span class="pre">logic.src.tracking.hooks</span></code> are backwards-compatible shims that re-export from
-these canonical locations.’</p>
-</li>
-</ul>
-<p>Attributes:
-_DEFAULT_TRACKING_URI: Default tracking URI for MLFlow.
-init: Initialises the global tracker and returns it.
-init_worker: Attach an existing run in a worker sub-process.
-core: Core tracking functionality.
-database: Database-related functionality.
-integrations: Integration-related functionality.
-logging: Logging functionality.
-profiling: Profiling functionality.
-hooks: Hook-related functionality.
-viz_mixin: Output visualization-related functionality.</p>
-<p>Example:
-Training
-——–
-::</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>import logic.src.tracking as wst
-
-tracker = wst.init(
-    experiment_name=&quot;AM-VRPP-50&quot;,
-    tracking_uri=&quot;assets/tracking&quot;,
-    run_type=&quot;training&quot;,
-    tags={&quot;model&quot;: &quot;am&quot;, &quot;problem&quot;: &quot;vrpp&quot;},
-)
-with tracker.start_run(&quot;AM-VRPP-50&quot;, run_type=&quot;training&quot;) as run:
-    run.log_params({&quot;lr&quot;: 1e-4, &quot;batch_size&quot;: 256})
-    trainer.fit(model)          # TrackingCallback logs metrics automatically
-    run.log_artifact(model_path, artifact_type=&quot;model&quot;)
-
-Simulation, worker process
---------------------------
-::
-
-# Worker process — called via init_single_sim_worker
-wst.init_worker(tracking_uri=&quot;assets/tracking&quot;, run_id=&quot;&lt;uuid&gt;&quot;)
-
-run = wst.get_active_run()
-if run:
-    run.log_metric(&quot;gurobi/s0/profit&quot;, 123.4, step=day)
-
-Hooks integration
------------------
-::
-
-from logic.src.tracking.hooks import add_gradient_monitoring_hooks, register_hooks_with_run
-hook_data = add_gradient_monitoring_hooks(model)
-loss.backward()
-run = wst.get_active_run()
-register_hooks_with_run(hook_data, run, prefix=&quot;train/hooks&quot;)
-
-Profiling
----------
-::
-
-from logic.src.tracking.profiling import start_global_profiling, stop_global_profiling
-start_global_profiling()
-train(...)
-stop_global_profiling()  # logs CSV as artifact to active run automatically
-</pre></div>
-</div>
-</section>
 <p>WSTracker — centralized MLFlow-style experiment tracking for WSmart-Route.</p>
+<p>This package provides the primary interface for tracking Experiments, Runs,
+Metrics, and Parameters. It includes automated integrations for PyTorch
+Lightning and manual logging capabilities for simulation and evaluation tasks.</p>
+<p>Attributes:
+init: Primary entry-point to initialize the global Tracker.
+init_worker: Utility to attach a sub-process to an existing parent run.
+get_tracker: Accessor for the active global tracker instance.
+get_active_run: Accessor for the active process-local run.</p>
+<p>Example:
+&gt;&gt;&gt; import logic.src.tracking as wst
+&gt;&gt;&gt; tracker = wst.init(“My-Experiment”)
+&gt;&gt;&gt; with tracker.start_run(“Run-1”) as run:
+…     run.log_metric(“accuracy”, 0.95)</p>
 <section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
@@ -668,8 +597,8 @@ stop_global_profiling()  # logs CSV as artifact to active run automatically
 </ul>
 </div>
 </section>
-<section id="id1">
-<h2>Submodules<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="src.tracking.viz_mixin.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.tracking.viz_mixin</span></code></a></li>
@@ -683,10 +612,10 @@ stop_global_profiling()  # logs CSV as artifact to active run automatically
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.init" title="src.tracking.init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init</span></code></a></p></td>
-<td><p>Initialise the global :class:<code class="docutils literal notranslate"><span class="pre">Tracker</span></code> and return it.</p></td>
+<td><p>Initializes the global experiment Tracker.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.init_worker" title="src.tracking.init_worker"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init_worker</span></code></a></p></td>
-<td><p>Attach an existing run in a <strong>worker sub-process</strong>.</p></td>
+<td><p>Attaches a worker sub-process to a specific parent Run.</p></td>
 </tr>
 </tbody>
 </table>
@@ -723,35 +652,33 @@ stop_global_profiling()  # logs CSV as artifact to active run automatically
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.init">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.</span></span><span class="sig-name descname"><span class="pre">init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tracking_uri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'generic'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">200</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.tracking.core.tracker.html#src.tracking.core.tracker.Tracker" title="src.tracking.core.tracker.Tracker"><span class="pre">src.tracking.core.tracker.Tracker</span></a></span></span><a class="headerlink" href="#src.tracking.init" title="Link to this definition">#</a></dt>
-<dd><p>Initialise the global :class:<code class="docutils literal notranslate"><span class="pre">Tracker</span></code> and return it.</p>
-<p>This is the primary entry-point for the main process.  Calling it a
-second time replaces the module-level tracker singleton.</p>
+<dd><p>Initializes the global experiment Tracker.</p>
+<p>This is the primary entry-point for a main process (e.g., training). Calling
+this function configures the singleton tracker instance for the process.</p>
 <p>Args:
-experiment_name: Name of the experiment to create or resume.
-tracking_uri: Directory for <code class="docutils literal notranslate"><span class="pre">tracking.db</span></code> and artifact storage.
-Defaults to <code class="docutils literal notranslate"><span class="pre">assets/tracking</span></code> relative to <code class="docutils literal notranslate"><span class="pre">ROOT_DIR</span></code>.
-run_type: Semantic run type (<code class="docutils literal notranslate"><span class="pre">'training'</span></code>, <code class="docutils literal notranslate"><span class="pre">'simulation'</span></code>, …).
-tags: Tags to attach to every new run (informational only here;
-tags are applied per-run via :meth:<code class="docutils literal notranslate"><span class="pre">Tracker.start_run</span></code>).
-description: Human-readable experiment description.
-buffer_size: Metric buffer size per run before a DB flush.</p>
+experiment_name: Human-readable name of the experiment.
+tracking_uri: Optional directory path for the tracking database and
+artifacts. Defaults to ‘assets/tracking’ within the project root.
+run_type: Category identifier for runs created via this tracker.
+tags: Optional global tags to associate with the experiment.
+description: Textual description of the experiment.
+buffer_size: Default metric buffer size for runs created by this tracker.</p>
 <p>Returns:
-The initialised :class:<code class="docutils literal notranslate"><span class="pre">Tracker</span></code> singleton.</p>
+Tracker: The initialized process-global Tracker instance.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.init_worker">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.</span></span><span class="sig-name descname"><span class="pre">init_worker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tracking_uri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">200</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.tracking.core.run.html#src.tracking.core.run.Run" title="src.tracking.core.run.Run"><span class="pre">src.tracking.core.run.Run</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.tracking.init_worker" title="Link to this definition">#</a></dt>
-<dd><p>Attach an existing run in a <strong>worker sub-process</strong>.</p>
-<p>Called inside <code class="docutils literal notranslate"><span class="pre">init_single_sim_worker</span></code> to give parallel simulation
-workers write access to the parent run without creating a new record.</p>
+<dd><p>Attaches a worker sub-process to a specific parent Run.</p>
+<p>Typically used in parallel simulation workers to ensure metrics are
+logged back to the same run record without creating duplicate entries.</p>
 <p>Args:
-tracking_uri: Same <code class="docutils literal notranslate"><span class="pre">tracking_uri</span></code> used by the parent process.
-run_id: UUID of the run created by the parent process.
-buffer_size: Metric buffer size for this worker.</p>
+tracking_uri: The same database URI used by the parent process.
+run_id: The UUID of the active run created by the parent.
+buffer_size: Metric buffer capacity for this worker process.</p>
 <p>Returns:
-The attached :class:<code class="docutils literal notranslate"><span class="pre">Run</span></code> (now also set as the process-local active
-run), or <code class="docutils literal notranslate"><span class="pre">None</span></code> if <em>run_id</em> is not found.</p>
+Optional[Run]: The attached Run instance if the ID exists, else None.</p>
 </dd></dl>
 
 </section>
@@ -803,10 +730,8 @@ run), or <code class="docutils literal notranslate"><span class="pre">None</span
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#public-api">Public API</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#subpackages">Subpackages</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Submodules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package-contents">Package Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>

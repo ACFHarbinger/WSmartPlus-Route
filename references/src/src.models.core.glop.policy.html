@@ -497,8 +497,17 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.core.glop.policy">
 <span id="src-models-core-glop-policy"></span><h1><a class="reference internal" href="#module-src.models.core.glop.policy" title="src.models.core.glop.policy"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.core.glop.policy</span></code></a><a class="headerlink" href="#module-src.models.core.glop.policy" title="Link to this heading">#</a></h1>
-<p>GLOP Policy.</p>
-<p>Global-Local Optimization Policy combining NAR partitioning with local solvers.</p>
+<p>GLOP Policy: Global-Local Optimization Policy.</p>
+<p>This module implements <code class="docutils literal notranslate"><span class="pre">GLOPPolicy</span></code>, a two-stage hierarchical model that first
+partitions a large problem into sub-clusters using a NAR encoder, and then
+refines each cluster using dedicated local solvers (e.g., greedy TSP).</p>
+<p>Attributes:
+SubProblemSolverType: Type alias for local solver callables.
+GLOPPolicy: Hierarchical partitioning policy.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.core.glop.policy import GLOPPolicy
+&gt;&gt;&gt; policy = GLOPPolicy(env_name=”cvrp”, subprob_solver=’greedy’)
+&gt;&gt;&gt; out = policy(td, my_env)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -533,73 +542,77 @@ document.write(`
 
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.core.glop.policy.GLOPPolicy">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.glop.policy.</span></span><span class="sig-name descname"><span class="pre">GLOPPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cvrp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subprob_solver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">src.models.core.glop.policy.SubProblemSolverType</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'greedy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subprob_batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2000</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">encoder_kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.glop.policy.GLOPPolicy" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.glop.policy.</span></span><span class="sig-name descname"><span class="pre">GLOPPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cvrp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subprob_solver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">src.models.core.glop.policy.SubProblemSolverType</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'greedy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subprob_batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2000</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">encoder_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.glop.policy.GLOPPolicy" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.models.common.non_autoregressive.policy.NonAutoregressivePolicy</span></code></p>
 <p>GLOP: Global-Local Optimization Policy.</p>
-<p>Two-stage hierarchical approach:</p>
+<p>Decomposes large-scale optimization into:</p>
 <ol class="arabic simple">
-<li><p>Global: Use NAR encoder to partition nodes into groups</p></li>
-<li><p>Local: Solve each partition with a local solver (insertion, neural TSP)</p></li>
+<li><p>Global Partitioning: Discrete node clustering via Non-Autoregressive model.</p></li>
+<li><p>Local Optimization: Fine-grained routing within each cluster.</p></li>
 </ol>
-<p>Reference:
-Ye et al. “GLOP: Learning Global Partition and Local Construction
-for Solving Large-scale Routing Problems in Real-time” (2023)</p>
+<p>Attributes:
+n_samples (int): parallel partition variants to explore.
+subprob_solver (Union[SubProblemSolverType, str]): Logic for sub-problem routing.
+subprob_batch_size (int): Max sub-problems processed in one local pass.
+adapter_class (Type): Environment-specific adapter for partition integration.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize GLOP policy.</p>
+<p>Initializes the GLOP policy.</p>
 <p>Args:
-env_name: Environment name.
-n_samples: Number of samples for multistart.
-temperature: Temperature for sampling.
-embed_dim: Embedding dimension.
-subprob_solver: Solver for local subproblems.
-subprob_batch_size: Batch size for subproblem solving.
-**encoder_kwargs: Additional encoder arguments.</p>
+env_name: Targeted optimization task.
+n_samples: Count of sampling trials for the partitioner.
+temperature: Softness of the partition sampling.
+embed_dim: Intermediate feature width.
+subprob_solver: Identifier or callback for the local router.
+subprob_batch_size: Throughput limit for local solver execution.
+**encoder_kwargs: Extra parameters for the NAR encoder.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.glop.policy.GLOPPolicy.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="pre">train</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">val</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">test</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'test'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calc_reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_entropy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">decoding_kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.glop.policy.GLOPPolicy.forward" title="Link to this definition">#</a></dt>
-<dd><p>Forward pass with global partitioning + local solving.</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="pre">train</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">val</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">test</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'test'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calc_reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_entropy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">decoding_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.glop.policy.GLOPPolicy.forward" title="Link to this definition">#</a></dt>
+<dd><p>Encodes partitions and refines them via local construction.</p>
 <p>Args:
-td: TensorDict with problem data.
-env: Environment instance.
-phase: Current phase.
-calc_reward: Whether to calculate reward.
-return_actions: Whether to return actions.
-return_entropy: Whether to return entropy.</p>
+td: Environment state.
+env: Current optimization task.
+phase: Execution phase.
+calc_reward: Whether to evaluate final tour quality.
+return_actions: Whether to include the full refined tour in output.
+return_entropy: Whether to track partitioner uncertainty.
+strategy: Overriding decoding strategy for the partitioner.
+**decoding_kwargs: Extra parameters for NAR decoding.</p>
 <p>Returns:
-Dictionary with reward, log_likelihood, and optionally actions.</p>
+Dict[str, Any]: Results including ‘reward’ and optionally ‘actions’.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.glop.policy.GLOPPolicy._local_policy">
 <span class="sig-name descname"><span class="pre">_local_policy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">partition_actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.glop.policy.GLOPPolicy._local_policy" title="Link to this definition">#</a></dt>
-<dd><p>Apply local solver to each partition.</p>
+<dd><p>Orchestrates local solver application across all partitions.</p>
 <p>Args:
-td: Problem TensorDict.
-partition_actions: Partition assignments.</p>
+td: Original problem state.
+partition_actions: Cluster assignments [B*Samples, N].</p>
 <p>Returns:
-Dictionary with refined actions.</p>
+Dict[str, Any]: Refined actions merged back into full tours.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.glop.policy.GLOPPolicy._get_solver">
 <span class="sig-name descname"><span class="pre">_get_solver</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">src.models.core.glop.policy.SubProblemSolverType</span></span></span><a class="headerlink" href="#src.models.core.glop.policy.GLOPPolicy._get_solver" title="Link to this definition">#</a></dt>
-<dd><p>Get the subproblem solver function.</p>
+<dd><p>Retrieves the concrete solver implementation based on config.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.glop.policy.GLOPPolicy._greedy_tsp_solver">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_greedy_tsp_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.core.glop.policy.GLOPPolicy._greedy_tsp_solver" title="Link to this definition">#</a></dt>
-<dd><p>Simple greedy TSP solver.</p>
+<dd><p>Baseline greedy/nearest neighbor solver for local segments.</p>
 <p>Args:
-coords: Coordinates (num_nodes, 2).</p>
+coords: Spatial coordinates [N_sub, 2].</p>
 <p>Returns:
-Tour as node indices.</p>
+torch.Tensor: Node sequence trial [N_sub].</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.glop.policy.GLOPPolicy._nearest_neighbor_solver">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_nearest_neighbor_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.core.glop.policy.GLOPPolicy._nearest_neighbor_solver" title="Link to this definition">#</a></dt>
-<dd><p>Nearest neighbor heuristic (alias for greedy).</p>
+<dd><p>Alias for greedy TSP construction.</p>
 </dd></dl>
 
 </dd></dl>

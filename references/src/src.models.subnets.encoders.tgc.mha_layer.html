@@ -492,6 +492,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.encoders.tgc.mha_layer">
 <span id="src-models-subnets-encoders-tgc-mha-layer"></span><h1><a class="reference internal" href="#module-src.models.subnets.encoders.tgc.mha_layer" title="src.models.subnets.encoders.tgc.mha_layer"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.encoders.tgc.mha_layer</span></code></a><a class="headerlink" href="#module-src.models.subnets.encoders.tgc.mha_layer" title="Link to this heading">#</a></h1>
 <p>Multi-Head Attention Layer for TGC.</p>
+<p>Attributes:
+TGCMultiHeadAttentionLayer: Multi-Head Attention Layer with Normalization and Feed-Forward.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.encoders.tgc.mha_layer import TGCMultiHeadAttentionLayer
+&gt;&gt;&gt; layer = TGCMultiHeadAttentionLayer(n_heads=8, embed_dim=128, feed_forward_hidden=512, …)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -509,15 +514,42 @@ document.write(`
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.subnets.encoders.tgc.mha_layer.TGCMultiHeadAttentionLayer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.encoders.tgc.mha_layer.</span></span><span class="sig-name descname"><span class="pre">TGCMultiHeadAttentionLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_heads</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feed_forward_hidden</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon_alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learn_affine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_stats</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mbeta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr_k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_groups</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">af_param</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replacement_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uniform_range</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.encoders.tgc.mha_layer.TGCMultiHeadAttentionLayer" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.encoders.tgc.mha_layer.</span></span><span class="sig-name descname"><span class="pre">TGCMultiHeadAttentionLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feed_forward_hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon_alpha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learn_affine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">track_stats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mbeta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr_k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_groups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">af_param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replacement_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uniform_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.encoders.tgc.mha_layer.TGCMultiHeadAttentionLayer" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
 <p>Multi-Head Attention Layer with Normalization and Feed-Forward.</p>
+<p>Attributes:
+att (SkipConnection): Attention sublayer with skip connection.
+norm1 (Normalization): First normalization layer.
+ff (SkipConnection): Feed-forward sublayer with skip connection.
+norm2 (Normalization): Second normalization layer.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes the TGCMultiHeadAttentionLayer.</p>
+<p>Args:
+n_heads: Number of attention heads.
+embed_dim: Embedding dimension size.
+feed_forward_hidden: Hidden dimension size of feed-forward sublayer.
+normalization: Type of normalization to use.
+epsilon_alpha: Stability constant for normalization.
+learn_affine: Whether to learn affine parameters.
+track_stats: Whether to track running stats in normalization.
+mbeta: Momentum for normalization stats.
+lr_k: K value for Local Response Normalization.
+n_groups: Number of groups for Group Normalization.
+activation: Activation function name.
+af_param: Activation function parameter.
+threshold: Threshold for clipped activations.
+replacement_value: Value to replace when threshold is exceeded.
+n_params: Number of parameters for certain activations.
+uniform_range: Range for uniform initialization.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.encoders.tgc.mha_layer.TGCMultiHeadAttentionLayer.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.encoders.tgc.mha_layer.TGCMultiHeadAttentionLayer.forward" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.encoders.tgc.mha_layer.TGCMultiHeadAttentionLayer.forward" title="Link to this definition">#</a></dt>
 <dd><p>Forward pass with skip connections and normalization.</p>
+<p>Args:
+h: Input tensor of shape (batch_size, graph_size, embed_dim).
+mask: Optional attention mask of shape (batch_size, graph_size, graph_size).</p>
+<p>Returns:
+torch.Tensor: Normalized embeddings after attention and feed-forward.</p>
 </dd></dl>
 
 </dd></dl>

@@ -493,6 +493,11 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.subnets.encoders.mdam.encoder">
 <span id="src-models-subnets-encoders-mdam-encoder"></span><h1><a class="reference internal" href="#module-src.models.subnets.encoders.mdam.encoder" title="src.models.subnets.encoders.mdam.encoder"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.encoders.mdam.encoder</span></code></a><a class="headerlink" href="#module-src.models.subnets.encoders.mdam.encoder" title="Link to this heading">#</a></h1>
 <p>MDAM Graph Attention Encoder.</p>
+<p>Attributes:
+MDAMGraphAttentionEncoder: Multi-Decoder Attention Model Graph Attention Encoder.</p>
+<p>Example:
+&gt;&gt;&gt; from logic.src.models.subnets.encoders.mdam import MDAMGraphAttentionEncoder
+&gt;&gt;&gt; encoder = MDAMGraphAttentionEncoder(num_heads=8, embed_dim=128, num_layers=3)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -513,18 +518,51 @@ document.write(`
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.encoders.mdam.encoder.</span></span><span class="sig-name descname"><span class="pre">MDAMGraphAttentionEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'batch'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feed_forward_hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">512</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.encoders.mdam.encoder.MDAMGraphAttentionEncoder" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.models.common.autoregressive.encoder.AutoregressiveEncoder</span></code></p>
 <p>MDAM Graph Attention Encoder.</p>
+<p>Attributes:
+init_embed (Optional[nn.Linear]): Initial projection layer.
+layers (nn.Sequential): Stack of standard attention layers.
+attention_layer (MultiHeadAttentionMDAM): Last attention layer returning attn/V.
+norm1 (Normalization): First normalization layer.
+projection (SkipConnection): Feed-forward projection sublayer.
+norm2 (Normalization): Second normalization layer.</p>
 <p class="rubric">Initialization</p>
-<p>Initialize MDAM encoder.</p>
+<p>Initializes the MDAMGraphAttentionEncoder.</p>
+<p>Args:
+num_heads: Number of attention heads.
+embed_dim: Embedding dimension.
+num_layers: Number of encoder layers.
+node_dim: Input feature dimension.
+normalization: Type of normalization (“batch”, “layer”, “instance”).
+feed_forward_hidden: Hidden dimension for feed-forward layers.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.encoders.mdam.encoder.MDAMGraphAttentionEncoder.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.subnets.encoders.mdam.encoder.MDAMGraphAttentionEncoder.forward" title="Link to this definition">#</a></dt>
-<dd><p>Encode node features.</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.subnets.encoders.mdam.encoder.MDAMGraphAttentionEncoder.forward" title="Link to this definition">#</a></dt>
+<dd><p>Encodes node features.</p>
+<p>Args:
+td: TensorDict containing observation data.
+x: Input node features of shape (batch, num_nodes, node_dim).
+mask: Optional attention mask (currently unsupported).
+kwargs: Additional keyword arguments.</p>
+<p>Returns:
+Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+Included node embeddings, graph embedding, attention weights,
+attention values, and intermediate node embeddings.</p>
+<p>Raises:
+ValueError: If input <code class="docutils literal notranslate"><span class="pre">x</span></code> is missing.
+AssertionError: If <code class="docutils literal notranslate"><span class="pre">mask</span></code> is provided.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.encoders.mdam.encoder.MDAMGraphAttentionEncoder.change">
 <span class="sig-name descname"><span class="pre">change</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_old</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.subnets.encoders.mdam.encoder.MDAMGraphAttentionEncoder.change" title="Link to this definition">#</a></dt>
-<dd><p>Re-compute embeddings with masked attention.</p>
+<dd><p>Re-computes embeddings with masked attention.</p>
+<p>Args:
+attn: Previous attention weights of shape (num_heads, batch, n, n).
+V: Previous attention values of shape (num_heads, batch, n, val_dim).
+h_old: Previous node embeddings before final attention layer.
+mask: Adjacency/mask tensor.</p>
+<p>Returns:
+Tuple[torch.Tensor, torch.Tensor]: New node embeddings and graph embedding.</p>
 </dd></dl>
 
 </dd></dl>

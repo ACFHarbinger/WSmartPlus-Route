@@ -37,7 +37,7 @@ src.models.subnets.encoders.gat.encoder
 ````{py:data} __all__
 :canonical: src.models.subnets.encoders.gat.__all__
 :value: >
-   ['GraphAttentionEncoder']
+   ['GraphAttentionEncoder', 'GATFeedForwardSubLayer', 'GATMultiHeadAttentionLayer']
 
 ```{autodoc2-docstring} src.models.subnets.encoders.gat.__all__
 ```

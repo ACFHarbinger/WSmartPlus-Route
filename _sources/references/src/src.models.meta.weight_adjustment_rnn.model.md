@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} WeightAdjustmentRNN(input_size, hidden_size, output_size, num_layers=1)
+`````{py:class} WeightAdjustmentRNN(input_size: int, hidden_size: int, output_size: int, num_layers: int = 1)
 :canonical: src.models.meta.weight_adjustment_rnn.model.WeightAdjustmentRNN
 
 Bases: {py:obj}`torch.nn.Module`
@@ -37,7 +37,7 @@ Bases: {py:obj}`torch.nn.Module`
 ```{autodoc2-docstring} src.models.meta.weight_adjustment_rnn.model.WeightAdjustmentRNN.__init__
 ```
 
-````{py:method} init_weights()
+````{py:method} init_weights() -> None
 :canonical: src.models.meta.weight_adjustment_rnn.model.WeightAdjustmentRNN.init_weights
 
 ```{autodoc2-docstring} src.models.meta.weight_adjustment_rnn.model.WeightAdjustmentRNN.init_weights
@@ -45,7 +45,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 ````
 
-````{py:method} forward(x, hidden=None)
+````{py:method} forward(x: torch.Tensor, hidden: typing.Optional[typing.Tuple[torch.Tensor, torch.Tensor]] = None) -> typing.Tuple[torch.Tensor, typing.Tuple[torch.Tensor, torch.Tensor]]
 :canonical: src.models.meta.weight_adjustment_rnn.model.WeightAdjustmentRNN.forward
 
 ```{autodoc2-docstring} src.models.meta.weight_adjustment_rnn.model.WeightAdjustmentRNN.forward
