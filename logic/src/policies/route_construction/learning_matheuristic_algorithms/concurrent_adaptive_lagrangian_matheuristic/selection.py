@@ -39,8 +39,8 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from logic.src.policies.route_construction.matheuristics.tpks.params import TPKSParams
-from logic.src.policies.route_construction.matheuristics.tpks.solver import (
+from logic.src.policies.route_construction.matheuristics.two_phase_kernel_search.params import TPKSParams
+from logic.src.policies.route_construction.matheuristics.two_phase_kernel_search.solver import (
     run_tpks_gurobi,
 )
 

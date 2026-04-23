@@ -73,7 +73,7 @@ class ALNSInterPeriodOperatorsPolicy(BaseMultiPeriodRoutingPolicy):
         params = ALNSIPOParams.from_config(asdict(self.config))  # type: ignore[arg-type]
 
         if params.acceptance_criterion is None:
-            from logic.src.policies.route_construction.acceptance_criteria.base.factory import (
+            from logic.src.policies.acceptance_criteria.base.factory import (
                 AcceptanceCriterionFactory,
             )
 

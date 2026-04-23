@@ -21,24 +21,24 @@ Architecture (see design discussion for full derivation):
         - LinUCB contextual bandit selects {TPKS engine variant, cut strategy}
           per outer iteration.
 
-Entry point: :class:`policy.LagrangianMultiPeriodPolicy`.
+Entry point: :class:`policy.CALMPolicy`.
 """
 
 from .params import (
     BanditParams,
     DualBoundParams,
-    LagrangianMatheuristicParams,
+    CALMParams,
     LagrangianParams,
     LookaheadParams,
     RegretParams,
 )
-from .policy import LagrangianMultiPeriodPolicy
+from .policy_calm import CALMPolicy
 
 __all__ = [
     "BanditParams",
     "DualBoundParams",
-    "LagrangianMatheuristicParams",
-    "LagrangianMultiPeriodPolicy",
+    "CALMParams",
+    "CALMPolicy",
     "LagrangianParams",
     "LookaheadParams",
     "RegretParams",
