@@ -128,12 +128,6 @@ bpc:
       # Whether to run column generation only at the root B&B node
       # true = Faster pricing, weaker lower bound
       # false = Exact elementarity (O(2^n)), exponentially slow
-    - use_swc_tcf_initialization: false
-      # Whether to use SWC-TCF algorithm for initial RMP column generation
-    - use_swc_tcf_heuristic_pricing: false
-      # Whether to use SWC-TCF as a fast heuristic pricer
-    - use_swc_tcf_primal_heuristic: false
-      # Whether to execute SWC-TCF at intermediate B&B nodes to update upper bound
 
     # --- Lagrangian pre-pruning ---
     - lr_pre_pruning: false

@@ -432,7 +432,6 @@ def _solve_pricing_step(
     max_routes: int = 5,
     optimality_gap: float = 1e-4,
     rc_tolerance: float = 1e-5,
-    use_swc_tcf_heuristic_pricing: bool = False,
     timeout: Optional[float] = None,
 ) -> Tuple[int, bool]:
     """
@@ -444,11 +443,10 @@ def _solve_pricing_step(
     Args:
         master: Master problem instance
         pricing_solver: RCSPP solver for pricing
-        branching_constraints: Optional Ryan-Foster or NodeVisitation constraints
+        branching_constraints: Optional Ryan-Foster or Node Visitation constraints
         max_routes: Max routes to return
         optimality_gap: Basic gap
         rc_tolerance: Minimum reduced cost to prevent epsilon deadlock
-        use_swc_tcf_heuristic_pricing: Whether to run fast heuristic pricing first
 
 
     Returns:
@@ -472,43 +470,6 @@ def _solve_pricing_step(
             node_r, node_s = bc.node_r, bc.node_s
             rf_conflicts.setdefault(node_r, set()).add(node_s)
             rf_conflicts.setdefault(node_s, set()).add(node_r)
-
-    # -------------------------------------------------------------
-    # Task 3: Tiered Heuristic Pricing (SWC-TCF)
-    # -------------------------------------------------------------
-    if use_swc_tcf_heuristic_pricing:
-        swc_tcf = RouteConstructorFactory.get_adapter("swc_tcf")
-        if swc_tcf is not None:
-            # We call the heuristic. It accepts kwargs.
-            # We must pass the dual_values dictionary so it modifies profits internally.
-            route_nodes, cost, profit, metrics, _ = swc_tcf.execute(
-                distance_matrix=pricing_solver.cost_matrix,
-                bins=pricing_solver.wastes,
-                number_vehicles=1,  # Generate one good column
-                mandatory=[],  # We enforce branching later or via DP if needed
-                dual_values=dual_values,
-                config={"time_limit": 2},  # Keep it fast for pricing!
-            )
-
-            if route_nodes and len(route_nodes) > 0:
-                # We need to construct a Route object and check its EXACT reduced cost.
-                # swc_tcf.execute returns (route, cost, metrics) where route is a List[int].
-                # We handle the case where it might be wrapped as List[List[int]] for robustness.
-                active_route: List[int] = []
-                active_route = route_nodes[0] if isinstance(route_nodes[0], list) else route_nodes  # type: ignore[assignment]
-
-                # Clean up 0s
-                clean_nodes = [n for n in active_route if n != 0]
-
-                if clean_nodes:
-                    route_obj = pricing_solver._compute_route_details(clean_nodes)
-                    rc = master.calculate_reduced_cost(route_obj, dual_values)
-
-                    if rc > rc_tolerance:
-                        # Success! The heuristic found a positive reduced cost column
-                        route_obj.reduced_cost = rc
-                        master.add_route(route_obj)
-                        return 1, False  # Stop here, skip exact DP
 
     # RCSPPSolver.solve() handles composite dual dictionaries and branching.
     routes: List[Route] = pricing_solver.solve(
@@ -865,7 +826,6 @@ def _column_generation_loop(  # noqa: C901
     cut_orthogonality_threshold: float = 0.8,
     exact_mode: bool = False,
     cg_at_root_only: bool = False,
-    use_swc_tcf_heuristic_pricing: bool = False,
     branching_strategy: str = "divergence",
 ) -> Tuple[float, Dict[int, float], Optional[Any], bool]:
     """
@@ -1061,7 +1021,6 @@ def _column_generation_loop(  # noqa: C901
                 max_routes=max_routes_per_pricing,
                 optimality_gap=optimality_gap,
                 rc_tolerance=rc_tolerance,
-                use_swc_tcf_heuristic_pricing=use_swc_tcf_heuristic_pricing,
                 timeout=_rem_t,
             )
 
@@ -1351,24 +1310,6 @@ def run_bpc(  # noqa: C901
         max_labels=params.rcspp_max_labels,
     )
 
-    if getattr(params, "use_swc_tcf_initialization", False):
-        swc_tcf = RouteConstructorFactory.get_adapter("swc_tcf")
-        if swc_tcf is not None:
-            swc_routes, _, _, _, _ = swc_tcf.execute(
-                distance_matrix=dist_matrix,
-                bins=wastes,
-                mandatory=list(m_set),
-                number_vehicles=getattr(params, "number_vehicles", 1),
-                config={"time_limit": 5},
-            )
-            if swc_routes:
-                logger.info(f"SWC-TCF Initialization yielded {len(swc_routes)} high-quality routes.")
-                for route_nodes in swc_routes:
-                    if isinstance(route_nodes, list):
-                        clean_nodes = [n for n in route_nodes if n != 0]
-                        if clean_nodes:
-                            initial_routes_nodes.append(clean_nodes)
-
     for r_nodes in initial_routes_nodes:
         route_obj = pricing_solver._compute_route_details(r_nodes)
         initial_columns.append(route_obj)
@@ -1564,7 +1505,6 @@ def run_bpc(  # noqa: C901
                     cut_orthogonality_threshold=params.cut_orthogonality_threshold,
                     exact_mode=params.exact_mode,
                     cg_at_root_only=params.cg_at_root_only,
-                    use_swc_tcf_heuristic_pricing=getattr(params, "use_swc_tcf_heuristic_pricing", False),
                     branching_strategy=branching_strategy_name,
                 )
             finally:
@@ -1653,70 +1593,6 @@ def run_bpc(  # noqa: C901
         if bb_tree.best_integer_solution is not None and lp_obj <= bb_tree.best_integer_solution:
             bb_tree.prune_by_bound()  # Ensure stale nodes are removed
             continue
-
-        # -------------------------------------------------------------
-        # Task 4: Primal Bounding Heuristic (SWC-TCF)
-        # -------------------------------------------------------------
-        if getattr(params, "use_swc_tcf_primal_heuristic", False):
-            swc_tcf = RouteConstructorFactory.get_adapter("swc_tcf")
-            if swc_tcf is not None:
-                # Extract forced nodes from branching constraints to guide heuristic
-                forced_nodes_heuristic = set()
-                from logic.src.policies.helpers.solvers_and_matheuristics.branching import (
-                    NodeVisitationBranchingConstraint,
-                )
-
-                for bc in branching_constraints or []:
-                    if isinstance(bc, NodeVisitationBranchingConstraint) and bc.forced:
-                        forced_nodes_heuristic.add(bc.node)
-
-                # Execute heuristic independently of LP fractional variables
-                h_routes, h_cost, h_profit, h_metrics, _ = swc_tcf.execute(
-                    distance_matrix=dist_matrix,
-                    bins=wastes,
-                    mandatory=list(m_set.union(forced_nodes_heuristic)),
-                    number_vehicles=getattr(params, "number_vehicles", 1),
-                    config={"time_limit": 5},
-                )
-                if h_routes:
-                    # Calculate exact profit to see if it beats the incumbent
-                    swc_profit = 0.0
-                    iterable_h_routes: List[List[int]] = []
-                    if isinstance(h_routes[0], list):
-                        iterable_h_routes = cast(List[List[int]], h_routes)
-                    else:
-                        iterable_h_routes = [cast(List[int], h_routes)]
-
-                    for r_nodes in iterable_h_routes:
-                        clean_nodes = [n for n in r_nodes if n != 0]
-                        if clean_nodes:
-                            robj = pricing_solver._compute_route_details(clean_nodes)
-                            swc_profit += robj.profit
-
-                    if bb_tree.best_integer_solution is None or swc_profit > bb_tree.best_integer_solution:
-                        logger.info(f"SWC-TCF Primal Heuristic found new incumbent: {swc_profit:.4f}")
-                        # We create a pseudo-node to record this solution in the tree
-                        pseudo_node = BranchNode(depth=current_node.depth)
-                        pseudo_node.is_integer = True
-                        pseudo_node.ip_solution = swc_profit
-
-                        # Populate route_values so reconstruction works
-                        pseudo_route_vals = {}
-                        for r_nodes in iterable_h_routes:
-                            if isinstance(r_nodes, list):
-                                clean_nodes = [n for n in r_nodes if n != 0]
-                                if clean_nodes:
-                                    route_obj = pricing_solver._compute_route_details(clean_nodes)
-                                    master.add_route(route_obj)
-                                    pseudo_route_vals[len(master.routes) - 1] = 1.0
-                        pseudo_node.route_values = pseudo_route_vals
-
-                        bb_tree.update_incumbent(pseudo_node, swc_profit)
-
-                        # With the new incumbent, check again if we can prune the current fractional node!
-                        if bb_tree.best_integer_solution is not None and lp_obj <= bb_tree.best_integer_solution:
-                            bb_tree.prune_by_bound()
-                            continue
 
         # Solution is fractional - branch
         if getattr(params, "enable_column_pool_deduplication", False):

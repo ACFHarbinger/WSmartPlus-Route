@@ -31,6 +31,7 @@ from .profitable_detour import ProfitableDetourRouteImprover
 from .random_local_search import RandomLocalSearchRouteImprover
 from .regret_k_insertion import RegretKInsertionRouteImprover
 from .ruin_recreate import RuinRecreateRouteImprover
+from .set_covering import SetCoverRouteImprover
 from .set_partitioning import SetPartitioningRouteImprover
 from .set_partitioning_polish import SetPartitioningPolishRouteImprover
 from .simulated_annealing import SimulatedAnnealingRouteImprover
@@ -76,4 +77,5 @@ __all__ = [
     "SetPartitioningRouteImprover",
     "BranchAndPriceRouteImprover",
     "LearnedRouteImprover",
+    "SetCoverRouteImprover",
 ]

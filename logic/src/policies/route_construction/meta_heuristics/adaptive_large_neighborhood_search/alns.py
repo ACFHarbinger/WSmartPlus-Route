@@ -185,7 +185,7 @@ class ALNSSolver:
         self.acceptance_criterion = params.acceptance_criterion
         if self.acceptance_criterion is None:
             # Fallback (should not happen if from_config is used)
-            from logic.src.policies.route_construction.acceptance_criteria.base.factory import (
+            from logic.src.policies.acceptance_criteria.base.factory import (
                 AcceptanceCriterionFactory,
             )
 

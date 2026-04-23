@@ -96,7 +96,7 @@ class LocalSearch(ABC):
         self.acceptance_criterion = acceptance_criterion or getattr(params, "acceptance_criterion", None)
         if self.acceptance_criterion is None:
             # Fallback for base LocalSearch (elitist hill-climbing)
-            from logic.src.policies.route_construction.acceptance_criteria.base.factory import (
+            from logic.src.policies.acceptance_criteria.base.factory import (
                 AcceptanceCriterionFactory,
             )
 

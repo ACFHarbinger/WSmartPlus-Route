@@ -2,9 +2,9 @@ import math
 import unittest
 from typing import Any, List
 
-from logic.src.policies.route_construction.acceptance_criteria.skewed_variable_neighborhood_search import SkewedVNSAcceptance
-from logic.src.policies.route_construction.acceptance_criteria.epsilon_dominance import EpsilonDominanceCriterion
-from logic.src.policies.route_construction.acceptance_criteria.adaptive_boltzmann_metropolis import AdaptiveBoltzmannMetropolis
+from logic.src.policies.acceptance_criteria.skewed_variable_neighborhood_search import SkewedVNSAcceptance
+from logic.src.policies.acceptance_criteria.epsilon_dominance import EpsilonDominanceCriterion
+from logic.src.policies.acceptance_criteria.adaptive_boltzmann_metropolis import AdaptiveBoltzmannMetropolis
 from logic.src.interfaces.distance_metric import IDistanceMetric
 
 

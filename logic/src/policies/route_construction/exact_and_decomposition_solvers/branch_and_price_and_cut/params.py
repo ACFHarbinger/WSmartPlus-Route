@@ -74,11 +74,6 @@ class BPCParams:
     rcspp_timeout: float = 30.0  # Safety cap for single pricer call
     rcspp_max_labels: int = 1000000  # Safety cap to prevent OOM
 
-    # Two-Commodity Flow Integration Flags (SWC-TCF)
-    use_swc_tcf_initialization: bool = False
-    use_swc_tcf_heuristic_pricing: bool = False
-    use_swc_tcf_primal_heuristic: bool = False
-
     # ---------------------------------------------------------------------------
     # Lagrangian Relaxation Pre-Pruning
     # ---------------------------------------------------------------------------

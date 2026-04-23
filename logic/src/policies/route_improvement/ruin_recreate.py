@@ -128,7 +128,7 @@ class RuinRecreateRouteImprover(IRouteImprovement):
         # Set up SA criterion if needed (Q2 delegation)
         sa_criterion = None
         if acceptance == "sa":
-            from logic.src.policies.route_construction.acceptance_criteria.boltzmann_metropolis_criterion import (
+            from logic.src.policies.acceptance_criteria.boltzmann_metropolis_criterion import (
                 BoltzmannAcceptance,
             )
 

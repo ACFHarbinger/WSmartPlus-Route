@@ -47,7 +47,7 @@ class ILSParams:
         """Ensure acceptance criterion is initialized even if not passed in config."""
         if self.acceptance_criterion is None:
             # Standard ILS uses Improving-Only acceptance
-            from logic.src.policies.route_construction.acceptance_criteria.base.factory import (
+            from logic.src.policies.acceptance_criteria.base.factory import (
                 AcceptanceCriterionFactory,
             )
 
@@ -70,7 +70,7 @@ class ILSParams:
         )
 
         # Handle Acceptance Criterion Injection
-        from logic.src.policies.route_construction.acceptance_criteria.base.factory import AcceptanceCriterionFactory
+        from logic.src.policies.acceptance_criteria.base.factory import AcceptanceCriterionFactory
 
         acceptance_cfg = getattr(config, "acceptance_criterion", None)
         if acceptance_cfg:
