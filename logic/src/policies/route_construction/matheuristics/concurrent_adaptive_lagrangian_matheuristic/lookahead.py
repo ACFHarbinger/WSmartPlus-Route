@@ -1,0 +1,296 @@
+"""
+Lookahead prize valuation.
+
+Given a scenario tree over the horizon T, compute for every optional bin i
+and every candidate first-visit period t the *expected collectable revenue*
+V[i, t], accounting for overflow saturation (prize caps at capacity_cap).
+
+Also computes per-bin regret:
+
+    rho[i, t] = V[i, argmax_tau V[i, tau]] - V[i, t+1 onwards best]
+
+High regret means deferring the bin has a large expected revenue cost -
+typically because it is about to overflow.  This signal drives the regret-based
+preprocessing module.
+
+The valuation is a tiny DP per bin: O(T^2) in the worst case, O(T) in the
+common first-visit-wins case.  It is Monte-Carlo-averaged across scenario
+paths to smooth out noise from the sampling distribution.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Dict, Optional
+
+import numpy as np
+
+from logic.src.pipeline.simulations.bins.prediction import (
+    ScenarioGenerator,
+    ScenarioTree,
+)
+
+from .params import LookaheadParams
+
+
+@dataclass
+class LookaheadTables:
+    """
+    Container for all lookahead-derived quantities.
+
+    Attributes
+    ----------
+    V : np.ndarray of shape (N, T)
+        V[i, t] = expected revenue (monetary units) collected by first visiting
+        bin i at period t, given no earlier collections.  Accounts for overflow
+        saturation: if the bin is projected to exceed `capacity_cap` at period
+        t, the collected-beyond-cap portion is lost (not counted).
+    rho : np.ndarray of shape (N, T)
+        rho[i, t] = regret of *deferring* bin i from period t to t+1:
+        max(0, V[i, t] - max_{tau > t} V[i, tau]).
+        Positive values mean "grab now or lose value".
+    early_regret : np.ndarray of shape (N,)
+        Sum of rho[i, 0] + rho[i, 1]: used to identify overflow-bound bins
+        that must be visited in the first 1-2 periods.
+    expected_fill : np.ndarray of shape (N, T+1)
+        Expected fill% if the bin is NEVER visited over [0, T].  Useful for
+        the regret module and for diagnostics.
+    """
+
+    V: np.ndarray
+    rho: np.ndarray
+    early_regret: np.ndarray
+    expected_fill: np.ndarray
+
+
+class LookaheadValuator:
+    """
+    Builds the scenario tree and produces the V / rho / early_regret tables.
+
+    Usage:
+        valuator = LookaheadValuator(params)
+        tables = valuator.compute(
+            current_wastes=bins.c,
+            bin_stats={"means": bins.means, "stds": bins.std},
+        )
+
+    The scenario tree is held internally (not part of LookaheadTables) so that
+    downstream consumers - e.g. mandatory-node prediction - can reuse it via
+    :meth:`get_scenario_tree`.
+    """
+
+    def __init__(self, params: LookaheadParams):
+        self.params = params
+        self._tree: Optional[ScenarioTree] = None
+
+    # ------------------------------------------------------------------
+    # Public API
+    # ------------------------------------------------------------------
+
+    def get_scenario_tree(self) -> ScenarioTree:
+        if self._tree is None:
+            raise RuntimeError("LookaheadValuator.compute() must be called before get_scenario_tree().")
+        return self._tree
+
+    def compute(
+        self,
+        current_wastes: np.ndarray,
+        bin_stats: Optional[Dict[str, np.ndarray]] = None,
+        truth_generator: Optional[object] = None,
+    ) -> LookaheadTables:
+        """
+        Build the scenario tree and compute V / rho / early_regret.
+
+        Parameters
+        ----------
+        current_wastes : np.ndarray of shape (N,)
+            Current fill levels (0-100) for each bin.
+        bin_stats : dict or None
+            Per-bin {"means", "stds"} - daily fill increments.
+        truth_generator : object or None
+            Oracle-mode truth provider (passed through to ScenarioGenerator).
+
+        Returns
+        -------
+        LookaheadTables
+        """
+        # 1. Build scenario tree(s).  For Monte-Carlo averaging we repeat with
+        #    different seeds unless the distribution is deterministic ("mean"
+        #    or "perfect_oracle"), in which case one path is sufficient.
+        is_deterministic = (
+            self.params.scenario_method == "perfect_oracle" or self.params.scenario_distribution == "mean"
+        )
+        n_samples = 1 if is_deterministic else max(1, self.params.n_scenarios)
+
+        N = len(current_wastes)
+        T = self.params.horizon
+
+        # Expected fill trajectory IF THE BIN IS NEVER VISITED, shape (N, T+1).
+        # expected_fill[:, 0] = current_wastes.  expected_fill[:, t] = E[fill at day t].
+        expected_fill_accum = np.zeros((N, T + 1), dtype=float)
+
+        # We retain the last generated tree for downstream consumers (mandatory
+        # node prediction etc.).  That tree corresponds to seed 0.
+        last_tree: Optional[ScenarioTree] = None
+
+        for s in range(n_samples):
+            seed_s = self.params.seed + s
+            gen = ScenarioGenerator(
+                method=self.params.scenario_method,
+                horizon=T,
+                seed=seed_s,
+                distribution=self.params.scenario_distribution,
+                dist_kwargs=self.params.scenario_dist_kwargs,
+            )
+            tree = gen.generate(
+                current_wastes=current_wastes,
+                bin_stats=bin_stats,
+                truth_generator=truth_generator,
+            )
+            if s == 0:
+                last_tree = tree
+
+            # Walk the main path of the tree.  ScenarioGenerator currently
+            # produces a single path; if that changes we take the
+            # probability-weighted average over siblings at each depth.
+            path_fill = self._extract_expected_path(tree, N)
+            expected_fill_accum += path_fill
+
+        expected_fill_accum /= n_samples
+        self._tree = last_tree
+
+        # 2. Convert expected fill -> expected collectable revenue V[i, t].
+        V = self._compute_value_table(expected_fill_accum)
+
+        # 3. Compute regret.
+        rho = self._compute_regret_table(V)
+
+        # 4. Early regret for overflow-bound bin identification.
+        early_regret = rho[:, 0] + (rho[:, 1] if T >= 2 else 0.0)
+
+        return LookaheadTables(
+            V=V,
+            rho=rho,
+            early_regret=early_regret,
+            expected_fill=expected_fill_accum,
+        )
+
+    # ------------------------------------------------------------------
+    # Internals
+    # ------------------------------------------------------------------
+
+    def _extract_expected_path(self, tree: ScenarioTree, N: int) -> np.ndarray:
+        """
+        Walk the tree depth-first and at each depth compute a
+        probability-weighted mean of the fill levels across siblings.
+
+        Returns array of shape (N, T+1).
+        """
+        T = tree.horizon
+        out = np.zeros((N, T + 1), dtype=float)
+        # Day 0 is the root.
+        out[:, 0] = tree.root.wastes
+        # Days 1..T: average over nodes at that depth.
+        for t in range(1, T + 1):
+            nodes = tree.get_scenarios_at_day(t)
+            if not nodes:
+                # Tree truncated early -> propagate last-known.
+                out[:, t] = out[:, t - 1]
+                continue
+            total_p = sum(n.probability for n in nodes) or 1.0
+            agg = np.zeros(N, dtype=float)
+            for n in nodes:
+                agg += n.probability * n.wastes
+            out[:, t] = agg / total_p
+        return out
+
+    def _compute_value_table(self, expected_fill: np.ndarray) -> np.ndarray:
+        """
+        V[i, t] = revenue collected if we visit i at period t, computed from
+        the expected fill level at that period, capped at capacity_cap.
+
+        revenue_per_bin(f) = (min(f, cap) / 100) * volume * density * revenue_per_kg
+
+        We rely on the params having these parameters supplied; otherwise we
+        use a unit revenue (which still ranks bins consistently).
+        """
+        cap = self.params.capacity_cap
+        # t=0 is "now" - a bin visited today collects its current fill.
+        N, Tp1 = expected_fill.shape
+
+        clipped = np.minimum(expected_fill, cap)  # (N, T+1)
+
+        vol = self.params.volume if self.params.volume is not None else 1.0
+        dens = self.params.density if self.params.density is not None else 1.0
+        rev = self.params.revenue_per_kg if self.params.revenue_per_kg is not None else 1.0
+
+        V = (clipped / 100.0) * vol * dens * rev
+        # Drop the sentinel column for t = T (we only index t in [0, T-1]
+        # as first-visit periods; the trailing column is auxiliary).
+        # But the policy may query V[:, T-1], so we keep shape (N, T).
+        return V[:, :-1]
+
+    def _compute_regret_table(self, V: np.ndarray) -> np.ndarray:
+        """
+        rho[i, t] = max(0, V[i, t] - max_{tau > t} V[i, tau]).
+
+        Interpretation: if rho[i, t] > 0, deferring past t strictly loses
+        value.  Typically this fires when the bin has saturated and V is
+        declining (but V only declines on overflow, since a capped bin's
+        revenue stays at V_max and subsequent accumulated waste is lost).
+        """
+        N, T = V.shape
+        rho = np.zeros_like(V)
+        for i in range(N):
+            running_max = -np.inf
+            # Right-to-left pass: at each t, best future value is the max over
+            # tau > t.
+            future_max = np.full(T, -np.inf)
+            for t in range(T - 2, -1, -1):
+                running_max = max(running_max, V[i, t + 1])
+                future_max[t] = running_max
+            # Edge: t = T-1 has no future, regret definitionally 0.
+            for t in range(T - 1):
+                rho[i, t] = max(0.0, V[i, t] - future_max[t])
+        return rho
+
+
+# ---------------------------------------------------------------------------
+# Utility: project insertion-cost correction onto prize coefficients.
+# ---------------------------------------------------------------------------
+
+
+def lagrangian_corrected_prizes(
+    V: np.ndarray,
+    lambdas: np.ndarray,
+    insertion_costs: np.ndarray,
+    gamma: float,
+    side: str = "knapsack",
+) -> np.ndarray:
+    """
+    Produce effective prize coefficients for one Lagrangian subproblem.
+
+    Parameters
+    ----------
+    V : (N, T) lookahead value table.
+    lambdas : (N, T) current multipliers for the coupling x^K_{i,t} = x^R_{i,t}.
+    insertion_costs : (N, T) oracle's current estimate of Delta[i, t]
+        (cheapest-insertion cost into period t's incumbent tour).
+        Pass zeros to disable the oracle channel.
+    gamma : trust weight on the insertion-cost channel.  Annealed over iters.
+    side : "knapsack" or "routing".
+        The knapsack sees coefficient  V + lambda - gamma * Delta
+        The routing  sees coefficient  V - lambda
+
+        Why: linking  x^K == x^R  relaxed with multiplier lambda gives
+        lagrangian term  -lambda * (x^K - x^R).  Splitting the primal prize V
+        equally between the two subproblems (each gets V on its own variable)
+        then absorbing +lambda on x^K and -lambda on x^R yields the above.
+        The insertion-cost correction is applied only to the knapsack side
+        because that is where the selection decision is made.
+    """
+    if side == "knapsack":
+        return V + lambdas - gamma * insertion_costs
+    if side == "routing":
+        return V - lambdas
+    raise ValueError(f"Unknown side: {side}")

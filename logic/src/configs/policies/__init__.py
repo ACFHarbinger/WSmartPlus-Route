@@ -17,6 +17,7 @@ from .bb import BBConfig
 from .bc import BCConfig
 from .bp import BPConfig
 from .bpc import BPCConfig
+from .calm import CALMConfig
 from .cf_rs import CFRSConfig
 from .cgh import CGHConfig
 from .cp_sat import CPSATConfig
@@ -111,6 +112,7 @@ __all__ = [
     "BCConfig",
     "BPConfig",
     "BPCConfig",
+    "CALMConfig",
     "CFRSConfig",
     "CVRPConfig",
     "DistancePSOConfig",
