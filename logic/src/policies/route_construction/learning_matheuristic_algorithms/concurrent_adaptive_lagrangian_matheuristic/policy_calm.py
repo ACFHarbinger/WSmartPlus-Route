@@ -70,7 +70,7 @@ from .dual import build_dual_bound_tracker
 from .lagrangian import LagrangianCoordinator, LagrangianState
 from .lookahead import LookaheadTables, LookaheadValuator
 from .oracle import InsertionCostOracle
-from .params import LagrangianMatheuristicParams
+from .params import CALMParams
 from .regret import RegretPlan, RegretPreprocessor
 from .routing import RoutingResult, evaluate_period
 from .selection import (
@@ -125,14 +125,14 @@ class _RunState:
     PolicyTag.PROFIT_AWARE,
     PolicyTag.MULTI_PERIOD,
 )
-@RouteConstructorRegistry.register("lagrangian_matheuristic")
+@RouteConstructorRegistry.register("calm")
 class CALMPolicy(BaseMultiPeriodRoutingPolicy):
     """Multi-period Concurrent Adaptive Lagrangian Matheuristic (CALM) policy."""
 
     def __init__(self, config: Any = None):
         super().__init__(config)
         self.params = (
-            LagrangianMatheuristicParams.from_config(self.config) if config else LagrangianMatheuristicParams()
+            CALMParams.from_config(self.config) if config else CALMParams()
         )
         # Align BaseMultiPeriodRoutingPolicy defaults.
         self.horizon = self.params.lookahead.horizon

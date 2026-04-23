@@ -1,9 +1,9 @@
 import unittest
 import math
-from logic.src.policies.route_construction.acceptance_criteria.demon_algorithm import DemonAlgorithm
-from logic.src.policies.route_construction.acceptance_criteria.generalized_tsallis_simulated_annealing import GeneralizedTsallisSA
-from logic.src.policies.route_construction.acceptance_criteria.non_linear_great_deluge import NonLinearGreatDeluge
-from logic.src.policies.route_construction.acceptance_criteria.exponential_monte_carlo_counter import EMCQAcceptance
+from logic.src.policies.acceptance_criteria.demon_algorithm import DemonAlgorithm
+from logic.src.policies.acceptance_criteria.generalized_tsallis_simulated_annealing import GeneralizedTsallisSA
+from logic.src.policies.acceptance_criteria.non_linear_great_deluge import NonLinearGreatDeluge
+from logic.src.policies.acceptance_criteria.exponential_monte_carlo_counter import EMCQAcceptance
 
 
 class TestAdvancedAlgorithms(unittest.TestCase):

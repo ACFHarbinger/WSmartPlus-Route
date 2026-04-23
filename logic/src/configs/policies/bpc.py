@@ -46,7 +46,6 @@ class BPCConfig:
             descendant nodes, no new columns are generated (use the pool built at
             root).  Replicates the "CG at root only" experiment in Table 2 of
             Barnhart, Hane, and Vance (2000).  Trades solution quality for speed.
-        use_swc_tcf_initialization: Whether to use SWC-TCF for RMP initialization.
         use_swc_tcf_heuristic_pricing: Whether to use SWC-TCF as a fast heuristic pricer.
         use_swc_tcf_primal_heuristic: Whether to use SWC-TCF as a primal heuristic at nodes.
         rcspp_timeout: Safety cap for single pricer call (seconds).
@@ -89,9 +88,6 @@ class BPCConfig:
     exact_mode: bool = False
     strong_branching_size: int = 5
     cg_at_root_only: bool = False
-    use_swc_tcf_initialization: bool = False
-    use_swc_tcf_heuristic_pricing: bool = False
-    use_swc_tcf_primal_heuristic: bool = False
     lr_pre_pruning: bool = False
     lr_lambda_init: float = 0.0
     lr_max_subgradient_iters: int = 30

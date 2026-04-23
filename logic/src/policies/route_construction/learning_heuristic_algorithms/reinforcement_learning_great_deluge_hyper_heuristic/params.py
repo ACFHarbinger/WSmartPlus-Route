@@ -20,7 +20,7 @@ from dataclasses import dataclass, field
 from typing import Any, Optional
 
 from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
-from logic.src.policies.route_construction.acceptance_criteria.base.factory import AcceptanceCriterionFactory
+from logic.src.policiesW.acceptance_criteria.base.factory import AcceptanceCriterionFactory
 
 
 @dataclass
@@ -88,7 +88,7 @@ class RLGDHHParams:
     def __post_init__(self):
         """Ensure acceptance criterion is initialized even if not passed in config."""
         if self.acceptance_criterion is None:
-            from logic.src.policies.route_construction.acceptance_criteria.base.factory import (
+            from logic.src.policies.acceptance_criteria.base.factory import (
                 AcceptanceCriterionFactory,
             )
 

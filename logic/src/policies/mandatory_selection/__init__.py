@@ -71,6 +71,8 @@ from .selection_stochastic_regret import StochasticRegretSelection
 from .selection_submodular_greedy import SubmodularGreedySelection
 from .selection_supermodular_greedy import SupermodularGreedySelection
 from .selection_wasserstein import WassersteinRobustSelection
+from .selection_whittle import WhittleIndexSelection
+from .selection_fptas_knapsack import FPTASKnapsackSelection
 
 __all__ = [
     # Vectorized selectors for training
@@ -119,4 +121,5 @@ __all__ = [
     "BernoulliRandomSelection",
     "KMeansGeographicSectorSelection",
     "StaggeredRegularSelection",
+    "FPTASKnapsackSelection",
 ]

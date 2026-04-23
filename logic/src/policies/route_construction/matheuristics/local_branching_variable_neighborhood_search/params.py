@@ -8,7 +8,7 @@ from dataclasses import dataclass, field, fields
 from typing import Any, Dict
 
 from logic.src.interfaces.acceptance_criterion import IAcceptanceCriterion
-from logic.src.policies.route_construction.acceptance_criteria.base.factory import AcceptanceCriterionFactory
+from logic.src.policies.acceptance_criteria.base.factory import AcceptanceCriterionFactory
 
 
 @dataclass
@@ -44,10 +44,6 @@ class LBVNSParams:
         """Ensure acceptance criterion is initialized even if not passed in config."""
         if self.acceptance_criterion is None:
             # Standard VNS uses Improving-Only acceptance
-            from logic.src.policies.route_construction.acceptance_criteria.base.factory import (
-                AcceptanceCriterionFactory,
-            )
-
             self.acceptance_criterion = AcceptanceCriterionFactory.create(name="oi")
 
     @classmethod

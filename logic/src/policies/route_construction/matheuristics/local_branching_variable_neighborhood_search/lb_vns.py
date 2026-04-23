@@ -182,7 +182,7 @@ def run_lb_vns_gurobi(
         acceptance_criterion = params.acceptance_criterion
     else:
         # Avoid circular import if needed, or use a default
-        from logic.src.policies.route_construction.acceptance_criteria.only_improving import OnlyImproving
+        from logic.src.policies.acceptance_criteria.only_improving import OnlyImproving
 
         acceptance_criterion = OnlyImproving()
 
