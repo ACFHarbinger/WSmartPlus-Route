@@ -48,12 +48,39 @@ class ScenarioGenerator:
     Generates scenario trees for multi-period stochastic optimization.
     """
 
-    def __init__(self, method: str = "stochastic", horizon: int = 7, seed: int = 42) -> None:
+    def __init__(
+        self,
+        method: str = "stochastic",
+        horizon: int = 7,
+        seed: int = 42,
+        distribution: str = "mean",
+        dist_kwargs: Optional[Dict[str, Any]] = None,
+    ) -> None:
         self.method = method
         self.horizon = horizon
         self.seed = seed
+        self.distribution = distribution
+        self.dist_kwargs = dist_kwargs or {}
         # Initialize RNG for stochastic paths
         self.rng = np.random.default_rng(seed)
+        self._dist_instance = None
+
+        if self.distribution not in (
+            "mean",
+            "gamma",
+            "norm",
+            "poisson",
+            "compound_poisson_gamma",
+            "bernoulli_gamma_mixture",
+        ):
+            from logic.src.data.distributions import DISTRIBUTION_REGISTRY
+
+            if self.distribution in DISTRIBUTION_REGISTRY:
+                dist_class = DISTRIBUTION_REGISTRY[self.distribution]
+                self._dist_instance = dist_class(**self.dist_kwargs)
+                self._dist_instance.set_sampling_method("sample_array")
+            else:
+                raise ValueError(f"Unknown scenario distribution: {self.distribution}")
 
     def generate(
         self,
@@ -102,10 +129,54 @@ class ScenarioGenerator:
             return
 
         means = bin_stats["means"]
-        # In this baseline, we implement the "Mean Value" scenario path
+        stds = bin_stats.get("stds", np.zeros_like(means))
+        # Prevent division by zero mathematically
+        safe_means = np.where(means == 0, 1e-9, means)
+        safe_stds = np.where(stds == 0, 1e-9, stds)
+        safe_vars = safe_stds**2
+
         current = root
         for t in range(1, self.horizon + 1):
-            new_wastes = np.minimum(100.0, current.wastes + means)
+            if self.distribution == "mean":
+                step_wastes = means
+            elif self._dist_instance is not None:
+                # Use custom distribution from registry
+                step_wastes = self._dist_instance.sample(means.shape, rng=self.rng)
+            elif self.distribution == "gamma":
+                # Method of moments fallback for gamma
+                k = safe_means**2 / safe_vars
+                th = safe_vars / safe_means
+                step_wastes = self.rng.gamma(shape=k, scale=th)
+            elif self.distribution == "norm":
+                step_wastes = self.rng.normal(means, stds)
+            elif self.distribution == "poisson":
+                step_wastes = self.rng.poisson(means)
+            elif self.distribution == "compound_poisson_gamma":
+                # Method of Moments mapping matching 'means' and 'vars' assuming exponential jumps (alpha=1)
+                lam = 2.0 * safe_means**2 / safe_vars
+                th = safe_vars / (2.0 * safe_means)
+                from logic.src.data.distributions import DISTRIBUTION_REGISTRY
+
+                dist_class = DISTRIBUTION_REGISTRY["compound_poisson_gamma"]
+                inst = dist_class(lam=lam, alpha=1.0, theta=th)
+                inst.set_sampling_method("sample_array")
+                step_wastes = inst.sample(means.shape, rng=self.rng)
+            elif self.distribution == "bernoulli_gamma_mixture":
+                # Method of Moments mapping matching 'means' and 'vars'
+                v = safe_vars / (safe_means**2)
+                p = 2.0 / (v + 2.0)
+                alpha = (v + 2.0) / v
+                theta = safe_vars / (2.0 * safe_means)
+                from logic.src.data.distributions import DISTRIBUTION_REGISTRY
+
+                dist_class = DISTRIBUTION_REGISTRY["bernoulli_gamma_mixture"]
+                inst = dist_class(p=p, alpha=alpha, theta=theta)
+                inst.set_sampling_method("sample_array")
+                step_wastes = inst.sample(means.shape, rng=self.rng)
+            else:
+                step_wastes = means
+
+            new_wastes = np.clip(current.wastes + step_wastes, 0.0, 100.0)
             child = ScenarioTreeNode(day=t, wastes=new_wastes, probability=1.0)
             current.children.append(child)
             current = child
