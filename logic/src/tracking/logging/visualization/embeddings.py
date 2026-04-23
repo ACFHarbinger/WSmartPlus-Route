@@ -1,7 +1,18 @@
-"""
-Embedding visualization tools.
+"""Embedding visualization and weight trajectory analysis tools.
 
-Functions for projecting node embeddings and plotting weight trajectories.
+This module provides utilities for analyzing high-dimensional model state
+and node feature representations. It supports projecting weight vectors
+across training epochs via PCA to visualize learning trajectories and
+interfacing with TensorBoard Projector for node embedding visualization.
+
+Attributes:
+    plot_weight_trajectories: Visualizes weight evolution across checkpoints.
+    log_weight_distributions: Exports weight histograms to TensorBoard.
+    project_node_embeddings: Projects 3D node features for TensorBoard analysis.
+
+Example:
+    >>> from logic.src.tracking.logging.visualization import embeddings
+    >>> embeddings.log_weight_distributions(model, epoch, "logs/tb/")
 """
 
 import os
@@ -17,12 +28,11 @@ from torch.utils.tensorboard.writer import SummaryWriter
 
 
 def plot_weight_trajectories(checkpoint_dir, output_file):
-    """
-    Plots the trajectory of model weights across epochs using PCA projection.
+    """Plots the trajectory of model weights across epochs using PCA projection.
 
     Args:
-        checkpoint_dir (str): Directory containing checkpoints.
-        output_file (str): Output image filename.
+        checkpoint_dir: Directory containing model checkpoint files (.pt).
+        output_file: File path where the trajectory plot will be saved.
     """
     print("Computing Weight Trajectories...")
     # Create output dir if needed
@@ -87,14 +97,13 @@ def plot_weight_trajectories(checkpoint_dir, output_file):
 
 
 def log_weight_distributions(model, epoch, log_dir, writer=None):
-    """
-    Logs histograms of model weight distributions to TensorBoard.
+    """Logs histograms of model weight distributions to TensorBoard.
 
     Args:
-        model (nn.Module): The model.
-        epoch (int): Current epoch.
-        log_dir (str): TensorBoard log directory (used if writer is None).
-        writer (SummaryWriter, optional): Existing writer.
+        model: The PyTorch neural network to inspect.
+        epoch: Current training epoch index.
+        log_dir: TensorBoard log directory (used if writer is None).
+        writer: Optional existing SummaryWriter. Defaults to None.
     """
     close_writer = False
     if writer is None:
@@ -111,15 +120,14 @@ def log_weight_distributions(model, epoch, log_dir, writer=None):
 
 
 def project_node_embeddings(model, x_batch, log_dir, writer=None, epoch=0):
-    """
-    Projects node embeddings to 3D space in TensorBoard Projector.
+    """Projects node embeddings to 3D space in TensorBoard Projector.
 
     Args:
-        model (nn.Module): The model.
-        x_batch (dict): Input batch.
-        log_dir (str): TensorBoard log directory (used if writer is None).
-        writer (SummaryWriter, optional): Existing writer.
-        epoch (int, optional): Current epoch. Defaults to 0.
+        model: The model whose embedder will be used.
+        x_batch: Input batch containing node and edge features.
+        log_dir: TensorBoard log directory (used if writer is None).
+        writer: Optional existing SummaryWriter. Defaults to None.
+        epoch: Current training epoch index. Defaults to 0.
     """
     close_writer = False
     if writer is None:

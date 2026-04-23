@@ -1,27 +1,24 @@
-"""
-Policy Visualization Mixin.
+"""Policy Visualization Mixin.
 
 Provides lightweight, zero-overhead state recording for classical and
-heuristic policies.  Import :class:`PolicyVizMixin` and add it as a
+heuristic policies. Import :class:`PolicyVizMixin` and add it as a
 mixin base-class to any policy that should expose iteration data to the
 Streamlit dashboard.
-
 
 Attributes:
     PolicyStateRecorder: Fixed-capacity ring-buffer for per-iteration policy telemetry.
     PolicyVizMixin: Mixin that adds zero-overhead telemetry to policy classes.
 
 Example:
-
-    class VectorizedALNS(PolicyVizMixin):
-        def solve(self, ...):
-            for i in range(n_iterations):
-                ...
-                self._viz_record(iteration=i, best_cost=best_costs.min().item())
-
-    # After running:
-    data = solver.get_viz_data()
-    # data["iteration"], data["best_cost"]  → lists of recorded values
+    >>> class VectorizedALNS(PolicyVizMixin):
+    ...     def solve(self, *args, **kwargs):
+    ...         for i in range(10):
+    ...             self._viz_record(iteration=i, best_cost=100.0 - i)
+    >>> solver = VectorizedALNS()
+    >>> solver.solve()
+    >>> data = solver.get_viz_data()
+    >>> data["iteration"]
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 """
 
 import contextlib
@@ -29,37 +26,31 @@ from typing import Any, Dict, List
 
 
 class PolicyStateRecorder:
-    """
-    Fixed-capacity ring-buffer for per-iteration policy telemetry.
+    """Fixed-capacity ring-buffer for per-iteration policy telemetry.
+
+    Stores a history of scalar metrics as lists of values, enabling time-series
+    visualization of optimization progress.
 
     Attributes:
-        _buf: Dictionary for storing telemetry data.
-        _max: Maximum number of records to keep.
+        _buf: Dictionary mapping metric keys to lists of recorded values.
+        _max: Maximum number of records per metric key to keep in memory.
     """
 
     def __init__(self, max_history: int = 5000) -> None:
-        """
-        Initialize the PolicyStateRecorder.
+        """Initializes the PolicyStateRecorder.
 
         Args:
-            max_history: Maximum number of records to keep.  Oldest entries
-                         are silently dropped once the buffer is full.
-
-        Returns:
-            None
+            max_history: Maximum number of records to keep. Oldest entries
+                are silently dropped once the buffer is full. Defaults to 5000.
         """
         self._buf: Dict[str, List[Any]] = {}
         self._max = max_history
 
     def record(self, **kwargs: Any) -> None:
-        """
-        Append one snapshot of keyword-named scalar metrics.
+        """Appends one snapshot of keyword-named scalar metrics.
 
         Args:
-            kwargs: Keyword arguments representing the metrics to record.
-
-        Returns:
-            None
+            kwargs: Arbitrary scalar metrics to record (e.g., best_cost=1.2).
         """
         for key, val in kwargs.items():
             lst = self._buf.setdefault(key, [])
@@ -68,29 +59,22 @@ class PolicyStateRecorder:
                 lst.pop(0)
 
     def get(self) -> Dict[str, List[Any]]:
-        """
-        Return a shallow copy of the accumulated telemetry.
+        """Retrieves a shallow copy of the accumulated telemetry.
 
         Returns:
-            Dict[str, List[Any]]: A dictionary containing the accumulated telemetry.
+            Dict[str, List[Any]]: Mapping of metric names to lists of history.
         """
         return {k: list(v) for k, v in self._buf.items()}
 
     def reset(self) -> None:
-        """
-        Discard all recorded data.
-
-        Returns:
-            None
-        """
+        """Discards all recorded data from the buffer."""
         self._buf.clear()
 
     def __len__(self) -> int:
-        """
-        Return the number of records.
+        """Returns the number of records in the longest metric history.
 
         Returns:
-            int: The number of records.
+            int: The maximum length among all recorded metric lists.
         """
         if not self._buf:
             return 0
@@ -98,32 +82,23 @@ class PolicyStateRecorder:
 
 
 class PolicyVizMixin:
-    """
-    Mixin that adds zero-overhead telemetry to policy classes.
+    """Mixin that adds zero-overhead telemetry to policy classes.
 
-    The internal :class:`PolicyStateRecorder` is only created on the
-    first call to :meth:`_viz_record`, so policies that never record
-    data pay no allocation cost at all.
-
-    Concrete policies should call ``self._viz_record(**metrics)`` inside
-    their main iteration loop, then consumers call
-    ``policy.get_viz_data()`` to retrieve the captured time-series.
+    The internal PolicyStateRecorder is only created on the first call to
+    _viz_record, so policies that never record data pay no allocation cost.
+    Concrete policies should call self._viz_record(**metrics) inside their
+    main iteration loop.
 
     Attributes:
-        _viz_recorder: PolicyStateRecorder for storing telemetry data.
+        _viz_recorder: The lazily-initialized recorder instance.
     """
-
-    # ------------------------------------------------------------------
-    # Lazy recorder property
-    # ------------------------------------------------------------------
 
     @property
     def _viz(self) -> PolicyStateRecorder:
-        """
-        Lazy property for the recorder.
+        """Lazy property that initializes and returns the state recorder.
 
         Returns:
-            PolicyStateRecorder: The recorder.
+            PolicyStateRecorder: The process-private telemetry recorder.
         """
         try:
             return self.__viz_recorder  # type: ignore[attr-defined]
@@ -131,29 +106,20 @@ class PolicyVizMixin:
             self.__viz_recorder: PolicyStateRecorder = PolicyStateRecorder()
             return self.__viz_recorder
 
-    # ------------------------------------------------------------------
-    # Public API (forwarded to recorder)
-    # ------------------------------------------------------------------
-
     def _viz_record(self, **kwargs: Any) -> None:
-        """
-        Record one snapshot of metrics. Call once per iteration.
+        """Records one snapshot of metrics. Call once per iteration.
 
         Args:
             kwargs: Keyword arguments representing the metrics to record.
-
-        Returns:
-            None
         """
         self._viz.record(**kwargs)
 
     def get_viz_data(self) -> Dict[str, List[Any]]:
-        """
-        Return accumulated telemetry as a plain dict of lists,
-        or an empty dict if ``_viz_record`` was never called.
+        """Retrieves accumulated telemetry.
 
         Returns:
-            Dict[str, List[Any]]: A dictionary containing the accumulated telemetry.
+            Dict[str, List[Any]]: Accumulated telemetry as a plain dict of
+                lists, or an empty dict if _viz_record was never called.
         """
         try:
             return self.__viz_recorder.get()  # type: ignore[attr-defined]
@@ -161,11 +127,6 @@ class PolicyVizMixin:
             return {}
 
     def reset_viz(self) -> None:
-        """
-        Clear all recorded telemetry (safe to call before re-use).
-
-        Returns:
-            None
-        """
+        """Clears all recorded telemetry. Safe to call before re-use."""
         with contextlib.suppress(AttributeError):
             self.__viz_recorder.reset()  # type: ignore[attr-defined]

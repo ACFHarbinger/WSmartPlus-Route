@@ -1,9 +1,19 @@
-"""
-Structured JSON logging utilities for ELK stack integration.
+"""Structured JSON logging utilities for ELK stack integration.
 
 Provides handlers and formatters to output logs in JSON format,
 optionally sending them via TCP to Logstash.
+
+Attributes:
+    get_structured_logger: Returns a logger configured for JSON output.
+    log_test_metric: Helper to log a specific test metric.
+    log_benchmark_metric: Helper to log benchmark results.
+
+Example:
+    >>> logger = get_structured_logger("test_run", "logs/test.json")
+    >>> logger.info("Training started", extra={"epoch": 1})
 """
+
+from __future__ import annotations
 
 import logging
 from pathlib import Path
@@ -19,8 +29,16 @@ def get_structured_logger(
     logstash_host: Optional[str] = None,
     log_file: Optional[str] = None,
 ) -> logging.Logger:
-    """
-    Get a logger configured for structured JSON output.
+    """Get a logger configured for structured JSON output.
+
+    Args:
+        name: Name of the logger instance. Defaults to "wsmart.structured".
+        level: Logging level (e.g. logging.INFO). Defaults to logging.INFO.
+        logstash_host: Optional hostname of a Logstash listener. Defaults to None.
+        log_file: Optional local file path for JSON logging. Defaults to None.
+
+    Returns:
+        logging.Logger: The configured structured logger.
     """
     logger = logging.getLogger(name)
     logger.setLevel(level)
@@ -48,8 +66,14 @@ def get_structured_logger(
     return logger
 
 
-def log_test_metric(name: str, value: Any, logger_name: str = "wsmart.structured"):
-    """Convenience function to log a test metric."""
+def log_test_metric(name: str, value: Any, logger_name: str = "wsmart.structured") -> None:
+    """Convenience function to log a test metric.
+
+    Args:
+        name: The name of the metric.
+        value: The value of the metric.
+        logger_name: The logger to use. Defaults to "wsmart.structured".
+    """
     logger = logging.getLogger(logger_name)
     extra = {"type": "test_metric", "metric_name": name, "metric_value": value}
     logger.info(f"Metric: {name}={value}", extra={"extra_fields": extra})
@@ -60,11 +84,15 @@ def log_benchmark_metric(
     metrics: Dict[str, Any],
     metadata: Optional[Dict[str, Any]] = None,
     logger_name: str = "wsmart.benchmark",
-):
-    """
-    Convenience function to log benchmark metrics.
-    """
+) -> None:
+    """Convenience function to log benchmark metrics.
 
+    Args:
+        benchmark: The name of the benchmark.
+        metrics: Dictionary of metric values.
+        metadata: Optional metadata dictionary. Defaults to None.
+        logger_name: The logger to use. Defaults to "wsmart.benchmark".
+    """
     # Ensure logger is initialized with a file if not already
     logger = logging.getLogger(logger_name)
     if not logger.handlers:

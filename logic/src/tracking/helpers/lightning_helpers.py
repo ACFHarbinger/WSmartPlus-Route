@@ -1,4 +1,19 @@
-"""Helper functions and utilities for the WSTracker Lightning integration."""
+"""Helper functions and utilities for the WSTracker Lightning integration.
+
+This module provides support logic for the :class:`TrackingCallback`,
+including hook registration mechanisms, visualization orchestration (attention
+heatmaps, embeddings, loss landscapes), and metric extraction utilities. It
+acts as the glue between PyTorch Lightning's lifecycle and the WSTracker API.
+
+Attributes:
+    register_monitoring_hooks: Configures model hooks for activation/gradient tracking.
+    run_periodic_visualisations: Triggers high-level artifact generation.
+    log_checkpoint_artifact: Registers model checkpoints in the run database.
+
+Example:
+    >>> from logic.src.tracking.helpers.lightning_helpers import extract_metrics
+    >>> metrics = extract_metrics(trainer.callback_metrics, prefix="train/")
+"""
 
 from __future__ import annotations
 
@@ -71,7 +86,16 @@ logger = get_pylogger(__name__)
 
 
 def _opt(cfg: Optional["TrackingConfig"], attr: str, default: Any = False) -> Any:
-    """Read a flag from the tracking config, defaulting when absent."""
+    """Reads a configuration flag with a fallback value.
+
+    Args:
+        cfg: The tracking configuration object.
+        attr: Attribute name to read.
+        default: Fallback value if configuration is None or attribute is missing.
+
+    Returns:
+        Any: The configuration value or default.
+    """
     if cfg is None:
         return default
     return getattr(cfg, attr, default)
@@ -85,7 +109,16 @@ def _opt(cfg: Optional["TrackingConfig"], attr: str, default: Any = False) -> An
 def register_monitoring_hooks(
     cfg: Optional["TrackingConfig"], pl_module: pl.LightningModule, hook_data: Dict[str, Any]
 ) -> None:
-    """Register monitoring hooks based on tracking config flags."""
+    """Configures monitoring hooks on the module based on settings.
+
+    Registers hooks for gradients, activations, weight distributions, and
+    NaN detection if enabled in the tracking configuration.
+
+    Args:
+        cfg: The tracking configuration defining which hooks to enable.
+        pl_module: The Lightning module to instrument.
+        hook_data: Shared dictionary to store hook handles for later removal.
+    """
     if add_activation_statistics_hook is None:
         logger.debug("Hooks module not available, skipping hook registration")
         return
@@ -116,7 +149,13 @@ def register_monitoring_hooks(
 
 
 def log_hook_stats_to_run(run: Any, epoch: int, hook_data: Dict[str, Any]) -> None:
-    """Forward accumulated hook statistics to WSTracker."""
+    """Processes and logs accumulated hook statistics to the WSTracker run.
+
+    Args:
+        run: The active tracking run.
+        epoch: Current epoch index for metric step logging.
+        hook_data: Dictionary containing active hook handles and statistics.
+    """
     if register_hooks_with_run is None:
         return
 
@@ -143,7 +182,11 @@ def log_hook_stats_to_run(run: Any, epoch: int, hook_data: Dict[str, Any]) -> No
 
 
 def remove_monitoring_hooks(hook_data: Dict[str, Any]) -> None:
-    """Remove all registered monitoring hooks."""
+    """Detaches and clears all registered monitoring hooks from the model.
+
+    Args:
+        hook_data: Dictionary containing currently active hook handles.
+    """
     if remove_grad_hooks is None or remove_act_hooks is None:
         return
 
@@ -171,7 +214,14 @@ def _log_attention_heatmaps(
     pl_module: pl.LightningModule,
     epoch: int,
 ) -> None:
-    """Log attention heatmaps."""
+    """Generates and logs attention heatmap visualizations.
+
+    Args:
+        log_dir: Base directory for storing visualization artifacts.
+        cfg: Tracking configuration object.
+        pl_module: The Lightning module containing the policy networks.
+        epoch: Current epoch index for versioning the artifacts.
+    """
     if _opt(cfg, "log_attention_heatmaps"):
         try:
             if plot_attention_heatmaps is not None:
@@ -191,7 +241,14 @@ def _log_embeddings(
     pl_module: pl.LightningModule,
     epoch: int,
 ) -> None:
-    """Log node embeddings."""
+    """Generates and logs weight distribution and node embedding projections.
+
+    Args:
+        log_dir: Base directory for storing visualization artifacts.
+        cfg: Tracking configuration object.
+        pl_module: The Lightning module containing the policy networks.
+        epoch: Current epoch index.
+    """
     if _opt(cfg, "log_embeddings"):
         try:
             if log_weight_distributions is not None and project_node_embeddings is not None:
@@ -220,7 +277,14 @@ def _log_loss_landscape(
     pl_module: pl.LightningModule,
     epoch: int,
 ) -> None:
-    """Log loss landscape."""
+    """Computes and logs a 2D projection of the loss landscape.
+
+    Args:
+        log_dir: Base directory for output.
+        cfg: Tracking configuration object.
+        pl_module: The Lightning module to perturb.
+        epoch: Current epoch index.
+    """
     if _opt(cfg, "log_loss_landscape"):
         try:
             if plot_loss_landscape is not None:
@@ -250,16 +314,21 @@ def run_periodic_visualisations(
     pl_module: pl.LightningModule,
     epoch: int,
 ) -> None:
-    """Run configured visualisations (attention heatmaps, embeddings, loss landscape)."""
+    """Dispatches all scheduled visualization tasks for the current epoch.
+
+    Args:
+        cfg: The tracking configuration defining which plots are enabled.
+        pl_module: The Lightning module being trained.
+        epoch: Current epoch index.
+    """
     log_dir = _opt(cfg, "log_dir", "logs")
     _log_attention_heatmaps(log_dir, cfg, pl_module, epoch)
     _log_embeddings(log_dir, cfg, pl_module, epoch)
     _log_loss_landscape(log_dir, cfg, pl_module, epoch)
-    return
 
 
 def log_execution_profiling_report() -> None:
-    """Generate and log execution profiling report to WSTracker."""
+    """Gathers the latest profiling data and logs the report to the active run."""
     try:
         if _profiler_instance is not None:
             report = _profiler_instance.get_report()
@@ -277,7 +346,15 @@ def extract_metrics(
     callback_metrics: Dict[str, Any],
     prefix: str,
 ) -> Dict[str, float]:
-    """Extract metrics from Lightning callback_metrics that begin with prefix."""
+    """Filters and formats metrics from a callback dictionary by prefix.
+
+    Args:
+        callback_metrics: Dictionary of metrics (usually trainer.callback_metrics).
+        prefix: Metric name prefix to filter by (e.g., 'val/').
+
+    Returns:
+        Dict[str, float]: Filtered mapping of metric names to scalars.
+    """
     result: Dict[str, float] = {}
     for k, v in callback_metrics.items():
         if k.startswith(prefix):
@@ -291,7 +368,13 @@ def log_checkpoint_artifact(
     cb: ModelCheckpoint,
     epoch: int,
 ) -> None:
-    """Log Lightning checkpoint paths directly as run artifacts."""
+    """Registers best and last model checkpoints as run artifacts.
+
+    Args:
+        run: The active tracking run.
+        cb: The ModelCheckpoint callback instance.
+        epoch: Current epoch index for checkpoint metadata.
+    """
     for attr, label in [("best_model_path", "best_checkpoint"), ("last_model_path", "last_checkpoint")]:
         path: Optional[str] = getattr(cb, attr, None)
         if path and os.path.exists(path):

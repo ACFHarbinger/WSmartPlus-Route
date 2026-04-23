@@ -1,17 +1,26 @@
 """Database management commands for the WSmart-Route tracking store.
 
-All SQL is loaded from the sql/ subdirectory via sql_loader.
+This module provides the core CLI implementations for maintaining the
+experiment tracking database. It includes utilities for database inspection,
+cleanup, compaction, data pruning based on age or status, and exporting
+run records to JSON format.
 
-Usage::
+All SQL logic is decoupled into the `sql/` subdirectory and loaded
+dynamically via `sql_loader`.
 
-    python -m logic.src.tracking.database.commands inspect
-    python -m logic.src.tracking.database.commands compact
-    python -m logic.src.tracking.database.commands clean
-    python -m logic.src.tracking.database.commands stats [--experiment NAME]
-    python -m logic.src.tracking.database.commands metrics [--key KEY] [--experiment NAME]
-    python -m logic.src.tracking.database.commands prune [--older-than N] [--status S] [--experiment E] [--dry-run]
-    python -m logic.src.tracking.database.commands export [--run-id UUID] [--experiment E] [--latest] [-o FILE]
+Attributes:
+    inspect_database: Prints a high-level summary of the tracking store state.
+    clean_database: Removes all data while preserving the database schema.
+    compact_database: Performs SQLite VACUUM and integrity checks.
+    prune_database: Removes old or failed runs based on retention policy.
+    export_run: Serializes a complete run record to JSON.
+
+Example:
+    >>> from logic.src.tracking.database.commands import compact_database
+    >>> compact_database()
 """
+
+from __future__ import annotations
 
 import json
 import os
@@ -29,6 +38,11 @@ from logic.src.tracking.database.sql_loader import load_sections, load_sql
 
 
 def inspect_database() -> None:
+    """Prints a high-level summary of the tracking database.
+
+    Displays file size, experiment list, run counts by status and type,
+    record totals (metrics, params, artifacts), and the most recent runs.
+    """
     if not os.path.exists(DB_PATH):
         print("ℹ️  Tracking database not found.")
         return
@@ -85,6 +99,11 @@ def inspect_database() -> None:
 
 
 def clean_database() -> None:
+    """Removes all experiments and runs, resetting the database to empty.
+
+    The schema structure is preserved. Use with caution as this operation
+    is irreversible.
+    """
     if not os.path.exists(DB_PATH):
         print("ℹ️  Tracking database not found.")
         return
@@ -103,6 +122,11 @@ def clean_database() -> None:
 
 
 def compact_database() -> None:
+    """Defragments the SQLite file and performs an integrity check.
+
+    Runs PRAGMA integrity_check followed by VACUUM to reclaim disk space
+    from deleted records.
+    """
     if not os.path.exists(DB_PATH):
         print("ℹ️  Tracking database not found.")
         return
@@ -149,6 +173,17 @@ def prune_database(
     experiment_name: str = "",
     dry_run: bool = False,
 ) -> None:
+    """Removes runs matching the specified criteria to prevent DB bloating.
+
+    Args:
+        older_than_days: Minimum age of runs to remove. Defaults to 30.
+        status: Specific run status to target (e.g., 'failed', 'killed').
+            Defaults to "failed".
+        experiment_name: Optional filter to restrict pruning to one experiment.
+            Defaults to "".
+        dry_run: If True, only lists candidates without deleting them.
+            Defaults to False.
+    """
     if not os.path.exists(DB_PATH):
         print("ℹ️  Tracking database not found.")
         return
@@ -201,13 +236,24 @@ def prune_database(
 
 
 def _resolve_run_id(conn: sqlite3.Connection, run_id: str, experiment_name: str, latest: bool) -> str:
+    """Internal helper to resolve a human-provided run identifier to a UUID.
+
+    Args:
+        conn: Managed SQLite connection.
+        run_id: UUID or UUID prefix.
+        experiment_name: Context for 'latest' resolution.
+        latest: If True, resolves to the most recent run in the context.
+
+    Returns:
+        str: Fully qualified UUID.
+    """
     sql = load_sections("resolve_run.sql")
     if latest or (not run_id and experiment_name):
         row = conn.execute(sql["latest"], {"experiment_name": experiment_name}).fetchone()
         if row is None:
             print("❌ No runs found.", file=sys.stderr)
             sys.exit(1)
-        return row["id"]
+        return str(row["id"])
     if not run_id:
         print("❌ Provide --run-id, --latest, or --experiment.", file=sys.stderr)
         sys.exit(1)
@@ -216,11 +262,24 @@ def _resolve_run_id(conn: sqlite3.Connection, run_id: str, experiment_name: str,
         if row is None:
             print(f"❌ No run matching prefix '{run_id}'.", file=sys.stderr)
             sys.exit(1)
-        return row["id"]
+        return str(row["id"])
     return run_id
 
 
 def export_run(run_id: str = "", experiment_name: str = "", latest: bool = False, output: str = "") -> None:
+    """Exports all data for a specific run into a JSON file.
+
+    Includes metadata, tags, parameters, full metric history, artifact
+    registrations, and dataset lifecycle events.
+
+    Args:
+        run_id: UUID or UUID prefix of the run to export. Defaults to "".
+        experiment_name: Optional context for latest-run resolution.
+            Defaults to "".
+        latest: If True, exports the most recent run. Defaults to False.
+        output: Optional filename to write the JSON to (defaults to stdout).
+            Defaults to "".
+    """
     if not os.path.exists(DB_PATH):
         print("❌ Tracking database not found.", file=sys.stderr)
         sys.exit(1)

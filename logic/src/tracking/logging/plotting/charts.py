@@ -1,5 +1,16 @@
-"""
-Line chart plotting utilities.
+"""Line chart plotting utilities for tracking metrics.
+
+This module provides high-level functions for generating 2D line charts,
+scatter plots, and Pareto front visualizations. It wraps matplotlib to
+provide consistent styling, axis scaling, and automatic annotation of
+significant data points across different routing policies.
+
+Attributes:
+    plot_linechart: The primary entry point for generating metric charts.
+
+Example:
+    >>> from logic.src.tracking.logging.plotting.charts import plot_linechart
+    >>> plot_linechart("metrics.png", np.array([[1, 2], [3, 4]]), plt.plot, ["greedy"])
 """
 
 from __future__ import annotations
@@ -122,7 +133,16 @@ def plot_linechart(
 def _plot_2d_graph(
     plot_func: Callable[..., Any], graph_log: np.ndarray, markers: Optional[List[str]]
 ) -> Dict[int, List[Tuple[float, float]]]:
-    """Helper to plot 2D graph log data."""
+    """Helper to plot 2D graph log data.
+
+    Args:
+        plot_func: The plotting function to use.
+        graph_log: The data array to plot.
+        markers: Optional list of markers for each point.
+
+    Returns:
+        Dict[int, List[Tuple[float, float]]]: Points indexed by bin (always 0 for 2D).
+    """
     points_by_nbins: Dict[int, List[Tuple[float, float]]] = {0: []}
     for id_val, ll in enumerate(graph_log):
         if markers is not None:
@@ -135,7 +155,11 @@ def _plot_2d_graph(
 
 
 def _annotate_plot(graph_log: np.ndarray) -> None:
-    """Helper to annotate plot points."""
+    """Helper to annotate plot points.
+
+    Args:
+        graph_log: The data log containing points to annotate.
+    """
     for lg in zip(*graph_log, strict=False):
         for id_val, xy in enumerate(
             zip(list(zip(*lg, strict=False))[0], list(zip(*lg, strict=False))[5], strict=False)
@@ -145,7 +169,14 @@ def _annotate_plot(graph_log: np.ndarray) -> None:
 
 
 def _set_plot_attributes(scale: str, x_label: Optional[str], y_label: Optional[str], policies: List[str]) -> None:
-    """Helper to set plot scales, labels and legend."""
+    """Helper to set plot scales, labels and legend.
+
+    Args:
+        scale: Axis scale ('linear' or 'log').
+        x_label: Text for the X-axis label.
+        y_label: Text for the Y-axis label.
+        policies: List of policy names for the legend.
+    """
     if scale != "linear":
         plt.yscale(scale)
         plt.xscale(scale)
@@ -157,7 +188,12 @@ def _set_plot_attributes(scale: str, x_label: Optional[str], y_label: Optional[s
 
 
 def _save_plot(output_dest: str, x_values: Optional[Union[List[float], np.ndarray]]) -> None:
-    """Helper to save plot with appropriate parameters."""
+    """Helper to save plot with appropriate parameters.
+
+    Args:
+        output_dest: File path where the plot will be saved.
+        x_values: Optional custom X values; if present, bbox_inches is not used.
+    """
     if x_values is not None:
         plt.savefig(output_dest)
     else:
@@ -165,7 +201,11 @@ def _save_plot(output_dest: str, x_values: Optional[Union[List[float], np.ndarra
 
 
 def _add_scatter_marker(xy: Tuple[float, float]) -> None:
-    """Helper to add a specific scatter marker to the plot."""
+    """Helper to add a specific scatter marker to the plot.
+
+    Args:
+        xy: The (x, y) coordinates for the marker.
+    """
     plt.scatter(
         xy[0],
         xy[1],
@@ -179,7 +219,13 @@ def _add_scatter_marker(xy: Tuple[float, float]) -> None:
 
 
 def _plot_pareto_front(points: List[Tuple[float, float]], dominance_ls: List[int], id_nbins: int) -> None:
-    """Helper to calculate and plot Pareto front for a set of points."""
+    """Helper to calculate and plot Pareto front for a set of points.
+
+    Args:
+        points: List of (x, y) coordinates.
+        dominance_ls: Dominance flags for each point (1 if dominant).
+        id_nbins: Identifier for the bin/group of points.
+    """
     pareto_points = [p for i, p in enumerate(points) if dominance_ls[i] == 1]
     pareto_points.sort(key=lambda p: p[0])
 
@@ -199,7 +245,14 @@ def _plot_pareto_front(points: List[Tuple[float, float]], dominance_ls: List[int
 
 
 def _calculate_dominance(points: List[Tuple[float, float]]) -> List[int]:
-    """Calculate Pareto dominance for a list of points (min x, max y)."""
+    """Calculate Pareto dominance for a list of points (min x, max y).
+
+    Args:
+        points: List of (x, y) coordinates to evaluate.
+
+    Returns:
+        List[int]: List of binary flags where 1 indicates a non-dominated point.
+    """
     dominance_ls = [0] * len(points)
     for id_point, point in enumerate(points):
         dominated = False

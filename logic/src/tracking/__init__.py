@@ -1,83 +1,20 @@
 """WSTracker — centralized MLFlow-style experiment tracking for WSmart-Route.
 
-Public API
-----------
-* :func:`init` — initialise the global tracker and return it.
-* :func:`get_tracker` — return the active :class:`Tracker`, or ``None``.
-* :func:`get_active_run` — return the active :class:`Run` for this process.
-* :func:`init_worker` — attach an existing run in a worker sub-process.
-* :class:`Tracker` — manages experiments and creates runs.
-* :class:`Run` — logs metrics, params, tags, artifacts, and dataset events.
-
-Submodules
-----------
-* :mod:`logic.src.tracking.logging` — logging utilities (canonical location).
-* :mod:`logic.src.tracking.profiling` — execution profiling utilities.
-* :mod:`logic.src.tracking.hooks` — PyTorch forward/backward hooks.
-
-  Both ``logic.src.tracking.logging``, ``logic.src.tracking.profiling``, and
-  ``logic.src.tracking.hooks`` are backwards-compatible shims that re-export from
-  these canonical locations.'
+This package provides the primary interface for tracking Experiments, Runs,
+Metrics, and Parameters. It includes automated integrations for PyTorch
+Lightning and manual logging capabilities for simulation and evaluation tasks.
 
 Attributes:
-    _DEFAULT_TRACKING_URI: Default tracking URI for MLFlow.
-    init: Initialises the global tracker and returns it.
-    init_worker: Attach an existing run in a worker sub-process.
-    core: Core tracking functionality.
-    database: Database-related functionality.
-    integrations: Integration-related functionality.
-    logging: Logging functionality.
-    profiling: Profiling functionality.
-    hooks: Hook-related functionality.
-    viz_mixin: Output visualization-related functionality.
+    init: Primary entry-point to initialize the global Tracker.
+    init_worker: Utility to attach a sub-process to an existing parent run.
+    get_tracker: Accessor for the active global tracker instance.
+    get_active_run: Accessor for the active process-local run.
 
 Example:
-    Training
-    --------
-    ::
-
-    import logic.src.tracking as wst
-
-    tracker = wst.init(
-        experiment_name="AM-VRPP-50",
-        tracking_uri="assets/tracking",
-        run_type="training",
-        tags={"model": "am", "problem": "vrpp"},
-    )
-    with tracker.start_run("AM-VRPP-50", run_type="training") as run:
-        run.log_params({"lr": 1e-4, "batch_size": 256})
-        trainer.fit(model)          # TrackingCallback logs metrics automatically
-        run.log_artifact(model_path, artifact_type="model")
-
-    Simulation, worker process
-    --------------------------
-    ::
-
-    # Worker process — called via init_single_sim_worker
-    wst.init_worker(tracking_uri="assets/tracking", run_id="<uuid>")
-
-    run = wst.get_active_run()
-    if run:
-        run.log_metric("gurobi/s0/profit", 123.4, step=day)
-
-    Hooks integration
-    -----------------
-    ::
-
-    from logic.src.tracking.hooks import add_gradient_monitoring_hooks, register_hooks_with_run
-    hook_data = add_gradient_monitoring_hooks(model)
-    loss.backward()
-    run = wst.get_active_run()
-    register_hooks_with_run(hook_data, run, prefix="train/hooks")
-
-    Profiling
-    ---------
-    ::
-
-    from logic.src.tracking.profiling import start_global_profiling, stop_global_profiling
-    start_global_profiling()
-    train(...)
-    stop_global_profiling()  # logs CSV as artifact to active run automatically
+    >>> import logic.src.tracking as wst
+    >>> tracker = wst.init("My-Experiment")
+    >>> with tracker.start_run("Run-1") as run:
+    ...     run.log_metric("accuracy", 0.95)
 """
 
 from __future__ import annotations
@@ -141,23 +78,22 @@ def init(
     description: str = "",
     buffer_size: int = 200,
 ) -> Tracker:
-    """Initialise the global :class:`Tracker` and return it.
+    """Initializes the global experiment Tracker.
 
-    This is the primary entry-point for the main process.  Calling it a
-    second time replaces the module-level tracker singleton.
+    This is the primary entry-point for a main process (e.g., training). Calling
+    this function configures the singleton tracker instance for the process.
 
     Args:
-        experiment_name: Name of the experiment to create or resume.
-        tracking_uri: Directory for ``tracking.db`` and artifact storage.
-            Defaults to ``assets/tracking`` relative to ``ROOT_DIR``.
-        run_type: Semantic run type (``'training'``, ``'simulation'``, …).
-        tags: Tags to attach to every new run (informational only here;
-            tags are applied per-run via :meth:`Tracker.start_run`).
-        description: Human-readable experiment description.
-        buffer_size: Metric buffer size per run before a DB flush.
+        experiment_name: Human-readable name of the experiment.
+        tracking_uri: Optional directory path for the tracking database and
+            artifacts. Defaults to 'assets/tracking' within the project root.
+        run_type: Category identifier for runs created via this tracker.
+        tags: Optional global tags to associate with the experiment.
+        description: Textual description of the experiment.
+        buffer_size: Default metric buffer size for runs created by this tracker.
 
     Returns:
-        The initialised :class:`Tracker` singleton.
+        Tracker: The initialized process-global Tracker instance.
     """
     if tracking_uri is None:
         base_uri = "test_tracking" if os.environ.get("TEST_MODE") == "true" else _DEFAULT_TRACKING_URI
@@ -173,19 +109,18 @@ def init_worker(
     run_id: str,
     buffer_size: int = 200,
 ) -> Optional[Run]:
-    """Attach an existing run in a **worker sub-process**.
+    """Attaches a worker sub-process to a specific parent Run.
 
-    Called inside ``init_single_sim_worker`` to give parallel simulation
-    workers write access to the parent run without creating a new record.
+    Typically used in parallel simulation workers to ensure metrics are
+    logged back to the same run record without creating duplicate entries.
 
     Args:
-        tracking_uri: Same ``tracking_uri`` used by the parent process.
-        run_id: UUID of the run created by the parent process.
-        buffer_size: Metric buffer size for this worker.
+        tracking_uri: The same database URI used by the parent process.
+        run_id: The UUID of the active run created by the parent.
+        buffer_size: Metric buffer capacity for this worker process.
 
     Returns:
-        The attached :class:`Run` (now also set as the process-local active
-        run), or ``None`` if *run_id* is not found.
+        Optional[Run]: The attached Run instance if the ID exists, else None.
     """
     try:
         tracker = Tracker(tracking_uri=tracking_uri, buffer_size=buffer_size)
